@@ -237,10 +237,10 @@ function genderappearancecheck() {
 	/* Pregnant Belly */
 	if (V.sexStats === undefined) {
 		// do glorious nothing
-	} else if (V.sexStats.vagina.pregnancy.bellySize >= 8) {
+	} else if (playerBellySize() >= 8) {
 		addfemininityfromfactor(Math.clamp(100000, 0, Infinity), "임신한 배");
-	} else if (V.sexStats.vagina.pregnancy.bellySize >= 5) {
-		addfemininityfromfactor(Math.clamp((V.sexStats.vagina.pregnancy.bellySize - 4) * 500, 0, Infinity), "임신한 배");
+	} else if (playerBellySize() >= 5) {
+		addfemininityfromfactor(Math.clamp((playerBellySize() - 4) * 500, 0, Infinity), "임신한 배");
 	}
 	/* Body writing */
 	Wikifier.wikifyEval("<<bodywriting_exposure_check>>"); // TODO convert to JS when possible

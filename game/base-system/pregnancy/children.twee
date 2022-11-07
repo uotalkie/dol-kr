@@ -72,8 +72,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 /*args[0] - childId, args[1] - new name*/
 <<widget "childRename">>
 <<if _args[0]>>
-	<<getUsedChildrenNames>>
-	<<set $children[_args[0]].name to generateBabyName(_args[1], $children[_args[0]].gender, _usedChildrenNames)>>
+	<<set $children[_args[0]].name to generateBabyName(_args[1], $children[_args[0]].gender, _args[0])>>
 <</if>>
 <</widget>>
 
@@ -438,7 +437,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 
 /*args[0] - location, args[1] - toyid, toy set or toy name, args[2] - option of either "notext" or "lowercase"*/
 <<widget "childtoy">><<silently>>
-<<set _toys to $storedToys[_args[0]]>>
+<<set _toys to $storedChildrenToys[_args[0]]>>
 <<if _toys>>
 	<<if between(_args[1], 0, _toys.length - 1)>>
 		<<set _toy to _toys[_args[1]]>>
@@ -495,7 +494,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 <<widget "childViewerDisplayElements">>
 <<for $_i to _childStart; $_i lt _childEnd; $_i++>>
 	<<capture $_i>>
-		<div @id="'child-' + $_i" class="childrenUi">
+		<div @id="'child-' + _childrenIds[$_i]" class="childrenUi">
 			<<childViewerElement `_childrenIds[$_i]`>>
 		</div>
 	<</capture>>
@@ -543,16 +542,16 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<case "h">>후타나리
 	<</switch>>
 	<br>
-	<label><<print '<<textbox "_children['+_args[0]+']" $children['+_args[0]+'].name>>'>></label>
+	<label>Name: <<textbox "_children[_args[0]]" `$children[_args[0]].name`>></label>
 	<br>
 	<<childActivity _args[0]>>
-	<<childViewerHiddenElements _args[0]>>
+	<<childViewerHiddenElements _args[0] _args[1]>>
 <</capture>>
 <</widget>>
 
 <<widget "childViewerHiddenElements">>
 <<if _args[0]>>
-	<div @id="'childViewerHidden-'+_args[0]" class="hidden">
+	<div @id="'childViewerHidden-'+_args[0]" @class="(_args[1] ? '' : 'hidden')">
 		어머니:
 		<<if $children[_args[0]].motherKnown>>
 			<<print $children[_args[0]].mother>>
@@ -580,21 +579,20 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<</if>>
 		<span class="no-numberify">
 		<<link "이름 변경">>
-			<<getUsedChildrenNames>>
-			<<set $children[_args[0]].name to generateBabyName(_children[_args[0]], $children[_args[0]].gender, _usedChildrenNames)>>
-			<<replace `"#child-" + _args[0]`>><<birthChildElement _args[0]>><</replace>>
+			<<set $children[_args[0]].name to generateBabyName(_children[_args[0]], $children[_args[0]].gender, _args[0])>>
+			<<replace `"#child-" + _args[0]`>><<childViewerElement _args[0] true>><</replace>>
 		<</link>> |
 		<<link "무작위 이름">>
-			<<getUsedChildrenNames>>
-			<<set $children[_args[0]].name to generateBabyName(undefined, $children[_args[0]].gender, _usedChildrenNames)>>
-			<<replace `"#child-" + _args[0]`>><<birthChildElement _args[0]>><</replace>>
+			<<set $children[_args[0]].name to generateBabyName(undefined, $children[_args[0]].gender, _args[0])>>
+			<<replace `"#child-" + _args[0]`>><<childViewerElement _args[0] true>><</replace>>
 		<</link>>
 		</span>
 		<br>
 		<small class="right">
-			saveId: <<print $saveId>>
+			ChildId: <<print $children[_args[0]].childId>>.
+			saveId: <<print $saveId>>.
 			<<if $saveName isnot "">>
-				| 이름: <<print $saveName>>
+				| 이름: <<print $saveName>>.
 			<</if>>
 		</small>
 	</div>
@@ -647,10 +645,7 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 		<<set $children[_args[0]].localVariables.activityHour to $hour>>
 	<</if>>
 	<span class="no-numberify">
-		<<if $children[_args[0]].localVariables.event is false>>
-			<br>
-			<<link "세부사항을 본다">><<childViewerHiddenElementsUnhide _args[0]>><</link>>
-		<</if>>
+		<<link "추가 세부사항을 본다">><<childViewerHiddenElementsUnhide _args[0]>><</link>>
 	</span>
 <</if>>
 <</widget>>
@@ -660,9 +655,9 @@ args[3] - "both" to include unrelated children or "only" to exclude the player c
 	<<else>>
 		<<set _toySets to []>>
 		<<set _toyNames to []>>
-		<<for $_i to 0; $_i lt $storedToys[$location].length; $_i++>>
-			<<run _toySets.pushUnique($storedToys[$location][$_i].set)>>
-			<<run _toyNames.pushUnique($storedToys[$location][$_i].name)>>
+		<<for $_i to 0; $_i lt $storedChildrenToys[$location].length; $_i++>>
+			<<run _toySets.pushUnique($storedChildrenToys[$location][$_i].set)>>
+			<<run _toyNames.pushUnique($storedChildrenToys[$location][$_i].name)>>
 		<</for>>
 		<<if between(_childTotalDays, 0, 100)>>
 			<<if $daystate is "night">>

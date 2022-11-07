@@ -20,11 +20,23 @@
 :: Toy Shop
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 
+<<if $player.inventory.childrenToys is undefined>>
+	<<set $player.inventory.childrenToys to []>>
+<</if>>
+<<if !$storedChildrenToys>><<set $storedChildrenToys to {}>><</if>>
+
 당신은 장난감 가게에 있다. 바닥부터 천장까지 모든 종류의 장난감들이, 대부붅은 박스 안에, 나머지들은 바로 가지고 놀 수 있도록 당신 앞에 놓여있다.
 <<if $pregnancyStats.humanToysUnlocked>>
 	여기에 있자니 당신은 당신의 아이들에 대해 생각하지 않을 수가 없다.
 <</if>>
-<<if random(0,200) gte 199 and $daystate isnot "night">>당신은 한 아이가 vrelcar를 타고 이리저리 돌아다니는 것을 발견한다.<</if>>
+<<if random(0,200) gt 199 and $daystate isnot "night">>
+	<br><br>
+	당신은 한 아이가 vrelcar를 타고 이리저리 돌아다니는 것을 발견한다.
+	<<if !$daily.seenVrelcar>>
+		<<set $daily.seenVrelcar to true>>
+		<<trauma -60>><<lltrauma>>
+	<</if>>
+<</if>>
 <br><br>
 
 <<if $daystate is "night">>
@@ -55,21 +67,18 @@
 			<br><br>
 		<</if>>
 
-		/*ToDo: Pregnancy, remove check to properly enable*/
-		<<if $pregnancyTesting>>
-			<<toySelection>>
-			<<if $exposed lte 1 and $daystate isnot "night" and $hour isnot 21>>
-				<<if $pregnancyStats.humanToysUnlocked>>
-					/*Baby Toys*/
-					<<link [[아기 딸랑이|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["babyRattle"])>><</link>>
-					<br>
-					<<link [[장난감 자동차|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["toyCar"])>><</link>>
-					<br>
-					<<link [[인형|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["dummy"])>><</link>>
-					<br>
-					<<link [[테디베어|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["teddyBear"])>><</link>>
-					<br><br>
-				<</if>>
+		<<toySelection>>
+		<<if $exposed lte 1 and $daystate isnot "night" and $hour isnot 21>>
+			<<if $pregnancyStats.humanToysUnlocked>>
+				/*Baby Toys*/
+				<<link [[아기 딸랑이|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["babyRattle"])>><</link>>
+				<br>
+				<<link [[장난감 자동차|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["toyCar"])>><</link>>
+				<br>
+				<<link [[인형|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["dummy"])>><</link>>
+				<br>
+				<<link [[테디베어|Toy Shop Item]]>><<set $selectedToy to clone(_toySelection["teddyBear"])>><</link>>
+				<br><br>
 			<</if>>
 		<</if>>
 		<<link [[떠난다|Shopping Centre Top]]>><</link>>
@@ -83,12 +92,12 @@
 <br><br>
 <<if $selectedToy.options>>
 	<<set _numberOnHand to {}>>
-	<<for _i to 0; _i lt $currentToys.length; _i++>>
-		<<if $currentToys[_i].set is $selectedToy.set>>
-			<<if _numberOnHand[$currentToys[_i].name] is undefined>>
-				<<set _numberOnHand[$currentToys[_i].name] to 1>>
+	<<for _i to 0; _i lt $player.inventory.childrenToys.length; _i++>>
+		<<if $player.inventory.childrenToys[_i].set is $selectedToy.set>>
+			<<if _numberOnHand[$player.inventory.childrenToys[_i].name] is undefined>>
+				<<set _numberOnHand[$player.inventory.childrenToys[_i].name] to 1>>
 			<<else>>
-				<<set _numberOnHand[$currentToys[_i].name]++>>
+				<<set _numberOnHand[$player.inventory.childrenToys[_i].name]++>>
 			<</if>>
 		<</if>>
 	<</for>>
@@ -104,7 +113,7 @@
 	<br><br>
 <</if>>
 
-<<if $currentToys.length gte 5>>
+<<if $player.inventory.childrenToys.length gte 5>>
 	당신은 한번에 장난감을 5개 이상 가질 수 없다.
 <<elseif $selectedToy.cost lte $money>>
 	<<link [[산다|Toy Shop]]>><<buyToy>><</link>>
@@ -199,6 +208,6 @@
 	<<run delete $selectedToy.selectedOption>>
 	<<run delete $selectedToy.options>>
 <</if>>
-<<set $currentToys.push(clone($selectedToy))>>
+<<run $player.inventory.childrenToys.push(clone($selectedToy))>>
 <<unset $selectedToy>>
 <</widget>>

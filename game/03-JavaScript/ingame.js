@@ -593,33 +593,6 @@ function updateAskColour() {
 }
 DefineMacroS("updateAskColour", updateAskColour);
 
-function generateBabyName(name, gender, usedNames) {
-	let result = "";
-	if (name != null && name !== "") {
-		result = name.replace(/[^a-zA-Z ]+/g, "");
-		return result.substring(0, 30);
-	} else {
-		let names = [];
-		switch (gender) {
-			case "m":
-				// eslint-disable-next-line prettier/prettier
-				names = ['Addison','Algernon','Allan','Alpha','Anton','Axel','Bazza','Benton','Bernard','Brand','Brett','Cale','Calvin','Carol','Chuck','Chucky','Clay','Cornelius','Crofton','Darden','Dax','Den','Deven','Digby','Don','Douglas','Driscoll','Duane','Duke','Edmund','Elsdon','Freeman','Gabby','Garland','George','Godfrey','Graeme','Grier','Hammond','Harlan','Hendrix','Herman','Hewie','Hugh','Indiana','Ingram','Jackie','Jasper','Jaxon','Jaycob','Jere','Kamden','Kelcey','Kendall','Kevin','Kian','Kieran','Kirby','Lanny','Lawson','Laz','Leland','Levi','Lindon','Linton','Lionel','Lonny','Lucas','Manley','Maverick','Merlyn','Michael','Monty','Murphy','Nate','Ned','Nowell','Odell','Ollie','Osbert','Otto','Paget','Pip','Quintin','Raymund','Ricky','Robert','Ross','Rudolph','Sammy','Scotty','Stacey','Thad','Theodore','Tommy','Trey','Tyson','Val','Vernon','Willis','Wilmer','Winton','Wisdom'];
-				break;
-			case "f":
-				// eslint-disable-next-line prettier/prettier
-				names = ['Adelyn','Alene','Alexa','Aliah','Alyson','Angelica','Annalise','Annora','Azaria','Bessie','Betsy','Bettie','Biddy','Brianne','Camellia','Camille','Camryn','Caroline','Chastity','Chelsea','Chelsey','Cindy','Clematis','Darla','Deb','Debby','Dortha','Eleanora','Eliana','Elsabeth','Elyse','Emerson','Emmeline','Erica','Ettie','Eustacia','Evelyn','Gabrielle','Georgiana','Harper','Harrietta','Haylie','Haze','Hunter','Hyacinth','Indiana','Indie','Jacquetta','Janie','Jannine','Jonquil','Kaelyn','Kam','Khloe','Kolleen','Korrine','Kourtney','Krystine','Lavena','Leeann','Lela','Lesleigh','Lindsie','Lorena','Lucile','Luvinia','Lyn','Lyssa','Madeleine','Marian','Maudie','Maureen','Maxine','Melody','Milani','Misti','Nat','Noelle','Ottoline','Paige','Pauline','Payton','Pearl','Perlie','Petronel','Phebe','Posie','Praise','Rexana','Serena','Sharalyn','Sharla','Shauna','Sky','Sybella','Tracy','Tresha','Trudi','Wallis','Wilda','Wren','Yvette'];
-				break;
-		}
-		// eslint-disable-next-line prettier/prettier
-		names.pushUnique('Aaren','Addison','Alex','Alpha','Andie','Arden','Ariel','Artie','Ashton','Aston','Aubrey','Beau','Bernie','Bertie','Beverly','Bobbie','Brooklyn','Caelan','Cameron','Carol','Cary','Casey','Channing','Charley','Cherokee','Cheyenne','Coby','Codie','Collyn','Cyan','Dale','Dallas','Dana','Darby','Dee','Derby','Devan','Devin','Emmerson','Emory','Finley','Flannery','Florence','Gabby','Garnet','Garnett','Gray','Hadyn','Harlow','Hollis','Jackie','Jade','Jae','Jaiden','Johnnie','Joyce','Justice','Kam','Kelcey','Kelsey','Leslie','Lindsey','Lorin','Lyric','Maitland','Marley','McKinley','Merlyn','Murphy','Nicky','Oakley','Odell','Pacey','Paget','Peyton','Presley','Rain','Raleigh','Reagan','Regan','Reilly','Remington','Robbie','Rory','Royale','Sage','Sam','Schuyler','Selby','Shae','Shaye','Shelly','Skylar','Sloan','Stacey','Stacy','Tayler','Tommie','Tracey','Tristen','Tristin','Val');
-		names.delete(usedNames);
-		result = names[random(0, names.length - 1)];
-		return result;
-	}
-}
-window.generateBabyName = generateBabyName;
-DefineMacroS("generateBabyName", generateBabyName);
-
 function bulkProduceValue(plant, quantity = 250) {
 	if (plant != null) {
 		const baseCost = (plant.plant_cost * quantity) / 2;
@@ -630,7 +603,7 @@ function bulkProduceValue(plant, quantity = 250) {
 window.bulkProduceValue = bulkProduceValue;
 
 function pregnancyBellyVisible() {
-	const size = State.variables.sexStats.vagina.pregnancy.bellySize;
+	const size = playerBellySize();
 	if (size <= 7) return false;
 	if (size <= 11 && State.variables.worn.upper.name !== "naked" && State.variables.worn.upper.type.includes("bellyShow")) return false;
 	if (size <= 17 && State.variables.worn.upper.type.includes("bellyHide")) return false;
@@ -1180,7 +1153,7 @@ function currentSkillValue(skill) {
 	}
 	if (
 		["physique", "danceskill", "swimmingskill", "athletics"].includes(skill) &&
-		V.sexStats.vagina.pregnancy.bellySize >= 10
+		playerBellySize() >= 10
 	) {
 		switch (V.pregnancyStats.mother) {
 			case 0:
@@ -1200,7 +1173,7 @@ function currentSkillValue(skill) {
 				break;
 		}
 		result = Math.floor(
-			result * (1 - V.sexStats.vagina.pregnancy.bellySize / T.pregnancyModifier)
+			result * (1 - playerBellySize() / T.pregnancyModifier)
 		);
 	}
 	let modifier = 1;
