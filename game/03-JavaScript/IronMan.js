@@ -270,7 +270,9 @@ var IronMan = (Save => {
 		const finalData = btoa(encodedData);
 		/* Navigate to the export-import page. */
 		T.presetData = finalData;
-		Wikifier.wikifyEval('<<overlayReplace "optionsExportImport">><<unset _currentOverlay>>');
+		Wikifier.wikifyEval(
+			"<<toggleTab>><<replace #customOverlayContent>><<optionsExportImport>><</replace>>"
+		);
 		return finalData;
 	}
 
