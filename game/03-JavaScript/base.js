@@ -90,8 +90,9 @@ Macro.add("twinescript", {
  * Can iterate over
  *
  * Copied from SugarCube sources.
- * @param range
- * @param {function(key,value):void} handler
+ *
+ * @param {any} range Can be String or Object.
+ * @param {function(string,any):void} handler Function for each key and value pair.
  */
 function rangeIterate(range, handler) {
 	let list;
@@ -128,7 +129,12 @@ function rangeIterate(range, handler) {
 window.rangeIterate = rangeIterate;
 
 /**
- * Define macro, passing arguments to function and store them in $args, preserving & restoring previous $args
+ * Define macro, passing arguments to function and store them in $args, preserving & restoring previous $args.
+ *
+ * @param {string} macroName
+ * @param {Function} macroFunction
+ * @param {object} tags
+ * @param {boolean} skipArgs
  */
 function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 	Macro.add(macroName, {
@@ -154,7 +160,15 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 }
 
 /**
- * Define macro, where macroFunction returns text to wikify & print
+ * Define macro, passing arguments to function and store them in $args, preserving & restoring previous $args.
+ *
+ * Expectation: macroFunction returns text to wikify & print.
+ *
+ * @param {string} macroName
+ * @param {Function} macroFunction
+ * @param {object} tags
+ * @param {boolean} skipArgs
+ * @param {boolean} maintainContext
  */
 function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext) {
 	DefineMacro(
@@ -168,8 +182,10 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
 }
 
 /**
- * @param worn clothing article, State.variables.worn.XXXX
- * @param slot clothing article slot used
+ * Creates and returns the keyword describing the integrity of a clothing article.
+ *
+ * @param {object} worn clothing article, State.variables.worn.XXXX
+ * @param {string} slot clothing article slot used
  * @returns {string} condition key word ("tattered"|"torn|"frayed"|"full")
  */
 function integrityKeyword(worn, slot) {
@@ -187,8 +203,10 @@ function integrityKeyword(worn, slot) {
 window.integrityKeyword = integrityKeyword;
 
 /**
- * @param worn clothing article, State.variables.worn.XXXX
- * @param slot clothing article, State.variables.worn.XXXX
+ * Returns the integrity prefix of the clothing object.
+ *
+ * @param {object} worn clothing article, State.variables.worn.XXXX
+ * @param {string} slot clothing article slot used
  * @returns {string} printable integrity prefix
  */
 function integrityWord(worn, slot) {
@@ -249,7 +267,7 @@ function faceintegrity() {
 DefineMacroS("faceintegrity", faceintegrity);
 
 /**
- * @param worn clothing article, State.variables.worn.XXXX
+ * @param {object} worn clothing article, State.variables.worn.XXXX
  * @returns {string} printable clothing colour
  */
 function clothesColour(worn) {
@@ -283,15 +301,12 @@ function outfitChecks() {
 window.outfitChecks = outfitChecks;
 
 /**
- * @return {boolean} whether or not any main-body clothing is out of place or wet
+ * @returns {boolean} whether or not any main-body clothing is out of place or wet
  */
 function checkForExposedClothing() {
 	return setup.clothingLayer.torso.some(clothingLayer => {
 		const wetstage = V[clothingLayer.replace("_", "") + "wetstage"];
-		return (
-			V.worn[clothingLayer].state !== setup.clothes[clothingLayer][clothesIndex(clothingLayer, V.worn[clothingLayer])].state_base ||
-			wetstage >= 3
-		);
+		return V.worn[clothingLayer].state !== setup.clothes[clothingLayer][clothesIndex(clothingLayer, V.worn[clothingLayer])].state_base || wetstage >= 3;
 	});
 }
 window.checkForExposedClothing = checkForExposedClothing;
@@ -612,11 +627,14 @@ Macro.add("foldout", {
 });
 
 /**
- * @returns 30 for November, 31 for December, 28 for February (29 if leap year), et cetera 
- * Uses current in-game month and year when no arguments provided
+ * If no arguments provided, uses in-game current month and year.
+ *
+ * @param {number} month
+ * @param {number} year
+ * @returns {number} 30 for November, 31 for December, 28 for February (29 if leap year), et cetera.
  */
 function getLastDayOfMonth(month, year) {
-    let monthNumber = new Date(Date.parse((month || V.month) + ' 1 ' + (year || V.year))).getMonth() + 1;
-    return new Date((year || V.year), monthNumber, 0).getDate();
+	const monthNumber = new Date(Date.parse((month || V.month) + " 1 " + (year || V.year))).getMonth() + 1;
+	return new Date(year || V.year, monthNumber, 0).getDate();
 }
 window.getLastDayOfMonth = getLastDayOfMonth;

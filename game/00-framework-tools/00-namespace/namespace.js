@@ -1,26 +1,22 @@
-/**
- * As part of my various refactors, I ended up introducing a bunch of
- * global namespace-esk variables.
- *
- * Having a single spot to document them makes sense. By convention,
- * if you need to make a new top-level namespace, declare it here.
+/*
+ * As part of various refactors, many global namespace variables were created.
+ * This is a single spot to document them, and create top-level namespaces.
  */
 
 /**
- * Declare everything in a root namespace, so that things can still be found
- * if shadowed, and for "documentation" purposes
+ * Declare everything in a root namespace, so that things can still be found if shadowed, and for "documentation" purposes.
  */
 window.DOL = {
 	// In pseudo-load order
+
 	/**
-	 * Mini application reporter app
-	 * helps get detailed error messages to devs
-	 * {@link ./01-error/error.js
+	 * This is a miniature application reporter app.  It helps get detailed error messages to devs.
+	 * See file {@link ./01-error/error.js} for more.
 	 */
 	Errors: {},
 	/**
-	 * Registry of state schema, used for migrating Dol to new versions
-	 * {@link ./02-version/.init.js
+	 * Registry of state schema, used for migrating DoL to new versions.
+	 * See {@link ./02-version/.init.js} for more.
 	 */
 	Versions: {},
 	Perflog: {},
@@ -29,23 +25,24 @@ window.DOL = {
 	 */
 	Stack: [],
 
-	/** Patch to make javascript execution more consistent (see comment below) */
-	State: State,
-	/** Patch to make javascript execution more consistent (see comment below) */
-	setup: setup,
-	/** Patch to make javascript execution more consistent (see comment below) */
-	Wikifier: Wikifier,
-	/** Patch to make javascript execution more consistent (see comment below) */
-	Template: Template
-}
+	// The following are patches to make javascript execution more consistent (see comment below).
+	State,
+	setup,
+	Wikifier,
+	Template,
+};
+
 /* Make each of these namespaces available at the top level as well */
-window.defineGlobalNamespaces = (namespaces) => {
+window.defineGlobalNamespaces = namespaces => {
 	Object.entries(namespaces).forEach(([name, namespaceObject]) => {
 		try {
 			if (window[name] && window[name] !== namespaceObject) {
-				console.warn(`Attempted to set ${name} in the global namespace, but it's already in use. Skipping this assignment. Existing Object:`, window[name])
+				console.warn(
+					`Attempted to set ${name} in the global namespace, but it's already in use. Skipping this assignment. Existing Object:`,
+					window[name]
+				);
 			} else {
-				/* Make it more difficult to shadow/overwrite things (users can still Object.defineProperty if they really mean it) */
+				// Make it more difficult to shadow/overwrite things (users can still Object.defineProperty if they really mean it
 				Object.defineProperty(window, name, { value: namespaceObject, writeable: false });
 			}
 		} catch (e) {
@@ -54,10 +51,10 @@ window.defineGlobalNamespaces = (namespaces) => {
 			}
 		}
 	});
-}
+};
 defineGlobalNamespaces(DOL);
 
-/**
+/*
  * Patches to make javascript execution more consistent
  * OR: Why we alias SugarCube.State as State:
  *
@@ -72,7 +69,9 @@ defineGlobalNamespaces(DOL);
  * sugarcube execution. `SugarCube.State` (currently) does not exist, but `State` (note, *not* window.State)
  * exists.
  */
-/** Uncomment the following lines to get a better idea about how sugarcube makes certain globals available */
+
+/** Uncomment the following lines to get a better idea about how sugarcube makes certain globals available. */
+
 /*
 function sugarCubeGlobals() {
 	return {

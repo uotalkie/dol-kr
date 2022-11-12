@@ -1,4 +1,5 @@
-/* eslint-disable dot-notation */
+/* eslint-disable prettier/prettier */
+/* eslint-disable no-undef */
 function mapMove(moveTo) {
 	const currentPassage = V.passage;
 	const destinationTable = [];
@@ -11,10 +12,7 @@ function mapMove(moveTo) {
 	const available = V.map.available;
 
 	// if(V.debug == 1 || available[currentPassage].includes(moveTo))
-	if (
-		V.debug === 1 ||
-		(available[currentPassage].includes(moveTo) && destinationTable.includes(moveTo))
-	) {
+	if (V.debug === 1 || (available[currentPassage].includes(moveTo) && destinationTable.includes(moveTo))) {
 		Wikifier.wikifyEval("<<pass 5>>");
 		SugarCube.State.display(moveTo);
 	}
@@ -35,12 +33,8 @@ function shopClothingFilterToggleTrait(trait) {
 window.shopClothingFilterToggleTrait = shopClothingFilterToggleTrait;
 
 function shopClothingFilterSortOnDescription(traitOne, traitTwo) {
-	const descriptionOne = Wikifier.wikifyEval(
-		`<<shopTraitDescription ${traitOne}>>`
-	).textContent.trim();
-	const descriptionTwo = Wikifier.wikifyEval(
-		`<<shopTraitDescription ${traitTwo}>>`
-	).textContent.trim();
+	const descriptionOne = Wikifier.wikifyEval(`<<shopTraitDescription ${traitOne}>>`).textContent.trim();
+	const descriptionTwo = Wikifier.wikifyEval(`<<shopTraitDescription ${traitTwo}>>`).textContent.trim();
 
 	return descriptionOne > descriptionTwo;
 }
@@ -66,33 +60,19 @@ window.wikifier2 = function (str) {
 function actionsreplace(bodypart) {
 	const check = bodypart + "target";
 	if (V[check] === "tentacles") {
-		Wikifier.wikifyEval(
-			"<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitTentacle>><</replace>>"
-		);
+		Wikifier.wikifyEval("<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitTentacle>><</replace>>");
 	} else if (V[check] === "swarm") {
-		Wikifier.wikifyEval(
-			"<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitSwarm>><</replace>>"
-		);
+		Wikifier.wikifyEval("<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitSwarm>><</replace>>");
 	} else if (V[check] === "vore") {
-		Wikifier.wikifyEval(
-			"<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitVore>><</replace>>"
-		);
+		Wikifier.wikifyEval("<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitVore>><</replace>>");
 	} else if (V[check] === "struggle") {
-		Wikifier.wikifyEval(
-			"<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitStruggle>><</replace>>"
-		);
+		Wikifier.wikifyEval("<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitStruggle>><</replace>>");
 	} else if (V[check] === "machine") {
-		Wikifier.wikifyEval(
-			"<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitMachine>><</replace>>"
-		);
+		Wikifier.wikifyEval("<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitMachine>><</replace>>");
 	} else if (V[check] === "self") {
-		Wikifier.wikifyEval(
-			"<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitSelf>><</replace>>"
-		);
+		Wikifier.wikifyEval("<<replace #" + bodypart + "action>><<" + bodypart + "ActionInitSelf>><</replace>>");
 	} else {
-		Wikifier.wikifyEval(
-			"<<replace #" + bodypart + "action>><<" + bodypart + "ActionInit>><</replace>>"
-		);
+		Wikifier.wikifyEval("<<replace #" + bodypart + "action>><<" + bodypart + "ActionInit>><</replace>>");
 	}
 }
 window.actionsreplace = actionsreplace;
@@ -124,7 +104,7 @@ const combatActionColours = {
 		meek: [
 			/* leftaction or rightaction */
 			"behind", "fold", "leftcovervaginameek", "leftcoverpenismeek", "leftcoveranusmeek", "rightcovervaginameek", "rightcoverpenismeek", "rightcoveranusmeek", "leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "pickupSexToy", "leftcamerapose", "rightcamerapose",
-			/*feetaction*/
+			/* feetaction */
 			"strut",
 			/* mouthaction */
 			"grasp", "plead", "forgive", "down", "letout", "letoutorgasm", "noises", "pay",
@@ -286,7 +266,7 @@ window.combatListColor = combatListColor;
 DefineMacroS("combatListColor", combatListColor);
 
 function combatButtonAdjustments(name, extra) {
-	jQuery(document).on("change", "#listbox-" + name, { name: name, extra: extra }, function (e) {
+	jQuery(document).on("change", "#listbox-" + name, { name, extra }, function (e) {
 		/* console.log(e.data); */
 		Wikifier.wikifyEval("<<replace #" + e.data.name + "Difficulty>><<" + e.data.name + "Difficulty" + e.data.extra + ">><</replace>>");
 		$("#" + e.data.name + "Select").removeClass("whiteList bratList meekList defList subList");
@@ -298,7 +278,7 @@ DefineMacroS("combatButtonAdjustments", combatButtonAdjustments);
 
 function combatDefaults() {
 	jQuery(document).on("change", "#listbox--defaultoption", function (e) {
-		Wikifier.wikifyEval('<<replace #othersFeelings>><<othersFeelings ' + this.value + '>><</replace>>');
+		Wikifier.wikifyEval("<<replace #othersFeelings>><<othersFeelings " + this.value + ">><</replace>>");
 	});
 	return "";
 }
@@ -365,38 +345,38 @@ function combatSkillCheck(skillname, targetid = 0, basedifficulty = 1000, multip
 window.combatSkillCheck = combatSkillCheck;
 
 function hairdressersReset() {
-	$(() => $("#hairDressers").on("change", ".macro-listbox", function (e) {
-		Wikifier.wikifyEval("<<replace #hairDressers>><<hairDressersOptions>><</replace>>");
-		Wikifier.wikifyEval("<<replace #currentCost>>낼 요금: £<<print _currentCost / 100>><</replace>>");
-	}));
-	return "";
+	$(() =>
+		$("#hairDressers").on("change", ".macro-listbox", function (e) {
+			Wikifier.wikifyEval("<<replace #hairDressers>><<hairDressersOptions>><</replace>>");
+			Wikifier.wikifyEval("<<replace #currentCost>>낼 요금: £<<print _currentCost / 100>><</replace>>");
+		})
+	);
 }
-DefineMacroS("hairdressersReset", hairdressersReset);
+DefineMacro("hairdressersReset", hairdressersReset);
 
 function hairdressersResetAlt() {
-	$(() => $("#hairDressersSydney").on("click", ".macro-cycle", function (e) {
-		Wikifier.wikifyEval("<<replace #hairDressersSydney>><<hairDressersOptionsSydney>><</replace>>");
-		Wikifier.wikifyEval("<<replace #currentCost>>낼 요금: £<<print _currentCost / 100>><</replace>>");
-	}));
-	return "";
+	$(() =>
+		$("#hairDressersSydney").on("click", ".macro-cycle", function (e) {
+			Wikifier.wikifyEval("<<replace #hairDressersSydney>><<hairDressersOptionsSydney>><</replace>>");
+			Wikifier.wikifyEval("<<replace #currentCost>>낼 요금: £<<print _currentCost / 100>><</replace>>");
+		})
+	);
 }
-DefineMacroS("hairdressersResetAlt", hairdressersResetAlt);
+DefineMacro("hairdressersResetAlt", hairdressersResetAlt);
 
 function browsDyeReset() {
 	jQuery(document).on("change", "#listbox-browsdyeoption", function (e) {
 		Wikifier.wikifyEval("<<replace #browsColourPreview>><<browsColourPreview>><</replace>>");
 	});
-	return "";
 }
-DefineMacroS("browsDyeReset", browsDyeReset);
+DefineMacro("browsDyeReset", browsDyeReset);
 
 function NPCSettingsReset() {
 	jQuery(".passage").on("change", "#listbox--npcid", function (e) {
 		Wikifier.wikifyEval("<<replace #npcSettingsMenu>><<npcSettingsMenu>><</replace>>");
 	});
-	return "";
 }
-DefineMacroS("NPCSettingsReset", NPCSettingsReset);
+DefineMacro("NPCSettingsReset", NPCSettingsReset);
 
 function loveInterestFunction() {
 	jQuery(document).on("change", "#listbox-loveinterestprimary", function (e) {
@@ -405,9 +385,8 @@ function loveInterestFunction() {
 	jQuery(document).on("change", "#listbox-loveinterestsecondary", function (e) {
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
-	return "";
 }
-DefineMacroS("loveInterestFunction", loveInterestFunction);
+DefineMacro("loveInterestFunction", loveInterestFunction);
 
 function between(x, min, max) {
 	return x >= min && x <= max;
@@ -423,13 +402,9 @@ function featsPointsMenuReset() {
 DefineMacroS("featsPointsMenuReset", featsPointsMenuReset);
 
 function startingPlayerImageReset() {
-	jQuery(document).on(
-		"change",
-		"#settingsDiv .macro-radiobutton,#settingsDiv .macro-numberslider,#settingsDiv .macro-checkbox",
-		() => {
-			Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
-		}
-	);
+	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv .macro-numberslider,#settingsDiv .macro-checkbox", () => {
+		Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
+	});
 	return "";
 }
 DefineMacroS("startingPlayerImageReset", startingPlayerImageReset);
@@ -484,7 +459,7 @@ function nCr(n, r) {
 	// https://stackoverflow.com/questions/11809502/which-is-better-way-to-calculate-ncr
 	if (r > n - r) {
 		// because C(n, r) == C(n, n - r)
-		r = n - r
+		r = n - r;
 	}
 
 	let ans = 1;
@@ -508,19 +483,19 @@ window.nCr = nCr;
  *   the chance that they will see at least 1 card at the start of a round is calculateMarkedChance(52, 8, 3, 1) = 0.4 (which means they'll see at least 1 marked card in 40% of their games,
  *   the first round at least).
  * If that's too high of a chance, we could, for example, decrease their depth by 1, or decrease the max marked count by 2.
- *   calculateMarkedChance(52, 8, 2, 1) = 0.28, so 28%, and calculateMarkedChance(52, 6, 3, 1) = 0.31, so 31%.
+ *   Thus, calculateMarkedChance(52, 8, 2, 1) = 0.28, so 28%, and calculateMarkedChance(52, 6, 3, 1) = 0.31, so 31%.
  *
  * Arguably, seeing what card is third from the top is also less useful than being able to more consistently see the top card or the dealer's hole card, so
  *   it's worth assuming the REAL depth is 1/2 even if the value is passed as 3 (so while debugging, always also calculate with depth=1 or depth=2 and see if the number still seems fair).
  *
  * Also, note that the dealer's hole card is included in the depth. This means that if the depth is 3, then it calculates the chance the player will either see one of the top 2 cards or the dealer's second card.
  *
- * @param {Number} deckCount  The number of cards in the deck
- * @param {Number} markedCount  The number of cards the player has (or can) mark in a deck
- * @param {Number} depth  How many cards the player can see from the top of the deck (including the dealer's hole card) (to identify if they're marked or not)
- * @param {Number} atLeast  At least how many cards the player will see (from <depth> cards from the top of the deck)
- * @param {Boolean} doLog = false, if true - logs the steps of the solution
- * @returns
+ * @param {number} deckCount  The number of cards in the deck.
+ * @param {number} markedCount  The number of cards the player has (or can) mark in a deck.
+ * @param {number} depth  How many cards the player can see from the top of the deck (including the dealer's hole card) (to identify if they're marked or not).
+ * @param {number} atLeast  At least how many cards the player will see (from <depth> cards from the top of the deck).
+ * @param {boolean} doLog = false, if true - logs the steps of the solution.
+ * @returns {number} Percentage chance.
  */
 function calculateMarkedChance(deckCount, markedCount, depth, atLeast, doLog = false) {
 	// we calculate how many possible ways we can pull DEPTH amount of cards from the deck (and put them in the front of the deck)
@@ -531,41 +506,28 @@ function calculateMarkedChance(deckCount, markedCount, depth, atLeast, doLog = f
 			logMessages.push(m);
 		}
 	};
-	log(
-		`DEPTH=${depth} cards can be placed in front of the deck from a deck of ${deckCount} cards in ${deckCount}c${depth} = ${totalEvents} ways.`
-	);
+	log(`DEPTH=${depth} cards can be placed in front of the deck from a deck of ${deckCount} cards in ${deckCount}c${depth} = ${totalEvents} ways.`);
 
 	let favorableEvents = 0;
 
 	// as per the algorithm, we go from how many marked cards we need at the very least, to either how many marked cards there are, or to how deep we can go (whichever is the limit)
 	const possibleMarkedCardsVisibleLimit = Math.min(markedCount, depth);
-	for (
-		let nMarkedPicked = atLeast;
-		nMarkedPicked <= possibleMarkedCardsVisibleLimit;
-		++nMarkedPicked
-	) {
+	for (let nMarkedPicked = atLeast; nMarkedPicked <= possibleMarkedCardsVisibleLimit; ++nMarkedPicked) {
 		// we calculate how many possible ways we can pull a valid number of marked cards from the deck
 		//   by dividing the cards into a pool of
 		//    * marked cards (and calculating how many ways we can pull the valid nMarkedPicked cards from the pool of markedCount marked cards),  nCr(markedCount, nMarkedPicked)
 		//    * unmarked cards (and calculating how many ways we can pull the remaining possibleMarkedCardsVisibleLimit-nMarkedPicked non-marked cards from the pool of deck-markedCount unmarked cards), ncr(deck-markedCount, possibleMarkedCardsVisibleLimit-nMarkedPicked)
 		//   and then we multiply the mutually exclusive combinations to get all possible combinations (cross-joins) of the two (since for each way we can pull (say) 1 marked card, there's the second number of ways we can pull the remaining non marked ones)
 		const markedPoolWays = nCr(markedCount, nMarkedPicked);
-		const unmarkedPoolWays = nCr(
-			deckCount - markedCount,
-			possibleMarkedCardsVisibleLimit - nMarkedPicked
-		);
+		const unmarkedPoolWays = nCr(deckCount - markedCount, possibleMarkedCardsVisibleLimit - nMarkedPicked);
 		const totalWays = markedPoolWays * unmarkedPoolWays;
 		favorableEvents += totalWays;
 		// log(`One marked card can be picked from MARKED=1 cards in 1c1 = 1 ways, and the remaining three (which are not marked) can be picked from DECK=5-MARKED=1 = 4 cards in 4c3 = 4 ways.
 		log(
 			`${nMarkedPicked} marked cards can be picked from MARKED=${markedCount} cards in ${markedCount}c${nMarkedPicked} = ${markedPoolWays} ways,` +
-				`and the remaining ${
+				`and the remaining ${deckCount - markedCount} (which are not marked) can be picked from DECK=${deckCount}-MARKED=${markedCount} = ${
 					deckCount - markedCount
-				} (which are not marked) can be picked from DECK=${deckCount}-MARKED=${markedCount} = ${
-					deckCount - markedCount
-				} cards in ${deckCount - markedCount}c${
-					possibleMarkedCardsVisibleLimit - nMarkedPicked
-				} = ${unmarkedPoolWays} ways.\n` +
+				} cards in ${deckCount - markedCount}c${possibleMarkedCardsVisibleLimit - nMarkedPicked} = ${unmarkedPoolWays} ways.\n` +
 				`${markedPoolWays}*${unmarkedPoolWays} = ${totalWays} ways.`
 		);
 	}
@@ -629,14 +591,15 @@ function getRobinLocation() {
 		T.robin_location = V.robinlocationoverride.location;
 	} else if (["docks", "landfill", "dinner", "pillory"].includes(V.robinmissing)) {
 		T.robin_location = V.robinmissing;
-	} else if (!between(V.hour, 7, 20)){ //if hour is 6 or lower, or 21 or higher
+	} else if (!between(V.hour, 7, 20)) {
+		// if hour is 6 or lower, or 21 or higher.
 		T.robin_location = "sleep";
 	} else if (V.schoolday === 1 && between(V.hour, 8, 15)) {
 		T.robin_location = "school";
 	} else if (V.halloween === 1 && between(V.hour, 16, 18) && V.monthday === 31) {
 		T.robin_location = "halloween";
 	} else if ((V.weekday === 7 || V.weekday === 1) && between(V.hour, 9, 16) && C.npc.Robin.trauma < 80) {
-		T.robin_location = (V.season === "winter" ? "park" : "beach");
+		T.robin_location = V.season === "winter" ? "park" : "beach";
 	} else {
 		T.robin_location = "orphanage";
 	}
@@ -721,7 +684,7 @@ window.DefaultActions = {
 		if (storage === undefined) {
 			return;
 		}
-		if (storage["consensual"] === undefined || storage["rape"] === undefined) {
+		if (storage.consensual === undefined || storage.rape === undefined) {
 			storage = this.create(true, true);
 		}
 		return storage;
@@ -810,15 +773,16 @@ window.DefaultActions = {
 		to.value[type][person][part].pushUnique(action);
 	},
 	addMany(type, person, part, actions, to = { value: V.actionDefaults }) {
-		const filteredActions = actions.map(action => {
-			if (part === "regrab") {
-				return action ? 1 : 0;
-			}
-			if (action !== "rest") {
-				return action;
-			}
-		});
-		if (filteredActions.length <= 0) {
+		// This function should take a list of actions, for a given type (rape/consensual)
+		// and a given person (submissive, defiant, tentacles?)
+		// and a given part (leftaction, rightaction, etc.. down to regrab?)
+		// and add them to the actionDefaults.
+
+		// This filters actions down to any actions that aren't "rest",
+		// or where part is regrab -> truthy/falsy value of each action.
+		const filteredActions = part === "regrab" ? actions.map(action => !!action) : actions.filter(action => action !== "rest");
+
+		if (!filteredActions.length) {
 			return;
 		}
 		if (to.value[type][person] === undefined) {
@@ -832,11 +796,7 @@ window.DefaultActions = {
 		});
 	},
 	get(type, person, part, from = V.actionDefaults, defaultValue = "rest") {
-		if (
-			from[type] === undefined ||
-			from[type][person] === undefined ||
-			from[type][person][part] === undefined
-		) {
+		if (from[type] === undefined || from[type][person] === undefined || from[type][person][part] === undefined) {
 			return [defaultValue];
 		}
 		return from[type][person][part];
@@ -878,7 +838,7 @@ window.DefaultActions = {
 };
 
 function selectWardrobe(targetLocation = V.wardrobe_location) {
-	return ((!targetLocation || targetLocation === "wardrobe" || !V.wardrobes[targetLocation]) ? V.wardrobe : V.wardrobes[targetLocation]);
+	return (!targetLocation || targetLocation === "wardrobe" || !V.wardrobes[targetLocation]) ? V.wardrobe : V.wardrobes[targetLocation];
 }
 window.selectWardrobe = selectWardrobe;
 
@@ -1046,7 +1006,7 @@ function clothingInStorage(loc) {
 	for (const slot of setup.clothingLayer.all) {
 		const item = V.store[slot].find(item => item.location === loc);
 		if (item && !item.outfitSecondary) {
-			item["slot"] = slot;
+			item.slot = slot;
 			clothing.push(item);
 		}
 	}
@@ -1081,7 +1041,10 @@ function isConnectedToHood(slot) {
 	if (V.worn[slot].outfitSecondary && V.worn[slot].outfitSecondary[1] !== "broken") {
 		slot = V.worn[slot].outfitSecondary[0];
 	}
-	if (V.worn[slot].hoodposition && (V.worn[slot].hoodposition === "down" || (V.worn[slot].hoodposition === "up" && V.worn[slot].outfitPrimary.head !== "broken" && V.worn.head.hood === 1))){
+	if (
+		V.worn[slot].hoodposition &&
+		(V.worn[slot].hoodposition === "down" || (V.worn[slot].hoodposition === "up" && V.worn[slot].outfitPrimary.head !== "broken" && V.worn.head.hood === 1))
+	) {
 		return true;
 	}
 	return false;
@@ -1099,13 +1062,9 @@ function clothesIndex(slot, itemToIndex) {
 		});
 		return 0;
 	}
-	let index = setup.clothes[slot].findIndex(
-		item => item.variable === itemToIndex.variable && item.modder === itemToIndex.modder
-	);
+	let index = setup.clothes[slot].findIndex(item => item.variable === itemToIndex.variable && item.modder === itemToIndex.modder);
 	if (index === -1) {
-		console.log(
-			`clothesIndex - ${slot} clothing item index not found for the '${itemToIndex.name}' with the modder set to '${itemToIndex.modder}'`
-		);
+		console.log(`clothesIndex - ${slot} clothing item index not found for the '${itemToIndex.name}' with the modder set to '${itemToIndex.modder}'`);
 		/* try and correct .modder mismatches */
 		const matches = setup.clothes[slot].filter(item => item.variable === itemToIndex.variable);
 		if (matches.length === 1) {
@@ -1135,26 +1094,13 @@ function currentSkillValue(skill) {
 	}
 	if (
 		[
-			"skulduggery",
-			"physique",
-			"danceskill",
-			"swimmingskill",
-			"athletics",
-			"willpower",
-			"tending",
-			"science",
-			"maths",
-			"english",
-			"history",
+			"skulduggery", "physique", "danceskill", "swimmingskill", "athletics", "willpower", "tending", "science", "maths", "english", "history",
 		].includes(skill) &&
 		V.moorLuck > 0
 	) {
 		result = Math.floor(result * (1 + V.moorLuck / 100));
 	}
-	if (
-		["physique", "danceskill", "swimmingskill", "athletics"].includes(skill) &&
-		playerBellySize() >= 10
-	) {
+	if (["physique", "danceskill", "swimmingskill", "athletics"].includes(skill) && playerBellySize() >= 10) {
 		switch (V.pregnancyStats.mother) {
 			case 0:
 				T.pregnancyModifier = 30;
@@ -1172,9 +1118,7 @@ function currentSkillValue(skill) {
 				T.pregnancyModifier = 100;
 				break;
 		}
-		result = Math.floor(
-			result * (1 - playerBellySize() / T.pregnancyModifier)
-		);
+		result = Math.floor(result * (1 - playerBellySize() / T.pregnancyModifier));
 	}
 	let modifier = 1;
 	switch (skill) {
@@ -1238,7 +1182,7 @@ function currentSkillValue(skill) {
 			if (V.worn.feet.type.includes("shackle")) result /= 10;
 			break;
 		case "willpower":
-			if (V.parasite.left_ear.name === V.parasite.right_ear.name === "slime") {
+			if (V.parasite.left_ear.name === V.parasite.right_ear.name && V.parasite.left_ear.name === "slime") {
 				result = Math.floor(result * 0.9);
 			}
 			break;
@@ -1253,26 +1197,17 @@ function currentSkillValue(skill) {
 window.currentSkillValue = currentSkillValue;
 
 function playerIsPenetrated() {
-	return [V.mouthstate, V.vaginastate, V.anusstate].some(s =>
-		["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(s)
-	);
+	return [V.mouthstate, V.vaginastate, V.anusstate].some(s => ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(s));
 }
 window.playerIsPenetrated = playerIsPenetrated;
 
 function getTimeString(minutes = 0) {
-	if (minutes < 0) {
-		// come on don't try negative numbers, that's silly
-		return "0:00";
-	}
-	if (minutes < 10) {
-		return "0:0" + minutes;
-	} else if (minutes < 60) {
-		return "0:" + minutes;
-	} else {
-		const hours = Math.trunc(minutes / 60);
-		minutes = ("" + (minutes % 60)).padStart(2, "0");
-		return hours + ":" + minutes;
-	}
+	minutes = minutes > 0 ? minutes : 0;
+	// Doing it this way instead of Math.min to enforce number if an invalid (string) passed in
+	const hours = Math.trunc(minutes / 60);
+	const mins = (minutes % 60).toString().padStart(2, "0");
+
+	return (hours || 0) + ":" + mins;
 }
 window.getTimeString = getTimeString;
 
@@ -1318,9 +1253,7 @@ function npcSpecifiedClothes(npc, name) {
 	if (clothingItem.length > 0) {
 		npcEquipSet(npc, clothingItem[0]);
 	} else {
-		console.log(
-			`npcSpecifiedClothes - unable to find a clothing item with the name '${name}' for '${npc.fullDescription}'`
-		);
+		console.log(`npcSpecifiedClothes - unable to find a clothing item with the name '${name}' for '${npc.fullDescription}'`);
 	}
 }
 window.npcSpecifiedClothes = npcSpecifiedClothes;
@@ -1336,9 +1269,7 @@ function npcClothes(npc, type) {
 
 	if (crossdressing < 2) gender.push(npc.pronoun);
 	if (crossdressing > 0) gender.push(npc.pronoun === "m" ? "f" : "m");
-	let clothingOptions = setup.npcClothesSets.filter(
-		set => (set.type === type || !type) && gender.includes(set.gender)
-	);
+	let clothingOptions = setup.npcClothesSets.filter(set => (set.type === type || !type) && gender.includes(set.gender));
 
 	if (npc.outfits) {
 		const namedNpcClothing = clothingOptions.filter(set => npc.outfits.includes(set.name));
@@ -1352,9 +1283,7 @@ function npcClothes(npc, type) {
 		// Allows you to record the clothing set selected
 		return clothesSet.name;
 	} else {
-		console.log(
-			`npcClothes - unable to find a clothing set with the options for '${npc.fullDescription}' with type '${type}'`
-		);
+		console.log(`npcClothes - unable to find a clothing set with the options for '${npc.fullDescription}' with type '${type}'`);
 	}
 }
 window.npcClothes = npcClothes;
@@ -1385,24 +1314,27 @@ function getMoonState() {
 	let moonstate = V.moonstate;
 
 	if (nightstate === "evening") {
-		if (V.monthday === getLastDayOfMonth()) { // blood moon happens on the last night of the month
+		if (V.monthday === getLastDayOfMonth()) {
+			// blood moon happens on the last night of the month
 			moonstate = "evening";
 		} else {
 			moonstate = 0; // moonstate will stay "morning" until the night after the blood moon
 		}
 	} else if (nightstate === "morning") {
-		if (V.monthday === 1) { // blood moon happens on the first morning of the month
+		if (V.monthday === 1) {
+			// blood moon happens on the first morning of the month
 			moonstate = "morning";
 		} else {
 			moonstate = 0;
 		}
 	}
-	return V.moonstate = moonstate;
+	V.moonstate = moonstate;
+	return moonstate;
 }
 window.getMoonState = getMoonState;
 
 function isBloodmoon() {
-	return (V.daystate === "night" && getMoonState() === T.nightstate); // it's only a blood moon if it's night, and the current moon state matches the current night state
+	return V.daystate === "night" && getMoonState() === T.nightstate; // it's only a blood moon if it's night, and the current moon state matches the current night state
 }
 window.isBloodmoon = isBloodmoon;
 
@@ -1434,10 +1366,13 @@ window.fameSum = fameSum;
 
 function checkTFparts() {
 	const tfParts = {};
-	Object.entries(V.transformationParts).forEach(([tfName,tf]) => /* Iterate over each transformation */
-		Object.entries(tf).forEach(([pName, pStatus]) => { /* Iterate over each part of each transformation */
-			if (pStatus !== "disabled" && pStatus !== "hidden"){ /* Filter out the parts that the player doesn't have or is suppressing */
-				tfParts[tfName+pName.toUpperFirst()] = true; /* Assign properties with camelCase names for each tf part that is visible */
+	// Iterate over each transformation
+	Object.entries(V.transformationParts).forEach(([tfName, tf]) =>
+		Object.entries(tf).forEach(([pName, pStatus]) => {
+			/* Iterate over each part of each transformation */
+			if (pStatus !== "disabled" && pStatus !== "hidden") {
+				/* Filter out the parts that the player doesn't have or is suppressing */
+				tfParts[tfName + pName.toUpperFirst()] = true; /* Assign properties with camelCase names for each tf part that is visible */
 			}
 		})
 	);
@@ -1460,11 +1395,16 @@ function getSexesFromRandomGroup() {
 }
 window.getSexesFromRandomGroup = getSexesFromRandomGroup;
 
+/**
+ * Pick the right colour to use when colouring various things.  Primarily sidebar stats.
+ * When using this function, try to keep in mind what value of your input variable you want "red" to be at.
+ *
+ * Example: $drugged goes higher than 500, but we want the bar to become red at 500, so we call this function as getColourClassFromPercentage($drugged / 5).
+ *
+ * @param {number} percentage The percentage of the desired bar colour.
+ * @returns {string} Colour name to use.
+ */
 function getColourClassFromPercentage(percentage) {
-	/* This function is for picking the right color to use when coloring various things, primarily the sidebar stats. */
-	/* When using this function, try to keep in mind what value of your input variable you want "red" to be at.
-	 * Example: $drugged goes higher than 500, but we want the bar to become red at 500, so we call this function as getColourClassFromPercentage($drugged / 5).
-	*/
 	if (percentage <= 0) return "green";
 	if (percentage < 20) return "teal";
 	if (percentage < 40) return "lblue";
@@ -1475,11 +1415,18 @@ function getColourClassFromPercentage(percentage) {
 }
 window.getColourClassFromPercentage = getColourClassFromPercentage;
 
+/**
+ * Determine whether the player and the given NPC can legitimately breed together.
+ * Accepts either the named NPC's name, or an NPC object from NPCList or NPCName.
+ *
+ * Examples: playerCanBreedWith("Kylar"), or playerCanBreedWith($NPCList[0]) or playerCanBreedWith($NPCName[$NPCNameList.indexOf("Kylar")]).
+ *
+ * Note that if the npc argument is invalid (wrong name, non-existent object) it will return false, so be careful of silent failures.
+ *
+ * @param {any} npc String or Object as detailed above.
+ * @returns {boolean} Whether the given NPC is compatible to breed with the player.
+ */
 function playerCanBreedWith(npc) {
-	/* This function can accept either a named NPC's name, or an NPC object from either NPCList or NPCName.
-	 * Examples: playerCanBreedWith("Kylar"), or playerCanBreedWith($NPCList[0]) or playerCanBreedWith($NPCName[$NPCNameList.indexOf("Kylar")])
-	 * Returns true or false. If you give it garbage, like a totally wrong name, it'll return false, so be careful about silent failures like that.
-	 */
 	if (typeof npc === "string") npc = V.NPCName[V.NPCNameList.indexOf(npc)];
 
 	return (V.player.vaginaExist && npc.penis !== "none") || (V.player.penisExist && npc.vagina !== "none");
@@ -1496,7 +1443,11 @@ function outfitHoodPosition(outfit) {
 	if (outfit.head !== hoodie.outfitPrimary.head) return "down";
 	if (!outfit.colors) return "up";
 	if (outfit.colors.head[0] !== outfit.colors.upper[0] || outfit.colors.head[1] !== outfit.colors.upper[1]) return "down";
-	if ((outfit.colors.headcustom && outfit.colors.headcustom[0] !== outfit.colors.uppercustom[0]) || (outfit.colors.headcustom && outfit.colors.headcustom[1] !== outfit.colors.uppercustom[1])) return "down";
+	if (
+		(outfit.colors.headcustom && outfit.colors.headcustom[0] !== outfit.colors.uppercustom[0]) ||
+		(outfit.colors.headcustom && outfit.colors.headcustom[1] !== outfit.colors.uppercustom[1])
+	)
+		return "down";
 	return "up";
 }
 window.outfitHoodPosition = outfitHoodPosition;
@@ -1507,20 +1458,36 @@ function combatCharacterShadow() {
 	const mainDiv = ".char_combat";
 
 	$(() => {
-		$(mainDiv).find('img').filter((i, n) => n.className.match(new RegExp("layer-(" + setup.shadowImage[V.position === "doggy" ? "doggy" : "missionary"].join("|") + ")( |$)", 'i')))
-		.clone(true).removeClass((i, n) => (n.match(/(^|\s)(colour|layer)-\S+/g) || []).join(' '))
-		.addClass(targetClass).removeAttr('style').appendTo($(mainDiv).last());
+		$(mainDiv)
+			.find("img")
+			.filter((i, n) =>
+				n.className.match(new RegExp("layer-(" + setup.shadowImage[V.position === "doggy" ? "doggy" : "missionary"].join("|") + ")( |$)", "i"))
+			)
+			.clone(true)
+			.removeClass((i, n) => (n.match(/(^|\s)(colour|layer)-\S+/g) || []).join(" "))
+			.addClass(targetClass)
+			.removeAttr("style")
+			.appendTo($(mainDiv).last());
 	});
 }
 window.combatCharacterShadow = combatCharacterShadow;
 
 /**
- * For usage with tears calculation, converts pain stat [0..200] to 0..4 range (maxes out at pain = 80)
+ * For usage with tears calculation, converts pain stat [0..200] to 0..4 range (maxes out at pain = 80).
+ *
+ * @param {number} pain Pain value.
+ * @returns {number} 0-4 range of tears amount.
  */
-const painToTearsLvl = (pain) => Math.floor(Math.clamp((pain || V.pain), 0, 99) / 20);
+const painToTearsLvl = pain => Math.floor(Math.clamp(pain || V.pain, 0, 99) / 20);
 window.painToTearsLvl = painToTearsLvl;
 
-const mascaraNameToCSS = (name) => nullable(setup.colours.mascara.find(x => x.variable === name)).csstext;
+/**
+ * Get the CSS Name for a mascara colour name.
+ *
+ * @param {string} name Name of the mascara colour.
+ * @returns {string} CSS Name "csstext" of the given colour.
+ */
+const mascaraNameToCSS = name => nullable(setup.colours.mascara.find(x => x.variable === name)).csstext;
 window.mascaraNameToCSS = mascaraNameToCSS;
 
 function isPubfameTaskAccepted(task, status) {
@@ -1528,20 +1495,16 @@ function isPubfameTaskAccepted(task, status) {
 }
 window.isPubfameTaskAccepted = isPubfameTaskAccepted;
 
-window.msToTime = (s) => {
-	function pad(n, z) {
-		z = z || 2;
-		return ('00' + n).slice(-z);
-	}
-	var ms = s % 1000;
-	s = (s - ms) / 1000;
-	var secs = s % 60;
-	s = (s - secs) / 60;
-	var mins = s % 60;
-	var hrs = (s - mins) / 60;
+function msToTime(s) {
+	s = Math.floor(s / 1000);
+	const secs = (s % 60).toString().padStart(2, "0");
+	s = Math.floor(s / 60);
+	const mins = (s % 60).toString().padStart(2, "0");
+	const hrs = Math.floor(s / 60);
 
-	return (hrs ? hrs : 0) + ':' + pad(mins) + ':' + pad(secs);
+	return (hrs || 0) + ":" + mins + ":" + secs;
 }
+window.msToTime = msToTime;
 
 function getHalloweenCostume() {
 	const upper = V.worn.upper;
@@ -1589,7 +1552,7 @@ function getHalloweenCostume() {
 		return "sailor";
 	} else if (upper.name === "skeleton outfit" && lower.name === "skeleton bottoms") {
 		return "skeleton";
-	
+
 	/* Transformations */
 	} else if (T.tf.angelHalo && T.tf.angelWings) {
 		return "angel TF";
@@ -1605,9 +1568,14 @@ function getHalloweenCostume() {
 		return "cow TF";
 	} else if (T.tf.birdWings && T.tf.birdEyes) {
 		return "harpy TF";
-	
+
 	/* Misc outcomes */
-	} else if (V.worn.upper.type.includes("costume") || V.worn.lower.type.includes("costume") || (V.worn.upper.type.includes("naked") && V.worn.under_upper.type.includes("costume")) || (V.worn.lower.type.includes("naked") && V.worn.under_lower.type.includes("costume"))) {
+	} else if (
+		V.worn.upper.type.includes("costume") ||
+		V.worn.lower.type.includes("costume") ||
+		(V.worn.upper.type.includes("naked") && V.worn.under_upper.type.includes("costume")) ||
+		(V.worn.lower.type.includes("naked") && V.worn.under_lower.type.includes("costume"))
+	) {
 		return "mixed";
 	} else if (V.exposed >= 2) {
 		return "fully naked";

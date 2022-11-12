@@ -55,8 +55,7 @@ function restructureEyeColourVariable() {
 			/* Both $leftEyeColour and $rightEyeColour should be the original colours for a character's eyes.
 				This function below sets it to $eyecolour, if that fails, $eyeselect, then defaults to purple, the default.
 				For it to fail, it must be undefined, it is unlikely that $eyeselect is undefined, but it's likely possible. */
-			const getColour = () =>
-				(typeof V.eyecolour === "string" ? V.eyecolour : V.eyeselect) || "purple";
+			const getColour = () => (typeof V.eyecolour === "string" ? V.eyecolour : V.eyeselect) || "purple";
 			if (!V.leftEyeColour) {
 				V.leftEyeColour = getColour();
 			}
@@ -74,8 +73,7 @@ function restructureEyeColourVariable() {
 
 			let lenses = V.makeup.eyelenses;
 			/* If lenses is not string object or number, or null, it's bad and we hard set */
-			if (!["string", "object", "number"].includes(typeof lenses) || !lenses)
-				V.makeup.eyelenses = { left: 0, right: 0 };
+			if (!["string", "object", "number"].includes(typeof lenses) || !lenses) V.makeup.eyelenses = { left: 0, right: 0 };
 			else if (typeof lenses !== "object") {
 				/* String or Number so we assign in to new object */
 				V.makeup.eyelenses = {
@@ -97,10 +95,7 @@ window.restructureEyeColourVariable = restructureEyeColourVariable;
 window.patchCorruptLensesColors = function () {
 	if (V.custom_eyecolours != null) {
 		for (const index in V.custom_eyecolours)
-			V.custom_eyecolours[index].canvasfilter.blend = window.colorNameTranslate(
-				V.custom_eyecolours[index].variable,
-				"hex"
-			);
+			V.custom_eyecolours[index].canvasfilter.blend = window.colorNameTranslate(V.custom_eyecolours[index].variable, "hex");
 	}
 };
 
@@ -120,9 +115,7 @@ window.initCustomLenses = initCustomLenses;
 
 function hexToRgbArray(hex) {
 	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result
-		? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
-		: null;
+	return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null;
 }
 
 function ColorToHex(color) {
@@ -138,11 +131,7 @@ const eyeColourGradient = function (rgbBegin, rgbEnd, p) {
 
 	if (typeof rgbBegin === "string" && rgbBegin[0] === "#") rgbBegin = hexToRgbArray(rgbBegin);
 	if (typeof rgbEnd === "string" && rgbEnd[0] === "#") rgbEnd = hexToRgbArray(rgbEnd);
-	const rgb = [
-		parseInt(rgbBegin[0] * w2 + rgbEnd[0] * w1),
-		parseInt(rgbBegin[1] * w2 + rgbEnd[1] * w1),
-		parseInt(rgbBegin[2] * w2 + rgbEnd[2] * w1),
-	];
+	const rgb = [parseInt(rgbBegin[0] * w2 + rgbEnd[0] * w1), parseInt(rgbBegin[1] * w2 + rgbEnd[1] * w1), parseInt(rgbBegin[2] * w2 + rgbEnd[2] * w1)];
 	return "#" + ColorToHex(rgb[0]) + ColorToHex(rgb[1]) + ColorToHex(rgb[2]);
 };
 
@@ -169,10 +158,7 @@ window.determineCatEyeStages = function () {
 	const totalPercentage = 0.5 + Math.random() / 4; // 50%-75%
 	/* How much of targetColour the current eye colour needs to adapt into.
 	0.0 to 1.0 (0%-100%) */
-	const baseColour = [
-		setup.colours.eyes_map[V.leftEyeColour].canvasfilter.blend,
-		setup.colours.eyes_map[V.rightEyeColour].canvasfilter.blend,
-	]; // base eye colours [left, right]
+	const baseColour = [setup.colours.eyes_map[V.leftEyeColour].canvasfilter.blend, setup.colours.eyes_map[V.rightEyeColour].canvasfilter.blend]; // base eye colours [left, right]
 
 	let targetColours = shuffleArray([green, yellow, blue, orange]); // can add or edit colours
 	/* We've already shuffled these so they're already random */
@@ -181,20 +167,11 @@ window.determineCatEyeStages = function () {
 	/* The right eye is the one we see the most.
 	   If this eye is light blue and the target colour is blue, the player
 	   might not notice a difference.  So, swap the two eyes */
-	if (V.rightEyeColour === "light blue" && targetColours[1] === blue)
-		targetColours = [targetColours[1], targetColours[0]];
+	if (V.rightEyeColour === "light blue" && targetColours[1] === blue) targetColours = [targetColours[1], targetColours[0]];
 	for (let index = 1; index <= stages; index++) {
 		const eyesResult = {
-			left: eyeColourGradient(
-				baseColour[0],
-				targetColours[0],
-				(totalPercentage / stages) * index
-			), // left eye
-			right: eyeColourGradient(
-				baseColour[1],
-				targetColours[1],
-				(totalPercentage / stages) * index
-			), // right eye
+			left: eyeColourGradient(baseColour[0], targetColours[0], (totalPercentage / stages) * index), // left eye
+			right: eyeColourGradient(baseColour[1], targetColours[1], (totalPercentage / stages) * index), // right eye
 		};
 		/* i goes between "left" and "right" here with these keys */
 		for (const i in eyesResult) {
@@ -215,10 +192,8 @@ window.determineCatEyeStages = function () {
 				/* create new object for our new colour eye */
 				/* again, 'i' is either "left" or "right" here */
 				/* and x is actually a string */
-				if (V.custom_eyecolours[x].variable === "cat_tf_stage_" + (index - 1) + "_" + i)
-					V.custom_eyecolours[x] = colourObject;
-				else if (x === (V.custom_eyecolours.length - 1).toString())
-					V.custom_eyecolours.push(colourObject);
+				if (V.custom_eyecolours[x].variable === "cat_tf_stage_" + (index - 1) + "_" + i) V.custom_eyecolours[x] = colourObject;
+				else if (x === (V.custom_eyecolours.length - 1).toString()) V.custom_eyecolours.push(colourObject);
 			}
 			if (V.custom_eyecolours.length === 0) V.custom_eyecolours.push(colourObject);
 		}
@@ -234,9 +209,7 @@ window.defineCustomEyeColourStyle = function () {
 
 		if (V.makeup.eyelenses[side] !== 0) {
 			/* custom eyes colours */
-			const colourArray = V.makeup.eyelenses[side].includes("colorWheelTemporary")
-				? setup.colours.eyes
-				: V.custom_eyecolours;
+			const colourArray = V.makeup.eyelenses[side].includes("colorWheelTemporary") ? setup.colours.eyes : V.custom_eyecolours;
 			for (const colour of colourArray) {
 				/* this does this for left and right */
 				if (colour.variable === V.makeup.eyelenses[side])
@@ -246,19 +219,12 @@ window.defineCustomEyeColourStyle = function () {
 							? window.colorNameTranslate(colour.csstext, "hue")
 							: window.colorNameTranslate(V.makeup.eyelenses[side], "hue"));
 			}
-		} else if (
-			normalEyes[side] !== 0 &&
-			(normalEyes[side].includes("colorWheelTemporary") ||
-				normalEyes[side].includes("cat_tf_stage"))
-		) {
+		} else if (normalEyes[side] !== 0 && (normalEyes[side].includes("colorWheelTemporary") || normalEyes[side].includes("cat_tf_stage"))) {
 			// normal eyes colours
-			const colourArray = normalEyes[side].includes("cat_tf_stage")
-				? V.custom_eyecolours
-				: setup.colours.eyes;
+			const colourArray = normalEyes[side].includes("cat_tf_stage") ? V.custom_eyecolours : setup.colours.eyes;
 			for (const colour of colourArray) {
 				/* this does this for left and right */
-				if (colour.variable === normalEyes[side])
-					T[varSideStyle] = "filter: " + window.colorNameTranslate(colour.csstext, "hue");
+				if (colour.variable === normalEyes[side]) T[varSideStyle] = "filter: " + window.colorNameTranslate(colour.csstext, "hue");
 			}
 		}
 	}

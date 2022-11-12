@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const DoLSave = ((Story, Save) => {
 	"use strict";
 
@@ -493,7 +494,7 @@ const importSettingsData = function (data) {
 		if (S.general != null) {
 			const listObject = settingsObjects("general");
 			const listKey = Object.keys(listObject);
-			const namedObjects = ["map", "skinColor", "shopDefaults","options"];
+			const namedObjects = ["map", "skinColor", "shopDefaults", "options"];
 			// correct swapped min/max values
 			if (S.general.breastsizemin > S.general.breastsizemax) {
 				const temp = S.general.breastsizemin;
@@ -536,11 +537,7 @@ const importSettingsData = function (data) {
 					// eslint-disable-next-line no-var
 					for (let j = 0; j < listKey.length; j++) {
 						// Overwrite to allow for "none" default value in the start passage to allow for rng to decide
-						if (
-							V.passage === "Start" &&
-							["pronoun", "gender"].includes(listKey[j]) &&
-							S.npc[V.NPCNameList[i]][listKey[j]] === "none"
-						) {
+						if (V.passage === "Start" && ["pronoun", "gender"].includes(listKey[j]) && S.npc[V.NPCNameList[i]][listKey[j]] === "none") {
 							V.NPCName[i][listKey[j]] = S.npc[V.NPCNameList[i]][listKey[j]];
 						} else if (validateValue(listObject[listKey[j]], S.npc[V.NPCNameList[i]][listKey[j]])) {
 							V.NPCName[i][listKey[j]] = S.npc[V.NPCNameList[i]][listKey[j]];
@@ -633,7 +630,7 @@ function exportSettings(data, type) {
 
 	listObject = settingsObjects("general");
 	listKey = Object.keys(listObject);
-	namedObjects = ["map", "skinColor", "shopDefaults","options"];
+	namedObjects = ["map", "skinColor", "shopDefaults", "options"];
 
 	for (let i = 0; i < listKey.length; i++) {
 		if (namedObjects.includes(listKey[i]) && V[listKey[i]] != null) {
@@ -696,20 +693,7 @@ function settingsObjects(type) {
 				mouthsensitivity: { min: 1, max: 3, decimals: 0, randomize: "characterTrait" },
 				bottomsensitivity: { min: 1, max: 3, decimals: 0, randomize: "characterTrait" },
 				eyeselect: {
-					strings: [
-						"purple",
-						"dark blue",
-						"light blue",
-						"amber",
-						"hazel",
-						"green",
-						"lime green",
-						"red",
-						"pink",
-						"grey",
-						"light grey",
-						"random",
-					],
+					strings: ["purple", "dark blue", "light blue", "amber", "hazel", "green", "lime green", "red", "pink", "grey", "light grey", "random"],
 					randomize: "characterAppearance",
 				},
 				hairselect: {
@@ -899,21 +883,7 @@ function settingsObjects(type) {
 				shopDefaults: {
 					alwaysBackToShopButton: { bool: true },
 					color: {
-						strings: [
-							"black",
-							"blue",
-							"brown",
-							"green",
-							"pink",
-							"purple",
-							"red",
-							"tangerine",
-							"teal",
-							"white",
-							"yellow",
-							"custom",
-							"random",
-						],
+						strings: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom", "random"],
 					},
 					colourItems: { strings: ["disable", "random", "default"] },
 					compactMode: { bool: true },
@@ -924,21 +894,7 @@ function settingsObjects(type) {
 					noHelp: { bool: true },
 					noTraits: { bool: true },
 					secColor: {
-						strings: [
-							"black",
-							"blue",
-							"brown",
-							"green",
-							"pink",
-							"purple",
-							"red",
-							"tangerine",
-							"teal",
-							"white",
-							"yellow",
-							"custom",
-							"random",
-						],
+						strings: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom", "random"],
 					},
 				},
 			};
@@ -963,7 +919,7 @@ function settingsConvert(exportType, type, settings) {
 	const keys = Object.keys(listObject);
 	for (let i = 0; i < keys.length; i++) {
 		if (result[keys[i]] === undefined) continue;
-		if (["map", "skinColor", "player", "shopDefaults","options"].includes(keys[i])) {
+		if (["map", "skinColor", "player", "shopDefaults", "options"].includes(keys[i])) {
 			const itemKey = Object.keys(listObject[keys[i]]);
 			for (let j = 0; j < itemKey.length; j++) {
 				if (result[keys[i]][itemKey[j]] === undefined) continue;
