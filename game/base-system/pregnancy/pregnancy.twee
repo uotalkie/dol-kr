@@ -379,8 +379,9 @@
 				<<set _menstruation.periodEnabled to true>>
 			<</if>>
 		<<case "pregnant">>
-			<<if _pregnancy.ultrasoundDone gt 0>>
-				<<set _pregnancy.ultrasoundDone-->>
+			/* only allow 1 ultrasound a fortnight. Really, we should limit this to 2-3 ultrasounds per (normal) pregnancy, but once every two weeks is fair. */
+			<<if _pregnancy.ultrasoundDone and _pregnancy.ultrasoundLast lte $days - 14 >>>
+				<<set _pregnancy.ultrasoundDone = 0>>
 			<</if>>
 			<<switch _pregnancy.type>>
 				<<case "human">><<set _multiplier to (1/(1/9*$humanPregnancyMonths))>>
@@ -957,12 +958,13 @@
 
 <<widget "pregnancyGendersText">><<silently>>
 	<<set _pregnancy to $sexStats.vagina.pregnancy>>
+	<<set _pregnancy.genderKnown to true>>
 	<<set $_genders to {m:0,f:0,h:0}>>
 	<<run _pregnancy.fetus.forEach(b => $_genders[b.gender]++)>>
 	<<if _pregnancy.fetus[0].features.identical is true>>
 		<<set $_text_output to "의사 하퍼는 그들이 일란성 <<if _pregnancy.fetus.length is 3>>세쌍둥이<<else>>쌍둥이<</if>>라서 전부 같은 성별이며 얼굴형이 비슷하다고 생각한다.">>
 	<<elseif ($_genders.m is _pregnancy.fetus.length or $_genders.f is _pregnancy.fetus.length or $_genders.h is _pregnancy.fetus.length) and _pregnancy.fetus.length gt 1>>
-		<<set $_text_output to "그들이 모두 같은 성별임에도 불구하고 의사 하퍼는 그들이 약간 다른 얼굴형을 하고 있어 일란성 쌍둥이가 아니라고 생각한다.">>
+		<<set $_text_output to "그들이 모두 같은 성별임에도 불구하고, 의사 하퍼는 그들이 약간 다른 얼굴형을 하고 있어 일란성 쌍둥이가 아니라고 생각한다.">>
 	<<else>>
 		<<set $_text_output to "당신은">>
 		<<if $_genders.m gt 0>>

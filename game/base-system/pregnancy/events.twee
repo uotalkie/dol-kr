@@ -670,16 +670,25 @@ Player re-equips clothes.
 <</widget>>
 
 :: Pregnancy ultrasound
+/* Ultrasounds not performed before 12 weeks in normal circumstances, or before 8 in high-risk. Prior to 12 weeks, ultrasounds are usually performed transvaginally. Future commit will address this.*/
+
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
-<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+<<set _pregnancy to $sexStats.vagina.pregnancy>>
+<<set _pregnancy.ultrasoundDone to 1>><<set _pregnancy.ultrasoundLast to $days>>
 <<harper_intro>>
 <<if $ultrasoundIntro isnot 1>>
 	<<set $ultrasoundIntro to 1>>
-	player is introduced to what ultrasounds are, how it occurs and the reasons why they are done.
+	/* player is introduced to what ultrasounds are, how it occurs and the reasons why they are done. */
+	"So, I guess congratulations are in order?" says Doctor Harper. "The next step is to run a diagnostic ultrasound to look at the child. If you are far enough along, we can determine the child's sex," <<he>> says.<br>
+	"Please follow the nurse to Radiology."<br><br>
+<<else>>
+
+	You follow the signs to Radiology for your ultrasound appointment.
 <</if>>
 
-Player is taken somewhere where it occurs, they remove their upper related clothes.
-
+You are taken to a room in the hospital basement. Several machines blink and make soft "ping" sounds.
+A bed is in one corner of the room, with a monitor next to it, facing away from the bed.<br>
+A technician enters the room and asks you to lie down and remove your outerwear.<br>
 <<overupperstrip>>
 <<upperstrip>>
 <<underupperstrip>>
@@ -688,117 +697,173 @@ Player is taken somewhere where it occurs, they remove their upper related cloth
 
 :: Pregnancy ultrasound 2
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
-
-Ultrasound occurs, Dr Harper lets them know what going on.
-<<set $_pregnancy to $sexStats.vagina.pregnancy>>
-<<if $_pregnancy.fetus.length gt 1>>
-	<<set _multiple to true>>
+You strip and lie down.
+<<set _pregnancy to $sexStats.vagina.pregnancy>>
+<<if _pregnancy.timer lte _pregnancy.timerEnd * 0.3>>
+	"You're not far along enough for an abdominal ultrasound," the technician remarks. "But we can use the doppler to listen for cardiac activity."  
+	The technician picks up a small handheld instrument, twists a dial and begins pressing a small circular wand against your lower abdomen.<br>
+	She moves the wand slowly across your body as the instrument makes static-sounding hisses, punctuated by occasional thrums.
+	She slows and the thrums become more rhythmic in a staccato dance. "There! Listen. A healthy child." The thrumming soothes you at a little more than two beats every second.<br>  <<stress -10>>
+	<<if _pregnancy.fetus.length gt 1>>
+		The technician moves the wand slightly and barely covers the surprise on her face. "And there's another one!"<br> 
+		You hear a second pulsing, slightly different in tempo.<br>
+		You wonder how you will provide for multiple babies at once.<<stress 2>> <<gstress>> <br>
+	<</if>>
 <<else>>
-	<<set _multiple to false>>
-	<<switch $_pregnancy.fetus[0].gender>>
-		<<case "m">>
-			<<set $_he to "he">>
-			<<set $_He to "He">>
-			<<set $_his to "his">>
-			<<set $_His to "His">>
-		<<case "h">>
-			<<set $_he to "she">>
-			<<set $_He to "She">>
-			<<set $_his to "her">>
-			<<set $_His to "Her">>
-			<<set $_gender to "female">>
-		<<case "f">>
-			<<set $_he to "she">>
-			<<set $_He to "She">>
-			<<set $_his to "her">>
-			<<set $_His to "Her">>
-			<<set $_gender to "hermaphrodite">>
-	<</switch>>
-<</if>>
-<<switch $_pregnancy.type>>
-	<<case "human">>
-		<<if $_pregnancy.timer / $_pregnancy.timerEnd lte 0.1>>
-			<<if _multiple>>
-				아기들이 너무 작아서, 초음파로 간신히 파악할 수 있었다. 아기들의 조그마한 심장은 거의 매초에 한 번씩 박동하고 있다.
-				<<if $_pregnancy.fetus.length gt 1>>
-					당신은 당신이 <<if $_pregnancy.fetus.length is 3>>세쌍둥이<<else>>쌍둥이<</if>>를 임신하고 있다는 걸 알았다.
+	<<bodyliquid "vaginaoutside" "goo" 2>>
+	The technician tries to make small talk as she prepares the gel and wand for the procedure. Thankfully the gel is warmed as she slathers it on your abdomen.<br>
+	<<if $cowbuild gte 20>>
+		<br>Your teats tingle with anticipation.<<garousal>> <<arousal 3>> <br><br>
+	<<elseif $wolfbuild gte 20>>
+		/* <br>Your wolf fur gets slightly matted by the gel.<br><br> */
+	<<elseif $catbuild gte 20>>
+		/* <br>Your cat fur gets slightly matted by the gel. <br><br> */
+	<</if>>
+
+	The technician runs the wand left and right over your lower abdominals, as the screen changes and flashes different shades of grey over her face.<br>
+	There's a lot of clicking and typing on the computer as the technician measures different parts - femur, head, humerus, and amniotic fluid levels.<br>
+	Finally, she turns to you and asks if you'd like to see the pictures now.<br>
+	You nod nervously, and the technician swings the monitor toward your face.
+
+	/*<<set $_pregnancy to $sexStats.vagina.pregnancy>> */
+	<<if _pregnancy.fetus.length gt 1>>
+		<<set _multiple to true>>
+	<<else>>
+		<<set _multiple to false>>
+		<<switch _pregnancy.fetus[0].gender>>
+			<<case "m">>
+				<<set _he to "he">>
+				<<set _He to "He">>
+				<<set _his to "his">>
+				<<set _His to "His">>
+			<<case "f">>
+				<<set _he to "she">>
+				<<set _He to "She">>
+				<<set _his to "her">>
+				<<set _His to "Her">>
+				<<set _gender to "female">>
+			<<case "h">>
+				<<set _he to "she">>
+				<<set _He to "She">>
+				<<set _his to "her">>
+				<<set _His to "Her">>
+				<<set _gender to "hermaphrodite">>
+		<</switch>>
+	<</if>>
+	<<switch _pregnancy.type>>
+		<<case "human">>
+
+			<br>You see <<if _multiple>><<if _pregnancy.fetus.length is 3>>three<<else>>two<</if>> sets<<else>>a pair<</if>> of eyes, arms, hands, legs, and feet as the technician moves the wand across your full belly. <<stress -5>><<lstress>><br>
+			<br>"Perfect pictures!" the technician gushes. "I'll print them out for you to take home."<br>
+
+			<<if _pregnancy.timer gte _pregnancy.timerEnd * 0.9>>
+			/* 36-40 weeks, full term */
+				<<if ! _multiple>>
+					"Good news, your baby has dropped and is head-down. Hopefully this has eased some of the pressure you feel!"
+				<</if>>
+				There's not much room left in your womb -- it'll be time to deliver soon.<br>
+				Doctor Harper enters and provides some literature about what to do when labour begins.<br>
+				"Please come see us at the hospital when your waters break. We will take good care of you."<br>
+			<<elseif _pregnancy.timer gte _pregnancy.timerEnd * 0.8>>
+			/*32-36 weeks, preterm */
+				As the technician continues to probe, you feel several fluttery kicks from your womb.<br>
+				"Based on the measurements," the technician says, "you'll be full term in a few weeks. Have you made your birth plans yet? Make sure you're getting enough rest and nutrition!"<br>
+				You're not sure what other plans to make right now, but you know you'll need rest and money. <<gstress>><<stress 2>><br>
+			<<elseif _pregnancy.timer gte _pregnancy.timerEnd * 0.7>>
+			/*28-32 weeks */
+				"Look, <<print _he>> is moving around! Can you see the fingers?" the technician coos. You look, and it appears <<print _his>> hand is waving at the screen. <<llstress>><<stress -7>><br>
+				You feel the movements from the inside at the same time.
+				<br>Doctor Harper enters the room.<br><br>
+				<<if _multiple>>
+					"Your children look healthy. They just need to keep growing, putting on weight and maturing their lungs.
+					It's very important that you make healthy choices right now, as your children depend on your body for everything."<br>
+				<<else>>
+					"Your child looks healthy. <<print _He>> just need to keep growing, putting on weight and maturing <<print _his>> lungs.
+					It's very important that you make healthy choices right now, as your child depends on your body for everything."<br>
+				<</if>>
+			<<elseif _pregnancy.timer gte _pregnancy.timerEnd * 0.6>>
+			/* 24-28 weeks */
+				<<if _multiple>>
+					The technician continues to probe your belly. As she does, you feel like there is a swarm of butterflies inside as your children turn back and forth in response to the prodding from the ultrasound. <br>
+					Doctor Harper enters the room. "Everything seems in order. Your babies are measuring <<print _pregnancy.fetus[0].features.size>>, and is perfectly healthy. Please come see us in a few months to make sure you're ready to give birth."<br>
+				<<else>>
+					The technician continues to probe your belly. As she does, you feel like there is a swarm of butterflies inside as your child turns back and forth in response to the prodding from the ultrasound.<br>
+					Doctor Harper enters the room. "Everything seems in order. Your baby is measuring <<print _pregnancy.fetus[0].features.size>>, and is perfectly healthy. Please come see us in a few months to make sure you're ready to give birth."<br>
+				<</if>>
+			<<elseif _pregnancy.timer gte _pregnancy.timerEnd * 0.4>>
+			/* 16-24 weeks */
+				<<if ! _pregnancy.genderKnown>>
+					<<if $_multiple>>
+					    <<set _pregnancy.genderKnown to true>>
+						The technician moves the wand over your gently bulging belly. The wand glides smoothly, though the pressure she is using is uncomfortable.<br>
+						"Are you excited to know the sex of your babies?" she annouces. "Doctor Harper will be in momentarily."<br>
+						<<pregnancyGendersText>>
+					<<else>>
+							<<set _pregnancy.genderKnown to true>>
+							The technician moves the wand over your slightly rounded abdomen. The wand glides smoothly, though the pressure she is using is uncomfortable.<br>
+							<<if _pregnancy.fetus[0].gender is "m">>
+								"Congratulations, it's a boy! You can see the penis and scrotum right there." The technician traces out a head-and-shoulders looking pattern on the monitor. It just looks like a blur to you.<br>
+							<<elseif _pregnancy.fetus[0].gender is "f">>
+								"Congratulations, it's a girl! You can see the vulvar folds here." The technician draws three short parallel lines on the monitor that look roughly like a sandwich.<br>
+							<<else>>
+								"Congratulations, it's a hermaphrodite! This one will be a very special child." The technician points out three lines and three bumps on the monitor. Your head is swimming with the idea of raising a baby with both sets of organs.<br>
+							<</if>>
+						
+					<</if>>
+				<<else>>
+					<<if _multiple>>
+						"Your babies are doing great. They're a little smaller than if you just had the one, but they are responsive and moving well. There's ample fluid as well, so it should be a normal pregnancy."<br>
+						<<llstress>> <<stress -8>>
+						On the screen you can see them moving around, legs and arms switching places. One jerks rapidly, and the technician giggles. "Hiccups!"<br>
+
+					<<else>>
+						"Your baby is doing great. <<print _He>> is responsive and moving well. There's ample fluid as well, so it should be a normal pregnancy."<br>
+						<<llstress>> <<stress -8>>		
+						On the screen you can see <<print _him>> moving around, legs and arms switching places. <<print _He>> jerks rapidly, and the technician giggles. "Hiccups!"<br>
+					<</if>>
+
+				<</if>>
+			<<elseif _pregnancy.timer gte _pregnancy.timerEnd * 0.3>>
+				<<if ! _pregnancy.genderKnown>>
+				/* 12-16 weeks */
+					"It's time!" the technician announces.<br>
+					<<if _multiple>>
+						The technician continues to move the wand over your gently bulging belly. The wand glides smoothly, though the pressure she is using is uncomfortable.<br>
+						"Are you excited to know the sex of your babies?" she annouces. "Doctor Harper will be in momentarily."<br>
+						<<pregnancyGendersText>>
+						<<set _pregnancy.genderKnown to true>>
+					<<else>>
+						<<set _pregnancy.genderKnown to true>>
+						The technician continues to move the wand over your slightly rounded abdomen. The wand glides smoothly, though the pressure she is using is uncomfortable.<br>
+						<<if _pregnancy.fetus[0].gender is "m">>
+							"Congratulations, it's a boy! You can see the penis and scrotum right there." The technician traces out a head-and-shoulders looking pattern on the monitor. It just looks like a blur to you.<br>
+						<<elseif _pregnancy.fetus[0].gender is "f">>
+							"Congratulations, it's a girl! You can see the vulvar folds here." The technician draws three short parallel lines on the monitor that look roughly like a sandwich.<br>
+						<<else>>
+							"Congratulations, it's a hermaphrodite! This one will be a very special child." The technician points out three lines and three bumps on the monitor. Your head is swimming with the idea of raising a baby with both sets of organs.<br>
+						<</if>>
+					<</if>>
+				<<else>>
+						"Your baby is doing great. <<print _He>> is responsive and moving well. There's ample fluid as well, so it should be a normal pregnancy." <<llstress>> <<stress -8>> <br>		
+						On the screen you can see <<print _him>> moving around, legs and arms switching places. <<print _He>> jerks rapidly, and the technician giggles. "Hiccups!"<br>
 				<</if>>
 			<<else>>
-				아기가 너무 작아서. 초음파로 간신히 파악할 수 있었다. 아기의 조그마한 심장은 거의 매초에 한 번씩 박동하고 있다.
+			/* Shouldn't get here. */
 			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.2>>
-			<<if _multiple>>
-				아기들은 조그맣지만 당신은 더 세부적인 형태를 볼 수 있다. 당신은 귀와 눈이 형성되기 시작하려는 것을 볼 수 있고, 팔과 다리가 있을 자리에 조그마한 봉오리가 형성되려 하는 걸 볼 수 있다. 아기들의 머리는 나머지 몸에 비해 훨씬 크다.
-			<<else>>
-				아기는 여전히 조그맣지만 당신은 더 세부적인 형태를 볼 수 있다. 당신은 귀와 눈이 형성되기 시작하려는 것을 볼 수 있고, 팔과 다리가 있을 자리에 조그마한 봉오리가 형성되려 하는 걸 볼 수 있다. 아기들의 머리는 나머지 몸에 비해 훨씬 크다.
-			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.3>>
-			<<if _multiple>>
-				이제 당신의 아기들은 더이상 조그맣지 않고 모든 형태를 갖추었다. 팔, 손, 손가락, 발, 발가락 모두가 완전히 형성되어 있다. 그들은 이제 주먹을 쥐어 보이는 것 따위의 행동으로 탐색을 시작하고 있다.
-			<<else>>
-				이제 당신의 아기는 더이상 조그맣지 않고 모든 형태를 갖추었다. 팔, 손, 손가락, 발, 발가락 모두가 완전히 형성되어 있다. 그들은 이제 주먹을 쥐어 보이는 것 따위의 행동으로 탐색을 시작하고 있다.
-			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.4>>
-			<<if _multiple>>
-				Babies continues to grow in size. Their hearts are audible through an instrument called a doppler. Eyelids, eyebrows, eyelashes, nails and hair are formed. They can suck their own thumbs, yawn, stretch and make faces. Genitalia are fully developed so they can be told to the player.
-				<<pregnancyGendersText>>
-			<<else>>
-				<<print $_He>> continues to grow in size. Heart is audible through an instrument called a doppler. Eyelids, eyebrows, eyelashes, nails and hair are formed. <<print $_He>> can suck <<print $_his>> own thumbs, yawn, stretch and make faces. Genitalia are fully developed now so you know <<print $_he>> is a little
-				<<switch $_pregnancy.fetus[0].gender>>
-					<<case "m">>boy.
-					<<case "f">>girl.
-					<<case "h">>hermaphrodite.
-				<</switch>>
-			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.5>>
-			<<if _multiple>>
-				Babies continues to grow in size. They can move around, developing muscles and exercising them. Hair is growing on their head, protective hair/white coating is growing over the baby, this will shed shortly after birth.
-			<<else>>
-				<<print $_He>> continues to grow in size. <<print $_He>> can move around, developing muscles and exercising them. Hair is growing on <<print $_his>> head, protective hair/white coating is growing over the baby, this will shed shortly after birth.
-			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.6>>
-			<<if _multiple>>
-				Babies continues to grow in size. Eyelids begin to part and eyes open/close. They have started to develop some body fat, hearing is fully developed. They change position frequently and responds to stimuli, including sound, pain and light. The amniotic fluid begins to diminish.
-			<<else>>
-				<<print $_He>> continues to grow in size. Eyelids begin to part and eyes open/close. <<print $_He>> has started to develop some body fat, hearing is fully developed. <<print $_He>> change position frequently and responds to stimuli, including sound, pain and light. The amniotic fluid begins to diminish.
-			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.7>>
-			<<if _multiple>>
-				Babies continues to mature and develop more reserves of body fat. They will be will be kicking more at this point. Their brain is developing rapidly at this time, and they can see and hear.
-			<<else>>
-				<<print $_He>> continues to mature and develop more reserves of body fat. <<print $_He>> will be will be kicking more at this point. <<print $_His>> brain is developing rapidly at this time, and they can see and hear.
-			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.8>>
-			<<if _multiple>>
-				Babies are getting close to being fully grown. Their reflexes are coordinated so they can blink, close the eyes, turn the head, grasp firmly, and respond to sounds, light, and touch. Lungs are close to fully developed.
-			<<else>>
-				<<print $_He>> is getting close to being fully grown. <<print $_His>> reflexes are coordinated so <<print $_he>> can blink, close the eyes, turn the head, grasp firmly, and respond to sounds, light, and touch. Lungs are close to fully developed.
-			<</if>>
-		<<elseif $_pregnancy.timer / $_pregnancy.timerEnd lte 0.9>>
-			<<if $_pregnancy.fetus.length gt 1>>
-				Babies are almost fully grown, they are slightly smaller than if you weren't pregnant with <<if $_pregnancy.fetus.length is 3>>triplets<<else>>twins<</if>>. They will start to move around less, their position will have moved to having their head closer to your pelvis.
-			<<else>>
-				<<print $_He>> is almost fully grown. <<print $_He>> will start to move around less, <<print $_his>> position will have moved to having <<print $_his>> head closer to your pelvis.
-			<</if>>
-			Mention the time for labour is starting to get close.
-		<<else>>
-			<<if $_pregnancy.fetus.length gt 1>>
-				Babies are fully grown and ready to face the world, they are slightly smaller than if you weren't pregnant with <<if $_pregnancy.fetus.length is 3>>triplets<<else>>twins<</if>>.
-			<<else>>
-				<<print $_He>> is fully grown and ready to face the world.
-			<</if>>
-			Mention labour might occur soon and to be ready for the players water to break.
-		<</if>>
-	<<case "wolf">>
-	<<default>>
-<</switch>>
 
-<<link [[Next|Pregnancy ultrasound 2]]>><</link>>
+		<<case "wolf">>
+
+		<<default>>
+	<</switch>>
+<</if>>
+
+<<link [[Next|Pregnancy ultrasound 3]]>><</link>>
 
 :: Pregnancy ultrasound 3
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
 <<clotheson>>
-Player thanks Dr Harper, puts clothes on and leaves.
+You thank Doctor Harper for the scan. The technician hands you a warm towel and helps you wipe off the gel.<br> <<bodyliquid "vaginaoutside" "goo" -1>>
+You dress and prepare for what comes next for you and your offspring.<br>
 
 <<link [[대기실로 돌아간다|Hospital Foyer]]>><<endevent>><</link>>

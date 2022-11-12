@@ -1818,6 +1818,26 @@
 	<</if>>
 <</if>>
 
+<<if $leftaction is "penisremovecondom" or $rightaction is "penisremovecondom">>
+	<<set _handsCount to 0>>
+	<<if $leftaction is "penisremovecondom">>
+		<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
+		<<set _handsCount++>>
+	<</if>>
+	<<if $rightaction is "penisremovecondom">>
+		<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
+		<<set _handsCount++>>
+	<</if>>
+	<<if false>>
+		/*Npc tries to prevent you from removing the condom*/
+	<<else>>
+		<<if $player.condom>>
+			You are not stopped from removing the condom from your penis.
+			<<removeCondom>>
+		<</if>>
+	<</if>>
+<</if>>
+
 <<if $leftaction is "leftmasturbatepussy">>
 	<<set $leftaction to 0>><<set $leftactiondefault to "leftmasturbatepussy">><<combatpromiscuity3>>
 	<<set $_genitals_exposed to $worn.over_lower.vagina_exposed gte 1 and ($worn.lower.vagina_exposed gte 1 or $worn.lower.skirt gte 1) and $worn.under_lower.vagina_exposed gte 1 and $worn.genitals.vagina_exposed gte 1>>
@@ -4163,76 +4183,131 @@
 				녀석은 잠시 멈칫했다가 반응을 보인다,
 				<<set _response to [
 					"그야 쉽지, <<slut_ a>>.",
-					"그래, 네가 무언가 성병이라도 걸려 있을 수도 있으니까.",
-					"내가 가장 원하지 않는 것은 알지도 못하는 애새끼가 내 이름을 달고 있는 거야.",
+					"You like it bareback, eh?",
+					"You're a proper cumdump.",
 					"좋아, 대신 네가 협조하는 것을 요구하겠어.",
-					"좋은 생각이야, 나는 나를 추적할 어떤 증거도 남기고 싶지 않으니까."
+					"You better be clean."
 				]>>
 				<span class="green">"<<print _response.pluck()>>"</span>
 				<<set $condomUse to false>>
+				<<set _npcReject to false>>
 			<<else>>
 				<<if $npc and $NPCList[0].pregnancyAvoidance gt random(0, 99)>>
 					<<set _npcReject to true>>
 				<</if>>
-				<<if _npcReject>>
-					<<set $condomUse to true>>
-					<<switch $npc>>
-						<<default>><span class="lewd"><<He_ ga>> 말한다, "나는 아이들을 가질 준비가 안 됐어, 후회하기 보다는 안전한 게 낫지."</span>
-					<</switch>>
-					/*Your penis*/
+			<</if>>
+
+			<<if _npcReject>>
+				<<set $condomUse to true>>
+				<<switch $npc>>
+					<<default>><span class="lewd"><<He_ ga>> 말한다, "나는 아이들을 가질 준비가 안 됐어, 후회하기 보다는 안전한 게 낫지."</span>
+				<</switch>>
+				/*Your penis*/
+				<<if $penisstate is "entrance" or $penisstate is "imminent" or $penisstate is "otheranusentrance" or $penisstate is "otheranusimminent">>
+					<<if ($NPCList[$penistarget].vagina is "penis" or $NPCList[$penistarget].penis is "otheranus") and !$player.condom and $parasite.penis.name is undefined>>
+						<<personselect $penistarget>>
+						<span class="green">그 <<person_ un>> 콘돔을 당신의 자지에 씌운다.</span>
+						<<equipCondom>>
+					<</if>>
+				<</if>>
+				<<if $penisstate is "penetrated">>
+					<<if $NPCList[$penistarget].vagina is "penis" and !$player.condom and $parasite.penis.name is undefined>>
+						<<personselect $penistarget>>
+						<span class="green">그 <<person_ un>> 잠깐동안 당신의 자지를 <<his_ yi>> 보지에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
+						<<equipCondom>>
+					<</if>>
+				<</if>>
+				<<if $penisstate is "otheranus">>
+					<<if $NPCList[$penistarget].penis is "otheranus" and !$player.condom and $parasite.penis.name is undefined>>
+						<<personselect $penistarget>>
+						<span class="green">그 <<person_ un>> 잠깐동안 당신의 자지를 <<his_ yi>> 항문에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
+						<<equipCondom>>
+					<</if>>
+				<</if>>
+				/*Their penis*/
+				<<if $vaginastate is "entrance" or $vaginastate is "imminent" or $vaginastate is "doubleentrance" or $vaginastate is "doubleimminent">>
+					<<if ($NPCList[$vaginatarget].penis is "vaginaentrance" or $NPCList[$vaginatarget].penis is "vaginaimminent") and $NPCList[$vaginatarget].condom is false>>
+						<<personselect $vaginatarget>>
+						<span class="green">그 <<person_ un>> 콘돔을 <<his_ yi>> 자지에 씌운다.</span>
+						<<equipCondom $vaginatarget>>
+					<</if>>
+				<</if>>
+				<<if $vaginastate is "penetrated" or $vaginastate is "doublepenetrated">>
+					<<if $NPCList[$vaginatarget].penis is "vagina" and $NPCList[$vaginatarget].condom is false>>
+						<<personselect $vaginatarget>>
+						<span class="green">그 <<person_ un>> 잠깐동안 <<his_ yi>> 자지를 당신의 보지에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
+						<<equipCondom $vaginatarget>>
+					<</if>>
+				<</if>>
+				<<if $anusstate is "entrance" or $anusstate is "imminent" or $anusstate is "doubleentrance" or $anusstate is "doubleimminent">>
+					<<if ($NPCList[$anustarget].penis is "anusentrance" or $NPCList[$anustarget].penis is "anusimminent") and $NPCList[$anustarget].condom is false>>
+						<<personselect $anustarget>>
+						<span class="green">그 <<person_ un>> 콘돔을 <<his_ yi>> 자지에 씌운다.</span>
+						<<equipCondom $anustarget>>
+					<</if>>
+				<</if>>
+				<<if $anusstate is "penetrated" or $anusstate is "doublepenetrated">>
+					<<if $NPCList[$anustarget].penis is "anus" and $NPCList[$anustarget].condom is false>>
+						<<personselect $anustarget>>
+						<span class="green">그 <<person_ un>> 잠깐동안 <<his_ yi>> 자지를 당신의 항문에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
+						<<equipCondom $anustarget>>
+					<</if>>
+				<</if>>
+			<<else>>
+				<span class="green">녀석은 수긍하여 고개를 끄덕인다.</span>
+				<<set $condomUse to false>>
+				/*Your penis*/
+				<<if $player.condom>>
 					<<if $penisstate is "entrance" or $penisstate is "imminent" or $penisstate is "otheranusentrance" or $penisstate is "otheranusimminent">>
-						<<if ($NPCList[$penistarget].vagina is "penis" or $NPCList[$penistarget].penis is "otheranus") and !$player.condom and $parasite.penis.name is undefined>>
+						<<if ($NPCList[$penistarget].vagina is "penis" or $NPCList[$penistarget].penis is "otheranus")>>
 							<<personselect $penistarget>>
-							<span class="green">그 <<person_ un>> 콘돔을 당신의 자지에 씌운다.</span>
-							<<equipCondom>>
+							<span class="green">The <<person>> rolls the condom off your penis.</span>
+							<<removeCondom>>
 						<</if>>
 					<</if>>
 					<<if $penisstate is "penetrated">>
-						<<if $NPCList[$penistarget].vagina is "penis" and !$player.condom and $parasite.penis.name is undefined>>
+						<<if $NPCList[$penistarget].vagina is "penis">>
 							<<personselect $penistarget>>
-							<span class="green">그 <<person_ un>> 잠깐동안 당신의 자지를 <<his_ yi>> 보지에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
-							<<equipCondom>>
+							<span class="green">The <<person>> briefly frees your penis from <<his>> vagina, rolls off the condom, and slides it back in.</span>
+							<<removeCondom>>
 						<</if>>
 					<</if>>
 					<<if $penisstate is "otheranus">>
-						<<if $NPCList[$penistarget].penis is "otheranus" and !$player.condom and $parasite.penis.name is undefined>>
+						<<if $NPCList[$penistarget].penis is "otheranus">>
 							<<personselect $penistarget>>
-							<span class="green">그 <<person_ un>> 잠깐동안 당신의 자지를 <<his_ yi>> 항문에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
-							<<equipCondom>>
+							<span class="green">The <<person>> briefly frees your penis from <<his>> anus, rolls off the condom, and slides it back in.</span>
+							<<removeCondom>>
 						<</if>>
 					<</if>>
-					/*Their penis*/
-					<<if $vaginastate is "entrance" or $vaginastate is "imminent">>
-						<<if ($NPCList[$vaginatarget].penis is "vaginaentrance" or $NPCList[$vaginatarget].penis is "vaginaimminent") and $NPCList[$vaginatarget].condom is false>>
-							<<personselect $vaginatarget>>
-							<span class="green">그 <<person_ un>> 콘돔을 <<his_ yi>> 자지에 씌운다.</span>
-							<<equipCondom $vaginatarget>>
-						<</if>>
+				<</if>>
+				/*Their penis*/
+				<<if $vaginastate is "entrance" or $vaginastate is "imminent" or $vaginastate is "doubleentrance" or $vaginastate is "doubleimminent">>
+					<<if ($NPCList[$vaginatarget].penis is "vaginaentrance" or $NPCList[$vaginatarget].penis is "vaginaimminent" or $NPCList[$vaginatarget].penis is "vaginaentrancedouble" or $NPCList[$vaginatarget].penis is "vaginadoubleimminent") and $NPCList[$vaginatarget].condom>>
+						<<personselect $vaginatarget>>
+						<span class="green">The <<person>> rolls the condom off <<his>> penis.</span>
+						<<removeCondom $vaginatarget>>
 					<</if>>
-					<<if $vaginastate is "penetrated">>
-						<<if $NPCList[$vaginatarget].penis is "vagina" and $NPCList[$vaginatarget].condom is false>>
-							<<personselect $vaginatarget>>
-							<span class="green">그 <<person_ un>> 잠깐동안 <<his_ yi>> 자지를 당신의 보지에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
-							<<equipCondom $vaginatarget>>
-						<</if>>
+				<</if>>
+				<<if $vaginastate is "penetrated" or $vaginastate is "doublepenetrated">>
+					<<if $NPCList[$vaginatarget].penis is "vagina" and $NPCList[$vaginatarget].condom>>
+						<<personselect $vaginatarget>>
+						<span class="green">The <<person>> briefly withdraws <<his>> penis from your vagina, rolls off the condom, and slides it back in.</span>
+						<<removeCondom $vaginatarget>>
 					<</if>>
-					<<if $anusstate is "entrance" or $anusstate is "imminent">>
-						<<if ($NPCList[$anustarget].penis is "anusentrance" or $NPCList[$anustarget].penis is "anusimminent") and $NPCList[$anustarget].condom is false>>
-							<<personselect $anustarget>>
-							<span class="green">그 <<person_ un>> 콘돔을 <<his_ yi>> 자지에 씌운다.</span>
-							<<equipCondom $anustarget>>
-						<</if>>
+				<</if>>
+				<<if $anusstate is "entrance" or $anusstate is "imminent" or $anusstate is "doubleentrance" or $anusstate is "doubleimminent">>
+					<<if ($NPCList[$anustarget].penis is "anusentrance" or $NPCList[$anustarget].penis is "anusimminent" or $NPCList[$anustarget].penis is "anusdoubleentrance" or $NPCList[$anustarget] is "anusdoubleimminent") and $NPCList[$anustarget].condom>>
+						<<personselect $anustarget>>
+						<span class="green">The <<person>> rolls the condom off <<his>> penis.</span>
+						<<removeCondom $anustarget>>
 					<</if>>
-					<<if $anusstate is "penetrated">>
-						<<if $NPCList[$anustarget].penis is "anus" and $NPCList[$anustarget].condom is false>>
-							<<personselect $anustarget>>
-							<span class="green">그 <<person_ un>> 잠깐동안 <<his_ yi>> 자지를 당신의 항문에서 빼서, 콘돔을 씌우고, 다시 안으로 집어넣는다.</span>
-							<<equipCondom $anustarget>>
-						<</if>>
+				<</if>>
+				<<if $anusstate is "penetrated" or $anusstate is "doublepenetrated">>
+					<<if $NPCList[$anustarget].penis is "anus" and $NPCList[$anustarget].condom>>
+						<<personselect $anustarget>>
+						<span class="green">The <<person>> briefly withdraws <<his>> penis from your anus, rolls off the condom, and slides it back in.</span>
+						<<removeCondom $anustarget>>
 					<</if>>
-				<<else>>
-					<span class="green">녀석은 수긍하여 고개를 끄덕인다.</span>
-					<<set $condomUse to false>>
 				<</if>>
 			<</if>>
 		<<else>>
