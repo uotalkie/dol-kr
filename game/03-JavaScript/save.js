@@ -738,7 +738,7 @@ function settingsObjects(type) {
 					randomize: "characterTrait",
 				},
 				gamemode: { strings: ["normal", "soft", "hard"] },
-				startingseason: { strings: ["autumn", "winter", "spring", "summer", "random"] },
+				startingseason: { strings: ["autumn", "winter", "spring", "summer", "random"], randomize: "gameplay" },
 				ironmanmode: { bool: false },
 				player: {
 					gender: { strings: ["m", "f", "h"], randomize: "characterAppearance" },
@@ -799,7 +799,7 @@ function settingsObjects(type) {
 				hirsutedisable: { boolLetter: true, bool: true },
 				pbdisable: { boolLetter: true, bool: true },
 				breastfeedingdisable: { boolLetter: true, bool: true },
-				analpregdisable: { boolLetter: true, bool: true },
+				parasitepregdisable: { boolLetter: true, bool: true },
 				watersportsdisable: { boolLetter: true, bool: true },
 				facesitdisable: { boolLetter: true, bool: true },
 				spiderdisable: { boolLetter: true, bool: true },

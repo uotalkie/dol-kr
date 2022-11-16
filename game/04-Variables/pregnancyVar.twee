@@ -18,7 +18,15 @@
 			mother: 0,
 			aftermorningpills: 0,
 			pregnancyTestsTaken: 0,
+			parasiteBook: 0,
+			parasiteDoctorEvents: 0,
 		}>>
+	<</if>>
+	<<if !$pregnancyStats.morningSicknessGeneral>>
+		<<set $pregnancyStats.morningSicknessGeneral to 0>>
+		<<set $pregnancyStats.morningSicknessWaking to 0>>
+		<<set $pregnancyStats.parasiteDoctorEvents to 0>>
+		<<set $pregnancyStats.parasiteBook to 0>>
 	<</if>>
 <</widget>>
 
@@ -96,24 +104,25 @@
 	<<set $container.list.pushUnique("farm")>>
 <</if>>
 
-<<if $sexStats.anus.pregnancy.typesSeen is undefined or $sexStats.anus.pregnancy.variantsSeen is undefined>>
-	<<set $sexStats.anus.pregnancy.typesSeen to []>><<set $sexStats.anus.pregnancy.variantsSeen to []>>
+<<if $pregnancyStats is undefined>>
+<<elseif $pregnancyStats.parasiteTypesSeen is undefined or $pregnancyStats.parasiteVariantsSeen is undefined>>
+	<<set $pregnancyStats.parasiteTypesSeen to []>><<set $pregnancyStats.parasiteVariantsSeen to []>>
 	<<for _i range $container.list>>
 		<<for _o to 0; _o lt $container[_i].maxCount; _o++>>
 			<<if $container[_i].creatures[_o] isnot undefined and $container[_i].creatures[_o] isnot null>>
 				<<if $container[_i].creatures[_o].creature.includes("Tentacle")>>
-					<<set $sexStats.anus.pregnancy.typesSeen.pushUnique("Tentacle")>>
+					<<set $pregnancyStats.parasiteTypesSeen.pushUnique("Tentacle")>>
 				<<elseif $container[_i].creatures[_o].creature.includes("Vine")>>
-					<<set $sexStats.anus.pregnancy.typesSeen.pushUnique("Vine")>>
+					<<set $pregnancyStats.parasiteTypesSeen.pushUnique("Vine")>>
 				<<elseif $container[_i].creatures[_o].creature.includes("Slime")>>
-					<<set $sexStats.anus.pregnancy.typesSeen.pushUnique("Slime")>>
+					<<set $pregnancyStats.parasiteTypesSeen.pushUnique("Slime")>>
 				<<else>>
-					<<set $sexStats.anus.pregnancy.typesSeen.pushUnique($container[_i].creatures[_o].creature)>>
+					<<set $pregnancyStats.parasiteTypesSeen.pushUnique($container[_i].creatures[_o].creature)>>
 				<</if>>
 				<<if $container[_i].creatures[_o].creature.includes("Pale")>>
-					<<set $sexStats.anus.pregnancy.variantsSeen.pushUnique("Pale")>>
+					<<set $pregnancyStats.parasiteVariantsSeen.pushUnique("Pale")>>
 				<<elseif $container[_i].creatures[_o].creature.includes("Metal")>>
-					<<set $sexStats.anus.pregnancy.variantsSeen.pushUnique("Metal")>>
+					<<set $pregnancyStats.parasiteVariantsSeen.pushUnique("Metal")>>
 				<</if>>
 			<<else>>
 				<<break>>
@@ -129,17 +138,14 @@
 
 <<widget "prenancyObjectRepair">>
 	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<set _trueCount to 0>>
-	<<for _i to 0; _i lt 4; _i++>>
-		<<if _pregnancy[_i] isnot null>>
-			<<set _trueCount++>>
-			<<if _pregnancy[_i].creature is undefined>>
-				<<set _pregnancy[_i].creature to either("Tentacle","Spider","Fish","Snake","Eel")>>
+	<<if _pregnancy.type is "parasite">>
+		<<for _i to 0; _i lt 4; _i++>>
+			<<if _pregnancy.fetus[_i]>>
+				<<if _pregnancy.fetus[_i].creature is undefined>>
+					<<set _pregnancy.fetus[_i].creature to either("Tentacle","Spider","Fish","Snake","Eel")>>
+				<</if>>
 			<</if>>
-		<</if>>
-	<</for>>
-	<<if _trueCount isnot _pregnancy.count>>
-		<<set _pregnancy.count to clone(_trueCount)>>
+		<</for>>
 	<</if>>
 	<<set _list to ["home", "lake", "farm", "portable"]>>
 	<<for _i to 0; _i lt _list.length; _i++>>
@@ -155,8 +161,7 @@
 			<</if>>
 		<</for>>
 	<</for>>
-	<<if _pregnancy.motherStatus is 2 and _pregnancy.seenDoctor is 1>>
-		<<set _pregnancy.seenDoctor to 2>>
-		<<set _pregnancy.maxCount to 4>>
+	<<if _pregnancy.motherStatus is 2 and $pregnancyStats.parasiteDoctorEvents is 1>>
+		<<set $pregnancyStats.parasiteDoctorEvents to 2>>
 	<</if>>
 <</widget>>

@@ -48,7 +48,7 @@
 <<set $transformdisabledivine to "f">>
 /*<<set $hirsutedisable to "t">>*/
 <<set $breastfeedingdisable to "f">>
-<<set $analpregdisable to "f">>
+<<set $parasitepregdisable to "f">>
 <<set $asphyxiaLvl to 3>>
 <<set $NudeGenderDC to 1>>
 <<set $npcVirginityChance to 50>>
@@ -213,7 +213,7 @@
 	<<set _buttonName to "확인">>
 <</if>>
 <<link _buttonName>>
-	<<if ($feats.locked is true or ($cheatdisabletoggle is "t" and $rentmod gte 1)) and ($feats.soft is true or ($gamemode isnot "soft" and $alluremod gte 1)) and $options.maxStates lte 5>>
+	<<if ($feats.locked or ($cheatdisabletoggle is "t" and $rentmod gte 1)) and ($feats.soft or ($gamemode isnot "soft" and $alluremod gte 1)) and ($feats.pregnancyLocked or ($humanPregnancyMonths gte 3 or $wolfPregnancyWeeks gte 4)) and $options.maxStates lte 5>>
 		<<settingsExitFunction>>
 	<<elseif $options.maxStates lte 5>><!-- confirm cheats -->
 		<<replace #settingsExit>><<settingsExitConfirm>><</replace>>
@@ -226,6 +226,14 @@
 <<widget "settingsExitConfirm">>
 <span class="red">일부 설정은 특정 도전과제를 비활성화시킬 수 있습니다. 괜찮습니까?</span>
 <br>
+<ul>
+	<<if $cheatdisabletoggle is "f">><li>Enabling cheats will disable all feats.</li><</if>>
+	<<if $rentmod lt 1>><li>Lowering rend with disable all feats.</li><</if>>
+	<<if !$feats.soft and $gamemode is "soft">><li>Softmode will disable some feats</li><</if>>
+	<<if !$feats.soft and $alluremod lt 1>><li>Lowering the allure mode below 1 will disable some feats</li><</if>>
+	<<if !$feats.pregnancyLocked and $humanPregnancyMonths lt 3>><li>Human pregnancy being set below 3 months will disable some pregnancy feats.</li><</if>>
+	<<if !$feats.pregnancyLocked and $wolfPregnancyWeeks lt 4>><li>Wolf pregnancy being set below 4 weeks will disable some pregnancy feats.</li><</if>>
+</ul>
 <<link "아뇨, 해당 설정들을 원래대로 되돌려주세요">>
 	<<set $cheatdisabletoggle to "t">>
 	<<if $gamemode is "soft">>
@@ -236,6 +244,12 @@
 	<</if>>
 	<<if $rentmod lt 1>>
 		<<set $rentmod to 1>>
+	<</if>>
+	<<if $humanPregnancyMonths lt 3>>
+		<<set $humanPregnancyMonths to 3>>
+	<</if>>
+	<<if $wolfPregnancyWeeks lt 4>>
+		<<set $wolfPregnancyWeeks to 4>>
 	<</if>>
 	<<replace #settingsExit>><<settingsExit>><</replace>>
 	<<displaySettings>>
@@ -281,6 +295,9 @@
 	<<unset $cheatdisabletoggle>>
 	<<if $gamemode is "soft" or $alluremod lt 1>>
 		<<set $feats.soft to true>>
+	<</if>>
+	<<if $humanPregnancyMonths lt 3 or $wolfPregnancyWeeks lt 4>>
+		<<set $feats.pregnancyLocked to true>>
 	<</if>>
 	<<updatehistorycontrols>>
 	<<initnpcgender>>
@@ -978,7 +995,7 @@
 		</div></label>
 		/*ToDo: Pregnancy, remove duplicate option once enabled*/
 		<label><div class="settingsToggle">
-		<<checkbox "$analpregdisable" "t" "f" autocheck>> 항문 기생 임신 활성화
+		<<checkbox "$parasitepregdisable" "t" "f" autocheck>> Enable parasitic pregnancy
 		</div></label>
 		<label><div class="settingsToggle">
 		<<checkbox "$tentacledisable" "t" "f" autocheck>> 촉수 활성화
@@ -1124,14 +1141,25 @@
 			}).trigger('change') })>>
 		<</if>>
 		
-		<div class="numberslider-inline">
+		<div class="numberslider-inline humanPregnancyMonths-container">
 			<span class="gold">인간 아이 임신 기간 (달)</span>
 			<<numberslider "$humanPregnancyMonths" $humanPregnancyMonths 1 9 1>>
 		</div>
-		<div class="numberslider-inline">
+		<div class="numberslider-inline wolfPregnancyWeeks-container">
 			<span class="gold">늑대 아이 임신 기간 (주)</span>
 			<<numberslider "$wolfPregnancyWeeks" $wolfPregnancyWeeks 2 12 1>>
 		</div>
+		<<run $(() => { $('.humanPregnancyMonths-container input, .wolfPregnancyWeeks-container input').on('input change', e => {
+			if(V.feats.pregnancyLocked){
+				$('#pregnancyFeatsDisabled').text("Some Pregnancy Feats are be disabled.");
+			} else if(V.humanPregnancyMonths < 3 || V.wolfPregnancyWeeks < 4){
+				$('#pregnancyFeatsDisabled').text("Some Pregnancy Feats will be disabled.");
+			} else{
+				$('#pregnancyFeatsDisabled').text("");
+			}
+		}).trigger('change') })>>
+		<div id="pregnancyFeatsDisabled" class="red"></div>
+		
 		<br>
 		<div class="small-description"><span class="red">진행중인 임신을 멈추거나 이미 존재하는 아이들과 상호작용하는 것을 멈추지는 못합니다.</span></div>
 		<label><div class="settingsToggle">
@@ -1148,7 +1176,7 @@
 			</div></label>
 		<</if>>
 		<label><div class="settingsToggle">
-		<<checkbox "$analpregdisable" "t" "f" autocheck>> 항문 기생 임신 활성화
+		<<checkbox "$parasitepregdisable" "t" "f" autocheck>> Enable parasitic pregnancy
 		</div></label>
 		<label><div class="settingsToggle">
 		<<checkbox "$pregnancyspeechdisable" "t" "f" autocheck>> 임신 언급 활성화.

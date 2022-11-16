@@ -23,47 +23,12 @@ Save.onSave.add(save => {
 	Wikifier.wikifyEval("<<updateFeats>>");
 	save.state.history.forEach(h => {
 		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
-		h.variables.saveDetails.playTime += (new Date() - h.variables.saveDetails.loadTime ? h.variables.saveDetails.loadTime : 0);
+		h.variables.saveDetails.playTime += (h.variables.saveDetails.loadTime ? new Date() - h.variables.saveDetails.loadTime : 0);
 		h.variables.saveDetails.loadCount++;
 	});
 	// eslint-disable-next-line no-undef
 	prepareSaveDetails(); // defined in save.js
 });
-
-function defaultSaveDetails(input){
-	let saveDetails = input;
-	if(!saveDetails){
-		//In the rare case the variable doesnt exist
-		saveDetails = {
-			exported:{
-				days: clone(variables.days),
-				frequency: 15,
-				count: 0,
-				dayCount: 0,
-			},
-			auto:{
-				count: 0
-			},
-			slot:{
-				count: 0,
-				dayCount: 0,
-			}
-		}
-	}
-	if(!saveDetails.playTime){
-		saveDetails.playTime = 0;
-		saveDetails.loadCount = 0;
-	}
-	if(saveDetails.f !== 1){
-		saveDetails.f = 1;
-		saveDetails.playTime = 0;
-	}
-	if(saveDetails.f !== 2 && saveDetails.playTime > 1000000000){
-		saveDetails.playTime = 0;
-	}
-	saveDetails.f = 2;
-	return saveDetails;
-}
 
 /* LinkNumberify and images will enable or disable the feature completely */
 /* debug will enable or disable the feature only for new games */
@@ -129,6 +94,41 @@ importScripts([
 .catch(function (err) {
 	console.log(err);
 }); */
+
+function defaultSaveDetails(input){
+	let saveDetails = input;
+	if(!saveDetails){
+		//In the rare case the variable doesnt exist
+		saveDetails = {
+			exported:{
+				days: clone(variables.days),
+				frequency: 15,
+				count: 0,
+				dayCount: 0,
+			},
+			auto:{
+				count: 0
+			},
+			slot:{
+				count: 0,
+				dayCount: 0,
+			}
+		}
+	}
+	if(!saveDetails.playTime){
+		saveDetails.playTime = 0;
+		saveDetails.loadCount = 0;
+	}
+	if(saveDetails.f !== 1){
+		saveDetails.f = 1;
+		saveDetails.playTime = 0;
+	}
+	if(saveDetails.f !== 3){
+		saveDetails.playTime = 0;
+		saveDetails.f = 3;
+	}
+	return saveDetails;
+}
 
 // Runs before a passage load, returning a string redirects to the new passage name.
 Config.navigation.override = function (dest) {

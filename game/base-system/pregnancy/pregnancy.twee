@@ -1,235 +1,19 @@
 :: Pregnancy [widget]
-<<widget "impregnate">>
-<<if _args[0] and $analpregdisable is "f">>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<if _pregnancy.count lt _pregnancy.maxCount>>
-		<<set $calc to [random(0,100), (1 + _args[1]) / (_pregnancy.count + 1)]>>
-		<<if $calc[0] lte $calc[1] or _args[2]>>
-			<!-- chances of impregnation. Guaranteed with parasites based on futa -->
-			<<for _i to 0; _i lt _pregnancy.maxCount; _i++>>
-				<<if _pregnancy[_i] is null>>
-					<!-- Encorce non-plural names -->
-					<<switch _args[0]>>
-						<<case "slimes" "eels" "worms" "snakes" "spiders" "slugs" "maggots">>
-							<<set _creatureType to toTitleCase(_args[0])>>
-							<<set _creatureType to _creatureType.substring(0,_creatureType.length - 1)>>
-						<<default>>
-							<<set _creatureType to toTitleCase(_args[0])>>
-					<</switch>>
-					<!-- creature: the type of creature it is. "Lurker", "Slime", "Pale Tentacle", etc -->
-					<!-- fertilised: whether it's fertilised or not. Parasites need to be fertilised before they can be birthed -->
-					<!-- daysLeft: how long until it can be birthed. Birthing is possible when it's 3 or less, but significantly more likely at 0 -->
-					<!-- timeLeft: how long until it prompts a daily event. Speed impacts how fast it goes down -->
-					<!-- stats.growth: how long it takes to birth, and how much the parasite is worth when selling-->
-					<!-- stats.speed: how often it prompts a daily event. Also determines the parasite's activity -->
-					<<if _args[2]>>
-						<!-- Futa-birthed parasites -->
-						<<set _egg to {
-							"creature": _args[0],
-							"fertilised": true,
-							"daysLeft": Math.floor(_args[2].stats.growth * 0.8),
-							"timeLeft": null,
-							"stats":{
-								"growth": Math.floor(_args[2].stats.growth * 0.8),
-								"speed": Math.floor(_args[2].stats.speed * 0.8)
-							}
-						}>>
-					<<else>>
-						<!-- Non-futa parasites -->
-						<<set _egg to {
-							"creature": _creatureType,
-							"fertilised": false,
-							"daysLeft": 1,
-							"timeLeft": null,
-							"stats":{
-								"growth": random(7,14),
-								"speed": random(60,360)
-							}
-						}>>
-						<<if _creatureType.includes("Pale")>>
-							<!-- Pale parasites have significantly better activity -->
-							<<set _egg.stats.speed to clone(_egg.stats.speed * 0.6)>>
-						<<elseif _creatureType.includes("Tentacle") or _creatureType is "Vine">>
-							<!-- Tentacles and vines have better activity. Done in an elseif so pale tentacles don't get the calculation twice -->
-							<<set _egg.stats.speed to clone(_egg.stats.speed * 0.9)>>
-						<</if>>
-						<<if _creatureType is "Vine" and random(0,100) gt 99>>
-							<!-- Vine Vine easter egg lol -->
-							<<set _egg.creature += " Vine">>
-							<<set _egg.stats.growth-->>
-						<</if>>
-						<<if _creatureType is "Lurker">>
-							<!-- Lurkers have better activity, but sell for less and take longer to birth -->
-							<<run _egg.stats.growth += 14>>
-							<<for _l to 0; _l lt 3; _l++>>
-								<<if _egg.stats.speed gte 100>>
-									<<run _egg.stats.speed -= 50>>
-								<</if>>
-							<</for>>
-						<</if>>
-					<</if>>
-
-					<<set _genderCheck to Math.random()>>
-					<<if _genderCheck lt 0.7>>
-						<!-- Female parasites are most likely -->
-						<<set _egg.stats.gender to "Female">>
-					<<elseif _genderCheck lt 0.8 or _pregnancy.motherStatus is 0 or _pregnancy.motherStatus is 2>>
-						<!-- You can only get a futa if motherStatus is 1, aka if you're ready for a futa and don't currently have one -->
-						<<set _egg.stats.gender to "Male">>
-					<<else>>
-						<<set _egg.stats.gender to "Futa">>
-						<<set _egg.stats.lastEgg to Math.floor(_egg.stats.growth / 3)>>
-					<</if>>
-
-					<!-- adding the new parasite to $sexStats.anus.pregnancy -->
-					<<set _pregnancy[_i] to clone(_egg)>>
-					<<set _pregnancy.count++>>
-
-					<<if _args[2] is undefined>>
-						<!-- Parasites require fertilisation, aka an anal creampie, before they can be birthed. Tentacles, lurkers and futa-born parasites are automatically fertilised -->
-						<<set _pregnancy.fertile to true>>
-						<<set _impreg to true>>
-					<</if>>
-					<<break>>
-				<</if>>
-			<</for>>
-		<</if>>
-	<</if>>
-<</if>>
-<</widget>>
-
-<<widget "fertilise">>
-<!-- Runs whenever someone ejaculates in your anus -->
-<<if $sexStats.anus.pregnancy.fertile is true and $analpregdisable is "f">>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<for _i to 0; _i lt _pregnancy.maxCount; _i++>>
-		<<if _pregnancy[_i] isnot null>>
-			<<if _pregnancy[_i].fertilised is false>>
-				<<set _pregnancy[_i].fertilised to true>>
-				<<set _pregnancy[_i].daysLeft to _pregnancy[_i].stats.growth>>
-				<<if _pregnancy.lowestDaysLeft is null>>
-					<<set _pregnancy.lowestDaysLeft to _pregnancy[_i].daysLeft>>
-				<<else>>
-					<<if _pregnancy[_i].daysLeft lt _pregnancy.lowestDaysLeft>>
-						<<set _pregnancy.lowestDaysLeft to _pregnancy[_i].daysLeft>>
-					<</if>>
-				<</if>>
-				<<if _pregnancy[_i].stats.gender is "Futa">>
-					<<set _pregnancy.motherStatus to 2>>
-					<<set _pregnancy.maxCount to 4>>
-				<</if>>
-			<</if>>
-		<</if>>
-	<</for>>
-	<<set _pregnancy.fertile to false>>
-	<<set _pregnancy.fertilised to true>>
-<</if>>
-<</widget>>
-
-<<widget "pregProgressDay">>
-<<if $analpregdisable is "f">>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<set _pregnancy.lowestDaysLeft to null>>
-	<<if $deviancy gte 75>><<set _pregnancy.namesChildren to true>><<else>><<set _pregnancy.namesChildren to false>><</if>>
-	<<for _i to 0; _i lt _pregnancy.maxCount; _i++>>
-		<<if _pregnancy[_i] isnot null>>
-			<<if _pregnancy[_i].daysLeft is 0 and _pregnancy[_i].fertilised is false>>
-				<!-- Unfertilised parasites get removed -->
-				<<set _remove to true>>
-			<<else>>
-				<<if _pregnancy[_i].daysLeft gt 0>>
-					<<set _pregnancy[_i].daysLeft -= 1>>
-				<</if>>
-				<<if _pregnancy[_i].daysLeft lt _pregnancy.lowestDaysLeft and _pregnancy.fertilised is true>>
-					<<set _pregnancy.lowestDaysLeft to _pregnancy[_i].daysLeft>>
-				<</if>>
-			<</if>>
-			<<if _pregnancy[_i].stats.gender is "Futa" and _pregnancy[_i].daysLeft lte 3>>
-				<!-- Futas only "activate" a few days after initial impregnation -->
-				<<if _pregnancy[_i].stats.lastEgg gt 0>>
-					<<set _pregnancy[_i].stats.lastEgg -= 1>>
-				<<elseif _pregnancy.count lt _pregnancy.maxCount>>
-					<<set _pregnancy[_i].stats.lastEgg to Math.floor(_pregnancy[_i].stats.growth / 3)>>
-					<<impregnate _pregnancy[_i].creature null _pregnancy[_i]>>
-				<</if>>
-			<</if>>
-			<<if _remove is true>>
-				<!-- Remmeber when I said unfertilised parasites get removed? This is where it happens -->
-				<<set _pregnancy[_i] to null>>
-				<<set _pregnancy.count -= 1>>
-			<</if>>
-		<</if>>
-	<</for>>
-<</if>>
-<</widget>>
-
-<<widget "pregProgressTime">>
-<<if _args[0] and $analpregdisable is "f">>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<set _pregnancy.lowestDaysLeft to null>>
-	<<for _i to 0; _i lt _pregnancy.maxCount; _i++>>
-		<<if _pregnancy[_i] isnot null>>
-			<<if _pregnancy[_i].fertilised is true>>
-				<!-- Setting up the daily messages to pop at the top of the screen -->
-				<<if _pregnancy[_i].timeLeft is null>>
-					<<set _pregnancy[_i].timeLeft to _pregnancy[_i].stats.speed>>
-				<<else>>
-					<<set _pregnancy[_i].timeLeft -= _args[0]>>
-				<</if>>
-				<<if _pregnancy[_i].timeLeft lte 0>>
-					<!-- The lower the parasite's speed, the more often it will affect daily events -->
-					<<set _pregnancy[_i].timeLeft to _pregnancy[_i].stats.speed>>
-					<<if $dailyEvent is undefined>>
-						<<set $dailyEvent to []>>
-					<</if>>
-					<!-- dailyEvent0: You feel something large/your grown parasite move in your stomach. -->
-					<!-- dailyEvent1: You feel something/one of your parasites move in your stomach. -->
-					<!-- dailyEvent2: Your stomach rumbles a little. You hope the noise hasn't attracted any attention. -->
-					<!-- dailyEvent3: You feel a little lightheaded for a moment. -->
-					<<if $dailyEvent.length lt _pregnancy.count>>
-						<<if _pregnancy[_i].stats.gender is "Futa" and _pregnancy[_i].daysLeft lte 3>>
-							<<if (_pregnancy[_i].daysLeft lt 3 and $rng lt 20) or (_pregnancy[_i].daysLeft is 0 and $rng lt 50)>>
-								<<if _pregnancy.seenDoctor is 2>><<set _pregnancy.seenDoctor to 3>><</if>>
-								<<set $dailyEvent.pushUnique(0)>>
-							<<elseif _pregnancy[_i].daysLeft is 0 or $rng lt 60>>
-								<<set $dailyEvent.pushUnique(2)>>
-							<</if>>
-						<<else>>
-							<<if (_pregnancy[_i].daysLeft is 0 and $rng lt 50) or (_pregnancy[_i].daysLeft lte 3 and $rng lt 20)>>
-								<<set $dailyEvent.pushUnique(1)>>
-								<<if _pregnancy.seenDoctor is 0>><<set _pregnancy.seenDoctor to 1>><</if>>
-								<<if _pregnancy.seenDoctor gte 2>><<set _pregnancy.feltMovement to true>><</if>>
-							<<elseif _pregnancy[_i].daysLeft is 0 or (_pregnancy[_i].daysLeft lte 3 and $rng lt 60)>>
-								<<set $dailyEvent.pushUnique(2)>>
-							<<elseif _pregnancy[_i].daysLeft lte 7 and $rng lt 50>>
-								<<set $dailyEvent.pushUnique(3)>>
-							<</if>>
-						<</if>>
-					<</if>>
-				<</if>>
-			<</if>>
-		<</if>>
-	<</for>>
-<</if>>
-<<if $sexStats.vagina.pregnancy.waterBreaking>>
-	<<stress `Math.ceil(_args[0] * 0.75)`>>
-<</if>>
-<</widget>>
 
 <<widget "moveCreature">>
-/*0 -> _pregnancy[_i] or location (any but portable)*/
+/*0 -> _pregnancy.fetus[_i] or location (any but portable)*/
 /*1 -> Type*/
 /*2 -> locationId*/
 <<if _args[0] isnot null and _args[1]>>
 	<<set _portable to $container.portable>>
 	<<set _container to $container[$phase]>>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
+	<<set $_pregnancy to $sexStats[_args[3] or "anus"].pregnancy>>
 
 	<<set _result to _args[1]>>
 	<<switch _args[0]>>
 		<<case 0 1 2 3>>
 			<!-- With a number as argument 0, it takes the parasite of that argument in your current pregnancy item -->
-			<<set _creature to clone(_pregnancy[_args[0]])>>
+			<<set _creature to clone($_pregnancy.fetus[_args[0]])>>
 		<<default>>
 			<!-- With a string as argument 0, it takes a parasite from the container matching the argument. Which parasite it takes corresponds to argument 2 -->
 			<!-- Currently only used when transferring parasites for selling in :: Containers, inside a for loop -->
@@ -242,13 +26,13 @@
 		<<if _result is "destroy">>
 			<!-- Simply gets rid of the parasite -->
 			<<set _creature to null>>
-			<<removeCreature _args[0] _args[2]>>
+			<<removeCreature _args[0] _args[2] _args[3]>>
 		<<elseif _result is "portable">>
 			<!-- Transfers the parasites for selling. The value of the parasite depends on its growth stat -->
 			<<set _portable.creatures.push(clone(_creature))>>
 			<<set _value to Math.floor(1000 / _creature.stats.growth)>>
 			<<set _portable.value += _value>>
-			<<removeCreature _args[0] _args[2]>>
+			<<removeCreature _args[0] _args[2] _args[3]>>
 		<<elseif _result is "replace" and _args[2] isnot null and _args[0] gte 0 and _args[0] lte 3>>
 			<!-- Replaces an existing parasite, for when you birth more than you can currently store -->
 			<!-- The replaced parasite gets transferred for selling -->
@@ -265,7 +49,7 @@
 				<<set _container.creatures[_args[2]] to clone(_creature)>>
 				<<set _container.count += 1>>
 			<</if>>
-			<<removeCreature _args[0]>>
+			<<removeCreature _args[0] undefined _args[3]>>
 		<<elseif _result is "container">>
 			<!-- Keeps the parasite and moves it to the current container -->
 			<<set _moveTo to false>>
@@ -278,7 +62,7 @@
 				<<if _moveTo is true>>
 					<<set $container[$phase].creatures[_containerSlot] to clone(_creature)>>
 					<<set $container[$phase].count += 1>>
-					<<removeCreature _args[0] _args[2]>>
+					<<removeCreature _args[0] _args[2] _args[3]>>
 					<<break>>
 				<</if>>
 			<</for>>
@@ -289,16 +73,14 @@
 
 <<widget "removeCreature">>
 	<<if _args[0] isnot null>>
-		<<set _pregnancy to $sexStats.anus.pregnancy>>
+		<<set $_pregnancy to $sexStats[_args[2] or "anus"].pregnancy>>
 		<<switch _args[0]>>
 			<<case 0 1 2 3>>
 				<!-- With a number as argument 0, it removes the parasite of that argument in your current pregnancy item -->
-				<<set _pregnancy[_args[0]] to null>>
-				<<set _pregnancy.count -= 1>>
-				<<set _pregnancy.givenBirth += 1>>
-				<<if _pregnancy.motherStatus is 0 and _pregnancy.givenBirth gte 3>>
-					<<set _pregnancy.motherStatus to 1>>
-					<<set _pregnancy.maxCount to 2>>
+				<<set $_pregnancy.fetus[_args[0]].toDelete to true>>
+				<<set $_pregnancy.parasiteBirthEvents += 1>>
+				<<if $_pregnancy.motherStatus is 0 and $_pregnancy.parasiteBirthEvents gte 3>>
+					<<set $_pregnancy.motherStatus to 1>>
 				<</if>>
 			<<default>>
 				<!-- With a string as argument 0, it removes a parasite from the container matching the argument. Which parasite it takes corresponds to argument 1 -->
@@ -310,10 +92,27 @@
 	<</if>>
 <</widget>>
 
+<<widget "clearToDeleteParasiteFetus">>
+<<if $sexStats.anus.pregnancy.type is "parasite">>
+	<<run $sexStats.anus.pregnancy.fetus to $sexStats.anus.pregnancy.fetus.filter(child => child && !child.toDelete)>>
+	<<if $sexStats.anus.pregnancy.fetus.length is 0>>
+		<<set $sexStats.anus.pregnancy.type to null>>
+	<</if>>
+<</if>>
+<<if $sexStats.vagina.pregnancy.type is "parasite">>
+	<<run $sexStats.vagina.pregnancy.fetus to $sexStats.vagina.pregnancy.fetus.filter(child => child && !child.toDelete)>>
+	<<if $sexStats.vagina.pregnancy.fetus.length is 0>>
+		<<set $sexStats.vagina.pregnancy.type to null>>
+	<</if>>
+<</if>>
+<</widget>>
+
 <<widget "menstruationCycle">>
-<<if $sexStats.vagina.menstruation.running is true and $player.vaginaExist>>
+<<set $sexStats.vagina.menstruation.running to $player.vaginaExist or (!$player.vaginaExist and V.skin.pubic.pen is "magic" and V.skin.pubic.special is "pregnancy")>>
+<<if $sexStats.vagina.menstruation.running is true>>
 	<<set _menstruation to $sexStats.vagina.menstruation>>
-	<<set _pregnancy to $sexStats.vagina.pregnancy>>
+	<<set $_pregLocation to ($player.vaginaExist ? "vagina" : "anus")>>
+	<<set $_pregnancy to $sexStats[$_pregLocation].pregnancy>>
 	<<set _pills to $sexStats.pills>>
 	<<set $_last_preg_pill to clone(_pills.lastTaken.pregnancy)>>
 	<<switch _menstruation.currentState>>
@@ -347,7 +146,8 @@
 					<</if>>
 					/*Check for pregnancy at a reduced chance for a few days before*/
 					<<if _menstruation.currentDay gte _menstruation.stages[3] - 4>>
-						<<playerPregnancyAttempt `Math.clamp(Math.ceil(2 * (1 + _menstruation.stages[3] - _menstruation.currentDay)),2,10)`>>
+						<<set $_multi = Math.clamp(Math.ceil(2 * (1 + _menstruation.stages[3] - _menstruation.currentDay)),2,10)>>
+						<<playerPregnancyAttempt $_multi $_pregLocation>>
 					<</if>>
 				<<elseif _menstruation.currentDay lt _menstruation.stages[3]>>
 					/*Ovulation phase*/
@@ -355,12 +155,13 @@
 					<<set _menstruation.lastDaysMax to _menstruation.currentDaysMax>>
 
 					/*Check for pregnancy*/
-					<<playerPregnancyAttempt>>
+					<<playerPregnancyAttempt 1 $_pregLocation>>
 				<<else>>
 					/*Luteal phase*/
 					/*Check for pregnancy at a reduced chance for a few days after*/
 					<<if _menstruation.currentDay lte _menstruation.stages[3] + 4>>
-						<<playerPregnancyAttempt `Math.clamp(Math.ceil(2 * (1 + _menstruation.currentDay - _menstruation.stages[3])),2,10)`>>
+						<<set $_multi = Math.clamp(Math.ceil(2 * (1 + _menstruation.currentDay - _menstruation.stages[3])),2,10)>>
+						<<playerPregnancyAttempt $_multi $_pregLocation`>>
 					<</if>>
 					<<if $_last_preg_pill and _pills.pills[$_last_preg_pill].doseTaken gte 2>>
 						<<set _menstruation.currentDay += 0.5>>
@@ -379,40 +180,36 @@
 				<<set _menstruation.periodEnabled to true>>
 			<</if>>
 		<<case "pregnant">>
-			/* only allow 1 ultrasound a fortnight. Really, we should limit this to 2-3 ultrasounds per (normal) pregnancy, but once every two weeks is fair. */
-			<<if _pregnancy.ultrasoundDone and _pregnancy.ultrasoundLast lte $days - 14 >>>
-				<<set _pregnancy.ultrasoundDone = 0>>
-			<</if>>
 			<<switch _pregnancy.type>>
 				<<case "human">><<set _multiplier to (1/(1/9*$humanPregnancyMonths))>>
 				<<case "wolf">><<set _multiplier to (1/(1/12*$wolfPregnancyWeeks))>>
 				<<default>><<set _multiplier to 1>>
 			<</switch>>
-			<<set _pregnancy.timer += parseFloat((0.5 * _multiplier).toFixed(3))>>
+			<<set $_pregnancy.timer += parseFloat((0.5 * _multiplier).toFixed(3))>>
 
 			/*Keeping fatigue low should help morning sickness*/
-			<<if between(_pregnancy.timer / _pregnancy.timerEnd, 0.15, 0.25)>>
+			<<if between($_pregnancy.timer / $_pregnancy.timerEnd, 0.15, 0.25)>>
 				/*Early Morning sickness*/
 				/*Light Nausea/dizzyness at any time of day, but mostly when waking up*/
 				<<if random(0,100) gte 30>>
-					<<set _pregnancy.morningSicknessWaking to 1>>
+					<<set $pregnancyStats.morningSicknessWaking to 1>>
 				<</if>>
 				<<if random(0,100) gte 30>>
-					<<set _pregnancy.morningSicknessGeneral to 1>>
+					<<set $pregnancyStats.morningSicknessGeneral to 1>>
 				<</if>>
-			<<elseif between(_pregnancy.timer / _pregnancy.timerEnd, 0.24, 0.45)>>
+			<<elseif between($_pregnancy.timer / $_pregnancy.timerEnd, 0.24, 0.45)>>
 				/*Morning sickness*/
 				/*Nausea/dizzyness at any time of day, but mostly when waking up*/
 				/*First pregnancy should be worse*/
-				<<set _pregnancy.morningSicknessWaking to [1,2,2].pluck()>>
-				<<if _pregnancy.totalBirthEvents is 0 and _pregnancy.morningSicknessWaking lt 2>>
-					<<set _pregnancy.morningSicknessWaking to 2>>
+				<<set $pregnancyStats.morningSicknessWaking to [1,2,2][random(0,2)]>>
+				<<if $_pregnancy.totalBirthEvents is 0 and $pregnancyStats.morningSicknessWaking lt 2>>
+					<<set $pregnancyStats.morningSicknessWaking to 2>>
 				<</if>>
 				<<if random(0,100) gte 20>>
-					<<set _pregnancy.morningSicknessGeneral to [1,2,2].pluck()>>
+					<<set $pregnancyStats.morningSicknessGeneral to [1,2,2][random(0,2)]>>
 				<</if>>
 			<</if>>
-			<<if _pregnancy.timer gte _pregnancy.timerEnd>>
+			<<if $_pregnancy.timer gte $_pregnancy.timerEnd>>
 				<<set _menstruation.currentState to "pregnantEnd">>
 				<<if $player.breastsize lte 4 and $player.breastsize lt $breastsizemax>>
 					<<set $player.breastsize += 1>><<set $breastgrowthtimer to 700>>
@@ -441,7 +238,7 @@
 			<<if $skin.pubic.type is "magic" and $skin.pubic.special is "pregnancy">>
 				<<set _menstruation.recoveryTime -= 0.5>>
 			<</if>>
-			<<if _pregnancy.totalBirthEvents gt 2>>
+			<<if $_pregnancy.totalBirthEvents gt 2>>
 				<<set _menstruation.recoveryTime -= 0.5>>
 			<</if>>
 			<<set _menstruation.recoveryStage to Math.floor((1 - (_menstruation.recoveryTime / _menstruation.recoveryTimeStart))*5)>>
@@ -457,18 +254,14 @@
 			<</if>>
 	<</switch>>
 <</if>>
-<<updateRecordedSperm>>
+<<updateRecordedSperm "vagina">>
+<<updateRecordedSperm "anus">>
 <</widget>>
 
-<<widget "playerPregStatSetup">>
-<<set _pregnancy to $sexStats.vagina.pregnancy>>
-<<set _menstruation to $sexStats.vagina.menstruation>>
-<<set _menstruation.currentState to "pregnant">>
-<<set _pregnancy.potentialFathers to clone(_trackedNPCs)>>
-<</widget>>
+:: Pregnancy2 [widget]
 
 <<widget "updateRecordedSperm">>
-<<set _sperm to $sexStats.vagina.sperm>>
+<<set _sperm to $sexStats[_args[0]].sperm>>
 <<for $_label, $_value range _sperm>>
 	<<for _i to $_value.count.length - 1; _i gte 0; _i-->>
 		<<set $_value.count[_i][0] -= 0.5>>
@@ -490,6 +283,36 @@
 		<<set $_sperm to $sexStats.vagina.sperm>>
 	<<elseif $NPCNameList.includes(_args[0]) and $NPCName[$NPCNameList.indexOf(_args[0])].pregnancy.enabled>>
 		<<set $_sperm to $NPCName[$NPCNameList.indexOf(_args[0])].pregnancy.sperm>>
+	<</if>>
+	<<if $_sperm>>
+		<<if $_sperm[_args[1]] is undefined>>
+			<<set $_sperm[_args[1]] to {"type":_args[2], count:[]}>>
+		<</if>>
+		<<if _args[3]>>
+			<<set _daysTillRemoval to _args[3]>>
+		<<else>>
+			<<set _daysTillRemoval to random(4,8)>>
+		<</if>>
+		<<for $_i to 0; $_i lt $_sperm[_args[1]].count.length;$_i++>>
+			<<if $_sperm[_args[1]].count[$_i][0] is _daysTillRemoval>>
+				<<set $_sperm[_args[1]].count[$_i][1] += 1>>
+				<<set $_found to true>>
+			<</if>>
+		<</for>>
+		<<if $_found isnot true>>
+			<<set $_sperm[_args[1]].count.push([_daysTillRemoval, 1])>>
+		<</if>>
+	<</if>>
+<</if>>
+<</widget>>
+
+<<widget "recordAnusSperm">>
+/*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
+<<if _args[0] and _args[1] and _args[2] and $pregnancyTesting>>
+	<<if _args[0] is "pc">>
+		<<set $_sperm to $sexStats.anus.sperm>>
+	<<elseif $NPCNameList.includes(_args[0]) and $NPCName[$NPCNameList.indexOf(_args[0])].pregnancy.enabled>>
+		/*<<set $_sperm to $NPCName[$NPCNameList.indexOf(_args[0])].pregnancy.sperm>> Not tracking right now*/
 	<</if>>
 	<<if $_sperm>>
 		<<if $_sperm[_args[1]] is undefined>>
@@ -541,108 +364,12 @@
 <<set _menstruation.stages to [0, _stage2, _stage3, _stage3 + random(1,2) * 0.5]>>
 <</widget>>
 
-/*args[0] - birth location, _args[1] - next passage, _args[2] - time passage, _args[3] - debug*/
+/*args[0] - birth location, _args[1] - next passage, _args[2] - time passage*/
 <<widget "birthUi">>
-<<set $_pregnancy to $sexStats.vagina.pregnancy>>
-/*Debug Code*/
-<<if _args[3]>>
-	<<if _args[3] is "human">>
-		<<set $_pregnancy.fetus.push({
-			"type": "human",
-			"mother": "PurityGuy",
-			"motherKnown": true,
-			"father": "PurityGuy",
-			"fatherKnown": true,
-			"born": {"day":null, "month":null, "year":null},
-			"concieved": {"day":clone($monthday), "month":clone($month[0].toUpperCase() + $month.substring(1)), "year":clone($year)},
-			"gender": "h",
-			"features": {"size":"tiny", "hairColour":"blond", "identical":true, "monster":null, "clothes":null, "skinColour":$skinColor.natural},
-			"name":null,
-			"birthId": clone($_pregnancy.totalBirthEvents) + 1,
-			"childId": null,
-			"location": null,
-			"birthLocation": null,
-			"localVariables":{},
-		})>>
-		<<set $_pregnancy.fetus.push({
-			"type": "human",
-			"mother": "PurityGuy",
-			"motherKnown": true,
-			"father": "PurityGuy",
-			"fatherKnown": true,
-			"born": {"day":null, "month":null, "year":null},
-			"concieved": {"day":clone($monthday), "month":clone($month[0].toUpperCase() + $month.substring(1)), "year":clone($year)},
-			"gender": "h",
-			"features": {"size":"tiny", "hairColour":"blond", "identical":true, "monster":null, "clothes":null, "skinColour":$skinColor.natural},
-			"name":null,
-			"birthId": clone($_pregnancy.totalBirthEvents) + 1,
-			"childId": null,
-			"location": null,
-			"birthLocation": null,
-			"localVariables":{},
-		})>>
-		<<set $_pregnancy.fetus.push({
-			"type": "human",
-			"mother": "PurityGuy",
-			"motherKnown": true,
-			"father": "PurityGuy",
-			"fatherKnown": true,
-			"born": {"day":null, "month":null, "year":null},
-			"concieved": {"day":clone($monthday), "month":clone($month[0].toUpperCase() + $month.substring(1)), "year":clone($year)},
-			"gender": "h",
-			"features": {"size":"tiny", "hairColour":"blond", "identical":true, "monster":null, "clothes":null, "skinColour":$skinColor.natural},
-			"name":null,
-			"birthId": clone($_pregnancy.totalBirthEvents) + 1,
-			"childId": null,
-			"location": null,
-			"birthLocation": null,
-			"localVariables":{},
-		})>>
-		<<set $_pregnancy.type to "human">>
-	<</if>>
-	<<if _args[3] is "wolf">>
-		<<set _babyBase to {
-			"type": "wolf",
-			"mother": "pc",
-			"motherKnown": true,
-			"father": "Black Wolf",
-			"fatherKnown": true,
-			"born": {"day":null, "month":null, "year":null},
-			"concieved": {"day":clone($monthday), "month":clone($month[0].toUpperCase() + $month.substring(1)), "year":clone($year)},
-			"gender": null,
-			"features": {"size":null, "hairColour":null, "identical":null, "monster":null, "clothes":null, "skinColour": null},
-			"name":null,
-			"birthId": clone($_pregnancy.totalBirthEvents) + 1,
-			"childId": null,
-			"location": null,
-			"birthLocation": null,
-			"localVariables":{},
-		}>>
-		<<for $_i to 0; $_i lt 8; $_i++>>
-			<<set $_pregnancy.fetus.push(clone(_babyBase))>>
-			<<if $_pregnancy.fetus.last().type is "wolfboy" or $_pregnancy.fetus.last().type is "wolfgirl">>
-				<<set $_pregnancy.fetus.last().features.monster to "monster">>
-			<<else>>
-				<<set $_pregnancy.fetus.last().features.monster to 0>>
-			<</if>>
-			<<set $_pregnancy.fetus.last().gender to (random(0,100) gte 50 ? "f" : "m")>>
-			<<if $player.gender is "h" and random(0,100) gte 80>>
-				<<set $_pregnancy.fetus.last().gender to "h">>
-			<</if>>
-			<<set _furColour to ["gray", "brown", "tan", "white"]>>
-			<<if $_pregnancy.fetus.last().father is "Black Wolf">>
-				<<run _furColour.push("black")>>
-				<<run _furColour.push("black")>>
-			<</if>>
-			<<set $_pregnancy.fetus.last().features.hairColour to _furColour.pluck()>>
-			<<bodyPregCalc>>
-			<<set $_pregnancy.fetus.last().features.size to _bodySize.pluck()>>
-			<<if $_i gt 4 and random(0,100) gte 100 - ($_i * 3)>>
-				<<break>>
-			<</if>>
-		<</for>>
-		<<set $_pregnancy.type to "wolf">>
-	<</if>>
+<<if $player.vaginaExist>>
+	<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+<<else>>
+	<<set $_pregnancy to $sexStats.anus.pregnancy>>
 <</if>>
 <div id="birthUi">
 	<<for _i to 0; _i lt $_pregnancy.fetus.length; _i++>>
@@ -665,7 +392,11 @@
 <</widget>>
 
 <<widget "birthChildElement">>
-<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+<<if $player.vaginaExist>>
+	<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+<<else>>
+	<<set $_pregnancy to $sexStats.anus.pregnancy>>
+<</if>>
 <<capture _args>>
 	<<if $_pregnancy.fetus[_args[0]].type isnot "human">>
 		종류: <<trCreature "all" $_pregnancy.fetus[_args[0]].type[0]>><<print _trResult>> |
@@ -719,7 +450,11 @@
 /*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
 <<if $pregnancyTesting is undefined>>
 <<elseif _args[0] and $sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($playerPregnancyHumanDisable is "f" or $playerPregnancyBeastDisable is "f"))>>
-	<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+	<<if $player.vaginaExist>>
+		<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+	<<else>>
+		<<set $_pregnancy to $sexStats.anus.pregnancy>>
+	<</if>>
 	<<set _wakingEffect to wakingPregnancyEvent(random(0,100))>>
 	<<if Array.isArray(_wakingEffect)>>
 		<<set _wakingEffect to _wakingEffect[random(0,_wakingEffect.length - 1)]>>
@@ -775,7 +510,7 @@
 		<<case "bellySize">>
 			<<set $_text_output to "당신은 일어나 당신의 커진 배를 쳐다본다.">>
 			<<if $_pregnancy.potentialFathers.length is 1>>
-				<<NPCdesc_ ga $_pregnancy.potentialFathers[0]>><<set $_text_output += " 아이 아빠는 "+ _trResult +" 확실하다.">>
+				<<NPCdesc_ ga $_pregnancy.potentialFathers[0][1]>><<set $_text_output += " 아이 아빠는 "+ _trResult +" 확실하다.">>
 			<<else>>
 				<<set $_text_output += " 당신은 누가 당신을 임신시켰는지 궁금해한다.">>
 			<</if>>
@@ -785,7 +520,7 @@
 			<<if $awareness gte 200 and $sciencetrait gte 4 and playerVaginalPregnancyCheck() gt 1>>
 				<<set $_text_output += "You wonder if you got yourself pregnant again, maybe you should get tested.">>
 			<</if>>
-			<<set $_pregnancy.awareOfPeriodDelay to true>>
+			<<set $sexStats.vagina.awareOfPeriodDelay to true>>
 	<</switch>>
 <</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>>
@@ -845,8 +580,12 @@
 <</widget>>
 
 <<widget "pregnancyWatersBrokenPassout">>
-<<set $_pregnancy to $sexStats.vagina.pregnancy>>
-<<set $_pregnancy.waterBreaking to null>>
+<<if $player.vaginaExist>>
+	<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+<<else>>
+	<<set $_pregnancy to $sexStats.anus.pregnancy>>
+<</if>>
+<<set $_pregnancy.waterBreaking to false>>
 /*ToDo: Pregnancy - fill out for specific pregnancy passout events*/
 /*Area specific passout text for alternative pregnancy birth events*/
 <<switch _args[0]>>
@@ -865,7 +604,7 @@
 
 		<</if>>
 	<<case "farmroad">>
-		<<if $location is "farm" and $_pregnancy.potentialFathers.includes("Alex")>>
+		<<if $location is "farm" and $_pregnancy.potentialFathers.find(father => father[1] === "Alex")>>
 			/*Alex can help here*/
 		<<else>>
 
@@ -891,7 +630,7 @@
 	<<case "cave">>
 	<<case "prison">>
 	<<case "edencabin">>
-		<<if $_pregnancy.potentialFathers.includes("Eden")>>
+		<<if $_pregnancy.potentialFathers.find(father => father[1] === "Eden")>>
 			/*Eden thinks it's his child?*/
 		<<else>>
 
@@ -915,7 +654,7 @@
 			<<link [[다음|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
 		<</if>>
 	<<case "edencabin">>
-		<<if $_pregnancy.potentialFathers.includes("Eden")>>
+		<<if $_pregnancy.potentialFathers.find(father => father[1] === "Eden")>>
 			/*Alternative place to give birth?*/
 			<<link [[다음|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
 		<<else>>
@@ -925,7 +664,7 @@
 		/*Alternative place to give birth?*/
 		<<link [[다음|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
 	<<case "farmroad">>
-		<<if $location is "farm" and $_pregnancy.potentialFathers.includes("Alex")>>
+		<<if $location is "farm" and $_pregnancy.potentialFathers.find(father => father[1] === "Alex")>>
 			/*Alternative place to give birth?*/
 			<<link [[다음|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
 		<<else>>
@@ -940,7 +679,11 @@
 
 <<widget "pregnancyMorningAfterPill">>
 <<if $sexStats.vagina.menstruation.currentState is "pregnant">>
-	<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+	<<if $player.vaginaExist>>
+		<<set $_pregnancy to $sexStats.vagina.pregnancy>>
+	<<else>>
+		<<set $_pregnancy to $sexStats.anus.pregnancy>>
+	<</if>>
 	<<if between($_pregnancy.timer, 0, 2)>>
 		<<set $_menstruation to $sexStats.vagina.menstruation>>
 		<<set $_pregnancy.fetus to []>>

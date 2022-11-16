@@ -285,7 +285,7 @@
 		<<flashbackschool>>
 	<</if>>
 <</if>>
-<<if $sexStats.vagina.pregnancy && $sexStats.vagina.pregnancy.waterBreaking>>
+<<if isPlayerNonparasitePregnancyEnding()>>
 	<span class="red">당신의 양수가 터졌다. 당신은 병원으로 가야만 한다, 당장!</span><<ggstress>>
 <</if>>
 <<if $effectsmessage is 1>><<set $effectsmessage to 0>>
@@ -722,44 +722,52 @@
 	<<pregnancyDailyEvent>>
 	<<unset $pregnancyDailyEvent>>
 <</if>>
-<<if $dailyEvent>>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<set _stressMulti to 2 - _pregnancy.motherStatus>>
-	<<set _arousalMulti to 1 + _pregnancy.motherStatus>>
-	<<for _i to 0; _i lt $dailyEvent.length; _i++>>
-		<<switch $dailyEvent[_i]>>
-		<<case 0>>
-			<<if _pregnancy.seenDoctor gte 4>>
-				뱃속에서 <<if _pregnancy.namesChildren is true>>다 자란 아이가<<else>>다 자란 기생충이<</if>> 느껴진다.
-				<<ggarousal>>
-			<<else>>
-				뱃속에서 무언가 커다란 것이 움직이는게 느껴진다. 다시 병원에 가보는게 좋을 것 같다.
-				<<ggarousal>>
-			<</if>>
-			<<arousal 2000>>
-		<<case 1>>
-			<<if _pregnancy.seenDoctor gte 2>>
-				뱃속에서 <<if _pregnancy.namesChildren is true>>아이들<<else>>기생충<</if>> 중 하나가 움직이는 것이 느껴진다.
-				<<ggarousal>><<if _stressMulti gt 0>><<gstress>><</if>>
-			<<else>>
-				뱃속에서 무언가 움직이는게 느껴진다. 병원에 가보는게 좋을 것 같다.
-				<<ggarousal>><<if _stressMulti gt 0>><<gstress>><</if>>
-			<</if>>
-			<<set _arousal to _arousalMulti * 500 / (_pregnancy.lowestDaysLeft + 1)>><<set $stress += 300 * _stressMulti>>
-			<<arousal _arousal>>
-		<<case 2>>
-			배가 약간 꾸르륵거린다. 아무도 이 소리를 듣지 못 했길 바랄 뿐이다.
-			<<if _stressMulti gt 0>><<gstress>><</if>>
-			<<set _arousal to _arousalMulti * 250 / (_pregnancy.lowestDaysLeft + 1)>><<set $stress += 200 * _stressMulti>>
-			<<arousal _arousal>>
-		<<case 3>>
-			잠시동안 머리가 어지러웠다.
-			<<if _stressMulti gt 0>><<gstress>><</if>>
-			<<set $stress += 100 * _stressMulti>>
+<<if $daily.parasiteEvent>>
+	<<if $sexStats.vagina.pregnancy.type is "parasite">>
+		<<set $_minDaysLeft to $sexStats.vagina.pregnancy.fetus.reduce((prev,curr) => prev.daysLeft < curr.daysLeft ? prev.daysLeft : curr.daysLeft)>>
+	<</if>>
+	<<if $sexStats.anus.pregnancy.type is "parasite">>
+		<<set $_minDaysLeft to $sexStats.anus.pregnancy.fetus.reduce((prev,curr) => prev.daysLeft < curr.daysLeft ? prev.daysLeft : curr.daysLeft, $_minDaysLeft || 30)>>
+	<</if>>
+	<<set _stressMulti to Math.clamp(2 - $sexStats.anus.pregnancy.motherStatus + $sexStats.vagina.pregnancy.motherStatus, 0, 2)>>
+	<<set _arousalMulti to Math.clamp(1 + $sexStats.anus.pregnancy.motherStatus + $sexStats.vagina.pregnancy.motherStatus, 1, 3)>>
+	<<set $_arousalGain to 0>>
+	<<if $daily.parasiteEvent.includes("anal3") && $daily.parasiteEvent.includes("vagina3")>><<run $daily.parasiteEvent.delete("vagina3")>><</if>>
+	<<for _i to 0; _i lt $daily.parasiteEvent.length; _i++>>
+		<<switch $daily.parasiteEvent[_i]>>
+			<<case "anal0" "vagina0">>
+				<<if $pregnancyStats.parasiteDoctorEvents gte 4>>
+					You feel <<if $pregnancyStats.namesParasitesChild is true>>your grown child<<else>>the grown parasite<</if>> in your <<print $daily.parasiteEvent[_i] === "anal0" ? "stomach" : "uterus">>.
+					<<ggarousal>>
+				<<else>>
+					You feel something large move around in your <<print $daily.parasiteEvent[_i] === "anal0" ? "stomach" : "uterus">>. 다시 병원에 가보는게 좋을 것 같다.
+					<<ggarousal>>
+				<</if>>
+				<<set $_arousalGain += 2000>>
+			<<case "anal1" "vagina1">>
+				<<if $pregnancyStats.parasiteDoctorEvents gte 2>>
+					You feel one of <<if $pregnancyStats.namesParasitesChild is true>>your children<<else>>the parasites<</if>> move around in your <<print $daily.parasiteEvent[_i] === "anal1" ? "stomach" : "uterus">>.
+					<<ggarousal>><<if _stressMulti gt 0>><<gstress>><</if>>
+				<<else>>
+					You feel something move around in your <<print $daily.parasiteEvent[_i] === "anal1" ? "stomach" : "uterus">>. 다시 병원에 가보는게 좋을 것 같다.
+					<<ggarousal>><<if _stressMulti gt 0>><<gstress>><</if>>
+				<</if>>
+				<<set _arousal to _arousalMulti * 500 / ($_minDaysLeft + 1)>><<set $stress += 300 * _stressMulti>>
+				<<set $_arousalGain += _arousal>>
+			<<case "anal2" "vagina2">>
+				Your <<print $daily.parasiteEvent[_i] === "anal2" ? "stomach" : "uterus">> rumbles a little. 아무도 이 소리를 듣지 못 했길 바랄 뿐이다.
+				<<if _stressMulti gt 0>><<gstress>><</if>>
+				<<set _arousal to _arousalMulti * 250 / ($_minDaysLeft + 1)>><<set $stress += 200 * _stressMulti>>
+				<<set $_arousalGain += _arousal>>
+			<<case "anal3" "vagina3">>
+				잠시동안 머리가 어지러웠다.
+				<<if _stressMulti gt 0>><<gstress>><</if>>
+				<<set $stress += 100 * _stressMulti>>
 		<</switch>>
 	<</for>>
+	<<if $_arousalGain>><<arousal `Math.clamp($_arousalGain, 0, 10000)`>><</if>>
 	<br>
-	<<unset $dailyEvent>>
+	<<run delete $daily.parasiteEvent>>
 <</if>>
 
 <<if $slimeEvent isnot undefined and $daystate isnot "night">>

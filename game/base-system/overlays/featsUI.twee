@@ -4,27 +4,21 @@
 <br>
 여기서는 여러 임무를 수행하는 것으로 VrelCoin을 얻을 수 있고, 각 임무는 단일 세이브 파일에서 특정 조건을 만족하는 것으로 해결됩니다. 이 VrelCoin은 게임을 새로 시작할 때 사용하여 추가 보너스를 받을 수 있습니다. 이 기능은 쿠키를 삭제한 상태에서도 작동은 하나, 새로운 게임을 시작하기 전에 가장 최근에 저장한 세이브 파일을 불러와야 합니다. 대부분의 도전과제는 특정한 씬을 봤거나, 특정한 대사를 봤을 때 자정에 달성됩니다. 하지만, 몇몇은 시각이 넘어갈 때 달성됩니다.
 <br><br>
-소프트 모드에서 플레이하거나 "색기로 이벤트가 발생할 비율"을 1 미만으로 설정한다면 도전과제를 달성할 수 없게 됩니다.
+Playing on softmode or changing settings in specific ways may prevent you from earning some feats in your current game.
 어떤 시점에서라도 치트를 활성화한다면 해당 게임에서는 이후 영구적으로 도전과제를 달성할 수 없게 됩니다.
 다른 설정들도 해당 게임에서 특정한 도전과제를 영구적으로 잠가버립니다.
 잠긴 도전과제는 붉은색으로 표시됩니다.
-<<if $feats.locked is false>>
-	<<if $gamemode is "soft" or $alluremod lt 1>>
-		<br>
-		<span class="red">현재 소프트 모드로 플레이하고 있거나 색기 조정치를 1 미만으로 설정해놨습니다.</span>
-		<br>
-		<<if $feats.soft is true>>
-			<span class="red">현재 게임에서는 몇 가지 도전과제가 잠겨있습니다.</span>
-		<</if>>
-	<<elseif $debug is 1>>
-		<span class="red">디버그 모드로 인해 비활성화 되었습니다.</span>
-	<<elseif $replayScene isnot undefined>>
-		<span class="red">리플레이 모드로 인해 비활성화 되었습니다.</span>
-	<<else>>
-		<span class="green">도전과제를 달성할 수 있습니다.</span>
-	<</if>>
+
+<<if $feats.locked>>
+	<span class="red">You can't earn feats as you have enabled cheats at some point.</span>
+<<elseif $debug is 1>>
+	<span class="red">디버그 모드로 인해 비활성화 되었습니다.</span>
+<<elseif $replayScene isnot undefined>>
+	<span class="red">리플레이 모드로 인해 비활성화 되었습니다.</span>
+<<elseif $feats.soft or $feats.pregnancyLocked>>
+	<span class="red">Some feats are locked in this current game.</span>
 <<else>>
-	<span class="red">어느 시점에선가 치트를 활성화시켰기에 도전과제를 달성할 수 없습니다.</span>
+	<span class="green">You can earn feats.</span>
 <</if>>
 <br><br>
 현재 <<if $feats.allSaves.point is undefined>><<print $feats.allSaves.points>><<else>>0<</if>>개의 VrelCoin을 갖고 있습니다.
@@ -53,7 +47,7 @@
 <<set _filter to "All">>
 <<set _keys to Object.keys(_feats)>>
 <<for _i to 0; _i lt _keys.length; _i++>>
-	<<if (_skip.includes(_feats[_keys[_i]].series) and _feats[_keys[_i]].hint is undefined) or !_feats[_keys[_i]].filter.includes($feats.filter)>>
+	<<if _skip.includes(_feats[_keys[_i]].series) or !_feats[_keys[_i]].filter.includes($feats.filter)>>
 		<<continue>>
 	<</if>>
 	<<if Object.keys($feats.currentSave).includes(_keys[_i])>>
@@ -62,6 +56,9 @@
 		<<set _owned to 1>>
 	<<else>>
 		<<set _owned to 0>>
+		<<if _feats[_keys[_i]].hidden>>
+			<<continue>>
+		<</if>>
 		<<if _feats[_keys[_i]].series isnot "">>
 			<<set _skip.push(_feats[_keys[_i]].series)>>
 		<</if>>
@@ -73,13 +70,15 @@
 					<<case 1>><img @src="'img/ui/CopperCoin'+(_owned is 1 ? 'Dull':'')+'.png'" class="featCoin" @style="(_owned is 1 ? 'filter:brightness(65%) contrast(85%);':'')">
 					<<case 2>><img @src="'img/ui/SilverCoin'+(_owned is 1 ? 'Dull':'')+'.png'" class="featCoin" @style="(_owned is 1 ? 'filter:brightness(75%) contrast(85%);':'')">
 					<<case 3>><img @src="'img/ui/GoldCoin'+(_owned is 1 ? 'Dull':'')+'.png'" class="featCoin" @style="(_owned is 1 ? 'filter:brightness(65%) contrast(85%);':'')">
+					<<case 4>><img @src="'img/ui/DiamondCoin'+(_owned is 1 ? 'Dull':'')+'.png'" class="featCoin" @style="(_owned is 1 ? 'filter:brightness(65%) contrast(85%);':'')">
+					<<case 5>><img @src="'img/ui/RubyCoin'+(_owned is 1 ? 'Dull':'')+'.png'" class="featCoin" @style="(_owned is 1 ? 'filter:brightness(65%) contrast(85%);':'')">
 				<</switch>>
 			<<else>>
 				<span class="dot"></span>
 			<</if>>
 		</div>
 		<div class="featText">
-			<<if ($feats.soft is true and _feats[_keys[_i]].softLockable is true) or $feats.locked is true or ($gamemode is "soft" or $alluremod lt 1)>>
+			<<if ($feats.pregnancyLocked and _feats[_keys[_i]].pregnancyLockable) or ($feats.soft and _feats[_keys[_i]].softLockable) or $feats.locked or ($gamemode is "soft" or $alluremod lt 1)>>
 				<<set _titleColor to " red">>
 			<<else>>
 				<<set _titleColor to "">>
@@ -115,12 +114,15 @@
 		<<set _featsCount++>>
 	<</if>>
 <</silently>>
-<div @id="'feat-' + _featsCount" class="feat">
+<<capture _featsCount>>
+<div @id="'feat-' + _featsCount" @class="'feat feat' + _featsCount + (_featsCount gte 3 ? ' hiddenFeat' : '')">
 	<div class="featImage">
 		<<switch _feats[_args[0]].difficulty>>
 			<<case 1>><img src="img/ui/CopperCoin.gif" class="featCoin">
 			<<case 2>><img src="img/ui/SilverCoin.gif" class="featCoin">
 			<<case 3>><img src="img/ui/GoldCoin.gif" class="featCoin">
+			<<case 4>><img src="img/ui/DiamondCoin.gif" class="featCoin">
+			<<case 5>><img src="img/ui/RubyCoin.gif" class="featCoin">
 		<</switch>>
 	</div>
 	<div class="featText">
@@ -130,6 +132,7 @@
 	</div>
 	<div @id="'closeFeat-' + _featsCount" class="closeFeat" @onclick="'closeFeats('+ _featsCount +')'"></div>
 </div>
+<</capture>>
 <</widget>>
 
 /*Feat Points Menu*/
@@ -416,6 +419,8 @@
 				<<case 1>><img src="img/ui/CopperCoinFake.gif" class="featCoin">
 				<<case 2>><img src="img/ui/SilverCoinFake.gif" class="featCoin">
 				<<case 3>><img src="img/ui/GoldCoinFake.gif" class="featCoin">
+				<<case 3>><img src="img/ui/DiamondCoinFake.gif" class="featCoin">
+				<<case 3>><img src="img/ui/RubyCoinFake.gif" class="featCoin">
 			<</switch>>
 		</div>
 		<div class="featText">

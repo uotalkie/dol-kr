@@ -234,10 +234,6 @@
 	<<set $transformdisable to "f">>
 <</if>>
 
-<<if $analpregdisable is undefined>>
-	<<set $analpregdisable to "f">>
-<</if>>
-
 <<if $robindebtlimit is undefined and $docksrobinintro is 1>>
 	<<set $robindebtlimit to 5>>
 	<<if $robindebt gte $robindebtlimit>>
@@ -3039,35 +3035,32 @@
 	<!-- v0.3.7.4: An old pregnancy code issue where .fertilize was used and not updated. -->
 	<<script>>
 		const pregnancy = V.sexStats.anus.pregnancy;
-		if (pregnancy.hasOwnProperty('fertilized')) {
-			pregnancy.fertilised = pregnancy.fertilized;
-			delete pregnancy.fertilized;
-		}
-		for (let i = 0; i < pregnancy.maxCount; i++) {
-			const slot = pregnancy[i];
-			if (slot != null && slot.hasOwnProperty('fertilized')) {
-				slot.fertilised = slot.fertilized;
-				delete slot.fertilized;
-			}
-		}
-		/* Part 2: Futa manipulation. */
-		let hasFuta = false;
-		for (let i = 0; i < pregnancy.maxCount; i++) {
-			const slot = pregnancy[i];
-			if (slot != null && slot.stats != null && slot.stats.gender === 'Futa') {
-				if (hasFuta) {
-					/* Abort the futa. */
-					pregnancy[i] = null;
-					pregnancy.count -= 1;
-				} else {
-					hasFuta = true;
-					if (pregnancy.seenDoctor < 2) {
-						pregnancy.seenDoctor = 2;
-					}
-					pregnancy.motherStatus = 2;
-					pregnancy.maxCount = 4;
+		if(Array.isArray(pregnancy.fetus)){
+			for (let i = 0; i < pregnancy.fetus.length; i++) {
+				const slot = pregnancy.fetus[i];
+				if (slot != undefined && slot.hasOwnProperty('fertilized')) {
+					slot.fertilised = slot.fertilized;
+					delete slot.fertilized;
 				}
 			}
+			/* Part 2: Futa manipulation. */
+			let hasFuta = false;
+			for (let i = 0; i < pregnancy.fetus.length; i++) {
+				const slot = pregnancy.fetus[i];
+				if (slot != undefined && slot.stats != null && slot.stats.gender === 'Futa') {
+					if (hasFuta) {
+						/* Abort the futa. */
+						pregnancy.fetus[i].toDelete = true;
+					} else {
+						hasFuta = true;
+						if (V.pregnancyStats.parasiteDoctorEvents < 2) {
+							V.pregnancyStats.parasiteDoctorEvents = 2;
+						}
+						pregnancy.motherStatus = 2;
+					}
+				}
+			}
+			V.sexStats.anus.pregnancy.fetus = V.sexStats.anus.pregnancy.fetus.filter(p => p && !p.toDelete);
 		}
 	<</script>>
 
@@ -3688,10 +3681,14 @@
 	<</if>>
 
 	<!-- To update the player and named npc pregnancy objects from numbers to a single array -->
-	<<if $sexStats.vagina.pregnancy.fetus is undefined>>
+	<<if $sexStats.vagina.pregnancy.fetus is undefined || $sexStats.vagina.pregnancy.anus is undefined>>
 		<<physicalAdjustmentsInit>>
 	<</if>>
 	<<npcPregnancyUpdater>><!--Has checks to make sure it only changes data when required, don't block behind a check-->
+	<<if $parasitepregdisable is undefined>>
+		<<set $parasitepregdisable to $analpregdisable>>
+		<<unset $analpregdisable>>
+	<</if>>
 
 	<!-- v0.3.12.4: zoom fix-->
 	<<if $zoom is undefined>>

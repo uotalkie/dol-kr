@@ -95,7 +95,7 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 			<br>
 		<</if>>
 		/*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
-		<<if $sexStats.vagina.pregnancy.waterBreaking is true and $pregnancyTesting>>
+		<<if isPlayerNonparasitePregnancyEnding() and $pregnancyTesting>>
 			<<link [[Say that your waters have broken|Pregnancy Birth Hospital]]>><</link>>
 			<br>
 		<</if>>
@@ -124,14 +124,15 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 			<<link [[음경 축소술에 대해 문의한다 (0:10)|Hospital Penis Reduction]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<set _pregnancy to $sexStats.anus.pregnancy>>
-		<<if _pregnancy.seenDoctor is 1>>
+		<<set _aPregnancy to $sexStats.anus.pregnancy>>
+		<<set _vPregnancy to $sexStats.vagina.pregnancy>>
+		<<if $pregnancyStats.parasiteDoctorEvents is 1>>
 			<<link [[당신 뱃속의 움직임에 대해 문의한다 (0:10)|Pregnancy Introduction]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if _pregnancy.seenDoctor is 3 or (_pregnancy.motherStatus is 2 and _pregnancy.seenDoctor gt 3) or (_pregnancy.book is 1 and _pregnancy.seenDoctor gt 3) or $container.portable.value gt 0>>
-			<<if $deviancy gte 75>><<set _pregnancy.namesChildren to true>><<else>><<set _pregnancy.namesChildren to false>><</if>>
-			<<if _pregnancy.namesChildren is true>>
+		<<if $pregnancyStats.parasiteDoctorEvents is 3 or ((_aPregnancy.motherStatus is 2 or (_vPregnancy.motherStatus is 2 and !$warn.genitals.type.includes("hidden"))) and $pregnancyStats.parasiteDoctorEvents gt 3) or ($pregnancyStats.parasiteBook is 1 and $pregnancyStats.parasiteDoctorEvents gt 3) or $container.portable.value gt 0>>
+			<<if $deviancy gte 75>><<set $pregnancyStats.namesParasitesChild to true>><<else>><<set $pregnancyStats.namesParasitesChild to false>><</if>>
+			<<if $pregnancyStats.namesParasitesChild is true>>
 				<<link [[당신의 임신과 아이들에 대해 문의한다 (0:10)|Pregnancy Discussion]]>><<pass 10>><</link>>
 				<br>
 			<<else>>
@@ -139,9 +140,13 @@ You are inside the hospital foyer. <<if $psych is 1>>You see a sign directing to
 				<br>
 			<</if>>
 		<</if>>
-		<<set _pregnancy to $sexStats.vagina.pregnancy>>
-		<<if _pregnancy.awareOf is true and _pregnancy.ultrasoundDone is 0 and between(_pregnancy.timer / _pregnancy.timerEnd, 0.1, 1)>>
-			<<link [[초음파 검사를 받는 것에 대해 문의한다 (0:10)|Pregnancy ultrasound]]>><<pass 10>><<set _pregnancy.ultrasoundDone to 1>><</link>>
+		<<if $player.vaginaExist>>
+			<<set _pregnancy to $sexStats.vagina.pregnancy>>
+		<<else>>
+			<<set _pregnancy to $sexStats.anus.pregnancy>>
+		<</if>>
+		<<if _pregnancy.awareOf is true and !$daily.ultrasoundDone and between(_pregnancy.timer / _pregnancy.timerEnd, 0.1, 1)>>
+			<<link [[초음파 검사를 받는 것에 대해 문의한다 (0:10)|Pregnancy ultrasound]]>><<pass 10>><<set $daily.ultrasoundDone to true>><</link>>
 			<br>
 		<</if>>
 		<<for _active_bodypart range setup.bodyparts>>
@@ -357,7 +362,7 @@ You are in the paediatric ward of the hospital. Several nurses go about their bu
 :: Widgets Passout Hospital [widget]
 <<widget "passouthospital">>
 /*ToDo: Pregnancy, remove $pregnancyTesting to properly enable*/
-<<if $sexStats.vagina.pregnancy.waterBreaking is true and $pregnancyTesting>>
+<<if isPlayerNonparasitePregnancyEnding() and $pregnancyTesting>>
 	<<pregnancyWatersBrokenPassout "hospital">>
 <<else>>
 	<<link [[모든 게 깜깜해진다...->Passout hospital]]>><</link>>

@@ -5,7 +5,7 @@
 	<<if _feats is undefined>>
 		<<featsData>>
 	<</if>>
-	<<if $feats.currentSave[_args[0]] is undefined and ($feats.soft isnot true or _feats[_args[0]].softLockable isnot true)>>
+	<<if $feats.currentSave[_args[0]] is undefined and (!$feats.soft or !_feats[_args[0]].softLockable) and (!$feats.pregnancyLocked or !_feats[_args[0]].pregnancyLockable)>>
 		<<set $feats.currentSave[_args[0]] to Date()>>
 
 		<<displayFeat _args[0]>>
@@ -235,19 +235,18 @@
 <<if _upgrades.impurity gt 0>>
 	<<set $featsPurityBoost to _upgrades.impurity / _details.impurity.cost * -1>>
 <</if>>
-<<if _upgrades.newLife gt 0 and $analpregdisable is "f">>
-	<<impregnate "tentacle" 400>>
-	<<fertilise>>
+<<if _upgrades.newLife gt 0 and $parasitepregdisable is "f">>
+	<<impregnateParasite "tentacle" 400>>
+	<<fertiliseParasites>>
 	<<set _pregnancy to $sexStats.anus.pregnancy>>
 	<<set _pregnancy.motherStatus to 2>>
-	<<set _pregnancy.seenDoctor to 2>>
-	<<set _pregnancy.maxCount to 4>>
-	<<set _pregnancy[0].stats.gender to "Futa">>
+	<<set $pregnancyStats.parasiteDoctorEvents to 2>>
+	<<set _pregnancy.fetus[0].stats.gender to "Hermaphrodite">>
 	<<if _upgrades.newLife is 40>>
-		<<set _pregnancy[0].stats.growth to 7>>
-		<<set _pregnancy[0].stats.speed to 54>>
+		<<set _pregnancy.fetus[0].stats.growth to 7>>
+		<<set _pregnancy.fetus[0].stats.speed to 54>>
 	<</if>>
-	<<set _pregnancy[0].stats.lastEgg to Math.floor(_pregnancy[0].stats.growth / 3)>>
+	<<set _pregnancy.fetus[0].stats.lastEgg to Math.floor(_pregnancy.fetus[0].stats.growth / 3)>>
 <</if>>
 <<if _upgrades.aNewBestFriend gt 0>>
 	<<parasite left_ear slime>>
@@ -500,7 +499,7 @@
 		<<if $sexStats.anus.pregnancy.motherStatus is 2>>
 			<<earnFeat "Broodmother Host">>
 		<</if>>
-		<<if $sexStats.anus.pregnancy.typesSeen.length gte 14 and $sexStats.anus.pregnancy.variantsSeen.length gte 2 and $sexStats.anus.pregnancy.book is 3>>
+		<<if $pregnancyStats.parasiteTypesSeen && $pregnancyStats.parasiteTypesSeen.length gte 14 and $pregnancyStats.parasiteVariantsSeen.length gte 2 and $pregnancyStats.parasiteBook is 3>>
 			<!-- typesSeen: fish, snake, slime, spider, maggot, worm, eel, wasp, bee, lurker, squid, slug, tentacle, vine -->
 			<!-- variantsSeen: pale, metal -->
 			<<earnFeat "Broodmother Zoologist">>
@@ -522,9 +521,6 @@
 			<<earnFeat "Teachers Pet">>
 		<<elseif $delinquency gte 1000>>
 			<<earnFeat "Teachers Nightmare">>
-		<</if>>
-		<<if $feats.allSaves.points gte 150>>
-			<<earnFeat "My Collection of Feats">>
 		<</if>>
 		<<if $skin.forehead.writing and $skin.left_cheek.writing and $skin.right_cheek.writing and $skin.left_shoulder.writing and $skin.right_shoulder.writing
 		and $skin.breasts.writing and $skin.back.writing and $skin.pubic.writing and $skin.left_thigh.writing and $skin.right_thigh.writing>>
@@ -566,6 +562,18 @@
 		<<if $fame.sex lte 29 and $fame.prostitution lte 29 and $fame.rape lte 29 and $fame.bestiality lte 29 and $fame.exhibitionism lte 29 and ($pregnancyTesting and $fame.pregnancy lte 29)
 		and $fame.scrap gte 1000 and $fame.good gte 1000 and $fame.business gte 1000 and $fame.social gte 1000 and $fame.model gte 1000 /* and $fame.pimp gte 1000 */>>
 			<<earnFeat "Shining Reputation">>
+		<</if>>
+
+		<<if Object.values($children).reduce((prev,curr) => prev.pushUnique(curr.type), []).length gte Object.keys(pregnancyGenerator).filter(type => type !== "parasite").length>>
+			<<earnFeat "Diversity of Life">>
+		<</if>>
+
+		<!-- Should be last -->
+		<<if $feats.allSaves.points gte 150>>
+			<<earnFeat "My Collection of Feats">>
+		<</if>>
+		<<if $feats.allSaves.points gte 300>>
+			<<earnFeat "My Timeless Collection of Feats">>
 		<</if>>
 		<<specialClothesUpdate>>
 	<</if>>
@@ -615,6 +623,13 @@
 <</if>>
 <</widget>>
 
+/*
+	Key points
+	series: "seriesName", //Will only show the first locked feat in a series to the player
+	softLockable: true, //Will disable the unlocking of the feat if softmode is enabled
+	pregnancyLockable: true, //Will disable the unlocking of the feat if certain pregnancy settings are too low
+	hidden: true, //Will hide the feat at all times unless unlocked, best for feats for unreleased content
+*/
 <<widget "featsData">>
 <<if _feats is undefined>>
 	<<set _feats to {
@@ -1284,6 +1299,70 @@
 			filter: ["All", "Special"],
 			hint: "Hint: 남겨진 모든 것들을, 세심하고 자세히 적는다."
 		},
+		"Bicycle Mother":{
+			title: "Bicycle Mother",
+			desc: "Got impregnated without knowing who the father is.",
+			difficulty: 2,
+			series: "",
+			filter: ["All", "Special"],
+			hint: "Hint: Do you know who did it?",
+			hidden: true,
+		},
+		"Miracle of Life":{
+			title: "Miracle of Life",
+			desc: "Gave birth as a virgin.",
+			difficulty: 4,
+			series: "",
+			filter: ["All", "Special"],
+			hint: "Hint: Gained something but not at the cost of something else.",
+			pregnancyLockable: true,
+			hidden: true,
+		},
+		/*"Broken Dam":{ //Not in the code right now
+			title: "Broken Dam",
+			desc: "Get impregnated thanks to a broken condom.",
+			difficulty: 2,
+			series: "",
+			filter: ["All", "Special"],
+			hint: "Hint: ."
+		},*/
+		/*"Seed Spreader":{ //Not in the code right now
+			title: "Seed Spreader",
+			desc: "Impregnate three NPCs in a single day.",
+			difficulty: 1,
+			series: "",
+			filter: ["All", "Special"],
+			hint: "Hint: ."
+		},*/
+		"Life Comes in Threes":{
+			title: "Life Comes in Threes",
+			desc: "Gave birth to triplets.",
+			difficulty: 2,
+			series: "",
+			filter: ["All", "Special"],
+			hint: "Hint: Three of a kind.",
+			pregnancyLockable: true,
+			hidden: true,
+		},
+		"Diversity of Life":{
+			title: "Diversity of Life",
+			desc: "Gave birth to chidren of many different species.",
+			difficulty: 4,
+			series: "",
+			filter: ["All", "Special"],
+			hint: "Hint: Many forms of existence.",
+			pregnancyLockable: true,
+			hidden: true,
+		},
+		"Life begins when you least expect":{
+			title: "Life begins when you least expect",
+			desc: "Gave birth to children as a male.",
+			difficulty: 2,
+			series: "",
+			filter: ["All", "Special"],
+			hint: "Hint: The Magic that helps creates that what should not be.",
+			hidden: true,
+		},
 		"Producer of Lewd Fluids":{
 			title: "애액 생산자",
 			desc: "이제 저 촉수들은 누가 위인지 알 것이다.",
@@ -1434,7 +1513,8 @@
 			difficulty: 1,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 자연의 비밀을 수확한다."
+			hint: "Hint: 자연의 비밀을 수확한다.",
+			softLockable: true,
 		},
 		"Pride of the Farm":{
 			title: "농장의 자랑",
@@ -1458,7 +1538,8 @@
 			difficulty: 1,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 그 어떤 우리도 당신을 가둬놓을 수 없다."
+			hint: "Hint: 그 어떤 우리도 당신을 가둬놓을 수 없다.",
+			softLockable: true,
 		},
 		"Equine Rescue":{
 			title: "말 구조대",
@@ -1482,7 +1563,8 @@
 			difficulty: 1,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 대담한 모험에 나선다."
+			hint: "Hint: 대담한 모험에 나선다.",
+			softLockable: true,
 		},
 		"Sour Dealing":{
 			title: "잘못된 거래",
@@ -1490,7 +1572,8 @@
 			difficulty: 1,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 부도덕한 지인을 몇 만든다."
+			hint: "Hint: 부도덕한 지인을 몇 만든다.",
+			softLockable: true,
 		},
 		"Rear Passenger":{
 			title: "뒷좌석 승객",
@@ -1506,7 +1589,8 @@
 			difficulty: 1,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 짓궂은 도둑을 한 수 앞지른다."
+			hint: "Hint: 짓궂은 도둑을 한 수 앞지른다.",
+			softLockable: true,
 		},
 		"Pain Rider":{
 			title: "탑승자의 고통",
@@ -1514,7 +1598,8 @@
 			difficulty: 2,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 삼각목마를 끝까지 타고 있는다."
+			hint: "Hint: 삼각목마를 끝까지 타고 있는다.",
+			softLockable: true,
 		},
 		"Submerged":{
 			title: "잠수",
@@ -1522,7 +1607,8 @@
 			difficulty: 2,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 끝까지 물에 잠긴다."
+			hint: "Hint: 끝까지 물에 잠긴다.",
+			softLockable: true,
 		},
 		"Farm Protector":{
 			title: "농장의 보호자",
@@ -1530,7 +1616,8 @@
 			difficulty: 2,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 침입자들은 한 대씩 걷어차일 것이다."
+			hint: "Hint: 침입자들은 한 대씩 걷어차일 것이다.",
+			softLockable: true,
 		},
 		"A Knot to Remember":{
 			title: "기억에 남을만한 혹",
@@ -1562,7 +1649,8 @@
 			difficulty: 2,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 브라이어에겐 모두가 쓸만한 무언가가 있다."
+			hint: "Hint: 브라이어에겐 모두가 쓸만한 무언가가 있다.",
+			softLockable: true,
 		},
 		"Spelunking":{
 			title: "동굴탐험",
@@ -1570,7 +1658,8 @@
 			difficulty: 1,
 			series: "beach cave",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 오래된 밀수꾼의 경로를 찾아라."
+			hint: "Hint: 오래된 밀수꾼의 경로를 찾아라.",
+			softLockable: true,
 		},
 		"X Marks the Spot":{
 			title: "X표시 지점",
@@ -1578,7 +1667,8 @@
 			difficulty: 2,
 			series: "beach cave",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 숨겨진 깊은 곳."
+			hint: "Hint: 숨겨진 깊은 곳.",
+			softLockable: true,
 		},
 		"Buried Treasure":{
 			title: "매장된 보물",
@@ -1586,7 +1676,8 @@
 			difficulty: 3,
 			series: "beach cave",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 지도를 따라가라."
+			hint: "Hint: 지도를 따라가라.",
+			softLockable: true,
 		},
 		"Abnormal Mollusc":{
 			title:"비정상적인 연체동물",
@@ -1594,7 +1685,8 @@
 			difficulty: 2,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 파도 아래에 숨어라."
+			hint: "Hint: 파도 아래에 숨어라.",
+			softLockable: true,
 		},
 		"Leverage":{
 			title: "영향력",
@@ -1602,7 +1694,8 @@
 			difficulty: 3,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 악당에게서 저항하라."
+			hint: "Hint: 악당에게서 저항하라.",
+			softLockable: true,
 		},
 		"Flurry":{
 			title: "눈보라",
@@ -1618,7 +1711,8 @@
 			difficulty: 1,
 			series: "",
 			filter: ["All", "Discoveries"],
-			hint: "Hint: 벗어나라."
+			hint: "Hint: 벗어나라.",
+			softLockable: true,
 		},
 		"A Festive Home":{
 			title: "집에서 즐기는 행사",
@@ -1689,6 +1783,7 @@
 			series: "",
 			hint: "Hint: 물에 쓸려간 역사를 목격한다.",
 			filter: ["All", "Discoveries"],
+			softLockable: true,
 		},
 		"Catch the Wind":{
 			title: "바람 잡기",
@@ -1996,11 +2091,18 @@
 			title: "도전과제 컬렉션",
 			desc: "너무 많아서 셀 수가 없다.",
 			difficulty: 3,
-			series: "",
+			series: "collection",
 			filter: ["All", "Special"],
 			hint: "Hint: 무언가의 컬렉션."
-		}
-
+		},
+		"My Timeless Collection of Feats":{
+			title: "My Timeless Collection of Feats",
+			desc: "Feats being worth more than time itself.",
+			difficulty: 5,
+			series: "collection",
+			filter: ["All", "Special"],
+			hint: "Hint: Time and effort."
+		},
 	}>>
 <</if>>
 <</widget>>

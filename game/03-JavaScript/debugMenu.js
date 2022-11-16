@@ -248,7 +248,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Enable basic Pregnancy features`, stayOnPassageFn],
-			widgets: [`<<set $sexStats.anus.pregnancy.seenDoctor to 2>>`, `<<set $sexStats.anus.pregnancy.maxCount to 2>>`],
+			widgets: [`<<set $pregnancyStats.parasiteDoctorEvents to 2>>`],
 		},
 		{
 			link: [`Get Initial Mother Trait`, stayOnPassageFn],
@@ -256,33 +256,33 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Fertilise New Eggs`, stayOnPassageFn],
-			widgets: [`<<fertilise>>`],
+			widgets: [`<<fertiliseParasites>>`,`<<fertiliseParasites "vagina">>`],
 		},
 		{
 			link: [`Pregnancy Progress Day`, stayOnPassageFn],
-			widgets: [`<<pregProgressDay>>`],
+			widgets: [`<<parasiteProgressDay>>`],
 		},
 		{
 			link: [`Pregnancy Progress Week`, stayOnPassageFn],
 			widgets: [
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
-				`<<pregProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay>>`,
 			],
 		},
 		{
 			link: [() => `Set all pregnancy events to next ` + V.pass, stayOnPassageFn],
 			widgets: [
 				`<<set _pregnancy to $sexStats.anus.pregnancy>>`,
-				() => (T.pregnancy[0] == null ? "" : `<<set _pregnancy[0].timeLeft to 1>>`),
-				() => (T.pregnancy[1] == null ? "" : `<<set _pregnancy[1].timeLeft to 1>>`),
-				() => (T.pregnancy[2] == null ? "" : `<<set _pregnancy[2].timeLeft to 1>>`),
-				() => (T.pregnancy[3] == null ? "" : `<<set _pregnancy[3].timeLeft to 1>>`),
+				() => (T.pregnancy[0] == null ? "" : `<<set _pregnancy.fetus[0].timeLeft to 1>>`),
+				() => (T.pregnancy[1] == null ? "" : `<<set _pregnancy.fetus[1].timeLeft to 1>>`),
+				() => (T.pregnancy[2] == null ? "" : `<<set _pregnancy.fetus[2].timeLeft to 1>>`),
+				() => (T.pregnancy[3] == null ? "" : `<<set _pregnancy.fetus[3].timeLeft to 1>>`),
 			],
 		},
 		{
@@ -290,19 +290,19 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Get Pregnant with an eel`, stayOnPassageFn],
-			widgets: [`<<impregnate "eels" 1000>>`],
+			widgets: [`<<impregnateParasite "eels" 1000>>`],
 		},
 		{
 			link: [`Get Pregnant with an slime`, stayOnPassageFn],
-			widgets: [`<<impregnate "slimes" 1000>>`],
+			widgets: [`<<impregnateParasite "slimes" 1000>>`],
 		},
 		{
 			link: [`Get Pregnant with an worm`, stayOnPassageFn],
-			widgets: [`<<impregnate "worms" 1000>>`],
+			widgets: [`<<impregnateParasite "worms" 1000>>`],
 		},
 		{
 			link: [`Get Pregnant with an tentacle`, stayOnPassageFn],
-			widgets: [`<<impregnate "tentacle" 1000>>`],
+			widgets: [`<<impregnateParasite "tentacle" 1000>>`],
 		},
 		{
 			text_only: `\n`,

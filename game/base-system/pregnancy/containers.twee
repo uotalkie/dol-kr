@@ -220,7 +220,7 @@
 <</widget>>
 
 <<widget "creatureTooltip">>
-	<<if _creatureTip[_i].length gte 1 and _pregnancy.book is 3 and $statdisable is "f">>
+	<<if _creatureTip[_i].length gte 1 and $pregnancyStats.parasiteBook is 3 and $statdisable is "f">>
 		<mouse class="tooltip"><<trCreature "all" _container.creatures[_i].creature>><<print _trResult>><span class="gold"><<print _creatureTip[_i].join("<br>")>></span></mouse>
 	<<else>>
 		<<trCreature "all" _container.creatures[_i].creature>><<print _trResult>>
@@ -230,13 +230,13 @@
 <<widget "luxuryTooltip">>
 	<span class="gold">
 	<<if $phase is "farm" and $farm.parasitebarn gte 2>>
-		<<if _luxuryTip.length gte 1 and _pregnancy.book is 3 and $statdisable is "f">>
+		<<if _luxuryTip.length gte 1 and $pregnancyStats.parasiteBook is 3 and $statdisable is "f">>
 			<mouse class="tooltip">가능한 최상<span><<print _luxuryTip.join("<br>")>></span></mouse>으로
 		<<else>>
 			가능한 최상으로
 		<</if>>
 	<<else>>
-		<<if _luxuryTip.length gte 1 and _pregnancy.book is 3 and $statdisable is "f">>
+		<<if _luxuryTip.length gte 1 and $pregnancyStats.parasiteBook is 3 and $statdisable is "f">>
 			<mouse class="tooltip"><<print _container.decorations>><span><<print _luxuryTip.join("<br>")>></span></mouse>을
 		<<else>>
 			<<print _container.decorations>>을
@@ -290,13 +290,13 @@
 	<</if>>
 	determines how much stress and trauma is reduced when checking on your parasites. Activity goes from <span class="red">very rare</span> to <span class="gold">perfect</span>.
 	<br><br>
-	<<if _pregnancy.typesSeen.includes("Slime")>>
+	<<if $pregnancyStats.parasiteTypesSeen.includes("Slime")>>
 		<li><b>Slimes</b> of any kind raise purity by a small amount when checking on them.</li>
 	<</if>>
-	<<if _pregnancy.typesSeen.includes("Worm")>>
+	<<if $pregnancyStats.parasiteTypesSeen.includes("Worm")>>
 		<li><b>Worms</b> lower purity by a small amount when checking on them.</li>
 	<</if>>
-	<<if _pregnancy.typesSeen.includes("Tentacle")>>
+	<<if $pregnancyStats.parasiteTypesSeen.includes("Tentacle")>>
 		<li><b>Tentacles</b> of any kind lower fatigue when checking on them. They can also raise or lower purity, depending on what other parasites are present.
 		<<if _boosts and _boosts.purity gt 0>>
 			Currently, they're raising purity.
@@ -306,10 +306,10 @@
 			Currently, they're doing neither.
 		<</if>>
 		They are more likely to have better activity than other parasites.</li>
-		<<if _pregnancy.typesSeen.includes("Vine")>>
+		<<if $pregnancyStats.parasiteTypesSeen.includes("Vine")>>
 			<li><b>Vines</b> have the same effect as tentacles.</li>
 		<</if>>
-	<<elseif _pregnancy.typesSeen.includes("Vine")>>
+	<<elseif $pregnancyStats.parasiteTypesSeen.includes("Vine")>>
 		<li><b>Vines</b> lower fatigue when checking on them. They can also raise or lower purity, depending on what other parasites are present.
 		<<if _boosts and _boosts.purity gt 0>>
 			Currently, they're raising purity.
@@ -320,11 +320,11 @@
 		<</if>>
 		They are more likely to have better activity than other parasites.</li>
 	<</if>>
-	<<if _pregnancy.typesSeen.includes("Lurker")>>
+	<<if $pregnancyStats.parasiteTypesSeen.includes("Lurker")>>
 		<li><b>Lurkers</b> are more likely to have better activity, but take longer to birth and sell for less. They do not have any other notable traits.</li>
 	<</if>>
 	<!-- Printing info for all remaining types seen, that don't have any special traits -->
-	<<set $_typesRemainder to clone(_pregnancy.typesSeen).filter(types => !["Lurker","Vine","Tentacle","Slime","Worm"].includes(types))>>
+	<<set $_typesRemainder to clone($pregnancyStats.parasiteTypesSeen).filter(types => !["Lurker","Vine","Tentacle","Slime","Worm"].includes(types))>>
 	<<if $_typesRemainder.length gte 1>>
 		<<for _r to 0; _r lt $_typesRemainder.length; _r++>>
 			<<set $_typesRemainder[_r] to "<b>" + $_typesRemainder[_r]>>
@@ -338,11 +338,11 @@
 		<li><<print formatList($_typesRemainder)>> do not have any notable traits.</li>
 	<</if>>
 	<!-- Pale parasites are down here because they're variants. It looks kinda awkward because there are very few parasite variants -->
-	<<if _pregnancy.variantsSeen.includes("Pale")>>
+	<<if $pregnancyStats.parasiteVariantsSeen.includes("Pale")>>
 		<li><b><span class="wraith">Pale</span></b> parasites have larger bonuses than other parasites, and also afflict you with hallucinogens.</li>
 	<</if>>
 	<!-- Printing info for all remaining variants seen, that don't have any special traits -->
-	<<set $_variantsRemainder to clone(_pregnancy.variantsSeen).filter(types => !["Pale"].includes(types))>>
+	<<set $_variantsRemainder to clone($pregnancyStats.parasiteVariantsSeen).filter(types => !["Pale"].includes(types))>>
 	<<if $_variantsRemainder.length gte 1>>
 		<<for _r to 0; _r lt $_variantsRemainder.length; _r++>>
 			<<set $_variantsRemainder[_r] to "<b>" + $_variantsRemainder[_r] + "</b>">>
@@ -355,18 +355,19 @@
 <<set $outside to 0>><<set $location to $container.lastLocation>><<effects>>
 <<set $phase to $phase || $location>>
 <<set _container to $container[$phase]>>
-<<set _pregnancy to $sexStats.anus.pregnancy>>
+<<set _aPregnancy to $sexStats.anus.pregnancy>>
+<<set _vPregnancy to $sexStats.vagina.pregnancy>>
 <<set $checkboxResult to {}>>
 
 <<if _container.count is 0>>
 	<<if _container.deadCreatures is 0>>
-		당신의 <span class="gold"><<print _container.name>></span> 안에 <<if _pregnancy.namesChildren is true>>아기가<<else>>기생충이<</if>> 하나도 없다.
+		당신의 <span class="gold"><<print _container.name>></span> 안에 <<if $pregnancyStats.namesParasitesChild is true>>아기가<<else>>기생충이<</if>> 하나도 없다.
 		<br>
 	<<else>>
-		당신이 <<if _pregnancy.namesChildren is true>>당신의 아기들을<<else>>기생충들을<</if>> 돌보고 먹이지 않아서, <span class="red">몇몇이 죽은</span> 것 같다. 당신은 그들을 묻어주는 데 시간을 보낸다.
+		당신이 <<if $pregnancyStats.namesParasitesChild is true>>당신의 아기들을<<else>>기생충들을<</if>> 돌보고 먹이지 않아서, <span class="red">몇몇이 죽은</span> 것 같다. 당신은 그들을 묻어주는 데 시간을 보낸다.
 		<<ggtrauma>>
 		<br><br>
-		<<if _pregnancy.namesChildren is true>>
+		<<if $pregnancyStats.namesParasitesChild is true>>
 			<<set _traumaMulti to 2>>
 		<<else>>
 			<<set _traumaMulti to 1>>
@@ -391,27 +392,27 @@
 	<</if>>
 <<else>>
 	<<if _container.visited is false>>
-		당신은 <<if _pregnancy.namesChildren is true>>당신의 아기<<if _container.count isnot 1>>들을<<else>>를<</if>><<else>>기생충<<if _container.count isnot 1>>들<</if>>을<</if>> 확인하고, <span class="gold"><<print _container.name>></span>안에서 <<if _container.count isnot 1>>그들이<<else>>그것이<</if>> 필요한 모든 것이 있는지 돌본다.
+		당신은 <<if $pregnancyStats.namesParasitesChild is true>>당신의 아기<<if _container.count isnot 1>>들을<<else>>를<</if>><<else>>기생충<<if _container.count isnot 1>>들<</if>>을<</if>> 확인하고, <span class="gold"><<print _container.name>></span>안에서 <<if _container.count isnot 1>>그들이<<else>>그것이<</if>> 필요한 모든 것이 있는지 돌본다.
 		<br>
 		<<creatureVisit>>
 	<<else>>
 		<<creatureVisit false>>
-		당신은 <span class="gold"><<print _container.name>></span> 안에 있는 <<if _pregnancy.namesChildren is true>>아기<<if _container.count isnot 1>>들을<<else>>를<</if>><<else>>기생충<<if _container.count isnot 1>>들<</if>>을<</if>> 쳐다본다.
+		당신은 <span class="gold"><<print _container.name>></span> 안에 있는 <<if $pregnancyStats.namesParasitesChild is true>>아기<<if _container.count isnot 1>>들을<<else>>를<</if>><<else>>기생충<<if _container.count isnot 1>>들<</if>>을<</if>> 쳐다본다.
 	<</if>>
 	<br><br>
-	거기에는 최대 <<trNumber _container.maxCount>> 자리가 있고, <<if _container.feederName>><span class="gold"><<print _container.feederName>></span> 덕분에 <</if>><<if _pregnancy.namesChildren is true>>당신의 아기<<if _container.count isnot 1>>들은<<else>>는<</if>><<else>>기생충<<if _container.count isnot 1>>들<</if>>은<</if>> <<trNumberHanja _container.maxDaysWithoutFood>>일 동안 당신의 돌봄 없이 생존할 수 있다.
+	거기에는 최대 <<trNumber _container.maxCount>> 자리가 있고, <<if _container.feederName>><span class="gold"><<print _container.feederName>></span> 덕분에 <</if>><<if $pregnancyStats.namesParasitesChild is true>>당신의 아기<<if _container.count isnot 1>>들은<<else>>는<</if>><<else>>기생충<<if _container.count isnot 1>>들<</if>>은<</if>> <<trNumberHanja _container.maxDaysWithoutFood>>일 동안 당신의 돌봄 없이 생존할 수 있다.
 	<<if _container.decorations>>당신은 수조 안에 <<luxuryTooltip>> 설치해 두었다.<</if>>
 	<<if $phase is "farm" and $farm.parasitebarn gte 2>>헛간 안의 설비는 <<luxuryTooltip>> 설치해 두었다.<</if>>
 	<!-- For players who had multiple parasite children before the tooltip update -->
-	<<if _pregnancy.typesSeen.length gte 4 and _pregnancy.book is undefined or _pregnancy.book is 1>>
-		<<set _pregnancy.book to 1>>
+	<<if $pregnancyStats.parasiteTypesSeen.length gte 4 and $pregnancyStats.parasiteBook is undefined or $pregnancyStats.parasiteBook is 1>>
+		<<set $pregnancyStats.parasiteBook to 1>>
 		<br><br>
 		You find yourself wondering at the sheer number of different types of creatures you have, and wonder if there's any way to know more. <span class="gold">Doctor Harper might be able to help you.</span>
 	<</if>>
 <</if>>
 <br><br>
 
-<<if _pregnancy.book is 3>>
+<<if $pregnancyStats.parasiteBook is 3>>
 	<div id="info" class="no-numberify"><<link "Open notebook">><<replace "#info">><<containerInfo>><</replace>><</link>></div>
 <</if>>
 
@@ -429,20 +430,38 @@
 <</if>>
 
 <<if _container.deadCreatures is 0>>
-	<<if _pregnancy.feltMovement is true>>
+	<<if _aPregnancy.type !== "parasite">>
+	<<elseif _aPregnancy.parasiteFeltMovement>>
 		<<if $worn.genitals.anal_shield is 1>>
-			당신은 애널 보호대를 하고 있는 동안에는 <<if _pregnancy.namesChildren is true>>당신의 아기들을<<else>>기생충들을<</if>> 낳을 수가 없다.
+			You're unable to deliver <<if $pregnancyStats.namesParasitesChild is true>>your parasite children<<else>>the parasites<</if>> while you have an anal shield.
 		<<else>>
-			<<if _pregnancy.namesChildren is true>>
-				<<link [[아기를 낳으려 시도한다 (1:00)|GiveBirth]]>><<pass 60>><</link>>
+			<<if $pregnancyStats.namesParasitesChild is true>>
+				<<link [[Attempt to deliver your anus parasite children (1:00)|GiveBirth]]>><<pass 60>><<set $giveBirthLocation to "anus">><</link>>
 			<<else>>
-				<<link [[기생충을 낳으려 시도한다 (1:00)|GiveBirth]]>><<pass 60>><</link>>
+				<<link [[Attempt to deliver the anus parasite (1:00)|GiveBirth]]>><<pass 60>><<set $giveBirthLocation to "anus">><</link>>
 			<</if>>
 		<</if>>
-	<<elseif _pregnancy.count - (_pregnancy.motherStatus is 2 ? 1 : 0) gt 0>>
-		당신은 아직 <<print (_pregnancy.namesChildren is true ? "당신의 아기들이" : "기생충들이")>> 나올 때가 되었다고 생각하지 않는다.
+		<br><br>
+	<<elseif _aPregnancy.fetus.length - (_aPregnancy.motherStatus is 2 ? 1 : 0) gt 0>>
+		You don't think <<print ($pregnancyStats.namesParasitesChild is true ? "your parasite children" : "the parasites")>> in your anus are ready for delivery.
+		<br><br>
 	<</if>>
-	<br><br>
+	<<if _vPregnancy.type !== "parasite">>
+	<<elseif _vPregnancy.parasiteFeltMovement>>
+		<<if $worn.genitals.type.includes("hidden")>>
+			You're unable to deliver <<if $pregnancyStats.namesParasitesChild is true>>your parasite children<<else>>the parasites<</if>> while you have a chastity belt.
+		<<else>>
+			<<if $pregnancyStats.namesParasitesChild is true>>
+				<<link [[Attempt to deliver your vagina parasite children (1:00)|GiveBirth]]>><<pass 60>><<set $giveBirthLocation to "vagina">><</link>>
+			<<else>>
+				<<link [[Attempt to deliver the vagina parasite (1:00)|GiveBirth]]>><<pass 60>><<set $giveBirthLocation to "vagina">><</link>>
+			<</if>>
+		<</if>>
+		<br><br>
+	<<elseif _vPregnancy.fetus.length - (_aPregnancy.motherStatus is 2 ? 1 : 0) gt 0>>
+		You don't think <<print ($pregnancyStats.namesParasitesChild is true ? "your parasite children" : "the parasites")>> in your vagina are ready for delivery.
+		<br><br>
+	<</if>>
 	<<if _container.count gt 0>>
 		<<link [[팔기 위해 옮긴다|$passage]]>>
 			<<for _i to 0; _i lt _container.maxCount;_i++>>

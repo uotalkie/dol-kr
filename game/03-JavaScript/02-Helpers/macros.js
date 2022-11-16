@@ -162,7 +162,7 @@ var General = ((Macro, SexTypes) => {
 		handler() {
 			const type = getGooTypes(...this.args)[0];
 			if (type === "cum" || type === "both") {
-				Wikifier.wikifyEval("<<fertilise>>");
+				Wikifier.wikifyEval("<<fertiliseParasites>><<fertiliseParasites 'vagina'>>");
 			}
 		},
 	});

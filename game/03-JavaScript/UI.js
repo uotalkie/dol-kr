@@ -224,6 +224,24 @@ function closeFeats(id) {
 	const div2 = document.getElementById("closeFeat-" + id);
 	div1.style.display = "none";
 	div2.style.display = "none";
+	let otherFeatDisplay;
+	let elementId = id + 1;
+	let newId = parseInt(div1.classList.value.replace("feat feat", ""));
+	do {
+		otherFeatDisplay = document.getElementById("feat-" + elementId);
+		if(otherFeatDisplay){
+			if(otherFeatDisplay.style.display !== "none" && !isNaN(newId)){
+				otherFeatDisplay.removeAttribute("class");
+				otherFeatDisplay.classList.add("feat");
+				otherFeatDisplay.classList.add("feat" + newId);
+				if(newId >= 3){
+					otherFeatDisplay.classList.add("hiddenFeat");
+				}
+				newId++;
+			}
+			elementId++;
+		}
+	} while(otherFeatDisplay);
 }
 window.closeFeats = closeFeats;
 
@@ -282,7 +300,7 @@ function beastTogglesCheck() {
 		"bestialitydisable",
 		"swarmdisable",
 		"parasitedisable",
-		"analpregdisable",
+		"parasitepregdisable",
 		"tentacledisable",
 		"slimedisable",
 		"voredisable",
