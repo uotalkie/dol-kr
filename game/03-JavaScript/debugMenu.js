@@ -965,10 +965,6 @@ setup.debugMenu.eventList = {
 			widgets: [`<<set $timer -= 60>>`],
 		},
 		{
-			link: [`Size Up`, stayOnPassageFn],
-			widgets: [`<<set $devlevel += 1>>`],
-		},
-		{
 			link: [`Full Lewd Characteristics`, stayOnPassageFn],
 			widgets: [`<<set $promiscuity += 100>>`, `<<set $exhibitionism += 100>>`, `<<set $deviancy += 100>>`],
 		},
