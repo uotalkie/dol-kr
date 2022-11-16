@@ -13,8 +13,10 @@ function mapMove(moveTo) {
 
 	// if(V.debug == 1 || available[currentPassage].includes(moveTo))
 	if (V.debug === 1 || (available[currentPassage].includes(moveTo) && destinationTable.includes(moveTo))) {
+		window.ironmanFlag = true;
 		Wikifier.wikifyEval("<<pass 5>>");
-		SugarCube.State.display(moveTo);
+		delete window.ironmanFlag;
+		Engine.play(moveTo);
 	}
 }
 window.mapMove = mapMove;
