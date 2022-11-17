@@ -807,7 +807,6 @@ function backCompPillsInventory() {
 	const pills = {};
 	if (typeof oPills === "object") {
 		/* If our $sexStats.pills is an object and has this property, it is ready for production. */
-		if (!oPills.pills["anti-parasite"])
 		if (oPills.hasOwnProperty("mostTaken")) return;
 		try {
 			pillsObjectRepair(oPills, pills);
