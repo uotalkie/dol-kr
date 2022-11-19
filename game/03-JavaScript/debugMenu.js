@@ -326,7 +326,7 @@ setup.debugMenu.eventList = {
 					if (V.sexStats.vagina.menstruation.currentState === "normal") {
 						return `<<set $sexStats.vagina.sperm["Debug Man"] = {"type":"human", "count":[[4,1000]]}>>
 						<<set $sexStats.vagina.menstruation.currentDay to $sexStats.vagina.menstruation.stages[2]>>
-						<menstruationCycle>>`;
+						<<menstruationCycle>>`;
 					}
 				},
 			],

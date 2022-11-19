@@ -569,12 +569,119 @@ window.bulkProduceValue = bulkProduceValue;
 function pregnancyBellyVisible() {
 	const size = playerBellySize();
 	if (size <= 7) return false;
-	if (size <= 11 && State.variables.worn.upper.name !== "naked" && State.variables.worn.upper.type.includes("bellyShow")) return false;
-	if (size <= 17 && State.variables.worn.upper.type.includes("bellyHide")) return false;
+	if (size <= 11 && V.worn.upper.name !== "naked" && !V.worn.upper.type.includes("bellyShow")) return false;
+	if (size <= 17 && V.worn.upper.type.includes("bellyHide")) return false;
 
 	return true;
 }
 window.pregnancyBellyVisible = pregnancyBellyVisible;
+
+function playerCanBreedWith(npc) {
+	/* This function can accept either a named NPC's name, or an NPC object from either NPCList or NPCName.
+	 * Examples: playerCanBreedWith("Kylar"), or playerCanBreedWith($NPCList[0]) or playerCanBreedWith($NPCName[$NPCNameList.indexOf("Kylar")])
+	 * Returns true or false. If you give it garbage, like a totally wrong name, it'll return false, so be careful about silent failures like that.
+	 * Should be used for NPC breeding lines ONLY.
+	 */
+	if (typeof npc === "string") npc = V.NPCName[V.NPCNameList.indexOf(npc)];
+
+	return (V.player.vaginaExist && npc.penis !== "none") || (V.player.penisExist && npc.vagina !== "none");
+}
+window.playerCanBreedWith = playerCanBreedWith;
+
+function playerPregnancyPossibleWith(NPC) {
+	/* Like the above function, this will accept either a named NPC's name, or an NPC object from either NPCList or NPCName.
+	* This one checks if the player could become pregnant, rather than the NPC.
+	* Returns true or false, as well as sets T.pregFalseReason, so writers can make events around the specific reason why a player and NPC might not be compatible for pregnancy at any given time.
+	*/
+	T.pregFalseReason = "";
+	if (typeof NPC === "string" || V.NPCNameList.includes(NPC.fullDescription)) {
+		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
+		const NPCObject = V.NPCName[V.NPCNameList.indexOf(typeof NPC === "string" ? NPC : NPC.fullDescription)];
+		const NPCNameCheck = NPCObject.fullDescription;
+		if (!C.npc[NPCNameCheck]) {
+			Errors.report(
+				"Named NPC " + NPCNameCheck + " is undefined for pregnancy compatibility check."
+			); return false;
+		}
+		if (!NPCObject.pregnancy.enabled) {
+			T.pregFalseReason = "infertile";
+			return false; // Check for named NPC being "infertile"
+			//"this check is placed here because it only applies to named NPCs" - hwp told me to put this here
+		}
+	}
+	const NPCObject = (NPCObject || NPC);
+	if (V.sexStats.vagina.pregnancy.fetus.length) {
+		T.pregFalseReason = "playerPregnant";
+		return false; // Check if player is already pregnant
+	}
+	switch (NPCObject.type) {
+		case "human" :
+			if (V.playerPregnancyHumanDisable === "t") {
+				T.pregFalseReason = "pregnantDisabled";
+				return false;
+			} else break; // Check Human and Beast pregnancy settings
+		case "wolf": case "bird":
+			if (V.playerPregnancyBeastDisable === "t") {
+				T.pregFalseReason = "pregnantDisabled";
+				return false;
+			} else break;
+			// Check if NPC species can impregnate the player yet	
+		default: T.pregFalseReason = "pregnantTypeUnsupported"; return false;
+	}
+	if (!V.player.vaginaExist || NPCObject.gender === "f"){
+		T.pregFalseReason = "genitals";
+		return false; // Check for genital compatibility for player pregnancy
+	} 
+	return true;
+}
+window.playerPregnancyPossibleWith = playerPregnancyPossibleWith;
+
+function NPCPregnancyPossibleWithPlayer(NPC) {
+	/* Like the above function, this will accept either a named NPC's name, or an NPC object from either NPCList or NPCName.
+	* This one checks if the NPC could become pregnant, rather than the player.
+	* Returns true or false, as well as sets T.pregFalseReason, so writers can make events around the specific reason why a player and NPC might not be compatible for pregnancy at any given time.
+	*/
+	T.pregFalseReason = "";
+	if (typeof NPC === "string" || V.NPCNameList.includes(NPC.fullDescription)) {
+		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
+		const NPCObject = V.NPCName[V.NPCNameList.indexOf(typeof NPC === "string" ? NPC : NPC.fullDescription)];
+		const NPCNameCheck = NPCObject.fullDescription;
+		if (!C.npc[NPCNameCheck]) {
+			Errors.report(
+				"Named NPC " + NPCNameCheck + " is undefined for pregnancy compatibility check."
+			); return false;
+		}
+		if (!NPCObject.pregnancy.enabled) {
+			T.pregFalseReason = "infertile";
+			return false; // Check for named NPC being "infertile"
+			//"this check is placed here because it only applies to named NPCs" - hwp told me to put this here too
+		}
+		if (NPCObject.pregnancy.fetus.length) {
+			T.pregFalseReason = "npcPregnant";
+			return false; // Check if named NPC is already pregnant
+		}
+	} else {
+		const NPCObject = NPC;
+		if (NPCObject.pregnancy) {
+			T.pregFalseReason = "npcPregnant";
+			return false; // Check if random NPC is already pregnant
+		}
+	}
+	if (V.npcPregnancyDisable === "t") {
+		T.pregFalseReason = "pregnantDisabled";
+		return false; // Check if NPC pregnancy is enabled or possible in settings
+	}
+	if (!["human","wolf"].includes(NPCObject.type)){
+		T.pregFalseReason = "pregnantTypeUnsupported";
+		return false; // Check if NPC species can get impregnated by the player yet		
+	}
+	if (!V.player.penisExist || NPCObject.gender === "m") {
+		T.pregFalseReason = "genitals";
+		return false; // Check for genital compatibility for NPC pregnancy
+	} 
+	return true;
+}
+window.NPCPregnancyPossibleWithPlayer = NPCPregnancyPossibleWithPlayer;
 
 function toTitleCase(str) {
 	return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
@@ -1416,24 +1523,6 @@ function getColourClassFromPercentage(percentage) {
 	return "red";
 }
 window.getColourClassFromPercentage = getColourClassFromPercentage;
-
-/**
- * Determine whether the player and the given NPC can legitimately breed together.
- * Accepts either the named NPC's name, or an NPC object from NPCList or NPCName.
- *
- * Examples: playerCanBreedWith("Kylar"), or playerCanBreedWith($NPCList[0]) or playerCanBreedWith($NPCName[$NPCNameList.indexOf("Kylar")]).
- *
- * Note that if the npc argument is invalid (wrong name, non-existent object) it will return false, so be careful of silent failures.
- *
- * @param {any} npc String or Object as detailed above.
- * @returns {boolean} Whether the given NPC is compatible to breed with the player.
- */
-function playerCanBreedWith(npc) {
-	if (typeof npc === "string") npc = V.NPCName[V.NPCNameList.indexOf(npc)];
-
-	return (V.player.vaginaExist && npc.penis !== "none") || (V.player.penisExist && npc.vagina !== "none");
-}
-window.playerCanBreedWith = playerCanBreedWith;
 
 function outfitHoodPosition(outfit) {
 	/* This function is used to determine whether a hoodie in a given outfit set should have its hood up or down.
