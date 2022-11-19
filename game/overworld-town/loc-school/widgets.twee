@@ -976,32 +976,31 @@
 <</widget>>
 
 <<widget "mathsWhitneyAttendChance">>
-	<<set $_alreadyPresent to ($whitneymaths is "active" or $whitneymaths is "seat" or $whitneymaths is "sent")>>
-	<<if !$_alreadyPresent>>
-		<<set _whitney to $NPCName[$NPCNameList.indexOf("Whitney")]>>
-		<<set $_canAttend to (_whitney.state is "active" or _whitney.state is "rescued") and ($whitneymaths is undefined or $whitneymaths is "absent")>>
-		<<if $_canAttend and $minute lte 40>>
-			<<set $_whitney_maths_chance to ((_whitney.love / 3) + (_whitney.dom * 3) + (_whitney.lust / 3))>>
-			<<set $_whitney_tardy_modifier to ($minute lte 20 ? $minute : -$minute + 40) - 10>>
-			<!-- whitney_tardy_modifier starts out negative, becomes positive at 10 minutes late, peaks at 20 minutes late, and hits negative again at 30 minutes late -->
-			<<set $_whitney_maths_chance += $_whitney_tardy_modifier>>
-			<<if random(1, 100) lte $_whitney_maths_chance>>
+	<<if !$whitneymaths or $whitneymaths is "absent">>
+		<<if (C.npc.Whitney.state is "active" or C.npc.Whitney.state is "rescued") and $minute lte 40>>
+			<<if !$whitneymaths>>
+				<!-- Whitney attending Maths class for the first time during the game -->
 				<<npc Whitney 1>><<person1>>
+				휘트니가 으스대며 들어온다. "결국 오기로 마음을 먹었구나." 리버가 앞줄에 빈 자리를 가리키며 말한다. "셔츠 자락 밀어넣고."
+				<br><br>
 
-				<<if $whitneymaths is undefined>>
-					<!-- Whitney attending Maths class for the first time during the game -->
-					휘트니가 으스대며 들어온다. "결국 오기로 마음을 먹었구나." 리버가 앞줄에 빈 자리를 가리키며 말한다. "셔츠 자락 밀어넣고."
-					<br><br>
-
-					<<if $whitneyromance is 1>>
-						<<set $whitneymaths to "seat">>
-						휘트니는 눈을 굴리더니, 대신 당신의 옆자리에 온다.
-					<<else>>
-						<<set $whitneymaths to "active">>
-						휘트니는 눈을 굴리더니, 대신 뒤쪽 자리로 간다.
-					<</if>>
-					<<He_ nun>> 앞쪽 셔츠 자락만을 <<his_ yi>> <<npcClothesTextPost _whitney "lower">> 안으로 밀어넣고는 앉는다.
+				<<if $whitneyromance is 1>>
+					<<set $whitneymaths to "seat">>
+					휘트니는 눈을 굴리더니, 대신 당신의 옆자리에 온다.
 				<<else>>
+					<<set $whitneymaths to "active">>
+					휘트니는 눈을 굴리더니, 대신 뒤쪽 자리로 간다.
+				<</if>>
+				<<He_ nun>> 앞쪽 셔츠 자락만을 <<his_ yi>> <<npcClothesTextPost $NPCList[0] "lower">> 안으로 밀어넣고는 앉는다.
+				<<endevent>>
+				<br><br>
+			<<else>>
+				<<set $_whitney_maths_chance to ((C.npc.Whitney.love / 3) + (C.npc.Whitney.dom * 3) + (C.npc.Whitney.lust / 3))>>
+				<<set $_whitney_tardy_modifier to ($minute lte 20 ? $minute : -$minute + 40) - 10>>
+				<!-- whitney_tardy_modifier starts out negative, becomes positive at 10 minutes late, peaks at 20 minutes late, and hits negative again at 30 minutes late -->
+				<<set $_whitney_maths_chance += $_whitney_tardy_modifier>>
+				<<if random(1, 100) lte $_whitney_maths_chance>>
+					<<npc Whitney 1>><<person1>>
 					<<if $whitneyromance is 1>>
 						<<set $whitneymaths to "seat">>
 						휘트니가 교실에 들어온다. <<HePost "은">> <<generatey2>><<person2>><<personPost "을">> 밀쳐내고는 당신의 옆에 앉는다.
@@ -1009,13 +1008,12 @@
 						<<set $whitneymaths to "active">>
 						휘트니가 교실에 들어온다. <<HePost "은">> 뒤쪽 자리에 앉는다.
 					<</if>>
+					<<endevent>>
+					<br><br>
+				<<elseif $whitneymaths isnot undefined>>
+					<!-- if whitney HAS attended class before, but is not present now -->
+					<<set $whitneymaths to "absent">>
 				<</if>>
-				<<endevent>>
-				<br><br>
-
-			<<elseif $whitneymaths isnot undefined>>
-				<!-- if whitney HAS attended class before, but is not present now -->
-				<<set $whitneymaths to "absent">>
 			<</if>>
 		<<elseif $whitneymaths isnot undefined>>
 			<!-- if whitney HAS attended class before, but is unable to attend -->
@@ -2546,4 +2544,36 @@
 		<<case "fifth">>
 			<<set $daily.school.swimmingExcused to true>>
 	<</switch>>
+<</widget>>
+
+<<widget "enableSchoolRescue">>
+	/* Call with all applicable conditions for a rescue in any order. ex: <<enableSchoolRescue "Whitney" "delinquency">> for scenes where Whitney or low delinquency can save you, or <<enableSchoolRescue "Leighton">> for scenes where just Leighton can save you. */
+	/* Shouldn't be called without any arguments; just use the standard "enable_rescue" widget for those cases. */
+	<<if $drugged lte 0>>
+		<<set $_rescue to []>>
+
+		<<if _args.includes("Whitney") and C.npc.Whitney.dom gte random(10, 25) and ["active", "rescued"].includes(C.npc.Whitney.state) and $whitneyromance is 1 and $pillory_tenant.special.name isnot "Whitney">>
+			<<set $_rescue.push("Whitney")>>
+		<</if>>
+
+		/* There are no cases where Leighton being present and low delinquency are separate conditions for rescue, but there are some where both are required. ex: "Maths Note Molestation" */
+		<<if _args.includesAll("delinquency", "Leighton") and $delinquency lt 400 and $pillory_tenant.special.name isnot "Leighton">>
+			<<set $_rescue.push("Leighton")>>
+		<<elseif _args.includes("delinquency") and $delinquency lt 400>>
+			<<set $_rescue.push("delinquency")>>
+		<<elseif _args.includes("Leighton") and $pillory_tenant.special.name isnot "Leighton">>
+			<<set $_rescue.push("Leighton")>>
+		<</if>>
+
+		<<if $_rescue.includes("Whitney") and $_rescue.includes("delinquency", "Leighton")>>
+			/* Safe Whitney rescue */
+			<<set $rescue to 3>>
+		<<elseif $_rescue.includes("Whitney")>>
+			/* Lone Whitney rescue */
+			<<set $rescue to 2>>
+		<<elseif $_rescue.length gt 0 or !_args[0]>>
+			/* Safe rescue */
+			<<set $rescue to 1>>
+		<</if>>
+	<</if>>
 <</widget>>

@@ -172,6 +172,34 @@
 	<</if>>
 <</widget>>
 
+<<widget "carriedSend">>
+	<<if _args[0] is "wardrobe" or Object.keys($wardrobes).includes(_args[0])>>
+		<<set $_undressSlot to _args[1]>>
+		<<set $_outfitPrimaryUndress to $carried[$_undressSlot].outfitPrimary>>
+
+		<<set _slots to []>>
+		<<set $_selectedWardrobe to selectWardrobe()>>
+		<<set $_skip to ["naked","towel top","large towel","towel skirt","large towel bottom","plant skirt","plant top"]>>
+		<<if $_outfitPrimaryUndress isnot undefined>>
+			<<for _labelUndress, _valueUndress range $_outfitPrimaryUndress>>
+				<<if _valueUndress isnot "broken">>
+					<<if !$_skip.includes($carried[_labelUndress].name) and $carried[_labelUndress].name is _valueUndress>>
+						<<set $_selectedWardrobe[_labelUndress].push(clone($carried[_labelUndress]))>>
+						<<run _slots.push(_labelUndress)>>
+					<</if>>
+					<<set $carried[_labelUndress] to clone(setup.clothes[_labelUndress][0])>>
+				<</if>>
+			<</for>>
+		<</if>>
+
+		<<if !$_skip.includes($carried[$_undressSlot].name)>>
+			<<set $_selectedWardrobe[$_undressSlot].push(clone($carried[$_undressSlot]))>>
+		<</if>>
+		<<set $carried[$_undressSlot] to clone(setup.clothes[$_undressSlot][0])>>
+		<<run _slots.push($_undressSlot)>>
+	<</if>>
+<</widget>>
+
 <<widget "sendToWardrobeFromDefault">>
 	<<set $_location to _args[0]>>
 	<<set $_slot to _args[1]>>
@@ -720,19 +748,23 @@
 		<</if>>
 		<<set _slots to []>>
 		<<if $carried[$_slot].name isnot "naked">>
-			<<set _slots.pushUnique($_slot)>>
-			<<set $worn[$_slot] to clone($carried[$_slot])>>
-			<<set $carried[$_slot] to clone(setup.clothes[$_slot][0])>> <!-- set this slot to "naked" -->
+			<<if $worn[$_slot].cursed is 1>>
+				<<carriedSend "wardrobe" $_slot>>
+			<<else>>
+				<<set _slots.pushUnique($_slot)>>
+				<<set $worn[$_slot] to clone($carried[$_slot])>>
+				<<set $carried[$_slot] to clone(setup.clothes[$_slot][0])>> <!-- set this slot to "naked" -->
 
-			<<set _outfitPrimaryOn to $worn[$_slot].outfitPrimary or []>>
-			<<for $_outfitPieceSlot, $_outfitPieceName range _outfitPrimaryOn>>
-				<<if $carried[$_outfitPieceSlot].name is $_outfitPieceName>>
-					<<set $worn[$_outfitPieceSlot] to clone($carried[$_outfitPieceSlot])>>
-					<<set $carried[$_outfitPieceSlot] to clone(setup.clothes[$_outfitPieceSlot][0])>> <!-- set this slot to "naked" -->
-					<<set _slots.pushUnique($_outfitPieceSlot)>>
-				<</if>>
-			<</for>>
-			<<unset _outfitPrimaryOn>>
+				<<set _outfitPrimaryOn to $worn[$_slot].outfitPrimary or []>>
+				<<for $_outfitPieceSlot, $_outfitPieceName range _outfitPrimaryOn>>
+					<<if $carried[$_outfitPieceSlot].name is $_outfitPieceName>>
+						<<set $worn[$_outfitPieceSlot] to clone($carried[$_outfitPieceSlot])>>
+						<<set $carried[$_outfitPieceSlot] to clone(setup.clothes[$_outfitPieceSlot][0])>> <!-- set this slot to "naked" -->
+						<<set _slots.pushUnique($_outfitPieceSlot)>>
+					<</if>>
+				<</for>>
+				<<unset _outfitPrimaryOn>>
+			<</if>>
 		<</if>>
 
 		<<run _slots.pushUnique($_slot)>> <!-- Ensure that this slot's state is properly reset -->
