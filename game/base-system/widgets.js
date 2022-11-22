@@ -69,10 +69,30 @@ const hairStyleCap = {
 	},
 };
 
+window.calculatePenisBulge = () => {
+	let compressed = V.player.penisExist && V.worn.genitals.type.includes("hidden");
+	if(!V.player.penisExist || compressed) return 0;
+
+	if(V.worn.genitals.type.includes("cage")){
+		return Math.clamp(V.player.penissize, 0, Infinity);
+	}
+	//Mentioned in combat about npcs `trying to force an erection`, when below the specific arousal checks
+	if((V.arousal > 9000 && V.player.penissize === -1) || (V.arousal > 9500 && V.player.penissize === -2)) return 1;
+
+	let erectionState = 1;
+	if(V.arousal >= 8000){
+		erectionState = 3;
+	} else if(V.arousal >= 6000){
+		erectionState = 2;
+	}
+	return Math.clamp((V.player.penissize + 1) * erectionState, 0, Infinity);
+}
+
 /** Calculate the player's gender appearance */
 function genderappearancecheck() {
 	/* Calculate bulge size */
-	T.penis_compressed = V.player.penisExist && V.worn.genitals.type.includes("hidden");
+	T.bulge_size = calculatePenisBulge();
+	/*T.penis_compressed = V.player.penisExist && V.worn.genitals.type.includes("hidden");
 	if (V.worn.genitals.type.includes("cage")) {
 		T.bulge_size = Math.clamp(V.player.penissize, 0, Infinity);
 	} else {
@@ -88,7 +108,7 @@ function genderappearancecheck() {
 			T.erection_state = 2;
 		}
 		T.bulge_size = Math.clamp(V.player.penissize * T.erection_state, 0, Infinity);
-	}
+	}*/
 	/* Determine how visible the player's bottom is */
 	if (
 		(setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1 &&
@@ -154,9 +174,9 @@ function genderappearancecheck() {
 	addfemininityfromfactor(Math.max(T.over_lower_femininity, T.lower_femininity, T.under_lower_femininity), "아래옷", "noow");
 	/* bulge and genitals checks for topless gender */
 	if (T.under_lower_protected && V.NudeGenderDC > 0) {
-		addfemininityfromfactor(T.bulge_size * -100, "속옷 너머로 발기한 것이 보임", "noow");
+		addfemininityfromfactor(T.bulge_size * -60, "속옷 너머로 발기한 것이 보임", "noow");
 	} else if ((T.over_lower_protected || T.lower_protected) && V.NudeGenderDC > 0) {
-		addfemininityfromfactor(Math.clamp((T.bulge_size - 3) * -100, 0, Infinity), "옷 너머로 발기한 것이 보임", "noow");
+		addfemininityfromfactor(Math.clamp((T.bulge_size - 6) * -60, 0, Infinity), "옷 너머로 발기한 것이 보임", "noow");
 	} else if (V.worn.genitals.exposed && V.NudeGenderDC === 1) {
 		if (V.player.penisExist) {
 			addfemininityfromfactor((V.player.penissize + 2.5) * -150, "노출된 자지", "noow");
@@ -203,7 +223,7 @@ function genderappearancecheck() {
 			T.bottom_visibility *= 0.75;
 			/* Bulge visible through underwear */
 			if (V.NudeGenderDC > 0) {
-				addfemininityfromfactor(-T.bulge_size * 100, "속옷 너머로 발기한 것이 보임");
+				addfemininityfromfactor(T.bulge_size * -60, "속옷 너머로 발기한 것이 보임");
 			}
 		}
 	} else {
@@ -211,7 +231,7 @@ function genderappearancecheck() {
 		T.bottom_visibility *= 0.75;
 		/* Bulge covered by lower clothes */
 		if (V.NudeGenderDC > 0) {
-			addfemininityfromfactor(-Math.clamp((T.bulge_size - 3) * 100, 0, Infinity), "옷 너머로 발기한 것이 보임");
+			addfemininityfromfactor(-Math.clamp((T.bulge_size - 6) * 60, 0, Infinity), "옷 너머로 발기한 것이 보임");
 		}
 	}
 	/* Upper clothing and breasts */

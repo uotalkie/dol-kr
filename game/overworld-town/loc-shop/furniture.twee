@@ -189,6 +189,7 @@
 <br><br>
 <<link [[뒤로|Furniture Shop]]>>
 	<<run delete $chosenFurnitureCategory>>
+	<<unset $furnitureDowngrade>>
 <</link>>
 <br><br>
 <<furnitureCatalogue>>
@@ -260,18 +261,28 @@
 		<a onclick="document.getElementById('furnitureDetails').classList.toggle('hidden')">추가 정보</a>
 		<div id="furnitureDetails" class="hidden">
 			<<trFurniture $currentFurnishing.name "desc">>_trResult
-			<br><br>
-			<<if $currentFurnishing.type>>
-				<<if $currentFurnishing.type.includes('comfy')>> 수면의 질을 높여 준다. <</if>>
-				<<if $currentFurnishing.type.includes('double')>> 누군가 적절하게 자고 갈 정도의 충분한 공간이 있다. <</if>>
+			<<if $currentFurnishing.type && $currentFurnishing.type.includesAny('comfy','double','starter','spacious','organiser')>>
+				<br>
+				<<if $currentFurnishing.type.includes('starter')>><br>Can hold 20 of each item type.<</if>>
+				<<if $currentFurnishing.type.includes('spacious')>><br>Can hold 30 of each item type.<</if>>
+				<<if $currentFurnishing.type.includes('organiser')>><br>Can hold 40 of each item type.<</if>>
+				<<if $currentFurnishing.type.includes('comfy')>><br>수면의 질을 높여 준다.<</if>>
+				<<if $currentFurnishing.type.includes('double')>><br>누군가 적절하게 자고 갈 정도의 충분한 공간이 있다.<</if>>
 			<</if>>
 		</div>
 	<<else>>
 		아무것도 없다.
 	<</if>>
 	<br><br>
-
-	<<generateFurnitureShopStock>>
+	<<if !$furnitureDowngrade>>
+		<div id="furnitureContainer">
+			<<generateFurnitureShopStock>>
+		</div>
+	<<else>>
+		<div id="furnitureDowngrade">
+			<<furnitureDowngrade>>
+		</div>
+	<</if>>
 <</widget>>
 
 <<widget "generateFurnitureShopStock">>
@@ -293,13 +304,39 @@
 				<</if>>
 				<<set $_cost to $_furnishing.cost()>>
 				<<set $_name to $_furnishing.name>>
+				<<if $_furnishing.description>>
+					<<capture $_name>>
+						<mouse class="tooltip linkBlue">(?)<span>
+							$_furnishing.description
+							<<if $_furnishing.type && $_furnishing.type.includesAny('comfy','double','starter','spacious','organiser')>>
+								<br>
+								<<if $_furnishing.type.includes('starter')>><br>Can hold 20 of each item type.<</if>>
+								<<if $_furnishing.type.includes('spacious')>><br>Can hold 30 of each item type.<</if>>
+								<<if $_furnishing.type.includes('organiser')>><br>Can hold 40 of each item type.<</if>>
+								<<if $_furnishing.type.includes('comfy')>><br>Improves sleep quality.<</if>>
+								<<if $_furnishing.type.includes('double')>><br>Has enough space for a proper sleepover.<</if>>
+							<</if>>
+						</span></mouse> |
+					<</capture>>
+				<</if>>
 				<<if $money gte $_cost>>
-					<<capture $_key $_cost $_name>>
+					<<capture $_furnishing $_cost>>
 						<<link [["£" + $_cost/100|Furniture Shop Catalogue]]>>
-							<<set $money -= $_cost>>
-							<<run Furniture.set($_key, $chosenFurnitureCategory)>>
-							<<set $boughtfurniturename to $_name>>
-							<<run Furniture.wardrobeUpdate()>>
+							<<if ($_furnishing.tier or 0) lt ($currentFurnishing.tier or 0)>>
+								<<set $furnitureDowngrade to {
+									key: $_furnishing.key,
+									cost: $_cost,
+									name: $_furnishing.name,
+									nameCap: $_furnishing.nameCap,
+									iconFile: $_furnishing.iconFile,
+									type: $_furnishing.type,
+								}>>
+							<<else>>
+								<<set $money -= $_cost>>
+								<<run Furniture.set($_furnishing.key, $chosenFurnitureCategory)>>
+								<<set $boughtfurniturename to $_furnishing.name>>
+								<<run Furniture.wardrobeUpdate()>>
+							<</if>>
 						<</link>>
 					<</capture>>
 				<<else>>
@@ -308,4 +345,31 @@
 			</div>
 		<</if>>
 	<</for>>
+<</widget>>
+
+<<widget "furnitureDowngrade">>
+
+<<furnitureicon $furnitureDowngrade.iconFile>>
+<<print $furnitureDowngrade.nameCap>>
+<<if $furnitureDowngrade.type && $furnitureDowngrade.type.includesAny('comfy','double','starter','spacious','organiser')>>
+	<<if $furnitureDowngrade.type.includes('starter')>><br>Can hold 20 of each item type.<</if>>
+	<<if $furnitureDowngrade.type.includes('spacious')>><br>Can hold 30 of each item type.<</if>>
+	<<if $furnitureDowngrade.type.includes('organiser')>><br>Can hold 40 of each item type.<</if>>
+	<<if $furnitureDowngrade.type.includes('comfy')>><br>Improves sleep quality.<</if>>
+	<<if $furnitureDowngrade.type.includes('double')>><br>Has enough space for a proper sleepover.<</if>>
+<</if>>
+<br>
+This may be considered a downgrade to what you currently have, do you still want to buy it?
+<br>
+<<link [[No|Furniture Shop Catalogue]]>>
+	<<unset $furnitureDowngrade>>
+<</link>>
+<br><br>
+<<link [[Yes|Furniture Shop Catalogue]]>>
+	<<set $money -= $furnitureDowngrade.cost>>
+	<<run Furniture.set($furnitureDowngrade.key, $chosenFurnitureCategory)>>
+	<<set $boughtfurniturename to $furnitureDowngrade.name>>
+	<<run Furniture.wardrobeUpdate()>>
+	<<unset $furnitureDowngrade>>
+<</link>>
 <</widget>>

@@ -89,6 +89,7 @@ const Furniture = (() => {
 			cost: setPrice(1100),
 			description: "Can be used as a working or gathering spot. Just add chairs.",
 			iconFile: "table.png",
+			tier: 0,
 		});
 		mapper.set("marbletable", {
 			name: "marble-topped table",
@@ -98,6 +99,7 @@ const Furniture = (() => {
 			cost: setPrice(1430),
 			description: "A regular wooden table with a twist.",
 			iconFile: "marbletable.png",
+			tier: 1,
 		});
 
 		/* ------------- BEDS ------------- */
@@ -109,6 +111,7 @@ const Furniture = (() => {
 			cost: setPrice(0),
 			description: "An old, poor bed. Uncomfortable.",
 			iconFile: "bed.png",
+			tier: 0,
 		});
 		mapper.set("singlebed", {
 			name: "single bed",
@@ -118,6 +121,7 @@ const Furniture = (() => {
 			cost: setPrice(1680),
 			description: "A bed for one.",
 			iconFile: "singlebed.png",
+			tier: 0,
 		});
 		mapper.set("singlebeddeluxe", {
 			name: "deluxe single bed",
@@ -127,6 +131,7 @@ const Furniture = (() => {
 			cost: setPrice(2400),
 			description: "An ergonomically designed bed. Very comfortable.",
 			iconFile: "singlebeddeluxe.png",
+			tier: 1,
 		});
 		mapper.set("doublebed", {
 			name: "double bed",
@@ -136,6 +141,7 @@ const Furniture = (() => {
 			cost: setPrice(3400),
 			description: "A simple bed. Fits two.",
 			iconFile: "doublebed.png",
+			tier: 1,
 			showFn() {
 				return target !== "bedroom";
 			},
@@ -148,6 +154,7 @@ const Furniture = (() => {
 			cost: setPrice(2840),
 			description: "A beautiful bed with a soft mattress. Very comfortable, fits two.",
 			iconFile: "doublebeddeluxe.png",
+			tier: 2,
 			showFn() {
 				return target !== "bedroom";
 			},
@@ -161,6 +168,7 @@ const Furniture = (() => {
 			description:
 				"A bed made in a contemporary, minimalist style. Very comfortable, fits two.",
 			iconFile: "doublebedexotic.png",
+			tier: 2,
 			showFn() {
 				return target !== "bedroom";
 			},
@@ -173,6 +181,7 @@ const Furniture = (() => {
 			cost: setPrice(4860),
 			description: "An authentic bed on a rattan frame. Very comfortable, fits two.",
 			iconFile: "doublebedwicker.png",
+			tier: 2,
 			showFn() {
 				return target !== "bedroom";
 			},
@@ -276,6 +285,7 @@ const Furniture = (() => {
 			cost: setPrice(0),
 			description: "An old, creaky wardrobe. Doesn't hold much.",
 			iconFile: "wardrobe.png",
+			tier: 0,
 			showFn: () => false,
 		});
 		mapper.set("wardrobebasic", {
@@ -286,6 +296,7 @@ const Furniture = (() => {
 			cost: setPrice(3160),
 			description: "A basic wardrobe cabinet.",
 			iconFile: "wardrobebasic.png",
+			tier: 1,
 			showFn() {
 				return isWardrobeHigherTier(this);
 			},
@@ -298,6 +309,7 @@ const Furniture = (() => {
 			cost: setPrice(3258),
 			description: "A spacious wooden armoire.",
 			iconFile: "armoire.png",
+			tier: 1,
 			showFn() {
 				return isWardrobeHigherTier(this);
 			},
@@ -310,6 +322,7 @@ const Furniture = (() => {
 			cost: setPrice(4296),
 			description: "A wardrobe with a lot of space.",
 			iconFile: "wardrobeorganiser.png",
+			tier: 2,
 			showFn() {
 				return isWardrobeHigherTier(this);
 			},
@@ -322,6 +335,7 @@ const Furniture = (() => {
 			cost: setPrice(4620),
 			description: "Carved by hand, it holds several drawers and garment rods.",
 			iconFile: "armoirecarved.png",
+			tier: 2,
 			showFn() {
 				return isWardrobeHigherTier(this);
 			},

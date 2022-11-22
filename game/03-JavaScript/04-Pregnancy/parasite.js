@@ -80,7 +80,7 @@ const impregnateParasite = (parasiteType, chance, genital = "anus", hermParasite
 
 	let rngCheck = chance === true || random(0,100) <= (1 + chance / (pregnancy.fetus.length + 1));
 
-	if(pregnancy && rngCheck || true){
+	if(pregnancy && rngCheck){
 		switch(parasiteType){
 			case "slimes": case "eels": case "worms": case "snakes": case "spiders": case "slugs": case "maggots":
 				parasiteType = toTitleCase(parasiteType);

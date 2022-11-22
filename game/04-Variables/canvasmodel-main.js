@@ -2178,6 +2178,39 @@ Renderer.CanvasModels["main"] = {
 			}
 		}),
 		"lower_acc": genlayer_clothing_accessory('lower'),
+		"lower_penis": {
+			srcfn(options) {
+				//ToDo: add images for lower penis bulges. check against pregnancy belly
+				let path = 'img/clothes/lower/' + options.worn_lower_setup.variable + '/' + 'penis.png';
+				return gray_suffix(path, options.filters['worn_lower'])
+			},
+			showfn(options) {
+				return options.show_clothes &&
+					options.worn_lower > 0 &&
+					options.worn_lower_setup.penis_img === 1 &&
+					calculatePenisBulge() - 6 > 0;
+			},
+			z: ZIndices.lower_top,
+			filters: ["worn_lower"],
+			animation: "idle"
+		},
+		"lower_penis_acc": {
+			srcfn(options) {
+				//ToDo: add images for lower penis bulges. check against pregnancy belly
+				let path = 'img/clothes/lower/' + options.worn_lower_setup.variable + '/' + 'acc_penis.png';
+				return gray_suffix(path, options.filters['worn_lower_acc'])
+			},
+			showfn(options) {
+				return options.show_clothes &&
+					options.worn_lower > 0 &&
+					options.worn_lower_setup.penis_img === 1 &&
+					options.worn_lower_setup.accessory === 1 &&
+					calculatePenisBulge() - 6 > 0;
+			},
+			z: ZIndices.lower_top,
+			filters: ["worn_lower_acc"],
+			animation: "idle"
+		},
 		"lower_back": genlayer_clothing_back_img('lower', {
 			z: ZIndices.back_lower
 		}),
@@ -2242,6 +2275,7 @@ Renderer.CanvasModels["main"] = {
 		"under_lower_acc": genlayer_clothing_accessory('under_lower'),
 		"under_lower_penis": {
 			srcfn(options) {
+				//ToDo: expand the existing bulk images by providing a small bulge when `calculatePenisBulge()` is less than 8 (max is 15). check against pregnancy belly
 				let path = 'img/clothes/under_lower/' + options.worn_under_lower_setup.variable + '/' + 'penis.png';
 				return gray_suffix(path, options.filters['worn_under_lower'])
 			},
@@ -2249,7 +2283,7 @@ Renderer.CanvasModels["main"] = {
 				return options.show_clothes &&
 					options.worn_under_lower > 0 &&
 					options.worn_under_lower_setup.penis_img === 1 &&
-					!!options.penis;
+					calculatePenisBulge() > 0;
 			},
 			z: ZIndices.under_lower_top,
 			filters: ["worn_under_lower"],
@@ -2257,6 +2291,7 @@ Renderer.CanvasModels["main"] = {
 		},
 		"under_lower_penis_acc": {
 			srcfn(options) {
+				//ToDo: expand the existing bulk images by providing a small bulge when `calculatePenisBulge()` is less than 8 (max is 15). check against pregnancy belly
 				let path = 'img/clothes/under_lower/' + options.worn_under_lower_setup.variable + '/' + 'acc_penis.png';
 				return gray_suffix(path, options.filters['worn_under_lower_acc'])
 			},
@@ -2265,7 +2300,7 @@ Renderer.CanvasModels["main"] = {
 					options.worn_under_lower > 0 &&
 					options.worn_under_lower_setup.penis_img === 1 &&
 					options.worn_under_lower_setup.accessory === 1 &&
-					!!options.penis;
+					calculatePenisBulge() > 0;
 			},
 			z: ZIndices.under_lower_top,
 			filters: ["worn_under_lower_acc"],
