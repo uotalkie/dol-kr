@@ -9,6 +9,21 @@ const DoLSave = ((Story, Save) => {
 	});
 	const KEY_DETAILS = "dolSaveDetails";
 
+	// Compressed saves are indicated by {jsoncompressed:1} in their metadata
+	// The '1' can act as a compression algorithm id.
+
+	// see game/00-framework-tools/03-compression/dictionaries.js
+	const COMPRESSOR_DICTIONARIES = DoLCompressorDictionaries;
+	// id of the dictionary to use for saving
+	const COMPRESSOR_CURRENT_DICTIONARY_ID = "v0";
+	/**
+	 * When saving, decompress and compare with the original.
+	 * If results differ, report an error and save the uncompressed version instead.
+	 */
+	function shouldVerifyCompression() {
+		return true;
+	}
+
 	/* Place somewhere to expose globally. */
 	function isObject(obj) {
 		return typeof obj === "object" && obj != null;
@@ -126,7 +141,8 @@ const DoLSave = ((Story, Save) => {
 				});
 				if (success) {
 					const save = Save.slots.get(saveSlot);
-					const metadata = { saveId, saveName };
+					// Copy save metadata (it includes the jsoncompressed indicator)
+					const metadata = { ...save.metadata, saveId, saveName };
 					if (V.ironmanmode) {
 						Object.assign(metadata, {
 							ironman: V.ironmanmode,
@@ -315,6 +331,103 @@ const DoLSave = ((Story, Save) => {
 		},
 	});
 
+	/**
+	 * Compress a game state (not delta-encoded: {title, variables, prng, pull}) using most recent dictionary.
+	 * Can throw an error.
+	 *
+	 * @param state
+	 */
+	function compressState(state) {
+		DOL.Perflog.logWidgetStart("__DoLSave.compressState");
+		try {
+			const dictionary = COMPRESSOR_DICTIONARIES[COMPRESSOR_CURRENT_DICTIONARY_ID];
+			const compressor = new JsonCompressor(dictionary);
+			const zstate = compressor.compress(state);
+			zstate.dictionary = COMPRESSOR_CURRENT_DICTIONARY_ID;
+			zstate.title =
+				"This save is compressed and is not compatible with old versions of Degrees of Lewdity. If you want to load this save in an older game build, use exporting.";
+			zstate.variables = {};
+			if (shouldVerifyCompression()) {
+				// Sanity check
+				const uzstate = decompressState(zstate);
+				if (JSON.stringify(state) !== JSON.stringify(uzstate)) {
+					throw new Error("Decompression check failed");
+				}
+			}
+			return zstate;
+		} finally {
+			DOL.Perflog.logWidgetEnd("__DoLSave.compressState");
+		}
+	}
+
+	/**
+	 * Decompress the saved state using the dictionary it was compressed with.
+	 * Can throw an error.
+	 *
+	 * @param zstate
+	 */
+	function decompressState(zstate) {
+		DOL.Perflog.logWidgetStart("__DoLSave.decompressState");
+		try {
+			if (!("dictionary" in zstate)) throw new Error("Unable to load - compressed save has no dictionary");
+			const dicid = zstate.dictionary;
+			if (!(dicid in COMPRESSOR_DICTIONARIES))
+				throw new Error(
+					"Unable do decompress the save - the dictionary " +
+						JSON.stringify(dicid) +
+						" is unknown to this game version (trying to load newer save from older game?)"
+				);
+			const dictionary = COMPRESSOR_DICTIONARIES[dicid];
+			const decompressor = new JsonDecompressor(dictionary);
+			return decompressor.decompress(zstate);
+		} finally {
+			DOL.Perflog.logWidgetEnd("__DoLSave.decompressState");
+		}
+	}
+	function enableCompression() {
+		V.compressSave = true;
+	}
+	function disableCompression() {
+		V.compressSave = false;
+	}
+	function isCompressionEnabled() {
+		return V.compressSave;
+	}
+
+	/**
+	 * Compress a SaveObject (the one with metadata and delta-encoded history), if the compression is enabled.
+	 * If compression fails, report and error and do nothing.
+	 * This function returns nothing, it modifies the saveObj parameter.
+	 *
+	 * @param saveObj
+	 */
+	function compressIfNeeded(saveObj) {
+		if (!saveObj.metadata) saveObj.metadata = {};
+		saveObj.metadata.jsoncompressed = 0;
+		if (!isCompressionEnabled()) return;
+		try {
+			saveObj.state.history = saveObj.state.history.map(state => compressState(state));
+			saveObj.metadata.jsoncompressed = 1;
+		} catch (e) {
+			DOL.Errors.report("Unable to compress - " + e);
+			console.error(e);
+			// Just return, the saveObj won't be modified
+		}
+	}
+	function looksLikeCompressedSave(state) {
+		return state.compressed === 1 && Array.isArray(state.values) && typeof state.values === "object" && typeof state.dictionary === "string";
+	}
+	/**
+	 * Decompress a SaveObject (the one with metadata and delta-encoded history), if it is compressed.
+	 *
+	 * @param saveObj
+	 */
+	function decompressIfNeeded(saveObj) {
+		const isCompressed = (saveObj.metadata && saveObj.metadata.jsoncompressed === 1) || looksLikeCompressedSave(saveObj.state.history[0]);
+		if (!isCompressed) return;
+		saveObj.state.history = saveObj.state.history.map(state => (JsonDecompressor.isCompressed(state) ? decompressState(state) : state));
+	}
+
 	return Object.freeze({
 		save,
 		load,
@@ -324,6 +437,13 @@ const DoLSave = ((Story, Save) => {
 		resetMenu: resetSaveMenu,
 		getVersion: getSaveVersion,
 		loadHandler,
+		enableCompression,
+		disableCompression,
+		isCompressionEnabled,
+		compressState,
+		decompressState,
+		compressIfNeeded,
+		decompressIfNeeded,
 		SaveDetails: Object.freeze({
 			prepare: prepareSaveDetails,
 			set: setSaveDetail,
@@ -358,9 +478,12 @@ window.SerializeGame = Save.serialize;
 window.DeserializeGame = Save.deserialize;
 
 window.getSaveData = function () {
+	const compressionWasEnabled = DoLSave.isCompressionEnabled();
+	DoLSave.disableCompression();
 	const input = document.getElementById("saveDataInput");
 	updateExportDay();
 	input.value = Save.serialize();
+	if (compressionWasEnabled) DoLSave.enableCompression();
 };
 
 window.loadSaveData = function () {
