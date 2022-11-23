@@ -327,6 +327,14 @@ Renderer.CanvasModels["main"] = {
 			"drip_vaginal": "",
 			"drip_anal": "",
 			"drip_mouth": "",
+			"cum_chest": "",
+			"cum_face": "",
+			"cum_feet": "",
+			"cum_leftarm": "",
+			"cum_rightarm": "",
+			"cum_neck": "",
+			"cum_thigh": "",
+			"cum_tummy": "",
 			// clothing
 			"worn_upper": 0,
 			"worn_upper_alpha": 1,
@@ -1992,6 +2000,86 @@ Renderer.CanvasModels["main"] = {
 			animationfn(options) {
 				return "MouthCumDrip" + options.drip_mouth;
 			}
+		},
+		"cum_chest": {
+			srcfn(options) {
+				return "img/body/cum/Chest " + options.cum_chest + ".png"
+			},
+			showfn(options) {
+				return !!options.cum_chest;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
+		},
+		"cum_face": {
+			srcfn(options) {
+				return "img/body/cum/Face " + options.cum_face + ".png"
+			},
+			showfn(options) {
+				return options.show_face && !!options.cum_face;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
+		},
+		"cum_feet": {
+			srcfn(options) {
+				return "img/body/cum/Feet " + options.cum_feet + ".png"
+			},
+			showfn(options) {
+				return !!options.cum_feet;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
+		},
+		"cum_leftarm": {
+			srcfn(options) {
+				return "img/body/cum/Left Arm " + options.cum_leftarm + ".png"
+			},
+			showfn(options) {
+				return options.arm_left !== "none" && options.arm_left != "cover" && !!options.cum_leftarm;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
+		},
+		"cum_rightarm": {
+			srcfn(options) {
+				return "img/body/cum/Right Arm " + options.cum_rightarm + ".png"
+			},
+			showfn(options) {
+				return options.arm_right !== "none" && options.arm_right != "cover" && !!options.cum_rightarm;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
+		},
+		"cum_neck": {
+			srcfn(options) {
+				return "img/body/cum/Neck " + options.cum_neck + ".png"
+			},
+			showfn(options) {
+				return !!options.cum_neck;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
+		},
+		"cum_thigh": {
+			srcfn(options) {
+				return "img/body/cum/Thighs " + options.cum_thigh + ".png"
+			},
+			showfn(options) {
+				return !!options.cum_thigh;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
+		},
+		"cum_tummy": {
+			srcfn(options) {
+				return "img/body/cum/Tummy " + options.cum_tummy + ".png"
+			},
+			showfn(options) {
+				return !!options.cum_tummy;
+			},
+			z: ZIndices.tears,
+			animation: "idle"
 		},
 		/***
 		 *     ██████ ██       ██████  ████████ ██   ██ ███████ ███████
