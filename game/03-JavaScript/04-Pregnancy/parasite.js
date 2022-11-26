@@ -97,7 +97,7 @@ const impregnateParasite = (parasiteType, chance, genital = "anus", hermParasite
 			genital: genital,
 			hermParasite: hermParasite,
 		});
-		if(newPregnancy){
+		if(newPregnancy && !(typeof newPregnancy === 'string' || newPregnancy instanceof String)){
 			V.sexStats[genital].pregnancy = {
 				...pregnancy,
 				...newPregnancy,
