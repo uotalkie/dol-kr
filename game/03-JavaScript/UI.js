@@ -590,3 +590,34 @@ function elementExists(selector) {
 	return document.querySelector(selector) !== null;
 }
 window.elementExists = elementExists;
+
+window.getCharacterViewerDate = () => {
+	const textArea = document.getElementById('characterViewerDataInput');
+	textArea.value = JSON.stringify(V.characterViewer);
+}
+
+window.loadCharacterViewerDate = () => {
+	const textArea = document.getElementById('characterViewerDataInput');
+	let data;
+	try{
+		data = JSON.parse(textArea.value);
+	}catch(e){
+		textArea.value = "Invalid JSON";
+	}
+	let original = clone(V.characterViewer);
+
+	if(typeof data === 'object' && !Array.isArray(data) && data !== null){
+		V.characterViewer = {
+			...original,
+			...data.clothesEquipped,
+			...data.clothesIntegrity,
+			...data.bodyState,
+			...data.colours,
+			...data.skinColour,
+			...data.controls,
+		}
+		State.display(V.passage);
+	} else {
+		textArea.value = "Invalid Import";
+	}
+}
