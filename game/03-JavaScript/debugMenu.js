@@ -293,15 +293,15 @@ setup.debugMenu.eventList = {
 			widgets: [`<<impregnateParasite "eels" 1000>>`],
 		},
 		{
-			link: [`Get Pregnant with an slime`, stayOnPassageFn],
+			link: [`Get Pregnant with a slime`, stayOnPassageFn],
 			widgets: [`<<impregnateParasite "slimes" 1000>>`],
 		},
 		{
-			link: [`Get Pregnant with an worm`, stayOnPassageFn],
+			link: [`Get Pregnant with a worm`, stayOnPassageFn],
 			widgets: [`<<impregnateParasite "worms" 1000>>`],
 		},
 		{
-			link: [`Get Pregnant with an tentacle`, stayOnPassageFn],
+			link: [`Get Pregnant with a tentacle`, stayOnPassageFn],
 			widgets: [`<<impregnateParasite "tentacle" 1000>>`],
 		},
 		{
