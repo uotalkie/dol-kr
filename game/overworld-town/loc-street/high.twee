@@ -1,8 +1,8 @@
 :: High Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "high">>
-당신은 도시의 상업 활동의 중심지인 중심가에 있다. 새 옷을 살 수 있는 쇼핑 센터가 여기 있다.
-<<if $daystate is "day">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "high">><<getTarget true>>
+당신은 도시의 상업 활동의 중심지인 하이 가에 있다. 새 옷을 살 수 있는 쇼핑 센터가 여기 있다.
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
 		비가 내리는 와중에도 거리는 부산스럽다.
 	<<elseif $weather is "snow">>
@@ -10,23 +10,41 @@
 	<<else>>
 		거리는 사방으로 움직이는 사람들로 가득하다.
 	<</if>>
-	<<if $police_high is 1>>
+	<<if $weekly.policeHigh>>
 		최근 거리에서 있었던 싸움 때문에 <span class="purple">경찰이 잔뜩 깔렸다.</span>
 	<</if>>
-<<elseif $daystate is "dawn">>
-	벌써 문을 연 상점들이 있다.
-	<<if $police_high is 1>>
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		고객들이 벌써 가게 안으로 뛰어들어가고 있다.
+	<<elseif $weather is "snow">>
+		몇몇 상점들은 벌써 열고, 어둠 속에서 빛을 뿌리고 있다.
+	<<else>>
+		벌써 문을 연 상점들이 있다.
+	<</if>>
+	<<if $weekly.policeHigh>>
 		최근 거리에서 있었던 싸움 때문에 <span class="purple">경찰이 잔뜩 깔렸다.</span>
 	<</if>>
-<<elseif $daystate is "dusk">>
-	벌써 문을 닫은 상점들도 있지만, 아직 영업 중인 상점들도 있다.
-	<<if $police_high is 1>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		몇몇 가게가 문을 닫으며, 종업원이 문을 잠그고 빗속으로 뛰어간다.
+	<<elseif $weather is "snow">>
+		몇몇 가게는 문을 닫았지만, 다른 가게들은 아직 문을 열고, 거리의 일부를 밝히고 있다.
+	<<else>>
+		벌써 문을 닫은 상점들도 있지만, 아직 영업 중인 상점들도 있다.
+	<</if>>
+	<<if $weekly.policeHigh>>
 		최근 거리에서 있었던 싸움 때문에 <span class="purple">경찰이 잔뜩 깔렸다.</span>
 	<</if>>
-<<elseif $daystate is "night">>
-	거의 모든 상점이 문을 닫았어도 거리를 거니는 사람이 극소수 존재한다.
-	<<if $exposed gte 2 and $exhibitionism gte 75 or $exposed gte 1 and $exhibitionism gte 35 and $ex_high isnot 1>>
-		휴게소 한 곳이 아직 영업하고 있다. <span class="lewd">음란한 생각이 머릿속을 강타한다.</span> 생각만 해도 몸이 떨려온다.
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		거의 모든 상점이 문을 닫았어도, 몇몇 사람들은 아직 빗속을 뚫고 용감하게 뛰어간다.
+	<<elseif $weather is "snow">>
+		거의 모든 상점이 문을 닫았어도, 몇몇 사람들은 아직 추위 속을 뚫고 용감하게 뛰어간다.
+	<<else>>
+		거의 모든 상점이 문을 닫았어도, 거리를 거니는 사람이 극소수 존재한다.
+	<</if>>
+	<<if $exposed gte 2 and $exhibitionism gte 55 or $exposed gte 1 and $exhibitionism gte 15 and $daily.ex.high isnot 1>>
+		편의점 한 곳이 아직 영업하고 있다. <span class="lewd">음란한 생각이 머릿속을 강타한다.</span> 생각만 해도 몸이 떨려온다.
 	<</if>>
 <</if>>
 <<streeteffects>>
@@ -37,38 +55,44 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "high">>
 			<br>
 		<</if>>
 		주요 장소
 		<br>
-		<<if $daystate is "night" and $hour isnot 21>>
-			<<link [[쇼핑 센터|Shopping Centre Sneak]]>><</link>>
+		<<if Time.dayState is "night" and Time.hour isnot 21>>
+			<<shoppingcentreicon>><<link [[쇼핑 센터 (0:02)|Shopping Centre Sneak]]>><<pass 2>><</link>>
 			<br>
-		<<elseif $hour is 21>>
+		<<elseif Time.hour is 21>>
 			<span class="blue">사람들이 쇼핑 센터에서 나오고 있다.</span> 문을 닫을 시간인가 보다.
 			<br>
 		<<else>>
-			<<link [[쇼핑 센터 (0:02)|Shopping Centre]]>><<pass 2>><</link>>
+			<<shoppingcentreicon>><<link [[쇼핑 센터 (0:02)|Shopping Centre]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
-		<<if $daystate is "night" and $exposed gte 2 and $exhibitionism gte 75 and $ex_high isnot 1>>
-			<<link [[휴게소에서 사탕을 산다 (0:05)|Service Naked]]>><<pass 5>><<set $ex_high to 1>><</link>><<exhibitionist5>>
+		<<officebuildingicon>><<link [[사무실 건물 (0:02)|Office Lobby]]>><<pass 2>><</link>>
+		<br>
+		<<if Time.dayState is "day" and $exposed is 0 and $photo and $photo.street is "ready">> /* currently unused */
+			<<link [[모델 일을 한다 (3:00)|Model Silly]]>><</link>><<gtiredness>>
 			<br>
-		<<elseif $daystate is "night" and $exposed gte 1 and $exhibitionism gte 35 and $ex_high isnot 1>>
-			<<link [[휴게소에서 사탕을 산다 (0:05)|Service Undies]]>><<pass 5>><<set $ex_high to 1>><</link>><<exhibitionist3>>
+		<</if>>
+		<<if Time.dayState is "night" and $exposed gte 2 and $exhibitionism gte 55 and $daily.ex.high isnot 1>>
+			<<link [[편의점에서 사탕을 산다 (0:05)|Service Naked]]>><<pass 5>><<set $daily.ex.high to 1>><</link>><<exhibitionist4>>
+			<br>
+		<<elseif Time.dayState is "night" and $exposed gte 1 and $exhibitionism gte 15 and $daily.ex.high isnot 1>>
+			<<link [[편의점에서 사탕을 산다 (0:05)|Service Undies]]>><<pass 5>><<set $daily.ex.high to 1>><</link>><<exhibitionist2>>
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<cliff>>
@@ -85,7 +109,7 @@
 		<<park>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "high">>
 		<</if>>

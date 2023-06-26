@@ -1,50 +1,93 @@
 :: Widgets trPenisdesc [widget nobr]
-<<widget "trPenisdesc">>
-    <<set _tempArray to $args[0].split(' ')>>
-    <<if _tempArray[1] is undefined>>    
+<<widget "trPenisdesc">><<silently>>
+<<if _args[0]>>
+    <<set $_tempArray to _args[0].split(' ')>>
+	
+	<<if $_tempArray.includes("strap-on")>>
+		<<if _trStrapOnDescription is undefined>>
+			<<set _trStrapOnDescription to {	/* npcstrapon from base-combat/npc-generation.twee */
+				/* dildotype */
+				"dildo":"페니스 밴드 딜도",
+				"penis":"페니스 밴드 자지",
+				"cock":"페니스 밴드 자지",
+				"tentacle": "촉수 모양 페니스 밴드 자지",
+
+				"beaded": "구슬 박힌",
+				"horse":"말자지 모양",
+				"knotted": "혹이 달린", 
+				"dolphin": "돌고래 자지 모양",
+				"studded": "징이 박힌",
+				"fist": "주먹 모양",
+
+				/* straponColor */
+				"dark":"짙은",	/* 휘트니 전용 "dark red" 색상이 늘어나면 trColour 사용을 고려할것 */
+				"black":"검은색",
+				"red":"빨간색",
+				"pink":"분홍색",
+				"purple":"보라색",
+				"fleshy":"살색",
+				"blue":"파란색",
+				"green":"초록색",
+				
+				/* bonusdescriptor */
+				"floppy": "물렁한",
+				"transparent": "투명한",
+				"sparkly": "반짝이는",
+
+				/* size */
+				"large":"큰",
+				"massive":"거대한",
+				
+				/* "strap-on": "페니스 밴드" */
+			}>>
+			
+		<</if>>
+		<<set $_trStrapOn to []>>
+		<<for $_i to 0; $_i lt $_tempArray.length; $_i++>>
+		
+			<<if $_tempArray[$_i].length eq 0 or $_tempArray[$_i] eq "strap-on">>
+				<<continue>>
+			<</if>>
+		
+			<<set $_trDesc to _trStrapOnDescription[$_tempArray[$_i]]>>
+			<<if def $_trDesc>>
+				<<set $_trStrapOn.push($_trDesc)>>
+			<<else>>
+				<<set $_trStrapOn.push("<span class='red'>에러: trPenisdesc: 정의되지 않음: " + $_tempArray[$_i] + "</span>")>>
+			<</if>>
+		<</for>>
+        <<set _trResult to $_trStrapOn.join(" ")>>
+	
+    <<elseif $_tempArray[1] is undefined>>    
         <<set _trResult to "자지">>
 
-    <<elseif _tempArray[2] is "strap-on">>
-        <<set _trStrapOnSize to {"large":"큰","massive":"거대한"}>>
-        <<set _trStrapOnAdj to {"black":"검은색","red":"빨간색","blue":"파란색","pink":"분홍색","purple":"보라색","fleshy":"두꺼운"}>>
-        <<set _trResult to _trStrapOnSize[_tempArray[0]]+" "+_trStrapOnAdj[_tempArray[1]]+" 페니스 밴드">>
-
     <<else>>
-        <<set _trPenisAdj to {"tiny":"조그마한","thick":"두꺼운","hefty":"굵은","big":"큰","large":"큼지막한","veiny":"핏줄 선","meaty":"두툼한",
-                                "massive":"거대한","huge":"커다란","humongous":"무지막지한","immense":"어마어마한","gigantic":"대형","enormous":"엄청난",
-                                "knotted":"혹이 달린","spiked":"뾰족한","strange":"이상한","equine":"말"}>>
-        <<if _trPenisAdj[_tempArray[0]] is undefined>>
-            <<set _trResult to 'No "'+_tempArray[0]+'" key in trPenisAdj'>>
+		<<if _trPenisAdj is undefined>>
+			<<set _trPenisAdj to {"thick":"두꺼운","hefty":"굵은","big":"큰","large":"큼지막한","veiny":"핏줄 선","meaty":"두툼한",	/* 3 */
+                                "massive":"거대한","huge":"커다란","humongous":"무지막지한","immense":"어마어마한","gigantic":"대형","enormous":"엄청난",	/* 4+ */
+                                "tiny":"조그마한", "pathetic":"한심한", "little":"자그마한", "small":"작은", "mini":"미니", "micro":"마이크로",	/* 1 */
+                                "knotted":"혹이 달린","spiked":"뾰족한","strange":"이상한","equine":"말", "avian": "새", "bovine": "소", "arachnid": "거미"}>>
+		<</if>>
+        <<if _trPenisAdj[$_tempArray[0]] is undefined>>
+            <<set _trResult to 'No "'+$_tempArray[0]+'" key in trPenisAdj :' + _args[0]>>
         <<else>>
-            <<set _trResult to _trPenisAdj[_tempArray[0]]+" 자지">>
+            <<set _trResult to _trPenisAdj[$_tempArray[0]]+" 자지">>
         <</if>>
     <</if>>
 
-    <<if $args[1] isnot undefined>>
-        <<trPost 1 $args[1] $args[2]>>
+    <<if _args[1] isnot undefined>>
+        <<trPost 1 _args[1] _args[2]>>
     <</if>>
-<</widget>>
+<<else>>
+	<<set $_trResult to `<span class="red">[에러: trPenisdesc]</span><br>`>>
+	<<set $_trResult += "j= " + _j  + ", NPCList[j].pronoun= " + ($NPCList[_j] is undefined ? "undefined" : $NPCList[_j].pronoun) + ", enemynomax= " + $enemynomax + ", enemyno= " + $enemyno + ", index= " + $index + "<br>">>
+	<<set $_trResult += "vt= " + $vaginatarget + ", vdt= " + $vaginadoubletarget + ", at= " + $anustarget + ", adt= " + $anusdoubletarget + "<br>">>
+	<<set $_trResult += "= enemydata =<br>">>
+	<<for $_npcno = 0; $_npcno lt $enemynomax; $_npcno ++>>
+		<<set $_trResult += "#" + $_npcno + ": " + $NPCList[$_npcno].fullDescription + ", pronoun= " + $NPCList[$_npcno].pronoun + ", penis= " + $NPCList[$_npcno]["penis"] + ", active= " + $NPCList[$_npcno].active +  ", stance= " + $NPCList[$_npcno].stance + "<br>">>
+	<</for>>
+	
+	<<set _trResult to $_trResult>>
+<</if>>
+<</silently>><</widget>>
 
-
-<<widget "trPenissize">>
-	<<if $penissize lt -2>>
-        <<set _trResult to "[너무나도 작은]">>
-	<<elseif $penissize is -2>>
-        <<set _trResult to "진짜 작은">>
-	<<elseif $penissize is -1>>
-        <<set _trResult to "아주 작은">>
-	<<elseif $penissize is 0>>
-        <<set _trResult to "조그마한">>
-    <<elseif $penissize is 1>>
-        <<set _trResult to "작은">>
-    <<elseif $penissize is 2>>
-        <<set _trResult to "">>
-    <<elseif $penissize is 3>>
-        <<set _trResult to "큰">>
-    <<elseif $penissize is 4>>
-        <<set _trResult to "거대한">>
-	<<else>>
-	    <<set _trResult to "[너무나도 거대한]">>
-    <</if>>
-    <<print _trResult>>
-<</widget>>

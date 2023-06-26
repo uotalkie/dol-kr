@@ -1,8 +1,8 @@
 :: Domus Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "domus">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "domus">><<getTarget true>>
 당신은 도무스 가에 있다. 고아원이 여기 있다. 거리는 다들 비슷비슷하게 생긴 작은 집들로 가득하다.
-<<if $daystate is "day">>
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
 		사람들이 빗속에서 걸음을 재촉하고 있다.
 	<<elseif $weather is "snow">>
@@ -10,17 +10,35 @@
 	<<else>>
 		이 거리의 사람들은 정원을 가꾸거나 일을 하러 가고 있다.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	거리는 꽤나 바쁘다. 사람들은 직장으로 가고 있다.
-<<elseif $daystate is "dusk">>
-	긴 하루의 끝에, 지친 사람들이 집으로 돌아가고 있다.
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		거리는 꽤나 바쁘다. 사람들은 레인코트를 입거나 우산을 쓰고, 직장으로 가고 있다.
+	<<elseif $weather is "snow">>
+		거리는 꽤나 바쁘다. 사람들은 추위 때문에 옷을 껴입고, 직장으로 가고 있다.
+	<<else>>
+		거리는 꽤나 바쁘다. 사람들은 직장으로 가고 있다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		비를 피하려는 열망에 차서, 사람들이 집으로 돌아가고 있다.
+	<<elseif $weather is "snow">>
+		추위를 피하려는 열망에 차서, 사람들이 집으로 돌아가고 있다.
+	<<else>>
+		긴 하루의 끝에, 지친 사람들이 집으로 돌아가고 있다.
+	<</if>>
 <<else>>
-	거리는 어둡고 조용하다.
+	<<if $weather is "rain">>
+		거리는 어둡고, 비가 후두둑 떨어지는 소리에 흠뻑 젖어 있다.
+	<<elseif $weather is "snow">>
+		거리는 눈 속에서 어둡고 조용하다.
+	<<else>>
+		거리는 가끔 들려오는 엔진 소리를 제외하면, 어둡고 조용하다.
+	<</if>>
 <</if>>
 <<if $halloween is 1>>
 	잭 오 랜턴, 해골과 거미가 집집마다 장식되어 있다.
 <</if>>
-<<if $season is "winter">>
+<<if Time.season is "winter">>
 	눈사람이 정원들에 서 있다.
 <</if>>
 <<streeteffects>>
@@ -32,53 +50,67 @@
 	<<orgasmstreet>>
 <</if>>
 <<if $tutorial is 0 and $debug is 0>><<set $tutorial to 1>>
-	<<generate1>><<person1>>고아원에서 나올 때 당신은 지나가던 <<person_gwa>> 부딪힌다. <<HePost "은">> 비틀거리며 화난 눈길을 보내오지만, 당신을 보자 <<his>> 분노는 색욕으로 바뀐다. "너처럼 귀여운 아이는 본 적이 없어! 이리 와."
+	<<generate1>><<person1>>고아원에서 나올 때 당신은 지나가던 <<person_ gwa>> 부딪힌다. <<HePost "은">> 비틀거리며 화난 눈길을 보내오지만, 당신을 보자 <<his_ yi>> 분노는 색욕으로 바뀐다. "너처럼 귀여운 아이는 본 적이 없어! 이리 와."
 	<br><br>
 	<<link [[다음|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Domus Street">><</link>>
 <<else>>
-	<<if $stress gte $stressmax>>
+	<<if $stress gte $stressmax and !$possessed>>
 		<<passoutstreet>>
 	<<else>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon" and $NPCName[$NPCNameList.indexOf("Whitney")].init is 1 and $halloween is 1 and $monthday is 31 and $hour gte 19 and $halloween_whitney_proposed isnot 1>><<set $halloween_whitney_proposed to 1>>
+		<<if $halloween is 1 and Time.monthDay is 31 and Time.hour gte 19 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.init is 1 and $halloween_whitney_proposed isnot 1 and !$possessed>>
+			<<set $halloween_whitney_proposed to 1>>
 			<<halloweenwhitney>>
-		<<elseif $averyDismissalScene and $averyDismissalSceneWait isnot 1 and $weekday is 7 and $hour is 20>>
+		<<elseif $averyDismissalScene and $averyDismissalSceneWait isnot 1 and Time.weekDay is 7 and Time.hour is 20>>
 			<<loadNPC 0 avery_sidepiece>><<person1>>
 			<<if $averyDismissalScene is 1>>
-				You see a <<person>> standing outside the orphanage wearing a
+				당신은 <<person_ i>> 
 				<<if $pronoun is "f">>
-					fancy gown. <<He>> paces around, trying to get used to being in heels.
+					멋진 가운을 입고 고아원 바깥에 서 있는 걸 발견한다. <<He_ nun>> 하이힐에 익숙해지기 위해, 주변을 왔다갔다하고 있다.
 				<<else>>
-					sharp suit. <<He>> paces around, and it looks like <<hes>> trying to work off <<his>> nerves.
+					맵시있는 정장을 입고 고아원 바깥에 서 있는 걸 발견한다. <<He_ nun>> 주변을 왔다갔다하고 있으며, <<his_ yi>> 긴장된 마음을 진정시키려 하는 것으로 보인다.
 				<</if>>
-				<span class = "blue">You recognize <<him>> now. <<Hes>> Avery's new date.</span>
+				<span class = "blue">당신은 이제 <<him_ ul>> 알아본다. <<He_ nun>> 에이버리의 새 데이트 상대다.</span>
 				<br><br>
-				As if on queue, you see a familiar car stopping nearby.
-				The <<personsimple>> excitedly walks over to it<<if $pronoun is "f">>, almost tripping in the process<</if>>.
-				You see <<him>> give Avery a peck on the lips as <<he>> climbs onboard. The door shuts, and the new couple drives away.
+				마치 정해진 순서마냥, 당신은 익숙한 차가 근처에 멈춰서는 걸 본다.
+				<<personsimple_ i>> 들뜬 모습으로 차를 향해<<if $pronoun is "f">> 걸어가다가, 거의 발이 걸려 넘어질 뻔한다<<else>> 걸어간다<</if>>.
+				당신은 <<him_ i>> 자동차에 올라타며, 에이버리에게 가볍게 입맞춤을 하는 것을 본다. 문이 닫히고, 새로운 커플이 차를 타고 떠나간다.
 			<<else>>
-				You bump into a <<person>>. "Oh! Sorry!" <<He>> frantically apologises, looking you over. <<He>> seems to recognize you, and smiles.
-				"Ah! I'm glad I ran into you. I never got to thank you for warning me about Avery." <span class = "blue">You recognize <<him>> now. <<Hes>> the <<personsimple>> Avery tried to replace you with.</span>
+				당신은 <<person_ gwa>> 부딪힌다. "아! 미안해!" <<He_ ga>> 당신을 살펴보면서 정신없이 사과한다. <<He_ nun>> 당신을 알아본 듯하고, 미소를 짓는다.
+				"아! 우연히 만나서 기뻐. 내게 에이버리에 대해 경고해준 것에 대해 아직 고맙다고 못 했잖아." <span class = "blue">당신은 이제 <<him_ ul>> 알아본다. <<He_ nun>> 에이버리가 당신 대용으로 두려고 시도했던 <<personsimplePost "이다">>.</span>
 				<br><br>
-				"It's funny, had you not warned me that day, I'd actually be out on a date with <<nnpc_him "Avery">> right now. You really helped me dodge a bullet."
-				<<He>> suddenly hugs you.
+				"재미있지, 네가 그날 내게 경고해주지 않았다면, 지금쯤 <<nnpc_him_ gwa "Avery">> 데이트하러 나갔을 거야. 내가 최악의 상황을 면하도록 네가 큰 도움을 줬어."
+				<<He_ ga>> 갑자기 당신을 포옹한다.
 				<br><br>
-				"I can't thank you enough. I'll see you around the orphanage!" <<stress -6>><<lstress>>
+				"아무리 고마워해도 부족한 걸. 나중에 고아원에서 다시 보자!" <<stress -6>><<lstress>>
 			<</if>>
 			<<unset $averyDismissalScene>>
-			<<clearNPC 0 avery_sidepiece>>
+			<<clearNPC avery_sidepiece>>
 			<br><br>
 			<<endevent>>
 			<<destinationeventend>>
-		<<elseif $danger gte (9900 - $allure) and $eventskip is 0>>
+
+		<<elseif $adultshopgrandopening is true and $adultshopopeningevent is undefined and Time.hour gte 6 and Time.hour lte 20>>
+			<<set $adultshopopeningevent to true>>
+			<<generate1>><<person1>>
+			"실례합니다," 당신의 오른편에서 목소리가 들려온다. <<personPost "이다">>. <<He_ nun>> 전단지를 꺼낸다. 전단지 맨 위에는 '시리스의 성인용품점'이라는 문구가 적혀 있고, 그 아래로는 여러 성인용품들이 있다.
+			<br><br>
+			<span class="gold">"우리 가게에서 개업 기념 행사를 여는 중입니다, 오늘뿐이예요.</span> 우리 가게는 <<ampm 21 00>> 까지 열려 있습니다. 꼭 들러주세요!"
+			<br><br>
+
+			<<He_ nun>> 다른 보행자에게 전단지를 건네주기 위해 길을 건너간다.
+			<br><br>
+			<<endevent>>
+			<<destinationeventend>>
+		<<elseif ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 			<<eventsstreet>>
 		<<else>>
-			<<if $map.top is true>>
+			<<if $options.mapTop is true>>
 				<<map "domus">>
 				<br>
 			<</if>>
-			<<if $averydate is 1 and $hour is 20 and $averydatedone isnot 1>>
-				에이버리가 <<nnpc_his_yi "Avery">> 차에서 당신을 기다리고 있다.
+			<<if $averydate is 1 and Time.hour is 20 and $averydatedone isnot 1>>
+				에이버리가 <<nnpc_his_ yi "Avery">> 차에서 당신을 기다리고 있다.
 				<br>
 				<<link [[데이트 (1:20)|Avery Date]]>><</link>>
 				<br><br>
@@ -88,18 +120,22 @@
 			<br>
 			<<homeicon>><<link [[집에 간다 (0:01)->Orphanage]]>><<pass 1>><</link>>
 			<br>
-			<<if $daystate is "night">>
-				<<ind>><<link [[한 집에 다가간다 (0:02)|Domus House Lock]]>><<pass 2>><</link>>
+			<<if Time.dayState is "night">>
+				<<domushouseicon>><<link [[한 집에 다가간다 (0:02)|Domus House Lock]]>><<pass 2>><</link>>
 				<br>
 			<<elseif $exposed lte 0>>
-				<<ind>><<link [[한 집의 문을 두드린다 (0:02)|Domus House Knock]]>><<pass 2>><</link>>
+				<<domushouseicon>><<link [[한 집의 문을 두드린다 (0:02)|Domus House Knock]]>><<pass 2>><</link>>
 				<br>
 			<</if>>
-			<<if $exposed gte 2 and $daystate isnot "night" and $exhibitionism gte 75>>
-				<<ind>><<link [[옷을 구걸한다 (0:02)|Domus House Nude]]>><<pass 2>><</link>><<exhibitionist5>>
+			<<if $demon gte 6 and Time.dayState is "night" and $promiscuity gte 15>>
+				<<demonicon>><<link [[창문을 통해 올라간다 (0:30)|Domus Window]]>><<pass 30>><</link>><<demon>>
 				<br>
 			<</if>>
-			<<if $exposed gte 1 and $daystate isnot "night">>
+			<<if $exposed gte 2 and Time.dayState isnot "night" and $exhibitionism gte 75>>
+				<<domushouseicon>><<link [[옷을 구걸한다 (0:02)|Domus House Nude]]>><<pass 2>><</link>><<exhibitionist5>>
+				<br>
+			<</if>>
+			<<if $exposed gte 1 and Time.dayState isnot "night">>
 			<<else>>
 				<<add_link "이동<br>">><<hideDisplay>>
 				<<barb>>
@@ -115,7 +151,7 @@
 			<<loiter>>
 
 			<<displayLinks>>
-			<<if $map.top isnot true>>
+			<<if $options.mapTop isnot true>>
 				<br>
 				<<map "domus">>
 			<</if>>
@@ -123,3 +159,8 @@
 	<</if>>
 <</if>>
 <<set $eventskip to 0>>
+
+:: Domus Alley
+<<set $location to "alley">>
+
+<<street2>>

@@ -17,25 +17,29 @@ myprint() {
 }
 
 GREP="git grep -n --color"
+# $GREP "<<print .<<" -- 'game/*.twee' | myprint "<<print>>ingBullshit"
 # Check, e.g.  <<<
-$GREP "<<<[^\\\"']" -- 'game/*' | myprint "trippleOpen"
+$GREP "<<<[^\\\"']" -- 'game/*.twee' | myprint "tripleOpen"
 # Check, e.g.  >>>
-$GREP "[^\\\"']>>>" -- 'game/*' | myprint "trippleClose"
+$GREP "[^\\\"']>>>" -- 'game/*.twee' | myprint "tripleClose"
 # Check, e.g.  <<print "abc" $d, some false positives in complex constructs because git-grep cannot do most (? constructs
 # Note: " *" is on purpose, "\s*" doesn't work here in git-grep
-$GREP -E "^[^']*<<(print|set)[^'\\\">]+('[^']*')([^'>]+'[^']*')* *[_'\\\$]" -- 'game/*' | myprint "RunInConcat"
-$GREP -E '^[^"]*<<(print|set)[^\\"'"'"'>]+("[^"]*")([^">]+"[^"]*")* *[_"\\\$]' -- 'game/*' | myprint "RunInConcat"
-$GREP -E "^[^']*<<(print|set)[^'\\\">]+('[^']*')([^'>]+'[^']*')*[^'>]*([a-np-ru-zA-Z)]|[^t]o|[^i]s|[^o]t) *'" -- 'game/*' | myprint "RunInConcat"
-$GREP -E '^[^"]*<<(print|set)[^\\"'"'"'>]+("[^"]*")([^">]+"[^"]*")*[^">]*([a-np-ru-zA-Z)]|[^t]o|[^i]s|[^o]t) *"' -- 'game/*' | myprint "RunInConcat"
+    # $GREP -E "^[^']*<<(print|set)[^'\\\">]+('[^']*')([^'>]+'[^']*')* *[_'\\\$]" -- 'game/*' | myprint "RunInConcat"
+    # $GREP -E '^[^"]*<<(print|set)[^\\"'"'"'>]+("[^"]*")([^">]+"[^"]*")* *[_"\\\$]' -- 'game/*' | myprint "RunInConcat2"
+    # $GREP -E "^[^']*<<(print|set)[^'\\\">]+('[^']*')([^'>]+'[^']*')*[^'>]*([a-np-ru-zA-Z)]|[^t]o|[^i]s|[^o]t) *'" -- 'game/*' | myprint "RunInConcat3"
+    # $GREP -E '^[^"]*<<(print|set)[^\\"'"'"'>]+("[^"]*")([^">]+"[^"]*")*[^">]*([a-np-ru-zA-Z)]|[^t]o|[^i]s|[^o]t) *"' -- 'game/*' | myprint "RunInConcat4"
+#commented this out because it just seems like a total nightmare to try to understand
+$GREP -E "<<print ['\`\"][^'\`\"]+['\`\"][^+]+['\`\"][^'\`\"]['\`\"]" | myprint "RunInConcat"
+
 # Check for missing right angle bracket: <</if>
 $GREP "<</[^>]*>[^>]" -- 'game/*'  | myprint "MissingClosingAngleBracket"
-$GREP "<<[^>()]*>[^()<>"$'\r]*\r'"\?$" -- 'game/*' | myprint "MissingClosingAngleBracket"
+$GREP "<<[^>()]*>[^()<>"$'\r]*\r'"\?$" -- 'game/*' | myprint "MissingClosingAngleBracket2"
 # Check for missing left angle bracket: </if>>
 $GREP "\([^<]\|^\)</\?\(if\|else\|case\|set\|print\|elseif\)" -- 'game/*' | myprint "MissingOpeningAngleBracket2"
 # Check for accidental assignment.  e.g.:   <<if $foo = "hello">>
 $GREP "<<[ ]*if[^>=]*[^><\!=]=[^=>][^>]*>>" -- 'game/*' | myprint "AccidentalAssignmentInIf"
 # Check for accidental assignment.  e.g.:   <<elseif $foo = "hello">>
-$GREP "<<[ ]*elseif[^>=]*[^><\!=]=[^=][^>]*>>" -- 'game/*' | myprint "AccidentalAssignmentInElseIf"
+$GREP "<<[ ]*elseif[^>=]*[^><\!=]=[^=>]*>>" -- 'game/*' | myprint "AccidentalAssignmentInElseIf"
 # Check for missing ".  e.g.:   <<if $foo == "hello>>
 # $GREP -e "<<[^\"<>]*\"[^\"<>]*>>" -- 'game/*' | myprint "MissingSpeechMark"
 # Check for missing ".  e.g.:   <<if $foo = "hello)
@@ -45,24 +49,25 @@ $GREP -e "@@color:" --and --not -e  "@@color:rgb([0-9 ]\+,[0-9 ]\+,[0-9 ]\+)" --
 # Check for missing $ in activeSlave or PC
 $GREP "<<[ ]*[^\$><_\[]*\(activeSlave\|PC\)[.]"  -- "game/*" | myprint "MissingDollar"
 # Check for closing bracket without opening bracket.  e.g.:  <<if foo)>>	  (but  <<case "foo")>>   is valid, so ignore those
-$GREP -e "<<[ a-zA-Z]\+\([^()<>]\|[^()<>][<>][^()<>]\)*)" --and --not -e "<< *case"  -- "game/*" | myprint "MissingOpeningBracket"
+$GREP -e "<<[ a-zA-Z]\+\([^()<>]\|[^()<>][<>][^()<>]\)*)" --and --not -e "<< *case"  -- 'game/*.twee' | myprint "MissingOpeningBracket"
 # Check for opening bracket without closing bracket.  e.g.:  <<if (foo>>
-$GREP -e "<<[ a-zA-Z]\([^<>]\|[^<>][<>][^<>]\)\+(\([^()<>]\|[^<>()][<>][^<>()]\|([^<>()]*])\)*>>" -- "game/*" | myprint "MissingClosingBracket"
+$GREP -e "<<[ a-zA-Z]\([^<>]\|[^<>][<>][^<>]\)\+(\([^()<>]\|[^<>()][<>][^<>()]\|([^<>()]*])\)*>>" -- 'game/*.twee' | myprint "MissingClosingBracket"
 # Check for two closing brackets but one opening bracket.  e.g.:  <<if (foo))>>
 $GREP -e "<<[ a-zA-Z]\+[^()<>]*([^()]*)[^()]*)[^()<>]*>>"  -- "game/*" | myprint "MissingOpeningBracket2"
 # Check for one closing bracket but two opening brackets.  e.g.:  <<if ((foo)>>
 $GREP -e "<<[ a-zA-Z]\+[^()<>]*([^()]*([^()]*)[^()<>]*>>"  -- "game/*" | myprint "MissingClosingBracket2"
 $GREP -e "<<.*[(][^<>)]*[(][^<>)]*)\?[^<>)]*>>" -- "game/*" | myprint "MissingClosingBracket3"
 # Check for missing >>.  e.g.:   <<if $foo
+# doesn't play well with multiple lines, should be moved to check.py
 #$GREP "<<[^<>]*[^,\"\[{"$'\r]\r'"\?$" -- 'game/*' | myprint "MissingClosingAngleBrackets"
-$GREP "<<[^<>]*[^,\"\[{]\?$" -- 'game/*' | myprint "MissingClosingAngleBrackets"
+#$GREP "<<[^<>]*[^,\"\[{]\?$" -- 'game/*' | myprint "MissingClosingAngleBrackets"
 # Check for too many >>>.  e.g.: <</if>>>
-$GREP "<<[^<>\"]*[<>]\?[^<>\"]*>>>" -- "game/*" | myprint "TooManyAngleBrackets"
+$GREP "<<[^<>\"]*[<>]\?[^<>\"]*>>>" -- 'game/*.twee' | myprint "TooManyAngleBrackets"
 # Check for too many <<<.  e.g.: <<</if>>
-$GREP "<<<[^<>\"]*[<>]\?[^<>\"]*>>" -- "game/*" | myprint "TooManyAngleBrackets2"
+$GREP "<<<[^<>\"]*[<>]\?[^<>\"]*>>" -- 'game/*.twee' | myprint "TooManyAngleBrackets2"
 # Check for wrong capitalisation on 'activeslave' and other common typos
 $GREP  "\(csae\|[a-z] She \|attepmts\|youreslf\|advnaces\|canAcheive\|setBellySize\|SetbellySize\|gendre\|apperance\|setbellySize\|bellypreg\|pregBelly\|bellyimplant\|bellyfluid\|pronounCaps\|carress\)" -- 'game/*' | myprint "SpellCheck"
-$GREP  "\(recieve\|recieves\)" -- 'game/*' | myprint "PregmodderCannotSpellReceive"
+$GREP "recieve" -- 'game/*' | myprint "PregmodderCannotSpellReceive"
 $GREP "\$slave\[" -- 'game/*' | myprint "ShouldBeSlaves"
 # Check for strange spaces e.g.  $slaves[$i]. lips
 $GREP "\$slaves\[\$i\]\. " -- 'game/*' | myprint "MissingPropertyAfterSlaves"
@@ -75,11 +80,11 @@ $GREP "<</else" -- 'game/*' | myprint "ElseForAnIf"
 # Check, e.g., =to
 $GREP "=to" -- 'game/*' | myprint "EqualAndTo"
 # Check, e.g.  <<set foo == 4>>
-$GREP "<<set[^{>=]*==" -- 'game/*' | myprint "DoubleEqualsInSet"
+$GREP -E "<<set [^{>=]*==" -- 'game/*' | myprint "DoubleEqualsInSet"
 # Check for, e.g   <<if slaves[foo]>>
 $GREP "<<\([^>]\|[^>]>[^>]\)*[^$]slaves\[" -- 'game/*' | myprint "MissingDollar"
 # Check for missing $ or _ in variable name:
-$GREP -e "<<[a-zA-Z]\([^>\"]\|[^>]>[^>]\|\"[^\"]*\"\)* [a-zA-Z]\+ * =" -- game/* | myprint "MissingDollar2"
+$GREP -e "<<[a-zA-Z]\([^>\"]\|[^>]>[^>]\|\"[^\"]*\"\)* [a-zA-Z]\+ * =(?!>)" -- game/* | myprint "MissingDollar2"
 # Check for missing command, e.g.  <<foo =
 $GREP -e "<<[a-zA-Z]* = *" -- game/* | myprint "BadCommand"
 # Check for duplicate words, e.g. with with
@@ -89,10 +94,10 @@ $GREP -E "<<display |<<click|<<.*\.contains" -- game/* | myprint "ObsoleteMacro"
 # Check for double articles
 $GREP -E "\Wa an\W" -- game/* | myprint "DoubleArticle"
 # Check for incorrect articles
-$GREP -i -E "\Wa (a|e|i|o|u)." -- game/* | grep -a -i -vE "\Wa (un|eu|us|ut|on|ur|in)." | grep -a -i -vE "(&|<<s>>|UM)." | myprint "IncorrectArticle"
-$GREP -i -E "\Wan (b|c|d|f|g|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z)\w." -- game/* | grep -a -i -vE "[A-Z]{3}" | myprint "IncorrectArticle"
+$GREP -i -E "\Wa (a|e|i|o|u)." -- game/* | grep -a -i -vE "\Wa (eu|in|on|un|us|ut|ur)." | grep -a -i -vE "(&|<)." | myprint "IncorrectArticle"
+$GREP -i -E "\Wan (b|c|d|f|g|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z)\w." -- game/* | grep -a -vE "\W[aA]n ([A-Z]{3,4}|npc)" | myprint "IncorrectArticle2"
 # Check for $ sign mid-word
-$GREP -i "\w$\w" -- game/* | myprint "VarSignMidWord"
+$GREP -i "\w$\w" -- 'game/*.twee' | myprint "VarSignMidWord"
 # check for $ sign at beginning of macro
 $GREP '<<\s*\$' -- 'game/*'  | myprint "VarSignAtMacroStart"
 # check for missing ; before statement
@@ -101,7 +106,9 @@ $GREP 'elseif $ ' -- 'game/*'  | myprint "missing ; before statement"
 $GREP '^::[^ ]' -- 'game/*' | myprint "MissingSpaceInMacro"
 $GREP '^: ' -- 'game/*' | myprint "MissingColonInMacro"
 $GREP -P '[(]0:0(.)[)].*<pass (?!\1)' -- 'game/*' | myprint "MismatchedPassTimes"
-$GREP -P '[(]0:([^0].)[)].*<pass (?!\1)' -- 'game/*' | myprint "MismatchedPassTimes"
+$GREP -P '[(]0:([^0].)[)].*<pass (?!\1)' -- 'game/*' | myprint "MismatchedPassTimes2"
+# check for the typeof operator NOT being compared to a string; if you write `typeof undefined is undefined`, you'll get false. the return value is a STRING.
+$GREP -E "typeof \S+ (===?|is|eq) [^\"']" -- 'game/*' | myprint "TypeofNotComparedToString"
 # Look for variables like $foo.bar  where it occurs only once.
 # There's a lot of false-positives, but it also catches a lot of
 # mistakes, so use grep to filter out the false-positives.
@@ -123,3 +130,4 @@ echo -e "game/04-Variables/variables-versionUpdate.twee$ENDC: $(echo $MISSINGFRO
 
 git ls-files "game/*.twee" | xargs -d '\n'  ./devTools/check.py
 
+read -p 'Press [Enter] key to continue...'

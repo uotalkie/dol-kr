@@ -219,7 +219,7 @@ Macro.add("numberslider", {
 	  .addClass("macro-" + this.name)
 	  .appendTo(this.output),
 	  $elInput
-		.attr({ id: this.name + "-input-" + varId, name: this.name + "-input-" + varId, type: "range", min: minValue, max: maxValue, step: stepValue, tabindex: 0 })
+		.attr({ id: this.name + "-input-" + varId, name: this.name + "-input-" + varId, type: "range", min: minValue, max: maxValue, step: stepValue, tabindex: 0, disabled: (typeof this.args[5] != "undefined" ? this.args[5] : false)})
 		.on("change input." + Util.slugify(this.name), function () {
 		  validateAndApply(this), "function" == typeof showValue && showValue();
 		})

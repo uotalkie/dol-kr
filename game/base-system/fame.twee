@@ -1,113 +1,164 @@
 :: Widgets Fame [widget]
+<<widget "fame">>
+	<!-- Usage: <<fame 10 "scrap" "good">>. Raises fames regardless of mask, gloryhole, etc. -->
+	<<if _args.length gte 2 and $statFreeze isnot true>>
+		<<set [$_gain, ...($_fameTypes)] to _args>> <!-- remove first element of array since it's the number -->
+		<<run $_fameTypes.forEach(fameType => $fame[fameType] += $_gain)>> <!-- add the specified amount to each specified fame type -->
+		<<fameclamp>>
+	<</if>>
+<</widget>>
+
 <<widget "fameexhibitionism">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and $npc isnot "Eden">>
-		<<set $fame += $args[0]>>
-		<<set $fameexhibitionism += $args[0]>>
-		<<set $fameexhibitionism to Math.clamp($fameexhibitionism, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Kylar", "Sydney"].includes($npc[0])) or _args[2] is true>>
+			<<set $fame.exhibitionism += _args[0]>>
+			<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
-<<widget "fameschoolex">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $fameexhibitionism += $args[0]>>
-		<<set $fameexhibitionism to Math.clamp($fameexhibitionism, 0, 2000)>>
-	<</if>>
-<</if>>
-<</widget>>
+
 <<widget "fameprostitution">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $fameprostitution += $args[0]>>
-		<<set $fameprostitution to Math.clamp($fameprostitution, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.prostitution += _args[0]>>
+			<<set $fame.prostitution to Math.clamp($fame.prostitution, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
 <<widget "famebestiality">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $famebestiality += $args[0]>>
-		<<set $famebestiality to Math.clamp($famebestiality, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.bestiality += _args[0]>>
+			<<set $fame.bestiality to Math.clamp($fame.bestiality, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
 <<widget "famerape">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and $npc isnot "Eden">>
-		<<set $fame += $args[0]>>
-		<<set $famerape += $args[0]>>
-		<<set $famerape to Math.clamp($famerape, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if ($face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Kylar", "Sydney"].includes($npc[0]))) or _args[2] is true>>
+			<<set $fame.rape += _args[0]>>
+			<<set $fame.rape to Math.clamp($fame.rape, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
 <<widget "famesex">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and $npc isnot "Eden">>
-		<<set $fame += $args[0]>>
-		<<set $famesex += $args[0]>>
-		<<set $famesex to Math.clamp($famesex, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true or _args[2] is true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Sydney"].includes($npc[0])) or _args[2] is true>>
+			<<set $fame.sex += _args[0]>>
+			<<set $fame.sex to Math.clamp($fame.sex, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
+<<widget "famepregnancy">>
+	<<if _args[0] and $statFreeze isnot true and pregnancyBellyVisible()>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.pregnancy += _args[0]>>
+			<<set $fame.pregnancy to Math.clamp($fame.pregnancy, 0, Math.clamp(playerNormalPregnancyTotal(),1,8) * 250)>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "fameimpreg">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.impreg += _args[0]>>
+			<<set $fame.impreg to Math.clamp($fame.impreg, 0, 2000)>>
+		<</if>>
+	<</if>>
+<</widget>>
+
 <<widget "famegood">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $famegood += $args[0]>>
-		<<set $famegood to Math.clamp($famegood, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.good += _args[0]>>
+			<<set $fame.good to Math.clamp($fame.good, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
 <<widget "famebusiness">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $famebusiness += $args[0]>>
-		<<set $famebusiness to Math.clamp($famebusiness, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.business += _args[0]>>
+			<<set $fame.business to Math.clamp($fame.business, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
 <<widget "famepimp">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $famepimp += $args[0]>>
-		<<set $famepimp to Math.clamp($famepimp, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.pimp += _args[0]>>
+			<<set $fame.pimp to Math.clamp($fame.pimp, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
 <<widget "famescrap">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $famescrap += $args[0]>>
-		<<set $famescrap to Math.clamp($famescrap, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.scrap += _args[0]>>
+			<<set $fame.scrap to Math.clamp($fame.scrap, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
-<</widget>>
-<<widget "famedance">>
-<<exposure>>
-<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and $statFreeze isnot true>>
-	<<if $exposed is 1>>
-		<<set $fameexhibitionism += $audience>>
-		<<set $fame += $audience>>
-	<<elseif $exposed gte 2>>
-		<<set $fameexhibitionism += ($audience * 2)>>
-		<<set $fame += ($audience * 2)>>
-	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "famesocial">>
-<<if $args[0] and $statFreeze isnot true>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-		<<set $fame += $args[0]>>
-		<<set $famesocial += $args[0]>>
-		<<set $famesocial to Math.clamp($famesocial, 0, 2000)>>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.social += _args[0]>>
+			<<set $fame.social to Math.clamp($fame.social, 0, 2000)>>
+		<</if>>
 	<</if>>
-<</if>>
+<</widget>>
+
+<<widget "famemodel">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
+			<<set $fame.model += _args[0]>>
+			<<set $fame.model to Math.clamp($fame.model, 0, 2000)>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "famedance">>
+	<<exposure>>
+	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and $statFreeze isnot true>>
+		<<if $exposed is 1>>
+			<<set $fame.exhibitionism += $audience>>
+		<<elseif $exposed gte 2>>
+			<<set $fame.exhibitionism += ($audience * 2)>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "fameschoolex">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
+			<<set $fame.exhibitionism += _args[0]>>
+			<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000)>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "fameProse">>
+	<<switch _args[0]>>
+		<<case "scrap">>
+			<<set $_output to "전투">>
+		<<case "good">>
+			<<set $_output to "친절">>
+		<<case "social">>
+			<<set $_output to "사교">>
+		<<case "model">>
+			<<set $_output to "모델">>
+		<<case "impreg">>
+			<<set $_output to "수태">>
+		<<default>>
+			<<set $_output to _args[0]>>
+	<</switch>>
+	<<print $_output>>
 <</widget>>

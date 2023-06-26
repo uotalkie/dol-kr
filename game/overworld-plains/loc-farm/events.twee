@@ -1,30 +1,32 @@
 :: Farm Coop Rape
 
 <<if $molestationstart is 1>>
-<<set $molestationstart to 0>>
-<<controlloss>>
-<<violence 1>>
-<<neutral 1>>
-<<molested>>
-	<<beastCombatInit>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+		<<beastCombatInit>>
 
 <<set $NPCList[0].stance to "top">><<set $position to "doggy">>
-<<set $rescue to 1>>
+<<if Time.hour lt 21 or Time.hour gt 4>>
+	<<enable_rescue>>
+<</if>>
 <<farm_trust dogs>>
 <</if>>
 
-<<if $worn.upper.sleeve_img isnot 1 and ($leftarm is "bound" or $rightarm is "bound") and $phase is 1>>
-	The chickens tear the ruined remains of your sleeves away from you, <span class="lblue">freeing your arms.</span>
+<<if setup.clothes.upper[clothesIndex('upper', $worn.upper)].sleeve_img isnot 1 and ($leftarm is "bound" or $rightarm is "bound") and $phase is 1>>
+	닭들은 <span class="lblue">당신의 팔을 놓아주면서,</span>당신의 너덜너덜한 소매를 찢어버린다. 
 	<<unbind>>
 	<br><br>
 <<elseif $phase is 1>>
-	The chickens hold your arms in place.
+	닭들은 당신의 팔을 제자리에 놓는다.
 	<br><br>
 <</if>>
 
 <<effects>>
 <<effectsman>>
-<br><br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
 
@@ -32,44 +34,39 @@
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Coop Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Coop Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $rescue is 1 and $alarm is 1>>
-	<span id="next"><<link [[Next|Farm Coop Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Coop Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Coop Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Coop Rape Finish
 <<effects>>
-
 <<if $enemyarousal gte $enemyarousalmax>>
 
 	<<beastejaculation>>
 
-	<<if $worn.upper.sleeve_img is 1>>
-		Satisfied, the <<farm_text dog>> leaves the coop as the chickens step away from the fence, freeing your arms.
+	<<if setup.clothes.upper[clothesIndex('upper', $worn.upper)].sleeve_img is 1>>
+		만족한 채로, 닭들이 울타리에서 물러나면서 당신의 팔을 풀어주자, 그 <<farm_text_ nun dog>> 닭장을 떠난다.
 		<<unbind>>
 	<<else>>
-		Satisfied, the <<farm_text dog>> leaves the coop, leaving you to slump to the ground.
+		만족한 채로, 그 <<farm_text_ nun dog>> 당신을 바닥에 내버려 둔 채, 닭장을 떠난다
 	<</if>>
 	<<lrespect>><<farm_dogs -1>>
 	<br><br>
 
-	<<tearful>> you finish your work in the coop.
+	<<tearful>> 당신은 닭장에서 일을 마친다.
 	<br><br>
 
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
 
-	<<if $worn.upper.sleeve_img is 1>>
+	<<if setup.clothes.upper[clothesIndex('upper', $worn.upper)].sleeve_img is 1>>
 		The <<farm_text dog>> turns and runs. The chickens follow, releasing your arms.
 		<<unbind>>
 	<<else>>
@@ -82,7 +79,7 @@
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>><<set $rescued += 1>>
@@ -91,7 +88,7 @@
 	"I'm coming!" It's Alex. The <<farm_text dog>> backs away at the sound of <<his>> voice.
 
 
-	<<if $worn.upper.sleeve_img is 1>>
+	<<if setup.clothes.upper[clothesIndex('upper', $worn.upper)].sleeve_img is 1>>
 		The chickens follow suit.
 		<<unbind>>
 	<<else>>
@@ -117,7 +114,7 @@
 
 	<<link [[Thank Alex|Farm Coop Thank]]>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<gdom>><<glove>>
 	<br>
-	<<link [[Get angry|Farm Coop Angry]]>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
+	<<link [[화를 낸다|Farm Coop Angry]]>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
 	<br>
 	<<link [[Say nothing|Farm Coop Silent]]>><</link>>
 	<br>
@@ -140,7 +137,7 @@
 Alex smiles. "Don't mention it. I'll keep an ear out in case you need me again."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -160,7 +157,7 @@ Alex smiles. "Don't mention it. I'll keep an ear out in case you need me again."
 "I'm sorry," Alex says, holding up <<his>> hands. "But working with animals has its dangers. Be more careful in the future."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Coop Silent
@@ -169,15 +166,16 @@ Alex smiles. "Don't mention it. I'll keep an ear out in case you need me again."
 You don't say anything, and continue cleaning the coop. "Right," Alex says. "I'd best get back to work too. I'll keep an ear out."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
+
 
 :: Farm Yard Stand Still
 <<effects>>
 
 You stand still, and allow the creature to latch onto your face. <<deviancy4>>
 
-<<link [[Next|Farm Yard Struggle]]>><<set $struggle_start to 2>><</link>>
+<<link [[다음|Farm Yard Struggle]]>><<set $struggle_start to 2>><</link>>
 
 :: Farm Yard Dodge
 <<effects>>
@@ -186,13 +184,13 @@ You stand still, and allow the creature to latch onto your face. <<deviancy4>>
 	You jump aside at the last moment, and <span class="green">the creature flies past.</span> It lands and darts into a bush before you can get a good look at it.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	You try to jump aside, <span class="red">but it's on you too fast,</span> latching onto your face. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.
 	<br><br>
 
-	<<link [[Next|Farm Yard Struggle]]>><<set $struggle_start to 1>><</link>>
+	<<link [[다음|Farm Yard Struggle]]>><<set $struggle_start to 1>><</link>>
 	<br>
 <</if>>
 
@@ -204,13 +202,13 @@ You stand still, and allow the creature to latch onto your face. <<deviancy4>>
 	You swing the shovel at the creature, and <span class="green">smack it aside with a crunch.</span> It lands and darts into a bush before you can get a good look at it.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	The shovel hits, <span class="red">but the creature moves with such force that your impromptu weapon is batted aside.</span> It latches onto your face. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.
 	<br><br>
 
-	<<link [[Next|Farm Yard Struggle]]>><<set $struggle_start to 1>><</link>>
+	<<link [[다음|Farm Yard Struggle]]>><<set $struggle_start to 1>><</link>>
 	<br>
 <</if>>
 
@@ -228,7 +226,7 @@ You scream, but the creature lands on your face, cutting it short. You can't see
 You gasp for air. "Be careful of those," <<he>> says. "They crawl in from the moor. You can leave the yard to me if you like. I usually clear it after my morning shower."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Yard Hurl net
@@ -239,13 +237,14 @@ You gasp for air. "Be careful of those," <<he>> says. "They crawl in from the mo
 	<br><br>
 	<<set $lurkers_held += 1>>
 	<<set $stat_lurkers_captured += 1>>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
-	You try to hurl the net, <span class="red">but it's on you too fast,</span> latching onto your face. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.
+	You try to hurl the net, <span class="red">but it's on you too fast,</span> latching onto your face. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.<<gnet>>
+	<<prof net 1>>
 	<br><br>
 
-	<<link [[Next|Farm Yard Struggle]]>><<set $struggle_start to 1>><</link>>
+	<<link [[다음|Farm Yard Struggle]]>><<set $struggle_start to 1>><</link>>
 	<br>
 <</if>>
 
@@ -280,10 +279,10 @@ You gasp for air. "Be careful of those," <<he>> says. "They crawl in from the mo
 
 
 <<if $struggle.done gte $struggle.number>>
-	<<link [[Next|Farm Yard Struggle Finish]]>><</link>>
+	<span id="next"><<link [[다음|Farm Yard Struggle Finish]]>><</link>></span>
 	<br>
 <<else>>
-	<<link [[Next|Farm Yard Struggle]]>><</link>>
+	<span id="next"><<link [[다음|Farm Yard Struggle]]>><</link>></span>
 	<br>
 <</if>>
 
@@ -299,7 +298,7 @@ The creature darts into a bush before you can get a good look at it.
 <<clotheson>>
 <<endcombat>>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -328,14 +327,14 @@ You continue to feed the chickens, despite your predicament. You blush the whole
 	There is indeed a towel in the shed. Your wrap it around you, your hands shaking.<<towelup>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 <<else>>
 
 	You finish up without incident, putting the sack back in the shed. You find a towel inside.
 	<<towelup>>
 	<br><br>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <</if>>
@@ -350,7 +349,7 @@ You rush back to the shed and search for something to cover with. You find a tow
 You finish feeding the chickens, but are careful to keep them at a distance. The towel wouldn't last against their eagerness.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -365,7 +364,7 @@ You finish feeding the chickens, but are careful to keep them at a distance. The
 	You finish feeding the chickens without further incident, and return the sack to the shed.
 	<br><br>
 
-	<<link [[Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>>
@@ -376,7 +375,7 @@ You finish feeding the chickens, but are careful to keep them at a distance. The
 	The chickens begin feasting. You rush for another sack, and try to retrieve the grain while keeping the birds from overfeeding. They're happy, at least.<<gtiredness>><<tiredness 6>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -416,7 +415,7 @@ You scatter grain in a wide arc, away from your $worn.lower.name. The chickens c
 	You feed the other chickens without incident, and return the sack to the shed.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <</if>>
@@ -436,7 +435,7 @@ The chickens flee in all direction, letting you pull your $worn.lower.name up yo
 You finish feeding the chickens without incident, though they seem afraid to get too close.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -448,7 +447,7 @@ You search every nook and cranny in the yard, but to no avail. You're checking t
 
 <<link [[Get a ladder (0:10)|Farm Chickens Ladder]]>><<pass 10>><<farm_count 10>><</link>>
 <br>
-<<link [[Get Alex|Farm Chickens Alex]]>><<npcincr Alex dom 1>><</link>><<npc Alex>><<person1>><<gdom>><<endevent>>
+<<link [[Get Alex|Farm Chickens Alex]]>><<npcincr Alex dom 1>><</link>><<gdom "Alex">>
 <br>
 
 :: Farm Chickens Ladder
@@ -457,7 +456,7 @@ You search every nook and cranny in the yard, but to no avail. You're checking t
 You search for a ladder, finding one beside the stable. It's a bit unwieldy on your own, but you carry it to the farmhouse and prop it up beside the chicken. The bird doesn't move as you lift it with one arm, and return it to the coop.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 :: Farm Chickens Alex
@@ -473,7 +472,7 @@ You call out for Alex. <<He>> responds a moment later, though <<hes>> too distan
 You help <<him>> carry a ladder from the stable, and prop it up beside the chicken. Alex climbs, retrieves the rogue, and returns it to the coop.
 <br><br>
 
-<<link[[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -489,7 +488,7 @@ You don't know how it got up there, but you know how you'll follow. You crouch b
 You almost grasp the chicken with your mouth, but catch yourself and lift it with your arms instead. You drop down to the porch, and then the yard, before returning to the coop.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -499,7 +498,7 @@ You almost grasp the chicken with your mouth, but catch yourself and lift it wit
 You're sure it'll be fine. You shut and lock the door.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -514,7 +513,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	<<if $farm.beasts.pigs lt -5 and $rng gte 51>>
@@ -525,7 +524,7 @@ You're sure it'll be fine. You shut and lock the door.
 		<</if>>
 		<br><br>
 
-		<<link [[Next|Farm Pigs Rape]]>><<set $molestationstart to 1>><</link>>
+		<<link [[다음|Farm Pigs Rape]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
 		<<if $farm_work.pig.monster is true>>
@@ -535,7 +534,7 @@ You're sure it'll be fine. You shut and lock the door.
 		<</if>>
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 
 	<</if>>
@@ -551,7 +550,7 @@ You're sure it'll be fine. You shut and lock the door.
 		<span class="green">You shove the pig away from you.</span> It drops to the ground and enters the pen without further fuss.<<grespect>><<farm_pigs 1>>
 	<</if>>
 	<br><br>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	<<if $farm.beasts.pigs lte -5 and $rng gte 51>>
@@ -563,7 +562,7 @@ You're sure it'll be fine. You shut and lock the door.
 			<br><br>
 		<</if>>
 
-		<<link [[Next|Farm Pigs Rape]]>><<set $molestationstart to 1>><</link>>
+		<<link [[다음|Farm Pigs Rape]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
 		<<if $farm_work.pig.monster is true>>
@@ -573,7 +572,7 @@ You're sure it'll be fine. You shut and lock the door.
 		<</if>>
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 
 	<</if>>
@@ -591,7 +590,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Pigs Rape]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Farm Pigs Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
 
 <<else>>
@@ -602,7 +601,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <</if>>
@@ -622,7 +621,9 @@ You're sure it'll be fine. You shut and lock the door.
 		<<beastNEWinit 1 pig $farm_work.pig.gender $farm_work.pig.genitals beast>>
 	<</if>>
 	<<beastCombatInit>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 	<<farm_trust pig>>
 	You reach back and feel beneath the <<farm_text pig>>.
 	<<npchand>><<deviancy3>>
@@ -630,24 +631,17 @@ You're sure it'll be fine. You shut and lock the door.
 
 <<effects>>
 <<effectsman>>
-<br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Pigs Hand Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Pigs Hand Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Pigs Hand Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Farm Pigs Hand Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Pigs Hand Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Pigs Hand]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Pigs Hand]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Pigs Hand Finish
@@ -667,7 +661,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
@@ -680,7 +674,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<elseif $rescue is 1 and $alarm is 1>><<set $rescued += 1>>
 	"I'm coming!" The <<farm_text pig>> scurries into the pen at the sound of Alex's voice.
@@ -691,13 +685,13 @@ You're sure it'll be fine. You shut and lock the door.
 
 	<<npc Alex>><<person1>>
 
-	Alex enters the sty, and rushes up to you, offering <<his>> arm. <<tearful>> you rise to your feet. "Don't be afraid to tell the pigs off if they get frisky," Alex says, shutting the gate to the pen. "A firm word usually does the trick."<<gdom>><<npcincr Alex dom 1>>
+	Alex enters the sty, and rushes up to you, offering <<his>> arm. <<tearful>> 당신은 일어선다. "Don't be afraid to tell the pigs off if they get frisky," Alex says, shutting the gate to the pen. "A firm word usually does the trick."<<gdom>><<npcincr Alex dom 1>>
 	<br><br>
 
 	Once sure you're okay, Alex returns to <<his>> work.
 	<br><Br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 
@@ -710,7 +704,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <</if>>
@@ -730,27 +724,24 @@ You're sure it'll be fine. You shut and lock the door.
 		<<beastNEWinit 1 pig $farm_work.pig.gender $farm_work.pig.genitals beast>>
 	<</if>>
 	<<beastCombatInit>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 
 <<effects>>
 <<effectsman>>
-<br><br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Pigs Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Pigs Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Farm Pigs Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Pigs Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Pigs Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 
@@ -768,7 +759,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
@@ -782,7 +773,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>><<set $rescued += 1>>
@@ -795,7 +786,7 @@ You're sure it'll be fine. You shut and lock the door.
 
 	<<npc Alex>><<person1>>
 
-	Alex enters the sty, and rushes up to you, offering <<his>> arm. <<tearful>> you rise to your feet. "Don't be afraid to tell the pigs off if they get frisky," Alex says, shutting the gate to the pen.
+	Alex enters the sty, and rushes up to you, offering <<his>> arm. <<tearful>> 당신은 일어선다. "Don't be afraid to tell the pigs off if they get frisky," Alex says, shutting the gate to the pen.
 
 	<<if $exposed gte 1 and $farm_naked isnot 1>>
 		<<covered>> <<He>> hands you some towels.
@@ -810,7 +801,7 @@ You're sure it'll be fine. You shut and lock the door.
 	Once sure you're okay, Alex returns to <<his>> work.
 	<br><Br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 
@@ -822,7 +813,7 @@ You're sure it'll be fine. You shut and lock the door.
 <<effects>>
 
 
-<<if $tending gte (1, 600)>>
+<<if currentSkillValue('tending') gte (1, 600)>>
 
 	"Down!" you repeat. <span class="green">The <<farm_text pig>> listens this time,</span> dropping Alex's <<if $pronoun is "f">>skirt<<else>>shorts<</if>> and trotting back to the others.
 	<br><br>
@@ -830,7 +821,7 @@ You're sure it'll be fine. You shut and lock the door.
 	"Thanks," Alex laughs. "As if we don't feed them enough already."<<glove>><<ldom>><<npcincr Alex love 1>><<npcincr Alex dom -1>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 
 <<else>>
@@ -848,7 +839,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -868,7 +859,7 @@ You're sure it'll be fine. You shut and lock the door.
 <</if>>
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -880,7 +871,7 @@ You're sure it'll be fine. You shut and lock the door.
 	"Down!" you say, <span class="green">your voice firm and sure.</span> The <<farm_text pig>> releases you, and returns to its feed.<<farm_pigs 1>><<grespect>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>>
@@ -896,7 +887,7 @@ You're sure it'll be fine. You shut and lock the door.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <</if>>
@@ -911,7 +902,7 @@ You call for help. "I'm coming!" Alex shouts in response. <<He>> enters the sty 
 "They'll eat anything," Alex laughs. "It pays to wear something sturdy."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -922,9 +913,10 @@ You open your mouth to scold, but you only manage a yell as you are yanked over 
 <br><br>
 <<if $tendingSuccess>>
 	The <<farm_text_many pig>> surround you, their <<if $farm_work.pig.monster is true>>hands and tongues<<else>>tongues<</if>> exploring your body.<<gstress>><<garousal>><<stress 6>><<arousal 600>>
-	You push them away as best you can.<br><br>
+	You push them away as best you can.
+	<br><br>
 
-	"Away!" you shout, <span class="green">your voice firm and sure.</span> The <<farm_text_many pig>> back away from you, giving you space to stand.
+	"Away!" you shout, <span class="green">your voice firm and sure.</span> The <<farm_text_many pig>> back away from you, giving you space to stand.<<ggrespect>><<farm_pigs 3>>
 	<br><br>
 
 	<<if $farm_work.pig.monster is true>>
@@ -937,16 +929,16 @@ You open your mouth to scold, but you only manage a yell as you are yanked over 
 	You leave the sty, shaking off mud as you go.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	The <<farm_text_many pig>> surround you, their <<if $farm_work.pig.monster is true>>hands and tongues<<else>>tongues<</if>> exploring your body. You push them away as best you can.<<gstress>><<garousal>><<stress 6>><<arousal 600>>
 	<br><br>
 
-	"A-Away," you say, <span class="red">but your voice trembles and the <<farm_text_many pig>> ignore you.</span> They continue their assualt. They grasp and tear, and soon have your <span class="pink">clothes reduced to tatters.</span><<clothesruined>>
+	"A-Away," you say, <span class="red">but your voice trembles and the <<farm_text_many pig>> ignore you.</span> They continue their assault. They grasp and tear, and soon have your <span class="pink">clothes reduced to tatters.</span><<clothesruined>>
 	<br><br>
 
-	<<link [[Next|Farm Pigs Feed Extreme]]>><</link>>
+	<<link [[다음|Farm Pigs Feed Extreme]]>><</link>>
 	<br>
 
 <</if>>
@@ -958,7 +950,7 @@ You open your mouth to scold, but you only manage a yell as you are yanked over 
 Their tongues attack from all angles, licking you all over. At last, they back away. But only so a particularly large <<farm_text pig>> has space to climb atop you.
 <br><br>
 
-<<link [[Next|Farm Pig Rape]]>><<set $molestationstart to 1>><</link>>
+<<link [[다음|Farm Pig Rape]]>><<set $molestationstart to 1>><</link>>
 <br>
 
 :: Farm Pig Rape
@@ -975,27 +967,24 @@ Their tongues attack from all angles, licking you all over. At last, they back a
 		<<beastNEWinit 1 pig $farm_work.pig.gender $farm_work.pig.genitals beast>>
 	<</if>>
 	<<beastCombatInit>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 
 <<effects>>
 <<effectsman>>
-<br><br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Pig Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Pig Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm gte 1 and $rescue gte 1>>
-	<span id="next"><<link [[Next|Farm Pig Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Pig Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Pig Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Pig Rape Finish
@@ -1036,12 +1025,12 @@ Their tongues attack from all angles, licking you all over. At last, they back a
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
 
-	Theh <<farm_text pig>> backs away from you, cowed. The others follow suit.<<grespect>><<farm_pigs 1>>
+	The <<farm_text pig>> backs away from you, cowed. The others follow suit.<<grespect>><<farm_pigs 1>>
 	<br><br>
 
 	<<tearful>> you leave the pen. You close the gate behind you.
@@ -1050,7 +1039,7 @@ Their tongues attack from all angles, licking you all over. At last, they back a
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>><<set $rescued += 1>>
@@ -1063,7 +1052,7 @@ Their tongues attack from all angles, licking you all over. At last, they back a
 
 
 	<<npc Alex>><<person1>>
-	Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over with one arm, and helps you to your feet. "Pigs can be like that," <<he>> says. "Don't be afraid to say down the law. A firm word usually does the trick."
+	Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over with one arm, and helps you to your feet. "Pigs can be like that," <<he>> says. "Don't be afraid to lay down the law. A firm word usually does the trick."
 	<br><br>
 
 	<<if $exposed gte 1 and $farm_naked isnot 1>>
@@ -1076,7 +1065,7 @@ Their tongues attack from all angles, licking you all over. At last, they back a
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <</if>>
@@ -1104,7 +1093,7 @@ Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over w
 <<He>> hands you some towels to wipe off the mud, then returns to <<his>> work.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Horses Scold
@@ -1127,13 +1116,13 @@ Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over w
 		<br><br>
 	<</if>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	"B-bad horses," you say, <span class="red">but your voice trembles.</span> "G-get in the field with the others. Shoo."<<lrespect>><<farm_horses -1>><<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 	<br><br>
 
-	<<link [[Next|Farm Horses Endure]]>><</link>>
+	<<link [[다음|Farm Horses Endure]]>><</link>>
 	<br>
 
 <</if>>
@@ -1152,37 +1141,35 @@ Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over w
 	<<else>>
 		<<beastNEWinit 1 horse $farm_work.horse.gender $farm_work.horse.genitals beast>>
 	<</if>>
-	<<beastCombatInit>>
 
+	<<beastCombatInit>>
 	<<set $NPCList[_n].stance to "top">>
+
 	<<if $farm_work.horse.genitals is "penis">>
 		<<set $position to "doggy">>
 	<<else>>
 		<<set $position to "missionary">>
 	<</if>>
 	<<set $position_lock to 1>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 	<<farm_trust horses>>
 <</if>>
 
 <<effects>>
 <<effectsman>>
-<br><br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Horse Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Horse Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm gte 1 and $rescue gte 1>>
-	<span id="next"><<link [[Next|Farm Horse Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Horse Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Horse Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Horse Rape Finish
@@ -1206,13 +1193,13 @@ Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over w
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
 
 	<<if $farm_work.horse.monster is true>>
-		The centaur backs away. "What's wrong?" the other chuckles. "This little <<girl>> too much for you?"
+		The centaur backs away. "What's wrong?" the other chuckles. "This human <<girl>> too much for you?"
 		<br><br>
 
 		"I don't see you having a go," the centaur responds. "I'm thirsty anyway." It runs for the field, and the other follows.
@@ -1228,7 +1215,7 @@ Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over w
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>><<set $rescued += 1>>
@@ -1264,7 +1251,7 @@ Alex arrives at the edge of the pen, and laughs. <<He>> hauls <<himself>> over w
 	<<He>> returns to <<his>> work.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 
 <</if>>
@@ -1302,7 +1289,7 @@ Alex arrives at the stable, and runs along the lane. "You okay?" <<he>> asks. "Y
 <<He>> returns to <<his>> work.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -1320,42 +1307,42 @@ Alex arrives at the stable, and runs along the lane. "You okay?" <<he>> asks. "Y
 
 	<<if !$worn.over_upper.type.includes("naked")>>
 		<<if $worn.over_upper.integrity gte 40>>
-			"I don't think so." <<farm_He horse>> grasps your $worn.over_upper.name and jerks <<farm_his horse>> hand, tearing and loosening the fabric. <<farm_He horse>> pushes <<farm_his horse>> hand down the front, and fondles your <<breasts>>.<<garousal>><<arousal 6>>
+			"I don't think so." <<farm_He horse>> grasps your $worn.over_upper.name and jerks <<farm_his horse>> hand, tearing and loosening the fabric. <<farm_He horse>> pushes <<farm_his horse>> hand down the front, and fondles your <<breasts>>.<<garousal>><<arousal 6 "breasts">>
 			<br><br>
 		<<else>>
-			"I don't think so." <<farm_He horse>> grasps your $worn.over_upper.name and jerks <<farm_his horse>> hand, <span class="pink">tearing it from your body.</span> Now exposed, <<farm_he horse>> fondles your <<breasts>> with both hands.<<garousal>><<arousal 6>>
+			"I don't think so." <<farm_He horse>> grasps your $worn.over_upper.name and jerks <<farm_his horse>> hand, <span class="pink">tearing it from your body.</span> Now exposed, <<farm_he horse>> fondles your <<breasts>> with both hands.<<garousal>><<arousal 6 "breasts">>
 			<br><br>
 		<</if>>
 		<<set $worn.over_upper.integrity -= 40>>
 		<<integritycheck no_text>><<exposure>>
 	<<elseif !$worn.upper.type.includes("naked")>>
 		<<if $worn.upper.integrity gte 40>>
-			"I don't think so." <<farm_He horse>> grasps your $worn.upper.name and jerks <<farm_his horse>> hand, tearing and loosening the fabric. <<farm_He horse>> pushes <<farm_his horse>> hand down the front, and fondles your <<breasts>>.<<garousal>><<arousal 600>>
+			"I don't think so." <<farm_He horse>> grasps your $worn.upper.name and jerks <<farm_his horse>> hand, tearing and loosening the fabric. <<farm_He horse>> pushes <<farm_his horse>> hand down the front, and fondles your <<breasts>>.<<garousal>><<arousal 600 "breasts">>
 			<br><br>
 		<<else>>
-			"I don't think so." <<farm_He horse>> grasps your $worn.upper.name and jerks <<farm_his horse>> hand, <span class="pink">tearing it from your body.</span> Now exposed, <<farm_he horse>> fondles your <<breasts>> with both hands.<<garousal>><<arousal 600>>
+			"I don't think so." <<farm_He horse>> grasps your $worn.upper.name and jerks <<farm_his horse>> hand, <span class="pink">tearing it from your body.</span> Now exposed, <<farm_he horse>> fondles your <<breasts>> with both hands.<<garousal>><<arousal 600 "breasts">>
 			<br><br>
 		<</if>>
 		<<set $worn.upper.integrity -= 40>>
 		<<integritycheck no_text>><<exposure>>
 	<<else>>
-		<<farm_He horse>> grasps your hair and yanks your head down with one hand, while <<farm_he horse>> fondles your <<breasts>> with the other.<<garousal>><<arousal 600>>
+		<<farm_He horse>> grasps your hair and yanks your head down with one hand, while <<farm_he horse>> fondles your <<breasts>> with the other.<<garousal>><<arousal 600 "breasts">>
 		<br><br>
 	<</if>>
 	<<if $farm.beasts.horses lte -20 and $rng gte 51>>
-		"Fuck this," the second centaur says. "Lets give <<pher>> a proper seeing to." Still holding your arms, <<farm_he horse>> lifts you into the air and throws you over a nearby fence. <<farm_He horse>> steps over you.
+		"Fuck this," the second centaur says. "Let's give <<phim>> a proper seeing to." Still holding your arms, <<farm_he horse>> lifts you into the air and throws you over a nearby fence. <<farm_He horse>> steps over you.
 		<br><br>
 
-		<<link [[Next|Farm Horse Rape]]>><<set $molestationstart to 1>><</link>>
+		<<link [[다음|Farm Horse Rape]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
 		"I've half a mind to do you here," <<farm_he horse>> says. "See how you handle us both. But I think I've proved my point." <<farm_He horse>> shoves you to the dirt, and they both run for the field.
 		<br><br>
 
-		<<tearful>> you rise to your feet. You close the gate.
+		<<tearful>> 당신은 일어선다. You close the gate.
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -1363,42 +1350,42 @@ Alex arrives at the stable, and runs along the lane. "You okay?" <<he>> asks. "Y
 
 	<<if !$worn.over_upper.type.includes("naked")>>
 		<<if $worn.over_upper.integrity gte 40>>
-			It grasps your $worn.over_upper.name in its mouth and jerks its head, tearing and loosening the fabric. It shoves its tongue down the front, licking your skin and fondling your <<breasts>><<garousal>><<arousal 6>>
+			It grasps your $worn.over_upper.name in its mouth and jerks its head, tearing and loosening the fabric. It shoves its tongue down the front, licking your skin and fondling your <<breasts>><<garousal>><<arousal 6 "breasts">>
 			<br><br>
 		<<else>>
-			It grasps your $worn.over_upper.name in its mouth and jerks its head, <span class="pink">tearing it away from your body.</span> Now exposed, it runs its tongue over your bare skin, fondling your <<breasts>>.<<garousal>><<arousal 6>>
+			It grasps your $worn.over_upper.name in its mouth and jerks its head, <span class="pink">tearing it away from your body.</span> Now exposed, it runs its tongue over your bare skin, fondling your <<breasts>>.<<garousal>><<arousal 6 "breasts">>
 			<br><br>
 		<</if>>
 		<<set $worn.over_upper.integrity -= 40>>
 		<<integritycheck no_text>><<exposure>>
 	<<elseif !$worn.upper.type.includes("naked")>>
 		<<if $worn.upper.integrity gte 40>>
-			It grasps your $worn.upper.name in its mouth and jerks its head, tearing and loosening the fabric. It shoves its tongue down the front, licking your skin and fondling your <<breasts>><<garousal>><<arousal 600>>
+			It grasps your $worn.upper.name in its mouth and jerks its head, tearing and loosening the fabric. It shoves its tongue down the front, licking your skin and fondling your <<breasts>><<garousal>><<arousal 600 "breasts">>
 			<br><br>
 		<<else>>
-			It grasps your $worn.upper.name in its mouth and jerks its head, <span class="pink">tearing it away from your body.</span> Now exposed, it runs its tongue over your bare skin, fondling your <<breasts>>.<<garousal>><<arousal 600>>
+			It grasps your $worn.upper.name in its mouth and jerks its head, <span class="pink">tearing it away from your body.</span> Now exposed, it runs its tongue over your bare skin, fondling your <<breasts>>.<<garousal>><<arousal 600 "breasts">>
 			<br><br>
 		<</if>>
 		<<set $worn.upper.integrity -= 40>>
 		<<integritycheck no_text>><<exposure>>
 	<<else>>
-		It bites your hair and yanks you around a bit, before releasing you and running its tongue over your chest. It licks your skin and fondles your <<breasts>>.<<garousal>><<arousal 600>>
+		It bites your hair and yanks you around a bit, before releasing you and running its tongue over your chest. It licks your skin and fondles your <<breasts>>.<<garousal>><<arousal 600 "breasts">>
 		<br><br>
 	<</if>>
 	<<if $farm.beasts.horses lte -20 and $rng gte 51>>
 		The second horse shoves you with the side of its head. You're pushed against a fence with enough force to bend you over. One of the horses steps above you, keeping you down with its weight.
 		<br><br>
 
-		<<link [[Next|Farm Horse Rape]]>><<set $molestationstart to 1>><</link>>
+		<<link [[다음|Farm Horse Rape]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
 		The horse behind you breaks into a jog, knocking you to the dirt as it passes. Both horses run for the field.
 		<br><br>
 
-		<<tearful>> you rise to your feet. You close the gate.
+		<<tearful>> 당신은 일어선다. You close the gate.
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -1423,7 +1410,7 @@ Alex arrives at the stable, and runs along the lane. "You okay?" <<he>> asks. "Y
 	You run after the <<farm_text horse>>. <span class="red">They're much too fast,</span> and leave you exhausted.<<gtiredness>><<tiredness 6>>
 	<br><br>
 
-	<<link [[Next|Farm Horses Seduce Failure]]>><</link>>
+	<<link [[다음|Farm Horses Seduce Failure]]>><</link>>
 	<br>
 <</if>>
 
@@ -1434,7 +1421,7 @@ Alex arrives at the stable, and runs along the lane. "You okay?" <<he>> asks. "Y
 <<seductioncheck>>
 <br><br>
 <<if $seductionskill lt 1000>>
-	<span class="gold">You feel more confident in your powers of seduction.</span>
+	<span class="gold">당신은 유혹하는 데 좀 더 자신감이 붙었다.</span>
 	<br><br>
 <</if>>
 <<seductionskilluse>>
@@ -1446,7 +1433,7 @@ You glance over your shoulder to make sure there's no one around, then lean agai
 	The <<farm_text horse>> slows when <<farm_he horse>> sees you, considers a moment, then <span class="green">runs in your direction.</span>
 	<br><br>
 
-	<<link [[Next|Farm Horses Seduce Success]]>><</link>>
+	<<link [[다음|Farm Horses Seduce Success]]>><</link>>
 	<br>
 
 <<else>>
@@ -1454,7 +1441,7 @@ You glance over your shoulder to make sure there's no one around, then lean agai
 	The <<farm_text horse>> slows when <<farm_he horse>> sees you, considers a moment, then <span class="red">picks up the pace once more.</span>
 	<br><br>
 
-	<<link [[Next|Farm Horses Seduce Failure]]>><</link>>
+	<<link [[다음|Farm Horses Seduce Failure]]>><</link>>
 	<br>
 
 <</if>>
@@ -1481,7 +1468,7 @@ You grasp the <<farm_text horse>>'s bridle as <<farm_he horse>> stops.
 <<pass 20>>
 
 
-You <<farm_text horse>> continues to ignore you. You wait until <<farm_he horse>> tires, then grasp <<farm_his horse>> bridle, brush in hand.
+Your <<farm_text horse>> continues to ignore you. You wait until <<farm_he horse>> tires, then grasp <<farm_his horse>> bridle, brush in hand.
 <br><br>
 
 <<if $farm.beasts.horses gte 5>>
@@ -1520,13 +1507,13 @@ You wait until they tire, then approach a <<farm_text horse>>, brush in hand.
 		The centaur comes to a stop, and eyes up the gate. "I could jump that," <<farm_he horse>> boasts. "I'm just choosing not to." Another centaur scoffs.<<grespect>><<farm_horses 1>>
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<<else>>
-		The horse come stop, and huffs at the gate.<<grespect>><<farm_horses 1>>
+		The horse comes to a stop, and huffs at the gate.<<grespect>><<farm_horses 1>>
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -1555,7 +1542,7 @@ You wait until they tire, then approach a <<farm_text horse>>, brush in hand.
 		<<link [[Enthusiastically rub|Farm Horses Brush Enthusiastic]]>><<farm_yield 1>><<set $handstat += 1>><<set $handejacstat += 1>><</link>><<deviant3>><<gfarm>>
 		<br>
 	<</if>>
-	<<link [[Refuse|Farm Horses Brush Refuse]]>><</link>>
+	<<link [[거절한다|Farm Horses Brush Refuse]]>><</link>>
 	<br>
 <</if>>
 
@@ -1579,10 +1566,10 @@ You wait until they tire, then approach a <<farm_text horse>>, brush in hand.
 At last, the <<farm_text horse>> shudders into orgasm.
 
 <<if $farm_work.horse.genitals is "penis">>
-	<<if $danceskill gte 400>>
+	<<if currentSkillValue('danceskill') gte 400>>
 		<span class="green">You're able to dodge the ejaculate.</span> It arcs over your shoulder, landing on the grass.
 	<<else>>
-		<span class="pink">Semen splatters over your face and drips down your chest.</span><<set $chestsemen += 1>><<set $facesemen += 1>><<faceejacstat>><<ejacstat>>
+		<span class="pink">Semen splatters over your face and drips down your chest.</span><<bodyliquid "chest" "semen">><<bodyliquid "face" "semen">><<faceejacstat>><<ejacstat>>
 	<</if>>
 <</if>>
 <br><br>
@@ -1594,7 +1581,7 @@ At last, the <<farm_text horse>> shudders into orgasm.
 <</if>>
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -1624,10 +1611,10 @@ You take it as a yes.
 At last, the <<farm_text horse>> shudders into orgasm.
 
 <<if $farm_work.horse.genitals is "penis">>
-	<<if $danceskill gte 400>>
+	<<if currentSkillValue('danceskill') gte 400>>
 		<span class="green">You're able to dodge the ejaculate.</span> It arcs over your shoulder, landing on the grass.
 	<<else>>
-		<span class="pink">Semen splatters over your face and drips down your chest.</span><<set $chestsemen += 1>><<set $facesemen += 1>><<faceejacstat>><<ejacstat>>
+		<span class="pink">Semen splatters over your face and drips down your chest.</span><<bodyliquid "chest" "semen">><<bodyliquid "face" "semen">><<faceejacstat>><<ejacstat>>
 	<</if>>
 <</if>>
 <br><br>
@@ -1639,7 +1626,7 @@ At last, the <<farm_text horse>> shudders into orgasm.
 <</if>>
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -1655,10 +1642,10 @@ You scramble out from beneath the <<farm_text horse>>, and continue to the gate.
 		<br><br>
 
 		"Time for a lesson."
-		<<if $worn.upper.set is $worn.lower.set and $worn.lower.skirt isnot 1>>
+		<<if $worn.upper.set is $worn.lower.set and setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt isnot 1>>
 			You feel <<farm_his horse>> fingers tap against your <<bottom>>
 		<<elseif !$worn.lower.type.includes("naked")>>
-			<<if $worn.lower.skirt is 1>>
+			<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
 				<<if !$worn.under_lower.type.includes("naked") and $worn.under_upper.set isnot $worn.under_lower.set>>
 					<<farm_He horse>> flips up your $worn.lower.name, and pulls down your $worn.under_lower.name, baring your <<bottom>>.
 				<<else>>
@@ -1675,7 +1662,7 @@ You scramble out from beneath the <<farm_text horse>>, and continue to the gate.
 			<<if !$worn.under_lower.type.includes("naked") and $worn.under_upper.set isnot $worn.under_lower.set>>
 				<<farm_He horse>> pulls down your $worn.under_lower.name, baring your <<bottom>>.
 			<<else>>
-				You feel <<farm_his horse>> fingers tap against your <<bottom>>
+				You feel <<farm_his horse>> fingers tap against your <<bottom>>.
 			<</if>>
 		<</if>>
 		<<farm_He horse>> brings down <<farm_his horse>> hand against it, sending a jolt of pain up your body.
@@ -1686,15 +1673,15 @@ You scramble out from beneath the <<farm_text horse>>, and continue to the gate.
 
 		At last, <<farm_he horse>> drops you to the ground. You walk from the field, your rear stinging, and close the gate. <<clotheson>>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<<else>>
-		The horse and grasps your hair, pulling you to your knees again. This time however, it shoves you forward, leaving your rear stuck in the air.
+		The horse grasps your hair, pulling you to your knees again. This time however, it shoves you forward, leaving your rear stuck in the air.
 
-		<<if $worn.upper.set is $worn.lower.set and $worn.lower.skirt isnot 1>>
+		<<if $worn.upper.set is $worn.lower.set and setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt isnot 1>>
 			You feel <<farm_his horse>> tongue lap against your <<bottom>>, and hope your $worn.lower.name proves enough of a barrier.
 		<<elseif !$worn.lower.type.includes("naked")>>
-			<<if $worn.lower.skirt is 1>>
+			<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
 				<<if !$worn.under_lower.type.includes("naked") and $worn.under_upper.set isnot $worn.under_lower.set>>
 					<<farm_He horse>> flips up your $worn.lower.name with its teeth, and pulls down your $worn.under_lower.name, baring your <<bottom>> to its probing tongue.
 				<<else>>
@@ -1723,7 +1710,7 @@ You scramble out from beneath the <<farm_text horse>>, and continue to the gate.
 		You make it back to your feet, and stumble through the gate. You close it behind you. The horse neighs. <<clotheson>>
 
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 
 	<</if>>
@@ -1736,7 +1723,7 @@ You scramble out from beneath the <<farm_text horse>>, and continue to the gate.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -1764,13 +1751,13 @@ You wait for the <<farm_text horse>>. It comes to a stop in front of you.
 <<gstress>><<stress 6>>
 <br><br>
 
-<<link [[Grudgingly rub|Farm Horses Brush Grudging]]>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>><<gfarm>><<farm_yield 1>>
+<<link [[Grudgingly rub|Farm Horses Brush Grudging]]>><<trauma 6>><<stress 6>><<farm_yield 1>><</link>><<gtrauma>><<gstress>><<gfarm>>
 <br>
 <<if $deviancy gte 35>>
-	<<link [[Enthusiastically rub|Farm Horses Brush Enthusiastic]]>><</link>><<deviant3>><<gfarm>><<farm_yield 1>>
+	<<link [[Enthusiastically rub|Farm Horses Brush Enthusiastic]]>><<farm_yield 1>><</link>><<deviant3>><<gfarm>>
 	<br>
 <</if>>
-<<link [[Refuse|Farm Horses Brush Refuse]]>><</link>>
+<<link [[거절한다|Farm Horses Brush Refuse]]>><</link>>
 <br>
 
 
@@ -1782,12 +1769,12 @@ You wait for the <<farm_text horse>>. It comes to a stop in front of you.
 	You gently encourage the <<farm_text horse>> inside, <span class="green">and it listens.</span> You close the stall door behind it.<<grespect>><<farm_horses 1>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	You try to encourage the <<farm_text horse>> inside, <span class="red">but it remains obstinate.</span> You try pulling it, pushing it from behind, luring it with a carrot, but nothing works.<<lrespect>><<farm_horses -1>><<pass 20>><<farm_count 20>>
 	<br><br>
-	<<if $farm.beasts.horses lte -5 and $rng gte 51 and $horsedisable is "f">><!-- Modified for Beast People -->
+	<<if $farm.beasts.horses lte -5 and $rng gte 51 and $horsedisable is "f" and ($bestialitydisable is "f" or ($farm_work.horse.monster_roll is true and ($hallucinations gte 1 or $monsterhallucinations is "f")))>><!-- Modified for Beast People -->
 		You're stood inside the stall, trying to coax <<farm_him horse>> in, when <<farm_he horse>> strikes. <<farm_He horse>> runs at you, forcing you to leap aside to get out of <<farm_his horse>> way. You're left slung over the fence between stalls.
 		<br><br>
 
@@ -1799,7 +1786,7 @@ You wait for the <<farm_text horse>>. It comes to a stop in front of you.
 			<<link [[Endure|Farm Horses In Endure]]>><<trauma 6>><<stress 6>><<farm_horses -1>><</link>><<gtrauma>><<gstress>><<lrespect>>
 			<br>
 			<<if $deviancy gte 55>>
-				<<link [[Rub back|Farm Horses In Bottom]]>><<bottomstat>><<set $bottomskill += 5>><</link>><<deviant4>><<gbottomskill>>
+				<<link [[Rub back|Farm Horses In Bottom]]>><<bottomstat>><<bottomskill 5>><</link>><<deviant4>><<gbottomskill>>
 				<br>
 			<</if>>
 		<<else>>
@@ -1809,7 +1796,7 @@ You wait for the <<farm_text horse>>. It comes to a stop in front of you.
 			<<link [[Endure|Farm Horses In Endure]]>><<trauma 6>><<stress 6>><<farm_horses -1>><<thighejacstat>><<ejacstat>><</link>><<gtrauma>><<gstress>><<lrespect>>
 			<br>
 			<<if $deviancy gte 55>>
-				<<link [[Rub back|Farm Horses In Thigh]]>><<thighstat>><<thighejacstat>><<ejacstat>><<set $thighskill += 5>><</link>><<deviant4>><<gthighskill>>
+				<<link [[Rub back|Farm Horses In Thigh]]>><<thighstat>><<thighejacstat>><<ejacstat>><<thighskill 5>><</link>><<deviant4>><<gthighskill>>
 				<br>
 			<</if>>
 		<</if>>
@@ -1822,7 +1809,7 @@ You wait for the <<farm_text horse>>. It comes to a stop in front of you.
 		<</if>>
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -1846,7 +1833,7 @@ You wait for the <<farm_text horse>>. It comes to a stop in front of you.
 <</if>>
 	<br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 :: Farm Horses In Bottom
@@ -1860,7 +1847,7 @@ You soon have <<farm_him horse>> shuddering in climax. <<farm_His horse>> legs g
 <<tearful>> you leave the stall. You shut the door behind you.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 :: Farm Horses In Thigh
@@ -1869,12 +1856,12 @@ You soon have <<farm_him horse>> shuddering in climax. <<farm_His horse>> legs g
 You clutch <<farm_his horse>> penis between your thighs. <<farm_He horse>> seems taken aback, and tries to step away, but you hold <<farm_him horse>> firm.
 <<deviancy4>>
 
-You hump against <<farm_him horse>>, pumping <<farm_his horse>> penis between <<farm_his horse>> thighs. You soon have <<farm_him horse>> shuddering in orgasm, ejaculate shooting out and pooling beneath you. <<farm_His horse>> legs give way, and <<farm_he horse>> falls onto a pile of straw.
+You hump against <<farm_him horse>>, pumping <<farm_his horse>> penis between your thighs. You soon have <<farm_him horse>> shuddering in orgasm, ejaculate shooting out and pooling beneath you. <<farm_His horse>> legs give way, and <<farm_he horse>> falls onto a pile of straw.
 <br><br>
 <<tearful>> you leave the stall, shutting the door behind you.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -1884,7 +1871,7 @@ You hump against <<farm_him horse>>, pumping <<farm_his horse>> penis between <<
 "I'm coming!" It's Alex. It's faint, but the <<farm_text horse>> rushes inside at the sound of <<his>> voice. You close the stall door, and shout back to let Alex know the problem is solved. You hear <<him>> laugh.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Horses In Seduce
@@ -1894,7 +1881,7 @@ You hump against <<farm_him horse>>, pumping <<farm_his horse>> penis between <<
 <<seductioncheck>>
 <br><br>
 <<if $seductionskill lt 1000>>
-	<span class="gold">You feel more confident in your powers of seduction.</span>
+	<span class="gold">당신은 유혹하는 데 좀 더 자신감이 붙었다.</span>
 	<br><br>
 <</if>>
 <<seductionskilluse>>
@@ -1920,7 +1907,7 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 			<<link [[Endure|Farm Horses In Endure]]>><<trauma 6>><<stress 6>><<farm_horses -1>><</link>><<gtrauma>><<gstress>><<lrespect>>
 			<br>
 			<<if $deviancy gte 55>>
-				<<link [[Rub back|Farm Horses In Bottom]]>><<bottomstat>><<set $bottomskill += 5>><</link>><<deviant4>><<gbottomskill>>
+				<<link [[Rub back|Farm Horses In Bottom]]>><<bottomstat>><<bottomskill 5>><</link>><<deviant4>><<gbottomskill>>
 				<br>
 			<</if>>
 		<<else>>
@@ -1930,7 +1917,7 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 			<<link [[Endure|Farm Horses In Endure]]>><<trauma 6>><<stress 6>><<farm_horses -1>><<thighejacstat>><<ejacstat>><</link>><<gtrauma>><<gstress>><<lrespect>>
 			<br>
 			<<if $deviancy gte 55>>
-				<<link [[Rub back|Farm Horses In Thigh]]>><<thighstat>><<thighejacstat>><<ejacstat>><<set $thighskill += 5>><</link>><<deviant4>><<gthighskill>>
+				<<link [[Rub back|Farm Horses In Thigh]]>><<thighstat>><<thighejacstat>><<ejacstat>><<thighskill 5>><</link>><<deviant4>><<gthighskill>>
 				<br>
 			<</if>>
 		<</if>>
@@ -1939,7 +1926,7 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 		You leave the stall, shutting the door behind you.
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -1955,7 +1942,7 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <</if>>
@@ -1971,9 +1958,9 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 	<<if $NPCName[$NPCNameList.indexOf("Alex")].lust gte 10>>
 		You offer your arm to help Alex up. Instead, <span class="pink"><<he>> pulls you on top of <<him>>.</span>
 		<br><br>
-		"Whoops," <<he>> laughs, groping your <<bottom>> with <<his>> other hand. "Watch your footing."<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+		"Whoops," <<he>> laughs, groping your <<bottom>> with <<his>> other hand. "Watch your footing."<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600 "bottom">>
 		<br><br>
-		<<link [[Get angry|Farm Tending Alex Lewd Angry]]>><<trauma -6>><<npcincr Alex love -1>><<npcincr Alex dom -1>><</link>><<llove>><<ldom>><<ltrauma>>
+		<<link [[화를 낸다|Farm Tending Alex Lewd Angry]]>><<trauma -6>><<npcincr Alex love -1>><<npcincr Alex dom -1>><</link>><<llove>><<ldom>><<ltrauma>>
 		<br>
 		<<link [[Endure|Farm Tending Alex Endure]]>><</link>>
 		<br>
@@ -1988,7 +1975,7 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 		"Whoops," <<he>> laughs. "Watch your footing."<<gstress>><<stress 6>>
 		<br><br>
 
-		<<link [[Get Angry|Farm Tending Alex Angry]]>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<ldom>><<llove>>
+		<<link [[화를 낸다|Farm Tending Alex Angry]]>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<ldom>><<llove>>
 		<br>
 		<<link [[Laugh it off|Farm Tending Alex Laugh]]>><<npcincr Alex dom 1>><<npcincr Alex love 1>><<stress -6>><</link>><<gdom>><<glove>><<lstress>>
 		<br>
@@ -2000,10 +1987,122 @@ You enter the far end of the stall, and lean against the wall in a mating postur
 	<<else>>
 		<<He>> brushes <<himself>> down.
 	<</if>>
-	"Thanks," <<he>> says. "Keep an eye out for any critters. Don't be afraid to give em a good whack if it comes to it."
+	"Thanks," <<he>> says.
+	<<if $alex_countdown is undefined and $farm_stage gte 7>>
+		"Keep an eye out for any critters. Don't be afraid to give em a good whack if it comes to it. Or give me a shout. We can at least catch ourselves, if we both fall over."
+	<<else>>
+		"Keep an eye out for any critters. Don't be afraid to give em a good whack if it comes to it."
+	<</if>>
 	<br><br>
 	<<destination_farm>>
 <</if>>
+
+
+:: Farm Tending Alex Laugh Expense
+<<effects>>
+<<set _alex to $NPCName[$NPCNameList.indexOf("Alex")]>>
+
+<<if $submissive gte 1150>>
+	You're sent into a fit of giggles as you stand over Alex.
+<<elseif $submissive lte 850>>
+	You laugh hard as you stand over Alex, almost sounding forced.
+<<else>>
+	You laugh quite a bit as you stand over Alex.
+<</if>>
+<br><br>
+
+<<if _alex.dom gte 10>>
+	"Feel free to enjoy yourself," <<he>> says sarcastically, arms crossed. "You layabout."
+<<elseif _alex.dom lte -10>>
+	"Now what did I do to deserve this? I owe you one," <<he>> says sarcastically.
+<<else>>
+	"You gonna keep laughing your bottom off?" <<he>> says. "Thanks for the help." <<Hes>> being sarcastic.
+<</if>>
+<br><br>
+
+<<if _alex.dom gte 10>>
+	<<if currentSkillValue('athletics') gte 800 or currentSkillValue('danceskill') gte 800>>
+		<<He>> attempts to grab your ankles, <span class="green">but you evade <<his>> hands with relative ease</span>, and laugh even harder.
+		<<He>> wordlessly resigns <<himself>> to the ground.<<npcincr Alex dom -3>><<lldom>>
+		<br><br>
+
+		You don't regret a thing. After a short time, you help <<him>> to <<his>> feet and return to work.
+		<br><br>
+
+		<<destination_farm>>
+	<<else>>
+		<<He>> grabs your ankles, <span class="pink">pulling you down to the <<if $weather is "snow" or $weather is "rain">>mud<<else>>dirt<</if>> with <<him>>.</span>
+		<br><br>
+
+		<<if _alex.lust gte 10>>
+			"Whoops. You might be able to make it up to me now," <<he>> laughs, and places a hand on your thigh. It moves towards your <<genitals>>.<<gtrauma>><<garousal>><<trauma 6>><<arousal 600 "genitals">>
+			<br><br>
+
+			<<link [[화를 낸다|Farm Tending Alex Lewd Angry]]>><<trauma -6>><<npcincr Alex love -1>><<npcincr Alex dom -1>><</link>><<llove>><<ldom>><<ltrauma>>
+			<br>
+			<<link [[Endure|Farm Tending Alex Endure]]>><</link>>
+			<br>
+			<<if $promiscuity gte 15>>
+				<<link [[Grope back|Farm Tending Alex Grope]]>><<npcincr Alex lust 1>><</link>><<promiscuous2>><<glust>>
+				<br>
+			<</if>>
+		<<else>>
+			You don't regret a thing, despite <<his>> own satisfied laughter. Climbing to your feet, you both return to work.
+			<br><br>
+
+			<<destination_farm>>
+		<</if>>
+	<</if>>
+<<else>>
+	<<if $weather is "rain">>
+		<<He>> picks <<himself>> up and wipes off the mud. <<He>> doesn't get all of it, and the sight of <<his>> mud-stained clothes makes you laugh even more.
+		<<He>> glares, but then laughs with you. "Come on, let's get back to it. I can wash my clothes off later."
+		<br><br>
+
+		Short of breath, you return to work.
+		<br><br>
+
+		<<destination_farm>>
+	<<else>>
+		<<He>> remains still, staring at the sky above. "Gotta admit, it's not so bad down here."
+		<br><br>
+
+		<<link [[Sit down|Farm Tending Alex Sit]]>><</link>>
+		<br>
+		<<link [[Get back to work|Farm Tending Alex Back]]>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+
+:: Farm Tending Alex Sit
+<<effects>>
+<<set _alex to $NPCName[$NPCNameList.indexOf("Alex")]>>
+
+You sit beside Alex, and gaze up at the <<if $weather is "clear">>sky<<else>>clouds<</if>>. <<He>> wasn't wrong. You feel tranquil, almost like there's nothing to worry about.<<trauma -2>><<ltrauma>>
+<br><br>
+
+<<if $alex_countdown is undefined and $farm_stage gte 7>>
+	<<He>> rests <<his>> hand on yours. "We'd best get back to work. That means your lungs can't give out on me just yet."
+	<<He>> playfully nudges your shoulder and you nudge back, <<his>> cheeks are rosy when you turn to face <<him>>.
+	<br><br>
+
+	You return to work, smiles across your faces.
+<<elseif _alex.love gte 50>>
+	<<His>> hand grazes yours, and <<he>> pulls it away fast. "Sorry about that, I was trying to find even ground." <<He>> whistles nonchalantly. "Back to work."
+	<br><br>
+
+	You return to work, but you can't shake the feeling that something was up with <<him>>.
+<<else>>
+	Your thoughts are interrupted by the sound of <<him>> brushing <<himself>> down. "I hate those damn critters, by the way," <<he>> says, already up on <<his>> feet.
+	"Be sure to whack 'em if it comes to it, or give me a shout. I'll try my best not to fall over."
+	<br><br>
+
+	You return to work, still laughing.
+<</if>>
+<br><br>
+
+<<destination_farm>>
 
 
 
@@ -2023,7 +2122,7 @@ You return to work, leaving Alex to recover from <<his>> clumsiness by <<himself
 <<effects>>
 
 <<if $submissive gte 1150>>
-	"Pl-please don't," you say. "You shouldn't do this."
+	"P-please don't," you say. "You shouldn't do this."
 <<elseif $submissive lte 850>>
 	"Get off," you say. "Unless you want a beating."
 <<else>>
@@ -2084,7 +2183,7 @@ You laugh with Alex as you climb to your feet, resisting the urge to pull <<him>
 <<promiscuity2>>
 
 
-<<link [[Next|Farm Tending Alex Sex]]>><<set $sexstart to 1>><</link>>
+<<link [[다음|Farm Tending Alex Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
 :: Farm Tending Alex Sex
@@ -2093,23 +2192,21 @@ You laugh with Alex as you climb to your feet, resisting the urge to pull <<him>
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 100>>
 <</if>>
+
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Tending Alex Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Tending Alex Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Tending Alex Sex Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Tending Alex Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Tending Alex Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Tending Alex Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
 
@@ -2121,10 +2218,10 @@ You laugh with Alex as you climb to your feet, resisting the urge to pull <<him>
 	<<if $consensual is 1>>
 		You lie beside <<him>> for a moment, staring up at the sky. "Couldn't get away with that on my <<if $pronoun is "m">>dad's<<else>>mum's<</if>> farm," <<he>> laughs. <<llust>><<npcincr Alex lust -1>>
 		<br><br>
-		<<tearful>> you rise to your feet. "I need to get back to work," <<he>> continues. "Give a shout if you need me."
+		<<tearful>> 당신은 일어선다. "I need to get back to work," <<he>> continues. "Give a shout if you need me."
 		<br><br>
 	<<else>>
-		Clarity returns to <<his>> eyes. <<He>> looks away as <<he>> climbs to <<his>> feet. "Sorry if I got carried away," <<he>> says
+		Clarity returns to <<his>> eyes. <<He>> looks away as <<he>> climbs to <<his>> feet. "Sorry if I got carried away," <<he>> says.
 		<br><br>
 		<<tearful>> you return to work. Alex avoids eye contact.
 		<br><br>
@@ -2143,7 +2240,7 @@ You laugh with Alex as you climb to your feet, resisting the urge to pull <<him>
 <<else>>
 	Alex climbs to <<his>> feet. "I need to get back to work," <<he>> says. "Give a shout if you need me."
 	<br><br>
-	<<tearful>> you rise to your feet.
+	<<tearful>> 당신은 일어선다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -2199,6 +2296,10 @@ You find <<him>> peering down a row of plants, right at your last location. <<He
 		<<link [[Pull down Alex's shorts|Farm Tending Alex Shorts]]>><</link>><<promiscuous2>>
 		<br>
 	<</if>>
+<</if>>
+<<if $exhibitionism gte 2>>
+	<<link [[과시한다|Farm Tending Alex Flaunt]]>><</link>><<exhibitionist2>>
+	<br>
 <</if>>
 
 
@@ -2268,6 +2369,37 @@ You grasp and pull down Alex's shorts in one movement. <<He>> grasps the hem and
 <<destination_farm>>
 
 
+:: Farm Tending Alex Flaunt
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"Yoo-hoo, you looking for me?" you wave
+<<elseif $submissive lte 850>>
+	"Your search ends here," you flash a smug look
+<<else>>
+	"Looking for something? Or should I say someone?" you ask
+<</if>>
+as Alex turns to face you.
+<<exhibitionism2>>
+
+"You shouldn't sneak up on me like that," <<he>> says, holding <<his>> chest. "Besides, I was-"
+<br><br>
+
+<<He>> cuts off as you step closer and show off your <<lewdness>>.
+<<if $weather is "rain">>
+	Your skin is sopping wet, glistening from raindrops.
+<<elseif $weather is "snow">>
+	Snowflakes melt on your skin, nipples erect.
+<<else>>
+	Your skin practically glows in the sun, sweat dripping down.
+<</if>>
+<br><br>
+
+<<His>> face reddens. <<He>> tries to look away, but freezes. Satisfied with your effect on <<him>>, you strut right back to work.
+<br><br>
+
+<<destination_farm>>
+
 
 :: Farm Tending Alex Listen
 <<effects>>
@@ -2294,6 +2426,89 @@ You remain focused on the work in front of you, and Alex switches to lighter top
 
 <<destination_farm>>
 
+:: Farm Tending Alex Summer
+<<set $outside to 0>><<set $location to "alex_farm">><<effects>>
+
+<<if $phase is 2>>
+	You slide your hand in the gap between <<his>> body and shirt, and
+	<<if $NPCList[0].breastsize gt 1>>
+		squeeze <<his>> breast.
+	<<else>>
+		pinch <<his>> nipple.
+	<</if>>
+	<<promiscuity2>>
+
+	<<if $NPCName[$NPCNameList.indexOf("Alex")].lust gte 20>>
+		Alex doesn't stop you. Instead, <<he>>
+		<<if $NPCName[$NPCNameList.indexOf("Alex")].dom gte 10>>
+			leaps at you, grabbing your shoulders and pinning you down.
+			<br><br>
+
+			"You're feisty, <<girl>>." <<He>> cradles the back of your head and holds it against <<his>> chest. <<He>> leans low, and whispers. "Just begging to be tamed."
+		<<elseif $NPCName[$NPCNameList.indexOf("Alex")].dom lte -10>>
+			gently curls <<his>> fingers around your wrist and pulls your hand <<if $NPCList[0].breastsize gt 6>>between <<his>> $NPCList[0].breastdesc<<else>>against <<his>> chest<</if>>. <<His>> heart pounds against your palm.
+			<br><br>
+
+			"G-go on, then," <<he>> whispers. <<His>> hand clenches tight around you. "Finish what you started."
+		<<else>>
+			grabs your wrist and yanks you closer, pulling your body against <<hers>>.
+			<br><br>
+
+			"C'mon, <<girl>>," <<he>> chuckles, one hand sliding towards your <<bottom>>. "Don't tell me you've lost your nerve already."
+		<</if>>
+		<br><br>
+
+		<<link [[Take it further|Farm Tending Alex Sex]]>><<set $sexstart to 1>><<npcincr Alex love 1>><</link>><<glove>>
+		<br>
+		<<link [[밀친다|Farm Tending Alex Summer Refuse]]>><<npcincr Alex love -1>><</link>><<llove>>
+		<br>
+	<<else>>
+		Alex slaps your hand away and hastily buttons up <<his>> shirt. "Y-you fucking pervert."
+		<br><br>
+
+		<<if $submissive gte 1150>>
+			"I-I couldn't help it..." you smile.
+		<<elseif $submissive lte 850>>
+			"I couldn't help it!" you smirk.
+		<<else>>
+			"I couldn't help it," you giggle.
+		<</if>>
+		<br><br>
+
+		<<He>> responds with a grumble. <<He>> turns <<his>> back to you, <<his>> ears turning a deep red. You decide not to pester <<him>> further, and soon enough both of you are back to work.
+		<br><br>
+
+		<<destination_farm>>
+	<</if>>
+<<elseif $phase is 1>>
+	You steal a glance at <<his>> <<if $NPCList[0].breastsize gt 1>>$NPCList[0].breastdesc<<else>>chest<</if>> and toned body through <<his>> shirt, hardly concealed by the drenched fabric. Drops of sweat glisten down <<his>> face and jawline, before disappearing past <<his>> collar.
+	<br><br>
+
+	"I need a quick shower," Alex sighs and walks away. You return to work by yourself.
+	<br><br>
+
+	<<destination_farm>>
+<<else>>
+	You turn your eyes and focus on your work.
+	<br><br>
+
+	<<destination_farm>>
+<</if>>
+
+:: Farm Tending Alex Summer Refuse
+<<set $outside to 0>><<set $location to "alex_farm">><<effects>>
+
+You separate from Alex and dust yourself off. <<He>> sighs.
+<br><br>
+
+"All take and no give, huh?" <<He>> eyes you up and down. "You'll come around."
+<br><br>
+
+You ignore <<him>> and return your focus to your work.
+<br><br>
+
+<<destination_farm>>
+
 :: Farm Tending Lurker Work
 <<effects>>
 
@@ -2308,7 +2523,11 @@ Maybe it was just a mouse.
 	<</if>>
 	<<link [[Dodge|Farm Tending Lurker Dodge]]>><</link>><<dancedifficulty 1 1200>>
 	<br>
-	<<link [[Scream|Farm Tending Lurker Scream]]>><<npcincr Alex dom 1>><</link>><<npc Alex>><<person1>><<gdom>><<endevent>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<link [[비명을 지른다|Farm Tending Lurker Scream]]>><<npcincr Alex dom 1>><</link>><<gdom "Alex">>
+	<<else>>
+		<<link [[비명을 지른다|Farm Tending Lurker Scream Fail]]>><</link>><<gdom "Alex">>
+	<</if>>
 	<br>
 	<<if $farm_stage gte 10 and $lurkers_held lt 1>>
 		<<link [[Hurl net|Farm Tending Lurker Hurl net]]>><</link>><<dancedifficulty 1 1200>><<athleticsdifficulty 0 1200>>
@@ -2333,7 +2552,7 @@ Maybe it was just a mouse.
 	You try to jump aside, <span class="red">but it's on you too fast,</span> latching onto your face. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.
 	<br><br>
 
-	<<link [[Next|Farm Tending Struggle]]>><<set $struggle_start to 1>><</link>>
+	<<link [[다음|Farm Tending Struggle]]>><<set $struggle_start to 1>><</link>>
 	<br>
 <</if>>
 
@@ -2341,7 +2560,7 @@ Maybe it was just a mouse.
 <<effects>>
 You stand still, and allow the creature to latch onto your face. <<deviancy4>>
 
-<<link [[Next|Farm Tending Struggle]]>><<set $struggle_start to 2>><</link>>
+<<link [[다음|Farm Tending Struggle]]>><<set $struggle_start to 2>><</link>>
 
 
 
@@ -2378,10 +2597,10 @@ You stand still, and allow the creature to latch onto your face. <<deviancy4>>
 
 
 <<if $struggle.done gte $struggle.number>>
-	<<link [[Next|Farm Tending Struggle Finish]]>><</link>>
+	<span id="next"><<link [[다음|Farm Tending Struggle Finish]]>><</link>></span>
 	<br>
 <<else>>
-	<<link [[Next|Farm Tending Struggle]]>><</link>>
+	<span id="next"><<link [[다음|Farm Tending Struggle]]>><</link>></span>
 	<br>
 <</if>>
 
@@ -2415,6 +2634,13 @@ You gasp for air. "Watch out for those," <<he>> says. "They crawl in from the mo
 
 <<destination_farm>>
 
+:: Farm Tending Lurker Scream Fail
+<<effects>>
+You scream, but the creature lands on your face, cutting it short. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.
+<br><br>
+
+<<link [[다음|Farm Tending Struggle]]>><<set $struggle_start to 2>><</link>>
+
 :: Farm Tending Lurker Hurl net
 <<effects>>
 <<if $danceSuccess and $athleticsSuccess>>
@@ -2422,13 +2648,13 @@ You gasp for air. "Watch out for those," <<he>> says. "They crawl in from the mo
 	<br><br>
 	<<set $lurkers_held += 1>>
 	<<set $stat_lurkers_captured += 1>>
-
 	<<destination_farm>>
 <<else>>
-	You try to hurl the net, <span class="red">but it's on you too fast,</span> latching onto your face. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.
+	You try to hurl the net, <span class="red">but it's on you too fast,</span> latching onto your face. You can't see. You try to pull the creature off, but you struggle to get a grip on its slimy skin. You keep your lips sealed as something presses against your mouth.<<gnet>>
+	<<prof net 1>>
 	<br><br>
 
-	<<link [[Next|Farm Tending Struggle]]>><<set $struggle_start to 1>><</link>>
+	<<link [[다음|Farm Tending Struggle]]>><<set $struggle_start to 1>><</link>>
 	<br>
 <</if>>
 
@@ -2452,6 +2678,31 @@ You gasp for air. "Watch out for those," <<he>> says. "They crawl in from the mo
 <<destination_farm>>
 
 
+:: Farm Tending Lurker Alex Fail
+<<effects>>
+
+You call out for Alex, but you don't see <<nnpc_him Alex>> anywhere.
+<br><br>
+
+<<if $rng gte 71>>
+	You glance around, certain that something will jump out at any second. Then suddenly, something darts from beneath the crops and vanishes into the surrounding hedge.
+	<br><br>
+	<<if $deviancy gte 55>>
+		<<link [[Stand still|Farm Tending Lurker Stand Still]]>><</link>><<deviant4>>
+		<br>
+	<</if>>
+	<<link [[Dodge|Farm Tending Lurker Dodge]]>><</link>><<dancedifficulty 1 1200>>
+	<br>
+	<<if $farm_stage gte 10 and $lurkers_held lt 1>>
+		<<link [[Hurl net|Farm Tending Lurker Hurl net]]>><</link>><<dancedifficulty 1 1200>><<athleticsdifficulty 0 1200>>
+		<br>
+	<</if>>
+<<else>>
+	You glance around, certain that something will jump out at any second. But nothing happens.
+	<br><br>
+	<<destination_farm>>
+<</if>>
+
 
 
 :: Farm Tending Soothe
@@ -2466,7 +2717,7 @@ You gasp for air. "Watch out for those," <<he>> says. "They crawl in from the mo
 	You try to sing a soothing tune, <span class="red">but you can't keep your voice steady.</span> You're dragged into the undergrowth.
 	<br><br>
 
-	<<link [[Next|Farm Tending Tentacles]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Farm Tending Tentacles]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -2483,7 +2734,7 @@ You gasp for air. "Watch out for those," <<he>> says. "They crawl in from the mo
 	You grasp the shoots and pull, <span class="red">but they're too firm.</span> You're dragged into the undergrowth.
 	<br><br>
 
-	<<link [[Next|Farm Tending Tentacles]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Farm Tending Tentacles]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -2501,11 +2752,21 @@ You scream as the shoots drag you across the earth.
 Alex arrives to find you tangled, but there's no sign that the plants were full of malice just a moment before. "How'd you get in a mess like that?" <<he>> laughs. "I thought there was a wild animal."
 <br><br>
 
-<<He>> helps you tear free of the plants. <<tearful>> you rise to your feet. "I need to get back to work," <<he>> says. "Try not to get tangled again."
+<<He>> helps you tear free of the plants. <<tearful>> 당신은 일어선다. "I need to get back to work," <<he>> says. "Try not to get tangled again."
 <br><br>
 
 <<destination_farm>>
 
+
+:: Farm Tending Scream Fail
+<<effects>>
+You scream for Alex, but <span class="red"><<nnpc_he Alex>> doesn't seem to be working in the fields right now.</span>
+<br><br>
+Just as you realise this, the shoots drag you into the undergrowth.
+<br><br>
+
+<<link [[다음|Farm Tending Tentacles]]>><<set $molestationstart to 1>><</link>>
+<br>
 
 
 :: Farm Tending Brace
@@ -2514,7 +2775,7 @@ Alex arrives to find you tangled, but there's no sign that the plants were full 
 You brace yourself as the shoots drag you into the undergrowth.
 <br><br>
 
-<<link [[Next|Farm Tending Tentacles]]>><<set $molestationstart to 1>><</link>>
+<<link [[다음|Farm Tending Tentacles]]>><<set $molestationstart to 1>><</link>>
 <br>
 
 :: Farm Tending Tentacles
@@ -2527,12 +2788,12 @@ You brace yourself as the shoots drag you into the undergrowth.
 	<<molested>>
 	<<controlloss>>
 
-	<<tentaclestart 8 15>>
+	<<tentaclestart 8 15 "shoot" "vine" true>>
 
 <</if>>
 
 <<statetentacles>>
-You count $tentacles.active tentacles surrounding you.
+
 
 <<effects>>
 <<effectstentacles>>
@@ -2540,9 +2801,9 @@ You count $tentacles.active tentacles surrounding you.
 <<actionstentacles>>
 
 <<if $tentacles.active lte ($tentacles.max / 2)>>
-	<span id="next"><<link [[Next|Farm Tending Tentacles Finish]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Tending Tentacles Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Tending Tentacles]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Tending Tentacles]]>><</link>></span><<nexttext>>
 <</if>>
 
 
@@ -2572,25 +2833,36 @@ The shoots fall inert, and you manage to crawl free.
 	<<else>>
 		"I can't," you say. "I've lots of work to do."
 	<</if>>
-	You turn away from <<him>>.<br><br>
+	You turn away from <<him>>.
+	<br><br>
 <<else>>
 	You ignore the <<person>>.
 <</if>>
 
 
 <<if $rng gte 76>>
-	<<He>> becomes agitated. "What?" <<he>> says. "You think you're too good for me?" <<He>> hefts <<himself>> over the fence and walks towards you.<<gstress>><<stress 6>>
-	<br><br>
+	<<He>> becomes agitated. "What?" <<he>> says. "You think you're too good for me?"
+	<<if $farm.wall gte 4>>
+		<<He>> starts <<his>> way up the fence, but stops once <<he>> reaches the top, thwarted by the barbed wire.
+		<br><br>
 
-	<<link [[Resist|Farm Tending Resist]]>><</link>>
-	<br>
-	<<link [[Call Alex|Farm Tending Person Alex]]>><<npcincr Alex dom 1>><</link>> | <span class="purple">+ Alex's Dominance</span>
-	<br>
-	<<if $submissive gte 1500>>
-		<<link [[Apologise|Farm Tending Apologise]]>><<sub 1>><</link>><<submissivetext>>
+		"Fine. Stay in your little cage, <<bitch>>." <<He>> leaves in a huff.<<gstress>><<stress 6>>
+		<br><br>
+
+		<<destination_farm>>
+	<<else>>
+		<<He>> hefts <<himself>> over the fence and walks towards you.<<gstress>><<stress 6>>
+		<br><br>
+
+		<<link [[저항한다|Farm Tending Resist]]>><</link>>
 		<br>
+		<<link [[Call Alex|Farm Tending Person Alex]]>><<npcincr Alex dom 1>><</link>><<gdom "Alex">>
+		<br>
+		<<if $submissive gte 1500>>
+			<<link [[사과한다|Farm Tending Apologise]]>><<sub 1>><</link>><<submissivetext>>
+			<br>
+		<</if>>
 	<</if>>
-
 <<else>>
 	<<He>> tries to get your attention again, but soon gives up.
 	<br><br>
@@ -2604,7 +2876,7 @@ The shoots fall inert, and you manage to crawl free.
 You kick <<if $weather is "rain" or $weather is "snow">>mud<<else>>dirt<</if>> in the <<persons>> face as <<he>> approaches. <<He>> sneers.
 <br><br>
 
-<<link [[Next|Farm Tending Rape]]>><<set $molestationstart to 1>><</link>>
+<<link [[다음|Farm Tending Rape]]>><<set $molestationstart to 1>><</link>>
 <br>
 
 :: Farm Tending Person Alex
@@ -2645,25 +2917,23 @@ The <<person>> is taken aback, and stops in <<his>> tracks. "Alright," <<he>> sa
 	<<molested>>
 
 	<<maninit>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-<span id="next"><<link [[Next|Farm Tending Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-<span id="next"><<link [[Next|Farm Tending Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-<span id="next"><<link [[Next|Farm Tending Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+<span id="next"><<link [[다음|Farm Tending Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-<span id="next"><<link [[Next|Farm Tending Rape]]>><</link>></span><<nexttext>>
+<span id="next"><<link [[다음|Farm Tending Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Tending Rape Finish
@@ -2743,11 +3013,11 @@ Your response is polite, but cool. The <<person>> leaves when <<he>> realises <<
 The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he>> says. "I'll keep you company."
 <br><br>
 
-<<link [[Refuse|Farm Tending Ignore]]>><<set $phase to 1>><</link>>
+<<link [[거절한다|Farm Tending Ignore]]>><<set $phase to 1>><</link>>
 <br>
 
 <<if $promiscuity gte 15>>
-	<<link [[Accept|Farm Tending Accept]]>><</link>><<promiscuous2>>
+	<<link [[받아들인다|Farm Tending Accept]]>><</link>><<promiscuous2>>
 	<br>
 <</if>>
 
@@ -2782,7 +3052,7 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 
 <<promiscuity2>>
 
-<<link [[Next|Farm Tending Sex]]>><<set $sexstart to 1>><</link>>
+<<link [[다음|Farm Tending Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
 :: Farm Tending Sex
@@ -2791,29 +3061,26 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<if $farm.wall gte 4>>
 		<<npcfence>>
 	<</if>>
-
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Tending Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Tending Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Tending Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $rescue is 1 and $alarm is 1>>
-	<span id="next"><<link [[Next|Farm Tending Sex Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Tending Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Tending Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Tending Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Tending Sex Finish
@@ -2833,7 +3100,7 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 	<<endcombat>>
 	<<destination_farm>>
 <<elseif $enemyhealth lte 0>>
-	The <<person>> turns and flees. 
+	The <<person>> turns and flees.
 	<<if $farm.wall gte 4>>
 		<<He>> backs way from the fence,
 	<<else>>
@@ -2920,7 +3187,7 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 <<seductioncheck>>
 <br><br>
 <<if $seductionskill lt 1000>>
-	<span class="gold">You feel more confident in your powers of seduction.</span>
+	<span class="gold">당신은 유혹하는 데 좀 더 자신감이 붙었다.</span>
 	<br><br>
 <</if>>
 <<seductionskilluse>>
@@ -2934,7 +3201,7 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 	You climb over the fence, and <<he>> pounces on you.
 	<br><br>
 
-	<<link [[Next|Farm Tending Prostitution]]>><<set $sexstart to 1>><</link>>
+	<<link [[다음|Farm Tending Prostitution]]>><<set $sexstart to 1>><</link>>
 	<br>
 
 <<else>>
@@ -2953,29 +3220,27 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<if $farm.wall gte 4>>
 		<<npcfence>>
 	<</if>>
 	<<set $enemytrust -= 40>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Tending Prostitution Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Tending Prostitution Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Tending Prostitution Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Farm Tending Prostitution Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Tending Prostitution Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Tending Prostitution]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Tending Prostitution]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Tending Prostitution Finish
@@ -2997,17 +3262,17 @@ The <<person>> glances over <<his>> shoulder. "Why don't you take a break?" <<he
 		<<tearful>> you back away from the fence.
 	<<else>>
 		<<tearful>> you climb over the fence.
-	<</if>>	
+	<</if>>
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 	<<destination_farm>>
 <<elseif $enemyhealth lte 0>>
-	The <<person>> turns and flees. 
+	The <<person>> turns and flees.
 	<<if $farm.wall gte 4>>
 		<<He>> tumbles down a ditch, and throws a fearful glance over <<his>> shoulder as <<he>> escapes.
 	<<elseif $farm.wall is 3>>
-		<<He>> clambes up the fence, drops to the other side, and throws as a fearful glance over <<his>> shoulder as <<he>> escapes.
+		<<He>> clambers up the fence, drops to the other side, and throws as a fearful glance over <<his>> shoulder as <<he>> escapes.
 	<<else>>
 		<<He>> tumbles back over the fence, and throws a fearful glance over <<his>> shoulder as <<he>> escapes.
 	<</if>>
@@ -3087,6 +3352,15 @@ Alex arrives in time to see their flight. "You fuckers better stay gone," <<he>>
 
 <<destination_farm>>
 
+:: Farm Tending Group Alex Fail
+<<effects>>
+
+You call out for Alex, but <span class="red"><<nnpc_he "Alex">> doesn't come.</span>
+<br><br>
+
+<<link [[다음|Farm Tending Gang Rape]]>><<set $molestationstart to 1>><</link>>
+
+
 :: Farm Tending Group Fight
 <<effects>>
 <<earnFeat "Farm Protector">>
@@ -3108,43 +3382,41 @@ Their plan ruined, the sneaking pair end their attempt at concealment, and run. 
 	<<molested>>
 
 	<<maninit>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 	<<hand_gag 1 left>>
 	<<set $enemytrust -= 20>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-<span id="next"><<link [[Next|Farm Tending Gang Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-<span id="next"><<link [[Next|Farm Tending Gang Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-<span id="next"><<link [[Next|Farm Tending Gang Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Tending Gang Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-<span id="next"><<link [[Next|Farm Tending Gang Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Tending Gang Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Tending Gang Rape Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	They shove you to the <<if $weather is "rain" or $weather is "snow">>mud<<else>>dirt<</if>>. "You have your boss to thank for this," the <<person1>><<person>> says. "Go cry to <<him>>."<<gaggro>><<farm_aggro 5>>
+	They shove you to the <<if $weather is "rain" or $weather is "snow">>mud<<else>>dirt<</if>>. "You have your boss to thank for this," the <<person1>><<person>> says. "Go cry to <<nnpc_him Alex>>."<<gaggro>><<farm_aggro 5>>
 	<br><br>
-	<<tearful>> you rise to your feet. The three assailants climb over the <<farm_fence>>, and walk away.
+	<<tearful>> 당신은 일어선다. The three <<group>> climb over the <<farm_fence>>, and walk away.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 	<<destination_farm>>
 
 <<elseif $enemyhealth lte 0>>
-	The assailants back away from you, surprised by your aggression. "There wasn't meant to be resistance," the <<person2>><<person>> says, looking at the <<person1>><<person>> "What now?"<<earnFeat "Farm Protector">>
+	The <<group>> back away from you, surprised by your aggression. "There wasn't meant to be resistance," the <<person2>><<person>> says, looking at the <<person1>><<person>> "What now?"<<earnFeat "Farm Protector">>
 	<br><br>
 	"Fuck," <<he>> replies. "Remy won't be happy." <<He>> turns and runs. The others follow.
 	<br><br>
@@ -3160,7 +3432,7 @@ Their plan ruined, the sneaking pair end their attempt at concealment, and run. 
 	<br><br>
 	"You were supposed to keep <<phim>> gagged," the <<person1>><<person>> says. "Remy promised fucking competence."
 	<br><br>
-	The assailants turn and flee, arguing all the while.
+	The <<group>> turn and flee, arguing all the while.
 	<<clotheson>>
 	<<endcombat>>
 
@@ -3194,7 +3466,7 @@ Alex produces another bottle from the alcove as you take a swig. It's strong. "D
 <br><br>
 
 <<if $NPCName[$NPCNameList.indexOf("Alex")].lust gte 10 and random(1, 2) is 2>>
-	<<He>> wraps an arm around your shoulder as <<he>> reclines again. <<His>> hand wanders down your chest.<<garousal>><<arousal 600>>
+	<<He>> wraps an arm around your shoulder as <<he>> reclines again. <<His>> hand wanders down your chest.<<garousal>><<arousal 600 "breasts">>
 	<br><br>
 
 	<<link [[Push away|Farm Rest Push]]>><<npcincr Alex love -1>><<npcincr Alex lust -1>><</link>><<llove>><<llust>>
@@ -3213,11 +3485,11 @@ Alex produces another bottle from the alcove as you take a swig. It's strong. "D
 <<effects>>
 
 
-You shake your head. Alex takes a swig, then returns the bottle to its hiding place.
+당신은 고개를 가로젓는다. Alex takes a swig, then returns the bottle to its hiding place.
 <br><br>
 
 <<if $NPCName[$NPCNameList.indexOf("Alex")].lust gte 10 and random(1, 2) is 2>>
-	<<He>> wraps an arm around your shoulder as <<he>> reclines again. <<His>> hand wanders down your chest.<<garousal>><<arousal 600>>
+	<<He>> wraps an arm around your shoulder as <<he>> reclines again. <<His>> hand wanders down your chest.<<garousal>><<arousal 600 "breasts">>
 	<br><br>
 	<<link [[Push away|Farm Rest Push]]>><<npcincr Alex love -1>><<npcincr Alex lust -1>><</link>><<llove>><<llust>>
 	<br>
@@ -3257,7 +3529,7 @@ You shake your head. Alex takes a swig, then returns the bottle to its hiding pl
 :: Farm Rest Push 2
 <<effects>>
 
-You push Alex again, harder this time, and <<he>> pulls away from you. "Sorry," <<he>> says. <<He>> opens <<his>> mouth to continue, opts to stay silent.
+You push Alex again, harder this time, and <<he>> pulls away from you. "Sorry," <<he>> says. <<He>> opens <<his>> mouth to continue, but opts to stay silent.
 <br><br>
 
 <<He>> takes a swig of <<his>> drink.
@@ -3276,7 +3548,7 @@ You let Alex's hands wander as <<he>> pleases. <<He>> brushes <<his>> fingers ov
 	<<He>> doesn't stop there. <<He>> climbs to <<his>> knees, then pushes you down to the grass.
 	<br><br>
 
-	<<link [[Next|Farm Rest Sex]]>><<set $sexstart to 1>><</link>>
+	<<link [[다음|Farm Rest Sex]]>><<set $sexstart to 1>><</link>>
 	<br>
 <<else>>
 	"Don't worry," <<he>> says, pressing <<his>> face against your neck. "No one's watching." <<He>> kisses your throat.
@@ -3286,7 +3558,7 @@ You let Alex's hands wander as <<he>> pleases. <<He>> brushes <<his>> fingers ov
 	<br>
 	<<link [[Allow|Farm Rest Sex]]>><<set $sexstart to 1>><</link>>
 	<br>
-	<<link [[Push Alex onto the grass|Farm Rest Grass]]>><<npcincr Alex lust 1>><<npcincr Alex love 1>><<npcincr Alex dom 1>><</link>><<glust>><<glove>><<ldom>>
+	<<link [[Push Alex onto the grass|Farm Rest Grass]]>><<npcincr Alex lust 1>><<npcincr Alex love 1>><<npcincr Alex dom -1>><</link>><<glust>><<glove>><<ldom>>
 	<br>
 <</if>>
 
@@ -3306,7 +3578,7 @@ You push shove Alex away, but <<he>> holds you even tighter. You shove <<him>> a
 <<effects>>
 
 You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and pushes you onto yours in turn, with <<him>> on top.
-<<if $physique gte 16000>>
+<<if currentSkillValue('physique') gte 16000>>
 	You struggle for a few moments. <<Hes>> strong, but you manage to get on top and pin <<his>> arms to the ground.
 	<br><br>
 <<else>>
@@ -3314,7 +3586,7 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	<br><br>
 <</if>>
 
-<<link [[Next|Farm Rest Sex]]>><<set $sexstart to 1>><</link>>
+<<link [[다음|Farm Rest Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
 
@@ -3326,29 +3598,24 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 100>>
 <</if>>
+
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Rest Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Rest Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Rest Sex Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Rest Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Rest Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Rest Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
-
-
 :: Farm Rest Sex Finish
-
 <<set $outside to 0>><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>><<earnFeat "Alex's Partner">><<npcincr Alex lust -20>>
@@ -3366,7 +3633,7 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	<</if>>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Farm Work|Farm Work]]>><</link>>
+	<<link [[농장에서 일한다|Farm Work]]>><</link>>
 	<br>
 <<elseif $enemyhealth lte 0>>
 	Alex falls back against the tree. "I'm sorry," <<he>> says. "I misread the situation."
@@ -3375,7 +3642,7 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Farm Work|Farm Work]]>><</link>>
+	<<link [[농장에서 일한다|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	Alex reclines against the tree, and looks at <<his>> watch. "I better get back to work," <<he>> says, rising to <<his>> feet.
@@ -3384,7 +3651,7 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Farm Work|Farm Work]]>><</link>>
+	<<link [[농장에서 일한다|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -3400,13 +3667,13 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	You make soothing noises, <span class="green">and the <<farm_text_many horse>> calm down.</span> They're still on edge, but they won't be breaking anything.<<grespect>><<farm_horses 1>><<ggtending>><<tending 9>><<set $farm_work.horses_panic to 0>><<gfarm>><<farm_yield 1>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	You try to soothe <<farm_text_many horse>>, <span class="red">but you're not sure they even hear you.</span><<gtending>><<tending 2>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -3420,13 +3687,13 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	You manage to calm the others in the same way.<<grespect>><<farm_pigs 1>><<set $farm_work.pigs_panic to 0>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	You try to calm the <<farm_text_many pig>>, but they don't hear you. You wrap an arm around the closest, and try to pull <<farm_him pig>> away from <<farm_his pig>> digging spot. <span class="red"><<farm_He pig>>'s too strong and wild.</span> You're shoved aside. The <<farm_text pig>> doesn't interrupt <<farm_his pig>> digging.<<gpain>><<pain 4>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -3437,13 +3704,13 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	You soothe the chickens. They're slow on the uptake, <span class="green">but calm down once they notice you.</span><<set $farm_work.chickens_panic to 0>><<gfarm>><<farm_yield 1>><<ggtending>><<tending 9>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	You try to soothe the chickens, <span class="red">but they don't even notice you.</span><<gtending>><<tending 2>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -3454,12 +3721,12 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	You pat the <<farm_text_many cattle>>, making soothing noises all the while. They remain wary, <span class="green">but their panic abates, and their pacing stops.</span><<grespect>><<farm_cattle 1>><<ggtending>><<tending 9>><<set $farm_work.cattle_panic to 0>><<gfarm>><<farm_yield 1>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	You pat the <<farm_text_many cattle>>, making soothing noises all the while. <span class="red">It does nothing. You're not sure they even hear you.</span><<gtending>><<tending 2>>
 	<br><br>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -3473,13 +3740,13 @@ You push Alex onto <<his>> back. Laughing, <<he>> grasps your shoulders and push
 	You calm the other <<farm_text_many dog>> the same way.<<grespect>><<farm_dogs 1>><<ggtending>><<tending 9>><<set $farm_work.dogs_panic to 0>><<gfarm>><<farm_yield 1>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	You grab a <<farm_text dog>> by the collar, and stroke behind <<farm_his dog>> ear, making soothing noises all the while. <span class="red">It bites at your hand,</span> and you recoil.<<gtending>><<tending 2>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -3504,17 +3771,12 @@ You crest a hill, and arrive at a small shop beside an old train station. You en
 <<generate1>><<person1>>
 "Is that a shopping list I see?" <<he>> asks. "Give it here, I'll sort it out."
 
-
 <<set $farm_work.shopping_money to random(2000, 6000)>>
 <<He>> takes the list, then whips around the room, gathering food and sundries into a basket on your behalf.
 <br><br>
 
-
-
-<<link [[Next|Farm Shopping 2]]>><</link>>
+<<link [[다음|Farm Shopping 2]]>><</link>>
 <br>
-
-
 
 :: Farm Shopping 2
 <<effects>>
@@ -3542,7 +3804,7 @@ You crest a hill, and arrive at a small shop beside an old train station. You en
 <<else>>
 	<br><br>
 
-	<<link [[Pay|Farm Shopping Pay]]>><</link>>
+	<<link [[지불한다|Farm Shopping Pay]]>><</link>>
 	<br>
 	<<link [[Snatch and run|Farm Shopping Steal]]>><<crimeup 50>><</link>><<crime>><<athleticsdifficulty 1 600>>
 	<br>
@@ -3556,7 +3818,7 @@ You crest a hill, and arrive at a small shop beside an old train station. You en
 <<seductioncheck>>
 <br><br>
 <<if $seductionskill lt 1000>>
-	<span class="gold">You feel more confident in your powers of seduction.</span>
+	<span class="gold">당신은 유혹하는 데 좀 더 자신감이 붙었다.</span>
 	<br><br>
 <</if>>
 <<seductionskilluse>>
@@ -3572,7 +3834,7 @@ You lean over the counter. "Meet me outside," you whisper. "Behind the shop."
 	You pick up the basket, leave through the front, and stroll back to the farm.
 	<br><br>
 
-	<<link [[Next|Farm Shopping End]]>><</link>>
+	<<link [[다음|Farm Shopping End]]>><</link>>
 	<br>
 
 <<else>>
@@ -3600,7 +3862,7 @@ You lean over the counter. "Meet me outside," you whisper. "Behind the shop."
 You walk behind the counter. The <<person>> grasps your shoulders, and pushes you onto it.
 <<promiscuity2>>
 
-<<link [[Next|Farm Shopping Sex]]>><<set $sexstart to 1>><</link>>
+<<link [[다음|Farm Shopping Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
 
@@ -3610,23 +3872,21 @@ You walk behind the counter. The <<person>> grasps your shoulders, and pushes yo
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 50>>
 <</if>>
+
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Shopping Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Shopping Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Shopping Sex Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Shopping Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Shopping Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Shopping Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Shopping Sex Finish
@@ -3659,7 +3919,7 @@ You walk behind the counter. The <<person>> grasps your shoulders, and pushes yo
 		<br><br>
 	<</if>>
 
-	<<link [[Next|Farm Shopping End]]>><</link>>
+	<<link [[다음|Farm Shopping End]]>><</link>>
 	<br>
 <<elseif $enemyhealth lte 0>>
 	The <<person1>><<person>> tumbles backward, smashing into a row of shelves.
@@ -3668,7 +3928,7 @@ You walk behind the counter. The <<person>> grasps your shoulders, and pushes yo
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Shopping End]]>><</link>>
+	<<link [[다음|Farm Shopping End]]>><</link>>
 	<br>
 <<else>>
 	"Fine," the <<person>> says. "Leave before I change my mind."
@@ -3696,7 +3956,7 @@ You walk behind the counter. The <<person>> grasps your shoulders, and pushes yo
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Shopping End]]>><</link>>
+	<<link [[다음|Farm Shopping End]]>><</link>>
 	<br>
 <</if>>
 
@@ -3713,7 +3973,7 @@ You hand over the money Alex gave you, and pick up the basket.
 You return to the farm. Alex meets you in the yard. "Nice," <<he>> says. "Leave it in the kitchen."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Shopping Steal
@@ -3726,7 +3986,7 @@ You return to the farm. Alex meets you in the yard. "Nice," <<he>> says. "Leave 
 	"Oi!" the <<person>> shouts, rushing around the counter in pursuit. You escape onto the road and make for the farm, <span class="green">leaving the <<person>> well behind.</span>
 	<br><br>
 
-	<<link [[Next|Farm Shopping End]]>><<endevent>><</link>>
+	<<link [[다음|Farm Shopping End]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	You grasp the basket, and run.
@@ -3738,7 +3998,7 @@ You return to the farm. Alex meets you in the yard. "Nice," <<he>> says. "Leave 
 	"Fucking thief," <<he>> says. "I'll show you what we do to your sort around here."
 	<br><br>
 
-	<<link [[Next|Farm Shopping Rape]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Farm Shopping Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -3751,29 +4011,22 @@ You return to the farm. Alex meets you in the yard. "Nice," <<he>> says. "Leave 
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-<span id="next"><<link [[Next|Farm Shopping Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-<span id="next"><<link [[Next|Farm Shopping Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-<span id="next"><<link [[Next|Farm Shopping Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Shopping Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-<span id="next"><<link [[Next|Farm Shopping Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Shopping Rape]]>><</link>></span><<nexttext>>
 <</if>>
-
-
 
 :: Farm Shopping Rape Finish
 <<effects>>
@@ -3785,7 +4038,7 @@ You return to the farm. Alex meets you in the yard. "Nice," <<he>> says. "Leave 
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Shopping End]]>><</link>>
+	<<link [[다음|Farm Shopping End]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
@@ -3793,7 +4046,7 @@ You return to the farm. Alex meets you in the yard. "Nice," <<he>> says. "Leave 
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Shopping End]]>><</link>>
+	<<link [[다음|Farm Shopping End]]>><</link>>
 	<br>
 
 
@@ -3805,13 +4058,14 @@ You return to the farm. Alex meets you in the yard. "Nice," <<he>> says. "Leave 
 :: Farm Shopping End
 <<effects>>
 
+<<endevent>>
 <<npc Alex>><<person1>>
 You arrive at the farm. Alex meets you in the yard.
 <br><br>
 
 
 <<if $exposed gte 1>>
-	<<He>> blushes and looks away. "Wh-what happened to your-" <<he>> gulps. "Nevermind." <<He>> takes the basket.<<towelup>>
+	<<He>> blushes and looks away. "Wh-what happened to your-" <<he>> gulps. "Never mind." <<He>> takes the basket.<<towelup>>
 	<br><br>
 	<<if $farm_naked isnot 1>>
 		<<He>> disappears into the farmhouse, and emerges with some towels. <<He>> throws them at you without looking, before turning back to the building.
@@ -3866,7 +4120,7 @@ You sit in the kitchen as Alex makes you a warm drink. <<He>> tries <<his>> best
 
 <<set $money += $farm_work.shopping_money>>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -3918,7 +4172,7 @@ Alex turns around. You hand <<him>> the money. <<He>> stares at it for a moment,
 Alex shrugs. "That's some deal, but I'm not gonna complain. Cheers." <<He>> enters the farmhouse.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Shopping Keep
@@ -3927,7 +4181,7 @@ Alex shrugs. "That's some deal, but I'm not gonna complain. Cheers." <<He>> ente
 You pocket the money as Alex enters the farmhouse.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -3937,14 +4191,14 @@ You pocket the money as Alex enters the farmhouse.
 "Alright," Alex sighs, putting the list away. "I'll go myself later."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
 :: Farm Race
 <<effects>>
 
-<<if $athletics gte 800>>
+<<if currentSkillValue('athletics') gte 800>>
 	You run after Alex, <span class="green">and manage to catch up</span> halfway through the field. <<He>> speeds up when <<he>> sees you, but so do you. You're level with each other right up to the forest's edge.
 	<br><br>
 
@@ -3986,13 +4240,13 @@ Alex turns to run, but hesitates when <<he>> sees you plant your feet. Instead, 
 	The boar runs straight at you, <span class="red">and knocks you off your feet.</span> The world spins, and you hear Alex shout.<<gpain>><<gtrauma>><<gstress>><<pain 4>><<stress 6>><<trauma 6>>
 	<br><br>
 
-	You gear your bearings, and see the boar disappear into the forest. "Are you hurt?" Alex asks, crouching beside you. You shake your head.
+	You gear your bearings, and see the boar disappear into the forest. "Are you hurt?" Alex asks, crouching beside you. 당신은 고개를 가로젓는다.
 	<br><br>
 
 	"You idiot," Alex says. "You're lucky you're uninjured."
 	<br><br>
 
-	<<link [[Apologise|Farm Race Sorry]]>><<npcincr Alex love 3>><<npcincr Alex dom 1>><</link>><<gdom>><<gglove>>
+	<<link [[사과한다|Farm Race Sorry]]>><<npcincr Alex love 3>><<npcincr Alex dom 1>><</link>><<gdom>><<gglove>>
 	<br>
 	<<link [[Brag|Farm Race Brag]]>><<npcincr Alex dom -1>><</link>><<ldom>>
 	<br>
@@ -4003,7 +4257,7 @@ Alex turns to run, but hesitates when <<he>> sees you plant your feet. Instead, 
 	You crouch beside Alex as the boar runs back into the forest. "I'm fine," <<he>> says. "But what were you thinking? I could've been hurt."<<llove>><<npcincr Alex love -1>>
 	<br><br>
 
-	<<link [[Apologise|Farm Race Sorry 2]]>><<npcincr Alex love 1>><<npcincr Alex dom 1>><</link>><<gdom>><<glove>>
+	<<link [[사과한다|Farm Race Sorry 2]]>><<npcincr Alex love 1>><<npcincr Alex dom 1>><</link>><<gdom>><<glove>>
 	<br>
 	<<link [[Defend your decision|Farm Race Defend]]>><<npcincr Alex love -1>><<npcincr Alex dom -1>><</link>><<llove>><<ldom>>
 	<br>
@@ -4014,7 +4268,7 @@ Alex turns to run, but hesitates when <<he>> sees you plant your feet. Instead, 
 	Alex leans forward, resting <<his>> hands on <<his>> thighs. "Fuck," <<he>> laughs. "I thought you were mad when you didn't run. Come on, let's get back to work."
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -4035,7 +4289,7 @@ Alex turns to run, but hesitates when <<he>> sees you plant your feet. Instead, 
 "It's alright," Alex says, grasping your arm and pulling <<him>> to <<his>> feet. "Let's just get back to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4054,7 +4308,7 @@ Alex turns to run, but hesitates when <<he>> sees you plant your feet. Instead, 
 "So your solution was to do nothing?" <<he>> replies, grasping your arm and pulling <<himself>> to <<his>> feet. <<He>> sighs. "Sorry. Let's just get back to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Race Sorry
@@ -4072,7 +4326,7 @@ Alex turns to run, but hesitates when <<he>> sees you plant your feet. Instead, 
 Alex helps you to your feet. "Just be more careful," <<he>> says. "Come on, let's get back to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4091,7 +4345,7 @@ Alex helps you to your feet. "Just be more careful," <<he>> says. "Come on, let'
 Alex helps you to your feet. "Just be more careful," <<he>> says. "Come on, let's get back to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4118,7 +4372,7 @@ You turn and run alongside Alex. The boar is close behind, and you hear it gaini
 
 	<<link [[Stare|Farm Race Stare]]>><<npcincr Alex love -1>><<npcincr Alex dom -1>><<npcincr Alex lust 1>><</link>><<promiscuous1>><<llove>><<ldom>><<glust>>
 	<br>
-	<<link [[Look away|Farm Race Look]]>><</link>>
+	<<link [[다른 곳을 본다|Farm Race Look]]>><</link>>
 	<br>
 	<<link [[Laugh|Farm Race Laugh]]>><<npcincr Alex dom -1>><</link>><<ldom>>
 	<br>
@@ -4130,7 +4384,7 @@ You turn and run alongside Alex. The boar is close behind, and you hear it gaini
 		You get your bearings in time to see the boar disappear into the forest. "Are you okay?" Alex asks, crouching beside you. <<He>> helps you up, and laughs. "Good. That was almost scary. Come on. Let's get back to work."
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><<endevent>><</link>>
+		<<link [[다음|Farm Work]]>><<endevent>><</link>>
 		<br>
 	<<else>>
 		<<set $worn.lower.integrity -= 100>>
@@ -4141,13 +4395,13 @@ You turn and run alongside Alex. The boar is close behind, and you hear it gaini
 			<span class="pink">Your clothes rip free as you fall, exposing your <<undies>>.</span> The boar veers and runs deeper into the forest, your $worn.lower.name still in its mouth.
 			<br><br>
 			<<integritycheck "no_text">><<exposure>>
-			"A-Are you okay?" Alex asks, crouching beside you. <<Hes>> blushing, and doesn't know where to look. You climb to your feet. <<covered>> <<glust>><<npc Alex lust 1>>
+			"A-Are you okay?" Alex asks, crouching beside you. <<Hes>> blushing, and doesn't know where to look. You climb to your feet. <<covered>> <<glust>><<npcincr Alex lust 1>>
 			<br><br>
 
 			Alex leads the way back to the farmhouse. <<He>> disappears inside, and emerges with some towels.<<towelup>>
 			<br><br>
 
-			<<link [[Next|Farm Work]]>><<endevent>><</link>>
+			<<link [[다음|Farm Work]]>><<endevent>><</link>>
 			<br>
 
 		<<else>>
@@ -4160,7 +4414,7 @@ You turn and run alongside Alex. The boar is close behind, and you hear it gaini
 			"Are you okay?" Alex asks, crouching beside you. <<He>> helps you up, and laughs. "Good. That was almost scary. Come on. Let's get back to work."
 			<br><br>
 
-			<<link [[Next|Farm Work]]>><<endevent>><</link>>
+			<<link [[다음|Farm Work]]>><<endevent>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -4179,19 +4433,19 @@ You stare openly at Alex's <<if $NPCList[0].penis isnot "none">>bulge<<else>>cam
 You walk back to the farmhouse. Alex insists on you leading the way. Once there, <<he>> disappears inside, and emerges with a fresh <<if $pronoun is "f">>skirt<<else>>pair of shorts<</if>>. <<Hes>> still blushing.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Race Look
 <<effects>>
 
-You look away. "What's the matter?" <<he>> asks, followed by a gasp as <<he>> notices the problem. "L-lets get back to the farmhouse," <<he>> says, <<his>> hands clamped to <<his>> crotch as a blush spreads on <<his>> face.
+You look away. "What's the matter?" <<he>> asks, followed by a gasp as <<he>> notices the problem. "L-let's get back to the farmhouse," <<he>> says, <<his>> hands clamped to <<his>> crotch as a blush spreads on <<his>> face.
 <br><br>
 
 You walk back to the farmhouse. Alex insists on you leading the way. Once there, <<he>> disappears inside, and emerges with a fresh <<if $pronoun is "f">>skirt<<else>>pair of shorts<</if>>. <<Hes>> still blushing.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Race Laugh
@@ -4203,7 +4457,7 @@ You laugh and look away. Alex looks perplexed for a moment, then looks down. <<H
 You walk back to the farmhouse. Alex insists on you leading the way. Once there, <<he>> disappears inside, and emerges with a fresh <<if $pronoun is "f">>skirt<<else>>pair of shorts<</if>>. <<Hes>> still blushing.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4222,7 +4476,7 @@ You walk back to the farmhouse. Alex insists on you leading the way. Once there,
 Alex puffs out <<his>> chest. "I wasn't scared in the slightest. Come on, let's get back to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Race No
@@ -4240,7 +4494,7 @@ Alex puffs out <<his>> chest. "I wasn't scared in the slightest. Come on, let's 
 "I wasn't either," Alex says, puffing out <<his>> chest. "Come on, let's get back to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Race Comeback
@@ -4258,7 +4512,7 @@ Alex puffs out <<his>> chest. "I wasn't scared in the slightest. Come on, let's 
 "Oi!" Alex replies, indignant. "You have to take wild animals seriously. Even a fox can be vicious. Come on, let's get back to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Race Refuse
@@ -4267,7 +4521,7 @@ Alex puffs out <<his>> chest. "I wasn't scared in the slightest. Come on, let's 
 You refuse to race, and leave Alex to run into the woods alone.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4286,7 +4540,7 @@ You refuse to race, and leave Alex to run into the woods alone.
 "It's a good thing you were nearby," <<he>> says, looking at the damage. "We should be able to patch this up." <<He>> removes <<his>> hat and wipes <<if $weather is "rain">>water<<else>>the sweat<</if>> from <<his>> brow.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4314,13 +4568,13 @@ You refuse to race, and leave Alex to run into the woods alone.
 	The pair walk away, leaving the fence intact./*<<llaggro>><<farm_aggro -10>>*/
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	The pair look at each other, <span class="red">and burst into laughter.</span> "Sure thing kid," the <<person1>><<person>> says. "We'll get out of your hair once we've finished our job." <span class="red">Their axes continue to bite into the perimeter.</span><<farm_fence_damage 1>>
 	<br><br>
 
-	<<link [[Call Alex|Farm Axe Alex]]>><<farm_aggro 5>><<npc Alex dom 1>><<npc Alex love 1>><<farm_fence_damage 1>><</link>><<gaggro>> | <span class="purple">+ Alex's Dominance</span><<glove>>
+	<<link [[Call Alex|Farm Axe Alex]]>><<farm_aggro 5>><<npcincr Alex dom 1>><<npcincr Alex love 1>><<farm_fence_damage 1>><</link>><<gaggro>><<gdom "Alex">><<glove>>
 	<br>
 	<<link [[Attack|Farm Axe Attack]]>><<def 1>><</link>>
 	<br>
@@ -4341,40 +4595,37 @@ You rush down the pair. They leave their axes buried in the
 raising their arms to defend themselves.
 <br><br>
 
-<<link [[Next|Farm Axe Fight]]>><<set $fightstart to 1>><</link>>
+<<link [[다음|Farm Axe Fight]]>><<set $fightstart to 1>><</link>>
 <br>
 
 
 :: Farm Axe Fight
 <<if $fightstart is 1>>
-<<set $fightstart to 0>>
-
-<<neutral 1>>
-
-<<maninit>>
-<<set $enemytrust -= 100>>
-<<set $enemyanger += 200>>
-<<npcidlegenitals>>
-<<set $rescue to 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
+	<<npcidlegenitals>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 
 <<effects>>
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Axe Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Axe Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $pain gte 100 and $willpowerpain is 0>>
-	<span id="next"><<link [[Next|Farm Axe Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Farm Axe Fight Finish]]>><</link>></span><<nexttext>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[다음|Farm Axe Fight Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Axe Fight]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Axe Fight]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Axe Fight Finish
@@ -4387,7 +4638,7 @@ raising their arms to defend themselves.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
@@ -4398,12 +4649,11 @@ raising their arms to defend themselves.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 <<elseif $alarm is 1 and $rescue is 1>>
-
 	<<endcombat>>
 	<<npc Alex>><<person1>>
-	"I'm coming!" It's Alex. The pair glance in the direction of <<his>> voice, then attack the 
+	"I'm coming!" It's Alex. The pair glance in the direction of <<his>> voice, then attack the
 	<<if $farm.wall gte 3>>
 		fence
 	<<elseif $farm.wall gte 1>>
@@ -4417,7 +4667,7 @@ raising their arms to defend themselves.
 	"You scum," Alex says, rushing over as the pair turn and run. "I'll feed you to my fucking pigs when I catch you!"
 	<br><br>
 	<<clotheson>>
-	"It's a good thing you were nearby," <<he>> says, looking at the damage. "We should be able to patch this up." <<He>> removes <<his>> hat and wipes sweat from <<his>> brow.<<npc Alex dom 1>><<npc Alex love 1>> | <span class="purple">+ Alex's Dominance</span><<glove>>
+	"It's a good thing you were nearby," <<he>> says, looking at the damage. "We should be able to patch this up." <<He>> removes <<his>> hat and wipes sweat from <<his>> brow.<<npcincr Alex dom 1>><<npcincr Alex love 1>><<gdom>><<glove>>
 	<br><br>
 
 	<<if $exposed gte 1 and $farm_naked isnot 1>>
@@ -4428,11 +4678,11 @@ raising their arms to defend themselves.
 		<br><br>
 	<</if>>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 
 <<else>>
-	Too hurt to continue, you slump to the ground. The pair retrieve their axes and continue their work, until an area of 
+	Too hurt to continue, you slump to the ground. The pair retrieve their axes and continue their work, until an area of
 	<<if $farm.wall gte 3>>
 		fence wide enough to fit a cow is reduced to scrap.
 	<<elseif $farm.wall gte 1>>
@@ -4440,7 +4690,7 @@ raising their arms to defend themselves.
 	<<else>>
 		fence wide enough to fit a cow is reduced to splinters.
 	<</if>>
-	
+
 	<br><br>
 	Their job done, the pair swagger away from the farm.<<ggaggro>><<farm_aggro 10>><<farm_fence_damage 3>>
 	<br><br>
@@ -4448,14 +4698,11 @@ raising their arms to defend themselves.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Work]]>><</link>>
-
+	<<link [[다음|Farm Work]]>><</link>>
 <</if>>
-
 
 :: Farm Dogs Split
 <<effects>>
-
 
 <<if $tendingSuccess>>
 	You grasp the offending <<farm_text dog>>s by their collars, and hold them apart. They continue to growl at each other, <span class="green">but don't strain against your grasp.</span> "Bad dogs," you say. Their ears droop.<<grespect>><<farm_dogs 1>>
@@ -4472,7 +4719,7 @@ raising their arms to defend themselves.
 
 <</if>>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -4496,7 +4743,7 @@ You hear laughter outside. <<He>> climbs to <<his>> feet and tries to escape, bu
 Alex glares at you, but doesn't try to pass. Instead, <<he>> sits in the living room, and rests <<his>> forehead in <<his>> palms.
 <br><br>
 
-<<link [[Next|Farm Lorry Safety 2]]>><</link>>
+<<link [[다음|Farm Lorry Safety 2]]>><</link>>
 <br>
 
 
@@ -4522,7 +4769,7 @@ At last they tire. You peek through the window, and see them walk away from the 
 Alex leaves to assess the damage. <<He>> doesn't say anything.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Lorry Stand
@@ -4536,41 +4783,34 @@ You stand beside Alex as the goons close in. <<He>> plants <<his>> feet, then la
 Another goon rushes to assist, while the other two rush you.
 <br><br>
 
-<<link [[Next|Farm Lorry Fight]]>><<set $fightstart to 1>><</link>>
+<<link [[다음|Farm Lorry Fight]]>><<set $fightstart to 1>><</link>>
 <br>
 
 
 :: Farm Lorry Fight
 <<if $fightstart is 1>>
-<<set $fightstart to 0>>
-
-<<neutral 1>>
-
-<<maninit>>
-<<set $enemytrust -= 100>>
-<<set $enemyanger += 200>>
-<<npcidlegenitals>>
-
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
+	<<npcidlegenitals>>
 <</if>>
 
 You hear Alex fighting nearby, but you can't spare a glance.
 <br><br>
 
 <<effects>>
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Lorry Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Lorry Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $pain gte 100 and $willpowerpain is 0>>
-	<span id="next"><<link [[Next|Farm Lorry Fight Finish]]>><</link>></span><<nexttext>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[다음|Farm Lorry Fight Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Lorry Fight]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Lorry Fight]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Lorry Fight Finish
@@ -4588,7 +4828,7 @@ You hear Alex fighting nearby, but you can't spare a glance.
 	<br><br>
 	<<clotheson>>
 
-	<<link [[Next|Farm Lorry Fight End]]>><</link>>
+	<<link [[다음|Farm Lorry Fight End]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
@@ -4603,21 +4843,21 @@ You hear Alex fighting nearby, but you can't spare a glance.
 	<br><br>
 	<<clotheson>>
 
-	<<link [[Next|Farm Lorry Fight End]]>><</link>>
+	<<link [[다음|Farm Lorry Fight End]]>><</link>>
 	<br>
 
 <<else>>
-	You fall to the ground, too hurt to continue.
+	더이상 계속할 수 없을 정도로 다쳐서, 당신은 땅에 쓰러진다.
 	<br><br>
 
 	<<endcombat>>
 	<<npc Alex>><<person1>>
-	"You fu-" Alex begins, but is cut off by an arm wrapping around <<his>> neck from behind. <<He>> tries to break free, but a swift punch to <<his>> stomach has <<him>> keel over instead.
+	"You fu-" Alex begins, but is cut off by an arm wrapping around <<his>> neck from behind. <<He>> tries to break free, but a swift punch to <<his>> <<if npcIsPregnant("Alex")>>face<<else>>stomach<</if>> has <<him>> keel over instead.
 	<br><br>
 	The goons surround you and Alex, and barrage you with a flurry of kicks. <<tearful>> you curl up in a defensive posture. Alex does the same, and endures with a quiet dignity.<<ggpain>><<ggtrauma>><<ggstress>><<pain 8>><<trauma 12>><<stress 12>>
 	<br><br>
 
-	<<link [[Next|Farm Lorry Fight Bad End]]>><</link>>
+	<<link [[다음|Farm Lorry Fight Bad End]]>><</link>>
 	<br>
 
 <</if>>
@@ -4662,7 +4902,7 @@ You stagger to your feet. Alex does likewise.
 <<if $submissive gte 1150>>
 	"I-I'm fine," you say. "We can fix the farm. They haven't won yet."
 <<elseif $submissive lte 850>>
-	"Sorry for what?" you ask. "We can't let them walk all over us. Lets fix this mess."
+	"Sorry for what?" you ask. "We can't let them walk all over us. Let's fix this mess."
 <<else>>
 	"We can fix the farm," you say. "They haven't won yet."
 <</if>>
@@ -4670,7 +4910,7 @@ You stagger to your feet. Alex does likewise.
 <<He>> nods, and looks out over the damaged farm. <<He>> stands upright. "You're right. Let's get to work."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Lorry Berate
@@ -4688,7 +4928,7 @@ You stagger to your feet. Alex does likewise.
 Alex nods. "I understand if you don't want to work here anymore." <<He>> looks out at the damaged farm. "I've got some cleaning up to do."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4715,7 +4955,7 @@ The goons struggle to their feet, except the <<person2>><<person>>, who Alex gra
 <</if>>
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4730,38 +4970,47 @@ You carry the boxes into the kitchen.
 	You take a knife, and slice <span class="green">clean</span> through the sellotape. You should be able to conceal the damage once done.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 <<else>>
 	You take a knife, and slice through the sellotape. <span class="red">It tears in all the wrong ways.</span> Even after being repaired, Alex will notice the tampering.<<lllove>><<npcincr Alex love -3>>
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 <</if>>
 
 You open one of the boxes, and peek inside.
 
-<<set $rng to random(1, 5)>>
+<<rng 5>>
 <<switch $rng>>
 <<case 1>>
 	You find several bags of yeast. You check the other, and find more of the same.
 <<case 2>>
 	There's a variety of seeds. Is Alex trying to get more to grow? There are more seeds, in the other box. Some of them quite exotic.
 <<case 3>>
-	 There's a variety of sundries the local grocers wouldn't sell. There's more of the same in the second, with the addition of a lewd magazine tucked away in the corner.
+	There's a variety of sundries the local grocers wouldn't sell. There's more of the same in the second, with the addition of some lewd magazines tucked away in the corner.
+	<br><br>
+
+		<<if $fame.model gte 1000 and C.npc.Alex.lust gte 20>>
+
+			You recognise that one of the magazines has a cover of you, completely naked.  Your face reddens.<<ggarousal>><<arousal 1200>>
+
+		<<elseif $fame.model gte 600 and C.npc.Alex.lust gte 20>>
+
+			You recognise that one of the magazines has a cover of you, wearing nothing but underwear. Your face flushes.<<garousal>><<arousal 600>>
+
+		<<elseif $fame.model gte 400 and C.npc.Alex.lust gte 20>>
+
+			You recognise that one of the magazines has a cover of you, topless. Your face flushes.<<garousal>><<arousal 600>>
+
+		<<elseif $fame.model gte 200 and C.npc.Alex.lust gte 20>>
+
+			You notice that one of the magazines has a cover of you.
+			
+		<</if>>
 <<case 4>>
 	There's a variety of sundries the local grocers wouldn't sell. There's more of the same in the second.
 <<case 5>>
-	<<if $science gte 700>>
+	<<if currentSkillValue('science') gte 700>>
 		There's a variety of metal and glass equipment. Pipes, tubes, and measuring devices. Stuff you'd expect to find in a lab rather than a farm. The second box has more of the same.
 	<<else>>
 		There's a variety of metal and glass equipment. Pipes, tubes, and containers. You're not sure what it's for. The second box has more of the same.
@@ -4772,7 +5021,7 @@ You open one of the boxes, and peek inside.
 You close the boxes and repair the damage as best you can.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -4782,7 +5031,7 @@ You close the boxes and repair the damage as best you can.
 You carry the boxes inside, and leave them on kitchen table.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -4794,29 +5043,26 @@ You carry the boxes inside, and leave them on kitchen table.
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 	<<hand_gag 0 left>>
 	<<set $enemytrust -= 20>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-<span id="next"><<link [[Next|Farm Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-<span id="next"><<link [[Next|Farm Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-<span id="next"><<link [[Next|Farm Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-<span id="next"><<link [[Next|Farm Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Rape Finish
@@ -4829,7 +5075,7 @@ You carry the boxes inside, and leave them on kitchen table.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
@@ -4839,14 +5085,14 @@ You carry the boxes inside, and leave them on kitchen table.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>>
 	<<set $rescued += 1>>
 	"I'm coming!" The <<person1>><<person>> pulls you in front of <<him>> as Alex arrives.
 	<br><br>
-	"It's our farmer <<if $NPCName[$NPCNameList.indexOf("Alex")].gender is "m">>boy<<else>>girl<</if>>," the <<person>> sneers. "The one who thinks they can make it in world alone."
+	"It's our farmer <<nnpc_gendery "Alex">>," the <<person>> sneers. "The one who thinks they can make it in the world alone."
 	<br><br>
 
 	<<if $exposed gte 1>>
@@ -4858,7 +5104,7 @@ You carry the boxes inside, and leave them on kitchen table.
 	The <<person>> tightens <<his>> grip instead. Alex launches forward, <<nnpc_his "Alex">> fist sailing over your shoulder. You hear a sickening crunch just behind you./*<<llaggro>><<farm_aggro -10>>*/
 	<br><br>
 
-	<<link [[Next|Farm Rape Finish Rescue]]>><</link>>
+	<<link [[다음|Farm Rape Finish Rescue]]>><</link>>
 	<br>
 
 <</if>>
@@ -4887,7 +5133,7 @@ The <<person1>><<person>> releases you and staggers backwards, clutching <<his>>
 "That was one of Remy's. Be careful."<<gdom>><<npcincr Alex dom 1>>
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4898,7 +5144,7 @@ The <<person1>><<person>> releases you and staggers backwards, clutching <<his>>
 You laugh as you climb to your feet. "I need to get these in storage," Alex continues. "Keep the weather off." <<He>> walks away.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4917,7 +5163,7 @@ You laugh as you climb to your feet. "I need to get these in storage," Alex cont
 "Sorry," Alex says. <<Hes>> grinning. "I need to get these in storage before the damp gets to them." <<He>> walks away.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -4929,7 +5175,7 @@ You laugh as you climb to your feet. "I need to get these in storage," Alex cont
 	"Bad dog!" you say. <<farm_His dog>> ears droop, <span class="green">and <<farm_he dog>> drops to the ground.</span><<grespect>><<farm_dogs 1>>
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<else>>
 	"B-Bad dog," you say. <span class="red">The <<farm_text dog>> ignores you,</span> and continues to hump.<<lrespect>><<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<farm_dogs -1>>
@@ -4939,7 +5185,7 @@ You laugh as you climb to your feet. "I need to get these in storage," Alex cont
 
 	<<if $farm_work.dog.genitals is "penis">>
 		<<farm_text dog>> rubs <<farm_his dog>> cock against your <<bottom>> with increasing speed, until it shudders and coats your cheeks in ejaculate.
-		<<set $bottomsemen += 1>>
+		<<bodyliquid "bottom" "semen">>
 		<br><br>
 	<<else>>
 		<<farm_text dog>> rubs against your <<bottom>> with increasing speed, until it shudders in orgasm.
@@ -4948,7 +5194,7 @@ You laugh as you climb to your feet. "I need to get these in storage," Alex cont
 	<<farm_He dog>> drops to the ground, and returns to the kennels.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <</if>>
 
@@ -4958,7 +5204,7 @@ You laugh as you climb to your feet. "I need to get these in storage," Alex cont
 You drop to your knees, right there in the middle of the field. The <<farm_text dog>> mounts you from behind.
 <<deviancy2>>
 
-<<link [[Next|Farm Dogs Sex]]>><<set $sexstart to 1>><</link>>
+<<link [[다음|Farm Dogs Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
 
@@ -4969,7 +5215,7 @@ You struggle to stand upright as the
 
 <<if $farm_work.dog.genitals is "penis">>
 	<<farm_text dog>> rubs <<farm_his dog>> cock against your <<bottom>> with increasing speed, until it shudders and coats your cheeks in ejaculate.
-	<<set $bottomsemen += 1>>
+	<<bodyliquid "bottom" "semen">>
 	<br><br>
 <<else>>
 	<<farm_text dog>> rubs against your <<bottom>> with increasing speed, until it shudders in orgasm.
@@ -4978,7 +5224,7 @@ You struggle to stand upright as the
 <<farm_He dog>> drops to the ground, and returns to the kennels.
 <br><br>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><</link>>
 <br>
 
 
@@ -4989,7 +5235,6 @@ You struggle to stand upright as the
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<if $farm_work.dog.monster is true>>
 		<<beastNEWinit 1 dog $farm_work.dog.gender $farm_work.dog.genitals monster>>
 	<<else>>
@@ -4997,27 +5242,24 @@ You struggle to stand upright as the
 	<</if>>
 	<<beastCombatInit>>
 	<<set $NPCList[0].stance to "top">>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 
 <<effects>>
 <<effectsman>>
-<br><br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $rescue is 1 and $alarm is 1>>
-	<span id="next"><<link [[Next|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Dogs Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Dogs Rape Finish
@@ -5034,7 +5276,7 @@ You struggle to stand upright as the
 		You remain knotted together in the middle of the field.
 		<br><br>
 
-		<<link [[Next|Farm Knotted]]>><<set $phase to 0>><</link>>
+		<<link [[다음|Farm Knotted]]>><<set $phase to 0>><</link>>
 		<br>
 	<<else>>
 		The <<farm_text dog>> returns to kennels, now eager to feed. <<tearful>> you climb to your feet.
@@ -5043,12 +5285,12 @@ You struggle to stand upright as the
 		<<clotheson>>
 		<<endcombat>>
 
-		<<link [[Next|Farm Work]]>><</link>>
+		<<link [[다음|Farm Work]]>><</link>>
 		<br>
 	<</if>>
 <<elseif $enemyhealth lte 0>>
 
-	The <<farm_text dog>> turns and flees back to the kennels.
+	The <<farm_text dog>> turns and flees back to the kennels.<<grespect>><<farm_dogs 1>>
 	<br><br>
 
 	<<tearful>> you climb to your feet.
@@ -5057,7 +5299,7 @@ You struggle to stand upright as the
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 <<elseif $finish is 1>>
 	Eager to feed, the <<farm_text dog>> returns to the kennels.
@@ -5066,7 +5308,10 @@ You struggle to stand upright as the
 	<<tearful>> you climb to your feet.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[다음|Farm Work]]>><</link>>
 	<br>
 
 <<else>>
@@ -5093,7 +5338,7 @@ You struggle to stand upright as the
 	<<tearful>> you watch Alex walk from the field.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 
 <</if>>
@@ -5105,7 +5350,6 @@ You struggle to stand upright as the
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<if $farm_work.dog.monster is true>>
 		<<beastNEWinit 1 dog $farm_work.dog.gender $farm_work.dog.genitals monster>>
 	<<else>>
@@ -5113,38 +5357,30 @@ You struggle to stand upright as the
 	<</if>>
 	<<beastCombatInit>>
 	<<set $NPCList[0].stance to "top">>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 
 <<effects>>
 <<effectsman>>
-<br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $rescue is 1 and $alarm is 1>>
-	<span id="next"><<link [[Next|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Dogs Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Dogs Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Dogs Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
 
 :: Farm Knotted
 <<effects>>
-
 <<farm_knotted>>
-
-
 
 :: Farm Knotted Hold
 <<effects>>
@@ -5161,7 +5397,7 @@ You struggle to stand upright as the
 	You still hear Alex and the <<personsimple>> discussing, so you keep low.
 	<br><br>
 
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 
 <<else>>
@@ -5171,23 +5407,20 @@ You struggle to stand upright as the
 	<<farm_knotted>>
 <</if>>
 
-
-
 :: Farm Knotted Scold
 <<effects>>
-
 
 <<if $tendingSuccess>>
 	"Bad dog," you scold, "Bad, bad dog." <<farm_He dog>> hesitates, <span class="green">then comes to a stop.</span>
 	<<pass 5>>
 	<br><br>
 
-	Alex continues discussing with the <<personsimple>> not so far away, so you keep low in the grass while waiting for the knot to deflate. At last, you manage to wiggle free.
+	Alex continues discussing with the <<personsimple>> not so far away, so you keep low in the grass while waiting for the knot to shrink. At last, you manage to wiggle free.
 	<br><br>
 
 	<<clotheson>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	"B-Bad dog," you scold, but it's hard to sound authoritative while being dragged through a field by a cock. <span class="red">The <<farm_text dog>> ignores you,</span> and pulls you further along.
@@ -5197,8 +5430,6 @@ You struggle to stand upright as the
 	<<farm_knotted>>
 
 <</if>>
-
-
 
 :: Farm Knotted Seen
 <<effects>>
@@ -5214,20 +5445,18 @@ Alex breaks free from <<person1>><<his>> stupour, and looks away. "W-We aren't-"
 <br>
 "You've got my business," the <<person2>><<person>> interrupts as you and the <<farm_text dog>> arrive. <<He>> crouches beside you, and moves the camera close to the knot. "I've a few friends who'd love to hear about this."
 <br><br>
-The <<person2>><<person>> insists on filming until the knot deflates. Stuck on all fours, there's nothing you can do but endure.<<if $phase is 5>>
+The <<person2>><<person>> insists on filming until the knot shrinks. Stuck on all fours, there's nothing you can do but endure.<<if $phase is 5>>
 	<<ggtrauma>><<ggstress>><<lllove>><<gggdom>><<gglust>><<gggfarm>>
 <</if>>
 <br><br>
 
-<<link [[Next|Farm Knotted Seen 2]]>><</link>>
+<<link [[다음|Farm Knotted Seen 2]]>><</link>>
 <br>
-
 
 :: Farm Knotted Seen 2
 <<effects>>
 
-
-The knot deflates, and the <<farm_text dog>> wiggles free. The <<person2>><<person>> walks away while examining the footage.
+The knot shrinks, and the <<farm_text dog>> wiggles free. The <<person2>><<person>> walks away while examining the footage.
 <<clotheson>>
 <<person1>>
 <<if $exposed gte 1 and $farm_naked isnot 1>>
@@ -5244,10 +5473,8 @@ The knot deflates, and the <<farm_text dog>> wiggles free. The <<person2>><<pers
 <</if>>
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
-
-
 
 :: Farm Knotted Deviant
 <<effects>>
@@ -5269,10 +5496,10 @@ Alex breaks free from <<person1>><<his>> stupour, and looks away. "W-We aren't-"
 <</if>>
 as you and the <<farm_text dog>> arrive. "We're willing to go all the way."
 <<deviancy5>>
-"I can see that," the <<person2>><<person>> says, crouching and moving <<his>> camera right up to the knot. "You've got my business, and then some. I've friends who'll love to hear about this. Can I film until the knot deflates?"
+"I can see that," the <<person2>><<person>> says, crouching and moving <<his>> camera right up to the knot. "You've got my business, and then some. I've friends who'll love to hear about this. Can I film until the knot shrinks?"
 <br><br>
 
-<<link [[Next|Farm Knotted Seen 2]]>><</link>>
+<<link [[다음|Farm Knotted Seen 2]]>><</link>>
 <br>
 
 
@@ -5284,7 +5511,7 @@ as you and the <<farm_text dog>> arrive. "We're willing to go all the way."
 You strut across the yard, eliciting more catcalls from the <<person>> and <<his>> colleagues.
 <<exhibitionism1>>
 
-<<link [[Next|Farm Work]]>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -5298,7 +5525,7 @@ You strut across the yard, eliciting more catcalls from the <<person>> and <<his
 "Woah <<lass>>," the <<person>> says. "It was only a joke." <<He>> and <<his>> friends hasten their steps.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -5317,7 +5544,7 @@ You strut across the yard, eliciting more catcalls from the <<person>> and <<his
 The <<person>> and <<his>> friends just laugh, and continue across the yard.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -5330,18 +5557,18 @@ You sit with them, and chat. You share a little about the troubles on the farm, 
 <<if random(1, 10) is 10>>
 	<span class="green">Your words strike a chord.</span> They return to work with renewed vigour.
 	<br><br>
-	
-	<<link [[Next|Farm Work]]>><<endevent>><<set $farm.build_timer -= 1>><</link>>
+
+	<<link [[다음|Farm Work]]>><<endevent>><<set $farm.build_timer -= 1>><</link>>
 	<br>
 <<else>>
 	You're not sure they believe you, but they seem sympathetic.
 	<br><br>
-	
+
 	<<if $promiscuity gte 35>>
-		<<link [[Seduce|Farm Builders Seduce]]>><</link>> | <span class="green">Will speed construction if succesful.</span>
+		<<link [[Seduce|Farm Builders Seduce]]>><</link>><<note "Will speed construction if successful" "green">>
 		<br>
 	<</if>>
-	<<link [[Leave|Farm Work]]>><<endevent>><</link>>
+	<<link [[떠난다|Farm Work]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -5353,7 +5580,7 @@ You sit with them, and chat. You share a little about the troubles on the farm, 
 <<seductioncheck>>
 <br><br>
 <<if $seductionskill lt 1000>>
-	<span class="gold">You feel more confident in your powers of seduction.</span>
+	<span class="gold">당신은 유혹하는 데 좀 더 자신감이 붙었다.</span>
 	<br><br>
 <</if>>
 <<seductionskilluse>>
@@ -5371,31 +5598,18 @@ You sit with them, and chat. You share a little about the troubles on the farm, 
 	The <<person>> looks unsure, but you silence <<him>> with a finger when <<he>> opens <<his>> mouth. <span class="green">There are no further protests.</span>
 	<br><br>
 
-	<<link [[Next|Farm Builders Sex]]>><<set $sexstart to 1>><</link>>
+	<<link [[다음|Farm Builders Sex]]>><<set $sexstart to 1>><</link>>
 	<br>
 <<else>>
-	The <<person>> shakes <<his>> head. "Th-thank you," <<he>> says. "But I have a
-	<<if $pronoun is "m">>
-		<<if $homochance gte random(1, 100)>>
-			husband."
-		<<else>>
-			wife."
-		<</if>>
-	<<else>>
-		<<if $homochance gte random(1, 100)>>
-			wife."
-		<<else>>
-			husband."
-		<</if>>
-	<</if>>
+	The <<person>> shakes <<his>> head. "Th-thank you," <<he>> says. "But I have a <<spouse>>.
 	<br><br>
-	
+
 	The others don't seem in the mood either.
 	<br><br>
-	
-	<<link [[Next|Farm Work]]>><<endevent>><</link>>
+
+	<<link [[다음|Farm Work]]>><<endevent>><</link>>
 	<br>
-	
+
 
 <</if>>
 
@@ -5407,26 +5621,24 @@ You sit with them, and chat. You share a little about the troubles on the farm, 
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 50>>
-	<<set $rescue to 1>>
+	<<if Time.hour lt 21 or Time.hour gt 4>>
+		<<enable_rescue>>
+	<</if>>
 <</if>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Farm Builders Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Farm Builders Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Farm Builders Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Farm Builders Sex Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Builders Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Farm Builders Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Farm Builders Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Farm Builders Sex Finish
@@ -5442,33 +5654,41 @@ You sit with them, and chat. You share a little about the troubles on the farm, 
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 <<elseif $enemyhealth lte 0>>
 	You shove the <<person1>><<person>> away from you. <<tearful>> you run into the cottage.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	
-	<<link [[Next|Farm Cottage]]>><</link>>
+
+	<<link [[다음|Farm Cottage]]>><</link>>
 	<br>
 <<elseif $alarm is 1 and $rescue is 1>>
 	"I'm coming!" It's Alex. The builders back away from you as <<nnpc_he Alex>> arrives.
 	<br>
 	"<<pShe>> started it," the <<person1>><<person>> protests.
 	<br>
-	"Get the fuck off my property," Alex says.
+	"Get the fuck off
+	<<if $NPCName[$NPCNameList.indexOf("Alex")].dom gte 20>>
+		my
+	<<else>>
+		our
+	<</if>>
+	property," Alex says.
 	<br><br>
-	
+
 	The <<person1>><<person>> looks ready to argue, but decides against it. They stomp off.
 	<br><br>
-	
+
 	Alex rushes over. "Are you okay? I'm sorry. I'll be more careful about who we hire in the future."
 	<br><br>
-	
+
 	<<tearful>> you climb to your feet. Alex leads you inside and makes you a cup of tea before returning to work.<<lstress>><<stress -6>>
 	<br><br>
-	
-	<<link [[Next|Farm Cottage]]>><</link>>
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[다음|Farm Cottage]]>><</link>>
 	<br>
 <<else>>
 	"We should get back to work," the <<person1>> says. They pick up their tools and walk away.
@@ -5478,7 +5698,7 @@ You sit with them, and chat. You share a little about the troubles on the farm, 
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[다음|Farm Work]]>><</link>>
 <</if>>
 
 :: Farm Builders Help
@@ -5488,7 +5708,7 @@ You help the builders carry material to the site.
 <<if $physiqueSuccess>>
 	It's hard work, <span class="green">but you're able to keep up.</span>
 	<br><br>
-	
+
 	<<if random(1, 5) is 5>>
 		"Thanks for the help," a <<person>> says. <span class="green">"I think we're ahead of schedule."</span>
 		<<set $farm.build_timer -= 1>>
@@ -5503,7 +5723,7 @@ You help the builders carry material to the site.
 	<br><br>
 <</if>>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -5511,7 +5731,7 @@ You help the builders carry material to the site.
 <<effects>>
 
 <<if $submissive gte 1150>>
-	"Pl-please don't touch me without permission," you say.
+	"P-please don't touch me without permission," you say.
 <<elseif $submissive lte 850>>
 	"Keep your mitts off," you say. "Fucking perv."
 <<else>>
@@ -5522,7 +5742,7 @@ You help the builders carry material to the site.
 The <<person>> throws up <<his>> hands. "I don't know what you're talking about," <<he>> says. "Honest."
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Builders Skirt Flaunt
@@ -5532,18 +5752,18 @@ The <<person>> throws up <<his>> hands. "I don't know what you're talking about,
 <<if $phase is 1>>
 	You twirl, and your skirt flares, flashing your <<genitals>>.
 	<<exhibitionism4>>
-	
+
 	"You really are a naughty <<girl>>," the <<person>> says. <<He>> follows you as you strut across the yard, until <<his>> supervisor calls <<him>> back.
 	<br><br>
 <<else>>
 	You twirl, and your skirt flares, flashing your <<undies>>.
 	<<exhibitionism2>>
-	
+
 	The <<person>> whistles, and follows you across the yard, until called back by <<his>> supervisor.
 	<br><br>
 <</if>>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 :: Farm Builders Bottom Flirt
@@ -5561,7 +5781,7 @@ The <<person>> throws up <<his>> hands. "I don't know what you're talking about,
 The <<person>> follows you across the yard, until <<hes>> called back by <<his>> supervisor.
 <br><br>
 
-<<link [[Next|Farm Work]]>><<endevent>><</link>>
+<<link [[다음|Farm Work]]>><<endevent>><</link>>
 <br>
 
 
@@ -5618,6 +5838,215 @@ You strike an alluring pose.
 <<exhibitionism2>>
 
 The <<person>> tries rattling the fence, but it's too sturdy. "You'll be Remy's sooner or later," <<he>> says. "And when you are, I'll make a personal visit." <<He>> turns to leave. The <<person2>><<person>> and <<person3>><<person>> follow.
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+:: Farm Spank Scold
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"Pl-please don't surprise me like that," you say.
+<<elseif $submissive lte 850>>
+	"Don't touch me without permission, pervert," you say.
+<<else>>
+	"Don't spank me while I'm working," you say.
+<</if>>
+<br><br>
+
+Alex throws up <<his>> hands. "Sorry," <<he>> grins. "Won't happen again." <<He>> doesn't sound sincere.
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+:: Farm Spank Retaliate
+<<effects>>
+
+You try to spank Alex back, but <<he>> anticipates you, twisting away from your hand while trying to trip you up.
+<<if $athleticsSuccess>>
+	You leap over <<his>> leg, catch <<his>> shoulder, and destabilising both of you. You fall on your <<bottom>>, <span class="green">but manage to pull Alex down with you.</span> <<His>> own rear lands face-up on your lap.
+	<br><br>
+
+	"Your feet are quick," <<he>> laughs. "I'm at your mercy."<<glust>><<npcincr Alex lust 10>>
+	<br><br>
+
+	<<link [[Kiss|Farm Spank Kiss]]>><<npcincr Alex love 1>><</link>><<glove>>
+	<br>
+	<<link [[Spank gently|Farm Spank Gentle]]>><<def 1>><<npcincr Alex dom -1>><</link>><<ldom>>
+	<br>
+	<<link [[Spank roughly|Farm Spank Rough]]>><<def 3>><<npcincr Alex dom -3>><<npcincr Alex love -1>><<stress -6>><</link>><<llove>><<lldom>><<lstress>>
+	<br>
+<<else>>
+	You try to jump over <<his>> outstretched leg, <span class="red">but <<he>> catches you,</span> pulling you down as <<he>> falls on <<his>> rear. You land on <<his>> lap, your <<bottom>> facing <<him>>.
+	<br><br>
+
+	"Nice try," <<he>> gloats. "Now you're right where I want you."<<gglust>><<npcincr Alex lust 10>>
+	<br><br>
+
+	<<link [[Get Angry|Farm Spank Angry]]>><<npcincr Alex love -1>><</link>><<llove>>
+	<br>
+	<<link [[Wait|Farm Spank Wait]]>><<npcincr Alex dom 1>><</link>><<gdom>>
+	<br>
+	<<link [[Goad|Farm Spank Goad 2]]>><<sub 1>><<npcincr Alex dom 3>><<pain 1>><</link>><<gpain>><<ggdom>>
+	<br>
+<</if>>
+
+:: Farm Spank Goad
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"I-I deserve harder than that," you say, wiggling your behind.
+<<elseif $submissive lte 850>>
+	"I barely felt that," you say, wiggling your behind. "Give me a proper one, before I show you how it's done."
+<<else>>
+	"Did a fly land on me?" you ask, wiggling your behind. "I felt something, but it was so light."
+<</if>>
+<br><br>
+
+Alex doesn't need a clearer hint. <<He>> grasps your <<bottom>> with both hands as <<he>> sits, pulling you face-down over <<his>> lap.
+<br><br>
+
+"What should I do with you?" <<he>> muses. "Hard or soft? How bad have you been?"
+<br><br>
+
+
+<<link [[Say you've been good|Farm Spank Wait]]>><<npcincr Alex dom 1>><</link>><<gdom>>
+<br>
+<<link [[Say you've been bad|Farm Spank Goad 2]]>><<sub 1>><<npcincr Alex dom 3>><<pain 1>><</link>><<gpain>><<ggdom>>
+<br>
+
+:: Farm Spank Kiss
+<<effects>>
+
+You lean forward, and plant a kiss on Alex's bottom cheek. "You've been good," you coo. "So that's what you get."
+<br><br>
+
+Alex laughs, sits upright and leans forward to kiss your mouth.
+<br><br>
+
+<<link [[Kiss|Farm Spank Kiss 2]]>><<npcincr Alex love 3>><</link>><<kissvirginitywarning>><<gglove>>
+<br>
+<<link [[Turn cheek|Farm Spank Kiss Cheek]]>><<npcincr Alex love 1>><</link>><<glove>>
+<br>
+
+:: Farm Spank Kiss 2
+<<effects>>
+
+You rest your hands on Alex's cheeks, and meet <<his>> lips with your own. <<He>> leans forward, pushing you back against the grass as <<his>> tongue flicks at your lips.<<takeKissVirginity "Alex" "loveInterest">>
+<br><br>
+
+"I'd best get back to work," <<he>> says, managing to pull away a moment. "I need to be careful around you, or I'll get nothing done!" <<He>> helps you to your feet, and whistles as <<he>> walks away.
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+
+:: Farm Spank Kiss Cheek
+<<effects>>
+
+You let <<his>> kiss land on your cheek. <<He>> tries to find your mouth, but you turn further away, and end up on your back against the grass.
+<br><br>
+
+"I'd best get back to work," <<he>> says, managing to pull away a moment. "I need to be careful around you, or I'll get nothing done!" <<He>> helps you to your feet, and whistles as <<he>> walks away.
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+
+:: Farm Spank Gentle
+<<effects>>
+
+You give <<his>> bottom a tap. "Ow!" <<he>> shouts, exaggerating. You tap again, and again. <<He>> cries out in feigned pain. "I'm sorry, I'm sorry!" <<he>> laughs. "I'll be good. I promise!"
+<br><br>
+
+You release <<him>>, and <<he>> rises to <<his>> feet. "Next time," <<he>> says. "That cute bottom of yours will be mine."
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+:: Farm Spank Rough
+<<effects>>
+
+You give Alex's rear a sharp smack. "Ow!" <<he>> says. <<Hes>> exaggerating, but only slightly. You spank <<him>> again and again, venting something with each blow. <<He>> stops crying out in pain, and just grimaces until you release <<him>>.
+<br><br>
+
+"Did I actually piss you off somehow?" <<he>> asks, rubbing <<his>> bottom as <<he>> stands. <<He>> returns to work, <<his>> gait a little different to normal.
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+
+:: Farm Spank Angry
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"Pl-please let me go!" you say.
+<<elseif $submissive lte 850>>
+	"Let go of me you fuck!" you say.
+<<else>>
+	"Let me go at once!" you say.
+<</if>>
+Alex releases you, and scratches <<his>> head sheepishly.
+<br><br>
+
+"Sorry," <<he>> says, rising to <<his>> feet. "I think I misread you." <<He>> returns to work.
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+:: Farm Spank Wait
+<<effects>>
+
+You wait to see what Alex intends. <<He>> rests <<his>> hand against your <<bottom>>, then delivers a sharp tap. "This is for being a little brat," <<he>> laughs, sending another, and another. It doesn't really hurt, but <<he>> gets the point across.
+<br><br>
+
+"I hope you learned you lesson," <<he>> adds, releasing you. "I should get back to work. Don't give me a reason to discipline you again." <<He>> whistles as <<he>> walks away.
+<br><br>
+<<endevent>>
+
+<<destination_farm>>
+
+
+:: Farm Spank Goad 2
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"I-I've been so, so bad," you say. "I need you to teach me a lesson."
+<<elseif $submissive lte 850>>
+	"Go ahead and spank me," You say. "Wuss. I won't even feel it."
+<<else>>
+	"You gonna teach me a lesson?" you ask. "I deserve it."
+<</if>>
+<br><br>
+
+Alex grins. "If you put it that way," <<he>> says, adopting a harder tone. <<He>> delivers a sharp smack to your <<bottom>>. "I'd better put my back into it." <<He>> delivers another spank, even harder this time. Then another. "Hard enough for ya, you little slut?"
+<br><br>
+
+<<Hes>> quite restrained really, but you still feel a little sore when <<he>> releases you. "Let's hope you remember this lesson." <<He>> still carries that hard tone, but <<his>> smile betrays <<his>> real feelings. <<He>> whistles as <<he>> returns to work.
+<br><br>
+
+<<endevent>>
+
+<<destination_farm>>
+
+:: Farm Spank Ignore
+<<effects>>
+
+You ignore Alex's antics. <<He>> whistles, and continues with <<his>> work.
 <br><br>
 
 <<endevent>>

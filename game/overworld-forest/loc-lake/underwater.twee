@@ -1,12 +1,16 @@
 :: Lake Underwater
 
-<<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
-<<if $stress gte $stressmax>>
+<<set $outside to 0>><<set $location to "lake_ruin">><<set $bus to "lakeunderwater">><<underwater>><<effects>><<lakeeffects>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutlake>>
+<<elseif $foresthunt gte 10>>
+	<<foresthunt>>
+<<elseif wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
+	<<wHunt "lake">>
 <<else>>
-	<<if $season is "winter">>
+	<<if Time.season is "winter">>
 		당신은 호수 아래에 있다. 당신은 수정 같은 천장 아래에서 수초들 사이로 헤엄친다.
-		<<if $daystate is "night">>
+		<<if Time.dayState is "night">>
 			<<if $weather is "snow">>
 				얼음은 칠흑같이 새카맣다.
 			<<elseif $weather is "clear">>
@@ -25,7 +29,7 @@
 		<</if>>
 	<<else>>
 		당신은 호수 아래에 있다. 당신은 어두운 유사와 높은 수초 사이로 헤엄친다.
-		<<if $daystate is "night">>
+		<<if Time.dayState is "night">>
 			<<if $weather is "rain">>
 				물이 검다. 위쪽에서는 둔탁한 빗소리가 들려온다.
 			<<elseif $weather is "clear">>
@@ -43,11 +47,11 @@
 			<</if>>
 		<</if>>
 	<</if>>
-	<<if $schoolday isnot 1 and $weather is "snow" and $daystate is "day" and $mason_ice_lake gte 1>>
+	<<if !Time.schoolDay and $weather is "snow" and Time.dayState is "day" and $mason_ice_lake gte 1>>
 		당신은 식물 사이로 메이슨을 엿볼 수 있다.
 	<</if>>
 	<br><br>
-	<<if $schoolday isnot 1 and $weather is "snow" and $daystate is "day" and $mason_ice_lake is undefined>>
+	<<if !Time.schoolDay and $weather is "snow" and Time.dayState is "day" and $mason_ice_lake is undefined>>
 		<<set $mason_ice_lake to 1>>
 		<<npc Mason>><<person1>>
 		어둠 속에서 형체가 나타난다. 강한 팔은 당신을 붙잡고, 당신이 빛을 향해 되돌아갈 때 날렵한 근육질의 몸체가 당신을 압박한다.
@@ -71,7 +75,7 @@
 		<br>
 		<<link [[화낸다|Lake Mason Angry]]>><<def 1>><<npcincr Mason love -1>><</link>><<llove>>
 		<br>
-	<<elseif $schoolday isnot 1 and $weather is "snow" and $daystate is "day" and $mason_ice_lake is 1 and random(1, 5) is 5>>
+	<<elseif !Time.schoolDay and $weather is "snow" and Time.dayState is "day" and $mason_ice_lake is 1 and random(1, 5) is 5>>
 		<<npc Mason>><<person1>>
 		메이슨이 당신을 발견하고 당신의 방향으로 속도를 낸다. <<HePost "은">> 당신을 <<his>> 의 팔로 껴안고, 빛을 향해 발길질한다. 당신은 얼음 위로 떠밀려있다.
 		<br><br>
@@ -92,12 +96,16 @@
 		<<link [[화낸다|Lake Mason Angry]]>><</link>>
 		<br>
 	<<else>>
-		<<link [[유적으로 헤임친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
+		<<if $nextPassageCheck is "Lake Ruin">>
+			<span class="nextLink"><<link [[유적으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>></span>
+		<<else>>
+			<<link [[유적으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
+		<</if>>
 		<br><br>
-		<<if $schoolday isnot 1 and $weather is "snow" and $daystate is "day">>
+		<<if !Time.schoolDay and $weather is "snow" and Time.dayState is "day">>
 			<<set $lake_ice_broken to 1>>
 		<</if>>
-		<<if $season is "winter">>
+		<<if Time.season is "winter">>
 			<<if $lake_ice_broken is undefined>>
 				<<link [[수면으로|Lake Underwater Ice]]>><</link>>
 				<br>
@@ -182,14 +190,28 @@
 
 :: Lake Ruin
 
-<<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
-You are in the submerged ruin beneath the lake. Glowing purple lichen covers ancient walls.
+<<set $outside to 0>><<set $location to "lake_ruin">><<set $bus to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
+당신은 호수 아래의 수몰된 폐허에 있다. 빛나는 보라색 이끼가 오래된 벽을 뒤덮고 있다.
+<<if $wraithPrison or $sciencelichenlake is 1 or $scienceproject is "won" or $scienceproject is "done">>
+	이상한 룬 문자가 벽의 평평한 부분에서 희미하게 빛난다.
+<</if>>
 <br><br>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutlake>>
+<<elseif $foresthunt gte 10>>
+	<<foresthunt>>
+<<elseif wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
+	<<wHunt "lake">>
 <<else>>
 	<<if $sciencelichenknown is 1 and $sciencelichenlake isnot 1 and $scienceproject is "ongoing">>
 		<<link [[과학 프로젝트를 위한 이끼 탐색|Lake Lichen]]>><<set $sciencelichenlake to 1>><<wateraction>><</link>><<loxygen>>
+		<br>
+	<</if>>
+	<<if $nextPassageCheck is "Lake Ruin Prison Intro">>
+		<span class="nextLink"><<link [[룬 문자를 조사한다|Lake Ruin Prison Intro]]>><<wateraction>><</link>><<loxygen>></span>
+		<br>
+	<<elseif $wraithPrison or $sciencelichenlake is 1 or $scienceproject is "won" or $scienceproject is "done">>
+		<<link [[룬 문자를 조사한다|Lake Ruin Symbol]]>><<wateraction>><</link>><<loxygen>>
 		<br>
 	<</if>>
 	<<link [[더 깊이 헤엄친다|Lake Ruin Deep]]>><<wateraction>><</link>><<loxygen>>
@@ -198,9 +220,20 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<br>
 <</if>>
 
+:: Lake Ruin Symbol
+<<set $outside to 0>><<set $location to "lake_ruin">><<set $bus to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
+당신은 당신의 손으로 벽에 각인된 기호를 만진다. 아무것도 일어나지 않는다.
+<br><br>
+<<if $wraithPrison>>
+	당신은 반대쪽에 무엇이 있는지 깨닫고, 전율한다.
+	<br><br>
+<</if>>
+<<link [[다음|Lake Ruin]]>><</link>>
+<br>
+
 :: Lake Ruin Deep
 
-<<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
+<<set $outside to 0>><<set $location to "lake_ruin">><<set $bus to "lake_ruin_deep">><<underwater>><<effects>><<lakeeffects>>
 당신은 호수 아래에 깊은 곳에 잠긴 폐허 속에서 헤엄치고 있다. 크기가 다른 항아리가 방을 채우고 있다. 입구 맞은편에 오래된 문이 있다.
 <<if $lakeruinkey isnot 2>>
 	그것은 잠겨있다.
@@ -208,8 +241,12 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	그것은 열려있다.
 <</if>>
 <br><br>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutlake>>
+<<elseif $foresthunt gte 10>>
+	<<foresthunt>>
+<<elseif wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10) and !$possessed>>
+	<<wHunt "lake">>
 <<else>>
 	<<if $lakeruinkey is 1>>
 		<<link [[청동 열쇠를 사용한다|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>>
@@ -222,7 +259,11 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 		<br>
 	<</if>>
 	<br>
-	<<link [[밖으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
+	<<if $nextPassageCheck is "Lake Ruin">>
+		<span class="nextLink"><<link [[밖으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>></span>
+	<<else>>
+		<<link [[밖으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
+	<</if>>
 	<br>
 <</if>>
 
@@ -232,9 +273,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 <<set $lakeruinkey to 2>>
 당신은 오래된 장치가 삐걱거리며 문이 열리는 소리를 듣는다. 그 너머에는 잔해가 깔린 방에 홀로 서 있는 받침대가 있다. 그 위에는 상아로 된 목걸이가 있다. 그것은 파란색 보석으로 장식되어 있다.
 <br><br>
-<<link [[가져간다|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><</link>>
-<br>
-<<link [[떠난다|Lake Ruin Deep]]>><</link>>
+<<link [[안으로 헤엄쳐 들어간다|Lake Ruin Plinth]]>><</link>>
 <br>
 
 :: Lake Ruin Sit
@@ -242,15 +281,19 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 
 당신은 대좌를 잡고, 그곳에 당신의 <<bottomPost "을">> 기대어 당긴다. 그 순간, 빨간 불이 활활 타오르며 방을 밝힌다. 이전에 볼 수 없던 조각상이 당신을 내려다보고 있다.
 <br><br>
-
-당신의 몸이 휙 젖혀지며 떨려온다. 방이 흔들리고 요동친다. 바닥에 금이 가 있다. 더 많은 빨간 불빛이 들어오며 방이 넓어진다. 당신은 귀에서 점액이 꿈틀대는 것을 느낀다. 그것은 틈새 속으로 사라진다.
+당신의 몸이 휙 젖혀지며 떨려온다. 방이 흔들리고 요동친다. 바닥에 금이 가 있다. 더 많은 빨간 불빛이 들어오며 방이 넓어진다.
+<<if $parasite.left_ear.name is "slime" and $parasite.right_ear.name is "slime">>
+	당신은 귀에서 슬라임들이 꿈틀대는 것을 느낀다. 그들은 틈새 속으로 사라진다.
+<<else>>
+	당신은 귀에서 슬라임이 꿈틀대는 것을 느낀다. 그것은 틈새 속으로 사라진다.
+<</if>>
 <br><br>
 
 <<set $corruption_slime to 1>>
 
 <<if $slime_tf is 1>>
-<<set $slime_tf to 0>>
-<<set $physicalTransform to 0>>
+	<<set $slime_tf to 0>>
+	<<set $physicalTransform to 0>>
 <</if>>
 
 <<if $parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime">>
@@ -259,27 +302,28 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 <</if>>
 
 <<if $parasite.left_ear.name is "slime">>
-<<removeparasite left_ear>>
+	<<removeparasite left_ear>>
 <</if>>
 <<if $parasite.right_ear.name is "slime">>
-<<removeparasite right_ear>>
+	<<removeparasite right_ear>>
 <</if>>
+<<set $noEarSlime to true>>
 
 <<if $tentacledisable is "f">>
 
-불빛이 희미해지고, 모든 것이 조용해진다. 그러나 당신은 존재감을 느낀다. 무언가 남아있다.
-<br><br>
+	불빛이 희미해지고, 모든 것이 조용해진다. 그러나 당신은 존재감을 느낀다. 무언가 남아있다.
+	<br><br>
 
-12개가 넘는 촉수가 대좌의 주위를 휘감아 주변에 감옥을 형성합니다.
-<br><br>
+	12개가 넘는 촉수가 대좌의 주위를 휘감아 주변에 감옥을 형성한다.
+	<br><br>
 
-<<link [[다음|Lake Ruin Sit Tentacles]]>><<set $molestationstart to 1>><</link>>
-<br>
+	<<link [[다음|Lake Ruin Sit Tentacles]]>><<set $molestationstart to 1>><</link>>
+	<br>
 
 <<else>>
 
-<<link [[다음|Lake Ruin Plinth]]>><</link>>
-<br>
+	<<link [[다음|Lake Ruin Plinth]]>><</link>>
+	<br>
 
 <</if>>
 
@@ -294,7 +338,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<tentaclestart 16 16>>
 <</if>>
 <<statetentacles>>
-당신은 당신을 둘러싼 $tentacles.active개의 촉수들의 개수를 센다.
+
 <<underwater>><<effects>>
 <<effectstentacles>>
 <<tentacles>>
@@ -311,42 +355,104 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 괴물은 뒷걸음치며 어둠 속으로 사라진다. <<tearful>> 당신은 주위를 둘러보지만 다른 위협은 보이지 않는다.
 <<clotheson>>
 <<endcombat>>
-<<link [[다음|Lake Ruin Plinth]]>><</link>>
+<<link [[다음|Lake Ruin Plinth]]>><<set $phase to 1>><</link>>
 <br>
 
 :: Lake Ruin Plinth
 
 <<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
 당신은 호수 깊은 곳에 있는 유적의 대좌가 있는 작은 방에 있다.
-<<if $moonstate is "evening" and $hour gte 21 or $moonstate is "morning" and $hour lte 6>>
-붉은 달빛이 천장의 틈새로 스며든다. 많지는 않지만 대좌의 빛이 닿는 곳이 빛나는 것처럼 보인다.
-	<<if $moonEvent is true and $parasite.left_ear.name is undefined and $parasite.right_ear.name is undefined and $worn.genitals.name is "gold chastity belt">>
+<<if $museumAntiques.antiques.antiqueivorynecklace is "notFound">>
+	상아 목걸이가 그 위에 있다. 그것은 파란색 보석으로 장식되어 있다.
+<</if>>
+<<set _leave to 1>>
+<<set _bmoon to isBloodmoon()>>
+<<set _parasite to ($parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime")>>
+<<if _bmoon>>
+	/* Display these on every blood moon entry */
+	<<if $wraith.hunt>>
+		당신은 당신을 따라오는 존재가 멈춘 것을 느낀다. <span class="blue">그것은 여기에서는 당신에게 다가올 수 없다.</span>
+		<<set $wraith.hunt to 0>><<set $foresthunt to 0>><<set $wraith.timer += 5>>
+	<</if>>
+	붉은 달빛이 천장의 틈새로 스며든다. 많지는 않지만 대좌의 빛이 닿는 곳이 빛나는 것처럼 보인다.
+	<<if $moonEvent and !_parasite and $worn.genitals.name is "gold chastity belt">>
+		/* Moon event if no parasites and has gold cb */
 		<<unset $moonEvent>><<set $worn.genitals.integrity *= 0.5>><<control 50>>
 		당신은 대좌에 이끌려, 이상한 평온함을 느낀다.
-		<<gggcontrol>>
+		<<gggcontrol>><br><br>
+		<<set $phase to 1>>
 	<</if>>
 <</if>>
-<<if $moonstate is "evening" and $hour gte 21 and ($parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime") or $moonstate is "morning" and $hour lte 6 and ($parasite.left_ear.name is "slime" or $parasite.right_ear.name is "slime")>>
+<<if _bmoon and _parasite>>
+	/* Clear the possibility of the other moon event, but this event can be revisited if it is skipped */
 	<<unset $moonEvent>>
 	당신은 그것이 당신에게 끌리는 것을 느낀다.
 	<br><br>
 
 	<<link [[대좌 위에 앉는다|Lake Ruin Sit]]>><</link>>
 	<br>
-<<elseif $museumAntiques.antiques.antiqueivorynecklace is "notFound">>
-	상아 목걸이가 그 위에 있다. 그것은 파란색 보석으로 장식되어 있다.
+<<elseif $tentacledisable is "f" and $hallucinations gte 2 and !_bmoon>>
+	당신은 무미건조한 방을 둘러본다. 대좌<<if $museumAntiques.antiques.antiqueivorynecklace is "notFound">>와 목걸이<</if>> 이외에는 아무것도 보이지 않지만, 희미한 미끄러지는 소리가 들린다. <span class="blue">누군가 당신을 보고 있다.</span>
 	<br><br>
-	<<link [[가져간다|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><</link>>
-	<br>
-<<elseif $tentacledisable is "f" and $hallucinations gte 2>>
-	당신은 무미건조한 방을 둘러본다. 대좌 이외에는 아무것도 보이지 않지만, 희미한 미끄러지는 소리가 들린다. <span class="blue">누군가 당신을 보고 있다.</span>
-	<br><br>
+
 	<<link [[수색한다|Lake Ruin Deep Offer]]>><<loxygen>><</link>>
 	<br>
+<<elseif $tentacledisable is "f" and _bmoon and $phase isnot 1 and $museumAntiques.antiques.antiqueivorynecklace isnot "notFound">>
+	<<set _leave to 0>>
+	<br><br>
+	당신은 당신 주위의 물이 움직이는 것을 느끼고, 당신이 주위를 둘러보는 동안 점점 빨라지는 것을 느낀다. 어둠 속에서, 붉은 달빛에 의해 옅게 비추는 가운데, 촉수들이 뻗어나온다. <span class="red">그것들 중 둘은 당신의 발목을 감싸고, 당신을 방 안으로 더 깊게 잡아당기기 시작한다!</span>
+	<br><br>
+
+	<<link [[포기한다|Lake Ruin Deep NonConsentacles]]>><<set $molestationstart to 1>><</link>>
+	<br>
+	<<link [[탈출한다|Lake Ruin Deep Consentacles Leave]]>><<loxygen>><</link>><<swimmingdifficulty 600 1200>>
+	<br>
+<<elseif _bmoon>>
+	당신 주위의 물은 으스스하게 조용하고, 죽은 듯이 고요하며, 방은 붉은 빛 안에서 겨우 밝혀져 있다.
+	<br><br>
 <<else>>
+	물은 어두운 방 안에서 당신의 움직임에 따라 흔들리고 있다.
 	<br><br>
 <</if>>
-<<link [[떠난다|Lake Ruin Deep]]>><</link>>
+<<if _leave>>
+	<<if $museumAntiques.antiques.antiqueivorynecklace is "notFound">>
+		<<link [[Take the necklace|Lake Ruin Ivory]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><<set $necklaceThief to "player">><</link>>
+		<br>
+	<</if>>
+	<<link [[떠난다|Lake Ruin Deep]]>><<set $phase to 0>><</link>>
+	<br>
+<</if>>
+
+:: Lake Ruin Ivory
+<<effects>>
+당신은 그 목걸이를 대좌에서 들어올린다. 그 제작솜씨는 거장다웠고, 누군가에게는 이것이 대단한 의미를 가진다는 것을 느낀다.
+<br><br>
+<<if C.npc["Ivory Wraith"].init is 1>>
+	<<set C.npc["Ivory Wraith"].lust to 20>>
+<</if>>
+<<if isBloodmoon()>>
+	당신은 갑자기 당신 주위의 벽들이 쿵쾅거리는 소리를 듣는다. <<if $wraith.seen gte 1>>익숙한<<else>>낯설은<</if>> 목소리가 비명지르며, 무엇인가가 당신의 팔과 다리를 잡은 것 같은 느낌이 든다. 당신은 본능적으로 팔다리를 마구 흔들며 물 속으로 다시 들어간다. <<trauma 12>><<ggtrauma>>
+	<br><br>
+	그것은 당신을 겁먹게 하고, 잠시 후 멈춘다.
+	<<if $wraith.hunt>>
+		그 두려움은 서서히 가셨고, 당신은 더이상 당신을 사냥하는 존재를 느낄 수가 없다. <span class="blue"><i>당신은 다음 붉은 달까지 안전하다.</i></span>
+		<br><br>
+	<</if>>
+	<<if $wraith>>
+		<<set $wraith.state to "">>
+		<<clearWraith>>
+		<<set $wraithSkip to true>>
+	<</if>>
+	<<tearful>> 당신은 방을 나간다.
+<<elseif $wraith.state>>
+	당신이 파란 보석에 비친 당신의 모습을 보며 두려움이 찌르르 솟아오르는 것을 느낀다. 당신은 창백해 보인다. <<stress 6>><<gstress>>
+	<br><br>
+	당신은 더 머물러 있지 않기로 결정하고, 목걸이를 손에 쥐고 방을 나간다.
+<<else>>
+	당신은 파란 보석에 비친 당신의 모습을 볼 수 있다. 이건 비싼 가격에 팔 수 있을 것이다.
+<</if>>
+<br><br>
+<<link [[다음|Lake Ruin Deep]]>><</link>>
 <br>
 
 :: Lake Ruin Deep Offer
@@ -364,6 +470,9 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 :: Lake Ruin Deep Offer 2
 
 <<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
+<<if $museumAntiques.antiques.antiqueivorynecklace is "notFound">>
+	당신은 조심조심 목걸이를 옆으로 밀어제친다.
+<</if>>
 <<if $exposed gte 2>>
 	팔과 다리를 벌리고 방에 있는 물건에 몸을 보여준다. <<deviancy4>>
 <<else>>
@@ -373,7 +482,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 <</if>>
 잠시 후, 수 많은 촉수들이 다가오는 것을 느낀다. 그들은 당신을 부드럽게 자극하고, 당신의 제안을 판단한다. 물속에 있지만, 그들의 애무로 피부가 미끄러워진다.
 <br><br>
-몇몇 촉수는 당신의 몸을 탐험하며, 그들이 간 곳에 점액 자국을 남긴다. 두개의 촉수가 당신의 발목을 휘감는다. 그것과 닿는 곳마다, 전기가 통하는 듯한 자극적인 따끔거림이 피부에 전해진다. 당신은 덩굴손이 허벅지 위를 올라 당신의 <<genitals>>로 향하자 강렬한 흥분을 느낀다. <<ggarousal>><<arousal 1500>>
+몇몇 촉수는 당신의 몸을 탐험하며, 그들이 간 곳에 점액 자국을 남긴다. 두개의 촉수가 당신의 발목을 휘감는다. 그것과 닿는 곳마다, 전기가 통하는 듯한 자극적인 따끔거림이 피부에 전해진다. 당신은 덩굴손이 넓적다리 위를 올라 당신의 <<genitals_ ro>> 향하자 강렬한 흥분을 느낀다. <<ggarousal>><<arousal 1500>>
 <br><br>
 <<link [[계속한다|Lake Ruin Deep Consentacles]]>><<loxygen>><<set $sexstart to 1>><</link>>
 <br>
@@ -400,7 +509,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 <</if>>
 
 <<statetentacles>>
-당신은 당신을 둘러싼 $tentacles.active개의 촉수들의 개수를 센다.
+
 
 <<underwater>><<effects>>
 <<effectstentacles>>
@@ -440,7 +549,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<tentaclestart 6 8>>
 <</if>>
 <<statetentacles>>
-당신은 당신을 둘러싼 $tentacles.active개의 촉수들의 개수를 센다.
+
 <<underwater>><<effects>>
 <<effectstentacles>>
 <<tentacles>>
@@ -453,9 +562,11 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 
 :: Lake Pots
 
-<<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
-<<if $stress gte $stressmax>>
+<<set $outside to 0>><<set $location to "lake_ruin">><<set $bus to "lake_ruin_deep">><<underwater>><<effects>><<lakeeffects>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutlake>>
+<<elseif $foresthunt gte 10>>
+	<<foresthunt>>
 <<else>>
 	<<if $rng gte 81>>
 		항아리 안으로 손을 뻗자 작은 상아색 상자가 나온다. 그것은 청동 자물쇠로 잠겨있다.
@@ -483,13 +594,13 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 		<<link [[밖으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
 		<br>
 	<<elseif $rng gte 78 and $swarmdisable is "f">>
-		You reach inside one of the pots. Swarms of small fish surge out, surrounding you.
+		당신은 항아리 속에 손을 넣는다. 그러자 작은 물고기들이 쏟아져 나와 당신의 주변을 에워싼다.
 		<br><br>
 		<<link [[다음|Lake Swarm]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<elseif $rng gte 51>>
-		You reach inside one of the pots. There's purple dust at the bottom. Your probing disturbs it, and it swirls around your arm. You feel heated.
-		<<gstress>><<stress 3>><<garousal>><<arousal 600>>
+		당신은 항아리 속에 손을 넣는다. 밑에 보라색 가루가 있다. 당신은 더듬다가 그것을 건드렸고, 그것이 당신의 팔을 휘감는다. 몸이 달아오른다.
+		<<gstress>><<stress `$swarmdisable is "t" and $rng gte 78 ? 6 : 3`>><<garousal>><<arousal 600>>
 		<br><br>
 		<<if $lakeruinkey is 1>>
 			<<link [[청동 열쇠를 사용한다|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>>
@@ -505,7 +616,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 		<<link [[밖으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
 		<br>
 	<<elseif $rng gte 41 and $lakeruinkey is undefined>>
-		You reach inside one of the pots. You find a decaying bronze key.
+		당신은 항아리 속에 손을 넣는다. 당신은 부식된 청동열쇠를 찾았다.
 		<br><br>
 		<<set $lakeruinkey to 1>>
 		<<link [[청동 열쇠로 문을 연다|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>>
@@ -520,7 +631,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 		<<link [[밖으로 헤엄친다|Lake Ruin]]>><<wateraction>><</link>><<loxygen>>
 		<br>
 	<<else>>
-		<<set $rng to random(1, 100)>>
+		<<rng>>
 		<<if $rng gte 81>>
 			당신은 항아리 중 하나에 손을 뻗는다. 그것은 깨진 도자기들로 가득하다.
 		<<elseif $rng gte 61>>
@@ -559,7 +670,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<set $combat to 1>>
 
 	<<set $enemytype to "swarm">>
-	<<swarminit "fish" "containers" "shaking" "shatter" "steady" 4 6>>
+	<<swarminit "fish" "container" "shaking" "shatter" "steady" 4 6>>
 	<<set $swimdistance to 8>>
 	<<set $water to 1>>
 <</if>>
@@ -578,7 +689,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 <<elseif $swimdistance lte 0>>
 	<span id="next"><<link [[다음|Lake Swarm Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "다음">><<script>>state.display(state.active.title, null)<</script>><!--</script>--><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Lake Swarm]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Lake Swarm Finish
@@ -618,12 +729,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 
 <<skulduggerycheck>>
 <<if $skulduggerysuccess is 1>>
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">이건 너무 쉽다. 당신은 여기서 아무것도 배울 게 없다.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 	<<if $rng gte 95>>
 		<<if random(0,100) gte 80>>
 			당신은 황금 정조대를 찾아냈다.
@@ -646,7 +752,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 		<br><br>
 	<</if>>
 
-	<<if $worn.genitals.name is "naked" and _goldchastity>>
+	<<if $worn.genitals.name is "naked" and _goldchastity and playerBellySize() lte 7>>
 		<<link [[입는다|Lake Gold Chastity Belt]]>><<wateraction>><</link>><<loxygen>>
 		<br>
 	<</if>>
@@ -692,31 +798,66 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 <<set $worn.genitals.origin to "Underwater Temple">>
 
 <<link [[항아리들을 탐색한다|Lake Pots]]>><<wateraction>><<clotheson>><</link>><<loxygen>>
-	<br>
+<br>
 <<link [[밖으로 헤엄친다|Lake Ruin]]>><<wateraction>><<clotheson>><</link>><<loxygen>>
+<br>
 
 :: Lake Lichen
 
 <<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
-<<set $hallucinogen += 180>>
-이끼는 당신이 만지자 부스러지지만, 당신은 과학 프로젝트를 위해서 이끼를 충분히 수집한다.
+<<hallucinogen 180>>
+이끼는 당신이 만지자 부스러지지만, 당신은 과학 프로젝트를 위해서 이끼를 충분히 수집한다. <<if !$wraithPrison>>이끼가 떨어진 곳에서, 당신은 벽에 룬 문자가 조각되어 있는 것을 알아챈다. <</if>>
 <br><br>
-<span class="gold">찾은 이끼는 방이나 학교 도서관에서 프로젝투에 추가할 수 있다.</span>
+<span class="gold">찾은 이끼는 방이나 학교 도서관에서 프로젝트에 추가할 수 있다.</span>
 <br><br>
 온기가 손가락을 타고 팔로 올라와 몸 전체로 퍼집니다. 당신은 어지러움을 느낀다.
 <br><br>
 <i>당신은 환각제에 시달린다. 당신은 그것의 효과가 사라질 때까지 환각과 심한 환각 특성을 가지게 될 것이다. 높은 외상이나 인식도 환각을 유발한다.</i>
 <br><br>
-<<if $tentacledisable is "f">>
-	덩굴손이 어둠 속에서 솟아오릅니다. 그들은 당신을 항해 달려온다.
+<<generateWraith 1 true>>
+<<if $wraith.state isnot "">>
+	<<rainWraith>>
+	당신은 갑자기 당신이 뒤로 휙 잡아당겨지는 것을 느꼈고, 당신은 아름다운 창백한 형체와 얼굴을 마주보고 있다는 것을 알아챈다.
+	<<if $wraith.state is "haunt">>
+		"<span class="wraith">도둑이 다시 좀도둑질하러 돌아왔군.</span>"
+	<<else>>
+		"<span class="wraith">침입자...</span>"
+	<</if>>
 	<br><br>
-	<<link [[다음|Lake Underwater Tentacles]]>><<set $molestationstart to 1>><</link>>
+	<<initWraith "abomination">>
+	<<He_ nun>> 한 손을 당신의 목에 두르고 있다.
+	<<set $NPCList[0].lefthand to "throat">><<set $neckuse to "hand">>
+	<<if $wraith.gen is "abomination">>
+		<<He_ ga>> <<his_ yi>> 다른 손을 들자, 창백한 덩굴들이 어둠 속에서 튀어나온다.
+	<<else>>
+		더 많은 팔들이 당신 주위를 기어다닌다.
+	<</if>>
+	<br><br>
+	<<if $wraith.state is "haunt" and isBloodmoon()>>
+		<<link [[다음|Wraith Caught]]>><<set $wraith.exit to "lake_ruin">><</link>>
+	<<else>>
+		<<link [[다음|Wraith Underwater Rape]]>><<set $molestationstart to 1>><</link>>
+	<</if>>
 	<br>
 <<else>>
-	<<generates1>><<person1>> <<person_i>> <<his_yi>> 목에 상아 목걸이를 두르고 나체 상태에서 어둠 속에서 나타난다. <<HePost "은">> 이해할 수 없는 말을 외치더니 당신의 향해 돌진한다
-	<br><br>
-	<<link [[다음|Lake Underwater Rape]]>><<set $molestationstart to 1>><</link>>
-	<br>
+	<<initWraith "man">>
+	당신은 속삭이는 소리를 들었고, 뒤로 돌자 당신 앞에 아름다운 창백한 형체가 떠다니는 것을 본다.
+	<<if $museumAntiques.antiques.antiqueivorynecklace isnot "notFound">>
+		<<He_ nun>> 나체로 한 손을 <<his_ yi>> 목에 누르고, 당신을 격노와 혐오감에 찬 눈으로 보고 있다.
+	<<else>>
+		<<He_ nun>> 나체로, 상아 목걸이를 <<his_ yi>> 목에 두르고 있다.
+	<</if>>
+	<<if $tentacledisable is "f">>
+		<<He_ ga>> <<his_ yi>> 손을 들자, 창백한 덩굴들이 어둠 속에서 튀어나온다. 그들은 당신에게 달려든다.
+		<br><br>
+		<<link [[다음|Lake Underwater Tentacles]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<<else>>
+		<<HePost "은">> 이해할 수 없는 말을 외치더니 당신의 향해 돌진한다
+		<br><br>
+		<<link [[다음|Lake Underwater Rape]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<</if>>
 <</if>>
 
 :: Lake Underwater Tentacles
@@ -730,24 +871,40 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<tentaclestart 6 8>>
 <</if>>
 <<statetentacles>>
-당신은 당신을 둘러싼 $tentacles.active개의 촉수들의 개수를 센다.
-<<underwater>><<effects>>
+
+<<underwater>><<effects>><<speechWraith>>
 <<effectstentacles>>
 <<tentacles>>
 <<actionstentacles>>
 <<if $tentacles.active lte ($tentacles.max / 2)>>
-	<span id="next"><<link [[다음|Lake Underwater Tentacles Finish]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Lake Underwater Tentacles Finish]]>><<set $phase2 to 1>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Lake Underwater Tentacles]]>><</link>></span><<nexttext>>
 <</if>>
 
+:: Lake Underwater Tentacles Finish Figure
+
+<<underwater>><<effects>>
+그 생물체는 당신에게서 움츠러들어 어둠 속으로 사라진다. <<tearful>> 당신은 출구를 향해 뒤돌아선다. 당신이 등 뒤를 보았을 때, 그 창백한 형체는 사라졌다.
+<<clotheson>>
+<<endcombat>>
+<<link [[다음|Lake Ruin]]>><<endWraith>><</link>>
+<br>
+
 :: Lake Underwater Tentacles Finish
 
 <<underwater>><<effects>>
-괴물은 뒷걸음치며 어둠 속으로 사라진다. <<tearful>> 당신은 출구로 향한다.
+<<set _phase to $phase2>>
+<<if $bus is "lake_ruin_deep">>
+	<<set _nextroom to "Lake Ruin Deep">>
+<<elseif $bus is "lake_ruin">>
+	<<set _nextroom to "Lake Ruin">>
+<</if>>
+그 생물은 당신에게서 움츠러들어 어둠 속으로 사라진다. <<tearful>> 당신을 출구로 몸을 돌린다. <<if _phase is 1>>당신이 뒤돌아 봤을 때, 그 창백한 형체는 사라져 있다.<</if>>
 <<clotheson>>
 <<endcombat>>
-<<link [[다음|Lake Ruin]]>><</link>>
+<<if _phase is 1>><<endWraith>><</if>>
+<<link [[다음|_nextroom]]>><</link>>
 <br>
 
 :: Lake Underwater Rape
@@ -756,20 +913,18 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<set $molestationstart to 0>>
 	<<set $consensual to 0>>
 	<<neutral 1>>
-
 	<<controlloss>>
 	<<molested>>
 	<<maninit>>
-	<<if $NPCList[0].penis isnot "none">><<set $NPCList[0].penis to 0>><</if>><<if $NPCList[0].vagina isnot "none">><<set $NPCList[0].vagina to 0>><</if>>
 <</if>>
+
 <<underwater>><<effects>>
-<<effectsman>><<man>>
+<<effectsman>><<man>><<speechWraith>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[다음|Lake Underwater Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
+
+<<if _combatend>>
 	<span id="next"><<link [[다음|Lake Underwater Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Lake Underwater Rape]]>><</link>></span><<nexttext>>
@@ -784,13 +939,13 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<clotheson>>
 	<<endcombat>>
 <<else>>
-	<<ejaculation>>
-	<<HePost "은">> 어둠 속으로 사라진다. <<tearful>> 당신은 출구로 향한다.
+	<<silently>><<ejaculation>><</silently>>
+	<<He_ nun>> 킥킥대며 웃더니 어둠 속으로 사라진다. <<tearful>> 당신은 출구로 향한다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 <</if>>
-<<link [[다음|Lake Ruin]]>><</link>>
+<<link [[다음|Lake Ruin]]>><<endWraith>><</link>>
 <br>
 
 :: Lake Depths Swarm
@@ -802,7 +957,11 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<set $combat to 1>>
 
 	<<set $enemytype to "swarm">>
-	<<swarminit "fish" "swarms" "moving towards you" "encircle you" "fend off" 1 7>>
+	<<if $slimedisable is "f" and isBloodmoon()>>
+		<<swarminit "pale slimes" "slime mass" "moving towards you" "encircle you" "fend off" 8 0>>
+	<<else>>
+		<<swarminit "fish" "swarm" "moving towards you" "encircle you" "fend off" 1 7>>
+	<</if>>
 	<<set $swimdistance to 12>>
 	<<set $water to 1>>
 <</if>>
@@ -821,7 +980,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 <<elseif $swimdistance lte 0>>
 	<span id="next"><<link [[다음|Lake Depths Swarm Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "다음">><<script>>state.display(state.active.title, null)<</script>><!--</script>--><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Lake Depths Swarm]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Lake Depths Swarm Finish
@@ -845,7 +1004,7 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 	<<endcombat>>
 	<<passoutlake>>
 <<else>>
-	<<tearful>> 당신은 물고기 떼에게서 탈출한다. 그들은 더 이상 쫒아오지 않는다.
+	<<tearful>> 당신은 <<if $slimedisable is "f" and isBloodmoon()>>유령 슬라임<<else>>물고기<</if>> 떼에게서 탈출한다. 그들은 더 이상 쫒아오지 않는다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>

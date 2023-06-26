@@ -2,70 +2,69 @@
 
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 
-<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<span class="green">이 자물쇠는 아주 따기 쉬워 보인다.</span>
 	<br><br>
 
-	<<link [[Pick it (0:10)|Tattoo Parlour]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<<link [[자물쇠를 딴다 (0:10)|Tattoo Parlour]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
 	<br>
 <<else>>
-	<span class="red">The lock looks beyond your ability to pick.</span>
+	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력 바깥의 물건이다.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
 
-<<link [[Leave|Shopping Centre]]>><</link>>
+<<link [[떠난다|Shopping Centre]]>><</link>>
 <br>
 
 :: Tattoo Parlour
 
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 
-You are in the tattoo parlour. The artists here can turn anything drawn on you into a tattoo. They also have a selection of tattoo designs available. Costs £500.
+당신은 문신 시술소에 있다. 여기에 있는 전문 시술자들은 몸에 그려져 있는 것이면 뭐든지 문신으로 새길 수 있고, 그 외의 문신 디자인도 조금 갖고 있다. <<printmoney 50000>>가 든다.
 <br><br>
 
-<<if $daystate is "night">>
-	You are alone in the darkness.
+<<if Time.dayState is "night">>
+	당신은 어둠 속에 혼자 있다.
+	<br><br>
 <<elseif $exposed gte 1>>
-	You hide in a cupboard to protect your dignity.
-<<else>>
-
+	당신은 존엄을 지키기 위해 벽장 안에 숨어있다.
+	<br><br>
 <</if>>
-<br><br>
 
 <<if $stress gte $stressmax>>
 	<<passoutshop>>
 <<else>>
-	<<if $hour is 21>>
-		닫힌 시간이다. 보안요원이 모두를 밖으로 이동시킨다.<<if $exposed gte 1>>이런 차림새의 당신이 보안요원에게 얼마나 노출되어 있는지를 깨닫는 순간 공포가 일어난다.<</if>>
+	<<if Time.hour is 21>>
+		폐점 시간이다. 보안요원이 모두를 밖으로 이동시킨다.<<if $exposed gte 1>>당신은 이렇게 노출된 차림으로 보안요원에게 발각된다면 당신이 얼마나 부끄러울지를 깨닫자 공포가 일어난다..<</if>>
 		<br><br>
 
 		<<if $exposed lte 0>>
-			<<link [[Go Outside|High Street]]>><</link>>
+			<<link [[바깥으로 나간다|High Street]]>><</link>>
 			<br>
 		<<else>>
-			<<link [[Hide until it's over (1:00)|Tattoo Parlour]]>><<pass 1 hour>><</link>>
+			<<link [["끝날때까지 숨어 있는다 (1:00)"|Tattoo Parlour]]>><<pass 1 hour>><</link>>
 		<</if>>
 	<<else>>
 
-		<<if $daystate is "night" and $hour isnot $closinghour and $tattooparlourtheft isnot 1>>
-			<<link [[Examine the cash register|Tattoo Parlour Register]]>><</link>>
+		<<if Time.dayState is "night" and Time.hour isnot $closinghour and !$weekly.theft.tattooParlour>>
+			<<link [[현금 계산대를 살펴본다|Tattoo Parlour Register]]>><</link>>
 			<br>
 		<</if>>
 
-		<<if $exposed lte 1 and $daystate isnot "night" and $hour isnot 21>>
+		<<if $exposed lte 1 and Time.dayState isnot "night" and Time.hour isnot 21>>
 			<<if $money lt 50000>>
-				You cannot afford a tattoo.
+				문신을 새길 돈이 없다.
 				<br>
 			<<else>>
-				<<link [[Get a tattoo|Tattoo Choice]]>><</link>>
+				<<link [[문신을 새긴다|Tattoo Choice]]>><</link>>
 				<br>
-				<<link [[Turn bodywriting into tattoo|Tattoo Bodywriting Choice]]>><</link>>
+				<<link [[몸의 낙서를 문신으로 새긴다|Tattoo Bodywriting Choice]]>><</link>>
 				<br>
 			<</if>>
 		<</if>>
 		<br>
-		<<link [[Leave|Shopping Centre]]>><</link>>
+		<<link [[떠난다|Shopping Centre]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -73,105 +72,111 @@ You are in the tattoo parlour. The artists here can turn anything drawn on you i
 :: Tattoo Bodywriting Choice
 <<effects>>
 
-<<for _e to 0; _e lt $bodypart_number; _e++>>
-	<<activebodypart>>
-	<<if $skin[_active_bodypart].pen is "pen" or $skin[_active_bodypart].pen is "marker">>
-		<<if $money gte 50000>>
-		You have <<if $skin[_active_bodypart].type is "text">><span class="pink">"<<print $skin[_active_bodypart].writing>>"</span> written<<else>>a $skin[_active_bodypart].writing drawn<</if>> on your <<bodypart _active_bodypart>>.
-			<<if $skin[_active_bodypart].special is "bestiality" and $deviancy lte 34>>
-				<<if (_active_bodypart is "left_bottom" or _active_bodypart is "right_bottom" or _active_bodypart is "pubic" or _active_bodypart is "breasts") and $exhibitionism lte 34>>
-					<span class="blue">You can't bare to show your <<bodypart _active_bodypart>> to the tattoo artist, and you're not deviant enough to have such a thing made into a tattoo anyway.</span>
-				<<else>>
-					<span class="blue">You're not deviant enough to have such a thing made into a tattoo.</span>
-				<</if>>
-			<<elseif $skin[_active_bodypart].lewd is 1 and $skin[_active_bodypart].special isnot "bestiality" and $promiscuity lte 34>>
-				<<if (_active_bodypart is "left_bottom" or _active_bodypart is "right_bottom" or _active_bodypart is "pubic" or _active_bodypart is "breasts") and $exhibitionism lte 34>>
-					<span class="blue">You can't bare to show your <<bodypart _active_bodypart>> to the tattoo artist, and you're not lewd enough to have such a thing made into a tattoo anyway.</span>
-				<<else>>
-					<span class="blue">You're not lewd enough to have such a thing made into a tattoo.</span>
-				<</if>>
-			<<elseif (_active_bodypart is "left_bottom" or _active_bodypart is "right_bottom" or _active_bodypart is "pubic" or _active_bodypart is "breasts") and $exhibitionism lte 34>>
-				<span class="blue">You can't bare to show your <<bodypart _active_bodypart>> to the tattoo artist.</span>
+<<for _active_bodypart range setup.bodyparts>>
+	<<set _part to $skin[_active_bodypart]>>
+	<<switch _part.pen>>
+		<<case "pen" "marker" "lipstick" "mud">>
+			당신의 몸에는
+			<<if _part.type is "text">>
+				<span class="pink">"<<trBodyWriting _part.writing>>_trResult"</span> 문구가
 			<<else>>
-			<<capture _active_bodypart>> | <<link [[Turn into tattoo (£500 1:00)|Tattoo Bodywriting]]>><<pass 60>><<set $money -= 50000>><<set $tattoo_bodypart to _active_bodypart>><<set $tattoo_parlour to clone($skin[_active_bodypart])>><<if $skin[_active_bodypart].lewd is 1 or $skin[_active_bodypart].special is "bestiality">><<control 50>><<else>><<control 25>><</if>><<set $skin[_active_bodypart].pen to "tattoo">><<pain 6>><</link>><</capture>> <<if $skin[_active_bodypart].lewd is 1 or $skin[_active_bodypart].special is "bestiality">><<gggcontrol>><<else>><<ggcontrol>><</if>>
-			<</if>><<gpain>>
-		<br>
-		<</if>>
-	<<elseif $skin[_active_bodypart].pen is "tattoo">>
-		Your <<bodypart _active_bodypart>> is already tattooed.
-		<br>
-	<<elseif $skin[_active_bodypart].pen is "brand">>
-		Your <<bodypart _active_bodypart>> is <span class="red">branded</span>.
-		<br>
-	<<elseif $skin[_active_bodypart].pen is "magic">>
-		Your <<bodypart _active_bodypart>> has a magical <span class="pink">seal</span>.
-		<br>
-	<<elseif !$skin[_active_bodypart].pen>>
-		Nothing is written on your <<bodypart _active_bodypart>>.
-		<br>
-	<</if>>
+				<span class="pink"><<trBodyWriting _part.writing>>_trResult</span> 그림이
+			<</if>>
+			<<bodypart _active_bodypart>>에 있다.
+			<<set _tooShy to (["left_bottom","right_bottom","pubic","breasts"].includes(_active_bodypart) and $exhibitionism lte 34)>>
+			<<set _deviant to ["bestiality", "Black Wolf", "Great Hawk"].includes(_part.special)>>
+			<<set _lewd to _part.lewd is 1>>
+			<<if $money lte 50000>>
+				<span class="red">당신은 그것을 문신으로 새길 돈이 없다.</span>
+			<<elseif (_deviant and $deviancy lte 34) or (_lewd and $promiscuity lte 34)>>
+				<<set _lewdOrDeviant to (_deviant ? "이상성욕적이지" : "음란하지")>>
+				<<if _tooShy>>
+					<span class="blue">>당신은 문신 시술자에게 <<bodypart_ rul _active_bodypart>> 보여주기엔 너무 부끄럽고, 게다가 이런 걸 문신으로 새길 만큼 _lewdOrDeviant도 않다.</span>
+				<<else>>
+					<span class="blue">당신은 이런 걸 문신으로 새길 만큼 _lewdOrDeviant 않다.</span>
+				<</if>>
+				<<unset _lewdOrDeviant>>
+			<<elseif _tooShy>>
+				<span class="blue">당신은 문신 시술자에게 <<bodypart_ rul _active_bodypart>> 보여주기엔 너무 부끄럽다.</span>
+			<<else>>
+				<<capture _active_bodypart _part _deviant _lewd>>
+					| <<link [[문신으로 바꿔 새긴다 (£500 1:00)|Tattoo Bodywriting]]>>
+						<<pass 60>><<set $money -= 50000>><<set $tattoo_bodypart to _active_bodypart>><<set $tattoo_parlour to clone(_part)>>
+						<<if _lewd or _deviant>><<control 50>><<else>><<control 25>><</if>>
+						<<set _part.pen to "tattoo">><<pain 6>>
+					<</link>><<if _lewd or _deviant>><<gggcontrol>><<else>><<ggcontrol>><</if>><<gpain>>
+				<</capture>>
+			<</if>>
+			<<unset _tooShy>><<unset _deviant>><<unset _lewd>>
+		<<case "tattoo">>
+			당신의 <<bodypart _active_bodypart>>에는 이미 문신이 새겨져 있다.
+		<<case "brand">>
+			당신의 <<bodypart _active_bodypart>>에는 <span class="red">가축 낙인이</span> 새겨져 있다.
+		<<case "magic">>
+			당신의 <<bodypart _active_bodypart>>에는 마법적인 <span class="pink">문양이</span> 새겨져 있다.
+		<<default>>
+			당신의 <<bodypart _active_bodypart>>에는 아무것도 새겨져 있지 않다.
+	<</switch>>
+	<br>
 <</for>>
 <br>
-<<link [[Back|Tattoo Parlour]]>><</link>>
+<<link [[돌아간다|Tattoo Parlour]]>><</link>>
 <br>
 
 :: Tattoo Choice
 <<effects>>
 
-They have a board displaying a number of tattoo designs.
+여러 문신 디자인을 소개하는 판이 걸려 있다.
 <br><br>
 
-Location:<br>
-<<for _e to 0; _e lt $bodypart_number; _e++>>
-	<<activebodypart>>
-
-	<<if $skin[_active_bodypart].writing>>
-
-	<<else>><<set _bodypart_detected to 1>>
-		<label>Your <<bodypart _active_bodypart>> <<capture _active_bodypart>><<radiobutton "$tattoo_bodypart" _active_bodypart>><</capture>></label>
+위치:<br>
+<<for _active_bodypart range setup.bodyparts>>
+	<<if !$skin[_active_bodypart].writing>>
+		<<set _bodypart_detected to 1>>
+		<label><<bodypart _active_bodypart>> <<capture _active_bodypart>><<radiobutton "$tattoo_bodypart" _active_bodypart>><</capture>></label>
 		<br>
 	<</if>>
 <</for>>
 <<if _bodypart_detected isnot 1>>
-	<span class="red">There's no room on your skin.</span>
+	<span class="red">피부에 문신을 새길 자리가 없다.</span>
 	<br>
 <</if>>
 <br>
 
-<span class="pink">Girly</span> tattoos:
+<span class="pink">여성적인</span> 문신:
 <br>
-<label>Unicorn <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "unicorn">></label> |
-<label>Heart <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "heart">></label> |
-<label>Flower <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "flower">></label> |
-<label>Butterfly <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "butterfly">></label> |
-<label>Star <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "star">></label> |
+<label>유니콘 <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "unicorn">></label> |
+<label>하트 <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "heart">></label> |
+<label>꽃 <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "flower">></label> |
+<label>나비 <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "butterfly">></label> |
+<label>별 <span class="pink">♀</span> <<radiobutton "$tattoo_choice" "star">></label> |
 
 <br><br>
-<span class="blue">Boyish</span> tattoos:
+<span class="blue">남성적인</span> 문신:
 <br>
-<label>Skull <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "skull">></label> |
-<label>Flame <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "flame">></label> |
-
-<br><br>
-
-<span class="gold">Holy</span> tattoos:
-<br>
-<label>Cross <<radiobutton "$tattoo_choice" "cross">></label> |
+<label>해골 <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "skull">></label> |
+<label>불꽃 <span class="blue">♂</span> <<radiobutton "$tattoo_choice" "flame">></label> |
 
 <br><br>
 
-<span class="lewd">Deviant</span> tattoos:
+<span class="gold">신성한</span> 문신:
+<br>
+<label>십자가 <<radiobutton "$tattoo_choice" "cross">></label> |
+
+<br><br>
+
+<span class="lewd">이상성욕적인</span> 문신:
 <br>
 <<if $deviancy gte 35>>
-	<label>Paw print <<radiobutton "$tattoo_choice" "paw_print">></label> |
+	<label>짐승 발바닥 <<radiobutton "$tattoo_choice" "paw_print">></label> |
 <<else>>
-	You're not deviant enough.
+	당신은 이 문신을 새기기엔 이상성욕이 강하지 않다.
 <</if>>
 <br><br>
 
-<<link [[Get tattoo (£500 1:00)|Tattoo Get]]>><</link>><<gpain>>
+<<link [[문신을 새긴다 (£500 1:00)|Tattoo Get]]>><</link>><<gpain>>
 <br>
-<<link [[Back|Tattoo Parlour]]>><<unset $tattoo_bodypart>><<unset $writebodyaction>><</link>>
+<<link [[돌아간다|Tattoo Parlour]]>><<unset $tattoo_bodypart>><<unset $writebodyaction>><</link>>
 <br>
 
 :: Tattoo Get
@@ -184,29 +189,29 @@ Location:<br>
 
 	<<tattoo_parlour>>
 
-	<<link [[Next|Tattoo Parlour]]>><</link>>
+	<<link [[다음|Tattoo Parlour]]>><</link>>
 	<br>
 <<elseif $tattoo_choice>>
-	<span class="blue">You must choose a body part to tattoo on.</span>
+	<span class="blue">당신은 문신을 새길 부위를 골라야 한다.</span>
 	<br><br>
 
 	<<unset $tattoo_choice>>
 
-	<<link [[Next|Tattoo Choice]]>><</link>>
+	<<link [[다음|Tattoo Choice]]>><</link>>
 	<br>
 <<elseif $tattoo_bodypart>>
-	<span class="blue">You must choose what you want tattooed.</span>
+	<span class="blue">당신은 문신으로 새길 문양을 골라야 한다.</span>
 	<br><br>
 
 	<<unset $tattoo_bodypart>>
 
-	<<link [[Next|Tattoo Choice]]>><</link>>
+	<<link [[다음|Tattoo Choice]]>><</link>>
 	<br>
 <<else>>
-	<span class="blue">You must choose a bodypart and image.</span>
+	<span class="blue">당신은 문신을 새길 부위와 문양을 골라야 한다.</span>
 	<br><br>
 
-	<<link [[Next|Tattoo Choice]]>><</link>>
+	<<link [[다음|Tattoo Choice]]>><</link>>
 	<br>
 <</if>>
 
@@ -214,5 +219,5 @@ Location:<br>
 
 <<effects>>
 <<tattoo_parlour>>
-<<link [[Next|Tattoo Parlour]]>><</link>>
+<<link [[다음|Tattoo Parlour]]>><</link>>
 <br>

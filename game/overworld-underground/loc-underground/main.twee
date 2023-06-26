@@ -1,325 +1,705 @@
-:: Underground Intro
+:: Widgets Underground [widget]
 
+<<widget "dungeonescape">>
+	<<if $baileySold>>
+		<<set $baileyReunionScene to "dungeon">>
+	<</if>>
+
+	<<if $whitneyromance is 1>>
+		<<set $whitneyReunionScene to "dungeon">>
+	<</if>>
+
+	<<if $NPCName[$NPCNameList.indexOf("Robin")].init is 1>>
+		<<if $home_gone gte 4 and !$undergroundbrothel.robin>>
+			<<set $robinReunionScene to "dungeon">>
+		<<elseif $undergroundbrothel.robinGone>>
+			<<set $robinReunionScene to "dungeonRobin">>
+		<</if>>
+	<</if>>
+
+	<<if $undergroundbrothel.robin>>
+		<<set $robinmissing to 0>>
+	<</if>>
+
+	<<unset $baileySold>>
+	<<unset $wraithUnderground>>
+	<<set $undergroundbrothelescaped to true>>
+	<<set $undergroundbrothel to {"escape": $undergroundbrothel.escape}>>
+	<<unset $underground_shirt>>
+<</widget>>
+
+<<widget "undergroundCellOptions">>
+	<<link [[휴식한다 (1:00)|Underground Cell Rest]]>><<pass 1 hour>><<set $tiredness -= 1000>><</link>><<ltiredness>>
+	<br>
+	<<if $undergroundbrothel.robin and !$undergroundbrothel.robinSpoke>>
+		<<link [[로빈과 대화한다 (0:10)|Underground Cell Robin Talk]]>><<pass 10>><<stress -4>><<trauma -4>><<npcincr Robin trauma -2>><</link>><<lstress>><<ltrauma>><<lrtrauma>>
+		<br>
+	<</if>>
+	<<if $undergroundbrothel.escape is 0>>
+		<<link [[탈출구를 찾는다|Underground Cell Look]]>><</link>>
+	<<elseif $undergroundbrothel.escape gte 19>>
+		<<link [[탈출한다|Underground Escape]]>><</link>>
+	<<elseif $undergroundbrothel.escape gte 18 and $physiquesize lte 12000>>
+		<<link [[탈출한다|Underground Escape]]>><</link>><<small_text>>
+	<<elseif $undergroundbrothel.escape gte 17 and $physiquesize lte 10000>>
+		<<link [[탈출한다|Underground Escape]]>><</link>><<small_text>>
+	<<elseif $undergroundbrothel.escape gte 16 and $physiquesize lte 6000>>
+		<<link [[탈출한다|Underground Escape]]>><</link>><<small_text>>
+	<<else>>
+		<<link [[파낸다 (1:00)|Underground Cell Dig]]>><<pass 1 hour>><</link>>
+	<</if>>
+	<br>
+	<<link [[문을 살펴본다|Underground Cell Lock]]>><</link>>
+<</widget>>
+
+<<widget "undergroundEscapeForestStart">>
+	<<clotheson>>
+	<<endcombat>>
+
+	당신의 등줄기를 타고 소름이 끼쳐 올라와, 원시적인 직감이 경고를 보낸다. <span class="red">무언가가 당신을 쫓고 있다.</span>
+	<<set $foresthunt to 1>><<dungeonescape>>
+	<br><br>
+
+	<<link [[다음|Forest]]>><<set $forest to 40>><</link>>
+<</widget>>
+
+<<widget "undergroundReturnToCell">>
+	<<tearful>> 당신은 매트리스에 앉는다.
+	<<if _args[0] is "Robin">>
+		적어도 로빈은 도망쳤다.
+	<</if>>
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<if _args[0] is "skip">>
+		<<set $eventskip to 1>>
+	<</if>>
+
+	<<if _args[0] is undefined or _args[0]>>
+		<<link [[다음|Underground Cell]]>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "undergroundPlantFakeChoice">>
+	"네 머리가 어디 부딪히기다도 한 거야?" <<person2>><<person_ i>> 끙 소리를 낸다. "<<pshe_ ga>> 원하든 원치 않든 상관없어. <<pShe_ nun>> 네 거라고."
+	<br><br>
+
+	"아참 그렇지! 이 장소가 그렇게 돌아가는 곳이라는 걸 까먹고 있었어!" <<person1>><<person_ i>> <<his_ yi>> 손뼉을 짝 마주치며 당신에게 달려든다.
+	<br><br>
+
+	<<link [[다음|Underground Plant Molestation]]>><<set $molestationstart to 1>><</link>>
+<</widget>>
+
+:: Underground Intro
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-You are dragged through a door and down a flight of steps. You hear the sound of rushing water. At the bottom the <<person>> turns on a torch, revealing an old stone corridor leading away into darkness.
-<<pass 15>>
-<br><br>
-After walking awhile you come to a metal door. The <<person2>><<person>> knocks, and is answered by a thin opening sliding apart near the top. It closes promptly, and the door opens.
-<br><br>
-<<endcombat>>
-You are forced through the door and to your knees before a <<generate1>><<person1>><<person>>, who crouches and grabs your neck. <<He>> turns your head to examine one side of your face, then the other, then forces your mouth open and looks inside. "<<pShe>> will do," <<he>> says, standing up.
-<br><br>
-<<endevent>>
-<<if $worn.neck.collared isnot 1>>
-	<<neckwear 1>>
-	Your neck is freed only briefly. Someone closes something hard and cold around it before you are yanked to your feet and pulled away.
-<<else>>
-	Someone else yanks you to your feet and pulls you away.
+<<if $phase is 1>>
+	/* endevent was called before setting phase to 1, regen all npcs */
+	<<set _withRobin to 1>>
+	<<set _robin to statusCheck("Robin")>>
+	<<npc Robin 1>><<generate2>><<generate3>><<generate4>>
 <</if>>
-<<generate1>>A <<person1>><<person>> holds the other end of the leash attached to your collar, and leads you towards a door at the far end of the room.
+
+<<if _withRobin>>
+	당신과 로빈은 문으로 끌려나가 계단을 걸어내려간다. 물 흐르는 소리가 들린다.
+	계단 밑바닥에서 <<person2>><<person_ un>> 횃불을 켜서, 어둠 속으로 향하는 오래된 돌 복도를 드러낸다.
+	<br><br>
+
+	한동안 걷자, 당신은 금속 문에 도착한다. <<person2>><<person_ i>> 문을 두드리고, 문 꼭대기 근처의 가느다란 창이 스르륵 열리는 것으로 화답한다.
+	창이 바로 닫히고, 문이 열린다.
+	<br><br>
+
+	당신은 강제로 문을 지나
+	<<person4>><<person_ yi>> 앞에 무릎을 꿇고, <<He_ ga>> 몸을 숙여 당신의 목을 붙잡는다.
+	<<He_ nun>> 당신의 머리를 돌려 얼굴 한 쪽을 살펴보더니, 반대편도 살펴보고, 입을 억지로 벌려 그 안을 본다.
+	"<<pShe_ nun>> 합격이군," <<he_ ga>> 몸을 일으키며 말한다. 그리고 <<He_ nun>> 로빈을 보고 같은 일을 반복하더니 횃불 아래서 교활한 미소를 짓는다.
+	<<person1>>"<<He_ nun>> 분명 인기있을 거야, 장담하지."
+<<else>>
+	당신은 문으로 끌려나가 계단을 걸어내려간다. 물 흐르는 소리가 들린다.
+	계단 밑바닥에서 <<person2>><<person_ un>> 횃불을 켜서, 어둠 속으로 향하는 오래된 돌 복도를 드러낸다.
+	<<pass 15>>
+	<br><br>
+
+	한동안 걷자, 당신은 금속 문에 도착한다.
+	<<person2>><<person_ i>> 문을 두드리고, 문 꼭대기 근처의 가느다란 창이 스르륵 열리는 것으로 화답한다. 창이 바로 닫히고, 문이 열린다.
+	<br><br>
+
+	<<endcombat>>
+	<<generate1>><<person1>>
+	당신은 강제로 문을 지나 <<person_ yi>> 앞에 무릎을 꿇고, <<He_ ga>> 몸을 숙여 당신의 목을 붙잡는다.
+	<<He_ nun>> 당신의 머리를 돌려 얼굴 한 쪽을 살펴보더니, 반대편도 살펴보고, 입을 억지로 벌려 그 안을 본다.
+	"<<pShe_ nun>> 합격이군," <<he_ ga>> 몸을 일으키며 말한다.
+<</if>>
 <br><br>
+
+<<if $worn.neck.collared isnot 1>>
+	<<neckwear 21>>
+	당신의 목이 자유로웠던 건 길지 않았다. 누군가가 무언가 차갑고 단단한 것을 당신의 목에 잠근 후, 홱 잡아당겨 당신을 넘어뜨린 채로 끌고 간다.
+<<else>>
+	<<attach_leash>>
+	누군가 당신의 목걸이에 목줄을 달아, 홱 잡아당겨 당신을 일으켜 세우고, 끌고 간다.
+<</if>>
+<<if !$worn.feet.type.includes("shackle")>>
+	당신의 발목에 차가운 금속 족쇄가 느껴진다.
+	<<shackle_feet>>
+<</if>>
+<<if _withRobin>>
+	<br><br>
+	<<if _robin.dom gte 70>>
+		로빈은 아무 소리도 내지 않는다. 침침한 빛 속에서 당신은 <<his_ yi>> 두 눈이 의지로 가득 찬 것을 볼 수 있다.
+		<br><br>
+
+		"무너뜨려야 할 필요가 있는 너 같은 타입을 좋아하는 사람이 아주 많지," <<person4>><<person_ i>> 로빈의 발목에 족쇄를 채우며 낄낄댄다.
+	<<else>>
+		로빈이 훌쩍인다. "익숙해져," <<person4>><<person_ i>> 찰칵 하며 족쇄를 채운다. "너는 절대로 여길 나가지 못할 거다."
+	<</if>>
+	<br><br>
+
+	<<person3>><<person_ i>> 한 손으로는 당신의 목줄 끝을 잡고, 다른 한 손으로는 로빈의 목줄 끝을 잡는다. <<He_ nun>> 당신 둘을 방의 끝 부분에 있는 문으로 데려간다.
+<<else>>
+	<<generate2>><<person2>>
+	<<person_ i>> 한 손으로 당신의 목줄 끝을 잡는다. <<He_ nun>> 당신을 방의 끝 부분에 있는 문으로 데려간다.
+<</if>>
+<br><br>
+
 <<stealclothes>>
-<<link [[Next|Underground Intro2]]>><</link>>
+<<link [[다음|Underground Intro2]]>><</link>>
 <br>
 
 :: Underground Intro2
-
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-You enter another corridor, lined on one side with metal floor hatches. <<He>> opens one of them, and shoves you inside. You land on something soft at least. "Your role here is simple. Do as you're told. You don't want to know what happened to the last <<girl>> who made a fuss." <<He>> slams the hatch shut, plunging you into complete darkness.
+<<if $phase is 1>>
+	<<set _withRobin to 1>>
+	<<set _robin to statusCheck("Robin")>>
+<</if>>
+
+<<if _withRobin is 1>>/* 4 npcs are generated so far, person1 is robin */
+	당신과 로빈은 금속으로 된 바닥 해치가 한쪽에 늘어서 있는 다른 복도로 들어선다. <<person3>><<person_ i>> 그 중 하나를 열고, 당신을 그 안으로 밀쳐 넣는다. 당신은 그나마 뭔가 부드러운 곳에 착지한다.
+	곧이어 당신은 인접한 해치가 열리는 소리와 <<person1>>로빈이 소리지르는 소리를 듣고, <<he_>> 또한 마찬가지로 떨어졌다고 생각한다.
+	<br><br>
+
+	<<person3>>"너희 둘, 여기서 너희의 역할은 간단해. 명령받은 대로만 하라고. 요란하게 난리를 쳤던 지난번 <<girl_>>에게 어떤 일이 일어났는지 알고 싶지 않을 걸."
+	<<He_ nun>> 해치를 쾅 닫아, 당신을 완전한 어둠 속에 빠트린 후 <<his_ yi>> 발걸음 소리가 멀어진다.
+	<br><br>
+
+	당신은 어둠 속을 더듬어, 당신이 착지한 곳이 매트리스 같은 느낌이 난다는 걸 발견한다. 방 구석에는 잠겨 있는 금속 문과 수도꼭지도 있지만, 그 외에는 텅 비어 있다.
+	<br><br>
+
+	<<person1>>"너 거기 있어?" 근처에서 로빈의<<if _robin.dom lte 40>> 떨리는<</if>> 목소리가 흘러나온다.
+	당신이 <<his_ yi>> 목소리가 들리는 곳을 추적하니, 벽에 당신과 로빈 둘을 이어 주는 작은 구멍이 나 있다는 사실을 알아차린다.
+<<else>>/* 2 npcs are present */
+	당신은 금속으로 된 바닥 해치가 한쪽에 늘어서 있는 다른 복도로 들어선다. <<person2>><<He_ ga>> 그 중 하나를 열고, 당신을 그 안으로 밀쳐 넣는다. 당신은 그나마 뭔가 부드러운 곳에 착지한다.
+	"여기서 네 역할은 간단해. 명령받은 대로만 하라고. 요란하게 난리를 쳤던 지난번 <<girl_>>에게 어떤 일이 일어났는지 알고 싶지 않을 걸."
+	<<He_ nun>> 해치를 쾅 닫아, 당신을 완전한 어둠 속에 빠트린다.
+	<br><br>
+
+	당신은 어둠 속을 더듬어, 당신이 착지한 곳이 매트리스 같은 느낌이 난다는 걸 발견한다.
+	방 구석에는 잠겨 있는 금속 문과 수도꼭지도 있지만, 그 외에는 텅 비어 있다.
+<</if>>
 <br><br>
-You fumble around in the dark, and find you fell on what feels like a mattress. There's also a locked metal door and a tap in the corner, but the room is otherwise bare.
-<br><br>
-<<endevent>>
-<<set $undergroundtime to 0>>
-<<set $undergroundwater to 0>>
-<<set $undergroundescape to 0>>
-<<link [[Next|Underground Cell]]>><</link>>
+
+<<set $undergroundbrothel to {
+	"active": true,
+	"time": 0,
+	"timepass": true,
+	"water": 0,
+	"escape": 0
+}>>
+<<if _withRobin>>
+	<<set $undergroundbrothel.robin to true>>
+	<<set $undergroundbrothel.robinTopics to {
+		"cold": "undiscussed",
+		"lonely": "undiscussed",
+		"dark": "undiscussed",
+		"scared": "undiscussed",
+		"touch": "undiscussed"
+	}>>
+	<<set $undergroundbrothel.robinTalk to 0>>
+<</if>>
+<<link [[다음|Underground Cell]]>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Underground Cell
-
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-You are in an underground cell. You can't see a thing but can tell that the walls and floor are made of cold stone.
-<<if $undergroundwater is 0>>
-	There's a tap in the corner which barely dribbles water.
+
+당신은 지하 감옥에 있다. 당신은 아무것도 볼 수 없지만 벽과 바닥이 차가운 돌로 되어 있다는 건 알 수 있다.
+<<if $undergroundbrothel.water is 0>>
+	구석에 물방울이 아주 조금씩 떨어지는 수도꼭지가 있다.
+
 <<else>>
-	<<set $undergroundwater += 1>>
-	There's a tap in the corner, which they turned off to punish your disobedience.
-	<<if $undergroundwater gte 25>>
-		<span class="red">You're dying of thirst!</span>
-		<<set $pain += 60>><<stress 6>><<trauma 6>><<gtrauma>><<gstress>>
-	<<elseif $undergroundwater gte 20>>
-		<span class="pink">You really need water.</span>
-		<<set $pain += 30>>
-	<<elseif $undergroundwater gte 15>>
-		<span class="purple">You're very thirsty.</span>
-		<<set $pain += 20>>
-	<<elseif $undergroundwater gte 10>>
-		<span class="blue">You're thirsty.</span>
-		<<set $pain += 10>>
-	<<elseif $undergroundwater gte 5>>
-		<span class="lblue">You feel a bit thirsty.</span>
+	<<if $undergroundbrothel.timepass isnot false>>
+		<<set $undergroundbrothel.water += 1>>
 	<</if>>
-	<br><br>
+	구석에는 당신의 불복종 행위를 벌주기 위해, 그들이 잠가 놓은 수도꼭지가 있다.
+	<<if $undergroundbrothel.water gte 25>>
+		<span class="red">당신은 목말라 죽어가고 있다!</span>
+		<<pain 15>><<stress 6>><<trauma 6>><<gtrauma>><<gstress>><<rngWraith>>
+	<<elseif $undergroundbrothel.water gte 20>>
+		<span class="pink">당신은 정말로 물이 필요하다.</span>
+		<<pain 8>>
+	<<elseif $undergroundbrothel.water gte 15>>
+		<span class="purple">당신은 아주 목마르다.</span>
+		<<pain 5>>
+	<<elseif $undergroundbrothel.water gte 10>>
+		<span class="blue">당신은 목이 마르다.</span>
+		<<pain 2>>
+	<<elseif $undergroundbrothel.water gte 5>>
+		<span class="lblue">당신은 약간 목이 마르다.</span>
+	<</if>>
 <</if>>
 <br><br>
-<<set $undergroundtime += 1>>
-<<if $undergroundtime is 2 and $bodywritingdisable is "f">>
-	Dim pink-hued lights turn on, bathing the room in light. Before your eyes can adjust, one of the doors opens and a number of people enter. You think there are four of them.<<generate1>><<generate2>><<generate3>><<generate4>><<person1>> They grab your arms and legs, and force you onto your back.
+
+<<if $undergroundbrothel.timepass isnot false>>
+	<<set $undergroundbrothel.time += 1>>
+<</if>>
+
+<<if isPlayerNonparasitePregnancyEnding()>>
+	<<pregnancyWatersBrokenPassout "dungeon">>
+<<elseif $undergroundbrothel.timepass is false>>
+	<<undergroundCellOptions>>
+
+<<elseif _wraithEvent and !$wraithUnderground>>
+	<<set $wraithUnderground to true>>
+	<<set $undergroundbrothel.water to 1>>
+	조명이 잠시 깜빡인다. 당신은 마음을 단단히 먹지만, 방은 여전히 잠긴 채다. 희미한 하얀 빛이 당신 위에 떠다닌다.
+	당신이 그쪽을 보니, 망토에 덮힌 창백한 형체가 <<wraithEyes>> 눈으로 당신을 내려다보고 있다.
+	<<if $wraith.state is "active">>
+		그것은 자신의 목에 차고 있는 상아 목걸이를 만지작거린다.
+	<</if>>
 	<br><br>
 
+	그것은 당신의 뒷통수에 손을 대고, 위로 기울인다. 그것의 반대편 손이 주먹을 쥐니, 주먹으로부터, 물이 흐르기 시작한다.
+	흘러나온 물을 마시자 당신의 몸이 안도감에 축 늘어진다. <<stress -12>><<trauma -12>><<pain -50>><<lstress>><<ltrauma>><<lpain>>
+	<br><br>
+
+	<<if $wraith.state is "haunt">>
+		<<if $wraithPrison and $wraithPrison.vision is true>>
+			"<span class="wraith">사라져라. 익사해라. 내가 같은 말을 반복하게 하지 마라.</span>"
+		<<else>>
+			"<span class="wraith">외로워하라. 고립되어라. 너의 고통은 아직 끝나지 않았다.</span>"
+		<</if>>
+	<<elseif $wraith.state is "despair">>
+		"<span class="wraith">Our suffering isn't over. <<pcPetname "Wraith">>.</span>"
+	<<else>>
+		"<span class="wraith">새장 안에서 죽어야 하는 이는 아무도 없다.</span>"
+	<</if>>
+	<br><br>
+
+	당신은 콜록댄다. 당신은 수도꼭지 앞에 서 있다. 수도꼭지에서는 물이 나오지 않지만, 당신의 기분은 나아진다.
+	<br><br>
+
+	<<link [[다음|Underground Cell]]>><</link>>
+	<br>
+<<elseif $undergroundbrothel.time is 2 and $bodywritingLvl gte 3>>
+	<<undergroundRobinTopic "tattoo" "undiscussed">><<run delete $undergroundbrothel.robinSpoke>>
+	<<if $undergroundbrothel.robin>>
+		<<set $robinTattoo.pushUnique("164")>>
+	<</if>>
+	침침한 분홍빛 도는 조명이 켜져, 방을 빛으로 물들인다. 당신의 눈이 미처 적응하기도 전에, 문이 열려 많은 사람들이 들어온다.
+	네 명 정도인 것 같다.
+	<<generate1>><<generate2>><<generate3>><<generate4>>
+	그들은 당신의 팔과 다리를 붙잡고, 당신을 강제로 눕힌다.
+	<br><br>
+
+	<<person1>>
 	<<if $worn.upper.name isnot "naked" or $worn.lower.name isnot "naked" or $worn.under_lower.name isnot "naked" or $worn.under_upper.name isnot "naked">>
-		Hands grope at your clothing, pulling and tugging them off your body while a <<person>> hefts a machine to the ground. Metal rails protrude from the top, and various apparatus from the middle. <<He>> examines what looks like a needle.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+		손들이 당신이 걸친 옷을 붙잡고, 한 <<person_ i>> 기계를 바닥으로 들어 옮기는 동안 옷을 잡아당겨 벗긴다.
+		기계의 꼭대기에서 금속 레일이, 중앙에서는 다양한 기구들이 튀어나온다. <<He_ nun>> 바늘처럼 보이는 것을 살핀다.
+		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 		<br><br>
 	<<else>>
-		A <<person>> hefts a machine to the ground. Metal rails protrude from the top, and various apparatus from the middle. <<He>> examines what looks like a needle.
+		한 <<person_ i>> 기계를 바닥으로 들어 옮긴다. 기계의 꼭대기에서 금속 레일이, 중앙에서는 다양한 기구들이 튀어나온다.
+		<<He_ nun>> 바늘처럼 보이는 것을 살핀다.
 		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 		<br><br>
 	<</if>>
 
-		More shackles are clasped around your wrists and ankles, attached to chains connected to the rails.
+	당신의 허리와 발목에 더 많은 수갑들이 채워진다. 수갑들은 레일과 연결된 쇠사슬에 붙어 있다.
+	<br><br>
+	<<strip>>
+
+	<<link [[몸부림친다|Underground Tattoo Struggle]]>><<def 1>><</link>>
+	<br>
+	<<link [[잠자코 누워 있는다|Underground Tattoo Still]]>><<sub 1>><</link>>
+	<br>
+
+<<elseif $undergroundbrothel.time is 4>>
+	<<run delete $undergroundbrothel.robinSpoke>>
+	<<generate1>><<person1>>
+	<<if $undergroundbrothel.robin>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "공연할 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다. "네 친구도 함께다. 행운으로 여겼으면 좋겠군."
 		<br><br>
-		<<strip>>
-
-		<<link [[Struggle|Underground Tattoo Struggle]]>><<def 1>><</link>>
-		<br>
-		<<link [[Lie still|Underground Tattoo Still]]>><<sub 1>><</link>>
-		<br>
-
-<<elseif $undergroundtime is 4>>
-	The lights turn on once more, and a <<generate1>><<person1>><<person>> enters. "Time for your performance," <<he>> says, yanking your leash. "Make sure you dance sexy. If you don't attract a customer we'll just let the whole audience have a piece." <<He>> tries to pull you from the room.
-	<br><br>
-	<<link [[Go quietly|Underground Dance Intro]]>><<endevent>><</link>>
+		<<link [[얌전히 간다|Underground Robin Dice Intro]]>><<endevent>><</link>>
+	<<else>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "공연할 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		"섹시한 춤을 춰야 해. 손님을 끌어오지 못하면 우린 널 관중들 모두에게 맛보라고 던져 줄 거다." <<He_ ga>> 당신을 방에서 끌어내려고 한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Dance Intro]]>><<endevent>><</link>>
+	<</if>>
 	<br>
-	<<link [[Resist|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 1>><</link>>
+	<<link [[저항한다|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 1>><</link>>
 	<br>
-<<elseif $undergroundtime is 8>>
-	The lights turn on once more, and a <<generate1>><<person1>><<person>> enters. "You're needed," <<he>> says, yanking your leash.
-	<br><br>
-	<<link [[Go quietly|Underground Presentation]]>><<endevent>><</link>>
+<<elseif $undergroundbrothel.time is 8>>
+	<<run delete $undergroundbrothel.robinSpoke>>
+	<<generate1>><<person1>>
+	<<if $undergroundbrothel.robin>>
+		다시 조명이 켜지고, <<person1>><<person_ i>> 들어온다. "다시 공연할 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<if $tentacledisable is "t">>
+			<<link [[얌전히 간다|Underground Robin Stage Intro]]>><<endevent>><</link>>
+		<<else>>
+			<<link [[얌전히 간다|Underground Robin Tentacles Intro]]>><<endevent>><</link>>
+		<</if>>
+	<<else>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "네가 필요하다." <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Presentation]]>><<endevent>><</link>>
+	<</if>>
 	<br>
-	<<link [[Resist|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+	<<link [[저항한다|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
 	<br>
-<<elseif $undergroundtime is 12>>
-	The lights turn on once more, and a <<generate1>><<person1>><<person>> enters. "Time for another performance," <<he>> says, yanking your leash.
-	<br><br>
-	<<link [[Go quietly|Underground Stage Intro]]>><<endevent>><</link>>
+<<elseif $undergroundbrothel.time is 12>>
+	<<run delete $undergroundbrothel.robinSpoke>>
+	<<generate1>><<person1>>
+	<<if $undergroundbrothel.robin>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "다시 공연할 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Robin Machine Intro]]>><<endevent>><</link>>
+	<<else>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "다시 공연할 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Stage Intro]]>><<endevent>><</link>>
+	<</if>>
 	<br>
-	<<link [[Resist|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 3>><</link>>
+	<<link [[저항한다|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 3>><</link>>
 	<br>
-<<elseif $undergroundtime is 16>>
-	The lights turn on once more, and a <<generate1>><<person1>><<person>> enters. "Time for another performance," <<he>> says, yanking your leash.
-	<br><br>
-	<<link [[Go quietly|Underground Film Intro]]>><<endevent>><</link>>
+<<elseif $undergroundbrothel.time is 16>>
+	<<run delete $undergroundbrothel.robinSpoke>>
+	<<generate1>><<person1>>
+	<<if $undergroundbrothel.robin>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "다시 공연할 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Robin Kiss Intro]]>><<endevent>><</link>>
+	<<else>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "다시 공연할 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Film Intro]]>><<endevent>><</link>>
+	<</if>>
 	<br>
-	<<link [[Resist|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 4>><</link>>
+	<<link [[저항한다|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 4>><</link>>
 	<br>
-<<elseif $undergroundtime is 20>>
-	The lights turn on once more, and a <<generate1>><<person1>><<person>> enters. "Time for some fresh air," <<he>> says, yanking your leash.
-	<br><br>
-	<<link [[Go quietly|Underground Hunt Intro]]>><<endevent>><</link>>
+<<elseif $undergroundbrothel.time is 20>>
+	<<run delete $undergroundbrothel.robinSpoke>>
+	<<generate1>><<person1>>
+	<<if $undergroundbrothel.robin>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "신선한 공기 좀 쐴 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Robin Hunt Intro]]>><<endevent>><</link>>
+	<<else>>
+		다시 조명이 켜지고, <<person_ i>> 들어온다. "신선한 공기 좀 쐴 시간이다," <<he_ ga>> 당신의 목줄을 홱 잡아당기며 말한다.
+		<br><br>
+		<<link [[얌전히 간다|Underground Hunt Intro]]>><<endevent>><</link>>
+	<</if>>
 	<br>
-	<<link [[Resist|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 5>><</link>>
+	<<link [[저항한다|Underground Cell Resist]]>><<set $molestationstart to 1>><<set $phase to 5>><</link>>
 	<br>
-<<elseif $undergroundtime is 24>><<set $undergroundtime to 0>>
+<<elseif $undergroundbrothel.time is 24>>
+	<<set $undergroundbrothel.time to 0>><<run delete $undergroundbrothel.robinSpoke>>
 	<<if $trauma gte $traumamax>>
-		The lights turn on once more, and a <<generate1>><<generate2>><<person1>><<person>> and <<person2>><<person>> enter. The <<person1>><<person>> crouches beside you, grabs your neck and turns you to face <<him>>. "Yep," <<he>> says. "<<pHer>> lights are out. Shame, <<pshes>> a pretty little thing."
+		<<generate1>><<generate2>>
+		다시 조명이 켜지고, <<fullGroup_ i>> 들어온다.
+		<<person1>><<person_ i>> 몸을 숙여, 당신의 목을 붙잡고 <<him_ ul>> 마주보도록 당신의 얼굴을 돌린다.
+		"그래," <<he_ ga>> 말한다. "<<pHer_ yi>> 눈이 죽어 버렸네. 안타깝구만, <<pshe_ nun>> 꽤 귀여운 애였는데."
 		<br><br>
-		Together they lift you by the shoulders and carry you from the room. They take you down a flight of steps to a large hole in the ground. They dump you in.
+		그들은 함께 당신을 어깨로 들어올려 방 바깥으로 옮긴다.
+		그들은 당신을 들고 계단을 내려가 바닥에 난 커다란 구멍까지 데려간다. 그들은 당신을 구멍에 버린다.
 		<br><br>
-		You fall through darkness for several seconds before splashing into cold water.<<water>>
+		당신은 수 초간 어둠 속으로 곤두박질치다 차디찬 물에 첨벙 소리를 내며 떨어진다.<<water>>
 		<br><br>
 		<<endevent>>
-		<<link [[Next|Underground Lake]]>><</link>>
+		<<dungeonescape>>
+		<<link [[다음|Underground Lake]]>><</link>>
 	<<else>>
-		The lights turn on once more, and a <<generate1>><<person1>><<person>> enters, holding a hose. Water shoots from the tip, knocking you prone and drenching you. <<He>> walks closer and continues spraying you from multiple angles, before finally turning it off. "There we go," <<he>> says. "Nice and clean." The door slams shut behind <<him>>, plunging you into darkness.
+		<<generate1>>
+		다시 조명이 켜지고, <<person1>><<person_ i>> 호스를 든 채로 들어온다.
+		호스 끝에서 물이 뿜어져나와, 당신을 바닥에 넘어뜨리고 흠뻑 적신다.
+		<<He_ nun>> 더 가까이 걸어와 여러 각도에서 당신에게 물을 뿌리다가, 마침내 물을 끈다.
+		"됐다." <<he_ ga>> 말한다. "깨끗하고 좋네." <<he_ ga>> 문을 쾅 닫고 나가며, 당신을 완전한 어둠 속에 빠트린다.
 		<br><br>
 		<<wash>><<water>>
 		<<endevent>>
-		<<link [[Next|Underground Cell]]>><</link>>
+		<<link [[다음|Underground Cell]]>><</link>>
 		<br>
 	<</if>>
+<<elseif $underground_shirt isnot 1 and $worn.upper.name is "naked">>
+	<<set $underground_shirt to 1>>
+	<<generate1>>
+	불이 다시 한번 들어오고, <<person1>><<person_ i>> 들어온다. <<He_ nun>> 한 뭉치의 천을 당신에게 던진다. "받아라, 걸레야," <<he_ ga>> 말한다. "네가 감기에 걸리면 안 되니까." <<He_ ga>> 웃더니 문을 쾅 닫는다.
+	<br><br>
+	당신은 그 천뭉치를 푼다. 그것은 셔츠인데, "걸레" 라는 단어가 앞에 선명하게 새겨져 있다.
+	<br><br>
+
+	<<link [[입는다|Underground Shirt]]>><<upperwear 27>><</link>>
+	<br>
+	<<link [[찢어버린다|Underground Shirt Tear]]>><<trauma -12>><</link>><<lltrauma>>
+	<br>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>><<set $allure /= 2>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
-		Dim pink-hued lights turn on, bathing the room in light. One of the doors opens and a <<generate1>><<person1>><<person>> walks in, closing the door behind <<him>>. <<covered>> <<He>> sizes you up as <<he>> approaches.
-		<<set $rng to random(1, 100)>>
-		<<if $rng gte 81>>
-			"I paid good money for you. You better be worth it."
-			<<set $phase to 1>>
-		<<elseif $rng gte 61>>
-			"You're adorable. Don't worry, I'll be gentle."
-		<<elseif $rng gte 41>>
-			"Good enough. Hold Still."
-		<<elseif $rng gte 21>>
-			"You better be worth it <<bitch>>."
-			<<set $phase to 1>>
-		<<else>>
-			"Yes, nice and young."
-		<</if>>
+	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>><<set _allure to $allure / 2>>
+	<<if $danger gte (9900 - _allure) and $eventskip is 0>>
+		침침한 분홍빛 도는 조명이 켜져, 방을 빛으로 물들인다.
+		문들 중 하나가 열리고 <<generate1>><<person1>><<person_ i>> 걸어들어와, 문을 닫는다.
+		<<covered>>
+		<<He_ ga>> 당신에게 다가오며 당신을 평가한다.
+		<<switch random(1,5)>>
+			<<case 1>>	"너 사랑스럽구나. 걱정하지 마. 살살 해줄게."
+			<<case 2>>	"괜찮네. 그대로 있어 봐."
+			<<case 3>>	"그래, 딱 내 스타일이군."
+			<<case 4>>	"돈 값어치를 해야 할 거야, <<bitch_ ya>>." <<set $phase to 1>>
+			<<default>>	"너한테 돈을 꽤 썼거든. 돈 값어치를 해야 할 거다." <<set $phase to 1>>
+		<</switch>>
 		<br><br>
-		<<link [[Next|Underground Cell Molestation]]>><<set $molestationstart to 1>><</link>>
+		<<link [[다음|Underground Cell Molestation]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
-		<<link [[Rest (1:00)|Underground Cell Rest]]>><<pass 1 hour>><<set $tiredness -= 1000>><</link>><<ltiredness>>
-		<br>
-		<<if $undergroundescape is 0>>
-			<<link [[Look for a way out|Underground Cell Look]]>><</link>>
-			<br>
-		<<elseif $undergroundescape gte 19>>
-			<<link [[Escape|Underground Escape]]>><</link>>
-			<br>
-		<<elseif $undergroundescape gte 18 and $physiquesize lte 12000>>
-			<<link [[Escape|Underground Escape]]>><</link>><<small_text>>
-			<br>
-		<<elseif $undergroundescape gte 17 and $physiquesize lte 10000>>
-			<<link [[Escape|Underground Escape]]>><</link>><<small_text>>
-			<br>
-		<<elseif $undergroundescape gte 16 and $physiquesize lte 6000>>
-			<<link [[Escape|Underground Escape]]>><</link>><<small_text>>
-			<br>
-		<<else>>
-			<<link [[Dig (1:00)|Underground Cell Dig]]>><<pass 1 hour>><</link>>
-			<br>
-		<</if>>
-		<<link [[Examine the door|Underground Cell Lock]]>><</link>>
-		<br>
+		<<undergroundCellOptions>>
 	<</if>>
 <</if>>
 
-:: Underground Cell Rest
+<<set $undergroundbrothel.timepass to true>>
+<<set $eventskip to 0>>
 
+:: Underground Cell Rest
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-You lie on the uncomfortable mattress and close your eyes. You're not sure how long you were lying there, but you feel refreshed.
+
+당신은 불편한 매트리스에 누워 눈을 감는다. 당신은 얼마나 오래 누워 있었는지는 확신치 못하겠지만, 기분이 나아졌다고 느낀다.
 <br><br>
-<<link [[Next|Underground Cell]]>><</link>>
+
+<<link [[다음|Underground Cell]]>><</link>>
 <br>
 
 :: Underground Cell Look
-
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-You carefully feel around the edge of the room, looking for anything that might help you get out. You don't find anything. Feeling helpless, you sit back down on the mattress, and feel a cool breeze caress your leg. You put your hands against the floor and feel it again, coming from beneath the mattress.
+
+<<if $undergroundbrothel.robin>>
+	당신은 조심스럽게 방의 가장자리를 더듬으며, 당신이 여기서 탈출하는 데 도움이 될 만한 것이 있는지 탐색한다. 당신은 아무것도 찾지 못한다. 무력함을 느끼며, 당신은 로빈이 있는 방의 벽에 기대어 미끄러져 내린다.
+	<br><br>
+
+	"쉿!" 당신은 로빈의 목소리를 듣고, 몸을 돌려 당신과 로빈의 방을 잇는 구멍을 바라본다. "내 매트리스 아래에 균열이 있어." 로빈이 속삭인다. "만약 네가 내 방으로 통하는 길을 파낼 수 있으면, 나는 바닥을 파고 함께 탈출할 수 있을지도 몰라."
+	<br><br>
+
+	당신은 로빈의 방으로 통하는 작은 구멍을 들여다본다. <<nnpc_His_ yi "Robin">> 매트리스가 옆으로 옮겨져 있다. 당신은 바닥에 난 균열을 희미하게 알아볼 수 있다. 어쩌면 당신의 상상일지도 모르겠지만, 당신은 균열을 통해 희미한 빛이 스며들어 오는 것 같다고 생각한다.
+<<else>>
+	당신은 조심스럽게 방의 가장자리를 더듬으며, 당신이 여기서 탈출하는 데 도움이 될 만한 것이 있는지 탐색한다. 당신은 아무것도 찾지 못한다.
+	무력감을 느끼며, 당신은 매트리스에 도로 앉는다. 그러자 당신의 다리를 간질이는 시원한 바람이 느껴진다.
+	당신은 바닥에 손을 짚어 다시 바람을 느낀다. 바람은 매트리스 아래서 나오고 있다.
+	<br><br>
+
+	당신이 매트리스를 옆으로 치우자 바람은 당신의 착각이 아니었다는 것이 확실해진다. 당신은 바닥에 난 작은 균열을 느낄 수 있다.
+	어쩌면 당신의 상상일지도 모르지만, 당신은 균열을 통해 희미한 빛이 스며들어 오는 것 같다고 생각한다.
+<</if>>
 <br><br>
-You shunt it aside and the breeze becomes unmistakable. You can feel small cracks in the ground. It might be your imagination, but you think you can see a tiny amount of light through them too.
-<br><br>
-<<set $undergroundescape to 1>>
-<<link [[Next|Underground Cell]]>><</link>>
+
+<<set $undergroundbrothel.timepass to false>>
+<<set $undergroundbrothel.escape to 1>>
+<<link [[다음|Underground Cell]]>><</link>>
 <br>
 
 :: Underground Cell Dig
-
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-
-You pick at the loose stone beneath the mattress.
-<<set $undergroundescape += 1>>
-<<if $undergroundescape gte 19>>
-	It'll be a squeeze, but you think you can fit.
-	<br><br>
-	<<link [[Escape|Underground Escape]]>><</link>>
-
-<<elseif $undergroundescape gte 18 and $physiquesize lte 12000>>
-	It'll be a squeeze, but you think you can fit.
-	<br><br>
-	<<link [[Escape|Underground Escape]]>><</link>><<small_text>>
-
-<<elseif $undergroundescape gte 17 and $physiquesize lte 10000>>
-	It'll be a squeeze, but you think you can fit.
-	<br><br>
-	<<link [[Escape|Underground Escape]]>><</link>><<small_text>>
-
-<<elseif $undergroundescape gte 16 and $physiquesize lte 6000>>
-	It'll be a squeeze, but you think you can fit.
-	<br><br>
-	<<link [[Escape|Underground Escape]]>><</link>><<small_text>>
-
-<<elseif $undergroundescape gte 15>>
-	The hole needs to be just a bit bigger and you'll be able to fit through.
-
-<<elseif $undergroundescape gte 12>>
-	There's definitely a way out here, it just needs to be bigger.
-
-<<elseif $undergroundescape gte 8>>
-	The hole grows wider.
-
-<<elseif $undergroundescape gte 4>>
-	Some of the cracks grow into a small hole.
-
+<<if $undergroundbrothel.robin>>
+	당신은 당신의 방과 로빈의 방을 잇는 구멍을 파낸다.
 <<else>>
-	You make the cracks a bit bigger.
-
+	당신은 매트리스 아래의 헐거운 돌을 파낸다.
+<</if>>
+<<set $undergroundbrothel.escape += 1>>
+<<if $undergroundbrothel.escape gte 19>>
+	꽉 끼긴 하겠지만, 당신은 지나갈 수 있으리라는 생각이 든다.
+	<br><br>
+	<<link [[탈출한다|Underground Escape]]>><</link>>
+<<elseif $undergroundbrothel.escape gte 18 and $physiquesize lte 12000>>
+	꽉 끼긴 하겠지만, 당신은 지나갈 수 있으리라는 생각이 든다.
+	<br><br>
+	<<link [[탈출한다|Underground Escape]]>><</link>><<small_text>>
+<<elseif $undergroundbrothel.escape gte 17 and $physiquesize lte 10000>>
+	꽉 끼긴 하겠지만, 당신은 지나갈 수 있으리라는 생각이 든다.
+	<br><br>
+	<<link [[탈출한다|Underground Escape]]>><</link>><<small_text>>
+<<elseif $undergroundbrothel.escape gte 16 and $physiquesize lte 6000>>
+	꽉 끼긴 하겠지만, 당신은 지나갈 수 있으리라는 생각이 든다.
+	<br><br>
+	<<link [[탈출한다|Underground Escape]]>><</link>><<small_text>>
+<<elseif $undergroundbrothel.escape gte 15>>
+	구멍이 조금만 더 커지면 당신이 지나갈 수 있을 것이다.
+<<elseif $undergroundbrothel.escape gte 12>>
+	<<if $undergroundbrothel.robin>>
+		당신은 분명히 이리로 지나갈 수 있지만, 단지 구멍을 더 넓혀야 할 필요가 있다.
+	<<else>>
+		분명히 이 구멍은 나가는 길로 통하지만, 단지 구멍을 더 넓혀야 할 필요가 있다.
+	<</if>>
+<<elseif $undergroundbrothel.escape gte 8>>
+	구멍이 넓어지고 있다.
+<<elseif $undergroundbrothel.escape gte 4>>
+	균열 몇 개가 모여 작은 구멍이 되고 있다.
+<<else>>
+	당신은 균열을 조금 더 키운다.
 <</if>>
 <br><br>
-<<link [[Stop|Underground Cell]]>><</link>>
+
+<<link [[그만둔다|Underground Cell]]>><</link>>
 <br>
 
 :: Underground Cell Lock
-
 <<set $outside to 0>><<set $location to "underground">><<effects>><<set $lock to 1000>>
-The metal door is locked tight. It uses an advanced electronic lock.
+
+금속 문은 단단히 잠겨 있다. 최신형 전자 자물쇠가 달려 있다.
 <br><br>
-<<if $skulduggery gte $lock>>
-	<span class="green">You think you could manipulate it.</span>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<span class="green">당신은 이걸 조작할 수 있을 것 같다.</span>
 	<br><br>
-	<<link [[Open it (0:05)|Underground Cell Sneak]]>><<pass 5>><</link>>
+	<<link [[잠금을 해제한다 (0:05)|Underground Cell Sneak]]>><<pass 5>><</link>>
 	<br>
 <<else>>
-	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력 바깥의 물건이다.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<link [[Stop|Underground Cell]]>><</link>>
+<<set $undergroundbrothel.timepass to false>>
+<<link [[그만둔다|Underground Cell]]>><</link>>
 <br>
 
 :: Underground Cell Sneak
-
 <<set $outside to 0>><<set $location to "underground">><<effects>>
+
+당신을 막을 자물쇠는 이제 없다. 당신은 문을 열고 까치발을 든 채 화려한 카펫을 가로질러 은밀히 빠져나온다. 앞쪽에서 음악과 웃음소리가 들린다.
+당신이 모퉁이 너머를 슬쩍 들여다보자
 <<if $NPCName[$NPCNameList.indexOf("Whitney")].state is "dungeon">>
-	No lock is going to stop you. You open the door and sneak out, tiptoeing across the plush carpet. You hear laughter and music up ahead. You peek round the corner and see Whitney getting brutally fucked on stage as a crowd of <<people>> watch. With the exception of the stage, the lights have been switched off, leaving the edge of the room in darkness.
-	<br><br>
-	You slink into the room and round the side. No one notices you. You make it to the other side and up the stairs, emerging in the forest.
-	<br><br>
+	휘트니가
 <<else>>
-	No lock is going to stop you. You open the door and sneak out, tiptoeing across the plush carpet. You hear laughter and music up ahead. You peek round the corner and see a <<girl>> getting brutally fucked on stage as a crowd of <<people>> watch. With the exception of the stage, the lights have been switched off, leaving the edge of the room in darkness.
-	<br><br>
-	You slink into the room and round the side. No one notices you. You make it to the other side and up the stairs, emerging in the forest.
+	<<person_ i>>
+<</if>>
+<<people_>> 무리가 지켜보는 무대 위에서 무참히 강간당하는 모습이 보인다.
+무대를 제외하고는 조명이 꺼져 있어, 방의 가장자리는 어둠에 잠겨 있다.
+<br><br>
+
+<<if $undergroundbrothel.robin>>
+	<<set _robin to statusCheck("Robin")>><<npc "Robin">><<person1>>
+	당신은 로빈의 방으로 은밀히 돌아온다. 다행히도, 이쪽에서는 잠겨 있지 않다.
+	<<if _robin.dom lte 20 or _robin.trauma gte 70>>
+		로빈은 마치 구타당하리라 예상한 것처럼 몸을 움츠리고 <<his_ yi>> 고개를 돌린다.
+	<<else>>
+		문이 열리자 로빈은 침을 꿀꺽 삼키고 몸을 움츠린다. 
+	<</if>>
+	그러나 방에 들어온 사람이 당신임을 알아차리자, <<his_ yi>> 얼굴에 안도감이 밀려들어온다. 당신은 당신의 입술에 손가락을 대지만, <<he_ nun>> 이미 조용히 해야 한다는 걸 알고 있는 것으로 보인다.
 	<br><br>
 <</if>>
-<<link [[Next|Forest]]>><<set $forest to 40>><<set $stress -= 1000>><</link>>
-<br>
+
+당신은 방으로 살금살금 들어가 모퉁이를 돈다. 당신의 존재를 눈치챈 이는 아무도 없다. 당신은 반대편으로 건너가 계단을 올라가고, 숲으로 빠져나온다.
+<br><br>
+
+<<dungeonescape>>
+
+<<if _robin>>
+	<<link [[다음|Underground Robin Escape Orphanage]]>><<set $phase to 0>><<set $stress -= 1000>><</link>>
+<<else>>
+	<<link [[다음|Forest]]>><<set $forest to 40>><<set $stress -= 1000>><</link>>
+<</if>>
 
 :: Underground Escape
-
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-You sit on the edge with your legs hanging over the hole. You feel a slope. You carefully lower yourself down, pulling the mattress over as you do. Relying on your hands at least as much as your feet, you scramble downwards.
+
+
+<<if $undergroundbrothel.robin>>
+	"내 쪽에서는 끝났어," 로빈이 반쯤 속삭이며 부른다. "이쪽으로 건너올 수 있겠어?"
+	<br><br>
+
+	<<if $submissive lte 850>>
+		"으-응! 서두르자!"
+	<<elseif $submissive gte 1150>>
+		"우릴 방해할 여지도 주지 말자!"
+	<<else>>
+		"이제 가자!"
+	<</if>>
+	당신은 빠르게 구멍을 지나 로빈의 방으로 들어선다.
+	<br><br>
+
+	로빈이 즉시 방에 들어오는 당신을 껴안는다. "이제 여기서 나가자!" 로빈은 당신이 구멍에 들어갈 수 있도록 도와주고 당신은 조심스럽게 내려가며 당신을 뒤따라 로빈이 들어오는 것을 확인한다.
+	<<nnpc_He_ nun "Robin">> 자신이 내려오면서 매트리스를 사용해 구멍을 확실히 가린다.
+<<else>>
+	당신은 구멍에 다리를 집어넣은 채 방 가장자리에 앉는다. 경사가 느껴진다. 당신은 조심스럽게 아래로 내려가면서, 매트리스를 끌어당겨 구멍을 덮는다.
+	당신의 손발에 의지하여, 당신은 아래로 빠져나간다.
+<</if>>
 <br><br>
-The stone gives way and you fall several feet into cold water.
+
+돌이 무너지면서 당신은 수 미터를 떨어져 차가운 물에 곤두박질친다.
 <br><br>
-<<link [[Next|Underground Lake]]>><<set $stress -= 1000>><</link>>
+
+<<link [[다음|Underground Lake]]>><<set $stress -= 1000>><</link>>
 <br>
 
 :: Underground Lake
-
 <<set $outside to 0>><<set $location to "underground">><<water>><<effects>>
-<<set $stress -= 1000>>
-<<if $historytrait gte 4>>
-	You are pulled through the dark by a current. You've read about these tunnels, and should be able to influence where you end up.
+<<set _fromUB to $undergroundbrothel isnot undefined>>
+<<set _withRobin to _fromUB ? $undergroundbrothel.robin : false>>
+<<rngWraith>>
+<<if _wraithEvent>>
+	<<set _drown to ($wraith.state is "haunt" ? "빠져죽어라" : "안돼")>>
+	<<ind>><<ind>><<ind>><span class="wraith_flicker">_drown</span>
 	<br><br>
-	<<link [[Near the shore|Underground Lake2]]>><<set $sea to 10>><</link>>
-	<br>
-	<<link [[Further out at sea|Underground Lake2]]>><<set $sea to 50>><</link>>
-	<br><br>
-<<else>>
-	You are pulled through the dark by a current. Without warning, you are sucked underwater. You try to fight it, but the force is too strong. After a few moments, the darkness gives way to light, and you are pushed upwards. You struggle further up, and emerge into the $daystate.
-	<br><br>
-	<<link [[Next|Sea]]>><<set $sea to 50>><</link>>
-	<br>
 <</if>>
 
+<<set $stress -= 1000>>
+<<if $historytrait gte 4 and !_withRobin>>
+	물살이 당신을 어둠 속으로 이끈다. 당신은 이러한 터널에 대해 이전에 책에서 본 적이 있었기에, 어디로 가게 될 지를 결정할 수가 있을 것이다.
+	<br><br>
 
+	<<link [[해변 근처로|Underground Lake2]]>><<set $sea to 10>><</link>>
+	<br>
+	<<link [[더 먼 바다로|Underground Lake2]]>><<set $sea to 50>><</link>>
+	<br><br>
+<<else>>
+	물살이 당신을 어둠 속으로 이끈다. 아무런 전조도 없이, 당신은 수면 아래로 빨려든다.
+	당신은 그에 맞서려 해 보나, 물살이 너무 강하다. 약간의 시간이 지나니, 어둠이 빛에게 길을 터 주고, 당신은 위로 밀려 올라간다.
+	당신은 앞으로 나아가려 발버둥치고, <<putpost `Time.dayState` "의">> 수면 위로 빠져나온다.
+	<br><br>
+
+	<<if _withRobin>>
+		<<set _robin to statusCheck("Robin")>>
+		<<npc Robin 1>>
+		결국 로빈도 당신 옆의 수면에 떠오른다.
+		<br><br>
+		<<if _robin.dom gte 40>>
+			<<set _swimtestdiff to 400>>
+			<<He_ nun>> 최선을 다해 수면에 떠 있으려 하지만, <<his_ yi>> 급한 호흡이 <<him_ ul>> 방해한다.
+			"잡아!" <<he_ nun>> 당신이 <<him_>> 근처로 떠내려가자 소리친다. "여기까지 와서 흩어질 순 없어!"
+			당신은 가까이 다가가 <<him_ i>> 당신을 꽉 붙잡도록 한다.
+		<<else>>
+			<<set _swimtestdiff to 600>>
+			<<He_ nun>> 파도에 맞서 수면에 떠 있으려고 발버둥치는 것으로 보인다.
+			"도-도와줘!" <<He_ nun>> 당신이 가까이 와서 <<him_ i>> 당신을 꽉 붙잡도록 하자 기침하며 말한다.
+		<</if>>
+		<br><br>
+
+		<<link [[해변으로 헤엄친다|Underground Robin Escape Swim]]>><</link>><<swimmingdifficulty 1 _swimtestdiff>>
+		<br>
+	<<else>>
+		<<link [[다음|Sea]]>><<set $sea to 50>><</link>>
+		<br>
+	<</if>>
+	<<if _fromUB>>
+		<<dungeonescape>>
+	<</if>>
+<</if>>
+<<if _wraithEvent and !_withRobin>>
+	<<ind>><<ind>><<ind>><<ind>><<ind>><<ind>><span class="wraith_flicker">_drown</span>
+	<br><br><br><br><br><br><span class="wraith_flicker">_drown</span>
+<</if>>
 
 :: Underground Lake2
-
 <<set $outside to 0>><<set $location to "underground">><<effects>>
-The current sucks you underwater. After a few moments, the darkness gives way to light, and you are pushed upwards. You struggle further, and emerge into the $daystate.
+
+물살이 당신을 수면 아래로 빨아들인다. 약간의 시간이 지나니, 어둠이 빛에게 길을 터 주고, 당신은 위로 밀려 올라간다.
+당신은 앞으로 나아가려 발버둥치고, <<putpost `Time.dayState` "의">> 수면 위로 빠져나온다.
 <br><br>
-<<link [[Next|Sea]]>><</link>>
+<<link [[다음|Sea]]>><</link>>
 <br>

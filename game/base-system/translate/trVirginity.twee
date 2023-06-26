@@ -1,9 +1,108 @@
 :: Widgets trVirginity [widget nobr]
-
-<<widget "trVirginity">>
-    <<if (typeof $args[0] === 'string')>>
-        <<trNPCdesc $args[0]>>
-    <<else>>
-        <<set _trResult to $args[0]>>
-    <</if>>
+<<widget "trinit_trVirginitySpecial">>
+	<<if _trVirginitySpecialList is undefined>>
+		<<set _trVirginitySpecialList to {
+			"sex machine": { koname: "섹스 기계", },
+			"giving birth": { koname: "아기 출산", },
+			"Eerie Mirror Tentacle": { koname: "으스스한 거울 촉수", },
+			"Lew": { koname: "류", },	/* olive book */
+			"phallus plant": { koname: "자지 모양 식물", },
+			"a phallus plant": { koname: "자지 모양 식물", },
+			"Portal Panties": { koname: "포탈 팬티", },
+		}>>
+	<</if>>
 <</widget>>
+
+<<widget "trVirginityInner">><<silently>>
+	<<set $_tempArray to _args[0].split(" ")>>
+	<<if $_tempArray.length eq 1>>
+		/* struggle monster? */
+		<<if setup.trCreatures is undefined>>
+			<<trinit_creature>>
+		<</if>>
+		<<set $_value to _args[0]>>
+
+		<<set $_found to setup.trCreatures.struggle.nameIndex[$_value]>>
+		<<if $_found is undefined>>
+			<<set $_found to setup.trCreatures.struggle.pluralIndex[$_value]>>
+		<</if>>
+
+		<<if $_found isnot undefined>>
+			<<trCreature "struggle" _args[0] _args[1] _args[2]>>
+		<<else>>
+			<<trNPCdesc _args[0] _args[1] _args[2]>>
+		<</if>>
+	<<else>>
+		<<set $_foundIndex to $_tempArray.findIndex(function(select){
+			if (select.endsWith("'s")){return true;
+			}})>>
+	
+		<<if $_foundIndex gte 0>>
+			/* abomination */
+			<<set $_abominationName to $_tempArray.slice(0, $_foundIndex+1).join(" ")>>
+			<<set $_abominationName to $_abominationName.substring(0, $_abominationName.length-2)>>
+			<<set $_tentacleName to $_tempArray.slice($_foundIndex+1).join(" ")>>
+			<<trNPCdesc $_abominationName>>
+			<<set $_abominationName to _trResult>>
+			<<trCreature "tentacle" $_tentacleName _args[1] _args[2]>>
+			<<set $_tentacleName to _trResult>>
+			<<set _trResult to $_abominationName + "의 " + $_tentacleName>>
+		<<else>>
+			/* tentacle? */
+			<<if setup.trCreatures is undefined>>
+				<<trinit_creature>>
+			<</if>>
+			<<set $_value to $_tempArray[$_tempArray.length -1]>>
+
+			<<set $_found to setup.trCreatures.tentacle.nameIndex[$_value]>>
+			<<if $_found is undefined>>
+				<<set $_found to setup.trCreatures.tentacle.pluralIndex[$_value]>>
+			<</if>>
+
+			<<if $_found isnot undefined>>
+				<<trCreature "tentacle" _args[0] _args[1] _args[2]>>
+			<<else>>
+				<<trNPCdesc _args[0] _args[1] _args[2]>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>
+
+<<widget "trVirginity">><<silently>>
+	<<if (typeof _args[0] === 'string')>>
+		<<if _trVirginitySpecialList is undefined>>
+			<<trinit_trVirginitySpecial>>
+		<</if>>
+		<<set $_found to _trVirginitySpecialList[_args[0]]>>
+		<<if $_found isnot undefined>>
+			<<set _trResult to $_found.koname>>
+		<<else>>
+			<<set $_tempArray to _args[0].split(" ")>>
+			<<set $_idxAnd to $_tempArray.findIndex(x => x == "and")>>
+			<<if $_idxAnd gte 0>>	/* double fuck */
+				<<set $_desc1 to $_tempArray.slice(0,$_idxAnd).join(" ")>>
+				<<set $_desc2 to $_tempArray.slice($_idxAnd+1).join(" ")>>
+				<<trVirginityInner $_desc1 "과">><<set $_desc1 to _trResult>>
+				<<trVirginityInner $_desc2>><<set $_desc2 to _trResult>>
+				<<set _trResult to $_desc1+" "+$_desc2>>
+			<<else>>
+				<<trVirginityInner _args[0]>>
+			<</if>>
+		<</if>>
+	<<elseif (typeof _args[0] === 'boolean')>> 
+		<<set _trResult to (_args[0])?"존재":"불명">>
+    <<else>>
+        <<set _trResult to _args[0]>>
+    <</if>>
+<</silently>><</widget>>
+
+<<widget "trNPCVirginity">><<silently>>
+	<<if Array.isArray(_args[0]) is true>>
+		<<set $_trArray to []>>
+		<<for $_i, $_value range _args[0]>>
+			<<trNPCdesc $_value>>
+			<<set $_trArray.push(_trResult)>>
+		<</for>>
+		<<set _trResult to $_trArray.join(", ")>>
+	<</if>>
+<</silently>><</widget>>

@@ -1,1048 +1,1239 @@
 :: Widgets NPCs [widget]
 
 <<widget "maninit">>
+	<<set $enemyarousal to $allure / 50 + $audiencearousal>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemytrust to 0>>
+	<<set $enemyhealth to 0>>
+	<<for _i to 0; _i lt $enemyno; _i++>>
+		<<if $NPCList[_i].health isnot undefined>>
+			<<set $enemyhealth += $NPCList[_i].health>>
+		<</if>>
+	<</for>>
+	<<if $enemyhealth is 0>><<set $enemyhealth to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+	<<set $enemyarousalmax to 500 * $enemyno>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to $enemyhealth>>
+	<<if $enemyhealthmax is 0>><<set $enemyhealthmax to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+	<<for _i = 0; _i < $NPCList.length; _i++>>
+		<<set $NPCList[_i].bold to $allure / 10>>
+	<</for>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<if _args[0]>>
+		<<set $enemytype to _args[0]>>
+	<<else>>
+		<<set $enemytype to "man">>
+	<</if>>
+	<<if _args[0] is "plant">>
+		<<set $enemyno to 1>>
+	<</if>>
 
-<<set $enemyarousal to $allure / 50 + $audiencearousal>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemytrust to 0>>
-<<set $enemyhealth to $NPCList[0].health+$NPCList[1].health+$NPCList[2].health+$NPCList[3].health+$NPCList[4].health+$NPCList[5].health>>
-<<if $enemyhealth is 0>><<set $enemyhealth to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
-<<set $enemyarousalmax to 500 * $enemyno>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to $enemyhealth>>
-<<if $enemyhealthmax is 0>><<set $enemyhealthmax to 199>><</if>><!-- This is set for compatibility elsewhere if needed, v2.2.0... -->
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<if $dissociation gte 1>>
-	<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $combattype to "gang">>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-<<set $enemynomax to $enemyno>>
+	<<if $NPCList[0].monster is "monster">>
+		<<set $monster to 1>>
+	<<else>>
+		<<set $monster to 0>>
+	<</if>>
 
-<<set $combattype to "gang">>
+	<<if $condomLvl gte 2>>
+		<<for _i to 0; _i lt $enemyno; _i++>>
+			<<if $condomLvl is 2 and $NPCList[_i].condom and pregnancyCompatible($NPCList[_i]) is false>>
+				<<set $NPCList[_i].condom.willUse to false>>
+			<<elseif $NPCList[_i].condom and $NPCList[_i].pregnancyAvoidance gte 80>>
+				<<set $NPCList[_i].condom.willUse to true>>
+			<<elseif $NPCList[_i].condom and typeof $NPCList[_i].condom.willUse is "number">>
+				<<set $NPCList[_i].condom.willUse to ($NPCList[_i].condom.willUse lt ($consensual is 1 ? $condomUseChanceCon : $condomUseChanceRape))>>
+			<</if>>
+		<</for>>
+	<</if>>
 
-<<if $NPCList[0].monster is "monster">>
-	<<set $monster to 1>>
-<<else>>
-	<<set $monster to 0>>
-<</if>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "beastNNPCinit">>
-<!-- NEW NNPC beast intitiation widget v2.6. Replaces beast(1-6)init widgets -->
-<!-- Probably just temporary... fix for Black Wolf -->
+	<!-- NEW NNPC beast intitiation widget v2.6. Replaces beast(1-6)init widgets -->
+	<!-- Probably just temporary... fix for Black Wolf -->
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-	<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "beast">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "beast">>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<if $combatTrain.generateInit is 1>>
-	<<set $penisbitten to 0>>
-	<<set $apologised to 0>>
-<</if>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-<<set $enemynomax to $enemyno>>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<if $combatTrain.generateInit is 1>>
+		<<set $penisbitten to 0>>
+		<<set $apologised to 0>>
+	<</if>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<!-- NG This means if Beast 1 is a monster, they are all monsters -->
-<!-- This should be fixed globally later -->
-<<if $NPCList[0].monster is "monster">>
-	<<set $monster to 1>>
-<<else>>
-	<<set $monster to 0>>
-<</if>>
+	<!-- NG This means if Beast 1 is a monster, they are all monsters -->
+	<!-- This should be fixed globally later -->
+	<<if $NPCList[0].monster is "monster">>
+		<<set $monster to 1>>
+	<<else>>
+		<<set $monster to 0>>
+	<</if>>
 
-<!--Used to prevent certain variables being repeated during re-generation-->
-<<set $combatTrain.generateInit to 0>>
+	<!--Used to prevent certain variables being repeated during re-generation-->
+	<<set $combatTrain.generateInit to 0>>
 
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "beastCombatInit">>
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<if $combatTrain.generateInit is 1>>
-	<<set $penisbitten to 0>>
-	<<set $apologised to 0>>
-<</if>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<if $combatTrain.generateInit is 1>>
+		<<set $penisbitten to 0>>
+		<<set $apologised to 0>>
+	<</if>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-	<<set $enemytrust -= 40>>
-<</if>>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
 
-<<set $enemytype to "beast">>
+	<<set $enemytype to "beast">>
+	<<if $NPCList[0].monster is "monster">>
+		<<set $monster to 1>>
+	<<else>>
+		<<set $monster to 0>>
+	<</if>>
 
-<!--Used to prevent certain variables being repeated during re-generation-->
-<<set $combatTrain.generateInit to 0>>
+	<!--Used to prevent certain variables being repeated during re-generation-->
+	<<set $combatTrain.generateInit to 0>>
 
-<!-- NG not sure what to do with below yet, this is part of indexing... leave for now V2.7-->
-<<set $enemyarousal1 to $enemyarousal>>
-<<set $enemyanger1 to $enemyanger>>
-<<set $enemyhealth1 to $enemyhealthmax>>
-<<set $enemytrust1 to $enemytrust>>
+	<!-- NG not sure what to do with below yet, this is part of indexing... leave for now V2.7-->
+	<<set $enemyarousal1 to $enemyarousal>>
+	<<set $enemyanger1 to $enemyanger>>
+	<<set $enemyhealth1 to $enemyhealthmax>>
+	<<set $enemytrust1 to $enemytrust>>
 
-<<set $enemyarousal2 to $enemyarousal>>
-<<set $enemyanger2 to $enemyanger>>
-<<set $enemyhealth2 to $enemyhealthmax>>
-<<set $enemytrust2 to $enemytrust>>
+	<<set $enemyarousal2 to $enemyarousal>>
+	<<set $enemyanger2 to $enemyanger>>
+	<<set $enemyhealth2 to $enemyhealthmax>>
+	<<set $enemytrust2 to $enemytrust>>
 
-<<set $enemyarousal3 to $enemyarousal>>
-<<set $enemyanger3 to $enemyanger>>
-<<set $enemyhealth3 to $enemyhealthmax>>
-<<set $enemytrust3 to $enemytrust>>
+	<<set $enemyarousal3 to $enemyarousal>>
+	<<set $enemyanger3 to $enemyanger>>
+	<<set $enemyhealth3 to $enemyhealthmax>>
+	<<set $enemytrust3 to $enemytrust>>
 
-<<set $enemyarousal4 to $enemyarousal>>
-<<set $enemyanger4 to $enemyanger>>
-<<set $enemyhealth4 to $enemyhealthmax>>
-<<set $enemytrust4 to $enemytrust>>
+	<<set $enemyarousal4 to $enemyarousal>>
+	<<set $enemyanger4 to $enemyanger>>
+	<<set $enemyhealth4 to $enemyhealthmax>>
+	<<set $enemytrust4 to $enemytrust>>
 
-<<set $enemyarousal5 to $enemyarousal>>
-<<set $enemyanger5 to $enemyanger>>
-<<set $enemyhealth5 to $enemyhealthmax>>
-<<set $enemytrust5 to $enemytrust>>
+	<<set $enemyarousal5 to $enemyarousal>>
+	<<set $enemyanger5 to $enemyanger>>
+	<<set $enemyhealth5 to $enemyhealthmax>>
+	<<set $enemytrust5 to $enemytrust>>
 
-<<set $enemyarousal6 to $enemyarousal>>
-<<set $enemyanger6 to $enemyanger>>
-<<set $enemyhealth6 to $enemyhealthmax>>
-<<set $enemytrust6 to $enemytrust>>
+	<<set $enemyarousal6 to $enemyarousal>>
+	<<set $enemyanger6 to $enemyanger>>
+	<<set $enemyhealth6 to $enemyhealthmax>>
+	<<set $enemytrust6 to $enemytrust>>
 
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "beastNEWinit">>
-<!-- NEW beast intitiation widget v2.6. Replaces beast(1-6)init widgets -->
-<!-- Args are number of beasts(1-6), Type, Gender, Genitals and Monster status-->
-<!-- Last three args are optional, and override generation based on settings. Use with care -->
-<!-- Example: <<beastNEWinit 1 dog m>> would generate 1 male dog -->
-<!-- Example: <<beastNEWinit 2 wolf f>> would generate 2 female wolves -->
-<!-- Example: <<beastNEWinit 1 horse f penis monster>> would generate 1 dickgirl centaur -->
+	<!-- NEW beast intitiation widget v2.6. Replaces beast(1-6)init widgets -->
+	<!-- Args are number of beasts(1-6), Type, Gender, Genitals and Monster status-->
+	<!-- Last three args are optional, and override generation based on settings. Use with care -->
+	<!-- Example: <<beastNEWinit 1 dog m>> would generate 1 male dog -->
+	<!-- Example: <<beastNEWinit 2 wolf f>> would generate 2 female wolves -->
+	<!-- Example: <<beastNEWinit 1 horse f penis monster>> would generate 1 dickgirl centaur -->
 
-<<set _nn to $args[0]>>
-<<set _tpe to $args[1]>>
-<<set _gnn to $args[2]>>
-<<set _beast_genitals to $args[3]>>
-<<set _beast_monster to $args[4]>>
-<<set $active_enemy to 0>>
-<!-- Error Checking -->
-<<switch _tpe>>
-	<<case "dog" "cat" "pig" "wolf" "dolphin" "lizard" "bear" "boar" "creature" "horse" "fox" "hawk">>
-	<!-- No action-->
-	<<default>>
-	<span class="red">ERROR: beastNEWinit unknown type</span>
-<</switch>>
+	<<set _nn to _args[0]>> <!-- Number of Beasts -->
+	<<set _tpe to _args[1]>> <!-- Type -->
+	<<set _gnn to _args[2]>> <!-- Gender -->
+	<<set _beast_genitals to _args[3]>>
+	<<set _beast_monster to _args[4]>>
+	<<set $active_enemy to 0>>
+	<!-- Error Checking -->
+	<<if !$BeastList.includes(_tpe)>>
+		<span class="red">ERROR: beastNEWinit unknown type</span>
+	<</if>>
 
-<<for _xx = 1; _xx < _nn+1; _xx++>>
-	<<generateBEAST _xx _tpe _gnn _beast_genitals _beast_monster>>
-<</for>>
+	<<for _xx = 1; _xx < _nn+1; _xx++>>
+		<<generateBEAST _xx _tpe _gnn _beast_genitals _beast_monster>>
+	<</for>>
 
-<<set $enemytype to "beast">>
+	<<set $enemyno to _nn>>
+	<<set $enemytype to "beast">>
 
-<<set $enemyno to _nn>>
-<<set $enemynomax to _nn>>
-
-<!-- NG This means if Beast 1 is a monster, they are all monsters -->
-<!-- This should be fixed globally later -->
-<<if $NPCList[0].monster is "monster">>
-	<<set $monster to 1>>
-<<else>>
-	<<set $monster to 0>>
-<</if>>
+	<!-- NG This means if Beast 1 is a monster, they are all monsters -->
+	<!-- This should be fixed globally later -->
+	<<set $monster to ($NPCList[0].monster is "monster" ? 1 : 0)>>
 <</widget>>
 
 <<widget "beastNOGENinit">>
-<!-- NEW beast initiation widget v2.6. Replaces beast(1-6)init widgets -->
-<!-- This works like ManInit widget and requires prior beast initialisation, no args -->
-<!-- The main reason to use this NOGEN call is so that a variety of beasts can be called, rather than all 1 type -->
-<!-- Eventually all the <<beastXXXinit>> calls should be collapsed under man1init, which will require rework of $enemytype="beast" + other stuff -->
+	<!-- NEW beast initiation widget v2.6. Replaces beast(1-6)init widgets -->
+	<!-- This works like ManInit widget and requires prior beast initialisation, no args -->
+	<!-- The main reason to use this NOGEN call is so that a variety of beasts can be called, rather than all 1 type -->
+	<!-- Eventually all the <<beastXXXinit>> calls should be collapsed under man1init, which will require rework of $enemytype="beast" + other stuff -->
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-	<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "beast">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "beast">>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<if $combatTrain.generateInit is 1>>
-	<<set $penisbitten to 0>>
-	<<set $apologised to 0>>
-<</if>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-<<set $enemynomax to $enemyno>>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<if $combatTrain.generateInit is 1>>
+		<<set $penisbitten to 0>>
+		<<set $apologised to 0>>
+	<</if>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<!-- NG This means if Beast 1 is a monster, they are all monsters -->
-<!-- This should be fixed globally later -->
-<<if $NPCList[0].monster is "monster">>
-	<<set $monster to 1>>
-<<else>>
-	<<set $monster to 0>>
-<</if>>
+	<!-- NG This means if Beast 1 is a monster, they are all monsters -->
+	<!-- This should be fixed globally later -->
+	<<if $NPCList[0].monster is "monster">>
+		<<set $monster to 1>>
+	<<else>>
+		<<set $monster to 0>>
+	<</if>>
 
-<!--Used to prevent certain variables being repeated during re-generation-->
-<<set $combatTrain.generateInit to 0>>
+	<!--Used to prevent certain variables being repeated during re-generation-->
+	<<set $combatTrain.generateInit to 0>>
 
-<!-- NG not sure what to do with below yet, this is part of indexing... leave for now V2.7-->
-<<set $enemyarousal2 to $enemyarousal>>
-<<set $enemyanger2 to $enemyanger>>
-<<set $enemyhealth2 to $enemyhealthmax>>
-<<set $enemytrust2 to $enemytrust>>
+	<!-- NG not sure what to do with below yet, this is part of indexing... leave for now V2.7-->
+	<<set $enemyarousal2 to $enemyarousal>>
+	<<set $enemyanger2 to $enemyanger>>
+	<<set $enemyhealth2 to $enemyhealthmax>>
+	<<set $enemytrust2 to $enemytrust>>
 
-<<set $enemyarousal3 to $enemyarousal>>
-<<set $enemyanger3 to $enemyanger>>
-<<set $enemyhealth3 to $enemyhealthmax>>
-<<set $enemytrust3 to $enemytrust>>
+	<<set $enemyarousal3 to $enemyarousal>>
+	<<set $enemyanger3 to $enemyanger>>
+	<<set $enemyhealth3 to $enemyhealthmax>>
+	<<set $enemytrust3 to $enemytrust>>
 
-<<set $enemyarousal4 to $enemyarousal>>
-<<set $enemyanger4 to $enemyanger>>
-<<set $enemyhealth4 to $enemyhealthmax>>
-<<set $enemytrust4 to $enemytrust>>
+	<<set $enemyarousal4 to $enemyarousal>>
+	<<set $enemyanger4 to $enemyanger>>
+	<<set $enemyhealth4 to $enemyhealthmax>>
+	<<set $enemytrust4 to $enemytrust>>
 
-<<set $enemyarousal5 to $enemyarousal>>
-<<set $enemyanger5 to $enemyanger>>
-<<set $enemyhealth5 to $enemyhealthmax>>
-<<set $enemytrust5 to $enemytrust>>
+	<<set $enemyarousal5 to $enemyarousal>>
+	<<set $enemyanger5 to $enemyanger>>
+	<<set $enemyhealth5 to $enemyhealthmax>>
+	<<set $enemytrust5 to $enemytrust>>
 
-<<set $enemyarousal6 to $enemyarousal>>
-<<set $enemyanger6 to $enemyanger>>
-<<set $enemyhealth6 to $enemyhealthmax>>
-<<set $enemytrust6 to $enemytrust>>
+	<<set $enemyarousal6 to $enemyarousal>>
+	<<set $enemyanger6 to $enemyanger>>
+	<<set $enemyhealth6 to $enemyhealthmax>>
+	<<set $enemytrust6 to $enemytrust>>
 
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "strangeman1init">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $NPCList[0].lefthand to "mouth">>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $NPCList[0].lefthand to "mouth">>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "strangeman2init">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "strangewoman1init">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "tailorinit">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
+	<<set $leftarm to "bound">>
+	<<set $rightarm to "bound">>
 
-<<set $leftarm to "bound">>
-<<set $rightarm to "bound">>
-
-<<combatinit>>
-
+	<<combatinit>>
 <</widget>>
 
 <<widget "molestbusinit">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
+	<<if Time.dayState isnot "night">><<enable_rescue>><</if>>
 
-<<if $daystate isnot "night">><<set $rescue to 1>><</if>>
+	<<hand_gag 0 left>>
 
-<<hand_gag 0 left>>
-
-<<combatinit>>
-
+	<<combatinit>>
 <</widget>>
 
 <<widget "busmoveinit">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 200>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 200>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
+	<<if Time.dayState isnot "night">><<enable_rescue>><</if>>
 
-<<if $daystate isnot "night">><<set $rescue to 1>><</if>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "lefthandinit">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $NPCList[0].lefthand to 0>>
+	<<set $NPCList[0].righthand to "none">>
+	<<set $NPCList[0].penis to "none">>
+	<<set $NPCList[0].vagina to "none">>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 100>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $NPCList[0].lefthand to 0>>
-<<set $NPCList[0].righthand to "none">>
-<<set $NPCList[0].penis to "none">>
-<<set $NPCList[0].vagina to "none">>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 100>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
+	<<if Time.dayState isnot "night">><<enable_rescue>><</if>>
 
-<<if $daystate isnot "night">><<set $rescue to 1>><</if>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "nurseinit">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 400>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 400>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
+	<<drugs 120>>
 
-<<set $drugged += 120>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "pharmnurseinit">>
+	<<set $enemyhealth to $NPCList[0].health>>
+	<<set $enemyarousal to $allure / 100>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 1000>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to $NPCList[0].healthmax>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to $NPCList[0].health>>
-<<set $enemyarousal to $allure / 100>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 1000>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to $NPCList[0].health>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
+	<<if $worn.over_lower.name != "naked">>
+		<<set $NPCList[0].lefthand to "overlowerclothes">>
+		<<set $NPCList[0].righthand to "overlowerclothes">>
+	<<elseif $worn.lower.name != "naked">>
+		<<set $NPCList[0].lefthand to "lowerclothes">>
+		<<set $NPCList[0].righthand to "lowerclothes">>
+	<<elseif $worn.under_lower.name != "naked">>
+		<<set $NPCList[0].lefthand to "underlowerclothes">>
+		<<set $NPCList[0].righthand to "underlowerclothes">>
+	<</if>>
+	<<set $NPCList[0].mouth to "penisentrance">>
+	<<set $NPCList[0].location.head = "genitals">>
+	<<set $NPCList[0].location.genitals = "idle">>
+	<!-- 'dont' is just an invalid value so that the NPC won't know how to use its genitals,
+	otherwise there's no easy way of stopping NPC from shoving their stuff in PC's face -->
 
-<<if $worn.over_lower.name != "naked">>
-	<<set $NPCList[0].lefthand to "overlowerclothes">>
-	<<set $NPCList[0].righthand to "overlowerclothes">>
-<<elseif $worn.lower.name != "naked">>
-	<<set $NPCList[0].lefthand to "lowerclothes">>
-	<<set $NPCList[0].righthand to "lowerclothes">>
-<<elseif $worn.under_lower.name != "naked">>
-	<<set $NPCList[0].lefthand to "underclothes">>
-	<<set $NPCList[0].righthand to "underclothes">>
-<</if>>
-<<set $NPCList[0].mouth to "penisentrance">>
-<<set $NPCList[0].location.head = "genitals">>
-<<set $NPCList[0].location.genitals = "idle">>
-<!-- 'dont' is just an invalid value so that the NPC won't know how to use its genitals,
-otherwise there's no easy way of stopping NPC from shoving their stuff in PC's face -->
+	<!--Prevents the use of asking for condoms-->
+	<<set $NPCList[0].condomAsk to true>>
 
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "spankmaninit">>
+	<<set $enemyhealth to 200>>
+	<<set $enemyarousal to 0>>
+	<<set $enemyanger to 300>>
+	<<set $enemystrength to 20000>>
+	<<set $NPCList[0].lefthand to "arms">>
+	<<set $NPCList[0].righthand to "spank">>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 300>>
+	<<set $enemyhealthmax to 200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 200>>
-<<set $enemyarousal to 0>>
-<<set $enemyanger to 300>>
-<<set $enemystrength to 20000>>
-<<set $NPCList[0].lefthand to "arms">>
-<<set $NPCList[0].righthand to "spank">>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 300>>
-<<set $enemyhealthmax to 200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
+	<<set $enemyno to 1>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-<<set $enemyno to 1>>
+	<<set $leftarm to "grappled">>
+	<<set $rightarm to "grappled">>
 
-<<set $leftarm to "grappled">>
-<<set $rightarm to "grappled">>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "bound2init">>
+	<<set $enemyhealth to 400>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 1000>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 400>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $enemyhealth to 400>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $combat to 1>>
-<<set $enemyarousalmax to 1000>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 400>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
 <<widget "ganginit">>
+	<<set $enemyhealth to 1200>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
 
-<<set $enemyhealth to 1200>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 3000>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 1200>>
+	<<set $enemytrust to 0>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<set $enemytype to "man">>
 
-<<set $combat to 1>>
-<<set $enemyarousalmax to 3000>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 1200>>
-<<set $enemytrust to 0>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
-<<set $enemytype to "man">>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-
-<<combatinit>>
+	<<combatinit>>
 <</widget>>
 
-<<widget "abomination">>
+<<widget "abominationold">>
+	<<set $enemyhealth to 5555>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $NPCList[0].lefthand to 0>>
+	<<set $NPCList[1].lefthand to "none">>
+	<<set $NPCList[2].lefthand to "none">>
+	<<set $NPCList[3].lefthand to "none">>
+	<<set $NPCList[4].lefthand to "none">>
+	<<set $NPCList[5].lefthand to "none">>
+	<<set $NPCList[0].righthand to 0>>
+	<<set $NPCList[1].righthand to "none">>
+	<<set $NPCList[2].righthand to "none">>
+	<<set $NPCList[3].righthand to "none">>
+	<<set $NPCList[4].righthand to "none">>
+	<<set $NPCList[5].righthand to "none">>
+	<<set $NPCList[0].penis to 0>>
+	<<set $NPCList[1].penis to 0>>
+	<<set $NPCList[2].penis to 0>>
+	<<set $NPCList[3].penis to 0>>
+	<<set $NPCList[4].penis to "clothed">>
+	<<set $NPCList[5].penis to "clothed">>
+	<<set $NPCList[0].vagina to 0>>
+	<<set $NPCList[1].vagina to "none">>
+	<<set $NPCList[2].vagina to "none">>
+	<<set $NPCList[3].vagina to "none">>
+	<<set $NPCList[4].vagina to "none">>
+	<<set $NPCList[5].vagina to "none">>
+	<<set $NPCList[0].mouth to 0>>
+	<<set $NPCList[1].mouth to "none">>
+	<<set $NPCList[2].mouth to "none">>
+	<<set $NPCList[3].mouth to "none">>
+	<<set $NPCList[4].mouth to "none">>
+	<<set $NPCList[5].mouth to "none">>
 
-<<set $enemyhealth to 5555>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $NPCList[0].lefthand to 0>>
-<<set $NPCList[1].lefthand to "none">>
-<<set $NPCList[2].lefthand to "none">>
-<<set $NPCList[3].lefthand to "none">>
-<<set $NPCList[4].lefthand to "none">>
-<<set $NPCList[5].lefthand to "none">>
-<<set $NPCList[0].righthand to 0>>
-<<set $NPCList[1].righthand to "none">>
-<<set $NPCList[2].righthand to "none">>
-<<set $NPCList[3].righthand to "none">>
-<<set $NPCList[4].righthand to "none">>
-<<set $NPCList[5].righthand to "none">>
-<<set $NPCList[0].penis to 0>>
-<<set $NPCList[1].penis to 0>>
-<<set $NPCList[2].penis to 0>>
-<<set $NPCList[3].penis to 0>>
-<<set $NPCList[4].penis to "clothed">>
-<<set $NPCList[5].penis to "clothed">>
-<<set $NPCList[0].vagina to 0>>
-<<set $NPCList[1].vagina to "none">>
-<<set $NPCList[2].vagina to "none">>
-<<set $NPCList[3].vagina to "none">>
-<<set $NPCList[4].vagina to "none">>
-<<set $NPCList[5].vagina to "none">>
-<<set $NPCList[0].mouth to 0>>
-<<set $NPCList[1].mouth to "none">>
-<<set $NPCList[2].mouth to "none">>
-<<set $NPCList[3].mouth to "none">>
-<<set $NPCList[4].mouth to "none">>
-<<set $NPCList[5].mouth to "none">>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 5555>>
+	<<set $enemytrust to 4444>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
 
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 5555>>
-<<set $enemytrust to 4444>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
+	<<set $enemyno to 1>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-<<set $enemyno to 1>>
-
-<<set $NPCList[0].pronoun to "n">>
-<<combatinit>>
+	<<set $NPCList[0].pronoun to "n">>
+	<<combatinit>>
 <</widget>>
 
-<<widget "abomination2">>
+<<widget "abominationold2">>
+	<<set $enemyhealth to 5555>>
+	<<set $enemyarousal to $allure / 50>>
+	<<set $enemyanger to 0>>
+	<<set $enemystrength to 20000>>
+	<<set $NPCList[0].lefthand to 0>>
+	<<set $NPCList[1].lefthand to 0>>
+	<<set $NPCList[0].righthand to 0>>
+	<<set $NPCList[1].righthand to 0>>
+	<<set $NPCList[0].penis to 0>>
+	<<set $NPCList[1].penis to 0>>
+	<<set $NPCList[0].vagina to 0>>
+	<<set $NPCList[1].vagina to 0>>
+	<<set $NPCList[0].mouth to 0>>
+	<<set $NPCList[1].mouth to 0>>
 
-<<set $enemyhealth to 5555>>
-<<set $enemyarousal to $allure / 50>>
-<<set $enemyanger to 0>>
-<<set $enemystrength to 20000>>
-<<set $NPCList[0].lefthand to 0>>
-<<set $NPCList[1].lefthand to 0>>
-<<set $NPCList[0].righthand to 0>>
-<<set $NPCList[1].righthand to 0>>
-<<set $NPCList[0].penis to 0>>
-<<set $NPCList[1].penis to 0>>
-<<set $NPCList[0].vagina to 0>>
-<<set $NPCList[1].vagina to 0>>
-<<set $NPCList[0].mouth to 0>>
-<<set $NPCList[1].mouth to 0>>
+	<<set $combat to 1>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyangermax to 200>>
+	<<set $enemyhealthmax to 5555>>
+	<<set $enemytrust to 4444>>
+	<<if $dissociation gte 1>>
+		<<set $enemytrust -= 40>>
+	<</if>>
 
-<<set $combat to 1>>
-<<set $enemyarousalmax to 500>>
-<<set $enemyangermax to 200>>
-<<set $enemyhealthmax to 5555>>
-<<set $enemytrust to 4444>>
-<<if $dissociation gte 1>>
-<<set $enemytrust -= 40>>
-<</if>>
+	<<set $rapeavoid to 1>>
+	<<set $orgasmdown to 0>>
+	<<set $penisbitten to 0>>
+	<<set $apologised to 0>>
+	<<set $underlowerstruggle to 0>>
+	<<set $lowerstruggle to 0>>
+	<<set $upperstruggle to 0>>
+	<<set $leftaction to 0>>
+	<<set $rightaction to 0>>
+	<<set $traumasaved to $trauma>>
+	<<set $stresssaved to $stress>>
+	<<set $traumagain to 0>>
+	<<set $stressgain to 0>>
+	<<set $enemyno to 1>>
 
-<<set $rapeavoid to 1>>
-<<set $orgasmdown to 0>>
-<<set $penisbitten to 0>>
-<<set $apologised to 0>>
-<<set $understruggle to 0>>
-<<set $lowerstruggle to 0>>
-<<set $upperstruggle to 0>>
-<<set $leftaction to 0>>
-<<set $rightaction to 0>>
-<<set $traumasaved to $trauma>>
-<<set $stresssaved to $stress>>
-<<set $traumagain to 0>>
-<<set $stressgain to 0>>
-<<set $enemyno to 1>>
-
-<<set $NPCList[0].pronoun to "n">>
-<<combatinit>>
+	<<set $NPCList[0].pronoun to "n">>
+	<<combatinit>>
 <</widget>>
 
 <<widget "crossdressing_check">>
-<<if $player.gender is "h">>
-	<<set $crossdressing to 2>>
-<<elseif $player.gender isnot $player.gender_appearance>>
-	<<set $crossdressing to 1>>
-<<else>>
-	<<set $crossdressing to 0>>
-<</if>>
+	<<if $player.gender is "h">>
+		<<set $crossdressing to 2>>
+	<<elseif $player.gender isnot $player.gender_appearance>>
+		<<set $crossdressing to 1>>
+	<<else>>
+		<<set $crossdressing to 0>>
+	<</if>>
 <</widget>>
 
 <<widget "danceinit">>
-<<crossdressing_check>>
+	<<crossdressing_check>>
+	<<set $dancing to 1>>
+	<<set $dance_place to 0>>
 <</widget>>
 
 <<widget "combatinit">>
-<<if $consensual is 1>>
-<<set $controlstart to $control>>
-<</if>>
-
-<<set $combatgoal to 0>>
-
-<<if $genderknown.includes($npc)>>
-	<<set $crossdressing to 0>>
-<<elseif $exposed gte 2 and not $worn.genitals.type.includesAll("chastity", "hidden")>>
-	<<if $npc isnot 0>>
-		<<set $genderknown.pushUnique($npc)>>
+	<<if $consensual is 1>>
+		<<set $controlstart to $control>>
 	<</if>>
-	<<set $crossdressing to 0>>
-<<else>>
-	<<crossdressing_check>>
-<</if>>
+	<<set $arousalmasochism to 0>>
 
-<<if $enemytype is "beast">>
-	<<if $NPCList[0].penis is "none" and $penisexist is 1>>
-	<<set $position to "missionary">>
+	<<set $combatgoal to 0>>
+	<!-- <<set $turnCount to 0>> -->
+
+	<<set _genderexposed to $exposed gte 2 and !($worn.genitals.type.includesAll("chastity", "hidden"))>>
+	<<if $npc.length gt 0>>
+		<<for _iii to 0; _iii lt $npc.length; _iii++>>
+			<<if $genderknown.includes($npc[_iii])>>
+				<<set _genderknownbeforehand to true>>
+			<<elseif _genderexposed>>
+				<<run $genderknown.pushUnique($npc[_iii])>>
+			<</if>>
+		<</for>>
+	<</if>>
+
+	<<set $newlyWritten to []>>
+
+	<<if _genderknownbeforehand or _genderexposed>>
+		<<set $crossdressing to 0>>
 	<<else>>
-		<<if random(1, 100) gte 20>>
-		<<set $position to "doggy">>
-		<<else>>
-		<<set $position to "missionary">>
-		<</if>>
+		<<crossdressing_check>>
 	<</if>>
-<<else>>
-	<<if $NPCList[0].penis is "none">>
-		<<if random(1, 100) gte 80>>
-		<<set $position to "doggy">>
-		<<else>>
+
+	<<set $enemynomax to $enemyno>>
+
+	<<if $enemytype is "beast">>
+		<<if $NPCList[0].penis is "none" and $player.penisExist>>
 		<<set $position to "missionary">>
+		<<else>>
+			<<if random(1, 100) gte 20>>
+			<<set $position to "doggy">>
+			<<else>>
+			<<set $position to "missionary">>
+			<</if>>
 		<</if>>
 	<<else>>
-		<<if random(1, 100) gte 50>>
-		<<set $position to "doggy">>
+		<<if $NPCList[0].penis is "none">>
+			<<if random(1, 100) gte 80>>
+			<<set $position to "doggy">>
+			<<else>>
+			<<set $position to "missionary">>
+			<</if>>
 		<<else>>
-		<<set $position to "missionary">>
+			<<if random(1, 100) gte 50>>
+			<<set $position to "doggy">>
+			<<else>>
+			<<set $position to "missionary">>
+			<</if>>
 		<</if>>
 	<</if>>
-<</if>>
 
-<<if $slimeEvent is "have sex with someone" or $slimeEvent is "have sex with someone or something">>
-	<<unset $slimeEvent>>
-<</if>>
+	<<for _i to 0; _i lt $enemynomax; _i++>>
+		<<if $NPCList[_i].stance isnot "defeated">>
+			<<set $NPCList[_i].active to "active">>
+		<</if>>
+	<</for>>
 
-<<if $worn.face.type.includes("gag")>>
-<<set $mouthuse to "gagged">>
-<</if>>
-<<resetLastOptions>>
-<<getCombatDefaultsType>>
-<<wetnessCalculate>>
+	<<if $slimeEvent is "have sex with someone" or $slimeEvent is "have sex with someone or something">>
+		<<unset $slimeEvent>>
+	<</if>>
+
+	<<if $worn.face.type.includes("gag")>>
+		<<set $mouthuse to "gagged">>
+	<</if>>
+
+	<<if $worn.feet.type.includes("shackle")>>
+		<<set $leftleg to "bound">>
+		<<set $rightleg to "bound">>
+		<<set $feetuse to "bound">>
+	<</if>>
+
+	<<if playerHasStrapon()>>
+		<<set $penisuse to 0>><<set $penisstate to 0>>
+		/*<<if $worn.under_lower.size isnot undefined>>
+			<<set $playerPenisSizeBackup to $player.penissize>>
+			<<set $player.penissize to $worn.under_lower.size>>
+		<</if>>*/
+	<</if>>
+	<<resetLastOptions>>
+	<<getCombatDefaultsType>>
+	<<wetnessCalculate>>
+<</widget>>
+
+<<widget "deactivateNPC">>
+	/* How to use:
+	* Call this widget as <<deactivateNPC _n>> where _n is any number between 0 and 5, and is an active NPC.
+	* This will prevent said NPC from entering combat plus deal with all the rest of the math.
+	* Optional arguments [1] and [2] for health and arousal respectivelly. If the original health or arousal values for the NPCs haven't been changed, no need to use those arguments.
+	*/
+	<<set $_hpToReduce to _args[1] || $NPCList[_args[0]].healthmax>>
+	<<set $_arousalToReduce to _args[2] || $enemyarousalmax/$enemyno>>
+	<<if _args[0] isnot undefined and $NPCList[_args[0]]>>
+		<<if $NPCList[_args[0]].active isnot "inactive">>
+			<<set $NPCList[_args[0]].active to "inactive">>
+			<<set $enemyhealth -= $_hpToReduce>>
+			<<set $enemyhealthmax to $enemyhealth>>
+			<<set $enemyarousalmax -= $_arousalToReduce>>
+			<<set $enemyno-->>
+		<<else>>
+			<span class="red">deactivateNPC ERROR: NPC _args[0] is already inactive.</span>
+		<</if>>
+	<<else>>
+		<span class="red">deactivateNPC ERROR: Invalid or missing index specified.</span>
+	<</if>>
 <</widget>>
 
 <<widget "man">>
+	<<if $finish isnot 1>>
+		<<if $setupMidOrgasm is true>>
+			<<if $ejaculatingMid is true>>
+				<<set $ejaculating to 1>>
+				<<set $ejaculatingMid to false>>
+			<<elseif $ejaculatingMid is false>>
+				<<unset $ejaculatingMid>>
+			<</if>>
+		<</if>>
+		<div @class="($debugLines ? 'debugLines-combat' : '')">
+			<br>
+			<<for _mancombatcontrol = 0; _mancombatcontrol lt $enemynomax; _mancombatcontrol++>>
+				<<if $NPCList[_mancombatcontrol].active is "active" and $NPCList[_mancombatcontrol].stance isnot "defeated">>
+					<<man-combat _mancombatcontrol>>
+					<<if $position isnot "stalk" and !$breakIgnore>>
+						<br><br>
+					<</if>>
+				<<elseif $debug is 1 and $NPCList[_mancombatcontrol].active isnot "active">>
+					<br>Debug Message:<br>NPC _mancombatcontrol, $NPCList[_mancombatcontrol].fullDescription is not active.<br>
+				<<elseif $debug is 1 and $NPCList[_mancombatcontrol].stance is "defeated">>
+					<br>Debug Message:<br>NPC _mancombatcontrol, $NPCList[_mancombatcontrol].fullDescription is defeated.<br>
+				<</if>>
+			<</for>>
+			<<if $oxygen lt $oxygenmax and $underwater isnot 1 and _strangle is 1>>
+				<<unset _strangle>>
+				Air: <<oxygencaption>>
+				<br>
+			<</if>>
+		</div>
+	<</if>>
 
-<<if $finish isnot 1>>
-<<if $setupMidOrgasm is true>>
-	<<if $ejaculatingMid is true>>
-		<<set $ejaculating to 1>>
-		<<set $ejaculatingMid to false>>
-	<<elseif $ejaculatingMid is false>>
-		<<unset $ejaculatingMid>>
-	<</if>>
-<</if>>
-<div @class="($debugLines ? 'debugLines-combat' : '')">
-	<<if $enemyno gte 1>>
-		<br>
-		<<man-combat 1>>
-		<br><br>
-	<</if>>
-	<<if $enemyno gte 2>>
-	<<man-combat 2>>
-	<br><br>
-	<</if>>
-	<<if $enemyno gte 3>>
-		<<man-combat 3>>
-		<br><br>
-	<</if>>
-	<<if $enemyno gte 4>>
-		<<man-combat 4>>
-		<br><br>
-	<</if>>
-	<<if $enemyno gte 5>>
-		<<man-combat 5>>
-		<br><br>
-	<</if>>
-	<<if $enemyno gte 6>>
-		<<man-combat 6>>
-		<br><br>
-	<</if>>
-</div>
-<</if>>
+	<<rng>>
 
-<<set $rng to random(1, 100)>>
+	<<if $worn.over_lower.vagina_exposed gte 1 and $worn.under_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1 and $npc.length isnot 0 and !$worn.genitals.type.includesAll("chastity", "hidden")>>
+		<<run $npc.forEach(npc => $genderknown.pushUnique(npc))>>
+	<</if>>
 
-<<if $worn.under_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1 and $npc isnot 0 and $worn.genitals.type.includesAll("chastity", "hidden")>>
-<<elseif $worn.under_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1 and $npc isnot 0>>
-<<set $genderknown.pushUnique($npc)>>
-<</if>>
+	<<if $worn.genitals.type.includesAll("chastity", "hidden") or $NPCList[0].state is "stalk" or $NPCList[0].state is "pursuit">>
+	<<elseif $crossdressing gte 1 and $worn.over_lower.vagina_exposed gte 1 and $worn.under_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1>>
+		<<exposedcheck true>>
+		<<if $NPCList[0].teen is 1 and $location is "school" and !($npc.length is 1 and (["Kylar","Sydney"].includes($npc[0])))>>
+			<<schoolrep_naked>>
+		<</if>>
+		<<if $genitalReactionDisable>>
+			<!-- No reaction -->
+		<<elseif $crossdressing is 2>> <!-- Herm PC -->
+			<<if $npc.length is 1 and (["Kylar","Sydney"].includes($npc[0]))>>
+				<!-- Only Kylar and Sydney have fixed reactions, other named NPCs CAN react with anything from disgust to arousal to anger if they don't know your gender. -->
+				<<if $npc[0] is "Sydney" and !$sydneySeen.includes("herm")>>
+					<<set $sydneySeen.pushUnique("herm")>>
+					<<if _sydneyStatus.includes("corrupt")>>
+						<<He_ nun>> 당신의 <<genitals_ rul>> 경이에 차서 주시한다.
+					<<else>>
+						<<He_ nun>> 당신의 <<genitals_ rul>> 대단한 호기심으로 쳐다본다.
+					<</if>>
+					<<npcincr Sydney purity -2>><<lspurity>><<set $speechhermaroused to 2>>
+				<<elseif $npc[0] is "Kylar">>
+					<!-- TODO: Give Kylar a unique reaction? -->
+					<span class="purple">저들은 당신의 <<genitalsPost "을">> 보고 손을 떨며 숨을 가파르게 쉰다.</span>
+					<<set $enemyarousal += 50>><<set $speechhermaroused to 2>>
+				<</if>>
+			<<elseif $NPCList[0].type is "plant" or $rng lt 30>>
+				<<if $enemyno gte 2>>
+					저들은 개의치 않고 당신의 <<genitalsPost "을">> 거침없이 만진다.
+				<<else>>
+					저들은 개의치 않고 당신의 <<genitalsPost "을">> 거침없이 만진다.
+				<</if>>
+			<<elseif $rng lt 50>>
+				<<if $enemyno gte 2>>
+					저들은 당신의 <<genitalsPost "을">> 보고 물러선다. 저들은 그나마 화난 것처럼 보이진 않는다.
+				<<else>>
+					저들은 당신의 <<genitalsPost "을">> 보고 물러선다. 저들은 그나마 화난 것처럼 보이진 않는다.
+				<</if>>
+				<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechhermdisappointed to 2>>
+			<<elseif $rng lt 85>>
+				<<if $enemyno gte 2>>
+					<span class="blue">저들은 당신의 <<genitalsPost "을">> 보고 충격에 물러선다.</span>
+				<<else>>
+					<span class="blue"><<He_ nun>> 당신의 <<genitalsPost "을">> 보고 충격에 물러선다.</span>
+				<</if>>
+				<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechhermshock to 2>>
+			<<elseif $rng lt 95>>
+				<<if $enemyno gte 2>>
+					<span class="purple">저들은 당신의 <<genitalsPost "을">> 보고 손을 떨며 숨을 가파르게 쉰다.</span>
+				<<else>>
+					<span class="purple">저들은 당신의 <<genitalsPost "을">> 보고 손을 떨며 숨을 가파르게 쉰다.</span>
+				<</if>>
+				<<set $enemyarousal += (50 * $enemyno)>><<set $speechhermaroused to 2>>
+			<<else>>
+				<<if $enemyno gte 2>>
+					<span class="red">저들은 당신의 <<genitalsPost "을">> 보고 공포와 역겨움에 물러선다!</span>
+				<<else>>
+					<span class="red">저들은 당신의 <<genitalsPost "을">> 보고 공포와 역겨움에 물러선다!</span>
+				<</if>>
+				<<set $enemyanger += 200>><<set $enemytrust -= 100>><<set $speechhermangry to 2>>
+			<</if>>
+		<<else>> <!-- Crossdressing PC -->
+			<<if $npc.length is 1 and (["Kylar","Sydney"].includes($npc[0]))>>
+				<<if $npc[0] is "Sydney" and !$sydneySeen.includes("crossdress")>>
+					<<set $sydneySeen.pushUnique("crossdress")>>
+					<<run statusCheck("Sydney")>>
+					<<if _sydneyStatus.includes("corrupt")>>
+						<<He_ nun>> 당신의 <<genitals_ rul>> 보고 깜짝 놀란 듯 보인다. 그것은 <<he_ ga>> 예상했던 것은 아니지만, <<he_ nun>> 신경쓰지 않는 것 같다.
+					<<else>>
+						<<He_ nun>> 당신의 <<genitals_ rul>> 혼란스러워 하며 주시한다. 그것은 <<he_ ga>> 예상했던 것은 아니지만, <<he_ nun>> 신경쓰지 않는 것 같다.
+					<</if>>
+					<<npcincr Sydney purity -2>><<lspurity>><<set $speechcrossdressaroused to 2>>
+				<<elseif $npc[0] is "Kylar">>
+					<!-- TODO: Give Kylar unique reactions? -->
+					<<set _kylar to statusCheck("Kylar")>>
+					<<if _kylar.gender isnot $player.gender or _kylar.gender is "h">>
+						당신의 <<genitals_ nun 1>> 확실히 <<he_ ga>> 예상했던 것은 아니었지만, <<he_ nun>> 신경쓰지 않는 것 같다. <<if _kylar.gender isnot "h">><span class="purple">사실, <<his_ yi>> 떨리는 손만 놓고 본다면 <<he_ nun>> 꽤나 기뻐하는 것 같다.</span><</if>>
+						<<set $enemyarousal += 50>><<set $speechcrossdressaroused to 2>>
+					<<else>>
+						<<HePost "이">> 당신의 <<genitalsPost "을">> 보고 실망한다. 이건 <<HePost "이">> 기대하던 것이 아니었다.
+						<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechcrossdressdisappointed to 2>>
+					<</if>>
+				<</if>>
+			<<elseif $NPCList[0].type is "plant" or $rng lt 30>>
+				<<if $enemyno gte 2>>
+					당신의 <<genitalsPost "은">> 완전히 저들이 예측한 것과 딴판이었다. 하지만 저들은 신경 쓰지 않는 것 같다.
+				<<else>>
+					당신의 <<genitals 1 "은">> 완전히 <<HePost "이">> 예측한 것과 딴판이었다. 하지만 <<HePost "은">> 신경 쓰지 않는 것 같다.
+				<</if>>
+			<<elseif $rng lt 50>>
+				<<if $enemyno gte 2>>
+					저들은 당신의 <<genitalsPost "을">> 보고 실망한다. 이건 저들이 기대하던 것이 아니었다.
+				<<else>>
+					<<HePost "이">> 당신의 <<genitalsPost "을">> 보고 실망한다. 이건 <<HePost "이">> 기대하던 것이 아니었다.
+				<</if>>
+				<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechcrossdressdisappointed to 2>>
+			<<elseif $rng lt 85>>
+				<<if $enemyno gte 2>>
+					저들이 당신의 <<genitalsPost "을">> 보자 충격에 눈이 휘둥그레진다. 그들은 뭘 해야 할지 모르는 것 같다.
+				<<else>>
+					<<HePost "이">> 당신의 <<genitalsPost "을">> 보자 충격에 눈이 휘둥그레진다. <<HePost "은">> 뭘 해야 할지 모르는 것 같다.
+				<</if>>
+				<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechcrossdressshock to 2>>
+			<<elseif $rng lt 95>>
+				<<if $enemyno gte 2>>
+					당신의 <<genitalsPost "은">> 완전히 저들이 예측한 것과 딴판이었다. 하지만 저들은 신경 쓰지 않는 것 같다. <span class="purple">사실, 저들은 그저 욕구를 배출할 생각에 가득찬 것 같다.</span>
+				<<else>>
+					당신의 <<genitalsPost "은">> 완전히 <<HePost "이">> 예측한 것과 딴판이었다. 하지만 저들은 신경 쓰지 않는 것 같다. <span class="purple">사실, <<HePost "은">> 그저 욕구를 배출할 생각에 가득찬 것 같다.</span>
+				<</if>>
+				<<set $enemyarousal += (50 * $enemyno)>><<set $speechcrossdressaroused to 2>>
+			<<else>>
+				<<if $enemyno gte 2>>
+					<span class="red">저들은 당신의 <<genitalsPost "을">> 보고 공포에 물러선다. 속았다 느낀 저들은 분노로 미쳐버린 것 같다!</span>
+				<<else>>
+					<span class="red"><<HePost "이">> 당신의 <<genitalsPost "을">> 보고 공포에 물러선다. 속았다 느낀 <<HePost "은">> 분노에 미쳐 버린 것 같다!</span>
+				<</if>>
+				<<set $enemyanger += 200>><<set $enemytrust -= 100>><<set $speechcrossdressangry to 2>>
+			<</if>>
+			<<if !$backgroundTraits.includes("crossdresser")>>
+				<<set $crossdressingTrait to ($crossdressingTrait gte 1 ? $crossdressingTrait + 1 : 1)>>
+				<<if $crossdressingTrait gte 100>>
+					<<run $backgroundTraits.pushUnique("crossdresser")>>
+					<br><br>
 
-<<if $worn.genitals.type.includesAll("chastity", "hidden")>>
-<<elseif $crossdressing is 2 and $worn.under_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1 and $worn.over_lower.vagina_exposed gte 1>>
-	/*Comment for seeing herm character genitals for the first time*/
-	<<set $crossdressing to 0>>
-	<<if $NPCList[0].teen is 1 and $location is "school" and $npc isnot "Kylar">>
-		<<schoolrep herm 1>>
-	<</if>>
-	<<if $enemyno gte 2>>
-		<<if $rng gte 96>>
-			<span class="red">저들은 당신의 <<genitalsPost "을">>보고 공포와 역겨움에 물러선다!</span>
-			<<set $enemyanger += 200>><<set $enemytrust -= 100>><<set $speechhermangry to 2>>
-		<<elseif $rng gte 85>>
-			<span class="purple">저들은 당신의 <<genitalsPost "을">> 보고 손을 떨며 숨을 가파르게 쉰다.</span>
-			<<set $enemyarousal += (50 * $enemyno)>><<set $speechhermaroused to 2>>
-		<<elseif $rng gte 50>>
-			<span class="blue">저들은 당신의 <<genitalsPost "을">>보고 충격에 물러선다.</span>
-			<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechhermshock to 2>>
-		<<elseif $rng gte 30>>
-			저들은 당신의 <<genitalsPost "을">> 보고 물러선다. 저들은 그나마 화난 것처럼 보이진 않는다.
-			<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechhermdisappointed to 2>>
-		<<else>>
-			저들은 개의치 않고 당신의 <<genitalsPost "을">> 거침없이 만진다.
+					<span class="gold">크로스드레싱인 것을 보여지자 당신은 안에서부터 기쁨을 느낀다.</span>
+				<</if>>
+			<</if>>
 		<</if>>
+		<<set $crossdressing to 0>>
 		<br><br>
-	<<else>>
-		<<if $rng gte 96>>
-			<span class="red">저들은 당신의 <<genitalsPost "을">>보고 공포와 역겨움에 물러선다!</span>
-			<<set $enemyanger += 200>><<set $enemytrust -= 100>><<set $speechhermangry to 2>>
-		<<elseif $rng gte 85>>
-			<span class="purple">저들은 당신의 <<genitalsPost "을">> 보고 손을 떨며 숨을 가파르게 쉰다.</span>
-			<<set $enemyarousal += (50 * $enemyno)>><<set $speechhermaroused to 2>>
-		<<elseif $rng gte 50>>
-			<span class="blue">저들은 당신의 <<genitalsPost "을">>보고 충격에 물러선다.</span>
-			<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechhermshock to 2>>
-		<<elseif $rng gte 30>>
-			저들은 당신의 <<genitalsPost "을">> 보고 물러선다. 저들은 그나마 화난 것처럼 보이진 않는다.
-			<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechhermdisappointed to 2>>
+
+	<</if>>
+
+	/* NPC reactions to revealing your sex toys */
+	<<if $dildoreveal gt 0>>
+		<<set $dildoreveal to 0>>
+		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "섹스 장난감들" : "섹스 장난감")>>
+		<<set $_was to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "were" : "was")>>
+
+		<<if $enemyno gte 2>>
+			/* if statements so we can fine tune the percentages for balance */
+			<<set _rng to random(0,99)>>
+			<<if _rng lt 20>>
+				당신의 $_sexToy은 뜻밖인게 확실했지만, 그들은 신경쓰지 않는 듯 하다.
+			<<elseif _rng lt 40>>
+				당신의 $_sexToy을 보고 그들의 숨소리가 빨라진다.
+				<<set $enemyarousal += 50>><<set $speechsextoyaroused to 1>>
+			<<elseif _rng lt 60>>
+				그들은 당신의 $_sexToy을 보고 기뻐하는 듯 하다.
+				<<set $speechsextoyaroused to 1>>
+			<<elseif _rng lt 70>>
+				그들은 당신의 $_sexToy을 보고 실망한 듯 하다. 그들은 그게 뜻밖인 것 같다.
+				<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechsextoydisappointed to 1>>
+			<<elseif _rng lt 80>>
+				그들의 눈은 당신의 $_sexToy을 본 충격으로 커진다.
+				<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechsextoyshocked to 1>>
+			<<elseif _rng lt 90>>
+				그들은 당신의 $_sexToy을 보고 혐오감에 움찔한다.
+				<<set $enemyanger += 75>><<set $enemytrust -= 75>><<set $speechsextoyangry to 1>>
+			<<else>>
+				그들은 당신의 $_sexToy을 보고 어리둥절한 듯 하지만, 또한 흥분한 것 같다.
+				<<set $speechsextoyaroused to 1>>
+			<</if>>
+
 		<<else>>
-			저들은 개의치 않고 당신의 <<genitalsPost "을">> 거침없이 만진다.
+			<<switch $NPCList[0].fullDescription>>
+				<<case "Robin">>
+					<<set $speechsextoy to 1>>
+				<<case "Kylar">>
+					<<set $speechsextoy to 1>>
+				<<case "Whitney">>
+					<<set $speechsextoy to 1>>
+				<<case "Sydney">>
+					<<set $speechsextoy to 1>>
+				<<case "Alex">>
+					<<set $speechsextoy to 1>>
+				<<case "Eden">>
+					<<set $speechsextoy to 1>>
+					<<set $enemytrust -=25>>
+				<<case "Avery">>
+					<<set $speechsextoy to 1>>
+				<<case "Leighton">>
+					<<set $speechsextoy to 1>>
+				<<default>>
+					<<set _rng to random(0,99)>>
+					<<if _rng lt 20>>
+						당신의 $_sexToy을 보고 <<His_ yi>> 숨소리가 빨라진다.
+						<<set $enemyarousal += 50>><<set $speechsextoyaroused to 1>>
+					<<elseif _rng lt 40>>
+						<<He_ nun>> 당신의 $_sexToy을 보고 기뻐하는 듯 하다.
+						<<set $speechsextoyaroused to 1>>
+					<<elseif _rng lt 60>>
+						당신의 $_sexToy은 뜻밖인게 확실했지만, <<he_ nun>> 신경쓰지 않는 듯 하다.
+					<<elseif _rng lt 70>>
+						<<He_ nun>> 당신의 $_sexToy을 보고 실망한 듯 하다. <<he_ nun>> 그게 뜻밖인 것 같다.
+						<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechsextoydisappointed to 1>>
+					<<elseif _rng lt 80>>
+						<<His_ yi>> 눈은 당신의 $_sexToy을 본 충격으로 커진다.
+						<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechsextoyshocked to 1>>
+					<<elseif _rng lt 90>>
+						<<He_ nun>> 당신의 $_sexToy을 보고 혐오감에 움찔한다.
+						<<set $enemyanger += 75>><<set $enemytrust -= 75>><<set $speechsextoyangry to 1>>
+					<<else>>
+						<<He_ nun>> 당신의 $_sexToy을 보고 어리둥절한 듯 하지만, 또한 흥분한 것 같다.
+						<<set $speechsextoyaroused to 1>>
+					<</if>>
+			<</switch>>
 		<</if>>
-		<br><br>
 	<</if>>
-<<elseif $crossdressing is 1 and $worn.under_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1 and $worn.over_lower.vagina_exposed gte 1>>
-	<<set $crossdressing to 0>>
-	<<if !$backgroundTraits.includes("crossdresser")>>
-		<<if $crossdressingTrait is undefined>>
-			<<set $crossdressingTrait to 1>>
-		<<else>>
-			<<set $crossdressingTrait += 1>>
-		<</if>>
-		<<if $crossdressingTrait gte 100>>
-			<<run $backgroundTraits.pushUnique("crossdresser")>>
-			<<set _newTrait to true>>
-		<</if>>
-	<</if>>
-	<<if $NPCList[0].teen is 1 and $location is "school" and $npc isnot "Kylar">>
-		<<schoolrep crossdress 1>>
-	<</if>>
-	<<if $enemyno gte 2>>
-		<<if $rng gte 96>>
-			<span class="red">저들은 당신의 <<genitalsPost "을">> 보고 공포에 물러선다. 속았다 느낀 저들은 분노로 미쳐버린 것 같다!</span>
-			<<set $enemyanger += 200>><<set $enemytrust -= 100>><<set $speechcrossdressangry to 2>>
-		<<elseif $rng gte 85>>
-			당신의 <<genitalsPost "은">> 완전히 저들이 예측한 것과 딴판이었다. 하지만 저들은 신경 쓰지 않는 것 같다. <span class="purple">사실, 저들은 그저 욕구를 배출할 생각에 가득찬것 같다.</span>
-			<<set $enemyarousal += (50 * $enemyno)>><<set $speechcrossdressaroused to 2>>
-		<<elseif $rng gte 50>>
-			저들이 당신의 <<genitalsPost "을">> 보자 충격에 눈이 휘둥그레진다. 그들은 뭘 해야 할지 모르는 것 같다.
-			<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechcrossdressshock to 2>>
-		<<elseif $rng gte 30>>
-			저들은 당신의 <<genitalsPost "을">> 보고 실망한다. 이건 저들이 기대하던 것이 아니었다.
-			<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechcrossdressdisappointed to 2>>
-		<<else>>
-			당신의 <<genitalsPost "은">> 완전히 저들이 예측한 것과 딴판이었다. 하지만 저들은 신경 쓰지 않는 것 같다.
-		<</if>>
-		<br><br>
-	<<else>>
-		<<if $rng gte 96>>
-			<span class="red"><<HePost "이">> 당신의 <<genitalsPost "을">> 보고 공포에 물러선다. 속았다 느낀 <<HePost "은">> 분노에 미쳐 버린 것 같다!</span>
-			<<set $enemyanger += 200>><<set $enemytrust -= 100>><<set $speechcrossdressangry to 2>>
-		<<elseif $rng gte 86>>
-			당신의 <<genitalsPost "은">> 완전히 <<HePost "이">> 예측한 것과 딴판이었다. 하지만 저들은 신경 쓰지 않는 것 같다. <span class="purple">사실, <<HePost "은">> 그저 욕구를 배출할 생각에 가득찬것 같다.</span>
-			<<set $enemyarousal += 50>><<set $speechcrossdressaroused to 2>>
-		<<elseif $rng gte 50>>
-			<<HePost "이">> 당신의 <<genitalsPost "을">> 보자 충격에 눈이 휘둥그레진다. <<HePost "은">> 뭘 해야 할지 모르는 것 같다.
-			<<set $enemyanger -= 50>><<set $enemytrust -= 50>><<set $speechcrossdressshock to 2>>
-		<<elseif $rng gte 30>>
-		<<HePost "이">> 당신의 <<genitalsPost "을">> 보고 실망한다. 이건 <<HePost "이">> 기대하던 것이 아니었다.
-			<<set $enemyarousal -= 100>><<set $enemytrust -= 50>><<set $speechcrossdressdisappointed to 2>>
-		<<else>>
-			당신의 <<genitals 1 "은">> 완전히 <<HePost "이">> 예측한 것과 딴판이었다. 하지만 <<HePost "은">> 신경 쓰지 않는 것 같다.
-		<</if>>
-		<br><br>
-	<</if>>
-	<<if _newTrait is true>>
-		<<unset _newTrait>>
-		<span class="gold">다른 성별의 옷을 입는것은 당신의 마음을 행복하게 만든다</span>
-	<</if>>
-<</if>>
-<<turnend>>
+
+	<<turnend>>
+<</widget>>
+
+<<widget "printCombatMenu">>
+	<<set $_combatTypes to {'라디오 버튼': 'radio', '라디오 버튼 (c)': 'columnRadio', '리스트': 'lists', '리스트 (w)': 'limitedLists'}>>
+	<div id="cbtToggleMenu">
+		<label class="cbtToggle">
+			<p>전투 설정</p>
+		</label>
+		<hr>
+		<label class="cbtOption">
+			<p>행동 표시 형식</p>
+			<<listbox "$options.combatControls" autoselect>>
+				<<optionsfrom $_combatTypes>>
+			<</listbox>>
+		</label>
+		<label class="cbtOption">
+			<p>스크롤 위치 기억</p>
+			<<checkbox "$options.scrollRemember" false true autocheck>>
+		</label>
+		<label class="cbtOption">
+			<p>"당신 자신"을 대상에 추가</p>
+			<<checkbox "$options.targetYourself" false true autocheck>>
+		</label>
+		<label class="cbtOption">
+			<p>전투 이미지</p>
+			<<checkbox "$options.combatImages" 0 1 autocheck>>
+		</label>
+	</div>
 <</widget>>

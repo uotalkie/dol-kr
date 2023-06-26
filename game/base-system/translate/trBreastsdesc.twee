@@ -1,53 +1,56 @@
 :: Widgets trBreastsdesc [widget nobr]
-<<widget "trBreastsdesc">>
-    <<set _trBreast to [{name:"nipple",plural:"nipples",koName:"유두",post:1},
-                        {name:"breast",plural:"breasts",koName:"가슴",post:0}]>>
-    <<set _trBreastAdj to {
-        "flat":"평평한",
-        "budding":"약간 솟아오른",
-        "tiny":"조그마한",
-        "small":"작은",
-        "pert":"앙증맞은",
-        "modest":"평범한",
-        "full":"봉긋한",
-        "large":"큰",
-        "ample":"풍만한",
-        "massive":"커다란",
-        "huge":"매우 큰",
-        "gigantic":"엄청난",
-        "enormous":"거대한"
-        }>>
+<<widget "trBreastsdesc">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if _trBreast is undefined>>
+			<<set _trBreast to {
+				"nipple": {koName:"유두",post:1},
+				"nipples": {koName:"유두",post:1},
+				"breast": {koName:"유방",post:0},
+				"breasts": {koName:"유방",post:0}
+			}>>
+			<<set _trBreastAdj to {
+				"flat":"평평한",
+				"budding":"약간 솟아오른",
+				"tiny":"조그마한",
+				"small":"작은",
+				"pert":"앙증맞은",
+				"modest":"평범한",
+				"full":"봉긋한",
+				"large":"큰",
+				"ample":"풍만한",
+				"massive":"커다란",
+				"huge":"매우 큰",
+				"gigantic":"엄청난",
+				"enormous":"거대한"
+			}>>
+		<</if>>
 
-    <<set _tempArray to $args[0]>>
-    <<set _tempArray to _tempArray.toLowerCase()>>
-    <<set _tempArray to _tempArray.split(' ')>>
-    <<if _tempArray[1] is undefined>>    
-        <<set _trTemp to _trBreast.find(function(select){
-                            if(select.name == _tempArray[0] or select.plural == _tempArray[0]){return true;
-                            }})>>
-        <<if _trTemp isnot undefined>>
-            <<set _trResult to _trTemp.koName>>
-        <<else>>
-            <<if _trBreastAdj[_tempArray[0]] is undefined>>
-                <<set _trResult to 'No "'+$args[0]+'" key in trBreastAdj'>>
-            <<else>>
-                <<set _trResult to _trBreastAdj[_tempArray[0]]>>
-            <</if>>
-        <</if>>
-        
-    <<else>>
-        <<if _trBreastAdj[_tempArray[0]] is undefined>>
-            <<set _trResult to 'No "'+_tempArray[0]+'" key in trBreastAdj'>>
-        <<else>>
-            <<set _trResult to _trBreastAdj[_tempArray[0]]>>
-        <</if>>
-        <<set _trTemp to _trBreast.find(function(select){
-                            if(select.name == _tempArray[1] or select.plural == _tempArray[1]){return true;
-                            }})>>
-        <<set _trResult to _trResult+" "+_trTemp.koName>>
-    <</if>>
-
-    <<if $args[1] isnot undefined>>
-        <<trPost _trTemp.post $args[1] $args[2]>>
-    <</if>>
-<</widget>>
+		<<set $_tempArray to _args[0].toLowerCase().split(' ')>>
+		<<set $_resultArray to []>>
+		<<for $_i, $_value range $_tempArray>>
+			<<set $_trTemp to _trBreastAdj[$_value]>>
+			<<if $_trTemp is undefined>>
+				<<set $_trTemp to _trBreast[$_value]>>
+				<<if $_trTemp isnot undefined>>
+					<<set $_trTemp to _trBreast[$_value].koName>>
+					<<set _postNum to _trBreast[$_value].post>>
+				<</if>>
+			<</if>>
+			<<if $_trTemp isnot undefined>>
+				<<set $_resultArray.push($_trTemp)>>
+			<<else>>
+				<<set $_resultArray to []>>
+				<<break>>
+			<</if>>
+		<</for>>
+		
+		<<if $_resultArray.length gt 0>>
+			<<set _trResult to $_resultArray.join(" ")>>
+			<<if _postNum isnot undefined>>
+				<<trPost _postNum _args[1] _args[2]>>
+			<</if>>
+		<<else>>
+			<<set _trResult to "<span class='red'>에러: trBreastsdesc: 정의되지 않음: " + _args[0] + "</span>">>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>

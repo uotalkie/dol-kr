@@ -1,19 +1,39 @@
 :: Harvest Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "harvest">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "harvest">><<getTarget true>>
 당신은 하베스트 가에 있다. 도시 밖으로 향하는 도로가 있으며, 이곳의 많은 건물이 인근 농가에서 생산하는 작물에 대한 일을 한다. 도시의 이 구역은 범죄율이 높은 것으로 악명이 높다.
-<<if $daystate is "day">>
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
-		언제나 도로 위에는 커다란 자동차가 적어도 하나는 달리고 있다.
+		커다란 자동차가 지나갈 때 마다 물이 보도에 후두둑 떨어진다.
+	<<elseif $weather is "snow">>
+		끊임없는 차량들의 통행이 눈이 길에 쌓이는 것을 막고 있다.
 	<<else>>
 		언제나 도로 위에는 커다란 자동차가 적어도 하나는 달리고 있다.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	이미 도시 밖에서 자동차들이 들어오고 있다.
-<<elseif $daystate is "dusk">>
-	해가 지고 있지만, 여기서 일하는 노동자들의 하루 일과가 끝나려면 아직 시간이 많이 남았다.
-<<elseif $daystate is "night">>
-	밤에도 거리는 부산스럽다.
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		도시 밖에서 온 무거운 자동차들이 물웅덩이를 철벅거리며 지나간다.
+	<<elseif $weather is "snow">>
+		도시 밖에서 온 무거운 자동차들 중 몇몇은 눈으로 덮여 있다.
+	<<else>>
+		이미 도시 밖에서 자동차들이 들어오고 있다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		홈통에서 빗물이 거대한 커텐을 친 것 처럼 떨어진다.
+	<<elseif $weather is "snow">>
+		일꾼들이 추위에 대항하여 몸을 움츠리고 있다.
+	<<else>>
+		해가 지고 있지만, 여기서 일하는 노동자들의 하루 일과가 끝나려면 아직 시간이 많이 남았다.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		웅덩이들이 길 가장자리에 채워져, 자동차가 지나갈 때 마다 그 내용물을 보도 위에 쏟아낸다.
+	<<elseif $weather is "snow">>
+		밤에도 차량들의 통행이 길에 눈이 쌓이는 것을 막고 있다.
+	<<else>>
+		밤에도 거리는 부산스럽다.
+	<</if>>
 <</if>>
 <<streeteffects>>
 <br><br>
@@ -23,19 +43,28 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
+<<elseif $pubfame and $pubfame.task is "bailey" and $pubfame.bailey.fight is "ready">>
+	<<generateRole 0 0 "thug">><<generateRole 1 0 "thug">><<generateRole 2 0 "thug">><<generateRole 3 0 "thug">>
+	한 무리의 <<group_ i>> 뒷골목에서 당신에게 다가온다. 당신은 몇몇 행인들이 그들에게서 눈을 피하는 것을 알아차린다. 리더인, <<person1>><<person_ i>>, 험악하게 싱긋 웃는다. "저게 그 녀석이야. 우리 생활비를 벌어보자고."
+	<br><br>
+
+	그들은 손가락을 꺾으며, 당신에게 걸어온다.
+	<br><br>
+
+	<<link [[다음|Bailey Sheet Fight]]>><<set $fightstart to 1>><</link>>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "harvest">>
 			<br>
 		<</if>>
-		<<if $averyPub is 1 and ($daystate is "day" or $daystate is "dusk")>>
-			<span class="blue">You see Avery's car parked across the street from the pub.</span>
+		<<if $averyPub is 1 and (Time.dayState is "day" or Time.dayState is "dusk")>>
+			<span class="blue">당신은 에이버리의 자동차가 술집 건너편에 세워져 있는 걸 볼 수 있다.</span>
 			<br><br>
 		<</if>>
 		주요 장소
@@ -59,20 +88,20 @@
 			<<pubicon>><<link [[술집 (0:02)|Pub Intro]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
-		<<if $daystate is "night">>
-			<<ind>><<link [[버스 정류장 (0:02)|Bus Station Entrance]]>><<pass 2>><</link>>
+		<<if Time.dayState is "night">>
+			<<busstationicon>><<link [[버스 차고지 (0:02)|Bus Station Entrance]]>><<pass 2>><</link>>
 		<<else>>
-			<<ind>><<link [[버스 정류장 (0:02)|Bus Station]]>><<pass 2>><</link>>
+			<<busstationicon>><<link [[버스 차고지 (0:02)|Bus Station]]>><<pass 2>><</link>>
 		<</if>>
 		<br>
-		<<if $daystate isnot "night" and $exposed lt 1>>
-			<<ind>><<link [[공장 (0:05)|Farmers Centre]]>><<pass 5>><</link>>
+		<<if Time.dayState isnot "night" and $exposed lt 1>>
+			<<factoryicon>><<link [[공장 (0:05)|Farmers Centre]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
 		<br>
 		<<roadicon>><<link [[도시에서 나간다 (0:05)|Farm Road 1]]>><<set $phase to 0>><<pass 5>><</link>>
 		<br><br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<mer>>
@@ -86,7 +115,7 @@
 		<<industrial>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "harvest">>
 		<</if>>

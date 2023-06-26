@@ -1,35 +1,140 @@
 :: Widgets Home [widget]
+
 <<widget "home_outside">>
-
-<<if $exposed gte 2>>
-	<<if $daystate is "night">>
-		<<if $exhibitionism gte 55>>
-			<<ind>><<link [[몰래 나간다 (0:02)|Home Leave Naked]]>><</link>><<if $ex_fence isnot 1>><<exhibitionist4>><</if>>
+	<<if $exposed gte 2>>
+		<<if Time.dayState is "night">>
+			<<if $exhibitionism gte 55>>
+				<<orphanagedoorsicon>><<link [[살금살금 나간다 (0:02)|Home Leave Naked]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist4>><</if>>
+				<br>
+			<</if>>
+		<<else>>
+			<<if $exhibitionism gte 75>>
+				<<orphanagedoorsicon>><<link [[살금살금 나간다 (0:05)|Home Leave Naked Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist5>><</if>>
+				<br>
+			<</if>>
+		<</if>>
+	<<elseif $exposed gte 1>>
+		<<if Time.dayState is "night">>
+			<<if $exhibitionism gte 15>>
+				<<orphanagedoorsicon>><<link [[살금살금 나간다 (0:02)|Home Leave Undies]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist2>><</if>>
+				<br>
+			<</if>>
+		<<else>>
+			<<if $exhibitionism gte 35>>
+				<<orphanagedoorsicon>><<link [[살금살금 나간다 (0:05)|Home Leave Undies Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist3>><</if>>
+				<br>
+			<</if>>
 		<</if>>
 	<<else>>
-		<<if $exhibitionism gte 75>>
-			<<ind>><<link [[몰래 나간다 (0:05)|Home Leave Naked Day]]>><</link>><<if $ex_fence isnot 1>><<exhibitionist5>><</if>>
+		<<if Time.hour gte 18 and Time.hour lte 20 and $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
+			<<orphanagedoorsicon>><<link [[고아원에서 나간다 (0:01)|Robin Trauma Visit]]>><<set $phase to 2>><<pass 1>><</link>>
+			<br>
+		<<else>>
+			<<orphanagedoorsicon>><<link [[고아원에서 나간다 (0:01)|Domus Street]]>><<pass 1>><</link>>
+			<br>
 		<</if>>
 	<</if>>
-<<elseif $exposed gte 1>>
-	<<if $daystate is "night">>
-		<<if $exhibitionism gte 15>>
-			<<ind>><<link [[몰래 나간다 (0:02)|Home Leave Undies]]>><</link>><<if $ex_fence isnot 1>><<exhibitionist2>><</if>>
-		<</if>>
-	<<else>>
-		<<if $exhibitionism gte 35>>
-			<<ind>><<link [[몰래 나간다 (0:05)|Home Leave Undies Day]]>><</link>><<if $ex_fence isnot 1>><<exhibitionist3>><</if>>
-		<</if>>
-	<</if>>
-<<else>>
-	<<ind>><<link [[고아원에서 나간다 (0:01)|Domus Street]]>><<pass 1>><</link>>
-	<br>
-<</if>>
-
 <</widget>>
 
 <<widget "home_effects">>
-<<if $home_gone lte 167>>
-	<<set $home_gone to 0>>
-<</if>>
+	<<if $home_gone lte 167>>
+		<<set $home_gone to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "slime_wake_bodyliquid">>
+	<<set _liquid to _args[0]>>
+	<<if $player.penisExist and $player.virginity.penile isnot true and !playerChastity("penis")>>
+		<<bodyliquid "penis" _liquid random(1,3)>>
+	<</if>>
+	<<if $player.vaginaExist and $player.virginity.vaginal isnot true and !playerChastity("hidden")>>
+		<<bodyliquid "vagina" _liquid random(1,3)>>
+	<</if>>
+	<<if $player.virginity.anal isnot true and !playerChastity("anus") and $analdisable is "f">>
+		<<bodyliquid "anus" _liquid random(1,3)>>
+	<</if>>
+	<<if $player.virginity.oral isnot true>>
+		<<bodyliquid "mouth" _liquid random(1,3)>>
+	<</if>>
+	<<bodyliquid "hair" _liquid random(1,3)>>
+	<<bodyliquid "face" _liquid random(1,3)>>
+	<<bodyliquid "neck" _liquid random(1,3)>>
+	<<bodyliquid "chest" _liquid random(1,3)>>
+	<<bodyliquid "leftarm" _liquid random(1,3)>>
+	<<bodyliquid "rightarm" _liquid random(1,3)>>
+	<<bodyliquid "thigh" _liquid random(1,3)>>
+	<<bodyliquid "feet" _liquid random(1,3)>>
+<</widget>>
+
+<<widget "slime_wake_home">>
+	<<set $slimeWake to 0>>
+	<<set _newLocation to ["Residential alleyways", "Commercial alleyways", "Park", "Industrial alleyways"].random()>>
+	<<set $eventskip to 1>>
+	<<set $slimeSleepEvent to 3>>
+	<<if Time.hour lt 24 and Time.hour gt 12>>
+		<<set $slimeSleepEvent += 1>>
+	<</if>>
+	You wake up in a confused and disoriented state. The last thing you recall is getting into bed <<if $robinbed is "theirs">>with Robin<<else>>like normal<</if>>. However, you're clearly not in it anymore. You have a feeling that the slime in your ear is involved in some way.
+	<br><br>
+
+	<<if random(0,100) gt 80 and ($malechance lt 100 or $cbchance gt 0)>>
+		<<set _coveredIn to "slime">>
+		<<slime_wake_bodyliquid "goo">>
+	<</if>>
+	<<if random(0,100) gt 80 and ($malechance gt 0 or $dgchance gt 0)>>
+		<<set _coveredIn to (_coveredIn is "slime" ? "slime and semen" : "semen")>>
+		<<slime_wake_bodyliquid "semen">>
+	<</if>>
+	<<if _coveredIn isnot undefined>>
+		<<set $slimeSleepEvent += 2>>
+		On top of this predicament, you find yourself covered in <<print _coveredIn>>. If this was the slime's doing, it clearly had its fun with your body while you slept.
+		<br><br>
+	<</if>>
+	Having a look round your surroundings, you think that you've somehow been relocated to the <<print _newLocation.toLocaleLowerCase()>>.
+	<br><br>
+	<<link [[다음|_newLocation]]>><</link>>
+<</widget>>
+
+<<widget "orphanageWard">>
+	<<if $debug is 1 or $ward_unlocked>>
+		<<if $exposed gt 0 or ["split dress", "short ballgown", "large towel", "cropped hoodie", "slut shirt,", "tie-front top", "towel top"].includes($worn.upper.name) or ["split dress skirt", "short ballgown skirt", "micro pleated skirt", "miniskirt", "towel skirt"].includes($worn.lower.name)>>
+			<span class="pink">You're dressed too indecently to enter the youth ward.</span>
+		<<elseif $liquidcount gte 1>>
+			<span class="pink">You should clean yourself before entering the youth ward.</span>
+		<<else>>
+			<<if !$orphanageWardIntro>>
+				<<childicon "blocks">><<link [[어린이 수용실 (0:01)|Orphanage Ward Intro]]>><<pass 1>><</link>>
+			<<else>>
+				<<childicon "blocks">><<link [[어린이 수용실 (0:01)|Orphanage Ward]]>><<pass 1>><</link>>
+			<</if>>
+		<</if>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "orphanageWardOptions">>
+	<<childicon "crib">><<link [[아기 방|Childrens Home]]>><<set $exitPassage to $passage>><</link>>
+	<br>
+	<<if $hallucinations gte 2 and $rng is 100>>
+		<<main_hall_icon>><<link [[중앙 복도|Orphanage Ward Door]]>><</link>>
+		<br>
+	<<else>>
+		<<main_hall_icon>><<link [[중앙 복도|Orphanage]]>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "bathroomLink">>
+	<<if getRobinLocation() is "bath" and $halloween isnot 1>>
+		<<if $robinBathKnown>>
+			Robin is in the bath.
+			<br>
+		<</if>>
+		<<bathroomicon>><<link [[욕실 (0:01)|Robin Bath]]>><<pass 1>><</link>>
+	<<else>>
+		<<if $robinBathKnown>>
+			<<unset $robinBathKnown>>
+		<</if>>
+		<<bathroomicon>><<link [[욕실 (0:01)|Bathroom]]>><<pass 1>><</link>>
+	<</if>>
 <</widget>>

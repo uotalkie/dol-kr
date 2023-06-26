@@ -4,8 +4,10 @@ declare interface AnyDict {
 declare interface Dict<T> {
 	[index: string]: T;
 }
+
+type GradientType = 'linear' | 'radial';
 declare interface BlendGradientSpec {
-	gradient: 'linear'|'radial';
+	gradient: GradientType;
 	/**
 	 * * For linear gradient: [x0, y0, x1, y1].
 	 * * For radial gradient: [x0, y0, r0, x1, y1, r1].
@@ -16,15 +18,25 @@ declare interface BlendGradientSpec {
 	 * Pairs of `[offset, color]` or `[color]`.
 	 * Default offsets are for evenly spaced gradient
 	 */
-	colors: ([number,string]|string)[];
+	colors: ([number, string] | string)[];
 }
+
+/**
+ * For applying brightness, contrast and other 'scalar' adjustment gradients
+ */
+declare interface AdjustmentGradientSpec {
+	gradient: GradientType,
+	values: number[],
+	adjustments: ([number, number] | number)[];
+}
+
 declare interface BlendPatternSpec {
 	/**
 	 * Pattern identifier or a specification, sent to pattern provider to get an actual image
 	 */
-	pattern: string|object;
+	pattern: string | object;
 }
-declare type BlendSpec = string|BlendGradientSpec|BlendPatternSpec;
+declare type BlendSpec = string | BlendGradientSpec | BlendPatternSpec;
 
 declare interface CompositeLayerParams {
 	/**
@@ -42,7 +54,7 @@ declare interface CompositeLayerParams {
 	/**
 	 * Blend mode.
 	 */
-	blendMode?: string;
+	blendMode?: GlobalCompositeOperation;
 	/**
 	 * Desaturate the image before processing.
 	 */
@@ -50,7 +62,7 @@ declare interface CompositeLayerParams {
 	/**
 	 * Adjust brightness before processing. -1..+1, 0 is don't change
 	 */
-	brightness?: number;
+	brightness?: number | AdjustmentGradientSpec;
 	/**
 	 * Adjust contrast before processing. >=0, 1 is don't change
 	 */

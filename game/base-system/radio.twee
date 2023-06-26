@@ -10,7 +10,7 @@ Feb 2019
 <<radio_listen>><<pass 1>>
 <<radio_listen>><<pass 1>>
 <<radio_listen>><<pass 1>>
-<<link [[Next|previous()]]>><</link>>
+<<link [[다음|previous()]]>><</link>>
 
 :: RadioWidgets [widget]
 
@@ -48,16 +48,15 @@ Feb 2019
 <</widget>>
 
 <<widget "radio_placehere">>
-	<<set $rem to 60 - ($time % 60)>>
-	<<set $rem_str to $rem.toString().padStart(2, "0")>>
+	<<set $_rem_str to getTimeString(Time.hour + 1, 0)>>
 	<<set $loc to passage()>>
 	<<radio_listen>>
 	<<link [[Listen to the radio (0:01)|passage()]]>><<pass 1>><</link>> /*script thing is magically required to link to the same page*/
 	<br>
-	<<link [[Listen for a while (0:05)|RadioDummy]]>><</link>>
+	<<link [[Listen for a while (0:05)|passage()]]>><</link>>
 	<br>
-	<<if $rem lte 47>>
-		<<link "Wait for the news (0:$rem_str)" $loc>><<pass $rem>><</link>>
+	<<if Time.minute lte 47>>
+		<<link "Wait for the news ($_rem_str)" $loc>><<advanceToHour>><</link>>
 		<br>
 	<</if>>
 	<br>
@@ -77,101 +76,86 @@ Feb 2019
 <</widget>>
 
 <<widget "radio_addnews">>
-/*sort news*/
-<<if $news2_importance gt $news1_importance>>
-	<<set $newstemp1 to $news1>>
-	<<set $newstemp2 to $news1_importance>>
-	<<set $newstemp3 to $news1_gen>>
-	<<set $newstemp4 to $news1_hairc>>
-	<<set $newstemp5 to $news1_hairl>>
-	<<set $news1 to $news2>>
-	<<set $news1_importance to $news2_importance>>
-	<<set $news1_gen to $news2_gen>>
-	<<set $news1_hairc to $news2_hairc>>
-	<<set $news1_hairl to $news2_hairl>>
-	<<set $news2 to $newstemp1>>
-	<<set $news2_importance to $newstemp2>>
-	<<set $news2_gen to $newstemp3>>
-	<<set $news2_hairc to $newstemp4>>
-	<<set $news2_hairl to $newstemp5>>
-<</if>>
-/*if the incoming news are actually something new*/
-<<if ($args[0] isnot $news1) and ($args[0] isnot $news1)>>
-	/*if incoming news is more or as important as than news2, but less important than the news1*/
-	<<if ($args[1] gte $news2_importance) and ($args[1] lt $news1_importance)>>
-		/* new news shall replace news2 */
-		<<set $news2 to $args[0]>>
-		<<set $news2_importance to $args[1]>>
-		/* store PC appearance */
-		<<if $player.gender is "m">>
-			<<set $news2_gen to "male">>
-		<<else>>
-			<<set $news2_gen to "female">>
+	/*sort news*/
+	<<if $news2_importance gt $news1_importance>>
+		<<set $newstemp1 to $news1>>
+		<<set $newstemp2 to $news1_importance>>
+		<<set $newstemp3 to $news1_gen>>
+		<<set $newstemp4 to $news1_hairc>>
+		<<set $newstemp5 to $news1_hairl>>
+		<<set $news1 to $news2>>
+		<<set $news1_importance to $news2_importance>>
+		<<set $news1_gen to $news2_gen>>
+		<<set $news1_hairc to $news2_hairc>>
+		<<set $news1_hairl to $news2_hairl>>
+		<<set $news2 to $newstemp1>>
+		<<set $news2_importance to $newstemp2>>
+		<<set $news2_gen to $newstemp3>>
+		<<set $news2_hairc to $newstemp4>>
+		<<set $news2_hairl to $newstemp5>>
+	<</if>>
+	/*if the incoming news are actually something new*/
+	<<if (_args[0] isnot $news1) and (_args[0] isnot $news1)>>
+		/*if incoming news is more or as important as than news2, but less important than the news1*/
+		<<if (_args[1] gte $news2_importance) and (_args[1] lt $news1_importance)>>
+			/* new news shall replace news2 */
+			<<set $news2 to _args[0]>>
+			<<set $news2_importance to _args[1]>>
+			/* store PC appearance */
+			<<if $player.gender is "m">>
+				<<set $news2_gen to "male">>
+			<<else>>
+				<<set $news2_gen to "female">>
+			<</if>>
+			<<set $news2_hairc to $haircolour>>
+			<<if $hairlength gte 300>>
+				<<set $news2_hairl to "long">>
+			<<else>>
+				<<set $news2_hairl to "short">>
+			<</if>>
+			/* if incoming news is more or as important as both current news */
+		<<elseif (_args[1] gte $news2_importance) and (_args[1] gte $news2_importance)>>
+			/*new1 should replace news2
+			new news should replace news1*/
+			<<set $news2 to $news1>>
+			<<set $news2_importance to $news1_importance>>
+			/* store PC appearance */
+			<<set $news2_gen to $news1_gen>>
+			<<set $news2_hairc to $news1_hairc>>
+			<<set $news2_hairl to $news1_hairl>>
+			<<set $news1 to _args[0]>>
+			<<set $news1_importance to _args[1]>>
+			/* store PC appearance */
+			<<if $player.gender is "m">>
+				<<set $news1_gen to "male">>
+			<<else>>
+				<<set $news1_gen to "female">>
+			<</if>>
+			<<set $news1_hairc to $haircolour>>
+			<<if $hairlength gte 300>>
+				<<set $news1_hairl to "long">>
+			<<else>>
+				<<set $news1_hairl to "short">>
+			<</if>>
 		<</if>>
-		<<set $news2_hairc to $haircolour>>
-		<<if $hairlength gte 300>>
-			<<set $news2_hairl to "long">>
-		<<else>>
-			<<set $news2_hairl to "short">>
+		/*if the incoming news already exist*/
+	<<else>>
+		/*if incoming news are the same as news1 but are more important */
+		<<if (_args[0] is $news1) and (_args[1] gt $news1_importance)>>
+			/*refresh importance*/
+			<<set $news1_importance to _args[1]>>
 		<</if>>
-		/* if incoming news is more or as important as both current news */
-	<<elseif ($args[1] gte $news2_importance) and ($args[1] gte $news2_importance)>>
-		/*new1 should replace news2
-		new news should replace news1*/
-		<<set $news2 to $news1>>
-		<<set $news2_importance to $news1_importance>>
-		/* store PC appearance */
-		<<set $news2_gen to $news1_gen>>
-		<<set $news2_hairc to $news1_hairc>>
-		<<set $news2_hairl to $news1_hairl>>
-		<<set $news1 to $args[0]>>
-		<<set $news1_importance to $args[1]>>
-		/* store PC appearance */
-		<<if $player.gender is "m">>
-			<<set $news1_gen to "male">>
-		<<else>>
-			<<set $news1_gen to "female">>
-		<</if>>
-		<<set $news1_hairc to $haircolour>>
-		<<if $hairlength gte 300>>
-			<<set $news1_hairl to "long">>
-		<<else>>
-			<<set $news1_hairl to "short">>
+		/*if incoming news are the same as news2 but are more important */
+		<<if (_args[0] is $news2) and (_args[1] gt $news2_importance)>>
+			/*refresh importance*/
+			<<set $news2_importance to _args[1]>>
 		<</if>>
 	<</if>>
-	/*if the incoming news already exist*/
-<<else>>
-	/*if incoming news are the same as news1 but are more important */
-	<<if ($args[0] is $news1) and ($args[1] gt $news1_importance)>>
-		/*refresh importance*/
-		<<set $news1_importance to $args[1]>>
-	<</if>>
-	/*if incoming news are the same as news2 but are more important */
-	<<if ($args[0] is $news2) and ($args[1] gt $news2_importance)>>
-		/*refresh importance*/
-		<<set $news2_importance to $args[1]>>
-	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "radio_listen">> /* call this to listen to the radio */
 	<<set $radioname to "Sunshine Radio">>
 	<<set $radioslogan to "Your window to the world">>
-	<<if $weekday eq 1>>
-		<<set $dayname to "Sunday">>
-	<<elseif $weekday eq 2>>
-		<<set $dayname to "Monday">>
-	<<elseif $weekday eq 3>>
-		<<set $dayname to "Tuesday">>
-	<<elseif $weekday eq 4>>
-		<<set $dayname to "Wednesday">>
-	<<elseif $weekday eq 5>>
-		<<set $dayname to "Thursday">>
-	<<elseif $weekday eq 6>>
-		<<set $dayname to "Friday">>
-	<<elseif $weekday eq 7>>
-		<<set $dayname to "Saturday">>
-	<</if>>
 	/*-----------------------------------------------------------------------------------------------*/
 	/*create news*/
 	/*default set*/
@@ -182,7 +166,7 @@ Feb 2019
 	<<silently>><<nnpc_he "Quinn">><</silently>>
 	<<set $news1_line5 to "Until then, "+_text_output+" abstains from comments and states that the whole thing is part of the pre-election provocation.">>
 	<<set $news2_line1 to "The number of wolves in forest areas near the city keep growing.">>
-	<<set $news2_line2 to "Ah gone up in smoke a sheep this week, an two goats previous one! Lord, far ta cut a path thuh house! - claims one of local farmers.">>
+	<<set $news2_line2 to "Ah gone up in smoke a sheep this week, an' two goats previous one! Lord, far ta cut a path thuh house! - claims one of local farmers.">>
 	<<set $news2_line3 to "According to some commentators, this is the result of recent changes in the law on poaching and hunting.">>
 	<<set $news2_line4 to "The mayor announces that the situation will soon be settled.">>
 	<<set $news2_line5 to "For now, it is recommended to not stay alone in the forest areas after dark.">>
@@ -3617,7 +3601,7 @@ Feb 2019
 		<br>
 		<b>[Jeffrey]</b>:
 		<br>
-		"Jeffrey Hall. It's $hour:00, $dayname, $monthday<<monthday>> of <<month>>. Let's hear the news."</i>
+		"Jeffrey Hall. It's <<ampm>>, <<print Time.weekDayName>>, <<print ordinalSuffixOf(Time.monthDay)>> of <<print Time.monthName>>. Let's hear the news."</i>
 		<br>
 	<<elseif ($time is 1) or ($time is 61) or ($time is 121) or ($time is 181) or ($time is 241) or ($time is 301)>>
 		<i><span class="black">*news music in the background*</span>
@@ -3708,7 +3692,7 @@ Feb 2019
 		<br>
 		<b>[Evelyn]</b>:
 		<br>
-		"Good morning! It's $hour:00 and my name is Evelyn Walsh. It's <<month>> $monthday<<monthday>> and here are the morning news."</i>
+		"Good morning! It's <<ampm>> and my name is Evelyn Walsh. It's <<print Time.monthName>> <<print ordinalSuffixOf(Time.monthDay)>> and here are the morning news."</i>
 		<br>
 	<<elseif ($time is 361) or ($time is 421) or ($time is 481) or ($time is 541) or ($time is 601) or ($time is 661)>>
 		<i><span class="black">*news music in the background*</span>
@@ -3792,7 +3776,7 @@ Feb 2019
 		<br>
 		<b>[Evelyn]</b>:
 		<br>
-		"That's everything in this release. Have a good $dayname with $radioname!"</i>
+		"That's everything in this release. Have a good <<print Time.weekDayName>> with $radioname!"</i>
 		<br>
 	<<elseif ($time is 720) or ($time is 780) or ($time is 840) or ($time is 900) or ($time is 960) or ($time is 1020)>>
 		<i><span class="gold">*news jingle*</span>
@@ -3803,7 +3787,7 @@ Feb 2019
 		<br>
 		<b>[Jacob]</b>:
 		<br>
-		"And Jacob Ross. We have $dayname, $monthday<<monthday>> of <<month>>. It's $hour:00 and you're listening to $radioname News."</i>
+		"And Jacob Ross. We have <<print Time.weekDayName>>, <<print ordinalSuffixOf(Time.monthDay)>> of <<print Time.monthName>>. It's <<ampm>> and you're listening to $radioname News."</i>
 		<br>
 	<<elseif ($time is 721) or ($time is 781) or ($time is 841) or ($time is 901) or ($time is 961) or ($time is 1021)>>
 		<i><span class="black">*news music in the background*</span>
@@ -3898,7 +3882,7 @@ Feb 2019
 		<br>
 		<b>[Emma]</b>:
 		<br>
-		"This is Emma Lee. It's <<month>> $monthday<<monthday>> - $dayname. It's $hour o'clock. Time for the evening news in $radioname."</i>
+		"This is Emma Lee. It's <<print Time.monthName>> <<print ordinalSuffixOf(Time.monthDay)>> - <<print Time.weekDayName>>. It's <<print Time.hour>> o'clock. Time for the evening news in $radioname."</i>
 		<br>
 	<<elseif ($time is 1081) or ($time is 1141) or ($time is 1201) or ($time is 1261) or ($time is 1321) or ($time is 1381)>>
 		<i><span class="black">*news music in the background*</span>

@@ -1,22 +1,119 @@
 :: PassageFooter
-<div id="gameVersionDisplay"><<print StartConfig.version>></div>
+<div id="gameVersionDisplay">
+	<<if $options.passageCount is "total">>
+		경로(passage) 횟수: <<print $passageCount>> |
+	<</if>>
+	<<if $options.passageCount is "changes">>
+		경로(passage)가 바뀐 횟수: <<print $passageChangesCount>> |
+	<</if>>
+	<<if $options.playtime>>
+		플레이 시간: <<print msToTime(($saveDetails.playTime ? $saveDetails.playTime : 0) + ($saveDetails.loadTime ? new Date() - $saveDetails.loadTime : 0))>> |
+	<</if>>
+	<<print StartConfig.version>><<if StartConfig.versionName>> <<print StartConfig.versionName>><</if>><<if StartConfig.sneaky>> SNEAKY<</if>>
+</div>
 <div id="gameVersionDisplay2"><<print StartConfig.version.slice(1)>></div>
 <<if $passage isnot "Start">>
 	<div id="feat"></div>
 	<div id="mobileStats"></div>
-	<div id="exportWarning" @class="'no-numberify ' + ($days gte $saveDetails.exported.days + $saveDetails.exported.frequency ? '':'hidden')">
-		<span class="red">You haven't exported your save in a while</span> |
-		<<link "Help me export">><<overlayReplace "optionsExportImport">><</link>> |
-		<<link "Ignore for now">><<set $saveDetails.exported.days to Math.floor($days - ($saveDetails.exported.frequency * 0.5))>><<addclass #exportWarning "hidden">><</link>>
+	<div id="exportWarning" @class="'no-numberify ' + (Time.days gte $saveDetails.exported.days + $saveDetails.exported.frequency ? '':'hidden')">
+		<span class="red">한동안 세이브 파일을 내보내지 않았습니다</span> |
+		<<if !Browser.isMobile.any()>>
+			<<link "내보내기">>
+				<<script>>
+					updateExportDay();
+					Save.export("degrees-of-lewdity");
+				<</script>>
+			<</link>> |
+		<</if>>
+		<<link "내보내도록 도와줘">>
+			<<overlayReplace "saves">>
+			<!-- This calls an asynchronous callback and prone to failure. -->
+			<<run T.tab.setActive(1)>>
+			<<replace #customOverlayContent>><<optionsExportImport>><</replace>>
+		<</link>> |
+		<<link "지금은 무시한다">><<set $saveDetails.exported.days to Math.floor(Time.days - ($saveDetails.exported.frequency * 0.5))>><<addclass #exportWarning "hidden">><</link>>
 	</div>
 <</if>>
 <<if $replayScene isnot undefined>>
 	<<if $replayScene.startPassage is $passage or $passage is "Scene Viewer End">>
 	<<elseif !$replayScene.passages.includes($passage)>>
+		<!-- todo: replace goto with something that doesn't have a potential to fuck up the history -->
 		<<goto "Scene Viewer End">>
 	<</if>>
 	<<if $replayScene is undefined>>
 	<<elseif $replayScene.startPassage>>
 		<<run delete $replayScene.startPassage>>
+	<</if>>
+<</if>>
+<div id="customOverlayContainer" class="customOverlayContainer no-numberify hidden" onclick="closeOverlay()">
+	<div id="customOverlay" @class="'customOverlay hidden' + ($options.overlayFontSize ? ' fontSize' + $options.overlayFontSize : '') + ($options.overlayLineHeight ? ' lineHeight' + $options.overlayLineHeight.toString().replace('.','') : '')" onclick="event.stopPropagation()">
+		<div id="customOverlayTitle"></div>
+		<div id="customOverlayContent"></div>
+	</div>
+</div>
+
+<<if $combat is 1>>
+	<<printCombatMenu>>
+<</if>>
+
+<<if !Story.has($passage)>>
+	<br>
+	이 문제를 제보해 주시고, 이전 세이브를 다시 로드하거나 이 페이지의 아래에 있는 긴급 탈출 링크로 당신이 있었던 마지막 안전 위치로 돌아가세요.
+	<<if $options.maxStates gt 1>>
+		혹은, 이력 뒤로가기 기능을 사용하여 이전 경로(passage)로 돌아가세요.
+	<</if>>
+	<br>
+	<<set _exit to $safePassage ? $safePassage : "Bedroom">>
+	<span id="next"><<link [[안전 위치로 돌아간다|_exit]]>><<endcombat>><<clotheson>><</link>></span>
+<<elseif !_link and !tags().includes("exitCheckBypass")>>
+	/* Does not trigger if the scene has a red link. Those will probably be reported anyway */
+	<br>
+	<<error {
+		message	: `The passage ${$passage} has no usable links.`,
+		source	: `Previous passage: ${$passagePrev} | phase: ${$phase} | rng: ${$rng}.`
+	}>>
+	<br><br>
+	
+	<<if $cheatdisable is "f">>
+		당신이 치트 기능을 사용해 여기에 도달한 것이 아니라면,
+	<</if>>
+	이 문제를 제보해 주시고, 이전 세이브를 다시 로드하거나 이 페이지의 아래에 있는 긴급 탈출 링크로 당신이 있었던 마지막 안전 위치로 돌아가세요.
+	<<if $options.maxStates gt 1>>
+		혹은, 이력 뒤로가기 기능을 사용하여 이전 경로(passage)로 돌아가세요.
+	<</if>>
+	<br><br><br>
+	<<set _exit to $safePassage ? $safePassage : "Bedroom">>
+	<span id="next"><<link [[안전 위치로 돌아간다|_exit]]>><<endcombat>><<clotheson>><</link>></span>
+<</if>>
+
+<!-- handle autosaves in the footer, so the description getter don't have to guess what happened in the passage -->
+<<if _autosavehere and !_preventUpdate and !$options.autosaveDisabled>>
+	<<run Save.autosave.save(null, {"saveId":$saveId, "saveName":$saveName})>>
+	<<run setSaveDetail("autosave",{"saveId":$saveId,"saveName":$saveName},Story.get($passage).description())>>
+<</if>>
+
+<<if $options.debugdisable is "f">>
+	<<set _normalised to scanNaNs(V)>>
+	<<if _normalised neq null>>
+		<<error {
+			message: "Corrupted variables have been detected.",
+			source: "The following variables have invalid values:\n" + JSON.stringify(_normalised) +
+			"\n\nCurrent passage is: '" + $passage + "'\nPlease report this to the DoL Discord #bug-reports.",
+			exportable: false,
+		}>>
+		<br>
+		스크린샷을 찍기 전에 위의 알림 박스를 열어 주세요. (왼쪽의 아래 화살표를 클릭)
+		<br><br>
+		<div id="nanClear">
+			만약 개발자들이 그렇게 하는 것이 좋겠다고 한다면, 당신은 아래 링크를 통해 잘못된 변수를 초기화할 수 있습니다.
+			<br>
+			<<link "잘못된 변수를 초기화한다">>
+				<<silently>><<run objectAssignDeep(V, _normalised)>><</silently>>
+				<<replace "#nanClear" t8n>><span class="green">변수가 초기화되었습니다.</span><</replace>>
+			<</link>>
+			<br>
+			<span class="red">주의: 이것을 누르면 모든 잘못된 변수를 0으로 설정합니다. 이것은 당신의 게임 상태에 의도하지 않은 결과를 가져올 수 있습니다. 조심해 진행하세요!</span>
+		</div>
+		<br><br>
 	<</if>>
 <</if>>

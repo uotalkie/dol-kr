@@ -1,19 +1,39 @@
 :: Mer Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "mer">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "mer">><<getTarget true>>
 당신은 메르 가에 있다. 이 거리는 부두와 해운업이 특징이다.
-<<if $daystate is "day">>
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
 		도로의 일부가 젖은 모래로 덮여있다.
+	<<elseif $weather is "snow">>
+		There's too much salt for snow to collect here.
 	<<else>>
 		부두에서 소음이 계속 들려온다.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	이미 부두에선 일을 시작했는지 일하는 소리가 들려온다.
-<<elseif $daystate is "dusk">>
-	이 시간에도 부두에선 소음이 들려온다.
-<<elseif $daystate is "night">>
-	바닷소리만이 들려온다.
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		Mist from the sea occasinally sprays over the road.
+	<<elseif $weather is "snow">>
+		You see movement on the dock, workers braving the morning chill.
+	<<else>>
+		이미 부두에선 일을 시작했는지 일하는 소리가 들려온다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		You can hear noise from the dock over the beating rain.
+	<<elseif $weather is "snow">>
+		Slurry forms in the gutters.
+	<<else>>
+		이 시간에도 부두에선 소음이 들려온다.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		Mist stings your face.
+	<<elseif $weather is "snow">>
+		Slurry fills the gutters.
+	<<else>>
+		바닷소리만이 들려온다.
+	<</if>>
 <</if>>
 <<streeteffects>>
 <br><br>
@@ -27,27 +47,27 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "mer">>
 			<br>
 		<</if>>
 		주요 장소
 		<br>
-		<<link [[부두|Docks]]>><</link>>
+		<<docksicon>><<link [[부두 (0:02)|Docks]]>><<pass 2>><</link>>
 		<br>
 		<<if $historytrait gte 2>>
-			<<link [[해안 산책로 (0:30)|Coast Path Mer]]>><<pass 30>><</link>>
+			<<coastalpathicon>><<link [[해안 산책로 (0:30)|Coast Path Mer]]>><<pass 30>><</link>>
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<starfish>>
@@ -62,7 +82,7 @@
 		<<industrial>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "mer">>
 		<</if>>

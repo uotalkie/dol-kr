@@ -1,0 +1,377 @@
+:: Adult clothing shop widgets [widget]
+
+<<widget "adultShop-main">>
+	<<if $tryOn.autoReset isnot false>><<tryOnReset>><</if>><<unset $tempDisable>>
+	<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+	<<set $shopName = "adult">>
+
+	당신은 성인용품점에 있다. 다양한 페티쉬 의류와 페니스 밴드들이 있다.
+	<br><br>
+
+	<<if $stress gte $stressmax>>
+	<<passoutadultshop>>
+	<<else>>
+		<<if Time.hour is 21 and Time.minute lt 10>>
+			문을 닫을 시간이다. 시리스가 사람들을 밖으로 내쫓는다. <<if $exposed gte 1>>시리스가 이렇게 노출된 옷차림을 하고 있는 당신을 발견한다면 어떻게 될지 생각하니 당신 안에서 공포가 부풀어오른다.<</if>>
+			<br><br>
+
+			<<set $adultshopstate to "closed">>
+			<<if $exposed lte 0>>
+				<<link [[밖으로 나간다|Elk Street]]>><<adultShopClear>><</link>>
+				<br>
+			<<else>>
+				<<link [["끝날 때까지 숨어있는다 (1:00)"|Adult Shop]]>><<pass 1 hour>><</link>>
+			<</if>>
+		<<else>>
+			<div id="tryonstats-div"><<tryOnStats>></div>
+			<<unset $shopListStartCount>>
+			<<unset $clothes_choice>>
+			<<set $shopPage = 0>>
+
+			<<if Time.dayState is "night">>
+				당신은 어둠 속에 혼자 있다.
+				<br><br>
+			<<elseif $exposed gte 1>>
+				당신은 당신의 품위를 지키기 위해 본디지 옷 진열장 안에 숨어 있다.
+				<br><br>
+			<</if>>
+
+			<span>따뜻함:</span>
+			<<warmthscale>>
+			<div id="warmth-description">
+				<<warmth_description>>
+			</div>
+			<br><br>
+			<<if $debug is 1>>
+				<<clothingcategoryicon "overoutfit">>
+				<<link "원피스 외투 보기">><<replace "#clothingShop-div">><<OverOutfitShop>><</replace>><</link>>
+				<br>
+				<<clothingcategoryicon "overoutfit">>
+				<<link "외투 상의 보기">><<replace "#clothingShop-div">><<OverTopShop>><</replace>><</link>>
+				<br><br>
+			<</if>>
+			<<clothingcategoryicon "outfit">>
+			<<link "원피스 겉옷 보기">><<replace "#clothingShop-div">><<OutfitShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "upper">>
+			<<link "상의 보기">><<replace "#clothingShop-div">><<TopShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "lower">>
+			<<link "하의 보기">><<replace "#clothingShop-div">><<BottomShop>><</replace>><</link>>
+			<br><br>
+			<<clothingcategoryicon "underoutfit">>
+			<<link "원피스 속옷 보기">><<replace "#clothingShop-div">><<UnderOutfitShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "underupper">>
+			<<link "속옷 상의 보기">><<replace "#clothingShop-div">><<UnderTopShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "underlower">>
+			<<link "속옷 하의 보기">><<replace "#clothingShop-div">><<UnderBottomShop>><</replace>><</link>>
+			/* Left here for future expansion */
+			/*<br>
+			<<clothingcategoryicon "genitals">>
+			<<link "음부 덮개 보기">><<replace "#clothingShop-div">><<GenitalShop>><</replace>><</link>>*/
+			<br><br>
+			<<clothingcategoryicon "head">>
+			<<link "머리 악세서리 보기">><<replace "#clothingShop-div">><<HeadShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "face">>
+			<<link "얼굴 악세서리 보기">><<replace "#clothingShop-div">><<FaceShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "neck">>
+			<<link "목 악세서리 보기">><<replace "#clothingShop-div">><<NeckShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "hand">>
+			<<link "손 악세서리 보기">><<replace "#clothingShop-div">><<HandsShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "legs">>
+			<<link "레그웨어 보기">><<replace "#clothingShop-div">><<LegsShop>><</replace>><</link>>
+			<br>
+			<<clothingcategoryicon "feet">>
+			<<link "신발 보기">><<replace "#clothingShop-div">><<FeetShop>><</replace>><</link>>
+			<br><br>
+			<<run linkifyDivs('.button-back-to-shop')>>
+
+			/*<<if $clothingrebuy is 1>>
+				[[의류 자동구입 비활성화|Rebuy Shop]]
+				<br>
+			<<else>>
+				[[의류 자동구입 활성화|Rebuy Shop]]
+				<br>
+			<</if>>*/
+
+			<<if Time.dayState is "night" and Time.hour isnot $closinghour and !$weekly.theft.adultShop>>
+				<<link [[금전등록기를 살펴본다|Adult Shop Register]]>><</link>>
+				<br>
+			<</if>>
+
+			<br>
+
+			<<if Time.dayState is "night" or $tryOn.value is 0>>
+				<<if Time.dayState is "night" and $adultShop.spotted is true and $adultShop.stolenClothes gt 0>>
+					<<link [[나간다|Adult Shop Night Guard Found]]>>
+						<<shopClothingFilterReset>>
+						<<ShowUnderEquip "normal">>
+						<<ShowUnderEquip "over">>
+						<<set $tryOn.autoReset to true>>
+						<<crimeup `$tryOn.value / 100`>>
+						<<set $adultshopstate to "closed">>
+					<</link>>
+				<<else>>
+					<<link [[나간다|Adult Shop]]>>
+						<<shopClothingFilterReset>>
+						<<ShowUnderEquip "normal">>
+						<<ShowUnderEquip "over">>
+						<<set $tryOn.autoReset to true>>
+						<<crimeup `$tryOn.value / 100`>>
+						<<set $adultshopstate to "closed">>
+					<</link>>
+				<</if>>
+				<<if $tryOn.value gt 0>>
+					<<crime>>
+				<</if>>
+				<br><br>
+			<<elseif $tryOn.value gt 0>>
+				<<link "옷을 반납한다">><<clothingReset>>
+					<<updatesidebarimg>>
+					<<updatesidebardescription>>
+					<<updateallure>>
+					<<updatewarmthscale>>
+					<<updatewarmthdescription>>
+					<<updateclothingshop>>
+					<<run updateMoment()>>
+				<</link>>
+				<br>
+				<<if $tryOn.value lt $money>>
+					<<sendItemsToDropdown>>
+					<<link "옷을 산다">><<buyTryOnClothes "wear">><<updateclothingshop>><</link>>
+					<br>
+					<<link "옷을 사서 옷장에 보낸다">>
+						<<buyTryOnClothes "wardrobe">>
+						<<updatesidebarmoney>>
+						<<updatesidebarimg>>
+						<<updatesidebardescription>>
+						<<updateallure>>
+						<<updatewarmthscale>>
+						<<updatewarmthdescription>>
+						<<updateclothingshop>>
+						<<run updateMoment()>>
+					<</link>>
+					<br>
+				<</if>>
+				<<link [[옷을 훔쳐 떠난다|Stolen Adult Shop Result]]>><<shopClothingFilterReset>><</link>>
+				<br>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+
+:: Stolen Adult Shop Result
+<<effects>>
+<<ShowUnderEquip "over">>
+<<ShowUnderEquip "normal">>
+<<if currentSkillValue('skulduggery') lt 90>>
+	시리스는 <<nnpc_his_ yi "Sirris">> 시선 끝으로 입구를 지켜보고 있다. 다른 탈출구는 없으므로 떠나기 전에 모든 것을 되돌려 놓는다.
+	<<clothingReset>>
+<<else>>
+	<<rng>>
+	<<if $crime gte 50000 or ($crime gte 40000 and $rng * 20 gte currentSkillValue('skulduggery')) or ($crime gte 25000 and $rng * 10 gte $skulduggery)
+	or ($crime gte 10000 and $rng * 5 gte currentSkillValue('skulduggery'))>>
+		<<generate1>><<person1>>
+		시리스는 <<nnpc_his_ yi "Sirris">> 시선 끝으로 입구를 지켜보고 있다. 당신은 빠르게 지나치려 했으나, <<he_ ga>> 당신을 멈춰세웠다.
+		<br><br>
+		"그래. 난 널 계속 지켜보고 있었단다," <<He_ nun>> 계속해서 말을 이었다. "이번에는 그냥 보내주겠지만, 너는 당분간 가게 출입이
+		금지될 거란다. 바라건대 이걸로 네가 왜 물건을 훔쳐서는 안되는지 배우는 데 도움이 되었으면 좋겠구나."
+		<<if $adultShop.banCount lt 4>>
+			<<set $adultShop.ban to 7>>
+		<<elseif $adultShop.banCount lt 8>>
+			<<set $adultShop.ban to 10>>
+		<<else>>
+			<<set $adultShop.ban to 14>>
+		<</if>>
+		<<crime>>
+		<<set $adultShop.banCount++>>
+	<<else>>
+		시리스는 <<nnpc_his_ yi "Sirris">> 시선 끝으로 입구를 지켜보고 있지만, 당신은 의심을 받지 않고 떠난다.
+		<<crime>>
+	<</if>>
+	<<set _crime to ($tryOn.value / 100)>>
+	<<crimeup _crime>>
+<</if>>
+<br><br>
+<<link [[다음|Elk Street]]>><<set $tryOn.autoReset to true>><<adultShopClear>><</link>>
+
+:: Adult Shop Guard
+<<effects>>
+<<generate1>><<person1>>
+시리스는 시선 끝에서 입구쪽을 보다 당신을 발견한다. <<He_ nun>> 당신이 있는 곳에서는 보이지 않는 사람에게 몇 마디 말을 한 다음 당신에게 다가왔다.
+<br><br>
+"미안해, 지나가게 할 수 없어." <<he_ ga>> 말한다. "너는 출입금지가 해제될 때까지 <<if $adultShop.ban gt 1>><<number $adultShop.ban>> 일 이나<<else>>며칠 더<</if>>
+남았단다."
+<br><br>
+
+<<link [[다음|Elk Street]]>><<adultShopClear>><</link>>
+
+:: Adult Shop Sneak Guard
+<<effects>>
+당신은 입구에서 바로 시리스를 발견한다. 당신이 몰래 지나갈 수 있을 것 같지 않다.
+
+<<link [[다음|Elk Street]]>><<adultShopClear>><</link>>
+
+:: Adult Shop Night Guard Found
+<<effects>>
+<<generate1>><<person1>>
+<<set $adultShop.banCount++>>
+<<set $adultShop.spotted to false>>
+당신은 가능한 한 조용히 가게 문을 닫고, 돌아서자마자 바로 
+<<person_ gwa>> 눈이 마주쳐 깜짝 놀란다. 당신이 도망칠 생각을 하기도 전에, <<He_ nun>> 당신의 어깨에 손을 얹는다.
+<br><br>
+"여기서 뭐하는 거지? 쥐새끼 같은 도둑이, 섹스 장난감을 가지고 도망치려고?" <<He_ nun>> 못마땅한 표정으로
+말한다. "이 상황을 주인들에게 알리겠다."
+<br><br>
+<<He_ nun>> <<his_ yi>> 전화기를 꺼내더니 시리스에게 전화를 걸려고 하는 것처럼 보인다.
+<<if $adultShop.ban gt 0>>
+	<<set $adultShop.banExtension to true>>
+	<<set $adultShop.ban += 7>>
+	"아하! 너는 이미 출입금지 당했군,"이라고 <<He_ nun>> 말을 잇는다. "그들은 꽤 엄격한 금지 정책을 가지고 있으니까,
+	네가 이곳에서 쇼핑을 할 수 있게 되기까지는 상당한 시간이 걸리겠지."
+<<else>>
+	<<if $adultShop.banCount lt 4>>
+		<<set $adultShop.ban to 7>>
+	<<elseif $adultShop.banCount lt 8>>
+		<<set $adultShop.ban to 10>>
+	<<else>>
+		<<set $adultShop.ban to 14>>
+	<</if>>
+	"이제 됐어," <<He_ nun>> 말한다. "흠. 너는 당신은 이 시설에 꽤 오랫동안 들어올 수 없을거야. 
+	이것이 당신에게 교훈을 줄 수 있기를 바라도록 하지."
+<</if>>
+<br><br>
+"이제 나를 따라와, 나는 너를 여기서 데리고 나갈 거야. 내가 너를 바로 도시 구속대로 데려가지 않는 걸 행운으로 여기거라."
+
+<br><br>
+<<link [[도망친다|Adult Shop Night Guard Found Run]]>><</link>><<athleticsdifficulty 500>>
+<br>
+<<link [[경비원을 따라간다|Adult Shop Night Guard Found Follow]]>><</link>>
+
+:: Adult Shop Night Guard Found Run
+<<effects>>
+당신은 도망가서 숨어버리기로 결심한다.
+<<if $athleticsSuccess>>
+	<<combatperson_ un>> 당신을 제대로 잡으려고 시도하지만, 당신은 간신히 도망칠 정도로 <<him_ ul>> 피할 수 있었다. 
+	당신은 <<him_ i>> 멀리서 소리치는 것을 들으며 골목길을 달려간다.
+	<br><br>
+	<<link [[도망친다|Elk Street]]>><<adultShopClear>><</link>>
+<<else>>
+	하지만, <<combatperson_ ul>> 지나치기 전에, <<he_ nun>> 당신을 세게 잡아당겨 당신은 엉덩방아를 찧는다.
+	<br><br>
+	"나한테서 도망치려 했던 걸 후회하게 될 거야." <<he_ ga>> 얼굴에 미소를 지으며 말한다. "여기엔 카메라가 없거든."
+	<br><br>
+	<<link [[다음|Adult Shop Night Guard Molestation]]>><<set $molestationstart to 1>><</link>>
+<</if>>
+
+:: Adult Shop Night Guard Found Follow
+<<effects>>
+<<He_ nun>> 당신을 출구 쪽으로 안내한다.
+<<if random(0,100) gte 50>>
+	"그거 알고 있니?"라고 <<he_ ga>> 묻는다. "여기에는 카메라가 없단다."
+	<br><br>
+	당신은 <<he_ ga>> 당신을 붙잡기 직전에 걱정스러운 표정으로 <<him_ ul>> 바라본다.
+	<br><br>
+	<<link [[다음|Adult Shop Night Guard Molestation]]>><<set $molestationstart to 1>><</link>>
+<<else>>
+	침묵 속에서 길을 걸어가다가 엘크 가 모퉁이에 다다르자,
+	<<combatperson_ i>> 당신 쪽으로 돌아선다.
+	<br><br>
+	"이것이 네게 좋은 교훈이 되기를 바란다," <<He_ nun>> 웃으며, "돈을 벌 수 있는 좀 더 정직한 방법을
+	찾아야 해. 그런 식으로 모두에게 폐를 끼치지 마라." 라고 말한다.
+	<br><br>
+	<<He_ nun>> 당신이 떠날 때 가운데 손가락을 들어올린다.
+	<br><br>
+	<<link [[나간다|Elk Street]]>><<adultShopClear>><</link>>
+<</if>>
+
+:: Adult Shop Night Guard Molestation
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<set $enemytrust -= 40>>
+	<<set $enemyanger += 40>>
+	<<set $NPCList[0].lefthand to "arms">>
+	<<set $leftarm to "grappled">>
+	<<set $rightarm to "grappled">>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Adult Shop Night Guard Molestation Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Adult Shop Night Guard Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Adult Shop Night Guard Molestation Finish
+
+<<if $enemyhealth lte 0>>
+	당신은 도망칠 수 있을 정도로 <<him_ ul>> 다치게 했다. <<tearful>> 당신은 가게에서 도망친다.
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[도망친다|Elk Street]]>><<adultShopClear>><</link>>
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	"글쎄, 재미있었어,"라고 <<he_ ga>> 말한다. "하지만 이제 네가 떠날 때가 된 것 같아."
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[나간다|Elk Street]]>><<adultShopClear>><</link>>
+<</if>>
+
+:: Adult Shop Register
+
+<<set $outside to 0>><<effects>><<set $lock to 250>>
+금전 등록기는 카운터에 놓여 있다. 단단히 잠겨 있다.
+<br><br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<span class="green">자물쇠는 쉽게 열릴 것처럼 보인다.</span>
+	<br><br>
+	<<lockpickicon>><<link [[자물쇠를 딴다(0:10)|Adult Shop Register Sneak]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<br>
+<<else>>
+	<span class="red">그 자물쇠는 당신이 열 수 없을 것 같다.</span><<skulduggeryrequired>>
+	<br><br>
+<</if>>
+<<ind>><<link [[나간다|Adult Shop]]>><</link>>
+<br>
+
+:: Adult Shop Register Sneak
+
+<<set $outside to 0>><<effects>><<set $lock to 200>>
+<<set $weekly.theft.adultShop to true>>
+<<set $tip to random(4000, 10000)>>
+당신은 능숙하게 금전 등록기를 열고 안에 있는 돈을 세어 본다.
+거기에는 <<printmoney $tip>>만큼 돈이 있다.
+<br><br>
+<<if currentSkillValue('skulduggery') lt 300>>
+	<<skulduggeryskilluse>>
+<<else>>
+	<span class="blue">이렇게 간단한 자물쇠에서 배울 수 있는 것은 아무것도 없다.</span>
+<</if>>
+<br><br>
+<<if $rng gte 86>>
+	<<skulshopevents>>
+<<else>>
+	<<link [[가져간다|Adult Shop]]>><<set $money += $tip>><<crimeup `$tip / 100`>><</link>><<crime>>
+	<br>
+	<<link [[놓고 간다|Adult Shop]]>><</link>>
+	<br>
+<</if>>

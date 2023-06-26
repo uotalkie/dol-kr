@@ -1,28 +1,6 @@
-진행사항 정확하지 않습니다
+번역 진행사항
+https://docs.google.com/spreadsheets/d/1tbwI3bpl4ydUjKzEUPSX_rtcL2ng0j6PsJH0ri2OvCo/edit#gid=0
 
 
-#base-combat
-actions-hands.twee 매크로 필요	<<print $NPCList[0].lefttool>>	<<print $NPCList[0].righttool>>
-
-#base-system
-text.twee 부분번역
-bodywriting.twee 매크로 필요	<<print $NPCList[0].lefttool>>	<<print $NPCList[0].righttool>>
-rtaits.twee 번역 필요
-transformations.twee 번역 필요
-
-#oveworld-forest
-번역 필요
-
-#overworld-plains
-번역 필요
-
-#overworld-town
-loc-beach 번역 필요
-loc-bus 번역 필요
-loc-danube-haomes 번역 필요
-loc-docks 번역 필요
-loc-domus-homes 번역 필요
-loc-home 번역 필요
-
-업데이트 구간
-base-combat/actions-penis
+이미지 관련 (APK 빌드 관련)
+`version.git` 파일에 특정 sha1 commit id를 적어 특정 revision의 이미지를 가져옵니다. 빌드시 가져오는 이미지의 버전을 지정합니다.

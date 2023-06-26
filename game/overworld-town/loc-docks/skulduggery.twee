@@ -1,55 +1,55 @@
 :: Docks Sneak Start
-<<effects>><<set $lock to 400>>
 
-<<generate1>><<person1>>
+<<effects>><<set $lock to 400>>
+<<generateSecurity 1>><<person1>>
 You see a security guard at the gate, resting <<his>> feet on <<his>> desk and playing with <<his>> phone.
 <br><br>
-
 Despite <<his>> distraction, <<he>> would spot you if you approached. There's a smaller gate to the side, but it's padlocked shut.
-<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
 	<br><br>
-	<<link [[Break in (0:05)|Docks Sneak Pick]]>><<pass 5>><<crimeup 1>><<endevent>><</link>><<crime>>
+	<<link [[침입한다 (0:05)|Docks Sneak Pick]]>><<pass 5>><<crimeup 1>><<endevent>><</link>><<crime>>
 	<br>
 <<else>>
-	<span class="red">The lock looks beyond your ability to pick.</span>
+	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력 바깥의 물건이다.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
-
-<<link [[Leave|Docks]]>><<endevent>><<set $bus to "mer">><</link>>
+<<link [[떠난다|Docks]]>><<endevent>><<set $bus to "mer">><</link>>
 <br>
-
 
 
 :: Docks Sneak Pick
-<<effects>>
 
+<<effects>>
 You successfully pick the lock, and sneak into restricted area of the docks.
 <br><br>
-
-<<link [[Next|Docks Sneak]]>><</link>>
+<<link [[다음|Docks Sneak]]>><</link>>
 <br>
 
 
-
 :: Docks Sneak
+
 <<effects>>
 <<skul_dock_init>>
 You are on the docks.
 
 <<if $stress gte $stressmax>>
-	You've pushed yourself too much.
-	<br><br>
-	<<passout>>
-	<<set $danger to random(1, 10000)>>
-	<<if $danger gte (9900 - $allure)>>
-		<<link [[Next|Passout Docks]]>><</link>>
-		<br>
+	<<if isPlayerNonparasitePregnancyEnding()>>
+		<<pregnancyWatersBrokenPassout "docksSneak">>
 	<<else>>
-		<<ambulance>>
+		당신은 스스로를 너무 혹사시켰다.
+		<br><br>
+		<<passout>>
+		<<set $danger to random(1, 10000)>>
+		<<if $danger gte (9900 - $allure)>>
+			<<link [[다음|Passout Docks]]>><</link>>
+			<br>
+		<<else>>
+			<<ambulance>>
+		<</if>>
 	<</if>>
-<<elseif $daystate isnot "night">>
+<<elseif Time.dayState isnot "night">>
 	The sun appears over the horizon. You hear voices from the entrance, and a clank of metal. The first workers are arriving for the day.
 	<br><br>
 	<<pass 5>>
@@ -61,7 +61,8 @@ You are on the docks.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Docks]]>><<set $bus to "mer">><</link>><br>
+	<<link [[다음|Docks]]>><<set $bus to "mer">><</link>>
+	<br>
 <<elseif $eventskip is 0>>
 	<<events_skul_dock>>
 <<else>>
@@ -95,7 +96,7 @@ You are on the docks.
 		The containers here hold nothing of value to you.
 		<br><br>
 	<<else>>
-		<<link [[Break into the containers (0:30)|Docks Search]]>><<crimeup>><<dock_security 1>><</link>><<crime>><<gsecurity>><<skul_dock_state $bus>>
+		<<link [[Break into the containers (0:30)|Docks Search]]>><<crimeup 5>><<dock_security 1>><</link>><<crime>><<gsecurity>><<skul_dock_state $bus>>
 		<br>
 	<</if>>
 	<<skul_dock_nav>>
@@ -116,11 +117,11 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 <<if $skulduggery lt 500>>
 	<<skulduggeryskilluse>>
 <<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
+	<span class="blue">이렇게 간단한 자물쇠에서 배울 수 있는 것은 아무것도 없다.</span>
 <</if>>
 <br><br>
 
-<<set $rng to random(1, 6)>>
+<<rng 6>>
 <<if $rng is 1>>
 	You find lots of construction materials.
 <<elseif $rng is 2>>
@@ -145,7 +146,7 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 		You know there's gold here somewhere. You break into another. It's full of brown packages. You recognise them. You search among them, and then you find it. It's heavier than the others. You tear it open, and find the small bar of gold.
 		<br><br>
 		<<earnFeat "Employee Benefits">>
-		<<link [[Take it|Docks Gold]]>><<crimeup 3000>><<set $blackmoney += 3000>><</link>><<crime>>
+		<<link [[가져간다 (0:05)|Docks Gold]]>><<pass 5>><<crimeup 3000>><<set $blackmoney += 3000>><</link>><<crime>>
 		<br>
 	<<else>>
 		You keep searching, and come to a container full of brown packages.
@@ -167,7 +168,7 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 	<</if>>
 
 
-	<<link [[Take it|Docks Aphrodisiacs]]>><<crimeup 1200>><<set $blackmoney += 1200>><</link>><<crime>>
+	<<link [[가져간다 (0:05)|Docks Aphrodisiacs]]>><<pass 5>><<crimeup 1200>><<set $blackmoney += 1200>><</link>><<crime>>
 	<br>
 <<elseif $skul_dock[$bus].contents is "electronics">>
 	<<if $skul_dock[$bus].state is "known">>
@@ -178,10 +179,10 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 		<br><br>
 	<</if>>
 
-	<<link [[Take Them|Docks Electronics]]>><<crimeup 300>><<set $blackmoney += 300>><</link>><<crime>>
+	<<link [[Take them (0:05)|Docks Electronics]]>><<pass 5>><<crimeup 300>><<set $blackmoney += 300>><</link>><<crime>>
 	<br>
 <<elseif $skul_dock[$bus].contents is "fertiliser">>
-	<<if $tending gte 400>>
+	<<if currentSkillValue('tending') gte 400>>
 		<<if $skul_dock[$bus].state is "known">>
 			You know that one of these hold something you can actually carry. You break into another. The interior is loaded with fertiliser bags. While you know you can't carry much, you do know that having some on hand may be useful to you.
 			<br><br>
@@ -189,7 +190,7 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 			You search another. The interior is loaded with bags of fertiliser. While you know you can't carry much, having some on hand might be useful.
 			<br><br>
 		<</if>>
-		<<link [[Take Some|Docks fertiliser]]>><<crimeup 200>><<set $fertiliser.current++>><</link>><<crime>>
+		<<link [[Take some (0:05)|Docks fertiliser]]>><<pass 5>><<crimeup 200>><<set $fertiliser.current++>><</link>><<crime>>
 	<<else>>
 		You search another. The interior is loaded with bags of what looks like dirt filled inside.
 		<br><br>
@@ -203,10 +204,10 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 		You search another. The interior is full of crates stamped with a pink symbol. The light catches on something in the back. A black catsuit.
 		<br><br>
 	<</if>>
-	
-	<<link [[Next|Docks Catsuit]]>><</link>>
+
+	<<link [[다음|Docks Catsuit]]>><</link>>
 	<br>
-	
+
 
 <<else>>
 	You open the final container. It's empty.
@@ -214,7 +215,7 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 <</if>>
 
 
-<<link [[Leave|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[떠난다|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 <<set $skul_dock[$bus].state to "empty">>
@@ -226,7 +227,7 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 You pocket the gold, and leave the container. It'll be worth a lot on the black market.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks Gold Careful
@@ -239,9 +240,9 @@ You open it, just enough to peek inside. A yellow glint greets you. It's a small
 <br><br>
 
 
-<<link [[Take it|Docks Gold]]>><<crimeup 3000>><<set $blackmoney += 3000>><</link>><<crime>>
+<<link [[가져간다|Docks Gold]]>><<crimeup 3000>><<set $blackmoney += 3000>><</link>><<crime>>
 <br>
-<<link [[Leave it|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[놔둔다|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks Gold Tear
@@ -253,9 +254,9 @@ You tear into the first package. Cheap toys. You tear into the next, and the nex
 You open a heavy parcel. The contents clatter to the floor. It's a small bar of gold.
 <br><br>
 
-<<link [[Take it|Docks Gold]]>><<crimeup 3000>><<set $blackmoney += 3000>><</link>><<crime>>
+<<link [[가져간다|Docks Gold]]>><<crimeup 3000>><<set $blackmoney += 3000>><</link>><<crime>>
 <br>
-<<link [[Leave it|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[놔둔다|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks Aphrodisiacs
@@ -264,7 +265,7 @@ You open a heavy parcel. The contents clatter to the floor. It's a small bar of 
 You take the strange fluid, and leave the container.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks Electronics
@@ -273,7 +274,7 @@ You take the strange fluid, and leave the container.
 You snatch all the phones, cameras, and other smaller devices, and leave the container.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks fertiliser
@@ -282,7 +283,7 @@ You snatch all the phones, cameras, and other smaller devices, and leave the con
 You grab a bag of fertiliser, and leave the container.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks Catsuit
@@ -290,7 +291,7 @@ You grab a bag of fertiliser, and leave the container.
 
 
 <<npc Wren>><<person1>>
-<<if $wren_seen is "cards">>
+<<if $wren_seen is "cards" or $wren_seen is "letter" or $wren_seen is "catsuit">>
 	You hear a click, <span class="red">and the end of a pistol emerges from the dark.</span> A <<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair follows. <span class="gold">It's Wren.</span> "Not who I was expecting," <<he>> says, lowering <<his>> gun. <<covered>>
 	<br><br>
 	<<if $exposed gte 1>>
@@ -299,10 +300,29 @@ You grab a bag of fertiliser, and leave the container.
 		"And here I thought you were just some <<girl>> in over <<pher>> head," <<he>> says. "Or did Bailey send you? Either way, I won't interfere." <<He>> points <<his>> gun at the black catsuit. "Should fit."
 	<</if>>
 	<br><br>
-	
+
 	"Hope you visit the estate soon," <<he>> says as <<he>> brushes past you. "Work keeps me busy, and it's good to let my hair down."
 	<br><br>
-	
+
+	<<if isPubfameTaskAccepted("wren")>>
+		You remember Mickey's favour. You have a letter to give to Wren. <<Hes>> already starting to walk away.
+	<<else>>
+		<<He>> disappears into the night. You turn back to the catsuit.
+	<</if>>
+	<br><br>
+<<elseif $wren_seen is "prison">>
+	You hear a click, <span class="red">and the end of a pistol emerges from the dark.</span> A <<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair follows. <span class="gold">It's Wren.</span> "Not who I was expecting," <<he>> says, lowering <<his>> gun. <<covered>>
+	<br><br>
+	<<if $exposed gte 1>>
+		<<He>> laughs. "I'm afraid I have nothing for sale, but you're in the right place." <<He>> points <<his>> gun at the black catsuit. "Should fit you."
+	<<else>>
+		"I'm shocked prison didn't reform you. Shocked." <<He>> points <<his>> gun at the black catsuit. "Should fit."
+	<</if>>
+	<br><br>
+
+	"Hope you stay a step ahead of them," <<he>> says as <<he>> brushes past you. "Work keeps me busy, but I look forward to meeting again."
+	<br><br>
+
 	<<He>> disappears into the night. You turn back to the catsuit.
 	<br><br>
 <<else>>
@@ -314,21 +334,63 @@ You grab a bag of fertiliser, and leave the container.
 		"Thought I knew all the rats in town," <<he>> says. "I won't stop you." <<He>> points <<his>> gun at the black catsuit. "Should fit."
 	<</if>>
 	<br><br>
-	
+
 	<span class="gold">"The name's Wren,"</span> <<he>> says as <<he>> brushes past you. "Work keeps me busy, but maybe we'll meet again."
 	<br><br>
-	
-	<<He>> disappears into the night. You turn back to the catsuit.
+
+	<<if isPubfameTaskAccepted("wren")>>
+		You remember Mickey's favour. You have a letter to give to a <<personsimple>> called Wren, and this must be <<him>>. <<Hes>> already starting to walk away.
+	<<else>>
+		<<He>> disappears into the night. You turn back to the catsuit.
+	<</if>>
 	<br><br>
 <</if>>
 
-<<endevent>>
+<<if isPubfameTaskAccepted("wren")>>
+	<<link [[Give Wren the letter|Docks Catsuit Letter]]>><</link>>
+	<br>
+<</if>>
+<<link [[Wear the catsuit|Docks Catsuit Wear]]>><<endevent>><<set $wren_seen to "catsuit">><</link>>
+<br>
+<<link [[Take the catsuit|Docks Catsuit Take]]>><<endevent>><<set $wren_seen to "catsuit">><</link>>
 
-<<set $wren_seen to "catsuit">>
-<<link [[Wear it|Docks Catsuit Wear]]>><</link>>
+:: Docks Catsuit Letter
+<<effects>>
+<<set $wren_seen to "letter">>
+
+You call out for Wren to stop. <<He>> turns and looks at you with a curious smile. "Well, what is it?"
+<br><br>
+
+<<if $submissive gte 1150>>
+	"Th-this is from the old man," you say, holding the Manila envelope to <<him>>.
+<<elseif $submissive lte 850>>
+	"The old man sent me," you say, holding the Manila envelope to <<him>>. "Here."
+<<else>>
+	"The old man told me to give this to you," you say, holding the Manila envelope to <<him>>.
+<</if>>
+<br><br>
+
+Wren plucks the letter from your hand, examines it from both sides and smirks. "Been waiting on that. Wonder what they've got for me this time."
+
+<<if !$pubfame.seen.includes("wrenOldman")>>
+	<<set $pubfame.seen.pushUnique("wrenOldman")>><<set $pubfame.detail to "wrenOldman">>
+	<<He>> tucks it away, and places a hand on your shoulder. "By the way, 'Mickey' can drop the 'old man' act. Tell them that when you see them."
+
+<<elseif !$pubfame.seen.includes("wrenLandry")>>
+	<<set $pubfame.seen.pushUnique("wrenLandry")>><<set $pubfame.detail to "wrenLandry">>
+	<<He>> tucks it away, and places a hand on your shoulder. "You mind asking 'Mickey' why they sent you instead of Landry? Seems like they're going a bit out of their way."
+<<else>>
+	<<He>> tucks it away.
+<</if>>
+<br><br>
+
+<<pubfameComplete "wren">>
+<<He>> disappears into the night. You turn back to the catsuit.
+<br><br>
+
+<<link [[Wear the catsuit|Docks Catsuit Wear]]>><<endevent>><</link>>
 <br>
-<<link [[Take it|Docks Catsuit Take]]>><</link>>
-<br>
+<<link [[Take the catsuit|Docks Catsuit Take]]>><<endevent>><</link>>
 
 :: Docks Catsuit Wear
 <<effects>>
@@ -342,7 +404,7 @@ It's tight, but you pull on the catsuit. It hugs your skin, and shows off your f
 <i>You'll leave fewer traces of yourself while wearing the catsuit. Crime will increase more slowly.</i>
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 
@@ -358,7 +420,7 @@ You take the catsuit. It might be handy later.
 <i>You'll leave fewer traces of yourself while wearing the catsuit. Crime will increase more slowly.</i>
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 
@@ -374,14 +436,9 @@ You try to break into one of the cargo containers.
 	<span class="green">You manage to pick the padlock</span> just in time. You close it behind you, and wait for the sound of footsteps to pass.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
-	<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 
 <<else>>
@@ -389,18 +446,13 @@ You try to break into one of the cargo containers.
 	<span class="red">You're still fumbling,</span> when a <<person>> walks around the corner. <<He>> drops the torch in surprise, and reaches for <<his>> radio. You turn and run.<<gsecurity>><<dock_security 1>>
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 	<<athleticsdifficulty 1 1100 true>>
 	<<if $athleticsSuccess>>
 		The guard chases after you, <span class="green">but you manage to outpace <<him>>.</span><<gtiredness>><<gstress>><<stress 6>><<tiredness 6>>
 		<br><br>
 
-		<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<br>
 	<<else>>
 		The guard chases after you, <span class="red">and gains ground,</span> until <<he>> manages to tackle you to the floor.<<gpain>><<gstress>><<pain 4>><<stress 6>>
@@ -409,7 +461,7 @@ You try to break into one of the cargo containers.
 		"Gotcha," <<he>> says, pinning you. "Backup will be here soon." <<He>> leans closer. "But first, how's about a little fun?"
 		<br><br>
 
-		<<link [[Next|Docks Sneak Rape]]>><<set $molestationstart to 1>><</link>>
+		<<link [[다음|Docks Sneak Rape]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<</if>>
 
@@ -425,7 +477,7 @@ You turn and run. You've almost made it around the corner when you hear a <<pers
 "Stop!" <<he>> shouts. You glance back. The <<person>> reaches for a radio, <<his>> torch discarded, as <<he>> runs after you. You have enough of a lead, and manage to lose <<him>> in the maze of containers.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
 
 
@@ -437,38 +489,31 @@ You turn and run. You've almost made it around the corner when you hear a <<pers
 You squeeze between two containers, and escape to the other side.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks Sneak Rape
-<<effects>>
-
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-
-
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
+<<effectsman>>
+<<man>>
 
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Docks Sneak Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Docks Sneak Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Docks Sneak Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Docks Sneak Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Docks Sneak Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Docks Sneak Rape Finish
@@ -479,7 +524,7 @@ You squeeze between two containers, and escape to the other side.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<br><br>
+
 	The guard is right. Two others, a <<generate1>><<person1>><<person>> and <<generate2>><<person2>><<person>>, walk around the corner.
 	<<if $exposed gte 1>>
 		You feel them ogle your <<nudity>>. <<covered>>
@@ -490,7 +535,7 @@ You squeeze between two containers, and escape to the other side.
 
 	"A scoundrel by the looks of it," the <<person2>><<person>> replies, grasping your other. Together they pull you towards the entrance.
 	<br><br>
-	<<link [[Next|Docks Caught]]>><</link>>
+	<<link [[다음|Docks Caught]]>><</link>>
 	<br>
 
 <<else>>
@@ -500,7 +545,7 @@ You squeeze between two containers, and escape to the other side.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 
 <</if>>
@@ -516,17 +561,17 @@ You're sat in the guardhouse beside the front gate. The <<person1>><<person>> wa
 	"Is that so?" <<he>> says. "Alright. We'll keep <<phim>> here." <<He>> hangs up. "Looks like there's a warrant out for your arrest. You've been a naughty <<girl>>."
 	<br><br>
 
-	<<link [[Wait (0:10)|Docks Caught Wait]]>><<pass 10>><</link>>
+	<<link [[기다린다 (0:10)|Docks Caught Wait]]>><<pass 10>><</link>>
 	<br>
-	<<link [[Run for it|Docks Caught Run]]>><<crimeup 100>><</link>><<athleticsdifficulty 600 1200>><<crime>>
+	<<link [[Run for it (0:02)|Docks Caught Run]]>><<pass 2>><<crimeup 100>><</link>><<athleticsdifficulty 600 1200>><<crime>>
 	<br>
 <<elseif $crime gte 1000>>
 	"Is that so?" <<he>> says. "Alright. We'll keep <<phim>> here." <<He>> hangs up. "Looks like there's a warrant out for your arrest. From the sounds of it, you've been a bit of a nuisance."
 	<br><br>
 
-	<<link [[Wait (0:10)|Docks Caught Wait]]>><<pass 10>><</link>>
+	<<link [[기다린다 (0:10)|Docks Caught Wait]]>><<pass 10>><</link>>
 	<br>
-	<<link [[Run for it|Docks Caught Run]]>><<crimeup 100>><</link>><<athleticsdifficulty 600 1200>><<crime>>
+	<<link [[Run for it (0:02)|Docks Caught Run]]>><<pass 2>><<crimeup 100>><</link>><<athleticsdifficulty 600 1200>><<crime>>
 	<br>
 <<else>>
 	"Right," <<he>> says. "Alright." <<He>> hangs up. "Looks like you're not worth the trouble. Lucky you."
@@ -541,7 +586,7 @@ You're sat in the guardhouse beside the front gate. The <<person1>><<person>> wa
 	<br><br>
 	<<endcombat>>
 
-	<<link [[Next|Docks]]>><</link>>
+	<<link [[다음|Docks]]>><</link>>
 	<br>
 <</if>>
 
@@ -559,7 +604,7 @@ You're sat in the guardhouse beside the front gate. The <<person1>><<person>> wa
 "It's them," the <<person2>><<person>> says, pulling you to your feet. "Hope they don't go too easy on you." You're pushed outside, where two police officers wait.
 <br><br>
 
-<<link [[Next|Hospital Arrest Journey]]>><<endcombat>><<generate1>><<generate2>><<person1>><</link>>
+<<link [[다음|Hospital Arrest Journey]]>><<endcombat>><<generatePolice 1>><<generatePolice 2>><<person1>><</link>>
 <br>
 
 
@@ -571,7 +616,7 @@ You jump from your seat, and run for the door.
 	The <<person1>><<person>> tries to grab you, <span class="green">but you're too quick.</span> You escape the guardhouse. Security gives chase, but you lose them in the maze of cargo containers.
 	<br><br>
 
-	<<link [[Next|Docks Sneak]]>><<endcombat>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<endcombat>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
 	The <<person1>><<person>> tries to grab you, <span class="red">and manages to catch your waist with <<his>> arm.</span> <<He>> and the <<person2>><<person>> make sure you can't run again.
@@ -587,7 +632,7 @@ You jump from your seat, and run for the door.
 	"It's them," the <<person2>><<person>> says, pulling you to your feet. "Hope they don't go too easy on you." You're pushed outside, where two police officers wait.
 	<br><br>
 
-	<<link [[Next|Hospital Arrest Journey]]>><<endcombat>><<generate1>><<generate2>><<person1>><</link>>
+	<<link [[다음|Hospital Arrest Journey]]>><<endcombat>><<generatePolice 1>><<generatePolice 2>><<person1>><</link>>
 	<br>
 <</if>>
 
@@ -615,7 +660,7 @@ You remove your
 	$worn.under_lower.name
 	<<underlowerruined>>
 <</if>>
-and hurl the fabric atop a two story stack of cargo containers.
+and hurl the fabric atop a two storey stack of cargo containers.
 <br><br>
 
 <<generate1>><<person1>>
@@ -640,7 +685,7 @@ You run before the
 That should keep them distracted.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
+<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
 <br>
 
 
@@ -656,29 +701,34 @@ You wait around the corner, listening for the patter of feet.
 	<br><br>
 
 	<!-- Modified for Beast People -->
-		<<link [[Next|Docks Dog]]>><<set $molestationstart to 1>><</link>>
+	<<if $monster is 1 or $bestialitydisable is "f">>
+		<<link [[다음|Docks Dog]]>><<set $molestationstart to 1>><</link>>
 		<br>
-		<!-- <<beastescape>>
+	<<else>>
+		<<beastescape>>
 		It's a struggle, but you manage to cow her into rolling onto her back in submission, and escape before help arrives. That should keep them off your trail for now.
 		<br><br>
 
-		<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
-		<br> -->
+		<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
+		<br>
+	<</if>>
 <<elseif $dock_dog is "boy">>
 	The dogboy should arrive soon. You'll need to subdue him before help arrives.
 	<br><br>
 	You pounce as soon as he appears. "Intruder!" he shouts.
 	<br><br>
-
 	<!-- Modified for Beast People -->
-		<<link [[Next|Docks Dog]]>><<set $molestationstart to 1>><</link>>
+	<<if $monster is 1 or $bestialitydisable is "f">>
+		<<link [[다음|Docks Dog]]>><<set $molestationstart to 1>><</link>>
 		<br>
-		<!-- <<beastescape>>
+	<<else>>
+		<<beastescape>>
 		It's a struggle, but you manage to cow him into rolling onto his back in submission, and escape before help arrives. That should keep them off your trail for now.
 		<br><br>
 
-		<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
-		<br> -->
+		<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
+		<br>
+	<</if>>
 <<else>>
 	The dog should arrive soon. You'll need to subdue it before help arrives.
 	<br><br>
@@ -687,14 +737,14 @@ You wait around the corner, listening for the patter of feet.
 	<br><br>
 
 	<<if $bestialitydisable is "f">>
-		<<link [[Next|Docks Dog]]>><<set $molestationstart to 1>><</link>>
+		<<link [[다음|Docks Dog]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
 		<<beastescape>>
 		It's a struggle, but you manage to cow it into rolling onto its back in submission, and escape before help arrives. That should keep them off your trail for now.
 		<br><br>
 
-		<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
+		<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -733,19 +783,14 @@ You wait around the corner, listening for the patter of feet.
 <br><br>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Docks Dog Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Docks Dog Finish]]>><</link>></span><<nexttext>>
-<<elseif $timer lte 0>>
-	<span id="next"><<link [[Next|Docks Dog Finish]]>><</link>></span><<nexttext>>
+<<if _combatend or $timer lte 0>>
+	<span id="next"><<link [[다음|Docks Dog Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Docks Dog]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Docks Dog Finish
@@ -761,7 +806,7 @@ You wait around the corner, listening for the patter of feet.
 		<br><br>
 
 		<<endcombat>>
-		<<link [[Next|Docks Knot]]>><</link>>
+		<<link [[다음|Docks Knot]]>><</link>>
 		<br>
 	<<else>>
 		The <<if $dock_dog is "girl">>doggirl<<elseif $dock_dog is "boy">>dogboy<<else>>dog<</if>> lies panting on the ground. That should keep them off your trail for a while.
@@ -773,7 +818,7 @@ You wait around the corner, listening for the patter of feet.
 		<<clotheson>>
 		<<endcombat>>
 
-		<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
+		<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
 		<br>
 	<</if>>
 <<elseif $enemyhealth lte 0>>
@@ -781,13 +826,13 @@ You wait around the corner, listening for the patter of feet.
 	The <<if $dock_dog is "girl">>doggirl rolls onto her back in submission<<elseif $dock_dog is "boy">>dogboy rolls onto his back in submission.<<else>>dog rolls onto its back in submission.<</if>>
 	<br><br>
 
-	<<tearful>> you gather yourself.
+	<<tearful>> 당신은 마음을 가다듬는다.
 	<br><br>
 
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><<unset $dock_dog>><</link>>
 	<br>
 
 <<else>>
@@ -805,12 +850,12 @@ You wait around the corner, listening for the patter of feet.
 		<br><br>
 
 		<<if $submissive gte 1500>>
-			<<link [[Beg|Docks Beg]]>><</link>><<submissivetext>>
+			<<link [[Beg|Docks Beg]]>><<sub 1>><</link>><<submissivetext>>
 			<br>
 		<</if>>
 		<<link [[Plead|Docks Plead]]>><</link>>
 		<br>
-		<<link [[Remain silent|Docks Silent]]>><</link>>
+		<<link [[침묵한다|Docks Silent]]>><</link>>
 		<br>
 	<<else>>
 		<<He>> shines a torch on you, and laughs.
@@ -833,7 +878,7 @@ You wait around the corner, listening for the patter of feet.
 			You feel them ogle your <<nudity>>. <<covered>>
 		<</if>>
 		<br><br>
-		<<link [[Next|Docks Caught]]>><<clotheson>><<unset $dock_dog>><</link>>
+		<<link [[다음|Docks Caught]]>><<clotheson>><<unset $dock_dog>><</link>>
 		<br>
 	<</if>>
 
@@ -855,19 +900,19 @@ The <<person1>><<person>> reaches for his radio. "Yeah," <<he>> says. "I got the
 <br><br>
 
 <<if $submissive gte 1500>>
-	<<link [[Beg|Docks Beg]]>><<unset $dock_knot>><</link>>
+	<<link [[Beg|Docks Beg]]>><<sub 1>><<unset $dock_knot>><</link>>
 	<br>
 <</if>>
 <<link [[Plead|Docks Plead]]>><</link>>
 <br>
-<<link [[Remain silent|Docks Silent]]>><</link>>
+<<link [[침묵한다|Docks Silent]]>><</link>>
 <br>
 
 
 :: Docks Beg
 <<effects>>
 
-"Pl-pl-please help me," you whimper. "I didn't mean to be bad. I just got lost. I-I-I don't want want more people to see me."
+"P-please help me," you whimper. "I didn't mean to be bad. I just got lost. I-I-I don't want more people to see me."
 <br><br>
 
 The <<person1>><<person>> hesitates, then reaches for <<his>> radio once more. "Me again. False alarm. I got the intruder, but you don't need to bring anyone else. Alright." <<He>> sighs as <<he>>
@@ -891,7 +936,7 @@ They grasp your arms, haul you to your feet, and drag you through the maze of co
 	You feel them ogle your <<nudity>>. <<covered>>
 <</if>>
 <br><br>
-<<link [[Next|Docks Caught]]>><<clotheson>><<unset $dock_dog>><</link>>
+<<link [[다음|Docks Caught]]>><<clotheson>><<unset $dock_dog>><</link>>
 <br>
 
 
@@ -900,7 +945,7 @@ They grasp your arms, haul you to your feet, and drag you through the maze of co
 <<effects>>
 
 <<if $submissive gte 1150>>
-	"Pl-please help me," you say.
+	"P-please help me," you say.
 <<elseif $submissive lte 850>>
 	"Get this thing off me," you say. "At once."
 <<else>>
@@ -911,7 +956,7 @@ They grasp your arms, haul you to your feet, and drag you through the maze of co
 The <<person1>><<person>> laughs. "Sure," <<he>> reaches into <<his>> pocket. "Once I have backup." <<He>> pulls out <<his>> phone. "And proper evidence of your trespassing."
 <br><br>
 
-<<link [[Next|Docks Watch]]>><</link>>
+<<link [[다음|Docks Watch]]>><</link>>
 <br>
 
 
@@ -922,7 +967,7 @@ The <<person1>><<person>> laughs. "Sure," <<he>> reaches into <<his>> pocket. "O
 You remain silent as the <<person1>><<person>> reaches into <<his>> pocket, and pulls out <<his>> phone.
 <br><br>
 
-<<link [[Next|Docks Watch]]>><</link>>
+<<link [[다음|Docks Watch]]>><</link>>
 <br>
 
 
@@ -948,7 +993,7 @@ More phones emerge from pockets as they continue to make degrading comments.
 
 <<if $dock_knot is true>>
 	<<unset $dock_knot>>
-	At last, the knot deflates enough for the
+	At last, the knot shrinks enough for the
 	<<if $dock_dog is "girl">>
 		doggirl to wiggle free. The audience cheer, but they're not finished. They goad and encourage her to mount you again. It works. The doggirl leaps atop you once more.
 		<br><br>
@@ -971,7 +1016,7 @@ More phones emerge from pockets as they continue to make degrading comments.
 <</if>>
 
 <<endevent>>
-<<link [[Next|Docks Watch Dog]]>><<set $molestationstart to 1>><</link>>
+<<link [[다음|Docks Watch Dog]]>><<set $molestationstart to 1>><</link>>
 <br>
 
 :: Docks Watch Dog
@@ -1008,21 +1053,16 @@ More phones emerge from pockets as they continue to make degrading comments.
 <br><br>
 <<beast $enemyno>>
 <br><br>
-
 <<audience>>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Docks Watch Dog Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Docks Watch Dog Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Docks Watch Dog Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Docks Watch Dog]]>><</link>></span><<nexttext>>
 <</if>>
-
 
 :: Docks Watch Dog Finish
 <<effects>>
@@ -1047,14 +1087,14 @@ More phones emerge from pockets as they continue to make degrading comments.
 
 <<endcombat>>
 
-<<generate1>><<generate2>><<person1>>
-A <<person>> and <<person2>><<person>> grasp your arms, and haul you to your feet.
+<<generate1>><<generate2>>
+A <<fullGroup>> grasp your arms, and haul you to your feet.
 <<if $exposed gte 1>>
 	<<covered>>
 <</if>>
 They drag you into the maze of containers, leaving the audience to examine their footage.
 <br><br>
-<<link [[Next|Docks Caught]]>><<clotheson>><<unset $dock_dog>><</link>>
+<<link [[다음|Docks Caught]]>><<clotheson>><<unset $dock_dog>><</link>>
 <br>
 
 
@@ -1064,7 +1104,7 @@ They drag you into the maze of containers, leaving the audience to examine their
 You manage to break your fall, but your hands are left a bit sore.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
 
@@ -1076,13 +1116,13 @@ You try to recover your balance,
 	<span class="green">and manage to stay upright.</span>
 	<br><br>
 
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
 	<span class="red">but lose your footing.</span> The momentum carries you into one of the cargo containers. You bounce off with a clang.<<gsecurity>><<ggpain>><<gstress>><<dock_security 1>><<pain 8>><<stress 6>>
 	<br><br>
 
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 <</if>>
 
@@ -1096,7 +1136,7 @@ You walk to the edge of the <<if $bus is "N">>ship<<else>>dock<</if>>, take a de
 They won't follow you here.
 <br><br>
 
-<<link [[Next|Sea Docks]]>><</link>>
+<<link [[다음|Sea Docks]]>><</link>>
 <br>
 
 :: Docks Find
@@ -1105,7 +1145,7 @@ They won't follow you here.
 You find another way through the maze of cargo containers.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
+<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
 
 
@@ -1113,11 +1153,11 @@ You find another way through the maze of cargo containers.
 <<effects>>
 
 
-You see the pair up ahead, a <<person1>><<person>> and <<person2>><<person>>. You keep low and dart between containers when they look away.
+You see the pair up ahead, a <<fullGroup>>. You keep low and dart between containers when they look away.
 <br><br>
 
 
-<<set $rng to random(1, 5)>>
+<<rng 5>>
 <<if $rng is 1>>
 	"...smells sweet," the <<person1>><<person>> says. "Whatever it is."
 	<br>
@@ -1138,7 +1178,7 @@ You see the pair up ahead, a <<person1>><<person>> and <<person2>><<person>>. Yo
 <<elseif $rng is 4>>
 	"Glad to work away from the compound," the <<person1>><<person>> says.
 	<br>
-	The <<person2>><<person>> nods. "Don't care what the company line is," <<he>> says. "Those fume make me lightheaded."
+	The <<person2>><<person>> nods. "Don't care what the company line is," <<he>> says. "Those fumes make me lightheaded."
 	<br><br>
 <<else>>
 	They remain silent.
@@ -1154,14 +1194,9 @@ You see the pair up ahead, a <<person1>><<person>> and <<person2>><<person>>. Yo
 	You sneak past them, and continue through the maze of containers.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
-	<<link [[Next|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 
 <<else>>
@@ -1169,16 +1204,11 @@ You see the pair up ahead, a <<person1>><<person>> and <<person2>><<person>>. Yo
 	You hear a crunch underfoot. The guards swivel to face you as their torches light you up. "You'd best come quietly," the <<person1>><<person>> says, taking a step forward.<<gsecurity>><<dock_security 1>>
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
-	<<link [[Go Quietly|Docks Quiet]]>><</link>>
+	<<link [[얌전히 간다|Docks Quiet]]>><</link>>
 	<br>
-	<<link [[Fight|Docks Fight]]>><<set $fightstart to 1>><</link>>
+	<<link [[싸운다|Docks Fight]]>><<set $fightstart to 1>><</link>>
 	<br>
 
 
@@ -1192,7 +1222,7 @@ You see the pair up ahead, a <<person1>><<person>> and <<person2>><<person>>. Yo
 You remain still as the pair approach. They grasp your arms, and pull you towards the entrance.
 <br><br>
 
-<<link [[Next|Docks Caught]]>><</link>>
+<<link [[다음|Docks Caught]]>><</link>>
 <br>
 
 
@@ -1200,9 +1230,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 :: Docks Fight
 <<if $fightstart is 1>>
 	<<set $fightstart to 0>>
-
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust -= 100>>
 	<<set $enemyanger += 200>>
@@ -1213,20 +1241,16 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 <</if>>
 
 <<effects>>
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Docks Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Docks Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $pain gte 100 and $willpowerpain is 0>>
-	<span id="next"><<link [[Next|Docks Fight Finish]]>><</link>></span><<nexttext>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[다음|Docks Fight Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Docks Fight]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Docks Fight]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Docks Fight Finish
@@ -1237,7 +1261,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 
 <<elseif $enemyhealth lte 0>>
@@ -1245,7 +1269,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 
 <<else>>
@@ -1253,7 +1277,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 	<br><br>
 	The guards grasp your arms, and haul you to your feet. <<tearful>> you're led through the maze of cargo containers.
 	<br><br>
-	<<link [[Next|Docks Caught]]>><<clotheson>><</link>>
+	<<link [[다음|Docks Caught]]>><<clotheson>><</link>>
 	<br>
 <</if>>
 
@@ -1265,7 +1289,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 	You jump out of the way. <span class="green">The arms grope empty air.</span> An alarm blares, but you escape into the maze of containers.<<gsecurity>><<dock_security 1>>
 	<br><br>
 
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
 	You try to move out of the way, <span class="red">but the metal closes around your wrists,</span> and forces you to the ground as an alarm blares.<<gsecurity>><<dock_security 1>>
@@ -1274,7 +1298,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 	Another hatch opens, and a phallic instrument springs forth.
 	<br><br>
 
-	<<link [[Next|Docks Machine]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Docks Machine]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -1285,7 +1309,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 	The metal arms grasp your wrists, and try to force you to the ground. You resist, <span class="green">and pull free from their grip.</span> An alarm blares, but you escape into the maze of containers.<<gsecurity>><<dock_security 1>>
 	<br><br>
 
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
 	The metal grasps your wrists. You resist, <span class="red">but the machine is too strong.</span> It forces you to the ground as an alarm blares.<<gsecurity>><<dock_security 1>>
@@ -1294,7 +1318,7 @@ You remain still as the pair approach. They grasp your arms, and pull you toward
 	Another hatch opens, and a phallic instrument springs forth.
 	<br><br>
 
-	<<link [[Next|Docks Machine]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Docks Machine]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -1306,7 +1330,7 @@ You brace as the machine grasps your wrists, and forces you to the ground. "SUBJ
 
 <<generate1>><<generate2>><<person1>>
 
-You don't need to wait long. A <<person>> and <<person2>><<person>> round the corner, and smirk when they see you.
+You don't need to wait long. A <<fullGroup>> round the corner, and smirk when they see you.
 
 <<if $exposed gte 1>>
 	You feel their eyes on your <<nudity>>.
@@ -1319,7 +1343,7 @@ You don't need to wait long. A <<person>> and <<person2>><<person>> round the co
 They push you towards the entrance.
 <br><br>
 
-<<link [[Next|Docks Caught]]>><</link>>
+<<link [[다음|Docks Caught]]>><</link>>
 <br>
 
 :: Docks Machine
@@ -1330,10 +1354,10 @@ They push you towards the entrance.
 	<<neutral 1>>
 
 	<<set $machine_health to 10>><<set $machine_ammo to 8>>
-	<<if $vaginaexist is 1 and $analdisable is "f">>
+	<<if $player.vaginaExist and $analdisable is "f">>
 		<<machine_init vaginal arm_chains>>
 		<<set $machine.vaginal.armed to 1>>
-	<<elseif $vaginaexist is 1>>
+	<<elseif $player.vaginaExist>>
 		<<machine_init vaginal arm_chains>>
 		<<set $machine.vaginal.armed to 1>>
 	<<else>>
@@ -1364,9 +1388,9 @@ They push you towards the entrance.
 <<machine_actions>>
 
 <<if $machine.number lte 0 or $finish is 1 or $timer lte 0>>
-	<<link [[Next|Docks Machine End]]>><</link>>
+	<span id="next"><<link [[다음|Docks Machine End]]>><</link>></span><<nexttext>>
 <<else>>
-	<<link [[Next|Docks Machine]]>><</link>>
+	<span id="next"><<link [[다음|Docks Machine]]>><</link>></span><<nexttext>>
 <</if>>
 <br>
 
@@ -1378,8 +1402,8 @@ They push you towards the entrance.
 
 	<<if $anusfucked is 1 or $vaginafucked is 1 or $penisfucked is 1>>
 		<<machine_end>>
-		<<generate1>><<generate2>><<person1>>
-		You hear laughter. A <<person>> and <<person2>><<person>> in security uniforms stand to the side. You're not sure how long they were watching, but they don't seem in a hurry to intervene. They hold their phones, <span class="red">cameras pointed right at you.</span>
+		<<generate1>><<generate2>>
+		You hear laughter. A <<fullGroup>> in security uniforms stand to the side. You're not sure how long they were watching, but they don't seem in a hurry to intervene. They hold their phones, <span class="red">cameras pointed right at you.</span>
 		<br><br>
 		<<famesex 20>>
 
@@ -1392,9 +1416,9 @@ They push you towards the entrance.
 
 	<<else>>
 		<<machine_end>>
-		<<generate1>><<generate2>><<person1>>
+		<<generate1>><<generate2>>
 
-		A <<person1>><<person>> and <<person2>><<person>> in security uniforms arrive. The <<person1>><<person>> smirks, and crouches beside the hatch. <<He>> reaches in, you hear a click, and the machine falls inert.
+		A <<fullGroup>> in security uniforms arrive. The <<person1>><<person>> smirks, and crouches beside the hatch. <<He>> reaches in, you hear a click, and the machine falls inert.
 		<br><br>
 
 		The <<person2>><<person>> is on you before you have a chance to recover, grasping your arms and pulling you to your feet.
@@ -1402,7 +1426,7 @@ They push you towards the entrance.
 	<</if>>
 	They push you towards the entrance.
 	<br><br>
-	<<link [[Next|Docks Caught]]>><<clotheson>><</link>>
+	<<link [[다음|Docks Caught]]>><<clotheson>><</link>>
 	<br>
 <<else>>
 
@@ -1412,7 +1436,7 @@ They push you towards the entrance.
 	<<machine_end>>
 	<<clotheson>>
 
-	<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 	<br>
 
 <</if>>

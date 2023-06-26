@@ -1,240 +1,88 @@
 :: Widgets managePill [widget]
 <<widget "managePill">>
-<<if $args[0] and $args[1] and $args[2]>>
-	<<if $args[3] isnot true or $sexStats.pills[$args[0]].owned[$args[1]] gt 0>>
-		<<set $sexStats.pills[$args[0]].owned[$args[1]] += $args[2]>>
-		<<if $args[3] is true>>
-			<<set $sexStats.pills[$args[0]].type to $args[1]>>
-			<<set $sexStats.pills[$args[0]].doseTaken++>>
+	<<if _args[0] and _args[1] and _args[2]>>
+		<<if _args[3] isnot true or $sexStats.pills[_args[0]].owned[_args[1]] gt 0>>
+			<<set $sexStats.pills[_args[0]].owned[_args[1]] += _args[2]>>
+			<<if _args[3] is true>>
+				<<set $sexStats.pills[_args[0]].type to _args[1]>>
+				<<set $sexStats.pills[_args[0]].doseTaken++>>
+				<<set $pillsconsumed++>>
+			<</if>>
 		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
+
+:: Take Pill From Medicine Drawer
+<<print $lastPillTakenDescription>>
+<br><br><br>
+<<link [[돌아간다|PillCollection]]>><<pass 2>><</link>>
 
 :: PillCollection
 <<set $outside to 0>><<effects>>
 <<set _pills to $sexStats.pills>>
-<<set _pillNames to ["Growth", "Reduction", "Blocker", "None"]>>
-<<set _pillTypes to ["growth", "reduction", "blocker", null]>>
 
-
-<<if $pillstaken is 1>>
-	<<unset $pillstaken>>
-	당신은 의사 하퍼가 처방해 준 약을 먹었다. 당신은 어지러움을 느낀다.
-	<<awareness -1>><<control 10>>
-	<br><br>
-<</if>>
-<<if $asylumpillstaken is 1>>
-	<<unset $asylumpillstaken>>
-	당신은 정신병원에서 처방해 준 약을 먹었다. 당신은 정신이 흐릿해 지는 것을 느낀다.
-	<<awareness -5>><<control 25>>
-	<br><br>
-<</if>>
-<<if $pills gte 1 and $medicated is 0 or $asylumpills gte 1 and $asylummedicated is 0>>
-	처방약
-	<br>
-<</if>>
-<<if $pills gte 1 and $medicated is 0>>
-	<<icon "pills">><<link "약을 먹는다">><<set $medicated += 1>><<set $pillstaken to 1>><<script>>state.display(state.active.title, null)<</script>><</link>><<gcontrol>><<lawareness>>
-	<br>
-<</if>>
-<<if $asylumpills gte 1 and $asylummedicated is 0>>
-	<<icon "strong pills">><<link "강한 약을 먹는다">><<set $asylummedicated += 1>><<set $asylumpillstaken to 1>><<script>>state.display(state.active.title, null)<</script>><</link>><<ggcontrol>><<llawareness>>
-	<br>
-<</if>>
-<hr>
-가슴약
-<br>
-<<if _pills.breast.owned[_pillTypes[0]] gt 0 or _pills.breast.owned[_pillTypes[1]] gt 0>>
-	<<if _pills.breast.owned[_pillTypes[0]] gt 0>>성장약<</if>><<if _pills.breast.owned[_pillTypes[0]] gt 0 and _pills.breast.owned[_pillTypes[1]] gt 0>>과 축소약<<elseif _pills.breast.owned[_pillTypes[1]] gt 0>>축소약<</if>>의 포장지에 경고문구가 붙어있다. 하루에 너무 많은 양의 약을 먹으면 극심한 부작용이 있다고 언급하지만, 당신은 복잡한 단어들의 의미를 이해하지 못한다.
-<</if>>
-<ul class="nostyle">
-	<<for _i to 0; _i lt _pillNames.length; _i += 1>>
-		<<if _pills.breast.owned[_pillTypes[_i]] isnot 0>>
-			<li><label>
-				<<if _pillNames[_i] is "None">>
-					<<ind>>
-				<<else>>
-					<<icon `"breast" + _pillNames[_i]`>>
-				<</if>>
-				<<print '<<radiobutton "_checked" _i ' + (_pills.breast.type is _pillTypes[_i] ? "checked" : "") + '>>'>>
-				<<trPill _pillNames[_i]>><<print _trResult>>
-				<<if _pillNames[_i] isnot "None">><<print '['+_pills.breast.owned[_pillTypes[_i]]+']'>><</if>>
-				<<if _pills.breast.type is _pillTypes[_i] and _pillTypes[_i] isnot null>>
-					<<print '[' + _pills.breast.doseTaken + '개 먹음]'>>
-				<</if>>
-				<<if _pills.breast.autoTake is _pillTypes[_i] and _pillTypes[_i] isnot null>>[자동]<</if>>
-			</label></li>
-		<</if>>
-	<</for>>
-</ul>
-
-<<if _pills.breast.type is null>>
-	<<link [[약을 먹는다|PillCollection]]>><<managePill "breast" _pillTypes[_checked] -1 true false>><</link>>
-<<elseif _pills.breast.doseTaken is 1 and _pills.breast.type isnot "blocker" and _pills.breast.owned[_pills.breast.type] gt 0>>
-	<<trPill _pills.breast.type>><<print'<<link [[두번째 '+_trResult+'을 먹는다|PillCollectionSecondDose]]>><<managePill "breast" _pills.breast.type -1 true false>><<set $secondDose to "breast">><</link>>'>>
-<<elseif _pills.breast.type is "blocker" or _pills.breast.owned[_pills.breast.type] is 0>>
-	당신은 오늘 이미 첫번째 가슴 <<print '<<trPill _pills.breast.type>>_trResult'>>을 먹었다.
-<<else>>
-	당신은 오늘 이미 두번째 가슴 <<print '<<trPill _pills.breast.type>>_trResult'>>을 먹었다.
-<</if>>
-<br>
-<<link [[매일 아침에 먹는다|PillCollection]]>><<set _pills.breast.autoTake to clone(_pillTypes[_checked])>><</link>>
-
-<<if $penisexist is 1>>
-	<br><br>
-	음경약
-	<br>
-	<<if _pills.penis.owned[_pillTypes[0]] gt 0 or _pills.penis.owned[_pillTypes[1]] gt 0>>
-		<<if _pills.penis.owned[_pillTypes[0]] gt 0>>성장약<</if>><<if _pills.penis.owned[_pillTypes[0]] gt 0 and _pills.penis.owned[_pillTypes[1]] gt 0>>과 축소약<<elseif _pills.penis.owned[_pillTypes[1]] gt 0>>축소약<</if>>의 포장지에 경고문구가 붙어있다. 하루에 너무 많은 양의 약을 먹으면 극심한 부작용이 있다고 언급하지만, 당신은 복잡한 단어들의 의미를 이해하지 못한다.
-	<</if>>
-
-	<ul class="nostyle">
-		<<for _i to 0; _i lt _pillNames.length; _i += 1>>
-			<<if _pills.penis.owned[_pillTypes[_i]] isnot 0>>
-				<li><label>
-				<<if _pillNames[_i] is "None">>
-					<<ind>>
-				<<else>>
-					<<icon `"penis" + _pillNames[_i]`>>
-				<</if>>
-				<<print '<<radiobutton "_checked2" _i ' + (_pills.penis.type is _pillTypes[_i] ? "checked" : "") + '>>'>>
-				<<trPill _pillNames[_i]>><<print _trResult>>
-				<<if _pillNames[_i] isnot "None">><<print '['+_pills.penis.owned[_pillTypes[_i]]+']'>><</if>>
-				<<if _pills.penis.type is _pillTypes[_i] and _pillTypes[_i] isnot null>>
-					<<print '[' + _pills.penis.doseTaken + '개 먹음]'>>
-				<</if>>
-				<<if _pills.penis.autoTake is _pillTypes[_i] and _pillTypes[_i] isnot null>>[자동]<</if>>
-			</label></li>
-			<</if>>
-		<</for>>
-	</ul>
-
-	<<if _pills.penis.type is null>>
-		<<link [[약을 먹는다|PillCollection]]>><<managePill "penis" _pillTypes[_checked2] -1 true false>><</link>>
-	<<elseif _pills.penis.doseTaken is 1 and _pills.penis.type isnot "blocker" and _pills.penis.owned[_pills.penis.type] gt 0>>
-		<<trPill _pills.penis.type>><<print'<<link [[두번째 '+ _trResult +'을 먹는다|PillCollectionSecondDose]]>><<managePill "penis" _pills.penis.type -1 true false>><<set $secondDose to "penis">><</link>>'>>
-	<<elseif _pills.penis.type is "blocker" or _pills.penis.owned[_pills.penis.type] is 0>>
-		당신은 오늘 이미 첫번째 음경 <<print '<<trPill _pills.penis.type>>_trResult'>>을 먹었다.
-	<<else>>
-		당신은 오늘 이미 두번째 음경 <<print '<<trPill _pills.penis.type>>_trResult'>>을 먹었다.
-	<</if>>
-	<br>
-	<<link [[매일 아침에 먹는다|PillCollection]]>><<set _pills.penis.autoTake to clone(_pillTypes[_checked2])>><</link>>
-
-<</if>>
-
+당신은 약이 들어 있는 서랍을 연다.
 <br><br>
-엉덩이약
+<div class="hpi_gridHeader">
+	<div class="hpi_header">
+	약 서랍
+	</div>
+</div>
+<div class="hpi_gridContainer" id="homeMainPillContainer"></div>
+<<run window.generateHomePillsInventory()>>
 <br>
-<<if _pills.bottom.owned[_pillTypes[0]] gt 0 or _pills.bottom.owned[_pillTypes[1]] gt 0>>
-	<<if _pills.bottom.owned[_pillTypes[0]] gt 0>>성장약<</if>><<if _pills.bottom.owned[_pillTypes[0]] gt 0 and _pills.bottom.owned[_pillTypes[1]] gt 0>>과 축소약<<elseif _pills.bottom.owned[_pillTypes[1]] gt 0>>축소약<</if>> 의 포장지에 경고문구가 붙어있다. 하루에 너무 많은 양의 약을 먹으면 극심한 부작용이 있다고 언급하지만, 당신은 복잡한 단어들의 의미를 이해하지 못한다.
-<</if>>
-<ul class="nostyle">
-	<<for _i to 0; _i lt _pillNames.length; _i += 1>>
-		<<if _pills.bottom.owned[_pillTypes[_i]] isnot 0>>
-			<li><label>
-				<<if _pillNames[_i] is "None">>
-					<<ind>>
-				<<else>>
-					<<icon `"bottom" + _pillNames[_i]`>>
-				<</if>>
-				<<print '<<radiobutton "_checked" _i ' + (_pills.bottom.type is _pillTypes[_i] ? "checked" : "") + '>>'>>
-				<<trPill _pillNames[_i]>><<print _trResult>>
-				<<if _pillNames[_i] isnot "None">><<print '['+_pills.bottom.owned[_pillTypes[_i]]+']'>><</if>>
-				<<if _pills.bottom.type is _pillTypes[_i] and _pillTypes[_i] isnot null>>
-					<<print '[' + _pills.bottom.doseTaken + '개 먹음]'>>
-				<</if>>
-				<<if _pills.bottom.autoTake is _pillTypes[_i] and _pillTypes[_i] isnot null>>[자동]<</if>>
-			</label></li>
-		<</if>>
-	<</for>>
-</ul>
-
-<<if _pills.bottom.type is null>>
-	<<link [[약을 먹는다|PillCollection]]>><<managePill "bottom" _pillTypes[_checked] -1 true false>><</link>>
-<<elseif _pills.bottom.doseTaken is 1 and _pills.bottom.type isnot "blocker" and _pills.bottom.owned[_pills.bottom.type] gt 0>>
-	<<trPill _pills.bottom.type>><<print'<<link [[두번째 '+_trResult+'을 먹는다|PillCollectionSecondDose]]>><<managePill "bottom" _pills.bottom.type -1 true false>><<set $secondDose to "bottom">><</link>>'>>
-<<elseif _pills.bottom.type is "blocker" or _pills.bottom.owned[_pills.bottom.type] is 0>>
-	당신은 오늘 이미 첫번째 엉덩이 <<print '<<trPill _pills.bottom.type>>_trResult'>>을 먹었다.
-<<else>>
-	당신은 오늘 이미 두번째 엉덩이 <<print '<<trPill _pills.bottom.type>>_trResult'>>을 먹었다.
-<</if>>
+<div class="hpi_gridDescContainer" id="homeDescPillContainer" style="display:none">
+	<div id="hpi_descContainer">
+		<div id="hpi_desc_img"></div>
+		<div id="hpi_desc"></div>
+		<div class="hpi_closeContainer" id="hpi_closeContainer1" title="close" onclick="document.getElementById(`homeDescPillContainer`).style.display = `none`">x</div>
+	</div>
+</div>
 <br>
-<<link [[매일 아침에 먹는다|PillCollection]]>><<set _pills.bottom.autoTake to clone(_pillTypes[_checked])>><</link>>
-
-
-<br><br>
-<<link [[물러난다|$pillsExitPassage]]>><</link>>
+<<link [[물러난다|$pillsExitPassage]]>><<pass 2>><</link>>
 
 :: PillCollectionSecondDose
 <<set $outside to 0>><<set $location to "home">><<effects>>
 
-<<set _pills to $sexStats.pills>>
-<<set _secondDoses to 0>>
-<<set _breastDoses to false>>
-<<set _penisDoses to false>>
-<<set _bottomDoses to false>>
-<<if _pills.breast.doseTaken is 2>>
-	<<set _secondDoses += 1>>
-	<<set _breastDoses to true>>
-<</if>>
-<<if _pills.penis.doseTaken is 2>>
-	<<set _secondDoses += 1>>
-	<<set _penisDoses to true>>
-<</if>>
-<<if _pills.bottom.doseTaken is 2>>
-	<<set _secondDoses += 1>>
-	<<set _bottomDoses to true>>
-<</if>>
-<<if _secondDoses is 3>>
-	<<set _risk to random(10,40)>>
-<<elseif _secondDoses is 2>>
-	<<set _risk to random(5,20)>>
-<<else>>
-	<<set _risk to 0>>
-<</if>>
-당신은 라벨을 무시하고, 두번째 <<print ($secondDose is "bottom" ? '엉덩이' : '<<trBodypart $secondDose>>_trResult')>><<set _trsecondDose to _trResult>><<print '<<trPill _pills[$secondDose].type>>_trResult'>>을 먹었다.
+경고 문구에도 불구하고, 당신은 호르몬약의 권장 투여량을 넘겨 약을 먹는다.
 <br>
-
+<<run window.onSecondDoseTakenSetVars()>>
 <<set _result to random(0, 100)>>
 <<if _result gte 80 + _risk>>
 	<<set $timePassed to 2>> 경고에도 불구하고, 아무 문제가 없는 것 같다.
 <<elseif _result gte 70 + _risk>>
-	<<set $timePassed to 2>> 당신의 <<print ($secondDose is "breast" ? "가슴" : "자지")>>에 뭔가 이상한 느낌이 들었지만, 이후 기분이 나아진다.
+	<<set $timePassed to 2>> 당신의 <<trBodypart $pillCat>>_trResult에 뭔가 이상한 느낌이 들었지만, 이후 기분이 나아진다.
 <<elseif _result gte 60 + _risk>>
-	<<set $timePassed to 10>> 당신의 <<print ($secondDose is "breast" ? "가슴" : "자지")>>에 약간 따뜻한 느낌이 들었지만, 이후 괜찮아진다.
+	<<set $timePassed to 10>> 당신의 <<trBodypart $pillCat>>_trResult에 몇 분동안 약간 따뜻한 느낌이 들었지만, 이후 괜찮아진다.
 	<<garousal>><<arousal 500>>
 <<elseif _result gte 40 + _risk>>
-	<<set $timePassed to 20>> 당신의 <<print ($secondDose is "breast" ? "가슴" : "자지")>>에 갑자기 엄청 따뜻하고 가려운 느낌이 들어서, 지나갈 때까지 다른 것에 집중할 수 없게 된다.
-	<<garousal>><<gpain>><<set $pain += 10>><<arousal 2000>>
+	<<set $timePassed to 20>> 당신의 <<trBodypart $pillCat>>_trResult에 갑자기 엄청 따뜻하고 가려운 느낌이 들어서, 지나갈 때까지 다른 것에 집중할 수 없게 된다.
+	<<garousal>><<gpain>><<pain 3>><<arousal 2000>>
 <<elseif _result gte 5 + _risk>>
 	<<set $timePassed to 30>>
-	<<switch _secondDoses>>
+	<<switch _pillAmountOfCategoriesUsed>>
 		<<case 1>>
-			당신은 <<print ($secondDose is "breast" ? "가슴" : _trsecondDose)>>에 날카로운 통증을 느낀다.
+			당신은 <<trBodypart $pillCat>>_trResult에 날카로운 통증을 느낀다.
 		<<case 2>>
-			<<set _secondaryPill to ($secondDose is "breast" ? (_penisDoses ? "자지" : "엉덩이") : ($secondDose is "penis" ? (_breastDoses ? "가슴" : "엉덩이") : (_breastDoses ? "가슴" : "자지")))>>
-			당신은 <<print ($secondDose is "breast" ? "breasts" : _trsecondDose)>>에 날카로운 통증을 느끼며, 또 다른 고통이 당신의 <<print _secondaryPill>>에 따른다<<set $pain += 50>><<set $timePassed += 30>>.
+			당신은 <<trBodypart $pillCat>><<print ($pillCat is "breast" ? "가슴" : _trResult)>>에 날카로운 통증을 느끼며, 또 다른 고통이 당신의 <<trBodypart _secondaryPill>>_trResult에 따른다<<pain 12>><<set $timePassed += 30>>.
 		<<case 3>>
-			당신은 <<print ($secondDose is "breast" ? "breasts" : _trsecondDose)>>에 날카로운 통증을 느끼며, 더욱 날카로운 고통이 당신의 <<print ($secondDose is "breast" ? "자지와 엉덩이" : ($secondDose is "penis" ? "가슴과 엉덩이" : "가슴과 자지"))>>에 따른다<<set $pain += 50>><<set $timePassed += 30>>.
+			당신은 <<trBodypart $pillCat>><<print ($pillCat is "breast" ? "가슴" : _trResult)>>에 날카로운 통증을 느끼며, 더욱 날카로운 고통이 당신의 <<print ($pillCat is "breast" ? "자지와 엉덩이" : ($pillCat is "penis" ? "가슴과 엉덩이" : "가슴과 자지"))>>에 따른다<<pain 12>><<set $timePassed += 30>>.
 	<</switch>>
-	<<gpain>><<set $pain += 50>>
+	<<gpain>><<pain 12>>
 	<br><br>
 	시간은 좀 걸렸지만, 점차 기분이 나아진다.
 <<else>>
 	<<set $timePassed to random(120, 420)>>
-	<<switch _secondDoses>>
+	<<switch _pillAmountOfCategoriesUsed>>
 		<<case 1>>
-			당신의 <<print ($secondDose is "breast" ? "breasts" : _trsecondDose)>>에 날카로운 고통을 느낀다. 당신이 기절할 때까지 계속 악화된다.
+			당신의 <<trBodypart $pillCat>>_trResult에 날카로운 고통을 느낀다. 그것은 당신이 기절할 때까지 계속 악화된다.
 		<<case 2>>
-			<<set _secondaryPill to ($secondDose is "breast" ? (_penisDoses ? "자지" : "엉덩이") : ($secondDose is "penis" ? (_breastDoses ? "가슴" : "엉덩이") : (_breastDoses ? "가슴" : "자지")))>>
-			당신의 <<print ($secondDose is "breast" ? "breasts" : _trsecondDose)>>에 날카로운 고통을 느끼며, 또 다른 날카로운 고통이 당신의 <<print _secondaryPill>>에 따른다<<set $pain += 50>><<set $timePassed += 30>>. 당신이 기절할 때까지 계속 악화된다.
+			당신의 <<print ($pillCat is "breast" ? "가슴" : _trResult)>>에 날카로운 고통을 느끼며, 또 다른 날카로운 고통이 당신의 <<trBodypart _secondaryPill>>_trResult에 따른다<<pain 12>><<set $timePassed += 30>>. 그것은 당신이 기절할 때까지 계속 악화된다.
 		<<case 3>>
-			당신의 <<print ($secondDose is "breast" ? "breasts" : _trsecondDose)>>에 날카로운 고통을 느끼며, 더욱 날카로운 고통이 당신의 <<print ($secondDose is "breast" ? "자지와 엉덩이" : ($secondDose is "penis" ? "가슴과 엉덩이" : "가슴과 자지"))>>에 따른다<<set $pain += 50>><<set $timePassed += 30>>. 당신이 기절할 때까지 계속 악화된다.
+			당신의 <<trBodypart $pillCat>><<print ($pillCat is "breast" ? "가슴" : _trResult)>>에 날카로운 고통을 느끼며, 더욱 날카로운 고통이 당신의 <<print ($pillCat is "breast" ? "자지와 엉덩이" : ($pillCat is "penis" ? "가슴과 엉덩이" : "가슴과 자지"))>><<pain 12>><<set $timePassed += 30>>. 그것은 당신이 기절할 때까지 계속 악화된다.
 	<</switch>>
 	<<ggstress>><<gtrauma>><<gpain>>
-	<<set $pain += 400>><<set $stress += 4000>><<trauma 100>>
+	<<set $pain += 400>><<pain 1>><<set $stress += 4000>><<trauma 100>>
 	<<set _passout to true>>
 <</if>>
 
@@ -245,45 +93,175 @@
 <<if _passout is true>>
 	<<link [[다음|PillCollectionPassOut]]>><<pass $timePassed>><</link>>
 <<else>>
-	<<print '<<link [[다음 ('+_hoursPassed+':'+ (_minutesPassed lt 10 ? "0" : "") + _minutesPassed + ')|PillCollection]]>><<unset $secondDose>><<pass $timePassed>><<unset $timePassed>><</link>>'>>
+	<<print '<<link [[다음 ('+_hoursPassed+':'+ (_minutesPassed lt 10 ? "0" : "") + _minutesPassed + ')|PillCollection]]>><<unset $pillCat>><<pass $timePassed>><<unset $timePassed>><</link>>'>>
 <</if>>
 
 :: PillCollectionPassOut
 <<set $outside to 0>><<effects>>
-<<set _pills to $sexStats.pills>><<set $pain += 300>>
-당신은 결국 고통속에서 깨어났고, 당신에게 무슨 일이 일어난건지 궁금해한다. 잠시 몸을 더듬은 후, <<print ($secondDose is "breast" ? "가슴" : "자지")>>에 잠깐 닿자 고통으로 비명을 지른다. 당신은 결국 문제 없이 움직일 수 있을 것 같은 기분이 들 때까지 더 많은 시간을 누워 보내게 된다.
+<<set _pills to $sexStats.pills>>
+<<set $pain += 300>><<pain 1>>
+당신은 결국 고통속에서 깨어났고, 당신에게 무슨 일이 일어난건지 궁금해한다. 잠시 몸을 더듬다가, 손이 <<trBodypart $pillCat>>_trResult에 잠깐 닿자 당신은 고통으로 비명을 지른다. 당신은 결국 문제 없이 움직일 수 있을 것 같은 기분이 들 때까지 더 많은 시간을 누워 보낸다.
 
 <br><br>
 당신이 일어났을 때 시간을 확인하면, 약을 먹은 이후로 <<if $timePassed gt 240>> 많은 <<else>> 그저 두서너 <</if>>시간이 지난 것을 알아챈다.
 
 <<set _change to random(100, 500)>>
 <<if _change gte 200>>
-	당신의 <<print ($secondDose is "breast" ? "가슴" : "자지")>><<print $secondDose is "breast" ? "을" : "를">> 확인하자, 당신은 뭔가 바뀌었을지도 모른다고 생각한다.
+	당신의 <<trBodypart $pillCat "을">>_trResult 확인하자, 당신은 뭔가 바뀌었을지도 모른다고 생각한다.
 <</if>>
-<<if $secondDose is "breast">>
-	<<if _pills.breast.type is "growth">>
+<<if $pillCat is "breast">>
+	<<if _pills.lastTaken[$pillCat] is "growth">>
 		<<set $breastgrowthtimer -= _change>>
 	<<else>>
 		<<set $breastgrowthtimer += _change>>
 	<</if>>
-<<elseif $secondDose is "penis">>
-	<<if _pills.penis.type is "growth">>
+<<elseif $pillCat is "penis">>
+	<<if _pills.lastTaken[$pillCat] is "growth">>
 		<<set $penisgrowthtimer -= _change>>
+		<<set $sexStats.pills.pills["penis growth"].overdose += 5>>
 	<<else>>
 		<<set $penisgrowthtimer += _change>>
+		<<set $sexStats.pills.pills["penis reduction"].overdose += 5>>
 	<</if>>
 <<else>>
-	<<if _pills.bottom.type is "growth">>
+	<<if _pills.lastTaken[$pillCat] is "growth">>
 		<<set $bottomgrowthtimer -= _change>>
 	<<else>>
 		<<set $bottomgrowthtimer += _change>>
 	<</if>>
 <</if>>
-<<if $genitalsensitivity lt 6>>
-	<<set $genitalsensitivity += 0.25>>
+<<if $mouthsensitivity lt 4>>
+	<<set $mouthsensitivity += 0.25>>
 <</if>>
-<<if $breastsensitivity lt 6>>
+<<if $breastsensitivity lt 4>>
 	<<set $breastsensitivity += 0.25>>
 <</if>>
+<<if $bottomsensitivity lt 4>>
+	<<set $bottomsensitivity += 0.25>>
+<</if>>
+<<if $genitalsensitivity lt 4>>
+	<<set $genitalsensitivity += 0.25>>
+<</if>>
+<<clamp>>
 <br><br>
-<<link [[다음 (1:00)|PillCollection]]>><<unset $secondDose>><<pass 60>><<unset $timePassed>><</link>>
+<<link [[다음 (1:00)|PillCollection]]>><<unset $pillCat>><<pass 60>><<unset $timePassed>><</link>>
+
+:: PillCollectionSecondDosePregnancy
+<<set $outside to 0>><<effects>>
+<<cleareventpool>>
+<<set _pills to $sexStats.pills>>
+<<set _menstruation to $sexStats.vagina.menstruation>>
+/*If this passage has no links, double check the widget 'autoTakePillCheck' for the $location variable */
+<<if _pills.lastTaken.pregnancy is "fertility booster">>
+	<<set _fertilityPillName to "fertility booster">>
+	당신은 라벨을 무시하고, 두번째 배란약을 먹었다.
+	<br><br>
+	<<addinlineevent "no fertility overdose" 10>>
+		경고에도 불구하고, 아무 문제가 없는 것 같다.
+		<br><br>
+		<<link [[다음 (0:02)|PillCollection]]>><<pass 2>><</link>>
+	<</addinlineevent>>
+	<<addinlineevent "simple fertility overdose" 5>>
+		경고에도 불구하고, 당신은 몇분간 약간 따뜻함을 느꼈고 이후 괜찮아진다. <<garousal>><<arousal 100>>
+		<br><br>
+		<<link [[다음 (0:03)|PillCollection]]>><<pass 3>><</link>>
+	<</addinlineevent>>
+	<<addinlineevent "simple fertility overdose 2" 4>>
+		당신은 몇 분 간 당신의 <<genitalsPost 2>>에서 이상한 따뜻함을 느꼈으나 이후 괜찮아진다. 그것은 이상하게 편안했다. <<garousal>><<arousal 200>>
+		<<if _pills.pills[_fertilityPillName].doseTaken lt 3>>
+			<<set _pills.pills[_fertilityPillName].doseTaken to 3>>
+		<</if>>
+		<br><br>
+		<<link [[다음 (0:05)|PillCollection]]>><<pass 5>><</link>>
+	<</addinlineevent>>
+	<<addinlineevent "advanced fertility overdose" 2>>
+		당신은 당신의 <<genitalsPost 2>>에서 이상한 따뜻함을 느끼기 시작한다. 그러나, 그것은 한 순간 당신을 태우는 듯한 느낌이 들 때까지 멈추지 않는다. 그 뜨거움은 당신의 몸의 다른 부분으로 퍼져나가기 시작하는 것 같았으나 이후 진정되기 시작한다. <<garousal>><<arousal 1000>><<gpain>><<pain 10>>
+		<<if _pills.pills[_fertilityPillName].doseTaken lt 4>>
+			<<set _pills.pills[_fertilityPillName].doseTaken to 4>>
+		<</if>>
+		<<if !_menstruation.running>>
+		<<elseif _menstruation.currentState is "normal">>
+			<<for _i to 0; _i lt 2; _i++>>
+				<<if _menstruation.currentDay lt _menstruation.stages[3] - 1.5>>
+					<<set _menstruation.currentDay += 1>>
+				<</if>>
+			<</for>>
+			<<if _menstruation.baseDays gte 28>>
+				<<set _menstruation.baseDays-->>
+			<</if>>
+		<</if>>
+		<br><br>
+		<<link [[다음 (0:15)|PillCollection]]>><<pass 15>><</link>>
+	<</addinlineevent>>
+	<<addinlineevent "advanced fertility overdose" 2>>
+		당신은 당신의 <<genitalsPost 2>>에서 이상한 따뜻함이 점점 심해져, 사실상 불타오르는 것 처럼 느낀다. 그것은 빠르게 당신의 몸 다른 부분으로 퍼져나가고, 당신은 그 통증으로 쓰러진다. 당신은 그 열기가 결국 잦아들 때 까지 그 자세로 있는다. <<garousal>><<arousal 1000>><<ggpain>><<pain 100>>
+		<<if _pills.pills[_fertilityPillName].doseTaken lt 4>>
+			<<set _pills.pills[_fertilityPillName].doseTaken to 4>>
+		<</if>>
+		<<if !_menstruation.running>>
+		<<elseif _menstruation.currentState is "normal">>
+			<<for _i to 0; _i lt 6; _i++>>
+				<<if _menstruation.currentDay lt _menstruation.stages[3] - 1.5>>
+					<<set _menstruation.currentDay += 1>>
+				<</if>>
+			<</for>>
+			<<if _menstruation.baseDays gte 24>>
+				<<set _menstruation.baseDays-->>
+			<</if>>
+		<</if>>
+		<br><br>
+		<<link [[다음 (1:00)|PillCollection]]>><<pass 60>><</link>>
+	<</addinlineevent>>
+	<<addinlineevent "advanced fertility overdose 2" 2>>
+		당신은 당신의 <<genitalsPost 2>>에서 이상한 따뜻함이 점점 심해져, 사실상 불타오르는 것 처럼 느낀다. 그것은 빠르게 당신의 몸 다른 부분으로 퍼져나가고, 당신은 그 통증으로 쓰러진다. 순전히 그 강도만으로 당신의 감각을 압도하고, 당신의 시야는 점점 까맣게 물들어간다... <<garousal>><<arousal 1000>><<ggpain>><<pain 100>>
+		<<if _pills.pills[_fertilityPillName].doseTaken lt 4>>
+			<<set _pills.pills[_fertilityPillName].doseTaken to 4>>
+		<</if>>
+		<<if !_menstruation.running>>
+		<<elseif _menstruation.currentState is "normal">>
+			<<set _menstruation.currentDay to _menstruation.stages[3] - 0.5>>
+			<<menstruationCycle "overdose">>
+			<<set _menstruation.currentDay to _menstruation.stages[3] - 0.5>>
+			<<if _menstruation.baseDays gte 18>>
+				<<set _menstruation.baseDays-->>
+			<</if>>
+		<</if>>
+		<<rutCycle true>>
+		<br><br>
+		<<link [[다음 (3:00)|PillCollectionFertilityPassOut]]>><<pass 3 hours>><</link>>
+	<</addinlineevent>>
+<<elseif _pills.lastTaken.pregnancy is "contraceptive">>
+	당신은 라벨을 무시하고, 두번째 피임약을 먹었다.
+	<br><br>
+	<<addinlineevent "no contraceptive overdose" 10>>
+		그럼에도 불구하고, 아무 문제가 없는 것 같다.
+		<br><br>
+		<<link [[다음 (0:02)|PillCollection]]>><<pass 2>><</link>>
+	<</addinlineevent>>
+	<<addinlineevent "simple contraceptive overdose" 5>>
+		그럼에도 불구하고, 당신은 몇분간 약간 차가움을 느꼈고 이후 괜찮아진다. <<larousal>><<arousal -100>>
+		<br><br>
+		<<link [[다음 (0:03)|PillCollection]]>><<pass 3>><</link>>
+	<</addinlineevent>>
+	<<addinlineevent "contraceptive overdose" 3>>
+		몇 분 후, 이상한, 차가운 감각이 당신을 덮친다. 그것은 당신의 <<genitals_ ro 2>> 퍼져나가, 그 지나간 자국을 따라 약간의 저릿한 느낌이 들지만 그 느낌은 빠르게 사라진다.<<llarousal>><<arousal -200>>
+		<br><br>
+		<<if $genitalsensitivity gt 2>>
+			<<set $genitalsensitivity -= 0.25>>
+		<</if>>
+		<<if $bottomsensitivity gt 2>>
+			<<set $bottomsensitivity -= 0.25>>
+		<</if>>
+		<<link [[다음 (0:30)|PillCollection]]>><<pass 30>><</link>>
+	<</addinlineevent>>
+<</if>>
+
+<<runeventpool>>
+
+:: PillCollectionFertilityPassOut
+<<set $outside to 0>><<effects>>
+
+당신은 결국 당신의 <<genitalsPost 2>>에서 따뜻함을 느끼며 깨어났다. 최소한 당신이 이전에 기절했던 것에 비교하면, 그것은 이상한 편안함을 동반했고, 약 두 알을 먹을 때의 효과가 무엇인지에 대해 당신이 궁금해하게 만든다.
+
+<br><br>
+<<link [[다음 (0:02)|PillCollection]]>><<pass 2>><</link>>

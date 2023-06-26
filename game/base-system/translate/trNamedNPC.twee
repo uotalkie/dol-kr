@@ -1,61 +1,26 @@
 :: Widgets trNamedNPC [widget nobr]
-<<widget "trNamedNPC">>
-    <<trinit_namedNPC>>
+<<widget "trNamedNPC">><<silently>>
+	<<if _args[0]>>
+		<<if setup.trNamedNPCList is undefined>>
+			<<trinit_namedNPC>>
+		<</if>>
+		<<if typeof _args[0] isnot "string">>
+			<<set $_name to _args[0][0]>> /% NAMED-NPC:<<print $npc[0]>> %/
+		<<else>>
+			<<set $_name to _args[0]>>
+		<</if>>
+		<<if _args[1] is undefined or _args[1].substring(0,1).search("[가-힣]") gte 0>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<<else>>
+			<<set $_type to _args[1]>><<set $_post to _args[2]>><<set $_sep to _args[3]>>
+		<</if>>
 
-    <<set _trTemp to _namedNPCList.find(function(select){
-        if(select.name  == $args[0]){
-            return true;
-        } else if (Array.isArray(select.title)){
-            if (select.title.includes($args[0])){return true;}
-        } else if (select.title == $args[0]) {
-            return true;
-        }
-    })>>
-    
-    <<if _trTemp is undefined>>
-        <<print "trNamedNPCerr: namedNPCList에 정의되지 않음. "+$args[0]>>
-    <<else>>
-        <<if $args[1] is "name">>
-            <<set _trResult to _trTemp.koname>>
-            <<trPost _trTemp.post $args[2] $args[3]>>
-        <<elseif $args[1] is "title">>
-            <<if Array.isArray(_trTemp.title)>>
-                <<set _titleIndex to _trTemp.title.indexOf($args[0])>>
-                <<if _titleIndex lt 0>>
-                    <<set _trResult to _trTemp.kotitle[0]>>
-                    <<trPost _trTemp.titlepost[0] $args[1] $args[2]>>
-                <<else>>
-                    <<set _trResult to _trTemp.kotitle[_titleIndex]>>
-                    <<trPost _trTemp.titlepost[_titleIndex] $args[1] $args[2]>>
-                <</if>>
-            <<else>>
-                <<set _trResult to _trTemp.kotitle>>
-                <<trPost _trTemp.titlepost $args[2] $args[3]>>
-            <</if>>
-        <<else>>
-            <<if _trTemp.name == $args[0]>>
-                <<set _tmpmod to 0>>
-            <<elseif Array.isArray(_trTemp.title)>>
-                <<set _tmpmod to 1>>
-            <<else>>
-                <<set _tmpmod to 2>>
-            <</if>>
-
-            <<if _tmpmod is 0>>
-                <<set _trResult to _trTemp.koname>>
-                <<trPost _trTemp.post $args[1] $args[2]>>
-            <<elseif _tmpmod is 1>>
-                <<set _titleIndex to _trTemp.title.indexOf($args[0])>>
-                <<if _titleIndex lt 0>>
-                    <<print "trNamedNPCerr: namedNPCList, titleArray에 정의되지 않음. "+$args[0]>>
-                <<else>>
-                    <<set _trResult to _trTemp.kotitle[_titleIndex]>>
-                    <<trPost _trTemp.titlepost[_titleIndex] $args[1] $args[2]>>
-                <</if>>
-            <<else>>
-                <<set _trResult to _trTemp.kotitle>>
-                <<trPost _trTemp.titlepost $args[1] $args[2]>>
-            <</if>>
-        <</if>>
-    <</if>>
-<</widget>>
+		<<trNamedNPCInner $_name $_type>>
+		
+		<<if _trResult isnot undefined>>
+			<<trPost _postNum $_post $_sep>>
+		<<else>>
+			<<set _trResult to "trNamedNPCerr: 정의되지 않음: "+$_name>>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>

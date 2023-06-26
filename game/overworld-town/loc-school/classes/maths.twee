@@ -2,35 +2,36 @@
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<if $schoolstate is "second">>
+	<!-- Note: until we separate the NPC introductions out of the <<npc>> widget, we must pay attention to where we use <<npc River>> in this passage. -->
+	<!-- It would save several lines to simply put it here, but we can't. -->
 	<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked")>>
 		<<outfitChecks>>
 		/*Check for when the pc is only wearing an overcoat*/
 		<<if $worn.over_upper.name isnot "naked" and $worn.over_lower.name isnot "naked" and $worn.under_upper.name is "naked" and $worn.under_lower.name is "naked">>
-			As you go to hang your <<if _middleOutfit>>$worn.over_upper.name<<else>>$worn.over_upper.name and $worn.over_lower.name<</if>>, you remember that you're naked underneath.
+			<<if _middleOutfit>><<worn_over_upper_name_ ul>><<else>><<worn_over_upper_name_ gwa>> <<worn_over_lower_name_ ul>><</if>> 벗자마자, 당신은 외투 아래에 아무것도 입지 않았다는 사실을 자각했다.
 		<<elseif $worn.over_upper.name isnot "naked" and $worn.over_lower.name isnot "naked" and ($worn.under_upper.type.includes("swim") or $worn.under_lower.type.includes("swim"))>>
-			As you go to hang your <<if _middleOutfit>>$worn.over_upper.name<<else>>$worn.over_upper.name and $worn.over_lower.name<</if>>, you remember that you're only wearing swimwear underneath.
+			<<if _middleOutfit>><<worn_over_upper_name_ ul>><<else>><<worn_over_upper_name_ gwa>> <<worn_over_lower_name_ ul>><</if>> 벗자마자, 당신은 외투 아래에 수영복만 입고 있다는 사실을 자각했다.
 		<<elseif $worn.over_upper.name isnot "naked" and $worn.over_lower.name isnot "naked" and $worn.under_upper.name isnot "naked" and $worn.under_lower.name isnot "naked">>
-			As you go to hang your <<if _middleOutfit>>$worn.over_upper.name<<else>>$worn.over_upper.name and $worn.over_lower.name<</if>>, you remember that you're only wearing underwear underneath.
+			<<if _middleOutfit>><<worn_over_upper_name_ ul>><<else>><<worn_over_upper_name_ gwa>> <<worn_over_lower_name_ ul>><</if>> 벗자마자, 당신은 외투 아래에 속옷만 입고 있다는 사실을 자각했다.
 		<</if>>
 		<br><br>
 		<<npc River>><<person1>>
-		River's eyes narrow as you glance at <<him>>. "You can't be trying to attend my lesson without a uniform. Go see the head."
+		당신이 리버를 쳐다보자 <<his_ yi>> 눈이 가늘어진다. "교복 없이는 내 수업을 들을 수 없어. 교장실로 가렴."
 		<br><br>
-		<!--<<link [[Hang up coat|]]>><<endevent>><</link>>
+		<<pubfameComplete "river">>
+		<!--<<link [[코트를 걸어놓는다|]]>><<endevent>><</link>>
 		<br><br> good starting point for when you can go to class naked-->
 		<<link [[다음|Hallways]]>><<endevent>><</link>>
 		<br><br>
 	<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and $rightarm isnot "bound">>
-		<<if $mathsattended is 1>>
+		<<if $daily.school.attended.maths>>
 			당신은 수학 수업에 다시 들어와,
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 				교실 뒷편에 코트를 건 뒤
 				<<undressOverClothes "mathsClassroom">>
 			<</if>>
 			자리에 앉는다.
-			<br><br>
-			<<mathsstart>>
-		<<elseif $time lte ($hour * 60 + 5)>>
+		<<elseif Time.minute lte 5>>
 			당신은 수학 교실에 들어간다.
 			<<npc River>><<person1>>
 			학생들이 자리에 앉는 동안 리버가 교실 앞쪽에서 수업 준비를 하고 있다.
@@ -38,32 +39,38 @@
 				<<undressOverClothes "mathsClassroom">>
 				당신은 교실 뒷편에 코트를 건 뒤 자리에 앉는다.
 			<</if>>
-			<br><br>
-
-			<<mathsstart>>
 		<<else>>
 			당신은 수학 교실에 들어간다.
 			<<npc River>><<person1>>
-			윈터가 말을 하다 말고 당신을 바라본다. "늦었구나. 징계를 받다보면 앞으로도 이렇게 게으름을 피우는 일을 방지할 수 있겠지."
-			<<gdelinquency>>
+			리버가 말을 하다 말고 당신을 바라본다.
+			<<if $daily.school.mathsExcused>>
+				<<run delete $daily.school.mathsExcused>>
+				"자리에 앉아서 따라잡도록 해라." <<He_ nun>> 당신의 지각에 대해 언급하지 않는다.
+			<<else>>
+				"늦었구나. 징계를 받다보면 앞으로도 이렇게 게으름을 피우는 일을 방지할 수 있겠지."
+				<<gdelinquency>>
+				<<detention 1>>
+			<</if>>
 			<br><br>
-			<<detention 1>>
 			당신은
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 				교실 뒷편에 코트를 건 뒤
 				<<undressOverClothes "mathsClassroom">>
 			<</if>>
 			자리에 앉고, 리버는 수업을 계속한다.
-			<br><br>
-
-			<<mathsstart>>
 		<</if>>
-
-	<<elseif $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-		<<npc River>><<person1>>
-		당신의 묶인 <<if $rightarm is "bound" or $leftarm is "bound">>팔<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">>과 <</if>><<if $feetuse is "bound">>다리를<<else>>을<</if>> 보자 리버의 눈이 가늘어진다. "이번에도인가. 있지, 네가 뭔 요상한 장난을 하는 건지는 몰라도 그만 해야해. 이 안에 그렇게 묶인 상태로 들어올 일은 없어. 교장실로 가렴."
 		<br><br>
 
+		<<pubfameComplete "river">>
+		<<link [[다음|Maths Lesson]]>><<endevent>><</link>>
+		<br>
+	<<elseif $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
+		<<npc River>><<person1>>
+		당신의 묶인 <<boundBodyParts>> 보자 리버의 눈이 가늘어진다.
+		"이번에도인가. 이봐, 네가 뭔 요상한 장난을 하는 건지는 몰라도 그만 해야해. 이 안에 그렇게 묶인 상태로 들어올 일은 없어. 교장실로 가렴."
+		<br><br>
+
+		<<pubfameComplete "river">>
 		<<link [[다음|Hallways]]>><<endevent>><</link>>
 		<br><br>
 	<<else>>
@@ -71,21 +78,23 @@
 		당신이 들어가자 리버의 눈이 가늘어진다. "교복 없이는 내 수업을 들을 수 없어. 교장실로 가렴."
 		<br><br>
 
+		<<pubfameComplete "river">>
 		<<link [[다음|Hallways]]>><<endevent>><</link>>
 		<br><br>
 	<</if>>
 <<elseif $schoollesson is 1>>
-	<<if $mathsinterrupted is 1>>
-		<<npc River>><<person1>>당신은 수학 교실에 들어간다. 리버가 갑자기 말을 멈추고는 당신을 바라본다. "또 너야? 당장 나가." <<HePost "은">> 눈 앞에서 문을 닫는다.
-		<<gdelinquency>>
+	<<npc River>><<person1>>
+	<<if $daily.school.mathsInterrupted is 1>>
+		당신은 수학 교실에 들어간다. 리버가 갑자기 말을 멈추고는 당신을 바라본다. "또 너야? 당장 나가." <<HePost "은">> 당신 앞에서 문을 닫는다.
+		<<detention 1>><<gdelinquency>>
 		<br><br>
-		<<detention 1>>
 
 		<<link [[다음|Hallways]]>><<endevent>><</link>>
 	<<else>>
-		<<npc River>><<person1>>당신은 수학 교실에 들어간다. 리버가 갑자기 말을 멈추고는 당신을 바라본다. "그래, 무슨 일이니?" 보아하니 당신이 수업을 방해한 모양이다.
+		<<set $daily.school.mathsInterrupted to 1>>
+		당신은 수학 교실에 들어간다. 리버가 갑자기 말을 멈추고는 당신을 바라본다. "그래, 무슨 일이니?" 보아하니 당신이 수업을 방해한 모양이다.
 		<br><br>
-		<<set $mathsinterrupted to 1>>
+		<<pubfameComplete "river">>
 
 		<<link [[사과한다|Maths Classroom Apology]]>><<trauma 1>><<stress 1>><</link>><<gstress>><<gtrauma>>
 		<br>
@@ -97,6 +106,9 @@
 <<else>>
 	당신은 수학 교실에 있다. 벽에 차트나 그래프가 잔뜩 걸려있다.
 	<br><br>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmLocation "emptyClassroom">>
+	<</if>>
 	<<storeon "mathsClassroom" "check">>
 	<<if _store_check is 1>>
 		<<storeon "mathsClassroom">>
@@ -112,10 +124,11 @@
 
 :: Maths Lesson
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
-<<set $mathsattended to 1>>
+<<set $daily.school.attended.maths to true>>
 
+<<mathsWhitneyAttendChance>>
 
-<<if $weekday is 6 and $minute gte 37>>
+<<if Time.weekDay is 6 and Time.minute gte 37>>
 	리버는 각각의 학생들 앞에 시험 책자를 놓으며 통로를 오간다.<<gstress>><<stress 6>>
 	<br><br>
 
@@ -125,42 +138,48 @@
 	학생들이 첫 페이지를 넘기는 소리가 울린다. 리버는 다른 학생과의 이야기를 용납하지 않는다. <<HePost "은">> 교실의 맨 앞에 앉아, 특정 인물만 보는게 아닌, 반 전체에 차가운 눈빛으로 보고 있다.
 
 	<<if $whitneymaths is "active">>
-		<<endevent>><<npc Whitney>><<person1>>
-		휘트니 조차 말이 없지만, 팔 아래에서 당신의 등에 지우개를 던지기를 멈추진 않는다.
+		휘트니 조차 말이 없지만, <<nnpc_him_ i "Whitney">> 당신의 등에 언더스로우로 지우개를 던지기를 멈추진 않는다.
 	<<elseif $whitneymaths is "seat">>
-		<<endevent>><<npc Whitney>><<person1>>
-		휘트니 조차 말이 없지만, 책상 밑에서 당신을 더듬거리기를 멈추진 않는다.<<garousal>><<arousal 600>>
+		휘트니 조차 말이 없지만, <<nnpc_him_ i "Whitney">> 책상 밑에서 당신을 더듬거리기를 멈추진 않는다.<<garousal>><<arousal 300 "bottom">><<arousal 300 "genitals">>
 	<</if>>
 	<br><br>
 	<<endevent>>
+	<<if $arousal gte $arousalmax>>
+		<<set _teacher to "River">>
+		<!-- Note: There should be special text if Whitney is directly involved in the player's orgasm -->
+		<<orgasmLocation "classroom">>
+	<</if>>
 	<<exam_cheat maths>>
-	<<link [[집중한다|Maths Exam]]>><<stress 6>><<set $phase to 0>><<set $exam_chance += 5>><</link>><<gstress>> | <span class="green">+ 5% 합격 기회</span>
+	<<link [[집중한다|Maths Exam]]>><<stress 6>><<set $phase to 0>><<set $exam_chance += 5>><</link>><<gstress>><<passPercent 5>>
 	<br>
 	<<link [[진정한다|Maths Exam]]>><<set $phase to 1>><</link>>
 	<br>
 	<<link [[부정행위|Maths Exam]]>><<set $phase to 2>><</link>><<skulduggerydifficulty>>
 	<br>
 	<<if $whitneymaths is "active">>
-		<<link [[휘트니의 지우개를 잡는다|Maths Exam]]>>/*'>>*/<<set $phase to 3>><</link>><<dancedifficulty 1 1000>>
+		<<link [[휘트니의 지우개를 잡는다|Maths Exam]]>><<set $phase to 3>><</link>><<dancedifficulty 1 1000>>
 		<br>
-	<<elseif $whitneymaths is "seat" and $promiscuity gte 35>>
-		<<npc Whitney>><<person1>>
-		<<if $NPCList[0].penis isnot "none">>
-			<<link [[손으로 휘트니를 만족시킨다|Maths Exam]]>><<set $phase to 4>><<npcincr Whitney love 1>><<npcincr Whitney lust 1>><</link>><<skill_difficulty handskill "Hand Skill" 1 1000>><<ghandskill>><<glove>><<glust>>
-			<br>
-		<<else>>
-			<<link [[손가락으로 휘트니를 만족시킨다|Maths Exam]]>><<set $phase to 5>><<npcincr Whitney love 1>><<npcincr Whitney lust 1>><</link>><<skill_difficulty handskill "Hand Skill" 1 1000>><<ghandskill>><<glove>><<glust>>
-			<br>
+	<<elseif $whitneymaths is "seat">>
+		<<if $promiscuity gte 35>>
+			<<if $NPCName[$NPCNameList.indexOf("Whitney")].penis isnot "none">>
+				<<link [[손으로 휘트니를 만족시킨다|Maths Exam]]>><<set $phase to 4>><<npcincr Whitney love 1>><<npcincr Whitney lust 1>><</link>><<skill_difficulty "$handskill" "Hand Skill" 1 1000>><<ghandskill>><<glove>><<glust>>
+				<br>
+			<</if>>
+			<<if $NPCName[$NPCNameList.indexOf("Whitney")].vagina isnot "none">>
+				<<link [[손가락으로 휘트니를 만족시킨다|Maths Exam]]>><<set $phase to 5>><<npcincr Whitney love 1>><<npcincr Whitney lust 1>><</link>><<skill_difficulty "$handskill" "Hand Skill" 1 1000>><<ghandskill>><<glove>><<glust>>
+				<br>
+			<</if>>
 		<</if>>
-		<<endevent>>
+		<<link [[보복한다|Whitney Maths Exam]]>><<def 1>><</link>><<physiquedifficulty 1 $physiquemax>>
+		<br>
 	<</if>>
 <<else>>
-	<<if $time lte ($hour * 60 + 5)>>
-		수학 수업이 시작되었다. 무엇을 할까?
-		<br><br>
-	<<else>>
-		수학 수업이 계속된다. 무엇을 할까?
-		<br><br>
+	<<set _continues to (Time.minute lte 5 ? "시작되었다" : "계속된다")>>
+	수학 수업이 _continues. 무엇을 할까?
+	<br><br>
+	<<if $arousal gte $arousalmax>>
+		<<set _teacher to "River">>
+		<<orgasmLocation "classroom">>
 	<</if>>
 
 	<<link [[수업에 집중한다|Maths Lesson Focus]]>><</link>><<gstress>><<gmaths>>
@@ -175,16 +194,12 @@
 	<<link [[몽상한다|Maths Lesson Daydream]]>><</link>><<lstress>><<lharass>>
 	<br>
 
-	<<if $whitneymaths is "seat">>
-		<<if $exhibitionism gte 75>>
-			<<link [[자위한다|Maths Lesson Masturbate]]>><<set $masturbationstart to 1>><<npcincr Whitney lust 1>><</link>><<exhibitionist5>><<glust>>
-			<br>
-		<</if>>
-	<<else>>
-		<<if $exhibitionism gte 55>>
-			<<link [[자위한다|Maths Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
-			<br>
-		<</if>>
+	<<if $whitneymaths is "seat" and $exhibitionism gte 75>>
+		<<link [[자위한다|Maths Lesson Masturbate]]>><<set $masturbationstart to 1>><<npcincr Whitney lust 1>><</link>><<exhibitionist5>><<glust "Whitney">>
+		<br>
+	<<elseif $exhibitionism gte 55>>
+		<<link [[자위한다|Maths Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
+		<br>
 	<</if>>
 <</if>>
 
@@ -221,24 +236,9 @@
 <<stress _lesson_progress>>
 
 <<if $phase is 1>>
-	<<set $phase to 0>>
-	종이 울리며 수업의 끝을 알린다. 당신은
-	<<storeon "mathsClassroom" "check">>
-	<<if _store_check is 1>>
-		<<storeon "mathsClassroom">>
-		코트를 집어들고는
-	<</if>>
-	교실에서 나온다.
-	<br><br>
-
-	<<link [[다음|Hallways]]>><</link>>
+	<<mathsLessonEnd>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (8900 - $allure)>>
-		<<eventsmaths>>
-	<<else>>
-		<<eventsmathssafe>>
-	<</if>>
+	<<mathsLessonEvent>>
 <</if>>
 
 :: Maths Lesson Socialise
@@ -247,7 +247,7 @@
 <<towelup>>
 
 <<if $whitneymaths is "seat">>
-	당신은 공부는 최소한으로만 하며, 휘트니와 <<nnpc_his_yi "Whitney">> 친구들과 어울리는 데에 더 집중한다.<<npcincr Whitney love 1>>
+	당신은 공부는 최소한으로만 하며, 휘트니와 <<nnpc_his_ yi "Whitney">> 친구들과 어울리는 데에 더 집중한다.<<npcincr Whitney love 1>>
 <<elseif $cool gte ($coolmax / 5 * 2)>>
 	당신은 공부는 최소한으로만 하며, 반 친구들과 어울리는 데에 더 집중한다. 당신은 곧 반 친구들의 관심의 대상이 된다.
 <<elseif $cool gte ($coolmax / 5)>>
@@ -266,24 +266,9 @@
 <<trauma _trauma>>
 
 <<if $phase is 1>>
-	<<set $phase to 0>>
-	종이 울리며 수업의 끝을 알린다. 당신은
-	<<storeon "mathsClassroom" "check">>
-	<<if _store_check is 1>>
-		<<storeon "mathsClassroom">>
-		코트를 집어들고는
-	<</if>>
-	교실에서 나온다.
-	<br><br>
-
-	<<link [[다음|Hallways]]>><</link>>
+	<<mathsLessonEnd>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (8900 - ($allure * 2))>>
-		<<eventsmaths>>
-	<<else>>
-		<<eventsmathssafe>>
-	<</if>>
+	<<mathsLessonEvent 2>>
 <</if>>
 
 :: Maths Lesson Daydream
@@ -293,13 +278,13 @@
 
 <<if $trauma gte (($traumamax / 10) * 7)>>
 	당신은 뭐 하나라도 행동을 잘못할 경우 반 전체가 당신을 괴롭힐까 무서워 혼자 지낸다.
+	<<if $whitneymaths is "seat">>휘트니는 학생들이 운동장을 빙빙 도는 것을 쳐다보느라, 당신을 알아차리지 못한 것 같다.<</if>>
 <<elseif $trauma gte (($traumamax / 10) * 2)>>
 	불안감이 스멀스멀 기어오르는 걸 막으며, 당신은 자신만의 생각에 잠긴다.
+	<<if $whitneymaths is "seat">>휘트니는 리버의 수업을 듣는 것보다 새들을 쳐다보는 것이 더 흥미로운 것 같다.<</if>>
 <<else>>
 	당신은 수업에 딱히 집중하지 않으며, 그 대신 하릴없이 창문 밖을 내다보며 방과후에 무엇을 할지 생각한다.
-<</if>>
-<<if $whitneymaths is "seat">>
-	휘트니도 같은 생각이었나보다.
+	<<if $whitneymaths is "seat">>휘트니도 같은 생각인 것 같다.<</if>>
 <</if>>
 <br><br>
 
@@ -309,23 +294,8 @@
 
 
 <<if $phase is 1>>
-	<<set $phase to 0>>
-	종이 울리며 수업의 끝을 알린다. 당신은
-	<<storeon "mathsClassroom" "check">>
-	<<if _store_check is 1>>
-		<<storeon "mathsClassroom">>
-		코트를 집어들고는
-	<</if>>
-	교실에서 나온다.
-	<br><br>
-
-	<<link [[다음|Hallways]]>><</link>>
+	<<mathsLessonEnd>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (8900 - ($allure / 2))>>
-		<<eventsmaths>>
-	<<else>>
-		<<eventsmathssafe>>
-	<</if>>
+	<<mathsLessonEvent 0.5>>
 <</if>>
 

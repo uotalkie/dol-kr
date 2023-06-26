@@ -1,19 +1,37 @@
 :: Nightingale Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "nightingale">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "nightingale">><<getTarget true>>
 당신은 나이팅게일 가에 있다. 이곳은 공립병원이 특징이지만, 그 외에도 여러 사무용 건물이 존재한다.
-<<if $daystate is "day">>
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
-		병원 근처에는 여러가지 일들이 일어나고 있다.
+		There's a lot of activity around the hospital, despite the rain.
 	<<else>>
 		병원 근처에는 여러가지 일들이 일어나고 있다.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	사람들이 직장에 도착하고 있다.
-<<elseif $daystate is "dusk">>
-	하루의 끝에 사람들이 집으로 향하고 있다.
-<<elseif $daystate is "night">>
-	병원 주변에만 빛이 존재한다.
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		The car park fills with vehicles, their occupants hurrying to their workplaces.
+	<<elseif $weather is "snow">>
+		The car park fills with vehicles, their occupants hurrying to their workplaces.
+	<<else>>
+		사람들이 직장에 도착하고 있다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		People hurry through the rain, heading home for the day.
+	<<elseif $weather is "snow">>
+		People trudge through the snow, heading home for the day.
+	<<else>>
+		하루의 끝에 사람들이 집으로 향하고 있다.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		The hospital lights up the rain.
+	<<elseif $weather is "snow">>
+		The snow is lit by an oasis of light around the hospital.
+	<<else>>
+		병원 주변에만 빛이 존재한다.
+	<</if>>
 <</if>>
 <<streeteffects>>
 <br><br>
@@ -23,28 +41,42 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "nightingale">>
 			<br>
 		<</if>>
 		주요 장소
 		<br>
-		<<link [[병원 (0:01)->Hospital front]]>><<pass 1>><</link>>
+		<<hospitalicon>><<link [[병원 (0:01)->Hospital front]]>><<pass 1>><</link>>
 		<br>
-		<<if $chef_state is 4 and $exposed lte 0>>
-			<<link [[사진 스튜디오 (3:00)|Photography Chef]]>><</link>>
-			<br>
+		<<if $exposed lte 0>>
+			<<if $chef_state is 4>>
+				<<photographystudioicon>><<link [[사진 스튜디오 (3:00)|Photography Chef]]>><</link>>
+				<br>
+			<<elseif Time.dayState is "day">>
+				<<if $photo_known is 1>>
+					<<photographystudioicon>><<link [[사진 스튜디오 (0:01)|Photo Entrance]]>><<pass 1>><</link>>
+					<br>
+				<<elseif $photo_known gte 2>>
+					<<photographystudioicon>><<link [[사진 스튜디오 (0:01)|Photo]]>><<pass 1>><</link>>
+					<br>
+				<</if>>
+			<</if>>
 		<</if>>
-		<<foresticon>><<link [[숲 (0:10)|Forest]]>><<set $eventskip to 1>><<pass 10>><<set $forest to 0>><</link>>
+		<<if $nextPassageCheck is "Forest">>
+			<span class="nextLink"><<foresticon>><<link [[숲. (0:02)|Forest]]>><<pass 2>><</link>></span>
+		<<else>>
+			<<foresticon>><<link [[숲 (0:10)|Forest]]>><<set $eventskip to 1>><<pass 10>><<set $forest to 0>><</link>>
+		<</if>>
 		<br><br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<wolf>>
@@ -60,7 +92,7 @@
 		<<park>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "nightingale">>
 		<</if>>

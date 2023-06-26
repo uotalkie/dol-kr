@@ -1,129 +1,78 @@
 :: Widgets Clothing Init [widget]
 
 <<widget "clothing_data">>
-<<set setup.clothes to {}>>
-<<init_over_upper>>
-<<init_over_lower>>
-<<init_upper>>
-<<init_lower>>
-<<init_under_upper>>
-<<init_under_lower>>
-<<init_genitals>>
-<<init_over_head>>
-<<init_head>>
-<<init_face>>
-<<init_neck>>
-<<init_hands>>
-<<init_legs>>
-<<init_feet>>
-<<set setup.clothes_all_slots to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower","over_head", "head", "face", "neck", "hands", "legs", "feet", "genitals"]>>
+	<<set setup.clothes to {}>>
+	<<set setup.moddedClothes to {}>>
+	<<init_over_upper>>
+	<<init_over_lower>>
+	<<init_upper>>
+	<<init_lower>>
+	<<init_under_upper>>
+	<<init_under_lower>>
+	<<init_genitals>>
+	<<init_over_head>>
+	<<init_head>>
+	<<init_face>>
+	<<init_neck>>
+	<<init_hands>>
+	<<init_legs>>
+	<<init_feet>>
+	<<set _allClothes to []>>
 
-<!-- Re-assign clothes IDs (indices) automatically to avoid accidentally giving multiple clothes the same ID manually
-	due to copypaste error (cue moon & star pj pants). Normally, this doesn't modify anything, just a failsafe -->
-<<run Object.keys(setup.clothes).forEach(slot => setup.clothes[slot].forEach((item, i) => item.index = i))>>
+	<<run allClothesSetup()>>
+	<<set setup.clothes_all_slots to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower","over_head", "head", "face", "neck", "hands", "legs", "feet", "genitals"]>>
 
-<!-- Find all unique traits (types) clothes can have -->
-<<set $clothingTraits = [...new Set(Object.keys(setup.clothes).flatMap(x => setup.clothes[x]).flatMap(x => x.type))]>>
+	<!-- Throw an error if any clothing item has an index which is not correct for its position in its array. -->
+	<<run Object.keys(setup.clothes).forEach(slot => {
+		if(slot === 'all') return false;
+		setup.clothes[slot].forEach((item, i) => {
+			if (item.index !== i) throw new Error("The index of "+item.name+" should be "+i+", not "+item.index)
+		})
+	})>>
 
+	<!-- Find all unique traits (types) clothes can have -->
+	<<set setup.clothingTraits = [...new Set(Object.keys(setup.clothes).flatMap(x => setup.clothes[x]).flatMap(x => x.type))]>>
+
+	<<init_npc_clothes>>
 <</widget>>
 
 <<widget "clothing_arrays">>
-
-<<set $clothes to {}>>
-<<set $worn to {}>>
-<<set $wardrobe to {}>>
-<<set $store to {}>>
-<<set $outfit to []>>
-<<set $carried to {}>>
-
-<<set $worn.over_upper to clone(setup.clothes.over_upper[0])>>
-<<set $worn.over_lower to clone(setup.clothes.over_lower[0])>>
-<<set $worn.upper to clone(setup.clothes.upper[0])>>
-<<set $worn.lower to clone(setup.clothes.lower[0])>>
-<<set $worn.under_upper to clone(setup.clothes.under_upper[0])>>
-<<set $worn.under_lower to clone(setup.clothes.under_lower[0])>>
-<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
-<<set $worn.over_head to clone(setup.clothes.over_head[0])>>
-<<set $worn.head to clone(setup.clothes.head[0])>>
-<<set $worn.face to clone(setup.clothes.face[0])>>
-<<set $worn.neck to clone(setup.clothes.head[0])>>
-<<set $worn.hands to clone(setup.clothes.hands[0])>>
-<<set $worn.legs to clone(setup.clothes.legs[0])>>
-<<set $worn.feet to clone(setup.clothes.feet[0])>>
-
-<<set $wardrobe.over_upper to []>>
-<<set $wardrobe.over_lower to []>>
-<<set $wardrobe.upper to []>>
-<<set $wardrobe.lower to []>>
-<<set $wardrobe.under_upper to []>>
-<<set $wardrobe.under_lower to []>>
-<<set $wardrobe.over_head to []>>
-<<set $wardrobe.head to []>>
-<<set $wardrobe.face to []>>
-<<set $wardrobe.neck to []>>
-<<set $wardrobe.hands to []>>
-<<set $wardrobe.legs to []>>
-<<set $wardrobe.feet to []>>
-<<set $wardrobe.space to 40>>
-
-<<set $outfit to [
-
-	{index: 0,
-	name: "Pyjamas",
-	over_upper: "naked",
-	over_lower: "naked",
-	upper: "pyjama shirt",
-	lower: "pyjama bottoms",
-	under_upper: "naked",
-	under_lower: "naked",
-	over_head: "naked",
-	head: "naked",
-	face: "naked",
-	neck: "naked",
-	hands: "naked",
-	legs: "naked",
-	feet: "naked",
-	type: ["sleep"]
-}
-
-]>>
-
-<<set $carried.over_upper to clone(setup.clothes.over_upper[0])>>
-<<set $carried.over_lower to clone(setup.clothes.over_lower[0])>>
-<<set $carried.upper to clone(setup.clothes.upper[0])>>
-<<set $carried.lower to clone(setup.clothes.lower[0])>>
-<<set $carried.under_upper to clone(setup.clothes.under_upper[0])>>
-<<set $carried.under_lower to clone(setup.clothes.under_lower[0])>>
-<<set $carried.genitals to clone(setup.clothes.genitals[0])>>
-<<set $carried.over_head to clone(setup.clothes.over_head[0])>>
-<<set $carried.head to clone(setup.clothes.head[0])>>
-<<set $carried.face to clone(setup.clothes.face[0])>>
-<<set $carried.neck to clone(setup.clothes.neck[0])>>
-<<set $carried.hands to clone(setup.clothes.hands[0])>>
-<<set $carried.legs to clone(setup.clothes.legs[0])>>
-<<set $carried.feet to clone(setup.clothes.feet[0])>>
-
-<<set $store.over_upper to []>>
-<<set $store.over_lower to []>>
-<<set $store.upper to []>>
-<<set $store.lower to []>>
-<<set $store.under_upper to []>>
-<<set $store.under_lower to []>>
-<<set $store.over_head to []>>
-<<set $store.head to []>>
-<<set $store.face to []>>
-<<set $store.neck to []>>
-<<set $store.hands to []>>
-<<set $store.legs to []>>
-<<set $store.feet to []>>
-
+	<<script>>
+		V.clothes = {};
+		V.store = {};
+		V.wardrobe = { space: 20 };
+		V.outfitTmp = {};
+		V.carried = {};
+		V.worn = {};
+		const worn = {};
+		for (let slot of setup.clothes_all_slots) {
+			V.store[slot] = [];
+			V.wardrobe[slot] = [];
+			V.carried[slot] = clone(setup.clothes[slot][0]);
+			V.worn[slot] = clone(setup.clothes[slot][0]);
+			/* create a proxy that will forward the calls to V.worn[slot], but also pull extra properties from setup.clothes if necessary.
+			writing to C.worn.slot.property will only affect V.worn.slot.property.
+			please, AVOID calling C.worn.slot without properties!! */
+			worn[slot] = new Proxy (
+				{ /* direct proxy to V.worn is impossible due to the latter getting re-created every passage, so we use empty object instead */ }, {
+					get(nil, prop) { return prop in V.worn[slot]
+						? V.worn[slot][prop]
+						: setup.clothes[slot][clothesIndex(slot, V.worn[slot])][prop];
+					},
+					set(nil, prop, val) { return V.worn[slot][prop] = val },
+				}
+			);
+		};
+		/* freeze worn to prevent proxies from being overwritten */
+		Object.freeze(worn);
+		C.worn = worn;
+		V.outfit = [{ index: 0, name: "Pyjamas", over_upper: "naked", over_lower: "naked", upper: "pyjama shirt", lower: "pyjama bottoms", under_upper: "naked", under_lower: "naked", over_head: "naked", head: "naked", face: "naked", neck: "naked", hands: "naked", legs: "naked", feet: "naked", type: ["sleep"], colors: false }];
+	<</script>>
+	<<wardrobesUpdate>>
 <</widget>>
 
 <<widget "clothinginit">>
 	<<clothing_arrays>>
-	<<set $upperstore to 0>>
-	<<set $lowerstore to 0>>
-	<<set $understore to 0>>
 	<<set $upperoff to 0>>
 	<<set $loweroff to 0>>
 	<<set $underloweroff to 0>>
@@ -150,189 +99,526 @@
 	<<set $wear_hands to "none">>
 	<<set $wear_legs to "none">>
 	<<set $wear_feet to "none">>
+	<<set $wear_genitals to "none">>
 	<<set $wear_outfit to "none">>
 <</widget>>
 
 <<widget "givestartclothing">>
+	<<set $worn.over_upper to clone(setup.clothes.over_upper[0])>>
+	<<set $worn.over_lower to clone(setup.clothes.over_lower[0])>>
+	<<set $worn.upper to clone(setup.clothes.upper[0])>>
+	<<set $worn.lower to clone(setup.clothes.lower[0])>>
+	<<set $worn.under_upper to clone(setup.clothes.under_upper[0])>>
+	<<set $worn.under_lower to clone(setup.clothes.under_lower[0])>>
+	<<set $worn.over_head to clone(setup.clothes.over_head[0])>>
+	<<set $worn.head to clone(setup.clothes.head[0])>>
+	<<set $worn.face to clone(setup.clothes.face[0])>>
+	<<set $worn.neck to clone(setup.clothes.neck[0])>>
+	<<set $worn.hands to clone(setup.clothes.neck[0])>>
+	<<set $worn.legs to clone(setup.clothes.legs[0])>>
+	<<set $worn.feet to clone(setup.clothes.feet[0])>>
 
-<<set $worn.over_upper to clone(setup.clothes.over_upper[0])>>
-<<set $worn.over_lower to clone(setup.clothes.over_lower[0])>>
-<<set $worn.upper to clone(setup.clothes.upper[0])>>
-<<set $worn.lower to clone(setup.clothes.lower[0])>>
-<<set $worn.under_upper to clone(setup.clothes.under_upper[0])>>
-<<set $worn.under_lower to clone(setup.clothes.under_lower[0])>>
-<<set $worn.over_head to clone(setup.clothes.over_head[0])>>
-<<set $worn.head to clone(setup.clothes.head[0])>>
-<<set $worn.face to clone(setup.clothes.face[0])>>
-<<set $worn.neck to clone(setup.clothes.neck[0])>>
-<<set $worn.hands to clone(setup.clothes.neck[0])>>
-<<set $worn.legs to clone(setup.clothes.legs[0])>>
-<<set $worn.feet to clone(setup.clothes.feet[0])>>
+	<<if ($player.gender is "f" and $background isnot "crossdresser") or
+		($player.gender is "m" and $background is "crossdresser") or
+		($player.gender is "h" and
+			(
+				(($player.gender_body is "m" or ($player.gender_body is "a" and $player.breastsize lte 3)) and $background is "crossdresser") or
+				(($player.gender_body is "f" or ($player.gender_body is "a" and $player.breastsize gt 3)) and $background isnot "crossdresser")
+			)
+		)>>
+		<<set $outfit.push(
+			{index: $outfit.length,
+			name: "Everyday",
+			over_upper: "naked",
+			over_lower: "naked",
+			upper: "sundress",
+			lower: "sundress skirt",
+			under_upper: "naked",
+			under_lower: "plain panties",
+			over_head: "naked",
+			head: "naked",
+			face: "naked",
+			neck: "naked",
+			legs: "girl's gym socks",
+			feet: "school shoes",
+			type: ["normal"],
+			colors: false
+			},
+			{index: $outfit.length,
+			name: "School",
+			over_upper: "naked",
+			over_lower: "naked",
+			upper: "school shirt",
+			lower: "school skirt",
+			under_upper: "naked",
+			under_lower: "plain panties",
+			over_head: "naked",
+			head: "hairpin",
+			face: "naked",
+			neck: "naked",
+			legs: "girl's gym socks",
+			feet: "school shoes",
+			type: ["school"],
+			colors: false
+			},
+			{index: $outfit.length,
+			name: "Swimwear",
+			over_upper: "naked",
+			over_lower: "naked",
+			upper: "naked",
+			lower: "naked",
+			under_upper: "school swimsuit",
+			under_lower: "school swimsuit bottom",
+			over_head: "naked",
+			head: "naked",
+			face: "naked",
+			neck: "naked",
+			legs: "naked",
+			feet: "naked",
+			type: ["swim"],
+			colors: false
+			}
+		)>>
 
+		<<set $worn.upper to clone(setup.clothes.upper[1])>>
+		<<set $worn.upper.colour to "white">>
+		<<set $worn.lower to clone(setup.clothes.lower[1])>>
+		<<set $worn.lower.colour to "white">>
+		<<set $worn.under_lower to clone(setup.clothes.under_lower[1])>>
+		<<set $worn.under_lower.colour to "pale white">>
+		<<set $worn.legs to clone(setup.clothes.legs[3])>>
+		<<set $worn.head = clone(setup.clothes.head[1])>>
+		<<set $worn.feet = clone(setup.clothes.feet[1])>>
 
+		<<if $player.breastsize lte 3>>
+			<<set $wardrobe.under_upper.push(clone(setup.clothes.under_upper[12]))>>
+			<<set $wardrobe.under_upper.last().colour to "pale white">>
+		<<else>>
+			<<set $worn.under_upper = clone(setup.clothes.under_upper[12])>>
+			<<set $worn.under_upper.colour to "pale white">>
+			<<set $outfit[1].under_upper = "plain bra">>
+			<<set $outfit[2].under_upper = "plain bra">>
+		<</if>>
 
-<<if ($player.gender is "f" and $background isnot "crossdresser") or
-	($player.gender is "m" and $background is "crossdresser") or
-	($player.gender is "h" and
-		(
-			(($player.gender_body is "m" or ($player.gender_body is "a" and $breastsize lte 3)) and $background is "crossdresser") or
-			(($player.gender_body is "f" or ($player.gender_body is "a" and $breastsize gt 3)) and $background isnot "crossdresser")
-		)
-	)>>
-	<<set $outfit.push(
-		{index: $outfit.length,
-		name: "Everyday",
-		over_upper: "naked",
-		over_lower: "naked",
-		upper: "sundress",
-		lower: "sundress skirt",
-		under_upper: "naked",
-		under_lower: "plain panties",
-		over_head: "naked",
-		head: "naked",
-		face: "naked",
-		neck: "naked",
-		legs: "girl's gym socks",
-		feet: "school shoes",
-		type: ["normal"]
-		},
-		{index: $outfit.length,
-		name: "School",
-		over_upper: "naked",
-		over_lower: "naked",
-		upper: "school shirt",
-		lower: "school skirt",
-		under_upper: "naked",
-		under_lower: "plain panties",
-		over_head: "naked",
-		head: "hairpin",
-		face: "naked",
-		neck: "naked",
-		legs: "girl's gym socks",
-		feet: "school shoes",
-		type: ["school"]
-		},
-		{index: $outfit.length,
-		name: "Swimwear",
-		over_upper: "naked",
-		over_lower: "naked",
-		upper: "naked",
-		lower: "naked",
-		under_upper: "school swimsuit",
-		under_lower: "school swimsuit bottom",
-		over_head: "naked",
-		head: "naked",
-		face: "naked",
-		neck: "naked",
-		legs: "naked",
-		feet: "naked",
-		type: ["swim"]
-		}
-	)>>
-
-	<<set $worn.upper to clone(setup.clothes.upper[1])>>
-	<<set $worn.upper.colour to "white">>
-	<<set $worn.lower to clone(setup.clothes.lower[1])>>
-	<<set $worn.lower.colour to "white">>
-	<<set $worn.under_lower to clone(setup.clothes.under_lower[1])>>
-	<<set $worn.under_lower.colour to "pale white">>
-	<<set $worn.legs to clone(setup.clothes.legs[3])>>
-	<<set $worn.head = clone(setup.clothes.head[1])>>
-	<<set $worn.feet = clone(setup.clothes.feet[1])>>
-
-	<<if $breastsize lte 3>>
-		<<set $wardrobe.under_upper.push(clone(setup.clothes.under_upper[12]))>>
-		<<set $wardrobe.under_upper.last().colour to "pale white">>
+		<<set $wardrobe.upper.push(clone(setup.clothes.upper[5]))>>
+		<<set $wardrobe.upper.last().colour to "white">>
+		<<set $wardrobe.upper.last().accessory_colour to "light blue">>
+		<<set $wardrobe.lower.push(clone(setup.clothes.lower[7]))>>
+		<<set $wardrobe.lower.last().colour to "black">>
+		<<set $wardrobe.upper.push(clone(setup.clothes.upper[2]))>>
+		<<set $wardrobe.upper.last().colour to "blue">>
+		<<set $wardrobe.lower.push(clone(setup.clothes.lower[2]))>>
+		<<set $wardrobe.lower.last().colour to "blue">>
+		<<set $wardrobe.under_upper.push(clone(setup.clothes.under_upper[2]))>>
+		<<set $wardrobe.under_upper.last().colour to "blue">>
+		<<set $wardrobe.under_lower.push(clone(setup.clothes.under_lower[6]))>>
+		<<set $wardrobe.under_lower.last().colour to "blue">>
 	<<else>>
-		<<set $worn.under_upper = clone(setup.clothes.under_upper[12])>>
-		<<set $worn.under_upper.colour to "pale white">>
-		<<set $outfit[1].under_upper = "plain bra">>
-		<<set $outfit[2].under_upper = "plain bra">>
+		<<set $outfit.push(
+			{index: $outfit.length,
+			name: "Everyday",
+			over_upper: "naked",
+			over_lower: "naked",
+			upper: "t-shirt",
+			lower: "shorts",
+			under_upper: "naked",
+			under_lower: "briefs",
+			over_head: "naked",
+			head: "naked",
+			face: "naked",
+			neck: "naked",
+			legs: "boy's gym socks",
+			feet: "school shoes",
+			type: ["normal"],
+			colors: false
+			},
+			{index: $outfit.length,
+			name: "School",
+			over_upper: "naked",
+			over_lower: "naked",
+			upper: "school shirt",
+			lower: "school shorts",
+			under_upper: "naked",
+			under_lower: "briefs",
+			over_head: "naked",
+			head: "naked",
+			face: "naked",
+			neck: "naked",
+			legs: "boy's gym socks",
+			feet: "school shoes",
+			type: ["school"],
+			colors: false
+			},
+			{index: $outfit.length,
+			name: "Swimwear",
+			over_upper: "naked",
+			over_lower: "naked",
+			upper: "naked",
+			lower: "naked",
+			under_upper: "naked",
+			under_lower: "school swim shorts",
+			over_head: "naked",
+			head: "naked",
+			face: "naked",
+			neck: "naked",
+			legs: "naked",
+			feet: "naked",
+			type: ["swim"],
+			colors: false
+			}
+		)>>
+
+		<<set $worn.upper to clone(setup.clothes.upper[4])>>
+		<<set $worn.upper.colour to "tangerine">>
+		<<set $worn.lower to clone(setup.clothes.lower[5])>>
+		<<set $worn.lower.colour to "blue">>
+		<<set $worn.under_lower to clone(setup.clothes.under_lower[4])>>
+		<<set $worn.under_lower.colour to "black">>
+		<<set $worn.legs to clone(setup.clothes.legs[2])>>
+		<<set $worn.feet = clone(setup.clothes.feet[1])>>
+
+		<<set $wardrobe.upper.push(clone(setup.clothes.upper[5]))>>
+		<<set $wardrobe.upper.last().colour to "white">>
+		<<set $wardrobe.upper.last().accessory_colour to "light blue">>
+		<<set $wardrobe.lower.push(clone(setup.clothes.lower[6]))>>
+		<<set $wardrobe.lower.last().colour to "black">>
+		<<set $wardrobe.upper.push(clone(setup.clothes.upper[2]))>>
+		<<set $wardrobe.upper.last().colour to "blue">>
+		<<set $wardrobe.lower.push(clone(setup.clothes.lower[2]))>>
+		<<set $wardrobe.lower.last().colour to "blue">>
+		<<set $wardrobe.under_lower.push(clone(setup.clothes.under_lower[7]))>>
+		<<set $wardrobe.under_lower.last().colour to "blue">>
+		<<set $wardrobe.head.push(clone(setup.clothes.head[1]))>>
 	<</if>>
+	<!-- strip the unneeded vars from starting clothes -->
+	<<run clothesDataTrimmerLoop()>>
+<</widget>>
 
-	<<set $wardrobe.upper.push(clone(setup.clothes.upper[5]))>>
-	<<set $wardrobe.upper.last().colour to "white">>
-	<<set $wardrobe.lower.push(clone(setup.clothes.lower[7]))>>
-	<<set $wardrobe.lower.last().colour to "black">>
-	<<set $wardrobe.upper.push(clone(setup.clothes.upper[2]))>>
-	<<set $wardrobe.upper.last().colour to "blue">>
-	<<set $wardrobe.lower.push(clone(setup.clothes.lower[2]))>>
-	<<set $wardrobe.lower.last().colour to "blue">>
-	<<set $wardrobe.under_upper.push(clone(setup.clothes.under_upper[2]))>>
-	<<set $wardrobe.under_upper.last().colour to "blue">>
-	<<set $wardrobe.under_lower.push(clone(setup.clothes.under_lower[6]))>>
-	<<set $wardrobe.under_lower.last().colour to "blue">>
-<<else>>
-	<<set $outfit.push(
-		{index: $outfit.length,
-		name: "Everyday",
-		over_upper: "naked",
-		over_lower: "naked",
-		upper: "t-shirt",
-		lower: "shorts",
-		under_upper: "naked",
-		under_lower: "briefs",
-		over_head: "naked",
-		head: "naked",
-		face: "naked",
-		neck: "naked",
-		legs: "boy's gym socks",
-		feet: "school shoes",
-		type: ["normal"]
+<<widget "init_npc_clothes">>
+	<<set _npcClothesItems to {
+		"upper": {
+			"shirt":					{name:"shirt",						integrity_max:100, word:"a", action:"lift"},
+			"naked":					{name:"naked",						integrity_max:100, word:"n", action:"none"},
+			"school shirt":				{name:"school shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"school blouse":			{name:"school blouse",				integrity_max:100, word:"a", action:"unbutton"},
+			"dress shirt":				{name:"dress shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"school blazer":			{name:"school blazer",				integrity_max:100, word:"a", action:"pull"},
+			"teacher's uniform":		{name:"teacher's uniform",			integrity_max:100, word:"a", action:"unbutton"},
+			"swim shirt":				{name:"swim shirt",					integrity_max:100, word:"a", action:"lift"},
+			"school swimsuit top":		{name:"school swimsuit top",		integrity_max:100, word:"a", action:"pull"},
+			"bikini top":				{name:"bikini top",					integrity_max:100, word:"a", action:"pull"},
+			"microkini top":			{name:"microkini top",				integrity_max:100, word:"a", action:"pull"},
+			"diving suit":				{name:"diving suit",				integrity_max:100, word:"a", action:"unzip"},
+			"sailor shirt":				{name:"sailor shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"hi-vis jacket":			{name:"hi-vis jacket",				integrity_max:100, word:"a", action:"unzip"},
+			"denim shirt":				{name:"denim shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"hoodie":					{name:"hoodie",						integrity_max:100, word:"a", action:"lift"},
+			"vest":						{name:"vest",						integrity_max:100, word:"a", action:"lift"},
+			"police shirt":				{name:"police shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"uniform shirt":			{name:"uniform shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"monk robe top":			{name:"monk robe top",				integrity_max:100, word:"a", action:"open"},
+			"nun robe top":				{name:"nun robe top",				integrity_max:100, word:"a", action:"open"},
+			"robe top":					{name:"robe top",					integrity_max:100, word:"a", action:"open"},
+			"black robe top":			{name:"black robe top",				integrity_max:100, word:"a", action:"open"},
+			"jumpsuit shirt":			{name:"jumpsuit shirt",				integrity_max:100, word:"a", action:"unzip"},
+			"tuxedo shirt":				{name:"tuxedo shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"evening gown top":			{name:"evening gown top",			integrity_max:100, word:"a", action:"pull"},
+			"ballgown top":				{name:"ballgown top",				integrity_max:100, word:"a", action:"pull"},
+			"gothic jacket and vest":	{name:"gothic jacket and vest",		integrity_max:100, word:"a", action:"unbutton"},
+			"gothic gown top":			{name:"gothic gown top",			integrity_max:100, word:"a", action:"pull"},
+			"business suit top":		{name:"business suit top",			integrity_max:100, word:"a", action:"unbutton"},
+			"t-shirt":					{name:"t-shirt",					integrity_max:100, word:"a", action:"lift"},
+			"sundress top":				{name:"sundress top",				integrity_max:100, word:"a", action:"pull"},
+			"tracksuit top":			{name:"tracksuit top",				integrity_max:100, word:"a", action:"unzip"},
+			"peacoat":					{name:"peacoat",					integrity_max:100, word:"a", action:"unbutton"},
+			"turtleneck":				{name:"turtleneck",					integrity_max:100, word:"a", action:"lift"},
+			"collared shirt":			{name:"collared shirt",				integrity_max:100, word:"a", action:"unbutton"},
+			"blazer":					{name:"blazer",						integrity_max:100, word:"a", action:"lift"},
+			"sports jersey":			{name:"sports jersey",				integrity_max:100, word:"a", action:"lift"},
+			"sweater vest":				{name:"sweater vest",				integrity_max:100, word:"a", action:"lift"},
+			"v neck":					{name:"v neck",						integrity_max:100, word:"a", action:"lift"},
+			"tank top":					{name:"tank top",					integrity_max:100, word:"a", action:"pull"},
+			"blouse":					{name:"blouse",						integrity_max:100, word:"a", action:"lift"},
+			"crop top":					{name:"crop top",					integrity_max:100, word:"a", action:"pull"},
+			"tank top":					{name:"tank top",					integrity_max:100, word:"a", action:"pull"},
+			"bra":						{name:"bra",						integrity_max:100, word:"a", action:"undo"},
+			"puffer jacket":			{name:"puffer jacket",				integrity_max:100, word:"a", action:"unzip"},
+			"trenchcoat":				{name:"trenchcoat",					integrity_max:100, word:"a", action:"open"},
+			"coat":						{name:"coat",						integrity_max:100, word:"a", action:"open"},
+			"hoodie":					{name:"hoodie",						integrity_max:100, word:"a", action:"lift"},
+			"sweater":					{name:"sweater",					integrity_max:100, word:"a", action:"lift"},
+			"rain coat":				{name:"rain coat",					integrity_max:100, word:"a", action:"unzip"},
+			"flannel":					{name:"flannel",					integrity_max:100, word:"a", action:"unbutton"},
+			"woolen jumper":			{name:"woolen jumper",				integrity_max:100, word:"a", action:"lift"},
+			"fleece jumper":			{name:"fleece jumper",				integrity_max:100, word:"a", action:"lift"},
+			"jacket":					{name:"jacket",						integrity_max:100, word:"a", action:"unzip"},
+			"camo jacket":				{name:"camo jacket",				integrity_max:100, word:"a", action:"unzip"},
+			"trench coat":				{name:"trench coat",				integrity_max:100, word:"a", action:"open"},
+			"leather vest":				{name:"leather vest",				integrity_max:100, word:"a", action:"open"},
+			"leather harness":			{name:"leather harness",			integrity_max:100, word:"a", action:"open"},
+			"bathrobe":					{name:"bathrobe",					integrity_max:100, word:"a", action:"open"},
+			"lab coat":					{name:"lab coat",					integrity_max:100, word:"a", action:"unbutton"},
+			"security vest":			{name:"security vest",				integrity_max:100, word:"a", action:"unbutton"},
+			"doctor's coat":			{name:"doctor's coat",				integrity_max:100, word:"a", action:"unbutton"},
+			"nurse's coat":				{name:"nurse's coat",				integrity_max:100, word:"a", action:"unbutton"},
+			"patient gown":				{name:"patient gown",				integrity_max:100, word:"a", action:"pull"},
+			"jumpsuit top":				{name:"jumpsuit top",				integrity_max:100, word:"a", action:"unzip"},
+			"coverall top":				{name:"coverall top",				integrity_max:100, word:"a", action:"unzip"},
+			"dance shirt":				{name:"dance shirt",				integrity_max:100, word:"a", action:"pull"},
+			"shirtless suit":			{name:"shirtless suit",				integrity_max:100, word:"a", action:"open"},
+			"low-neck dress":			{name:"low-neck dress",				integrity_max:100, word:"a", action:"pull"},
+			"riding top":				{name:"riding top",					integrity_max:100, word:"a", action:"unbutton"},
+			"shadbelly coat":			{name:"shadbelly coat",				integrity_max:100, word:"a", action:"unbutton"},
+			"ramshackle hunting coat":	{name:"ramshackle hunting coat",	integrity_max:100, word:"a", action:"unbutton"},
+			"ruined suit":				{name:"ruined suit",				integrity_max:100, word:"a", action:"open"},
+			"grey sweater":				{name:"grey sweater",				integrity_max:100, word:"a", action:"lift"},
+			"grey cardigan":			{name:"grey cardigan",				integrity_max:100, word:"a", action:"open"},
+			"leather jacket":			{name:"leather jacket",				integrity_max:100, word:"a", action:"open"},
+			"jacaranda vest":			{name:"jacaranda vest",				integrity_max:100, word:"a", action:"pull"},
+			"blossoming growths":		{name:"blossoming growths",			integrity_max:100, word:"n", action:"pull"},
+			"leaf shirt":				{name:"leaf shirt",					integrity_max:100, word:"a", action:"pull"},
+			"leaf corset":				{name:"leaf corset",				integrity_max:100, word:"a", action:"pull"},
+			"pine top":					{name:"pine top",					integrity_max:100, word:"a", action:"pull"},
+			"plant top":				{name:"plant top",					integrity_max:100, word:"a", action:"pull"},
+			"sundress":					{name:"sundress",					integrity_max:100, word:"a", action:"lift"},
+			"tuxedo":					{name:"tuxedo",						integrity_max:100, word:"a", action:"unbutton"},
+			"gothic gown":				{name:"gothic gown",				integrity_max:100, word:"a", action:"pull"},
+			"kimono":					{name:"kimono",						integrity_max:100, word:"a", action:"pull"},
+			"christmas top":			{name:"christmas top",				integrity_max:100, word:"a", action:"pull"},
+			"ribbons":					{name:"ribbons",					integrity_max:100, word:"n", action:"unwrap"},
+			"pyjama shirt":				{name:"pyjama shirt",				integrity_max:100, word:"a", action:"lift"},
+			"ghost sheet":				{name:"ghost sheet",				integrity_max:100, word:"a", action:"lift"},
+			"vampire jacket":			{name:"vampire jacket",				integrity_max:100, word:"a", action:"open"},
+			"witch dress":				{name:"witch dress",				integrity_max:100, word:"a", action:"pull"},
+			"flowing robe":				{name:"flowing robe",				integrity_max:100, word:"a", action:"lift"}
 		},
-		{index: $outfit.length,
-		name: "School",
-		over_upper: "naked",
-		over_lower: "naked",
-		upper: "school shirt",
-		lower: "school shorts",
-		under_upper: "naked",
-		under_lower: "briefs",
-		over_head: "naked",
-		head: "naked",
-		face: "naked",
-		neck: "naked",
-		legs: "boy's gym socks",
-		feet: "school shoes",
-		type: ["school"]
-		},
-		{index: $outfit.length,
-		name: "Swimwear",
-		over_upper: "naked",
-		over_lower: "naked",
-		upper: "naked",
-		lower: "naked",
-		under_upper: "naked",
-		under_lower: "school swim shorts",
-		over_head: "naked",
-		head: "naked",
-		face: "naked",
-		neck: "naked",
-		legs: "naked",
-		feet: "naked",
-		type: ["swim"]
+		"lower": {
+			"naked":					{name:"naked",						integrity_max:100, word:"n", action:"none"},
+			"trousers":					{name:"trousers",					integrity_max:100, word:"n", action:"pull"},
+			"skirt":					{name:"skirt",						integrity_max:100, word:"a", action:"lift"},
+			"school shorts":			{name:"school shorts",				integrity_max:100, word:"n", action:"pull"},
+			"school skirt":				{name:"school skirt",				integrity_max:100, word:"a", action:"lift"},
+			"short school skirt":		{name:"short school skirt",			integrity_max:100, word:"a", action:"lift"},
+			"school trousers":			{name:"school trousers",			integrity_max:100, word:"n", action:"pull"},
+			"long school skirt":		{name:"long school skirt",			integrity_max:100, word:"a", action:"lift"},
+			"teacher's slacks":			{name:"teacher's slacks",			integrity_max:100, word:"n", action:"unzip"},
+			"school swim shorts":		{name:"school swim shorts",			integrity_max:100, word:"n", action:"pull"},
+			"school swimsuit bottoms":	{name:"school swimsuit bottoms",	integrity_max:100, word:"n", action:"aside"},
+			"swim shorts":				{name:"swim shorts",				integrity_max:100, word:"n", action:"pull"},
+			"board shorts":				{name:"board shorts",				integrity_max:100, word:"n", action:"pull"},
+			"bikini bottoms":			{name:"bikini bottoms",				integrity_max:100, word:"n", action:"pull"},
+			"microkini bottoms":		{name:"microkini bottoms",			integrity_max:100, word:"n", action:"pull"},
+			"diving suit bottoms":		{name:"diving suit bottoms",		integrity_max:100, word:"n", action:"unzip"},
+			"sailor trousers":			{name:"sailor trousers",			integrity_max:100, word:"n", action:"unzip"},
+			"cargo trousers":			{name:"cargo trousers",				integrity_max:100, word:"n", action:"pull"},
+			"police trousers":			{name:"police trousers",			integrity_max:100, word:"n", action:"unzip"},
+			"police skirt":				{name:"police skirt",				integrity_max:100, word:"a", action:"lift"},
+			"uniform trousers":			{name:"uniform trousers",			integrity_max:100, word:"n", action:"unzip"},
+			"monk robes":				{name:"monk robes",					integrity_max:100, word:"n", action:"aside"},
+			"nun robe skirt":			{name:"nun robe skirt",				integrity_max:100, word:"a", action:"lift"},
+			"robes":					{name:"robes",						integrity_max:100, word:"n", action:"aside"},
+			"black robes":				{name:"black robes",				integrity_max:100, word:"n", action:"aside"},
+			"jumpsuit bottoms":			{name:"jumpsuit bottoms",			integrity_max:100, word:"n", action:"unzip"},
+			"tuxedo trousers":			{name:"tuxedo trousers",			integrity_max:100, word:"n", action:"unzip"},
+			"evening gown":				{name:"evening gown",				integrity_max:100, word:"a", action:"lift"},
+			"ballgown skirt":			{name:"ballgown skirt",				integrity_max:100, word:"a", action:"lift"},
+			"breeches":					{name:"breeches",					integrity_max:100, word:"a", action:"pull"},
+			"gothic trousers":			{name:"gothic trousers",			integrity_max:100, word:"n", action:"unzip"},
+			"gothic gown":				{name:"gothic gown",				integrity_max:100, word:"a", action:"lift"},
+			"business trousers":		{name:"business trousers",			integrity_max:100, word:"n", action:"unzip"},
+			"sundress skirt":			{name:"sundress skirt",				integrity_max:100, word:"a", action:"lift"},
+			"tracksuit bottoms":		{name:"tracksuit bottoms",			integrity_max:100, word:"n", action:"pull"},
+			"slacks":					{name:"slacks",						integrity_max:100, word:"n", action:"unzip"},
+			"jeans":					{name:"jeans",						integrity_max:100, word:"n", action:"unbutton"},
+			"khakis":					{name:"khakis",						integrity_max:100, word:"n", action:"unzip"},
+			"jeans":					{name:"jeans",						integrity_max:100, word:"n", action:"unzip"},
+			"shorts":					{name:"shorts",						integrity_max:100, word:"n", action:"pull"},
+			"miniskirt":				{name:"miniskirt",					integrity_max:100, word:"a", action:"lift"},
+			"boyshorts":				{name:"boyshorts",					integrity_max:100, word:"n", action:"pull"},
+			"panties":					{name:"panties",					integrity_max:100, word:"n", action:"pull"},
+			"boxers":					{name:"boxers",						integrity_max:100, word:"n", action:"unbutton"},
+			"briefs":					{name:"briefs",						integrity_max:100, word:"n", action:"pull"},
+			"jorts":					{name:"jorts",						integrity_max:100, word:"n", action:"pull"},
+			"sweatpants":				{name:"sweatpants",					integrity_max:100, word:"n", action:"pull"},
+			"rain bottoms":				{name:"rain bottoms",				integrity_max:100, word:"n", action:"pull"},
+			"camo bottoms":				{name:"camo bottoms",				integrity_max:100, word:"n", action:"unzip"},
+			"assless chaps":			{name:"assless chaps",				integrity_max:100, word:"n", action:"pull"},
+			"hot pants":				{name:"hot pants",					integrity_max:100, word:"n", action:"pull"},
+			"leather trousers":			{name:"leather trousers",			integrity_max:100, word:"n", action:"pull"},
+			"bathrobe":					{name:"bathrobe",					integrity_max:100, word:"a", action:"lift"},
+			"lab trousers":				{name:"lab trousers",				integrity_max:100, word:"n", action:"unzip"},
+			"security trousers":		{name:"security trousers",			integrity_max:100, word:"n", action:"unzip"},
+			"white trousers":			{name:"white trousers",				integrity_max:100, word:"n", action:"pull"},
+			"white skirt":				{name:"white skirt",				integrity_max:100, word:"a", action:"lift"},
+			"gown skirt":				{name:"gown skirt",					integrity_max:100, word:"a", action:"lift"},
+			"jumpsuit trousers":		{name:"jumpsuit trousers",			integrity_max:100, word:"n", action:"pull"},
+			"coverall bottoms":			{name:"coverall bottoms",			integrity_max:100, word:"n", action:"unzip"},
+			"dance shorts":				{name:"dance shorts",				integrity_max:100, word:"n", action:"pull"},
+			"formal trousers":			{name:"formal trousers",			integrity_max:100, word:"n", action:"pull"},
+			"cropped dress skirt":		{name:"cropped dress skirt",		integrity_max:100, word:"a", action:"lift"},
+			"riding trousers":			{name:"riding trousers",			integrity_max:100, word:"n", action:"pull"},
+			"chapette breeches":		{name:"chapette breeches",			integrity_max:100, word:"n", action:"pull"},
+			"torn hunting trousers":	{name:"torn hunting trousers",		integrity_max:100, word:"n", action:"pull"},
+			"ruined trousers":			{name:"ruined trousers",			integrity_max:100, word:"n", action:"pull"},
+			"dark trousers":			{name:"dark trousers",				integrity_max:100, word:"n", action:"pull"},
+			"torn jeans":				{name:"torn jeans",					integrity_max:100, word:"n", action:"unbutton"},
+			"bloomers":					{name:"bloomers",					integrity_max:100, word:"n", action:"lift"},
+			"bell flower dress":		{name:"bell flower dress",			integrity_max:100, word:"a", action:"lift"},
+			"lotus skirt":				{name:"lotus skirt",				integrity_max:100, word:"a", action:"lift"},
+			"leaf skirt":				{name:"leaf skirt",					integrity_max:100, word:"a", action:"lift"},
+			"evergreen dress":			{name:"evergreen dress",			integrity_max:100, word:"a", action:"lift"},
+			"plant skirt":				{name:"plant skirt",				integrity_max:100, word:"a", action:"lift"},
+			"kimono bottoms":			{name:"kimono bottoms",				integrity_max:100, word:"n", action:"lift"},
+			"christmas bottoms":		{name:"christmas bottoms",			integrity_max:100, word:"n", action:"pull"},
+			"ribbons":					{name:"ribbons",					integrity_max:100, word:"n", action:"unwrap"},
+			"pyjama bottoms":			{name:"pyjama bottoms",				integrity_max:100, word:"n", action:"pull"},
+			"ghost sheet":				{name:"ghost sheet",				integrity_max:100, word:"a", action:"lift"},
+			"vampire trousers":			{name:"vampire trousers",			integrity_max:100, word:"n", action:"pull"},
+			"witch dress skirt":		{name:"witch dress skirt",			integrity_max:100, word:"a", action:"lift"},
+			"flowing robe":				{name:"flowing robe",				integrity_max:100, word:"a", action:"lift"}
 		}
-	)>>
+	}>>
 
-	<<set $worn.upper to clone(setup.clothes.upper[4])>>
-	<<set $worn.upper.colour to "tangerine">>
-	<<set $worn.lower to clone(setup.clothes.lower[5])>>
-	<<set $worn.lower.colour to "blue">>
-	<<set $worn.under_lower to clone(setup.clothes.under_lower[4])>>
-	<<set $worn.under_lower.colour to "black">>
-	<<set $worn.legs to clone(setup.clothes.legs[2])>>
-	<<set $worn.feet = clone(setup.clothes.feet[1])>>
+	<<set setup.npcClothesSets to [
+		{name: "naked",					type: "naked", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("naked", "naked"), desc: "naked"},
+		{name: "maleDefault",			type: "default", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("shirt", "trousers"), desc: "shirt and trousers"},
+		{name: "femaleDefault",			type: "default", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("shirt", "skirt"), desc: "shirt and skirt"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "maleSchool",			type: "school", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("school shirt", "school shorts"), desc: "school uniform"},
+		{name: "femaleSchool",			type: "school", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("school shirt", "school skirt"), desc: "school uniform"},
+		{name: "femaleSchoolShort",		type: "school", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("school shirt", "short school skirt"), desc: "school uniform"},
+		{name: "maleSchoolLong",		type: "school", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("school blouse", "school trousers"), desc: "school uniform"},
+		{name: "femaleSchoolLong",		type: "school", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("school blouse", "long school skirt"), desc: "school uniform"},
+		{name: "maleSchoolDress",		type: "school", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("dress shirt", "school trousers"), desc: "school uniform"},
+		{name: "femaleSchoolDress",		type: "school", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("dress shirt", "school skirt"), desc: "school uniform"},
+		{name: "maleSchoolBlazer",		type: "school", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("school blazer", "school trousers"), desc: "school uniform"},
+		{name: "femaleSchoolBlazer",	type: "school", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("school blazer", "long school skirt"), desc: "school uniform"},
+		{name: "teacher",				type: "teacher", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("teacher's uniform", "teacher's slacks"), desc: "teacher's uniform"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "maleSchoolSwim",		type: "schoolSwim", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("naked", "school swim shorts"), desc: "school swimsuit"},
+		{name: "maleSchoolSwimShirt",	type: "schoolSwim", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("swim shirt", "school swim shorts"), desc: "school swimsuit"},
+		{name: "femaleSchoolSwim",		type: "schoolSwim", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("school swimsuit top", "school swimsuit bottoms"), desc: "school swimsuit"},
+		{name: "maleSwim1",				type: "beach", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("naked", "swim shorts"), desc: "swimsuit"},
+		{name: "maleSwim2",				type: "beach", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("naked", "board shorts"), desc: "swimsuit"},
+		{name: "femaleSwim1",			type: "beach", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("bikini top", "bikini bottoms"), desc: "bikini"},
+		{name: "femaleSwim2",			type: "beach", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("microkini top", "microkini bottoms"), desc: "microkini"},
+		{name: "neutralSwim",			type: "beach", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("swim shirt", "board shorts"), desc: "swimsuit"},
+		{name: "divingSuit",			type: "beachDive", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("diving suit", "diving suit bottoms"), desc: "diving suit"},
+		{name: "sailor",				type: "sailor", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sailor shirt", "sailor trousers"), desc: "sailor outfit"},
+		{name: "docker1",				type: "docker", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("hi-vis jacket", "cargo trousers"), desc: "hi-vis jacket and cargo trousers"},
+		{name: "docker2",				type: "docker", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("denim shirt", "jeans"), desc: "denim shirt and jeans"},
+		{name: "docker3",				type: "docker", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("hoodie", "cargo trousers"), desc: "hoodie and cargo trousers"},
+		{name: "docker4",				type: "docker", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("vest", "jeans"), desc: "vest and jeans"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "malePolice",			type: "police", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("police shirt", "police trousers"), desc: "police uniform"},
+		{name: "femalePolice",			type: "police", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("police shirt", "police skirt"), desc: "police uniform"},
+		{name: "neutralPolice",			type: "police", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("uniform shirt", "uniform trousers"), desc: "police uniform"},
+		{name: "maleRobe",				type: "temple", gender: "m", outfit: 1, clothes: npcAssignClothesToSet("monk robe top", "monk robes"), desc: "robe"},
+		{name: "femaleRobe",			type: "temple", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("nun robe top", "nun robe skirt"), desc: "robe"},
+		{name: "neutralRobe",			type: "temple", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("robe top", "robes"), desc: "robe"},
+		{name: "neutralRobeBlack",		type: "templeBlack", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("black robe top", "black robes"), desc: "black robe"},
+		{name: "prisonJumpsuit",		type: "prison", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("jumpsuit shirt", "jumpsuit bottoms"), desc: "prison jumpsuit"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "maleFormal1",			type: "formal", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("tuxedo shirt", "tuxedo trousers"), desc: "tuxedo"},
+		{name: "femaleFormal1",			type: "formal", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("evening gown top", "evening gown"), desc: "formal gown"},
+		{name: "femaleFormal2",			type: "formal", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("ballgown top", "ballgown skirt"), desc: "ballgown"},
+		{name: "neutralFormal",			type: "formal", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("dress shirt", "breeches"), desc: "dress shirt and breeches"},
+		{name: "maleFormalRare",		type: "formalRare", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("gothic jacket and vest", "gothic trousers"), desc: "gothic suit"},
+		{name: "femaleFormalRare",		type: "formalRare", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("gothic gown top", "gothic gown"), desc: "gothic gown"},
+		{name: "business",				type: "business", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("business suit top", "business trousers"), desc: "business suit"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "maleTown1",				type: "town", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("t-shirt", "trousers"), desc: "t-shirt and shorts"},
+		{name: "femaleTown1",			type: "town", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("sundress top", "sundress skirt"), desc: "sundress"},
+		{name: "maleTown2",				type: "town", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("shirt", "trousers"), desc: "shirt and trousers"},
+		{name: "femaleTown2",			type: "town", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("shirt", "skirt"), desc: "shirt and skirt"},
+		{name: "townTrack",				type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("tracksuit top", "tracksuit bottoms"), desc: "tracksuit"},
+		{name: "townCoat",				type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("peacoat", "slacks"), desc: "peacoat and slacks"},
+		{name: "townTurtleneck",		type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("turtleneck", "jeans"), desc: "turtleneck and jeans"},
+		{name: "townCollar",			type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("collared shirt", "khakis"), desc: "collared shirt and khakis"},
+		{name: "townBlazer",			type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("blazer", "trousers"), desc: "blazer and trousers"},
+		{name: "townJersey",			type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sports jersey", "trousers"), desc: "sports jersey and trousers"},
+		{name: "townSweaterVest",		type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sweater vest", "khakis"), desc: "sweater vest and khakis"},
+		{name: "townVNeck",				type: "town", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("v neck", "jeans"), desc: "v neck shirt and jeans"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "maleWarm1",				type: "warm", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("t-shirt", "shorts"), desc: "t-shirt and shorts"},
+		{name: "femaleWarm1",			type: "warm", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("sundress top", "sundress skirt"), desc: "sundress"},
+		{name: "maleWarm2",				type: "warm", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("tank top", "shorts"), desc: "tank top and shorts"},
+		{name: "femaleWarm2",			type: "warm", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("blouse", "skirt"), desc: "blouse and skirt"},
+		{name: "maleWarmShirtless",		type: "warm", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("naked", "shorts"), desc: "shorts"},
+		{name: "femaleWarmCrop",		type: "warm", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("crop top", "miniskirt"), desc: "crop top and miniskirt"},
+		{name: "femaleWarmTank",		type: "warm", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("tank top", "boyshorts"), desc: "tank top and boyshorts"},
+		{name: "neutralWarmBlazer",		type: "warm", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("blazer", "shorts"), desc: "blazer and shorts"},
+		{name: "neutralWarmJersey",		type: "warm", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sports jersey", "jorts"), desc: "sports jersey and jorts"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "coldPuffer",			type: "cold", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("puffer jacket", "slacks"), desc: "puffer jacket"},
+		{name: "coldTrench",			type: "cold", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("trenchcoat", "jeans"), desc: "trenchcoat"},
+		{name: "coldCoat",				type: "cold", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("coat", "jeans"), desc: "coat"},
+		{name: "coldHoodie",			type: "cold", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("hoodie", "sweatpants"), desc: "hoodie"},
+		{name: "coldSweater",			type: "cold", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sweater", "sweatpants"), desc: "sweater and sweatpants"},
+		{name: "rainCoat",				type: "rain", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("rain coat", "rain bottoms"), desc: "rain coat"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "wildsFlannel",			type: "wilds", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("flannel", "jeans"), desc: "flannel and jeans"},
+		{name: "wildsWJumper",			type: "wilds", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("woolen jumper", "khakis"), desc: "woolen jumper"},
+		{name: "wildsFJumper",			type: "wilds", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("fleece jumper", "khakis"), desc: "fleece jumper"},
+		{name: "wildsJacket",			type: "wilds", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("jacket", "khakis"), desc: "jacket and khakis"},
+		{name: "forestCamo",			type: "forest", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("camo jacket", "camo bottoms"), desc: "camouflaged hunting outfit"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "brothelTrench",			type: "brothel", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("trench coat", "assless chaps"), desc: "trench coat"},
+		{name: "brothelVest",			type: "brothel", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("leather vest", "hot pants"), desc: "leather vest"},
+		{name: "brothelHarness",		type: "brothel", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("leather harness", "leather trousers"), desc: "leather harness"},
+		{name: "bathrobe",				type: "spa", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("bathrobe", "bathrobe"), desc: "bathrobe"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "compoundLab",			type: "compoundLab", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("lab coat", "lab trousers"), desc: "lab coat"},
+		{name: "security",				type: "security", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("security vest", "security trousers"), desc: "security uniform"},
+		{name: "doctor",				type: "hospital", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("doctor's coat", "white trousers"), desc: "doctor uniform"},
+		{name: "nurse",					type: "hospital", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("nurse's coat", "white skirt"), desc: "nurse uniform"},
+		{name: "patient",				type: "patient", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("patient gown", "gown skirt"), desc: "patient gown"},
+		{name: "jumpsuit",				type: "worker", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("jumpsuit top", "jumpsuit trousers"), desc: "jumpsuit"},
+		{name: "coveralls",				type: "worker", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("coverall top", "coverall bottoms"), desc: "coveralls"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "maleUndies",			type: "undies", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("naked", "briefs"), desc: "briefs"},
+		{name: "femaleUndies",			type: "undies", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("bra", "panties"), desc: "bra and panties"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "dance",					type: "dance_studio", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("dance shirt", "dance shorts"), desc: "dance uniform"},
+		{name: "maleBriar",				type: "Briar", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("shirtless suit", "formal trousers"), desc: "shirtless suit"},
+		{name: "femaleBriar",			type: "Briar", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("low-neck dress", "cropped dress skirt"), desc: "plunging neckline dress"},
+		{name: "riding",				type: "riding", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("riding top", "riding trousers"), desc: "riding outfit"},
+		{name: "ridingFormal",			type: "Remy", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("shadbelly coat", "chapette breeches"), desc: "formal riding outfit"},
+		{name: "Eden",					type: "Eden", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("ramshackle hunting coat", "torn hunting trousers"), desc: "hunting outfit"},
+		{name: "Morgan",				type: "Morgan", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("ruined suit", "ruined trousers"), desc: "ruined outfit"},
+		{name: "maleLandry",			type: "Landry", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("grey sweater", "dark trousers"), desc: "grey sweater"},
+		{name: "femaleLandry",			type: "Landry", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("grey cardigan", "dark trousers"), desc: "grey cardigan"},
+		{name: "Whitney",				type: "Whitney", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("leather jacket", "torn jeans"), desc: "leather jacket"},
+		{name: "AlexJorts",				type: "Alex", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("flannel", "jorts"), desc: "flannel and jorts"},
+		{name: "AlexSkirt",				type: "Alex", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("flannel", "skirt"), desc: "flannel and skirt"},
+		{name: "maleAlexSleep",			type: "Alex", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("t-shirt", "boxers"), desc: "t-shirt and boxers"},
+		{name: "femaleAlexSleep",		type: "Alex", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("t-shirt", "boyshorts"), desc: "t-shirt and boyshorts"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "malePlantSpring",		type: "plantSpring", gender: "m", outfit: 1, clothes: npcAssignClothesToSet("jacaranda vest", "bloomers"), desc: "mass of leafy coverings"},
+		{name: "femalePlantSpring",		type: "plantSpring", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("blossoming growths", "bell flower dress"), desc: "mass of leafy coverings"},
+		{name: "plantSummer",			type: "plantSummer", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("leaf shirt", "lotus skirt"), desc: "mass of leafy coverings"},
+		{name: "plantAutumn",			type: "plantAutumn", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("leaf corset", "leaf skirt"), desc: "mass of leafy coverings"},
+		{name: "plantWinter",			type: "plantWinter", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("pine top", "evergreen dress"), desc: "mass of leafy coverings"},
+		{name: "plantGeneric",			type: "plant", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("plant top", "plant skirt"), desc: "plant top and skirt"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "robinGiftShirt",		type: "robinGift", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("shirt", "shorts"), desc: "shirt and shorts"},
+		{name: "robinGiftSundress",		type: "robinGift", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("sundress", "sundress skirt"), desc: "sundress"},
+		{name: "robinGiftTux",			type: "robinGift", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("tuxedo", "tuxedo trousers"), desc: "tuxedo"},
+		{name: "robinGiftGown",			type: "robinGift", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("gothic gown", "gothic gown"), desc: "gothic gown"},
+		{name: "robinGiftKimono",		type: "robinGift", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("kimono", "kimono bottoms"), desc: "kimono"},
+		{name: "robinGiftChristmas",	type: "robinGift", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("christmas top", "christmas bottoms"), desc: "christmas outfit"},
+		{name: "robinLewdRibbons",		type: "robinRibbons", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("ribbons", "ribbons"), desc: "mass of ribbons"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "pyjamas",				type: "sleep", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("pyjama shirt", "pyjama bottoms"), desc: "pyjama shirt and bottoms"},
+		{name: "ghost",					type: "halloween", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("ghost sheet", "ghost sheet"), desc: "ghost costume"},
+		{name: "vampire",				type: "halloween", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("vampire jacket", "vampire trousers"), desc: "vampire costume"},
+		{name: "witch",					type: "halloween", gender: "f", outfit: 1, clothes: npcAssignClothesToSet("witch dress", "witch dress skirt"), desc: "witch costume"},
+		{name: "moonRobe",				type: "Wraith", gender: "n", outfit: 1, clothes: npcAssignClothesToSet("flowing robe", "flowing robe"), desc: "flowing robe"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "sweater",				type: "sweater", gender: "n", outfit: 0, clothes: npcAssignClothesToSet("sweater", "jeans"), desc: "sweater and jeans"},
+		/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+		{name: "maleDefault",			type: "default", gender: "m", outfit: 0, clothes: npcAssignClothesToSet("shirt", "trousers"), desc: "shirt and trousers"},
+		{name: "femaleDefault",			type: "default", gender: "f", outfit: 0, clothes: npcAssignClothesToSet("shirt", "skirt"), desc: "shirt and skirt"}
 
-	<<set $wardrobe.upper.push(clone(setup.clothes.upper[5]))>>
-	<<set $wardrobe.upper.last().colour to "white">>
-	<<set $wardrobe.lower.push(clone(setup.clothes.lower[6]))>>
-	<<set $wardrobe.lower.last().colour to "black">>
-	<<set $wardrobe.upper.push(clone(setup.clothes.upper[2]))>>
-	<<set $wardrobe.upper.last().colour to "blue">>
-	<<set $wardrobe.lower.push(clone(setup.clothes.lower[2]))>>
-	<<set $wardrobe.lower.last().colour to "blue">>
-	<<set $wardrobe.under_lower.push(clone(setup.clothes.under_lower[7]))>>
-	<<set $wardrobe.under_lower.last().colour to "blue">>
-	<<set $wardrobe.head.push(clone(setup.clothes.head[1]))>>
-<</if>>
+	]>>
 <</widget>>

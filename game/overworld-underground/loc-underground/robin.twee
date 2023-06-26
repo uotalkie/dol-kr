@@ -1,0 +1,1833 @@
+:: Widgets Underground Robin [widget]
+
+<<widget "undergroundRobinTopic">>
+	<<if $undergroundbrothel.robin>>
+		<<set $_state to _args[1] ? _args[1] : "discussed">>
+		<<set $undergroundbrothel.robinTopics[_args[0]] to $_state>>
+	<</if>>
+<</widget>>
+
+<<widget "undergroundEscapeForestRobin">>
+	<<endcombat>>
+	<<clotheson>>
+
+	당신은 숲으로 빠져나와 아무 방향으로나 달리고, 로빈이 당신 뒤로 가까이 따라온다. <span class="red"><<nnpc_He_ "Robin">>만 당신을 따라오는 건 아니다.</span>
+	<br><br>
+
+	<<link [[다음|Underground Robin Escape Stalk]]>><<set $molestationstart to 1>><</link>>
+<</widget>>
+
+<<widget "undergroundRobinTopicRefresh">>
+	<<if Object.entries(V.undergroundbrothel.robinTopics).filter(pair => pair[1] === "undiscussed").length lte 0>>
+		<<set $undergroundbrothel.robinTopics to {
+			"cold": "undiscussed",
+			"lonely": "undiscussed",
+			"dark": "undiscussed",
+			"scared": "undiscussed",
+			"touch": "undiscussed"
+		}>>
+	<</if>>
+<</widget>>
+
+<<widget "undergroundRobinInterlude">>
+	<<set _rRNG to random(1,3)>>
+	<<if _rRNG gte 2>>
+		<<print either(
+			"로빈이 소리지르는 게 들린다.",
+			"로빈이 고통에 차 소리를 지르고 있다.",
+			"로빈이 훌쩍거린다."
+		)>>
+		<<npcincr Robin trauma 1>><<grtrauma true>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+<<widget "undergroundRobinKiss">>
+	<<set $speechdisable to 1>>
+	<<if $robinFucked>>
+		<<if _args[0] is "kissback">>
+			<<print either(
+				"<<He_ nun>> 머뭇거리며 당신에게 마주 키스하며, <<person3>><<person_ i>> <<person2>><<him_ ul>> 퍽퍽 박아댈 때마다 훌쩍인다.",
+				"당신이 <<person2>><<him_>>에게 키스하자 <<He_ ga>> 눈을 꼭 감으며, <<person3>><<person_ i>> 찔러댈 때마다 몸을 홱 움직인다.",
+				"<<He_ nun>> <<person3>><<person_ i>> 무자비하게 찔러댈 때마다 당신의 입에 대고 비명을 지른다."
+			)>>
+		<<else>>
+			<<print either(
+				"<<He_ ga>> 흐느끼자, <<person3>><<person_ i>> 웃음을 터뜨린다.",
+				"<<He_ nun>> <<person3>><<person_ i>> <<person2>><<him_>> 안에 찔러댈 때마다 훌쩍인다.",
+				"<<He_ nun>> 몸을 덜덜 떨고 울부짖으며, 당신에게 매달린다. <<person3>><<person_ i>> <<person2>><<his_ yi>> 목줄을 잡아끌 때마다 <<his_ yi>> 몸이 요동친다."
+			)>>
+		<</if>>
+		<<npcincr Robin trauma 3>><<grtrauma true>>
+	<<elseif $timer gte 5>>
+		<<if _args[0] is "kissback">>
+			<<He_ nun>> <<person3>><<person_ yi>> 손아귀에서 몸부림치며, 몸을 숙여 당신과 키스한다.
+		<<else>>
+			로빈은 <<person3>><<person_ yi>> 손아귀에서 몸부림친다.
+		<</if>>
+	<<elseif $timer gte 3>>
+		<<if _args[0] is "kissback">>
+			<<person3>><<person_ i>> 로빈의 목줄을 홱 잡아당기자, <<person2>><<he_ ga>> 당신의 입에 대고 비명을 내지른다.
+		<<else>>
+			<<person3>><<person_ i>> 로빈의 목줄을 홱 잡아당기자, <<person2>><<he_ ga>> 비명을 내지른다.
+		<</if>>
+	<<elseif $timer gte 1>>
+		<<if _args[0] is "kissback">>
+			로빈은 당신의 입술에 집중하려고 노력하면서, 공포로 <<his_ yi>> 눈을 꼭 감는다.
+		<<else>>
+			로빈은 공포에 질려 당신의 입에 대고 흐느끼며, <<his_ yi>> 머리를 흔들려고 한다.
+		<</if>>
+	<<else>>
+		<<set $robinFucked to 1>>
+		<span class="red">로빈은 <<person3>><<person_ i>> <<his_ yi>> <<npcPenis_ ro>> 로빈의
+			<<if _robin.vagina isnot "none">>
+				<<NPCVirginityTakenByOther "Robin" "vaginal" $NPCList[2].fullDescription>>
+				<<if _npcVirgin.vaginal is true>>
+					보지 안에 처음으로 찔러넣자 비명을 지른다.
+				<<else>>
+					보지 안에 찔러넣자 비명을 지른다.
+				<</if>>
+			<<else>>
+				<<NPCVirginityTakenByOther "Robin" "anal" $NPCList[2].fullDescription>>
+				<<if _npcVirgin.vaginal is true>>
+					항문 안에 처음으로 찔러넣자 비명을 지른다.
+				<<else>>
+					항문 안에 찔러넣자 비명을 지른다.
+				<</if>>
+			<</if>>
+		</span>
+		<<npcincr Robin trauma 5>><<ggrtrauma true>><<control -10>><<lcontrol>>
+	<</if>>
+
+	<<if _args[0] is "kissback">>
+		<<set $kissTurns++>>
+	<</if>>
+<</widget>>
+
+:: Underground Cell Robin Talk
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<npc Robin>>
+
+<<if $undergroundbrothel.robin>>
+	당신은 당신의 방과 로빈의 방을 잇는 구멍으로 가서 <<person1>><<him_ ul>> 부른다.
+<</if>>
+<<switch $undergroundbrothel.robinTalk>>
+	<<case 0>> /* First interaction */
+		"우리가 어디에 있는지 알아?" 로빈이 묻는다. 당신은 <<he_ ga>> 당신 쪽으로 오는 소리를 들을 수 있다.
+		<br><br>
+
+		"지하 감옥 같은 것 같아," 당신은 벽에 대고 털썩 앉으며 대답한다.
+		<br><br>
+
+		로빈이 <<his_ yi>> 방 곳곳을 더듬거리는 게 들린다. "우리가 탈출할 수 있는 방법이 분명히 있을 텐데..."
+		<<He_ ga>> 다시 한 바퀴 수색한다. "<<print (_robin.dom gte 60 ? "네게" : "우리에게")>> 이런 일이 벌어지도록 두진 않겠어."
+	<<case 6>> /* Sixth interaction. They'll have been here a while by this point. */
+		<<if $undergroundbrothel.escape is 0>>
+			로빈이 대답한다. "나는 아직도 여길 나갈 방법을 찾고 있어. 저들이 우리에게 빛을 낼 만할 걸 준다면 도움이 될 텐데 말이야."
+		<<else>>
+			로빈이 대답한다. "나는 계속 매트리스 아래의 구멍을 넓히고 있어. 만약 저들이 이걸 알고 있었다면, 당장이라도 날 멈추려고 뭐라도 했겠지." <<his_ yi>> 목소리에서 희망이 반짝인다.
+		<</if>>
+	<<default>>
+		<!-- select a random topic from robinTopics that is undiscussed. Priority topics always happen before undiscussed -->
+		<<set _topicList to Object.entries(V.undergroundbrothel.robinTopics)>>
+		<<if _topicList.filter(pair => pair[1] === "priority").length gte 1>>
+			<<set _topic to _topicList.filter(pair => pair[1] === "priority").random()[0]>>
+		<<elseif _topicList.filter(pair => pair[1] === "undiscussed").length gte 1>>
+			<<set _topic to _topicList.filter(pair => pair[1] === "undiscussed").random()[0]>>
+		<</if>>
+		<<if _topic>>
+			<<undergroundRobinTopic _topic>>
+		<</if>>
+		<<switch _topic>>
+			<<case "scared">>
+				"이럴 수는 없어..." 로빈의 목소리는 기운이 없고 미약하다.
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"괘-괜찮아?" 당신은 벽에 손을 짚는다.
+				<<elseif $submissive lte 850>>
+					"무슨 문제 있어? 놈들이 네게 뭔가 한 거야?" 당신의 목소리가 높아진다.
+				<<else>>
+					"로빈? 너 괜찮아?" 당신이 묻는다.
+				<</if>>
+				<br><br>
+
+				<<if _robin.dom gte 70>>
+					"미안해, 난 그저. 저기에서 있었던 순간에 압도당해서," 로빈이 떨리는 목소리로 말한다.
+					"난 강해져야 해." <<He_ nun>> 다른 무엇보다도 <<he_>> 자신에게 도움이 되기 위해 그렇게 말하는 듯하다.
+				<<else>>
+					"난 여기서 죽고 싶지 않아." 당신에게 로빈이 흐느끼는 소리가 들린다.
+					<br><br>
+
+					<<if $submissive gte 1150>>
+						"희망을 놓지 말아줘, 우린 나갈 수 있을 거야," 당신이 부드럽게 말한다.
+					<<elseif $submissive lte 850>>
+						"저들이 네가 생각하길 바라는 게 바로 그거야. 저들은 네가 포기하고 이 삶을 받아들이길 원한다고." 당신은 당신의 손으로 벽을 친다.
+					<<else>>
+						"걱정하지 마. 우린 나갈 수 있을 거야. 내가 약속할게," 당신이 말한다.
+					<</if>>
+					<br><br>
+
+					"고마워, 정말 도움이 됐어." 로빈의 흐느낌이 느려지다 끊긴다.
+				<</if>>
+			<<case "touch">>
+				"나... 널 만져도 될까?" 로빈의 목소리가 떨린다. "나 진짜 애정이 간절히 필요해."
+				<br><br>
+
+				당신은 당신 둘을 잇는 구멍에 손가락을 집어넣는다. 그게 구멍을 지날 수 있는 전부다. 당신은 즉시 손가락에 따뜻한 압박감을 느낀다.
+				약간의 시간이 흐른 후 당신은 <<he_ ga>> 당신의 손가락을 놓아주기 전 로빈이 부드럽게 당신의 손가락 끝에 키스하는 걸 느낀다.
+				<br><br>
+
+				"고마워... 네가 생각하는 것보다 그게 더 필요했어."
+			<<case "dark">>
+				"어둠 속에서 지내는 건 정말 익숙해지기 힘드네," 로빈이 건조하게 킥킥거린다. "난 물을 마시러 갈 때마다 매트리스에 걸려 넘어지고 있어."
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"내 눈이 멀 것 같은 기분이 들어," 당신은 동조하듯이 말한다.
+				<<elseif $submissive lte 850>>
+					"저들은 저들의 상품이 여기서 너무 편안히 있는 걸 원하지 않는 거야." 당신은 팔짱을 낀다.
+				<<else>>
+					"나도 똑같은 상황이야," 당신은 동조하듯이 말한다.
+				<</if>>
+				<br><br>
+
+				"어쩌면 우리는 야간 시야를 얻을지도 몰라! 아니면 초음파 청각이나! 마치 박쥐처럼 말야!" 당신은 로빈이 당신을 기운차리게 해 주려고 한다는 걸 알아차린다. 정말 효과가 있다.
+			<<case "lonely">>
+				"저기..." 로빈이 실의에 빠진 목소리로 말한다.
+				<<if _robin.dom gte 60>>
+					"난 다른 고아들이 그리워. 걔네들이 잘 지내고 있었으면 좋겠어."
+					<br><br>
+
+					<<if $submissive gte 1150>>
+						"분명히 잘 지내고 있을 거야," 당신은 <<him_ ul>> 기운차리게 하려고 노력한다.
+					<<elseif $submissive lte 850>>
+						"그러면 우리 꼭 여기를 나가서 걔네가 잘 지내는지 확인하자고," 당신이 말한다.
+					<<else>>
+						"그러면 최대한 빨리 걔네한테 돌아가자," 당신이 말한다.
+					<</if>>
+					<br><br>
+
+					"네 말이 맞아. 걔네들도 분명 내가 이렇게 처져 있는 모습을 보고 싶지 않을 거야. 나는 강해져야만 해." 로빈은 이제 더욱 평소의 <<hePost>>처럼 말한다.
+				<<else>>
+					"너랑 나가서 놀 때가 그리워. 우리가 집으로 돌아갔으면 좋겠어."
+					<br><br>
+
+					<<if $submissive gte 1150>>
+						"저기, 희망을 잃진 말자. 알겠지?" 당신은 부드럽게 말한다.
+					<<elseif $submissive lte 850>>
+						"저들이 네 머리속에 들어오도록 두지 마. 우린 여기서 나갈 수 있을 거야. 내가 약속할게," 당신은 자신감을 담아 말한다.
+					<<else>>
+						"곧 그럴 수 있을 거야. 걱정하지 마," 당신은 어둠 속에서 미소 짓는다.
+					<</if>>
+					<br><br>
+
+					"고마워." 로빈이 말한다. "만약 내가 여기 혼자 왔다면 어떻게 했을지 모르겠어."
+				<</if>>
+			<<case "cold">>
+				"저-저기, 넌 어떻게 겨-견디고 있는 거야?" 당신은 로빈이 덜덜 떨면서 말하는 게 들린다.
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"너-너 괜찮아?" 당신이 묻는다.
+				<<elseif $submissive lte 850>>
+					"로빈, 너 괜찮은거야?" 당신은 벽 가까이 다가간다.
+				<<else>>
+					"무슨 문제 있어?" 당신이 묻는다.
+				<</if>>
+				<br><br>
+
+				"내-내 옷이 입기에 상태가 좀 나빠졌어," 로빈이 대답한다. "추위에 버티는 데 도움이 되질 않아." <<He_ ga>> 잠시 말을 멈췄다가 다시 이어간다.
+				<<if _robin.dom gte 60>>
+					"내 걱정은 하지 마. 내가 핫초콜릿을 팔 때랑 비슷하니까!"
+				<<else>>
+					"저들이 적어도 이 방을 좀 따뜻하게 해 줬으면 좋겠어."
+				<</if>>
+			<<case "tattoo">>
+				"너도 문신 받았어?" 로빈의 목소리가 경직되어 있다. "나는 164번이야." <<He_ ga>> 멈칫한다.
+				"너는 <<print (_robin.trauma gte 70 ? "만약 우리가 여길 나간다면" : "우리가 여길 나갔을 때")>> 이걸 지울 수 있을 거라 생각해? 나는 내 이름 그대로가 좋아."
+				<<He_ ga>> 괴롭게 웃는다.
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"너도 그런 일을 겪어야 해서 유감이야," 당신은 떨리는 목소리로 말한다.
+				<<elseif $submissive lte 850>>
+					"망할 개자식들이 내게도 문신을 남겼어. 네 차례 바로 전에 그랬던 게 분명해." 당신은 당신의 피부에 새겨진 '163'이라는 숫자를 손으로 문지른다.
+				<<else>>
+					"나는 '163'번." 당신의 목소리는 공허하다.
+				<</if>>
+			<<case "pig">>
+				<<if $bestialitydisable is "t" or $monsterchance gte 100>>
+					<<set _animals to "괴물들">>
+				<<else>>
+					<<set _animals to "동물들">>
+				<</if>>
+				"저기," 로빈이 말한다. <<His_ yi>> 목소리는 낙관적이지만, 당신은 그게 <<he_ ga>> 일부러 꾸며낸 것임을 알 수 있다. "돼지들이 가장 영리한 _animals 축에 낀다는 거 알고 있어?
+				배우는 것도 빠르고, 기억력도 좋대. 게다가 진흙투성이라는 편견과 달리 깨끗하기도 하고. 내가 한창 자라던 나이에는 돼지들을 정말 좋아했어."
+				<br><br>
+
+				<<He_ nun>> 잠깐 침묵에 잠긴다. "이제는 돼지를 좋아하지 않게 된 것 같아," <<he_ ga>> 약해진 목소리로 말한다.
+			<<case "dice">>
+				"난 이제 주사위를 예전과 똑같이 볼 수 없을 것 같아," 로빈이 <<if _robin.trauma gte 40>>떨리는 목소리로<<else>>억지로 웃으며<</if>> 말한다. "그들은 이걸 게임이라고 생각한 걸까?"
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"나도 이제 주사위를 예전과 똑같이 볼 수 없을 것 같아," 당신이 속삭인다.
+				<<elseif $submissive lte 850>>
+					"그 커다란 주사위로 저놈들을 패버리면 좋을 텐데," 당신이 중얼거린다.
+				<<else>>
+					"당연히 게임이지," 당신이 웅얼거린다. "이 장소는 바로 그런 곳이라고."
+				<</if>>
+				<br><br>
+
+				<<if _robin.trauma gte 70>>
+					"저들에게 그건 게임이었어," 로빈이 재차 말한다. <<He_ ga>> 공허히 웃는다. "그럼 이건 게임 오버인 걸까."
+				<<else>>
+					"이게 비디오 게임이기만 했어도," <<he_ ga>> 말한다. "우린 레이저 검과 날개달린 대포로 저들을 날려버릴 수 잇었을 거야. 네가 계속 날려대던 콤보도." 집을 다시 떠올리자, <<His_ yi>> 목소리가 조금 더 활기차진다.
+				<</if>>
+			<<case "tentacles">>
+				"네가 그런 일을 해야 해서 미안해," 로빈이 웅얼거린다. "내 말은, 내게서 떨어져. 그 금속 물건들이 널 공격하는 동안에는 말야."
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"난 너랑 하는 건 좋아," 당신이 대답한다. "그거랑은... 달라."
+				<<elseif $submissive lte 850>>
+					"딱히 벌이라고 할 만한 것도 아니었어," 당신이 과시한다. "내 말은, 내 <<nnpc_girlfriend_ wa "Robin">> 섹스하는 거? 저들은 그게 나쁜 일이라고 생각하는 거야?"
+					<<if $trauma gte ($traumamax * 0.6)>>
+						당신은 목소리가 떨리는 걸 막으려고 노력한다. 당신은 거의 성공한다.
+					<</if>>
+				<<else>>
+					"난 그저 저들이 널 다치게 하지 않아서 다행이야," 당신이 말한다.
+				<</if>>
+				<br><br>
+
+				로빈은 잠시 침묵에 잠긴다. "저들이 내게 뭔가 마시게 했어. 걸쭉하고, 시큼한 음료수 같았는데. 그게 나를 둔하고 차갑게 해서... 네가 뭘 하든지 느낄 수가 없었어."
+			<<case "machineHigh">>
+				<<set _noOptions to true>>
+				<<He_ nun>> 대답하기까지 시간이 좀 걸린다. <<he_ ga>> 입을 열자, 공허한 목소리가 흘러나온다. "아파."
+				<br><br>
+
+				당신은 <<him_ i>> 더 자세히 말하길 기다리고, 그러자 <<he_ ga>> 훌쩍거린다. "기계가 날 아프게 했어. 그건 너무 빠르고, 너무 거칠었어서, 난 지금 당장 앉지도 못한다고. 그래서 왜? 왜 네가 저들보고 내 기계를 켜라고 시킨 거야?" 로빈의 목소리는 눈물로 젖어간다. "넌 그게 날 아프게 할 거라는 걸 알고 있었지, 그렇지? 왜?"
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"미-미안해," 당신이 웅얼거린다. 당신은 다른 할 말이 생각나지 않는다.
+				<<elseif $submissive lte 850>>
+					당신은 뭔가 말하려 해 본다. 단어들이 당신의 목구멍에 걸린 듯 나오지 않는다.
+				<<else>>
+					"난 무서웠어," 당신이 조용히 말한다.
+				<</if>>
+				<br><br>
+
+				"왜?" 로빈이 더욱 커진 목소리로 말을 이어간다. "넌 그게 날 아프게 할 거라는 걸 알았잖아! 정말 너무 아팠다고! 왜 내게 그런 짓을 한 거야? 도대체 왜 그런 거야?!"
+				<<stress 6>><<gstress>>
+				<br><br>
+
+				당신은 침을 삼킨다. "로빈-"
+				<br><br>
+
+				"날 지켜주기로 했잖아!" <<he_ ga>> 침을 뱉는다. "참 대단한 보호자 납셨네!"
+				<<stress 12>><<trauma 12>><<ggstress>><<ggtrauma>>
+				<br><br>
+
+				<<link [[사과한다|Underground Cell Robin Talk 2]]>><<stress 6>><<npcincr Robin love 1>><<npcincr Robin dom 1>><<set $phase to "machineHighApologise">><</link>><<gstress>><<glove>><<gdom>>
+				<br>
+				<<link [[아무 말도 하지 않는다|Underground Cell Robin Talk 2]]>><<trauma -6>><<npcincr Robin dom -10>><<set $phase to "machineHighSilent">><</link>><<ltrauma>><<lldom>>
+			<<case "machineNormal">>
+				잠시 후 로빈이 떨리는 목소리로 대답한다. "저-저기.
+				<<if _robin.dom gte 50>>
+					너 괜찮아?" <<He_ ga>> 당신을 위로한다. "네가 너무 심하게 아프지 않았으면 좋겠어."
+				<<else>>
+					그거 정말로 아프더라." 당신은 <<his_ yi>> 목소리에서 명확한 고통을 느낄 수 있다. <<He_ ga>> 잠시 멈췄다가 말을 이어간다. "너는 괜찮아?"
+				<</if>>
+				<br><br>
+
+				<<if $pain gte 60>>
+					<<if $submissive gte 1150>>
+						당신은 고통을 떨쳐내기 위해 울음을 터트린다.
+					<<elseif $submissive lte 850>>
+						"난 괘-괜찮아." 눈물이 당신의 턱을 타고 흘러내림과 함께, 당신의 목소리가 갈라져 당신을 배신한다.
+					<<else>>
+						"아-아니," 눈물이 턱을 타고 흘러내리는 채, 당신이 말한다.
+					<</if>>
+					<br><br>
+
+					로빈은 처음에는 놀란 듯 하지만, 빠르게 진정한다. "곧 괜찮아질 거야. 우리는 여기에서 탈출할 거고, 그러면 저들도 더 이상 우리를 아프게 하지 못해."
+					잠깐의 침묵 후 <<he_ ga>> 속삭인다. "나는 우리 두 명 다를 지킬 수 있을 만큼 강해질 거야."
+					<<pain -20>><<lpain>><<npcincr Robin dom 2>><<gdom>>
+				<<else>>
+					<<if $submissive gte 1150>>
+						"난 괜찮아질 거야, 그렇게 말해줘서 고마워." 당신은 <<his_ yi>> 걱정스러운 얼굴에 대고 미소 짓는다.
+					<<elseif $submissive lte 850>>
+						"날 무너뜨리려면 그거보다는 더한 걸 들고 와야 할 거야." 당신은 로빈에게 용감한 표정을 지어 보인다.
+					<<else>>
+						"물론 난 괜찮아. 너도 괜찮아서 다행이야." 당신은 로빈과 당신을 잇는 벽에 등을 대고 기대면서 말한다.
+					<</if>>
+					<br><br>
+
+					<<if _robin.trauma gte 70>>
+						로빈이 훌쩍인다. "난 그저 끝났다는 게 기쁠 뿐이야."
+					<<else>>
+						로빈은 마음을 가라앉힌다. "우린 이걸 이겨낼 수 있어, 우리가 할 수 있다는 걸 알아."
+					<</if>>
+				<</if>>
+			<<case "machineLow">>
+				"너 괜찮아?" 로빈이 거의 즉시 반응한다. <<his_ yi>> 목소리에서 걱정이 명백히 묻어나온다.
+				<<if _robin.dom gte 50>>
+					"저들이 대답을 기다리지 않을 거라는 걸 알았어야 했는데," <<he_ ga>> 말한다.
+				<<else>>
+					"정말 미안해, 저들이 대답하길 기다리지 않을 줄 몰랐어," <<he_ ga>> 말한다.
+				<</if>>
+				"네 기분이 나아지기 위해 내가 할 수 있는 게 뭐라도 있을까?" 로빈은 당신을 안심시키려 한다.
+				<br><br>
+
+				<<if $pain gte 60>>
+					<<if $submissive gte 1150>>
+						"나-나를 붙잡아줘." 당신은 벽에 난 구멍으로 당신의 손가락을 넣는다. 그걸 로빈이 부드럽게 잡는다.
+						<br><br>
+
+						"괜찮아." <<He_ nun>> 당신의 손가락을 잡고, 당신이 훌쩍이기 시작하자 부드럽게 문지른다. "쉬이이이, 다 괜찮아 질 거야."
+					<<elseif $submissive lte 850>>
+						"괜찮아지겠지," 당신은 간신히 말을 내뱉지만, 로빈은 명백히 납득하지 못한 것 같다.
+						<br><br>
+
+						"우리가 나가게 되면 네게 아이스크림을 사 주는 건 어떨까?" 당신은 로빈의 목소리에서 미소를 거의 들을 수 있다.
+						"내가 한 턱 내는 거야."
+					<<else>>
+						"우리 지-집에 갈 수 있는걸까?" 당신이 흐느껴 운다.
+						<br><br>
+
+						"담아둘 필요 없어," 당신이 부드럽게 흐느끼기 시작하자 로빈이 위로한다. "우리가 집에 가게 되면, 여기서 있었던 일은 하나도 기억나지 않을 만큼 웃게 해 줄게."
+					<</if>>
+					<<pain -20>><<lpain>><<trauma -5>><<ltrauma>><<npcincr Robin dom 2>><<gdom>>
+				<<else>>
+					<<if $submissive gte 1150>>
+						"그런 것 같아, 고마워," 당신은 살짝 떨면서 말한다.
+					<<elseif $submissive lte 850>>
+						"조금 아프긴 하겠지만, 그뿐이지. 난 계속 살아갈 거야," 당신이 말한다.
+					<<else>>
+						"그게 끝나서 기뻐, 정말로 거칠었다고," 당신이 말한다.
+					<</if>>
+
+					"네가 괜찮다니 다행이야. 아무거나 필요한 거 있으면 내게 말해, 알겠지?" 로빈은 안심한 듯하다.
+				<</if>>
+			<<case "machinePlayer">>
+				"너 괜찮아?" 로빈이 거의 즉시 반응하며, <<his_ yi>> 목소리에서 걱정이 명백히 묻어나온다.
+				"저들이 멈춰서 다행이야, 더 일찍 멈췄으면 좋았을텐데, 그걸 하기 전에..." <<He_ nun>> 말을 끝맺지 못한다.
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					당신이 벽을 껴안자, 일순간이지만 마치 반대편에 있는 로빈의 따스함을 느낀 것만 같다.
+					"곧 괘-괜찮아질 것 같아. 고마워."
+				<<elseif $submissive lte 850>>
+					"난 그저 저들이 네게 그런 짓을 하지 않아서 기쁠 뿐이야." 당신은 파고드는 기억들을 떨치려 고개를 흔들고 억지로 미소를 짓는다.
+				<<else>>
+					"괜찮아질 거야," 당신이 로빈과 당신을 잇는 벽에 손을 올려놓으며 말한다. "약속해."
+				<</if>>
+			<<case "machineNone">>
+				<<if _robin.trauma lte 40>>
+					"우린 분명히 보여 줬어!" 로빈의 목소리가 들떠 있다. "어쩌면 다음 번에 우릴 고문하려고 하기 전에 한 번 더 생각해볼지도 몰라."
+				<<else>>
+					"우리가 안전하다는 사실이 기쁠 뿐이야. 그 기계가 나를 부-부수어 놓으려 한다면 내가 견딜 수 있을 것 같진 않아," 로빈의 목소리는 안심한 듯 하지만 아직 긴장해 있다.
+				<</if>>
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"우리가 무사해서 다행이야. 그 기계들은 무섭더라," 당신은 안도의 한숨을 내쉰다.
+				<<elseif $submissive lte 850>>
+					"그게 바로 저들이 우리에게 이런 짓을 함으로써 얻고자 하는 반응이야." 이 모든 상황에도 불구하고 당신은 스스로가 미소 짓는 게 느껴진다.
+				<<else>>
+					"저들이 포기해서 다행이야. 저기서 난 순간 저들이 다시 시도할까봐 걱정했어." 당신이 미소 짓는다.
+				<</if>>
+			<<case "kissBack">>
+				"아까 키스해줘서 고마워, 그때 거기서 말야," <<he_ ga>> 말한다. 잠시 대화가 멈춘다. "이상하게 들릴 거라 생각하지만, 그래도... 무슨 일이 일어나고 있는지 무시하는 데 도움이 되었어. 거기 집중하지 못하도록 말이야."
+				<br><br>
+
+				<<if $submissive gte 1150>>
+					"그만큼 나도 네게 고마워해야 할 것 같아," 당신이 말한다.
+				<<elseif $submissive lte 850>>
+					"내가 더 무언가 해 줬어야 했는데," 당신이 이를 꽉 물면서 말한다. "난 저들이 싫어."
+				<<else>>
+					"내가 할 수 있는 게 그것 뿐이었어," 당신이 말한다.
+				<</if>>
+			<<case "hunt">>
+				<<if _robin.dom gte 70>>
+					"우린 거기 있었어," <<he_ ga>> 중얼거린다. "우린 숲에 있었고, 우리는..." <<He_ ga>> 한숨을 쉰다. "난 더 강해져야만 했어. 그랬다면 널 구하고, 여길 나갈 수 있었겠지."
+					<br><br>
+
+					<<if $submissive gte 1150>>
+						"너-너는 날 보호할 필요가 없어," 당신은 조용히 말한다.
+					<<elseif $submissive lte 850>>
+						"겁먹었던 건 너뿐만이 아냐," 당신이 중얼거린다.
+					<<else>>
+						"네 자신을 탓하지 마," 당신이 말한다. "우린 같이 있잖아. 내게도 너만큼의 책임이 있어."
+					<</if>>
+					<br><br>
+
+					로빈은 몇 초간 조용하다. "우린 여기서 나갈 거야. 다음 번에도 저들이 우리를 태양 아래에 내놓는 실수를 한다면, 우린 떠날 거야."
+				<<else>>
+					"그래도 태양을 다시 보는 건 좋았어," <<he_ ga>> 활기차게 들리도록 애쓰며 말한다. "풀을 밟는 느낌도. 그건... 괜찮았어."
+					<br><br>
+
+					<<if $submissive gte 1150>>
+						"따-따뜻했지," 당신이 긍정적인 면을 보려고 애쓰며 말한다. 희망적으로 있기가 힘들다. "난 이 장소가 좀 덜 추웠으면 좋겠어."
+					<<elseif $submissive lte 850>>
+						"여기보다 훨씬 낫지," 당신이 벽을 살짝 걷어차며 중얼거린다. "여기선 아무것도 제대로 볼 수 없어. 적어도 저들이 조명을 켜 붰으면 좋겠어."
+					<<else>>
+						"우리가 좀 더 오래 바깥에 있을 수 있었다면 좋았을 텐데," 당신이 말한다.
+					<</if>>
+					<br><br>
+
+					"맞아." 로빈이 동의한다. "그리고 난..." <<He_ ga>> 말꼬리를 흐린다. "난 우리가 여길 탈출했으면 좋겠어."
+				<</if>>
+			<<default>>
+				<<He_ nun>> 조용하다. "너 괜찮아?" 당신이 묻는다.
+				<br><br>
+
+				로빈이 대답하기까지 시간이 좀 걸린다.
+				<<if _robin.trauma gte 70>>
+					"우-우린 여길 탈출해야 해..." 로빈의 목소리가 요동친다.
+				<<else>>
+					"난 괜찮을 거야," <<he_ ga>> 약하게 웃는다. "그저 고개만 들고 있으면 돼." 로빈의 목소리는 <<his_ yi>> 말과 상충되어 있다.
+				<</if>>
+				<<undergroundRobinTopicRefresh>>
+		<</switch>>
+<</switch>>
+<<set $undergroundbrothel.timepass to false>><<set $undergroundbrothel.robinTalk++>><<set $undergroundbrothel.robinSpoke to true>>
+<br><br>
+
+<<if !_noOptions>>
+	<<link [[다음|Underground Cell]]>><<endevent>><</link>>
+<</if>>
+
+:: Underground Cell Robin Talk 2
+<<effects>><<run statusCheck("Robin")>>
+<<switch $phase>>
+	<<case "machineHighApologise">>
+		"로빈, 미안해," 당신이 말한다. 당신은 당신이 두려웠으며, 올바르게 생각하지 못했고, 지금은 굉장히 후회한다는 것을 설명한다. 단어들은 당신의 목이 쉴 때까지, 당신이 주체할 수 없이 빠르게 흘러나온다.
+		<br><br>
+
+		로빈은 잠시 대답하지 않다가, 딸꾹질을 한다. "우린 여기서 나가야 해. 둘이 함께. 그러니 우린 이번 일을 걱정할 필요가 없어. 왜냐하면... 왜냐하면 다시는 일어나지 않을 일이니까."
+		<br><br>
+
+		<<He_ ga>> 말을 멈춘다. "너-널 용서할게. 그리고 소리질러서 미안해. 내가 여기에 물들어가고 있나 봐."
+	<<case "machineHighSilent">>
+		당신은 입을 다물어, 방을 불편한 침묵으로 가득 채운다. 몇 분이 지나자, 로빈이 울음을 터트린다.
+		<br><br>
+
+		"미안해," <<he_ ga>> 속삭인다. "날 미워하지 말아줘. 그렇게 말해선 안 되는 거였어. 미안해. 미안해, 제발." <<His_ yi>> 목소리 사이에 딸꾹질과 흔들리는 숨소리가 끼어든다. "난 네가 필요해. 널 사랑해. 날 미워하지 말아줘."
+		<br><br>
+
+		당신이 로빈에게 <<him_ ul>> 용서한다고 말하자, <<he_ ga>> 다시 울기 시작한다. 이번에는 안심을 담아서. 몇 분이 지나자, <<his_ yi>> 목소리가 흐려진다.
+	<<default>>
+		"응?" 로빈이 말한다. "뭐라고?"
+		<br><br>
+
+		당신은 로빈에게 이 장면에서 버그가 났으며 $$phase 가 $phase 로 잘못 설정되었다고 말할까 했지만, 그만두기로 한다. Vrelnir에게 보고하는 것이 더 의미있을 것이다.
+<</switch>>
+<br><br>
+
+<<link [[다음|Underground Cell]]>><<endevent>><</link>>
+
+:: Underground Robin Stage Intro
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+당신은 또다시 관중들이 기다리는 무대로 끌려간다. 로빈은 이미 무대에 올라 있다. <<covered>>
+
+<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>>
+	<<beastNEWinit 1 pig>>
+	무대에 서자, 당신 뒤편의 금속 셔터가 쩔껑거리며 열리고, 무지막지하게 큰 <<beastsplural_>> 두 마리가 걸어 나온다. 한 마리가 로빈에게로 달려드는 동시에, 나머지 한 마리가 당신에게 달려든다. 관중들이 짐승들에게 환호를 보낸다.
+	<br><br>
+
+	<<link [[다음|Underground Robin Stage Pig]]>><<set $molestationstart to 1>><</link>>
+<<else>>
+	<<generate1>><<generate2>>
+	<<fullGroup_ i>> 벌써 당신을 기다리고 있다. <<person2>><<person_ i>> 로빈의 목줄을 잡자, <<person1>><<person_ un>> 당신의 목줄을 잡는다. 그들은 당신과 로빈을 끌어서 떼어놓은 뒤 관중들을 본다. "누가 더 먼저 쌀 것 같아? 내기하자고, 친구들."
+	<br><br>
+
+	<<link [[다음|Underground Robin Stage Molestation]]>><<set $molestationstart to 1>><</link>>
+<</if>>
+
+:: Underground Robin Stage Pig
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<beastCombatInit>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<br>
+<<beast $enemyno>>
+<br>
+<<undergroundRobinInterlude>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Underground Robin Stage Pig Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Stage Pig]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Stage Pig Finish
+<<if $enemyhealth lte 0>>
+	<<beasttype_ un>> 고통과 공포에 차 달아나며, 출구를 찾으려고 관중들 사이를 미친듯이 돌아다닌다. 나머지 한 마리도 그에 놀라, 로빈을 혼자 일어나도록 내버려둔 채 함께 달아난다.
+	<br><br>
+
+	<<tearful>> 당신과 로빈은 무대에서 펄쩍 뛰어 계단으로 달려간다. 관중들은 너무 정신이 산만해져 있어 당신을 저지하려는 아무런 행동도 하지 않는다. 당신이 최대한 빠르게 계단을 올라가자, 아래쪽에서 천둥같은 발소리가 들려온다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<undergroundRobinTopic "pig" "undiscussed">>
+	<<beastejaculation>><<famebestiality 50>>
+
+	관중들은 당신이 무대에서 끌려나가 당신의 방으로 돌아가자 박수갈채를 보낸다. 로빈이 곧 뒤따른다.
+
+	<<undergroundReturnToCell>>
+<</if>>
+
+:: Underground Robin Stage Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<set $enemyno to 1>><<set $enemynomax to 1>>
+	<<maninit>>
+	<<set $enemytrust -= 120>>
+<</if>>
+
+<<effects>>
+<<effectsman>><<man>>
+<<undergroundRobinInterlude>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Underground Robin Stage Molestation Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Stage Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Stage Molestation Finish
+<<if $enemyhealth lte 0>>
+	<<person1>><<person_ i>> 고통스러워하며 물러나 무대에서 굴러떨어진다. <<person2>><<person_ un>> 갑자기 들려오는 쿵 소리에 깜짝 놀란다. <<tearful>> 당신은 <<him_ ul>> 로빈에게서 홱 밀치고 계단으로 달려간다. 관중들은 너무 벙쪄 있어 당신을 저지하려는 아무런 행동도 하지 않는다.
+	<br><br>
+
+	당신이 최대한 빠르게 계단을 올라가자, 아래쪽에서 천둥같은 발소리가 들려온다.
+
+	<<undergroundEscapeForestRobin>>
+
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+
+	<<person2>><<person_ un>> 짜증난 얼굴로 당신을 쳐다본다. 관중들은 당신이 무대에서 끌려나가 당신의 방으로 돌아가자 박수갈채를 보낸다. 로빈이 곧 뒤따른다.
+	<<undergroundReturnToCell>>
+<</if>>
+
+:: Underground Robin Dice Intro
+<<effects>>
+<<generate1>><<generate2>><<person1>>
+당신은 당신의 방에서 바깥의 복도로 끌려나온다. 복도 또한 당신의 방처럼 중세 시대의 것으로 보이지만 현대의 가구들이 들어와 있다. 당신이 모퉁이를 돌자 많은 <<people_ i>> 무대를 둘러싸고 있는 모습이 보인다. 로빈은 이미 무대 위에 올라, <<person_>>에게 감시당하고 있다. 당신은 방 반대편에서, 어쩌면 나가는 길로 통할지도 모를 계단참을 발견한다.
+<<covered>>
+<br><br>
+
+관중 대부분은 로빈을 쳐다보고 있었지만, 당신이 중앙의 무대로 끌려올라오자 모든 시선이 당신에게 집중된다. 음악이 흘러나오고 있다.
+<br><br>
+
+"우린 이제 이걸 굴릴 거랍니다," <<person2>><<person_ i>> 커다란 돌 주사위 한 쌍을 들고 말한다. "이후에 어떻게 진행될 지 결정하기 위해서죠. 낮은 눈이 나오길 기도하세요!"
+<br><br>
+
+"높은 눈! 높은 눈!" 군중들이 박자를 맞춰 외친다.
+<br><br>
+
+<<link [[다음|Underground Robin Dice Intro 2]]>><</link>>
+
+:: Underground Robin Dice Intro 2
+<<effects>>
+
+<<He_ ga>> 돌 주사위를 굴린다. 주사위들은 불편할 정도로 큰 소리를 내며 무대에 부딪힌다.
+<br><br>
+<<set $uDice1 to random(1, 6)>>
+<<set $uDice2 to random(1, 6)>>
+<<set _d1Color to ["","green","blue","red"][Math.ceil($uDice1/2)]>>
+<<set _d2Color to ["","green","blue","red"][Math.ceil($uDice2/2)]>>
+
+<div id="die_text">
+	<span id="die_1">
+		<<if $options.images is 1>>
+			<img src="img/misc/die_stone_roll.gif">
+		<<else>>
+			?
+		<</if>>
+	</span>
+
+	<span id="die_2">
+		<<if $options.images is 1>>
+			<img src="img/misc/die_stone_roll.gif">
+		<<else>>
+			?
+		<</if>>
+	</span>
+	<br>
+	=
+	<br>
+</div>
+
+<<timed 2s>>
+	<<replace "#die_1">>
+	<<if $options.images is 1>>
+		<img @src="'img/misc/die_stone_' + $uDice1 + '.png'">
+	<<else>>
+		$uDice1
+	<</if>>
+	<</replace>>
+<</timed>>
+<<timed 4s>>
+	<<replace "#die_2">>
+	<<if $options.images is 1>>
+		<img @src="'img/misc/die_stone_' + $uDice2 + '.png'">
+	<<else>>
+		$uDice2
+	<</if>>
+	<</replace>>
+<</timed>>
+
+<<timed 5s>>
+	<span id="die_text">
+		<<if $uDice1 is $uDice2>>
+			<<switch $uDice1>>
+				<<case 1>>
+					<span @class="_d1Color">스네이크 아이즈</span>
+				<<case 6>>
+					<span @class="_d1Color">박스카</span>
+				<<default>>
+					<span @class="_d1Color">더블 <<print $uDice1>></span>
+			<</switch>>
+		<<else>>
+			<span @class="_d1Color"><<putpost $uDice1 "와" "sep">></span>_trPost <span @class="_d2Color"><<print $uDice2>></span>
+		<</if>>
+	</span>
+	<<replace "#temp_br">>
+		<br>
+	<</replace>>
+<</timed>>
+
+<<timed 6s>>
+	<<replace "#temp_br">>
+		<br>
+		($uDice1, $uDice2)
+	<</replace>>
+<</timed>>
+
+<span id="temp_br">
+	<br><br>
+</span>
+<br><br>
+
+<<link [[다음|Underground Robin Dice Intro 3]]>><</link>>
+<br>
+
+:: Underground Robin Dice Intro 3
+<<effects>>
+
+<<if $uDice1 lte 3 and $uDice2 lte 3>>
+	당신의 눈이 낮게 나오자 관중들이 야유를 보내며, 무대에 쓰레기를 던지기도 한다.
+	<<if $uDice1 + $uDice2 lte 4>>
+		"젠장!" 특히 실망한 관중 한 명이 소리지른다.
+	<</if>>
+<<elseif $uDice1 gte 4 and $uDice2 gte 4>>
+	높은 눈이 나오자 관중들이 흥분에 차 함성을 지른다.
+	<<if $uDice1 + $uDice2 gte 10>>
+		몇몇은 박자를 맞춰 발을 구르기 시작한다.
+	<</if>>
+<<elseif $uDice1 gte 5 and $uDice2 lte 2 or $uDice1 lte 2 and $uDice2 gte 5>>
+	주사위 눈이 크게 다르게 나오자 관중들이 '어우' 하는 소리를 낸다.
+<<else>>
+	관중들은 결과를 보고 웅얼거린다.
+<</if>>
+<br><br>
+
+<<person_ i>> 앞으로 걸어나온다.
+<<set $diceAnnouncer to _trResult>>
+<<endevent>>
+
+<<if $uDice1 is $uDice2>>
+	"정해졌습니다." $diceAnnouncer 선언한다. "신중하게 생각해 볼 것도 없네요."
+	<<for _d to 1; _d lte $uDice1; _d++>>
+		<<generateNPC _d>>
+	<</for>>
+	<<person1>>
+	<<if $uDice1 is 1>>
+		관중들로부터 두 명이 나와 무대 위로 기어오른다. 첫 번째 사람인 <<person_ i>> 당신에게 다가오는 동안, 두 번째 사람은 로빈에게로 간다.
+	<<else>>
+		관중들로부터 <<trNumber $uDice1>> 명의 사람들 두 무리가 나와 무대 위로 기어오른다. 첫 번째 무리인 <<fullGroup_ un>> 당신에게 다가오는 동안, 나머지 한 무리는 로빈에게로 간다.
+	<</if>>
+	<br><br>
+
+	<<link [[다음|Underground Robin Dice Molestation]]>><<set $robinDice to $playerDice to $uDice1>><<set $molestationstart to 1>><</link>>
+<<else>>
+	"이제, 당신은 선택을 하셔야 합니다," $diceAnnouncer 당신에게 말한다. "<<putpost $uDice1 "을">> 가져가겠습니까, 아니면 <<putpost $uDice2 "을">> 가져가겠습니까? 어느 쪽을 선택하든, 친구분은 다른 쪽 숫자를 받습니다."
+	<br><br>
+
+	당신은 관중들이 당신에게 음탕한 눈길을 보내고 있다는 것을 알아차리고, 그 사실이 당신의 머리를 쿡쿡 찌른다. $diceAnnouncer 당신에게 당신을 덮칠 사람들의 수와, 로빈을 덮칠 사람들의 수를 고르라고 하는 것이다. 당신은 도망치는 것을 고려하지만, 너무 많은 눈이 당신을 주시하고 있다. 로빈은 겁에 질린 듯 보인다.
+	<br><br>
+
+	<<silently>><<putpost $uDice1 "을">><<set _option1 to _trResult + " 선택한다">><<putpost $uDice2 "을">><<set _option2 to _trResult + " 선택한다">><</silently>>
+	<<link [[_option1|Underground Robin Dice Intro 4]]>>
+		<<set $playerDice to $uDice1>><<set $robinDice to $uDice2>>
+		<<if $uDice1 gt $uDice2>><<stress 6>><<else>><<npcincr Robin love -1>><</if>>
+	<</link>><<if $uDice1 gt $uDice2>><<gstress>><<else>><<llove>><</if>>
+	<br>
+	<<link [[_option2|Underground Robin Dice Intro 4]]>>
+		<<set $playerDice to $uDice2>><<set $robinDice to $uDice1>>
+		<<if $uDice2 gt $uDice1>><<stress 6>><<else>><<npcincr Robin love -1>><</if>>
+	<</link>><<if $uDice2 gt $uDice1>><<gstress>><<else>><<llove>><</if>>
+<</if>>
+
+:: Underground Robin Dice Intro 4
+<<effects>>
+
+"<<putpost $playerDice "을">> 선택했습니다," $diceAnnouncer 말한다. "그러면 <<nnpc_he_ nun "Robin">> <<putpost $robinDice "을">> 받게 되겠군요." 로빈은 당신을 <<print $playerDice gt $robinDice ? "감사하다는 눈빛으로" : "배신당했다는 눈빛으로">> 바라본다.
+<br><br>
+
+<<for _d to 1; _d lte $playerDice; _d++>>
+	<<generateNPC _d>>
+<</for>>
+<<person1>>
+<<if $playerDice is 1>>
+	관중들로부터 <<person_>> 한 명이 무대 위로 기어올라 당신에게 다가온다.
+<<else>>
+	관중들로부터 <<fullGroup_ i>> 무대 위로 기어올라 당신에게 다가온다.
+<</if>>
+<<if $robinDice is 1>>
+	다른 한 사람이 무대 위로 기어올라 로빈에게 다가간다.
+<<else>>
+	<<trNumber $robinDice>> 명의 사람들이 더 무대 위로 기어올라 로빈에게 다가간다.
+<</if>>
+<br><br>
+
+<<link [[다음|Underground Robin Dice Molestation]]>><<set $molestationstart to 1>><</link>>
+
+:: Underground Robin Dice Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<set $enemytrust -= 80>>
+	<<set $enemyanger += 60>>
+	<<set _rTrauma to [0,4,8,12,16,20,25][$robinDice]>>
+	<<npcincr Robin trauma _rTrauma>>
+<</if>>
+
+<<effects>>
+<<effectsman>><<man>>
+<<undergroundRobinInterlude>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Underground Robin Dice Molestation Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Dice Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Dice Molestation Finish
+<<if $enemyhealth lte 0>>
+
+	<<person1>><<person_ i>> 고통스러워하며 물러나 무대에서 굴러떨어진다.
+	<<if $playerDice gt 2>>
+		다른 사람들도 마구 버둥거리는 <<his_ yi>> 팔다리에 걸려 마찬가지로 굴러떨어진다.
+	<<elseif $playerDice is 2>>
+		<<person2>><<personPost>>도 마구 버둥거리는 <<his_ yi>> 팔다리에 걸려 마찬가지로 굴러떨어진다.
+	<</if>>
+	로빈을 둘러싸고 있던 무리는 덮치는 걸 멈추고 소란이 일어나는 쪽을 돌아본다.
+	<br><br>
+
+	<<tearful>> 당신은 그들을 밀어젖히고 로빈의 팔을 붙잡아, 계단으로 달려간다. 관중들은 너무 벙쪄 있어 당신을 저지하려는 아무런 행동도 하지 않는다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<undergroundRobinTopic "dice" "undiscussed">>
+	<<ejaculation>>
+
+	관중들은 당신이 무대에서 끌려나가 당신의 방으로 돌아가자 박수갈채를 보낸다. 로빈이 곧 뒤따른다.
+	<<undergroundReturnToCell>>
+<</if>>
+<<unset $uDice1>><<unset $uDice2>><<unset $playerDice>><<unset $robinDice>><<unset $diceAnnouncer>>
+
+:: Underground Robin Tentacles Intro
+<<effects>><<set $robinMetal to true>><<undergroundRobinTopic "tentacles" "undiscussed">>
+<<generate1>><<person1>>
+
+당신은 다시 한 번 관중들이 기다리는 무대로 끌려나간다. 로빈은 이미 와 있다. <<covered>>
+<br><br>
+
+당신은 로빈이 벌거벗겨진 채로, 금속 수갑에 의해 벽에 매달려 있는 것을 알아차린다. <<nnpc_He_ nun "Robin">> 애원하는 듯한 눈길로 당신을 올려다본다.
+<br><br>
+
+"최선을 다해서 <<nnpc_him_ ul "Robin">> 거기서 떼어내 봐," <<person_ i>> 말한다. "너 자신을 위해서 말야." 금속 셔터가 열리고, 금속 광택이 나는 빨간색 촉수들이 당신에게로 달려든다. 로빈은 <<nnpc_his_ yi "Robin">> 눈을 꼭 감는다.
+<br><br>
+
+<<link [[다음|Underground Robin Tentacles]]>><<endevent>><<set $molestationstart to 1>><</link>>
+
+:: Underground Robin Tentacles
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<npc Robin>><<person1>>
+	<<maninit>>
+	<<silently>><<npc_submissive>><</silently>>
+	<<npcexpose>>
+	<<set $breakIgnore to true>>
+	<<set $fightTargets to []>>
+	<<tentaclestart 10 15 "tentacle" "metal">>
+	<<set $enemyarousalmax to 800>>
+<</if>>
+<<set $enemyanger to 0>><<set $enemytrust to 100>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<effectstentacles>>
+<<tentacles>>
+<<audience>>
+<<statetentacles>>
+<<stateman>>
+<<actionsOmni>>
+
+<<if _combatend or ($tentacles.active lte ($tentacles.max / 2))>>
+	<span id="next"><<link [[다음|Underground Robin Tentacles Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Tentacles]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Robin Tentacles Finish
+<<effects>><<unset $robinMetal>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	관중들이 환호하고, 금속 촉수들은 당신에게서 떨어진다. 로빈은 벽에서 풀려났고, 당신과 로빈 두 명은 무대에서 끌려나가 방으로 돌아간다.
+	<br><br>
+
+	<<undergroundReturnToCell>>
+<<else>>
+	금속 촉수들이 부르르 떨더니, 스파크가 튀며, 힘없이 떨어진다. 로빈을 묶고 있던 수갑도 자동으로 풀린다.
+	<br><br>
+
+	<<person_ i>> 무전기에 대고 시스템 고장에 대해 무언가 소리친다. <<tearful>> 당신은 로빈의 팔을 붙잡아 <<he_ ga>> 혼란스러워하는 사이 계단으로 달려간다. 관중들은 너무 벙쪄 있어 당신을 저지하려는 아무런 행동도 하지 않는다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+<</if>>
+
+:: Underground Robin Machine Intro
+<<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<generate1>><<person1>>
+<<trNPCdesc $NPCList[0].fullDescription "이">><<set $machineHandler to _trResult>>
+
+당신은 다시 한 번 관중들이 기다리는 무대로 끌려나간다. 로빈은 이미 무대 위에 올라, <<person_>>에게 감시당하고 있다. <<covered>>
+<br><br>
+
+당신은 이상한 기계 한 쌍이 무대로 들어오는 것을 알아차린다. 기계에는 쇠사슬과 남근 모양의 기구가 달려 있다. 로빈은 붙잡혀 기계 중 하나로 끌려가고, 당신도 곧 그렇게 된다. 당신과 로빈은 서로 마주보게끔 배치된다.
+<br><br>
+
+"만약 네가 감당하기에 너무 힘든 것 같으면," <<person_ i>> 말한다. "<span class="gold">우리에게 바로 알려.</span> <span class="red">그러면 전력을 반대쪽 기계로 보내줄 테니까.</span>"
+<<if _robin.trauma gte 60 or _robin.dom lte 20>>
+	로빈은 공포에 질려 목이 졸리는 듯한 소리를 낸다.
+<<else>>
+	당신에게 <<nnpc_he_ ga "Robin">> 몸부림치면서 로빈의 사슬이 서로 부딪혀 짤그랑대는 소리가 들린다.
+<</if>>
+<br><br>
+
+<<link [[다음|Underground Robin Machine]]>><<endevent>><<set $molestationstart to 1>><</link>>
+
+:: Underground Robin Machine
+<<set _robin to statusCheck("Robin")>>
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+
+	<<set $machine_health to 6>><<set $machine_ammo to 8>>
+	<<if $player.vaginaExist and $analdisable is "f">>
+		<<machine_init vaginal anal arm_chains leg_chains>>
+		<<set $machine.vaginal.armed to 1>><<set $machine.anal.armed to 1>>
+	<<elseif $player.vaginaExist>>
+		<<machine_init vaginal arm_chains leg_chains>>
+		<<set $machine.vaginal.armed to 1>>
+	<<else>>
+		<<machine_init anal arm_chains leg_chains>>
+		<<set $machine.anal.armed to 1>>
+	<</if>>
+
+	<<if _robin.dom gte 80 and _robin.trauma lte 20>>
+		<<set $timer to 12>>
+	<<elseif _robin.dom gte 60 and _robin.trauma lte 40>>
+		<<set $timer to 10>>
+	<<elseif _robin.dom gte 40 and _robin.trauma lte 60>>
+		<<set $timer to 9>>
+	<<else>>
+		<<set $timer to 8>>
+	<</if>>
+	<<set $robinFucked to false>><<set $robinMachineSpeed to 2>>
+<</if>>
+
+<<effects>>
+<<machine_effects>>
+<<machine_combat>>
+
+<<if $phase is 1>>
+	당신은 그들에게 당신 쪽 기계를 느리게 해달라고 부탁한다. $machineHandler 스위치를 조작하자, 당신의 섹스 기계가 보다 적절한 수준으로 느려진다.
+	<<if $robinFucked>>
+		로빈은 <<nnpc_his_ yi "Robin">> 기계가 속도를 다시 올리자 고통어린 비명을 내지른다.
+		<<npcincr Robin trauma 1>><<grtrauma true>>
+	<<else>>
+		로빈은 안도와 걱정, 그 중간 정도 되는 소리를 낸다.
+	<</if>>
+	<<machine_speed 2>>
+	<<set $timer to random(2,4)>>
+<<elseif $phase is 2>>
+	당신은 그들에게 당신 쪽 기계를 느리게 해달라고 부탁한다. $machineHandler 스위치를 조작하자, 당신의 섹스 기계가 기어가는 정도로 느려진다.
+	<<if $robinFucked>>
+		로빈은 <<nnpc_his_ yi "Robin">> 기계가 더 크게 왱왱거리기 시작하자 비명을 내지른다. 당신은 기계가  <<nnpc_him_ ul "Robin">> 찔러대는 소리를 들을 수 있다.
+		<<npcincr Robin trauma 3>><<npcincr Robin dom -5>><<ggrtrauma true>><<lldom "Robin">>
+	<<else>>
+		로빈이 겁에 질려 비명을 지른다.
+	<</if>>
+	<<npcincr Robin love -1>><<llove>>
+	<<machine_speed 1>>
+	<<set $timer to random(2,4)>>
+<<else>>
+	<<if $robinFucked is true>>
+		<<if $anusfucked is 1 or $vaginafucked is 1 or $penisfucked is 1>>
+			<<set _fucking to "박아대는">>
+		<<else>>
+			<<set _fucking to "위협하는">>
+		<</if>>
+		<<switch $robinMachineSpeed>>
+			<<case 3>>
+				<<if random(-100,60) gte (_robin.dom - _robin.trauma) and $timer lte 0>>
+					"<span class="red">느리게!</span>" 로빈이 눈물을 흘리며 외친다. "제발, 느리게 해주세요! 견딜 수가 없어요!"
+					<br><br>
+
+					$machineHandler 스위치를 조작하자, 당신을 _fucking 기계가 속도를 높여 일반적인 속도로 돌아온다. 로빈은 흐느끼는 소리가 섞인, 안도의 한숨을 내쉰다.
+					<<machine_speed 2>>
+					<<set $timer to random(3,5)>>
+				<<else>>
+					<<print either(
+						"로빈은 고통에 차 비명을 지른다.",
+						"당신에게 로빈이 고통에 차 울부짖는 게 들린다.",
+						"기계가 로빈의 숨을 쉬지 못하게 하고, 몇 초간 <<nnpc_he_ nun \"Robin\">> 숨을 쉬기 위해 발버둥친다."
+					)>>
+					<<npcincr Robin trauma 3>><<ggrtrauma true>>
+				<</if>>
+			<<case 2>>
+				<<if random(-100,30) gte (_robin.dom - _robin.trauma) and $timer lte 0>>
+					"저기," 로빈이 당신을 약하게 부른다. "혹시 내 기계를 좀 느리게 만들어주지 않을래? 꼭 그럴 필요는 없-"
+					<br><br>
+
+					$machineHandler 당신이 대답하기도 전에 스위치를 조작하여, 당신을 _fucking 기계가 <span class="red">속도를 높인다.</span> 로빈은 항의하며 소리지른다. "저기요, <<pshe_ nun>> 대답하지도 않았다고요! 저기요!"
+					<<machine_speed 3>>
+					<<set $timer to random(3,5)>>
+				<<else>>
+					<<print either(
+						"로빈은 도와달라고 소리지른다.",
+						"당신에게 로빈이 <<nnpc_his_ yi \"Robin\">> 사슬에서 벗어나려 발버둥치는 소리가 들린다.",
+						"로빈은 흐느끼지만, <<nnpc_his_ yi \"Robin\">> 목소리는 기계가 박아대는 소리에 가려진다."
+					)>>
+					<<npcincr Robin trauma 1>><<grtrauma true>>
+				<</if>>
+			<<case 1>>
+				<<print either(
+					"로빈은 불만스럽게 신음한다.",
+					"로빈은 약하게 저항하지만, 겁에 질린 것 같지는 않다.",
+					"로빈은 빠져나가려고 시도하며 끙 소리를 낸다."
+				)>>
+		<</switch>>
+	<<else>>
+		<<if $timer gte 8>>
+			<span class="green">로빈이 적의에 차 소리지른다. 당신에게 플라스틱에 부딪히는 소리들이 들린다.</span>
+		<<elseif $timer gte 6>>
+			<span class="lblue">당신에게 로빈이 발버둥치며, 기계를 걷어차는 소리가 들린다.</span>
+		<<elseif $timer gte 4>>
+			<span class="blue">당신에게 로빈이 발버둥치는 소리가 들린다. 얻어맞고 있는 기계의 소리가 점점 약해진다.</span>
+		<<elseif $timer gte 2>>
+			<span class="purple">당신에게 쇠사슬이 철그럭대는 소리와 함께, 로빈이 고함치는 소리가 들린다.</span>
+		<<elseif $timer is 1>>
+			<span class="pink">로빈이 겁에 질려 울부짖는다.</span>
+		<<else>>
+			<<set $robinFucked to true>>
+			<<NPCVirginityTakenByOther "Robin" "anal" "sex machine">>
+			<<if _robin.vagina isnot "none">>
+				<<NPCVirginityTakenByOther "Robin" "vaginal" "sex machine">>
+			<</if>>
+			<span class="red">기계가 로빈의
+				<<if _npcVirgin.vaginal and _npcVirgin.anal>>
+					보지와 항문을 처음으로 관통하자 <<nnpc_he_ ga "Robin">> 비명을 지르는 소리가 들린다.
+				<<elseif _npcVirgin.vaginal>>
+					항문을 관통하고 <<nnpc_his_ yi "Robin">> 보지를 처음으로 관통하자 <<nnpc_he_ ga "Robin">> 비명을 지르는 소리가 들린다.
+				<<elseif _npcVirgin.anal>>
+					<<if _robin.vagina isnot "none">>
+						보지를 관통하고 <<nnpc_his_ yi "Robin">> 항문을 처음으로 관통하자 <<nnpc_he_ ga "Robin">> 비명을 지르는 소리가 들린다.
+					<<else>>
+						항문을 처음으로 관통하자 <<nnpc_he_ ga "Robin">> 비명을 지르는 소리가 들린다.
+					<</if>>
+				<<else>>
+					<<if _robin.vagina isnot "none">>
+						보지와 항문을 관통하자 <<nnpc_he_ ga "Robin">> 비명을 지르는 소리가 들린다.
+					<<else>>
+						항문을 관통하자 <<nnpc_he_ ga "Robin">> 비명을 지르는 소리가 들린다.
+					<</if>>
+				<</if>>
+			</span>
+			관중들이 흥분에 차 함성을 지른다.
+			<<npcincr Robin trauma 5>><<ggrtrauma true>><<control -10>><<lcontrol>>
+		<</if>>
+	<</if>>
+<</if>>
+<br><br>
+
+<<audience>>
+
+<<set $phase to 0>>
+<<machine_state>>
+
+<<if $orgasmdown gte 1 or $pain gte 100 and $willpowerpain is undefined>>
+<<else>>
+	<br>
+	당신의 입은 자유롭다.
+	<<if ($anusfucked is 1 or $vaginafucked is 1 or $penisfucked is 1) and $machine.speed gte 2>>
+		당신은 당신 쪽 기계의 속도를 느리게 해달라고 부탁할 수 있지만, 그러면 로빈이 고통받을 것이다.
+	<</if>>
+	<br>
+	<label><<radiobutton "$phase" 0 autocheck>> 가만히 있는다</label> |
+	<<if $anusfucked is 1 or $vaginafucked is 1 or $penisfucked is 1>>
+		<<if $machine.speed is 3>>
+			<label><<radiobutton "$phase" 1 autocheck>> <span class="brat">느리게 해달라고 부탁한다</span></label> |
+		<<elseif $machine.speed is 2>>
+			<label><<radiobutton "$phase" 2 autocheck>> <span class="brat">느리게 해달라고 부탁한다</span></label> |
+		<</if>>
+	<</if>>
+	<br><br>
+<</if>>
+
+<<machine_actions>>
+
+<<if $machine.number lte 0>>
+	<span id="next"><<link [[다음|Underground Robin Machine End]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Machine]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Robin Machine End
+<<effects>>
+
+<<if ($anusfucked is 1 or $vaginafucked is 1 or $penisfucked is 1) and $robinFucked>>
+	기계가 정지하자 관중들은 소리를 지르며 박수갈채를 보낸다.
+<<else>>
+	기계가 정지하자 관중들은 야유를 보낸다.
+	<<if !$robinFucked>>
+		로빈은 안심한 것처럼 보인다.
+	<</if>>
+<</if>>
+$machineHandler 당신과 로빈을 풀어주고, 무대에서 끌고나와 당신의 방으로 돌아간다.
+<<if $robinMachineSpeed is 3>>
+	로빈은 당신을 바라보려 하지 않는다.
+<<elseif $robinMachineSpeed is 1>>
+	로빈은 당신을 흘끔 바라보다가, 빠르게 시선을 돌린다.
+<</if>>
+<br>
+
+<<machine_end>>
+
+<<switch $robinMachineSpeed>>
+	<<case 1>>
+		<<undergroundRobinTopic "machineLow" "undiscussed">>
+	<<case 2>>
+		<<undergroundRobinTopic "machineNormal" "undiscussed">>
+	<<case 3>>
+		<<undergroundRobinTopic "machineHigh" "priority">>
+	<<default>>
+		<<if $anusfucked is 1 or $vaginafucked is 1 or $penisfucked is 1>>
+			<<undergroundRobinTopic "machinePlayer" "undiscussed">>
+		<<else>>
+			<<undergroundRobinTopic "machineNone" "undiscussed">>
+		<</if>>
+<</switch>>
+<<unset $machineHandler>><<unset $robinFucked>><<unset $robinMachineSpeed>>
+
+<<undergroundReturnToCell>>
+
+:: Underground Robin Kiss Intro
+<<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<generate1>><<npc Robin 2>><<generate3>><<generate4>>
+<<if $NPCList[0].penis is "none">>
+	<<npcstrapon 0>>
+<</if>>
+<<if $NPCList[2].penis is "none">>
+	<<npcstrapon 2>>
+<</if>>
+당신은 지하감옥의 다른 쪽, 조명이 잘 되어 있는 방으로 끌려나간다. <<person4>><<person_ i>> 카메라를 손에 든 채로, 이미 도착해 있다. <<his_ yi>> 옆에는 <<person1>><<person_ gwa>> 로빈의 목줄을 쥐고 있는 <<person3>><<person_ i>> 서 있다.
+<br><br>
+
+<<person4>><<person_ i>> 끄덕이자, 다른 두 명이 당신과 로빈을 가까이에 끌어다 놓는다.
+<<if $worn.face.type.includes("covered")>>
+	<<person_ un>> 당신의 <<worn_face_name_ ul>> 벗겨낸다.
+	<<faceruined>><<set $worn.face.type.push("broken")>>
+<</if>>
+<<person1>><<person_ un>> 당신의 머리카락을 붙잡아 당신의 얼굴을 로빈에게 처박는다. 로빈이 꺅 하고 비명을 지른다.<<pain 1>><<gpain>>
+<br><br>
+
+<<He_ wa>> <<person3>><<person_ un>> 당신과 로빈이 마네킹인 것마냥 둘의 입술이 서로를 누르도록 머리의 위치와 각도를 조정한다. 당신이 저항하자 그들은 당신을 꽉 붙잡고, <<person4>><<person_ i>> 당신과 로빈의 목걸이를 연결한다. 당신은 몸을 빼내려 애쓰고, 로빈도 똑같이 하지만, 당신과 로빈은 그 상태로 함께 고정되었다. 당신과 로빈 사이에는 공간이라 할 만한 게 거의 없다.
+<<takeKissVirginity _args[0] "loveRape">>
+<br><br>
+
+로빈은 혼란스러운 듯 당신을 쳐다보다가, <<person3>><<person_ i>> 로빈 뒤에 자리를 잡은 뒤 <<his_ yi>> 목걸이를 홱 잡아당기자 <<if _robin.trauma gte 70>>소리를 지른다<<else>>훌쩍거린다<</if>>. <<person1>><<person_>>도 당신에게 똑같이 하면서, <<his_ yi>> <<trPenisdesc $NPCList[0].penisdesc "으로">>_trResult 당신의 <<bottom_ ul>> 누른다. <<person4>><<person_ un>> <<his_ yi>> 카메라를 준비한다.
+<br><br>
+
+<<link [[다음|Underground Robin Kiss Molestation]]>><<set $molestationstart to 1>><</link>>
+
+:: Underground Robin Kiss Molestation
+<<set _robin to statusCheck("Robin")>>
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<set $enemyno to 2>><<set $enemynomax to 2>><<maninit>><<npcexpose>>
+	<<set $enemyhealth to $NPCList[0].health>><<set $enemyhealthmax to $enemyhealth>>
+	<<npc_attempt_sex>>
+	<<set $fightTargets to [0]>><<set $robinDungeonKiss to true>><<set $robinFucked to false>>
+	<<set $kissTurns to 0>>
+	<<set $position to "doggy">>
+	<<set $NPCList[0].lefthand to "hair">>
+	<<set $NPCList[1].lefthand to "idle">><<set $NPCList[1].righthand to "idle">>
+	<<if $NPCList[1].penis isnot "none">><<set $NPCList[1].penis to "idle">><</if>>
+	<<if $NPCList[1].vagina isnot "none">><<set $NPCList[1].vagina to "idle">><</if>>
+	<<set $NPCList[1].location.head to "head">><<set $NPCList[1].mouth to "kiss">>
+	<<set $mouthstate to "kiss">><<set $mouthuse to "kiss">><<set $mouthtarget to 0>><<set $head to "bound">>
+	<<if _robin.dom gte 80 and _robin.trauma lte 20>>
+		<<set $timer to 6>>
+	<<elseif _robin.dom gte 60 and _robin.trauma lte 40>>
+		<<set $timer to 5>>
+	<<elseif _robin.dom gte 40 and _robin.trauma lte 60>>
+		<<set $timer to 4>>
+	<<else>>
+		<<set $timer to 3>>
+	<</if>>
+	<<set $turnCount to 0>>
+<</if>>
+
+<<effects>>
+<<effectsman>><<man>>
+<<set $turnCount++>>
+
+<<person4>><<person_ un>>
+<<if $timer % 3 is 0 or random(1,4) is 4>>
+	더 가까이 다가와
+	<<print either(
+		"당신과 로빈의 얼굴을 가까이서 찍는다.",
+		"당신과 로빈의 얼굴을 가까이서 찍는다.",
+		"당신의 <<breasts_ rul>> 가까이서 찍는다.",
+		"당신의 <<bottom_ ul>> 가까이서 찍는다.",
+		"당신의 <<genitals_ rul>> 가까이서 찍는다.",
+		"로빈의 <<breastsdesc_ rul _robin.breastsdesc>> 가까이서 찍는다.",
+		"로빈의 엉덩이를 가까이서 찍는다.",
+		"로빈의 <<nnpc_genitals_ rul \"Robin\">> 가까이서 찍는다.",
+	)>>	
+<<else>>
+	촬영을 계속한다.
+<</if>>
+<<if $face isnot "covered">>
+	<<fameexhibitionism 1>><<famerape 1>>
+<</if>>
+<<if $timer is 0>>
+	<<set $timer to 3>>
+<</if>>
+<<set $speechdisable to 0>>
+<br><br>
+
+<<if $enemyno lte 1>>
+	<<set $enemyhealthmax to 1>>
+<</if>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Underground Robin Kiss Molestation Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Kiss Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Kiss Molestation Finish
+<<effects>>
+<<set _robin to statusCheck("Robin")>>
+
+<<if $enemyhealth lte 0>>
+	<<person1>><<person_ i>> 발이 걸려 <<person3>><<person_>> 쪽으로 넘어진다. 재미있어 하면서, <<person4>><<person_ un>> 두 명이 바닥에서 허우적거리고 있는 걸 보려고 카메라를 돌린다.
+	<br><br>
+
+	<<person1>><<person_ i>> 일어나려 발버둥친다. "막아," <<he_ ga>> 말한다. "놈들이 도망치기 전에." 하지만 이미 당신과 로빈은 그들보다 훨씬 앞에 가 있다. 그들이 일어났을 때 쯤, 당신은 이미 당신과 로빈의 목걸이를 떼어놓고 복도를 뛰어내려가, 당신의 방을 지나, 빈 극장으로 들어선다. 당신이 먼 쪽에 있는 계단으로 달려들어, 최대한 빠르게 계단을 올라가자, 아래쪽에서 천둥같은 발소리가 들려온다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+	<br><br>
+
+<<else>>
+	<<if $kissTurns gte $turnCount/2>>
+		<<undergroundRobinTopic "kissBack" "undiscussed">>
+	<</if>>
+	<<set $enemynomax to 1>>
+
+	<<if $robinFucked>>
+		<<person3>><<person_ un>> <<himself_ rul>> 로빈의 안에 깊숙히 박은 채 절정하며 신음한다.
+		<<if npcHasStrapon(2)>>
+			<<He_ nun>> <<his_  yi>> <<penisdesc_ rul $NPCList[2].penisdesc>> 떼어낸 후, 그것이 로빈의 엉덩이 속에 들어있는 채 로빈을 찰싹 때려 <<nnpc_him_ ul "Robin">> <<print _robin.trauma gte 70 ? "움찔하게" : "비명지르게">> 한다.
+		<<else>>
+			<<He_ nun>> 자지를 빼내어, <<his_ yi>> 정액이 로빈의 다리를 타고 뚝뚝 떨어지게 한다.
+		<</if>>
+	<<else>>
+		<<person3>><<person_ nun>> 로빈에게 박기도 전에 분노로 몸을 부들거린다.
+		<<if npcHasStrapon(2)>>
+			<<he_ nun>> 격노하여 <<his_  yi>> <<penisdesc_ rul $NPCList[2].penisdesc>> 떼어낸 후, 그걸로 로빈의 뒤통수를 때려 <<nnpc_him_ ul "Robin">> <<print _robin.trauma gte 70 ? "움찔하게" : "비명지르게">> 한다.
+		<<else>>
+			<<he_ nun>> 격노하여 로빈의 뒤통수를 후려친다.
+		<</if>>
+	<</if>>
+	<<npcincr Robin trauma 3>><<grtrauma true>>
+	<br><br>
+
+	<<ejaculation>>
+
+	"그거면 됐어," <<person4>><<person_ i>> 촬영을 멈추며 말한다. 당신은 방금 당신과 로빈에게 일어난 일을 많은 사람들이 볼 생각을 하며 몸서리치지만, <<person1>><<person_ i>> 당신을 당신의 방으로 도로 끌고 가는 동안 당신이 할 수 있는 게 아무것도 없다. 당신은 희미하게 로빈이 우는 소리를 들을 수 있다.
+	<br><br>
+
+	<<undergroundReturnToCell>>
+	<br>
+<</if>>
+<<unset $robinDungeonKiss>><<unset $robinFucked>><<unset $kissTurns>><<unset $turnCount>>
+
+:: Underground Robin Hunt Intro
+<<location "forest">><<effects>>
+
+당신은 텅 빈 무대를 지나 계단참 위로 끌려나간다. 당신이 올라감에 따라 공기는 점점 더 시원하고 상쾌해지다가, 곧 당신은 바깥으로 나온다.
+
+<<if Time.dayState is "dawn">>
+	비록 태양은 나무들 사이에 가려 보이지 않지만, 당신은 지금이 새벽이라 생각한다.
+<<elseif Time.dayState is "dusk">>
+	비록 태양은 나무들 사이에 가려 보이지 않지만, 당신은 지금이 해질녘이라 생각한다.
+<<elseif Time.dayState is "day">>
+	당신은 태양빛으로부터 눈을 가려야 했고, 당신은 저 아래의 조명이 얼마나 침침했는지를 깨닫는다.
+<<elseif Time.dayState is "night">>
+	차가운 밤공기가 당신의 피부를 스친다.
+<</if>>
+당신은 숲 공터에 있는 것 같다.
+<br><br>
+
+로빈을 비롯한 벌거벗은 <<victimgirls_>> 여러 명이 앞쪽에 밧줄에 매여 있는 채로 줄세워져 있다. 그들 주변에는 많은 사람들이 음흉한 시선을 보내며 서 있다. <<victimgirls_ nun>> 그들의 발끝만 쳐다보고 있다. <<covered>> 당신은 줄의 끝으로 끌려간다.
+<<if $worn.feet.type.includes("shackle")>>
+	당신은 당신의 발목을 감싸고 있던 족쇄가 풀려나 제거되면서 짤깍 하는 소리가 나는 게 들린다.
+	<<remove_shackle>>
+<</if>>
+<br><br>
+<<beastNEWinit 1 dog>><<generate2>>
+
+<<person2>> 조끼를 입은 <<person_ i>>, 목줄에 묶인 <<beasttype_ 0>> 세 마리를 끌고 공터로 들어온다. 그들은 <<person2>><<him_ ul>> 세게 잡아당기며, 실질적으로 <<him_ ul>> 끌고 가고 있다. "준비되었습니다," <<he_ ga>> 권총을 머리 위로 쳐들며 말한다. "첫 발을 쏘면, 사냥감들이 달려나갑니다. 다음 발을 쏘면, 우리가 사냥하는 겁니다!" 군중들이 환호성을 보낸다. 당신은 <<victimgirls_>> 중 한 명이 흐느끼는 게 들린다.
+<br><br>
+
+<<silently>><<beasttypePost 0 "을">><<set $robinBeast to _trResult>><</silently>>
+
+<<link [[도망간다|Underground Robin Hunt]]>><</link>><<athleticsdifficulty 1 1200>>
+
+:: Underground Robin Hunt
+<<location "forest">><<effects>>
+<<set _robin to statusCheck("Robin")>>
+
+권총 소리가 나고, 당신과 로빈은 달려나간다.
+<br><br>
+
+두 번째 총소리가 울려퍼졌을 때 당신은 간신히 숲에 닿을 수 있었다.
+
+<<if $athleticsSuccess>>
+	<<pass 5>>
+	당신은 최대한 빠르게 달린다. 당신은 <<victimgirls_ ga>> 하나씩 잡히며, 비명을 지르는 게 들린다.
+	<<if _robin.dom gte 70>>
+		당신은 계속 달려나가고, 로빈이 당신을 따라잡는다. 당신은 발이 걸려 비틀거리지만, <<nnpc_he_ ga "Robin">> 당신의 팔을 잡고 계속 달린다.
+		<br><br>
+
+		결국 당신과 로빈 둘 모두 다리가 풀려 나무에 대고 주저앉으며, 당신은 헉헉대며 숨을 쉰다. 당신은 당신의 심장 박동, 로빈이 헉헉대는 소리와 나뭇잎을 바스탁대는 바람 소리밖에 들리지 않는다.
+		<br><br>
+
+		로빈이 당신에게 눈물어린 미소를 지어 보인다. "우리 빠져나왔어." <<nnpc_He_ ga "Robin">> 당신에게 달려들어 포옹한다. "우리 빠져나왔다고!"
+		<br><br>
+
+		<<endevent>><<dungeonescape>>
+
+		<<link [[다음|Underground Robin Escape Orphanage]]>><<set $phase to 1>><<unset $robinBeast>><</link>>
+	<<else>>
+		<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>>
+			<span class="red"><<beasttype_ i 0>> 로빈을 넘어뜨리자 <<nnpc_he_ ga "Robin">> 비명을 지른다.</span> 당신은 빠르게 몸을 돌려 <<beasttype_ 0>>에게 돌진하고, 당신이 다가오자 <<beasttype_ un 0>> 당신 쪽으로 몸을 돌린다.
+			<br><br>
+
+			"여기에 영웅이 한 명 계시는군," 당신은 <<person_ i>> 따라잡으며 그렇게 말하는 걸 듣는다. <<He_ nun>> 혼자가 아니고, 많은 수의 사람들이 <<him_ ul>> 뒤따라 온다. "영웅에게 무슨 일이 일어나는지 아니? 저마다의 사례가 있지." 군중들이 당신을 둥글게 에워싼다.
+			<br><br>
+
+			<<link [[다음|Underground Robin Hunt Dog]]>><<set $molestationstart to 1>><<set $phase to 1>><</link>>
+		<<else>>
+			<span class="red"><<person_ i>> 로빈을 넘어뜨리자 <<nnpc_he_ ga "Robin">> 비명을 지른다.</span> 당신은 빠르게 몸을 돌려 <<person_>>에게 돌진하고, 당신이 다가오자 <<person_ un>> 당신 쪽으로 몸을 돌린다.
+			<br><br>
+
+			"정말 용감하구나," <<person_ i>> 말한다. 군중에 끼어 있던 많은 다른 사람들도, 숨을 헐떡이면서 도착한다. "난 언제나 영웅을 망가뜨려 보고 싶었지."
+			<br><br>
+
+			<<saveNPC 1 "underground_hunt_1">>
+			<<endevent>>
+			<<loadNPC 0 "underground_hunt_1">>
+			<<clearNPC "underground_hunt_1">>
+
+			<<link [[다음|Underground Robin Hunt Molestation]]>><<set $molestationstart to 1>><<set $phase to 1>><</link>>
+		<</if>>
+	<</if>>
+<<else>>
+	<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for BeastPeople -->
+		당신은 최대한 빠르게 달린다. 당신은 <<victimgirls_ ga>> 하나씩 잡히며, 비명을 지르는 게 들린다.
+		무언가가 당신 뒤 수풀을 뚫고 달려오는 소리가 들리고, 당신의 무릎이 강제로 꿇려지며, 당신의 등에 <<print ($monster is 1 ? "손이" : "발바닥이")>> 닿는 게 느껴진다.
+		<<beasttype_ i 0>> 당신 위로 뛰어오<<if $NPCList[0].penis isnot "none">>르고, 당신은 <<bhis_ yi 0>> 자지가 당신의 <<bottom_ ul>> 찌르는 게 느껴진다<<else>>른다<</if>>.
+		<br><br>
+
+		"<<bhe_ ga 0>> 널 좋아하나 보구나," 당신은 <<person_ i>> <<bhe_ ul 0>> 따라잡으며 그렇게 말하는 걸 듣는다. <<He_ nun>> 혼자가 아니고, 많은 수의 사람들이 <<him_ ul>> 뒤따라 온다.
+		"그리고 <<bhe_ nun 0>> <<bhis_ yi 0>> 사냥감을 <<bhe_ ga 0>> 좋아하는 대로 할 수 있어야 마땅하지." 군중들이 당신을 둥글게 에워싼다.
+		<br><br>
+
+		<<link [[다음|Underground Robin Hunt Dog]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<<else>>
+		당신은 최대한 빠르게 달린다. 당신은 <<victimgirls_ ga>> 하나씩 잡히며, 비명을 지르는 게 들린다.
+		당신은 발이 걸려 땅바닥에 구르기 바로 직전에 무언가가 당신 뒤 수풀을 뚫고 달려오는 소리를 듣는다.
+		<br><br>
+
+		"잡았다," <<person_ i>> 말한다. 군중들 중 여러 명도, 숨을 헐떡이면서 도착한다 "이제 사냥꾼이 <<his_ yi>> 사냥감을 잡아먹을 차례야."
+		<br><br>
+
+		<<saveNPC 1 "underground_hunt_1">>
+		<<endevent>>
+		<<loadNPC 0 "underground_hunt_1">>
+		<<clearNPC "underground_hunt_1">>
+
+		<<link [[다음|Underground Robin Hunt Molestation]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Underground Robin Hunt Dog
+<<set _robin to statusCheck("Robin")>>
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<beastCombatInit>>
+	<<set $enemytrust -= 80>>
+	<<if _robin.dom gte 70>>
+		<<enable_rescue>>
+	<</if>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<br>
+<<beast>>
+<br>
+<<if _robin.dom lt 70 and $phase is 0>>
+	<<undergroundRobinInterlude>>
+<</if>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Underground Robin Hunt Dog Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Hunt Dog]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Hunt Dog Finish
+<<location "forest">><<effects>>
+<<set _robin to statusCheck("Robin")>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<undergroundRobinTopic "hunt" "undiscussed">>
+	<<beastejaculation>>
+
+	<<beasttype_ un 0>> 행복하게 컹컹 짖는다. "잘했어," <<person2>><<person_ i>> 말한다. <<he_ ga>> 당신의 목줄을 잡아 일으켜세우자 군중들이 서로 속삭임을 주고받는다.
+	<<if !$worn.feet.type.includes("shackle")>>
+		차가운 금속이 당신의 발목을 다시금 조일 때까지 당신은 그대로 붙들려 있는다.
+		<<shackle_feet>>
+	<</if>>
+	"우리가 한 만큼 다른 무리들도 사냥감들이랑 잔뜩 즐겼기를 바라지요."
+	<br><br>
+
+	근처에서 비명 소리가 나자, 군중들은 <<person_ i>> 당신을 지하감옥으로 끌고 돌아가 당신의 방에 집어넣도록 내버려 둔 채, 비명 소리를 조사하러 달려간다. 얼마 지나지 않아 로빈도 끌려내려온다.
+	<<undergroundReturnToCell>>
+
+<<elseif $enemyhealth lte 0>>
+	<<beasttype_ i 0>> 깨갱거리며 도망친다. <<tearful>> 당신은 펄쩍 일어난다.
+	<<if _robin.dom gte 70>>
+		로빈은 <<nnpc_him_ ul "Robin">> 공격하던 <<if $rng gte 51>>$robinBeast<<else>><<person2>><<person_ ul>><</if>> 밀쳐내고 당신의 손을 붙잡아,
+	<<else>>
+		당신은 <<if $rng gte 51>>$robinBeast<<else>><<person2>><<person_ ul>><</if>> 로빈에게서 떼어내고 <<nnpc_his_ yi "Robin">> 손을 붙잡아,
+	<</if>>
+	함께 도망친다. <<person2>><<person_ un>> 당신들을 멈추려 시도하지만, 당신들은 <<him_ ul>> 피해 숲으로 도망친다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+
+<<else>>
+	로빈은 <<nnpc_him_ ul "Robin">> 공격하던 <<if $rng gte 51>>$robinBeast<<else>><<person2>><<person_ ul>><</if>> 밀쳐내고, <<beasttype_ ul 0>> 걷어차 당신으로부터 떨어트린 후 당신의 손을 잡는다.
+	당신과 로빈은 함께 도망친다. <<person2>><<person_ un>> 당신들을 멈추려 시도하지만, 당신들은 <<him_ ul>> 피해 숲으로 도망친다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+<</if>>
+<<unset $robinBeast>>
+
+:: Underground Robin Hunt Molestation
+<<set _robin to statusCheck("Robin")>>
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<if _robin.dom gte 70>>
+		<<enable_rescue>>
+	<</if>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<if _robin.dom lt 70>>
+	<<undergroundRobinInterlude>>
+<</if>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Underground Robin Hunt Molestation Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Hunt Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Hunt Molestation Finish
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<undergroundRobinTopic "hunt" "undiscussed">>
+	<<ejaculation>>
+	<<person_ i>> 당신의 목줄을 잡아 일으켜세우자 군중들이 서로 속삭임을 주고받는다.
+	<<if !$worn.feet.type.includes("shackle")>>
+		차가운 금속이 당신의 발목을 다시금 조일 때까지 당신은 그대로 붙들려 있는다.
+		<<shackle_feet>>
+	<</if>>
+	"우리가 한 만큼 다른 무리들도 사냥감들이랑 잔뜩 즐겼기를 바라지."
+	<br><br>
+
+	근처에서 비명 소리가 나자, 군중들은 <<person_ i>> 당신을 지하감옥으로 끌고 돌아가 당신의 방에 집어넣도록 내버려 둔 채, 비명 소리를 조사하러 달려간다. 얼마 지나지 않아 로빈도 끌려내려온다.
+	<<undergroundReturnToCell>>
+<<elseif $enemyhealth lte 0>>
+	<<person_ i>> 나무 쪽으로 나동그라진다. <<tearful>> 당신은 펄쩍 일어난다.
+	<<if _robin.dom gte 70>>
+		로빈은 <<nnpc_him_ ul "Robin">> 공격하던 $robinBeast 밀쳐내고 당신의 손을 붙잡아,
+	<<else>>
+		당신은 $robinBeast 로빈에게서 밀쳐내고 <<nnpc_his_ yi "Robin">> 손을 붙잡아,
+	<</if>>
+	함께 도망친다. <<person1>><<person_ un>> 당신들을 멈추려 시도하지만, 당신들은 <<him_ ul>> 피해 숲으로 도망친다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+
+<<else>>
+	로빈은 <<nnpc_him_ ul "Robin">> 공격하던 $robinBeast 밀쳐내고, <<person_ ul>> 밀어낸 후 당신의 손을 잡는다.
+	당신과 로빈은 함께 도망친다. <<person2>><<person_ un>> 당신들을 멈추려 시도하지만, 당신들은 <<him_ ul>> 피해 숲으로 도망친다.
+	<br><br>
+
+	<<undergroundEscapeForestRobin>>
+<</if>>
+<<unset $robinBeast>>
+
+:: Underground Robin Escape Stalk
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<location "forest">>
+	<<violence 1>>
+	<<neutral 1>>
+
+	<<generate1>><<generate2>><<generate3>>
+
+	<<maninit>>
+	<<stalk_init>>
+	<<stalk_run>>
+	<<set $combatgoal to "confront">>
+	<<set $NPCList[0].bold to 10000>>
+	로빈의 손을 꽉 잡은 채, 당신은 숲을 헤쳐나간다. <span class="pink">당신은 쫓기고 있다.</span>
+<</if>>
+
+<<effects>>
+
+<<effectsman>><<man>>
+<br><br>
+
+<<print either(
+	"로빈이 당신의 손을 꽉 잡는다.",
+	"로빈이 뒤를 돌아본다.",
+	"로빈의 손이 떨리고 있다."
+)>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if $stalk_end>>
+	<span id="next"><<link [[다음|Underground Robin Escape Stalk End]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Escape Stalk]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Escape Stalk End
+<<set $outside to 1>><<set $location to "town">><<effects>>
+<<run statusCheck("Robin")>>
+
+<<person1>>
+<<if $stalk_end is "confront">>
+	<<if $feetaction is "confront">>
+		<<if $submissive gte 1150>>
+			"난 할 수 있어," 당신은 스스로를 안심신킨다. "로빈, 안전한 곳에 있어, 알겠지?" 당신은 몸을 돌려 추격자를 마주한다.
+		<<elseif $submissive lte 850>>
+			"계속 가! 곧 따라잡을게." 당신은 당신의 추격자 쪽으로 몸을 돌리기 전 로빈에게 미소를 지어 보인다.
+		<<else>>
+			"로빈, 계속 움직이고 집에 도착할 때까지 멈추지 마," 당신은 추격자를 마주하기 전 말한다.
+		<</if>>
+	<<else>>
+		<<if !$stalk_assess>>뒤에서 팔 한 쌍이 튀어나와<<else>>뒤에서 <<person1>><<person_ i>><</if>> 당신을 붙잡는다.
+		<br><br>
+
+		당신은 로빈에게 계속 달리라는 몸짓을 한다.
+	<</if>>
+	로빈은 망설이는 듯 고개를 끄덕이고는 나무들 사이로 사라진다.
+	<br><br>
+
+	로빈이 안전하다는 사실에, 당신은 안도의 한숨을 내쉰다.
+	<br><br>
+
+	<<saveNPC 0 dungeon_1>><<saveNPC 1 dungeon_2>><<saveNPC 2 dungeon_3>>
+	<<endcombat>>
+	<<loadNPC 0 dungeon_1>><<loadNPC 1 dungeon_2>><<loadNPC 2 dungeon_3>>
+	<<clearNPC dungeon_1>><<clearNPC dungeon_2>><<clearNPC dungeon_3>>
+	<<run delete $NPCList[0].state>><<run delete $NPCList[1].state>><<run delete $NPCList[2].state>>
+
+	<<person1>><<person_ i>> <<his_ yi>> 목을 꺾고, <<person2>><<person_ gwa>> <<person3>><<person_ i>> <<his_ yi>> 옆에 선다. "내 생각에 너는 <<nnpc_his_ yi "Robin">> 몫까지 두 배로 일해야 할 것 같군." 그들이 당신에게 다가온다.
+	<br><br>
+
+	<<link [[다음|Underground Robin Escape Fight]]>><<set $fightstart to 1>><</link>>
+<<elseif $stalk_end is "hide">>
+	당신은 숨어있던 장소에서 나온다. <<if $stalk_assess>><<person1>><<person_ un>><<else>>당신을 따라오던 게 누구던지 간에<</if>> 이제 어디에도 보이지 않는다. <<tearful>> 당신은 로빈 쪽으로 몸을 돌린다. <<nnpc_He_ ga "Robin">> 당신은 꽉 껴안는다.
+	<br><br>
+
+	로빈은 <<nnpc_his_ yi "Robin">> 머리를 쭉 내민다. "그들은 간 거야?"
+	<br><br>
+
+	당신은 끄덕이고는 로빈의 손을 잡고 숲을 계속 지나간다.
+	<br><br>
+
+	<<endcombat>><<clotheson>>
+
+	<<link [[다음|Underground Robin Escape Orphanage]]>><<set $phase to 1>><</link>>
+<<else>>
+	당신이 추격자를 떨쳐내자 로빈이 숨을 가쁘게 내쉰다. "잠깐 휴식이... 필요해." <<nnpc_he_ ga "Robin">> 쌕쌕거린다. <<tearful>> 당신은 <<nnpc_him_ ul "Robin">> 포옹하고, <<nnpc_he_ "Robin">> 또한 그에 화답한다.
+	<br><br>
+
+	로빈이 당신에게 기댄 채로 몇 분이 지난 후, 당신은 <<nnpc_his_ yi "Robin">> 손을 잡고 <<nnpc_him_ ul "Robin">> 고아원으로 데려간다.
+	<br><br>
+
+	<<endcombat>><<clotheson>>
+
+	<<link [[다음|Underground Robin Escape Orphanage]]>><<set $phase to 1>><</link>>
+<</if>>
+
+:: Underground Robin Escape Fight
+
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<set $enemyanger += 200>>
+	<<set $enemytrust -= 100>>
+	<<set $position to ["missionary","doggy"].pluck()>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[다음|Underground Robin Escape Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Underground Robin Escape Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Robin Escape Fight Finish
+<<effects>>
+
+<<if $enemyhealth lte 0>>
+	<<person_ i>> 나무뿌리에 걸려 뒤로 넘어지며, 당신을 공격하던 세 명 모두를 땅바닥으로 넘어뜨린다. 그들이 쓰러져 있을 때, 당신은 도망친다.
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation "short">>
+	그들은 숨을 돌리려 잠시 멈추고, 당신은 도망칠 기회를 잡는다.
+<<else>>
+	<<set _defeat to true>>
+	당신은 움직이기엔 너무 심하게 다친 채로, 땅바닥에 쓰러진다.
+	<br><br>
+
+	<<fullGroup_ i>> 당신을 들어 숲으로 끌고 가고, 당신이 지나가면서 나무뿌리며 돌멩이 따위가 당신의 얼굴을 긁는다. 결국 당신은 다시 지하로 다시 끌려왔다는 것을 알아차린다.
+	<br><br>
+
+	그들은 로빈이 있던 방까지 와서 당신을 그 안에 던져넣는다.
+	<<if $undergroundbrothel.water gte 1>>
+		"너도 복종하게 될 거다," <<he_ ga>> 말한다. "그렇지 못하면, 반항하기엔 너무 약해지겠지. 왜 굳이 어려운 쪽을 택하지?" <<He_ ga>> 문을 쾅 닫는다.
+	<<else>>
+		"그래서, 이렇게 나오겠다는 거냐?" <<he_ ga>> 실망한 듯한 표정으로 말한다. "좋아, 물 없이도 그렇게 고집부릴 수 있는지 보자고." <<He_ ga>> 문을 쾅 닫는다.
+		<<set $undergroundbrothel.water to 1>>
+	<</if>>
+	<br><br>
+
+	<<run delete $undergroundbrothel.robin>>
+	<<run delete $undergroundbrothel.robinSpoke>>
+	<<run delete $undergroundbrothel.robinTalk>>
+	<<run delete $undergroundbrothel.robinTopics>>
+	<<set $undergroundbrothel.robinGone to true>>
+
+	<<undergroundReturnToCell "Robin">>
+<</if>>
+<br><br>
+
+<<if !_defeat>>
+	<<tearful>> 당신은 고아원으로 돌아온다.
+	<<endcombat>><<clotheson>>
+
+	<<link [[다음|Underground Robin Escape Orphanage]]>><<set $phase to 0>><</link>>
+<</if>>
+
+:: Underground Robin Escape Swim
+<<location "sea">><<water>><<effects>>
+
+<<if $swimmingSuccess>>
+	로빈을 도와주면서 동시에 수영하는 건 어려운 일이지만, 당신은 결국 어떻게든 <<him_ ul>> 뒤에 이끌고 해안에 도달하는 데 성공한다.
+<<else>>
+	당신은 최선을 다하지만, 당신도 로빈도 썩 좋은 수영선수는 아니다. 당신은 해안으로 가려고 노력하지만 도중에 기절해버리고 만다.
+	<<pass 120>>
+	해변에 쓰러진 채로 얼마나 시간이 지났을지 모를 무렵, 당신은 깨어난다. 로빈은 몇 미터 떨어진 곳에서 신음하고 있다. <<stress 6>><<gstress>><<npcincr Robin trauma 5>><<grtrauma true>>
+<</if>>
+<br><br>
+
+<<link [[다음|Underground Robin Escape Shore]]>><</link>>
+<br>
+
+:: Underground Robin Escape Shore
+<<location "beach">><<effects>>
+<<set _robin to statusCheck("Robin")>>
+
+당신은 해변에 있다.
+<br><br>
+<<if $exposed gte 1>>
+	<<towelup>>
+	로빈은 근처의 탈의실로 뛰어들어가 수건을 걸치고 나온다. <<He_ nun>> 다정하게 당신에게 수건을 둘러 주고는 당신을 껴안는다.
+<<else>>
+	로빈은 당신에게 다가와 당신을 감싸안는다.
+<</if>>
+<<if _robin.dom gte 40>>
+	"우리가 거기서 나왔다니 너무 기뻐!" <<He_ nun>> 당신의 머리를 <<his_ yi>> 어깨에 기대고 당신의 머리카락을 어루만진다.
+<<else>>
+	"우리가 해냈어! 우린 이제 자유야!" <<He_ ga>> <<his_ yi>> 머리를 당신의 어깨에 묻는다.
+<</if>>
+<<He_ nun>> 포옹을 풀면서, <<his_ yi>> 손으로 당신의 손을 잡는다. "집에 가자," <<he_ ga>> 당신을 고아원으로 이끌며 말한다.
+<br><br>
+
+<<link [[로빈을 따라간다 (1:00)|Underground Robin Escape Orphanage]]>><<set $phase to 1>><<pass 60>><<endevent>><<npcincr Robin dom 1>><</link>><<gdom>>
+<br>
+<<link [[여기에 남는다|Underground Robin Escape Stay]]>><<npcincr Robin dom -1>><</link>><<ldom>>
+<br>
+
+:: Underground Robin Escape Orphanage
+<<set $outside to 0>><<set $location to "home">>
+<<npc Robin>>
+<<if $phase is 1>>
+	로빈은 앞장서서 고아원으로 돌아가 중앙 홀로 들어간다. 거기에 도착하자 <<he_ nun>> 당신을 <<his_ yi>> 방으로 안내하고 당신을 침대에 밀어 넘어뜨린 후 꽉 껴안는다.
+	"우린 자유야!" <<He_ ga>> 행복한 웃음을 터뜨린다.
+	<<if $home_gone gte 24>>
+		"내 방을 이렇게나 그리워하게 될 거라고는 생각해본 적도 없어," 로빈이 여전히 당신을 껴안은 채로 말한다.
+	<<elseif $home_gone gte 72>>
+		기쁨의 눈물이 <<his_ yi>> 얼굴을 타고 흘러내려 당신에게 떨어진다. 로빈이 당신을 더욱 세게 껴안는다.
+	<<else>>
+		로빈이 미소 짓는다. "돌아오니 기쁘다."
+	<</if>>
+<<else>>
+	당신은 고아원에 들어와 로빈의 방문을 두드린다. 문은 거의 바로 열린다. 로빈이 당신을 방 안으로 끌고 들어와 오래도록 포옹한다.
+	"돌아왔구나!"
+<</if>>
+<<npcincr Robin trauma -10>><<npcincr Robin love 5>><<llrtrauma>><<glove>>
+<<home_effects>>
+<br><br>
+
+당신과 로빈은 잠시 대화를 나눈다. 로빈은 갇혀 있을 때 <<he_ ga>> 당신을 껴안고 싶어한 횟수만큼 당신을 껴안아 줄 거라 말한다. <<He_ nun>> <<his_ yi>> 말한 바를 지킨다.
+<<stress -4>><<trauma -4>><<lstress>><<ltrauma>>
+<br><br>
+
+<<robinoptions>>
+
+:: Underground Robin Escape Stay
+<<location "beach">><<effects>>
+<<run statusCheck("Robin")>>
+
+로빈은 당신의 손을 놓아준다. "뭐, 네가 괜찮을 거라고 확신한다면야."
+<<He_ nun>> 내키지 않는 듯 당신에게 손을 흔들어 작별인사를 하고, 고아원 방향으로 걷기 시작한다.
+<br><br>
+
+<<link [[다음|Beach]]>><</link>>

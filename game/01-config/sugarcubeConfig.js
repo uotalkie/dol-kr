@@ -1,43 +1,92 @@
+/* eslint-disable prefer-const */
 Config.history.controls = false;
-
+Config.saves.slots = 9;
 Config.history.maxStates = 1;
 
-State.prng.init()
+State.prng.init();
 
 window.versionUpdateCheck = true;
-window.saveUpdateCheck = true;
+window.onLoadUpdateCheck = false;
 
-Config.saves.onLoad = function (save) {
-	window.versionUpdateCheck = true;
-}
+let pageLoading = false;
 
-Config.saves.onSave = function (save) {
-	new Wikifier(null, '<<updateFeats>>');
-}
+Save.onLoad.add(save => {
+	pageLoading = true;
+	window.onLoadUpdateCheck = true;
 
-/*LinkNumberify and images will enable or disable the feature completely*/
-/*debug will enable or disable the feature only for new games*/
+	// clear errors from previous save and reset imageError cache so (possibly) save-specific errors might be logged again
+	Errors.Reporter.hide(true);
+	Renderer.ImageErrors = {};
+
+	// decompression should be the FIRST save modification
+	DoLSave.decompressIfNeeded(save);
+
+	save.state.history.forEach(h => {
+		if (h.prng && Array.isArray(h.prng.S)) {
+			h.prng.S.forEach((i, index, array) => {
+				if (i < 0 || i > 255) array[index] %= 256;
+			});
+		}
+		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
+		h.variables.saveDetails.loadTime = new Date();
+	});
+});
+
+Save.onSave.add(save => {
+	Wikifier.wikifyEval("<<updateFeats>>");
+	save.state.history.forEach(h => {
+		h.variables.saveDetails = defaultSaveDetails(h.variables.saveDetails);
+		h.variables.saveDetails.playTime += h.variables.saveDetails.loadTime ? new Date() - h.variables.saveDetails.loadTime : 0;
+		h.variables.saveDetails.loadCount++;
+	});
+	// eslint-disable-next-line no-undef
+	prepareSaveDetails(); // defined in save.js
+
+	// compression should be the LAST save modification
+	DoLSave.compressIfNeeded(save);
+});
+
+/* LinkNumberify and images will enable or disable the feature completely */
+/* debug will enable or disable the feature only for new games */
+/* sneaky will enable the Sneaky notice banner on the opening screen and save display */
+/* versionName will be displayed in the top right of the screen, leave as "" to not display anything */
 window.StartConfig = {
-	"debug": false,
-	"enableImages": true,
-	"enableLinkNumberify": true,
-	"version": "0.3.1.2",
-}
+	debug: false,
+	enableImages: true,
+	enableLinkNumberify: true,
+	version: "0.4.0.9",
+	versionName: "",
+	sneaky: false,
+};
 
-config.saves.autosave = "autosave";
+/* convert version string to numeric value */
+const tmpver = StartConfig.version.replace(/[^0-9.]+/g, "").split(".");
+window.StartConfig.version_numeric = tmpver[0] * 1000000 + tmpver[1] * 10000 + tmpver[2] * 100 + tmpver[3] * 1;
+
+Config.saves.autosave = "autosave";
 
 Config.saves.isAllowed = function () {
-	if (tags().contains("nosave")) {
+	if (tags().includes("nosave")) {
 		return false;
 	}
 	return true;
 };
 
+$(document).on(":passagestart", function (ev) {
+	if (ev.passage.title === "Start2") {
+		$.event.trigger({
+			type: ":start2",
+			content: ev.content,
+			passage: ev.passage,
+		});
+	}
+});
+
 importStyles("style.css")
 	.then(function () {
-		console.log("External Style Sheet Active")
+		console.log("External Style Sheet Active");
 	})
-	.catch(function (err) {
+	.catch(function () {
 		console.log("External Style Sheet Missing");
 	});
 
@@ -45,183 +94,9 @@ console.log("Game Version:", StartConfig.version);
 
 l10nStrings.errorTitle = StartConfig.version + " Error";
 
-
-/**
- * Not a configuration, but we are overriding a basic part of sugarcube
- *
- * Provides a magic variable `$_` that creates a custom scope for the current
- * widget invocation
- *
- * NOTE: we basically steal sugarcube code as code reuse is more difficult
- * than it's worth in this instance. Be advised that updating sugarcube
- * may break this
- */
-const VIRTUAL_CURRENT = "_";
-const vStack = []
-const vContext = []
-const d = JSON.stringify.bind(JSON);
-let devOptions = {
-	trace: false,
-	invocationId: false
-}
-// setTimeout as Sugarcube may not have finished making it's State object yet,
-// and any lifecycle hooks (that might make this less hackish), are
-// non-obvious if they exist
-setTimeout(() => State.variables.devOptions = devOptions)
-// We declare some global debug utils that other code is free to use
-// Note that enabling trace will display all widget calls
-// Note that clog is currently non-configured and will always be invoked
-// TODO: add more granular debug log levels if needed
-function clog() {
-	console.log(`${State.passage}:${d(vContext)}`, ...arguments)
-}
-function trace() {
-	if (devOptions.trace) {
-		clog(...arguments)
-	}
-}
-function allMagical() {
-	return Object.keys(State.variables).filter(key => key.startsWith(VIRTUAL_CURRENT) && key != VIRTUAL_CURRENT)
-}
-let uniqueInvocation = 0;
-function widgetHandler(widgetName, contents) {
-	let argsCache;
-	trace('declaring fn', widgetName);
-	return function () {
-		const context = devOptions.invocationId
-			? `${State.passage}:${widgetName}:${uniqueInvocation++}`
-			: `${State.passage}:${widgetName}`;
-		trace('invoking', context);
-		vContext.push(context);
-		// Custom code
-		DOL.Perflog.logWidgetStart(widgetName);
-		const newFrame = {};
-		State.variables[VIRTUAL_CURRENT] = newFrame;
-		vStack.push(newFrame);
-		/**
-		 * place the previous invocation's magical objects on the stack
-		 * It's an error if the prior frame doesn't exist
-		 *  note: that would mean the $_var was defined in the body,
-		 *  as we clean our local magic variables
-		 */
-		const priorFrame = vStack[vStack.length - 2]
-		const magicals = allMagical();
-		if (magicals.length > 0) {
-			trace(`saving ${d(magicals)} to ${d(priorFrame)}`)
-		}
-		if (priorFrame !== undefined) {
-			magicals.forEach(key => {
-				priorFrame[key] = State.variables[key]
-				delete State.variables[key]
-			})
-		} else if (magicals.length > 0) {
-			console.warn(`Found variables: ${JSON.stringify(magicals)} declared in main`)
-		}
-		// End custom code
-
-		// Cache the existing value of the `$args` variable, if necessary.
-		if (State.variables.hasOwnProperty('args')) {
-			argsCache = State.variables.args;
-		}
-		State.variables.args = [...this.args];
-		State.variables.args.raw = this.args.raw;
-		State.variables.args.full = this.args.full;
-		this.addShadow('$args');
-
-		try {
-			// Set up the error trapping variables.
-			const resFrag = document.createDocumentFragment();
-			const errList = [];
-
-			// Wikify the widget contents. add nobr behavior -ng
-			new Wikifier(resFrag, contents.replace(/^\n+|\n+$/g, '').replace(/\n+/g, ' '));
-
-			// Carry over the output, unless there were errors.
-			Array.from(resFrag.querySelectorAll('.error')).forEach(errEl => {
-				errList.push(errEl.textContent);
-			});
-
-			if (errList.length === 0) {
-				this.output.appendChild(resFrag);
-			}
-			else {
-				console.error(`Error rendering widget ${widgetName}`, errList);
-				return this.error(`error${errList.length > 1 ? 's' : ''} within widget contents (${errList.join('; ')})`);
-			}
-		}
-		catch (ex) {
-			console.error(`Error executing widget ${widgetName}`, ex); return this.error(`cannot execute widget: ${ex.message}`);
-		}
-		finally {
-			// Custom code
-			vStack.pop();
-			vContext.pop();
-			State.variables[VIRTUAL_CURRENT] = priorFrame
-			const magicals = allMagical();
-			if (magicals.length > 0) {
-				trace(`cleaning up ${d(magicals)}`)
-				magicals.forEach(key => {
-					// don't pollute the global namespace
-					delete State.variables[key]
-				})
-			}
-			if (priorFrame !== undefined && Object.keys(priorFrame).length > 0) {
-				trace(`restoring ${d(priorFrame)}`)
-				// restore prior frame
-				Object.assign(State.variables, priorFrame)
-			}
-			DOL.Perflog.logWidgetEnd(widgetName);
-			// End custom code
-			if (typeof argsCache !== 'undefined') {
-				State.variables.args = argsCache;
-			}
-			else {
-				delete State.variables.args;
-			}
-		}
-	};
-}
-Macro.delete('widget');
-Macro.add('widget', {
-	tags: null,
-
-	handler() {
-		if (this.args.length === 0) {
-			return this.error('no widget name specified');
-		}
-
-		const widgetName = this.args[0];
-
-		if (Macro.has(widgetName)) {
-			if (!Macro.get(widgetName).isWidget) {
-				return this.error(`cannot clobber existing macro "${widgetName}"`);
-			}
-
-			// Delete the existing widget.
-			Macro.delete(widgetName);
-		}
-
-		try {
-			Macro.add(widgetName, {
-				isWidget: true,
-				handler: widgetHandler(widgetName, this.payload[0].contents)
-			});
-
-			// Custom debug view setup.
-			if (Config.debug) {
-				this.createDebugView(
-					this.name,
-					`${this.source + this.payload[0].contents}<</${this.name}>>`
-				);
-			}
-		}
-		catch (ex) {
-			return this.error(`cannot create widget macro "${widgetName}": ${ex.message}`);
-		}
-	}
-});
 // delete parser that adds unneeded line breaks -ng
 Wikifier.Parser.delete("lineBreak");
+Wikifier.Parser.delete("emdash");
 
 /* ToDo: implement the dolls system, uncomment during and when its setup
 importScripts([
@@ -235,4 +110,346 @@ importScripts([
 })
 .catch(function (err) {
 	console.log(err);
-});*/
+}); */
+
+function defaultSaveDetails(input) {
+	let saveDetails = input;
+	if (!saveDetails) {
+		// In the rare case the variable doesnt exist
+		saveDetails = {
+			exported: {
+				days: clone(variables.days),
+				frequency: 15,
+				count: 0,
+				dayCount: 0,
+			},
+			auto: {
+				count: 0,
+			},
+			slot: {
+				count: 0,
+				dayCount: 0,
+			},
+		};
+	}
+	if (!saveDetails.playTime) {
+		saveDetails.playTime = 0;
+		saveDetails.loadCount = 0;
+	}
+	if (!saveDetails.f || saveDetails.f < 1) {
+		saveDetails.f = 1;
+		saveDetails.playTime = 0;
+	}
+	if (saveDetails.f < 3) {
+		saveDetails.playTime = 0;
+		saveDetails.f = 3;
+	}
+	return saveDetails;
+}
+
+// Runs before a passage load, returning a string redirects to the new passage name.
+Config.navigation.override = function (dest) {
+	const checkPassages = dest => {
+		const lastVersion = DoLSave.Utils.parseVer(V.saveVersions.last());
+		const currVersion = DoLSave.Utils.parseVer(StartConfig.version);
+		if (lastVersion > currVersion) {
+			V.bypassHeader = true;
+			return "Downgrade Waiting Room";
+		}
+		if (dest.includes("Playground")) {
+			return dest.replace("Playground", "Courtyard");
+			/* Try not to include "Playground" in any passage names after this. */
+		}
+		switch (dest) {
+			case "Downgrade Waiting Room":
+				return V.passage;
+
+			case "Pharmacy Select Custom Lenses":
+				return "Pharmacy Ask Custom Lenses";
+
+			case "Forest Shop Outfit":
+			case "Forest Shop Upper":
+			case "Forest Shop Lower":
+			case "Forest Shop Under Outfit":
+			case "Forest Shop Under Upper":
+			case "Forest Shop Under Lower":
+			case "Forest Shop Head":
+			case "Forest Shop Face":
+			case "Forest Shop Neck":
+			case "Forest Shop Legs":
+			case "Forest Shop Feet":
+				return "Forest Shop";
+
+			case "Over Outfit Shop":
+			case "Outfit Shop":
+			case "Top Shop":
+			case "Bottom Shop":
+			case "Under Outfit Shop":
+			case "Under Top Shop":
+			case "Under Bottom Shop":
+			case "Head Shop":
+			case "Face Shop":
+			case "Neck Shop":
+			case "Hands Shop":
+			case "Legs Shop":
+			case "Shoe Shop":
+				return "Clothing Shop";
+
+			case "Danube Oak":
+				return "Danube Challenge";
+
+			case "Danube Oak Strip":
+				return "Danube Challenge";
+
+			case "Penis Inspection Flaunt Crossdress":
+				return "Penis Inspection Flaunt No Penis";
+
+			case "Pussy Inspection2":
+				return "Pussy Inspection 2";
+
+			case "Pussy Inspection Penis":
+				return "Pussy Inspection Flaunt No Pussy";
+
+			case "Forest Plant Sex No Tentacles":
+				return "Forest Plant Sex";
+
+			case "Forest Plant Sex No Tentacles Finish":
+				return "Forest Plant Sex Finish";
+
+			case "Forest Plant Passout No Tentacles":
+				return "Forest";
+
+			case "Moor Plant Sex No Tentacles":
+				return "Moor Plant Sex";
+
+			case "Moor Plant Sex No Tentacles Finish":
+				return "Moor Plant Sex Finish";
+
+			case "Underground Plant Molestation No Tentacles":
+				return "Underground Plant Molestation";
+
+			case "Underground Plant Molestation No Tentacles Finish":
+				return "Underground Plant Molestation Finish";
+
+			case "Evens Swimming Endure":
+				return "Events Swimming Swim Endure";
+
+			case "Domus House Work":
+				return "Domus Gutters Intro";
+
+			case "Trash Boys":
+				return "Trash Compare";
+
+			case "Trash Boys Spy":
+				return "Trash Compare Spy";
+
+			case "Trash Boys Greet":
+				return "Trash Compare Greet";
+
+			case "Trash Boys Refuse":
+				return "Trash Compare Refuse";
+
+			case "Trash Boys Compare":
+				return "Trash Compare Others";
+
+			case "Trash Boys Back Out":
+				return "Trash Compare Back Out";
+
+			case "Trash Boys Show":
+				return "Trash Compare Show";
+
+			case "Trash Boys Offer Secret":
+				return "Trash Compare Penis Secret";
+
+			case "Trash Boys Wrap It Up":
+				return "Trash Compare Wrap It Up";
+
+			case "Trash Boys Crossdressing Refuse":
+				return "Trash Compare Breast Refuse";
+
+			case "Trash Boys Crossdressing Show All":
+				return "Trash Compare Breast Show All";
+
+			case "Trash Boys Forced Strip":
+				return "Trash Compare Forced Strip";
+
+			case "Trash Boys Combat Win":
+				return "Trash Compare Combat Win";
+
+			case "Trash Boys Combat Loss":
+				return "Trash Compare Combat Loss";
+
+			case "Lake Underwater Tentacles Finish Figure":
+				return "Lake Underwater Tentacles Finish";
+
+			case "Sextoys Inventory Home":
+			case "Sextoys Inventory Brothel":
+			case "Sextoys Inventory Cottage":
+			case "Sextoys Inventory Cabin":
+				return "Sextoys Inventory";
+
+			case "Kylar Abduction Angry":
+			case "Kylar Abduction Apologise":
+			case "Kylar Abduction Silent":
+			case "Kylar Abduction Eden":
+			case "Kylar Abduction Robin":
+			case "Kylar Abduction Whitney":
+			case "Kylar Abduction Sydney":
+			case "Kylar Abduction Wolf":
+			case "Kylar Abduction Hawk":
+				return "Kylar Abduction Event Response";
+
+			case "Robin's Chocolate Help":
+				return "Robin Chocolate Help";
+			case "Robin Chocolate Cover 2":
+				return "Robin Chocolate Cover";
+
+			case "School Boy's Escape":
+			case "School Girl's Escape":
+				return "School Changing Room Escape";
+
+			case "School Boy's Flirt":
+			case "School Girl's Flirt":
+				return "School Changing Room Flirt";
+
+			case "School Boy's Apologise":
+			case "School Girl's Apologise":
+				return "School Changing Room Apologise";
+
+			case "School Boy's Strip":
+			case "School Girl's Strip":
+				return "School Changing Room Strip";
+
+			case "School Boy's Refuse Molestation":
+			case "School Girl's Refuse Molestation":
+				return "School Changing Room Refuse Molestation";
+
+			case "School Boy's Seduce":
+			case "School Girl's Seduce":
+				return "School Changing Room Seduce";
+
+			case "School Boy's Seduce Sex":
+			case "School Girl's Seduce Sex":
+				return "School Changing Room Seduce Sex";
+
+			case "School Boy's Seduce Sex Finish":
+			case "School Girl's Seduce Sex Finish":
+				return "School Changing Room Seduce Sex Finish";
+
+			case "School Boy's Knees":
+			case "School Girl's Knees":
+				return "School Changing Room Knees";
+
+			case "School Boy's Knees 2":
+			case "School Girl's Knees 2":
+				return "School Changing Room Knees 2";
+
+			case "School Boy's Bend":
+			case "School Girl's Bend":
+				return "School Changing Room Bend";
+
+			case "School Boy's Naked Refuse":
+			case "School Girl's Naked Refuse":
+				return "School Changing Room Naked Refuse";
+
+			case "School Boy's Crossdress Seduce":
+			case "School Girl's Crossdress Seduce":
+				return "School Changing Room Crossdress Seduce";
+
+			case "School Boy's Crossdress Sex":
+			case "School Girl's Crossdress Sex":
+				return "School Changing Room Crossdress Sex";
+
+			case "School Boy's Crossdress Sex Finish":
+			case "School Girl's Crossdress Sex Finish":
+				return "School Changing Room Crossdress Sex Finish";
+
+			case "School Boy's Crossdress Honest":
+			case "School Girl's Crossdress Honest":
+				return "School Changing Room Crossdress Honest";
+
+			case "School Boy's Crossdress Forced":
+			case "School Girl's Crossdress Forced":
+				return "School Changing Room Crossdress Forced";
+
+			case "School Boy's Herm Explain":
+			case "School Girl's Herm Explain":
+				return "School Changing Room Herm Explain";
+
+			case "School Boy's Watch":
+			case "School Girl's Watch":
+				return "School Changing Room Watch";
+
+			case "School Boy's Exhibitionism":
+			case "School Girl's Exhibitionism":
+				return "School Changing Room Exhibitionism";
+
+			case "School Boy's Flaunt":
+			case "School Girl's Flaunt":
+				return "School Changing Room Flaunt";
+
+			case "School Boy's Goad":
+			case "School Girl's Goad":
+				return "School Changing Room Goad";
+
+			case "School Boy's Goad Finish":
+			case "School Girl's Goad Finish":
+				return "School Changing Room Goad Finish";
+
+			case "School Boy's Run":
+			case "School Girl's Run":
+				return "School Changing Room Run";
+
+			case "School Boy's Masturbation":
+			case "School Girl's Masturbation":
+				return "School Changing Room Masturbation";
+
+			case "School Boy's Masturbation Finish":
+			case "School Girl's Masturbation Finish":
+				return "School Changing Room Masturbation Finish";
+
+			case "School Boy's Masturbation Caught":
+			case "School Girl's Masturbation Caught":
+				return "School Changing Room Masturbation Caught";
+
+			case "School Boy Locker":
+			case "School Girl Locker":
+				return "School Changing Room Locker";
+
+			case "School Boy Wardrobe":
+			case "School Girl Wardrobe":
+				return "School Pool Wardrobe";
+
+			case "Robin Forest Vampire":
+			case "Robin Forest Vampire Tease":
+			case "Robin Forest Vampire Compliment":
+			case "Robin Forest Vampire Buy":
+			case "Robin Forest Witch":
+			case "Robin Forest Witch Tease":
+			case "Robin Forest Witch Compliment":
+			case "Robin Forest Witch Buy":
+				return "Robin Forest Costume Intro"; /* Send the player back to the start, they won't mind. */
+
+			default:
+				return false;
+		}
+	};
+
+	/* Check for passage rerouting using events */
+	const passageArgs = { name: dest };
+	$.event.trigger(":passageoverride", passageArgs);
+	if (passageArgs.name !== dest) {
+		/* Return new passage dest. Will divert the processed passage to this. */
+		return passageArgs.name;
+	}
+
+	if (pageLoading) {
+		pageLoading = false;
+		const passageOverride = checkPassages(dest);
+		if (passageOverride) V.passageOverride = passageOverride;
+
+		return passageOverride;
+	}
+
+	return false;
+};

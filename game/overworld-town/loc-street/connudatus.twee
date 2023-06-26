@@ -1,32 +1,61 @@
 :: Connudatus Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">><<getTarget true>>
 당신은 코누다투스 가에 있다. 클럽과 바, 레스토랑이 즐비하여 밤에는 도시에서 가장 활력이 넘치는 장소가 된다. 낮에는 다양한 물건을 파는 행상인들이 거리에 널려있다.
-<<if $daystate is "day">>
-	거리는 쇼핑객들로 가득하다.
-<<elseif $daystate is "dawn">>
-	노점상들이 가판대를 준비하고 있다.
-<<elseif $daystate is "dusk">>
-	노점상들이 가판대를 정리하고 있다. 레스토랑에 손님들로 가득하다.
-<<elseif $daystate is "night">>
-	밤놀이가 무르익었다. 머리 위에서 네온 사인들이 빛난다.
+<<if Time.dayState is "day">>
+	<<if $weather is "rain">>
+		쇼핑객들이 지붕이 있는 가판대 주위에 옹기종기 모여있다.
+	<<elseif $weather is "snow">>
+		거리는 추위에 대비해 잔뜩 껴입은 쇼핑객들로 가득하다.
+	<<else>>
+		거리는 쇼핑객들로 가득하다.
+	<</if>>
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		노점상들이 비를 피하기 위해 빠르게 지붕을 세우며, 가판대를 준비하고 있다.
+	<<elseif $weather is "snow">>
+		잔뜩 껴입은 노점상들이 가판대를 준비하고 있다.
+	<<else>>
+		노점상들이 가판대를 준비하고 있다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		노점상들이 비를 피하려고 서두르며, 가판대를 정리하고 있다.
+	<<elseif $weather is "snow">>
+		노점상들이 추위를 간절히 피하고 싶어하며, 가판대를 정리하고 있다.
+	<<else>>
+		노점상들이 가판대를 정리하고 있다. 레스토랑에 손님들로 가득하다.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		비가 내리는데도 불구하고, 밤놀이가 무르익었다.
+	<<elseif $weather is "snow">>
+		추위에도 불구하고, 밤놀이가 무르익었다.
+	<<else>>
+		밤놀이가 무르익었다. 머리 위에서 네온 사인들이 빛난다.
+	<</if>>
 <</if>>
 <<streeteffects>>
 <br><br>
 <<if $exposed gte 1>>
-	<<exhibitionism "street">>
+	<<if $exposed is 1 and $connudatus_stripped gte 1>>
+		거리의 반 이상이 당신이 주도한 유행으로 인해, 속옷 차림이다. 당신의 옷 상태는 전혀 특이하지 않다.
+		<br><br>
+	<<else>>
+		<<exhibitionism "street">>
+	<</if>>
 <</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $skulduggery gte 200 and $skulduggeryDintro isnot 1>>
+<<if currentSkillValue('skulduggery') gte 200 and $skulduggeryDintro isnot 1>>
 	<<set $skulduggeryDintro to 1>>
 	사회의 규칙을 깬 경험을 통해 거리를 새로운 시각에서 볼 수 있게 된다. 많은 사람들이 손 닿는 거리에 귀중품을 두지만, 아무런 경계도 하지 않는다. <span class="gold">이제 당신은 코누다투스 가에서 도둑질을 할 수 있다.</span>
 	<br><br>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
-<<elseif $bartend_info is 1>>
+<<elseif $bartend_info is 1 and !$possessed>>
 	<<set $bartend_info to 2>>
 	<<generate1>><<person1>>
 	"거기 <<girlPost>>." 클럽 쪽에서 목소리가 들려온다. <<personPost "이">> 벽에 기대어 서있다. "데릴이 널 기다리고 있으라 하더군. 일하다가 문제가 생겨서 집까지 바래다 줄 사람이 필요하다고 말이야."
@@ -36,7 +65,7 @@
 	<br>
 	<<link [[거절한다|Connudatus VIP Refuse]]>><</link>>
 	<br>
-<<elseif $per_npc.bartend>>
+<<elseif $per_npc.bartend and !$possessed>>
 	<<loadNPC 0 bartend>><<person1>>
 	<<if $rng gte 81>>
 		<<generate2>><<generate3>>
@@ -59,50 +88,78 @@
 	<</if>>
 	<<link [[다음|Connudatus VIP Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
+<<elseif $brothel_rivalry is undefined and $NPCName[$NPCNameList.indexOf("Darryl")].love gte 10 and !$possessed>>
+
+	자동차 하나가 당신 앞에서 끼익 하면서 선다. 문이 열리고, <span class="pink">두꺼운 두 팔이 당신을 끌어당긴다.</span>
+	<br><br>
+
+	<<link [[다음|Connudatus Briar Abduct]]>><<set $brothel_rivalry to 1>><<set $brothel_rivalry_timer to 7>><</link>>
+	<br>
+
+<<elseif $rng gte 95 and Time.dayState is "day">>
+	<<generatey1>><<person1>>
+	There's a noise from the market and some loud shouting. A market stall owner has just grabbed a <<person>>
+	<<if $rng % 2 == 0>>you recognise from the orphanage<<set $phase to 0>>
+	<<else>>you recognise from school<<set $phase to 10>>
+	<</if>>and is shouting angrily at <<him>>.
+	<br><br>
+	<<link [[Try to help (0:05)|Market Street Urchin Help]]>><<pass 5>><</link>>
+	<br>
+	<<link [[Ignore|Connudatus Street]]>><<endevent>><</link>>
+	<br>
+
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "connudatus">>
 			<br>
 		<</if>>
 		주요 장소
 		<br>
-		<<if $daystate isnot "dawn" and $daystate isnot "day">>
+		<<if Time.dayState isnot "dawn" and Time.dayState isnot "day">>
 			<<if $exposed gte 1 and $stripclubintro is 1>>
-				<<stripclubicon>><<link [[스트립 클럽|Strip Club Exposed]]>><</link>>
+				<<stripclubicon>><<link [[스트립 클럽 (0:02)|Strip Club Exposed]]>><<pass 2>><</link>>
 				<br>
 			<<else>>
-				<<stripclubicon>><<link [[스트립 클럽|Strip Club]]>><</link>>
+				<<stripclubicon>><<link [[스트립 클럽 (0:02)|Strip Club]]>><<pass 2>><</link>>
 				<br>
 			<</if>>
 		<</if>>
-		<<if $daystate isnot "dusk" and $daystate isnot "night" and $hour isnot 6>>
-			<<stripclubicon>><<link [[스트립 클럽|Strip Club Lock]]>><</link>>
+		<<if Time.dayState isnot "dusk" and Time.dayState isnot "night" and Time.hour isnot 6>>
+			<<stripclubicon>><<link [[스트립 클럽 (0:01)|Strip Club Lock]]>><<pass 1>><</link>>
 			<br>
-		<<elseif $hour is 6>>
+		<<elseif Time.hour is 6>>
 			<span class="blue">사람들이 클럽에서 나오고 있다.</span> 문을 닫을 시간인가 보다.
 			<br>
 		<</if>>
 		<<if $skulduggeryDintro is 1 and $exposed lte 0>>
-			<<link [[목표를 찾는다 (0:20)|Connudatus Street Thievery]]>><<pass 20>><<crimeup 1>><</link>><<crime>>
+			<<ind>><<link [[목표를 찾는다 (0:20)|Connudatus Street Thievery]]>><<pass 20>><<crimeup 1>><</link>><<crime>>
 			<br>
 		<</if>>
-		<<if $daystate is "dawn" and $exposed lte 0 and $stall_rented isnot 1>>
+		<<if Time.dayState is "dawn" and $exposed lte 0 and $daily.stallRented isnot 1>>
 			<<if $money gte 1500>>
-				<<link [[가판대를 빌린다 (0:20 £15)|Stall Rent]]>><</link>>
+				<<ind>><<link [[가판대를 빌린다 (0:20 £15)|Stall Rent]]>><</link>>
 				<br>
 			<<else>>
 				<span class="blue">돈이 충분하다면, 여기서 가판대를 빌릴 수 있다.</span>
+				<br>
 			<</if>>
-		<<elseif $stall_rented is 1 and $daystate isnot "night" and $exposed lte 0>>
-			<<link [[가판대에 선다 (0:20)|Stall]]>><<pass 20>><</link>>
+		<<elseif $daily.stallRented is 1 and Time.dayState isnot "night" and $exposed lte 0>>
+			<<ind>><<link [[가판대에 선다 (0:20)|Stall]]>><<pass 20>><</link>>
+			<br>
+		<</if>>
+		<<if Time.dayState is "night" and $exposed gte 2 and $exhibitionism gte 55 and $daily.ex.connudatus isnot 1>>
+			<<ind>><<link [[전속력으로 달린다 (0:05)|Streak Naked]]>><<pass 5>><<set $daily.ex.connudatus to 1>><</link>><<exhibitionist4>>
+			<br>
+		<<elseif Time.dayState is "night" and $exposed gte 1 and $exhibitionism gte 15 and $daily.ex.connudatus isnot 1>>
+			<<ind>><<link [[전속력으로 달린다 (0:05)|Streak Undies]]>><<pass 5>><<set $daily.ex.connudatus to 1>><</link>><<exhibitionist2>>
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<barb>>
@@ -119,7 +176,7 @@
 		<<commercial>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "connudatus">>
 		<</if>>
@@ -134,24 +191,19 @@
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-	<<if $daystate isnot "night">><<set $rescue to 1>><</if>>
+	<<if Time.dayState isnot "night">><<enable_rescue>><</if>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[다음|Connudatus VIP Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[다음|Connudatus VIP Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+<<if _combatend>>
 	<span id="next"><<link [[다음|Connudatus VIP Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Connudatus VIP Rape]]>><</link>></span><<nexttext>>
@@ -160,10 +212,11 @@
 :: Connudatus VIP Rape Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-<<ejaculation>>
+	<<ejaculation>>
 	<<if $pain gte 100 and $willpowerpain is 0>>
-		"아직 안 끝났어, 걸레야." <<person1>><<personPost "이">> 자신의 외투로 손을 뻗으며 말한다. <span class="red"><<HePost 1 "은">> 재갈과 안대를 꺼내든다.</span> 당신은 너무 크게 다쳐 저항하지 못하고, <<hePost "은">> 강제로 당신의 입에 재갈을 물리고 안대까지 씌운다. 당신은 아무 것도 볼 수 없다.
+		"아직 안 끝났어, <<slut_ a>>." <<person1>><<personPost "이">> <<his_ yi>> 외투로 손을 뻗으며 말한다. <span class="red"><<HePost "은">> 재갈과 안대를 꺼내든다.</span> 당신은 너무 크게 다쳐 저항하지 못하고, <<hePost "은">> 강제로 당신의 입에 재갈을 물리고 안대까지 씌운다. 당신은 아무 것도 볼 수 없다. 그리고 당신의 양팔은 뒤로 당겨져 <<he_ ga>> 그대로 묶는다.
 		<<facewear 6>>
+		<<bind>>
 		<br><br>
 
 		"즐기도록 해." <<hePost "은">> 당신을 길거리로 떠밀며 웃음을 터트린다. <<hePost "이">> 떠나가는 소리가 들려온다.
@@ -181,7 +234,7 @@
 		<<destinationbondage>>
 
 	<<else>>
-		"아직 안 끝났어, 걸레야." <<person1>><<personPost "이">> 자신의 외투로 손을 뻗으며 말한다. <span class="red"><<HePost 1 "은">> 재갈과 안대를 꺼내든다.</span> <<HePost "은">> 재갈을 당신의 입에 쑤셔 넣으려고 하지만, <span class="green">당신은 어떻게든 도망친다.</span>
+		"아직 안 끝났어, <<slut_ a>>." <<person1>><<personPost "이">> <<his_ yi>> 외투로 손을 뻗으며 말한다. <span class="red"><<HePost "은">> 재갈과 안대를 꺼내든다.</span> <<HePost "은">> 재갈을 당신의 입에 쑤셔 넣으려고 하지만, <span class="green">당신은 어떻게든 도망친다.</span>
 		<br><br>
 
 		<<tearful>> 당신은 안전한 곳으로 피한다.
@@ -194,32 +247,32 @@
 	<</if>>
 <<elseif $enemyhealth lte 0>>
 
-<<person1>><<personPost "은">> 균형을 잃으며 도로 쪽으로 넘어지고, 마침 그때 자동차 한 대가 지나간다. 자동차는 <<hePost "을">> 피하려고 방향을 틀고는, 가로등에 부딪힌다.
-<br><br>
+	<<person1>><<personPost "은">> <<his_ yi>> 균형을 잃으며 도로 쪽으로 넘어지고, 마침 그때 자동차 한 대가 지나간다. 자동차는 <<hePost "을">> 피하려고 방향을 틀고는, 가로등에 부딪힌다.
+	<br><br>
 
-운전자는 잔뜩 화가 난 채로 나와서는 <<personPost "을">> 향해 소리친다. <<tearful>> 당신은 그 기회를 놓치지 않고 안전한 곳으로 피한다.
-<br><br>
+	운전자는 잔뜩 화가 난 채로 나와서는 <<personPost "을">> 향해 소리친다. <<tearful>> 당신은 그 기회를 놓치지 않고 안전한 곳으로 피한다.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
-<<clearNPC bartend>>
-<<destinationeventend>>
+	<<clotheson>>
+	<<endcombat>>
+	<<clearNPC bartend>>
+	<<destinationeventend>>
 
 <<else>>
-<<set $rescued += 1>>
+	<<set $rescued += 1>>
 
-자동차 한 대가 멈춰서더니, <<generate4>><<person4>><<personPost "이">> 나온다. "그 <<girlPost "을">> 내버려둬." <<hePost "이">> 말한다. "아님 흠씬 두들겨 패줄테다."
-<br><br>
-<<person1>><<personPost "은">> 화가 나서 <<person4>><<personPost "을">> 노려본다. "니가 씨발 뭔데?" <<hePost "은">> 그렇게 말하며 당신을 놔주고는 <<person4>><<personPost>>에게로 다가간다.
-<br><br>
+	자동차 한 대가 멈춰서더니, <<generate4>><<person4>><<personPost "이">> 나온다. "그 <<girlPost "을">> 내버려둬." <<hePost "이">> 말한다. "아님 흠씬 두들겨 패줄테다."
+	<br><br>
+	<<person1>><<personPost "은">> 화가 나서 <<person4>><<personPost "을">> 노려본다. "니가 씨발 뭔데?" <<hePost "은">> 그렇게 말하며 당신을 놔주고는 <<person4>><<personPost>>에게로 다가간다.
+	<br><br>
 
-<<tearful>> 당신은 아귀다툼이 이어지는 틈을 타 안전한 곳으로 피한다.
-<br><br>
+	<<tearful>> 당신은 아귀다툼이 이어지는 틈을 타 안전한 곳으로 피한다.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
-<<clearNPC bartend>>
-<<destinationeventend>>
+	<<clotheson>>
+	<<endcombat>>
+	<<clearNPC bartend>>
+	<<destinationeventend>>
 
 <</if>>
 
@@ -261,3 +314,29 @@
 <<link [[다음|Orphanage]]>><</link>>
 <br>
 
+:: Connudatus Briar Abduct
+<<set $outside to 0>><<effects>>
+<<npc Briar>><<generate2>><<generate3>><<person1>>
+<<pass 5>>
+당신이 자세를 잡기도 전에 자동차는 움직이면서 흔들린다. "달링," 친숙한 음성이 들린다. "진정하도록 해." 브라이어다. <<He_ nun>> 반대쪽에 앉아있다. <<person2>><<person_ gwa>> <<person3>><<person_ un>> 당신 양 옆에 앉아있다.
+<br><br>
+
+"네가 내... 동료인 데릴을 만났다고 들어서, 말이지," <<person1>>브라이어는 계속 말한다. <<He_ nun>> 세 좌석에 걸쳐 느긋하게 누워 있다. "내가 <<nnpc_him_ i "Darryl">> 걱정돼서 말야. 네게 부탁 좀 해도 될까? <<nnpc_himPost "Darryl">> 주위의 사람들을 좀 감시해 줬으면 해. 경비원들, 고객들, 그런 종류의 것들 말이야. 그러면 내가 안심할 수 있을 거야."
+<br><br>
+
+자동차가 멈춘다. 당신은 도무스 가에 있다. <<person2>><<person_ i>> 문을 연다. "여기가 네 집인가? 아늑해 보이는군. 좋은
+<<if Time.dayState is "day">>
+	하루 되기를."
+<<elseif Time.dayState is "night">>
+	밤 되기를."
+<<elseif Time.dayState is "dusk">>
+	저녁 되기를."
+<<else>>
+	아침 되기를."
+<</if>>
+<br><br>
+
+당신은 차에서 내렸고, 자동차는 떠난다.
+<br><br>
+
+<<link [[다음|Domus Street]]>><<endevent>><</link>>

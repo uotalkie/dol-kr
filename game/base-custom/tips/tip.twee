@@ -1,44 +1,39 @@
 :: Widgets custom Tips [widget nobr]
-<<widget "customTips">>
-    <<set _maxindex = 9>>
-
-    <<if $args[0] is undefined>>
-        <<customTipsList `random(_maxindex)`>>/*`random(_maxindex)`*/
-        <<unset _maxindex>>
-    <</if>>
+<<widget "init_customTips">>
+	<<if _customTips is undefined>>
+		<<set _customTips to [
+			/* 0 ~ 2 : 업데이트 관련 */
+			"커스텀 Tip : 설정 관련 기능이 추가될 예정이에요.",
+			"커스텀 Tip : 클리프 가에 새로운 건물이 들어선 모양이에요.",
+			"커스텀 Tip : 집에 새로운 기능이 추가될 예정이에요. (언젠가)",
+			/* 3 ~ 9 : 잡다한 것 */
+			"커스텀 Tip : 공원에서 별동별을 볼 수 있을지도 몰라요.",
+			"커스텀 Tip : 이 팁을 보기 위해서 _customtippercent의 확률을 통과하셨습니다!<br>사실, 커스텀 tips에 대한 경우의 수도 포함해서, 정확하게는 _realcustomtippercent의 확률이에요.",
+			"커스텀 Tip : 세이브는 습관적으로 해야해요. 종종 저장한걸 따로 보관하는 습관을 들이는게 좋아요.",
+			"커스텀 Tip : 공원과 해변에서 휴식할 수 있는 공간이 있다는 것을 알고 계신가요?<br>아직 별 다른 기능은 없지만, 가끔은 쓸만 할거에요.",
+			"커스텀 Tip : 피로도의 최대치는 $tirednessmax입니다. 현재의 피로도는 $tiredness입니다.",
+			"커스텀 Tip : Pc버전 크롬 기준 f12를 누르면 개발자도구를 쓸 수 있어요.<br>사용하면 재미는 없겠지만, 게임에서 지원하는 치트보다는 다양한 걸 할 수 있어요.<br>물론, 쓸 수 있다면 말이죠.",
+			/* 10 ~ : 커스텀 event tips */
+			"커스텀 Tip : 게임 시작하자마자 술집에 가서 유혹만 해본 적 있나요?<br>나중에는 유혹 스킬 올리기 귀찮아지니까, 미리 올려두는 것도 좋아요.",
+		]>>
+	<</if>>
 <</widget>>
 
-/* 0 ~ 2 : 업데이트 관련 | 3 ~ 9 : 잡다한 것 | 10 ~ : 커스텀 event tips */
-<<widget "customTipsList">>
-    <<print "커스텀 Tip "+($args[0] + 1)>><br>
-    <<switch $args[0]>>
-        <<case 0>>
-            설정 관련 기능이 추가될 예정이에요.
-        <<case 1>>
-            클리프 가에 새로운 건물이 들어선 모양이에요.
-        <<case 2>>
-            집에 새로운 기능이 추가될 예정이에요. (언젠가)
-        <<case 3>>
-            공원에서 별동별을 볼 수 있을지도 몰라요.
-        <<case 4>>
-            이 팁을 보기 위해서 <<print (_customtipchance * 100 / _customtipdifficulty).toFixed(2)+"%">>의 확률을 통과하셨습니다!<br>
-            사실, 커스텀 tips에 대한 경우의 수도 포함해서, 정확하게는 <<print (((_customtipchance / _customtipdifficulty) * (1 / (_maxindex + 1))) * 100).toFixed(2)+"%">>의 확률이에요.
-        <<case 5>>
-            세이브는 습관적으로 해야해요. 종종 저장한걸 따로 보관하는 습관을 들이는게 좋아요.
-        <<case 6>>
-            공원과 해변에서 휴식할 수 있는 공간이 있다는 것을 알고 계신가요?<br>
-            아직 별 다른 기능은 없지만, 가끔은 쓸만 할거에요.
-        <<case 7>>
-            피로도의 최대치는 $tirednessmax입니다. 현재의 피로도는 $tiredness입니다.
-        <<case 8>>
-            Pc버전 크롬 기준 f12를 누르면 개발자도구를 쓸 수 있어요.<br>
-            사용하면 재미는 없겠지만, 게임에서 지원하는 치트보다는 다양한 걸 할 수 있어요.<br>
-            물론, 쓸 수 있다면 말이죠.
-        <<case 9>>
-            게임 시작하자마자 Pub에 가서 유혹만 해본 적 있나요?<br>
-            나중에는 유혹 스킬 올리기 귀찮아지니까, 미리 올려두는 것도 좋아요.
-        <<default>>
-            이거 참... 보기 힘든건데요... 이 오류를 아무것도 건들지 않고 봤으면 말이 안돼요...<br>
-            이 오류를 발견 했다면, 알려주세요!
-    <</switch>>
+<<widget "customTips">>
+    <<init_customTips>>
+	<<set _customtippercent to (_customtipchance * 100 / _customtipdifficulty).toFixed(2)+"%">>
+	<<set _realcustomtippercent to (((_customtipchance / _customtipdifficulty) * (1 / (_customTips.length + 1))) * 100).toFixed(2)+"%">>
+	<<print _customTips.random()>>
+<</widget>>
+
+<<widget "print_customTipsList">>
+<<if $custom.tipsActive is true>>
+	<<set _tipListOutput to "">>
+	<<init_customTips>>
+	<<set _tipscount to setup.tipsList.length + 1>>
+	<<run _customTips.forEach((tip, index) => {
+		T.tipListOutput += `${(index+T.tipscount)}. ${tip} <br>`
+	})>>
+	<<print _tipListOutput>>
+<</if>>
 <</widget>>

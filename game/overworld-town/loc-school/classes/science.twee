@@ -6,22 +6,22 @@
 		<<outfitChecks>>
 		/*Check for when the pc is only wearing an overcoat*/
 		<<if $worn.over_upper.name isnot "naked" and $worn.over_lower.name isnot "naked" and $worn.under_upper.name is "naked" and $worn.under_lower.name is "naked">>
-			As you go to hang your <<if _middleOutfit>>$worn.over_upper.name<<else>>$worn.over_upper.name and $worn.over_lower.name<</if>>, you remember that you're naked underneath.
+			<<if _middleOutfit>><<worn_over_upper_name_ ul>><<else>><<worn_over_upper_name_ gwa>> <<worn_over_lower_name_ ul>><</if>> 벗자마자, 당신은 외투 아래에 아무것도 입지 않았다는 사실을 자각했다.
 		<<elseif $worn.over_upper.name isnot "naked" and $worn.over_lower.name isnot "naked" and ($worn.under_upper.type.includes("swim") or $worn.under_lower.type.includes("swim"))>>
-			As you go to hang your <<if _middleOutfit>>$worn.over_upper.name<<else>>$worn.over_upper.name and $worn.over_lower.name<</if>>, you remember that you're only wearing swimwear underneath.
+			<<if _middleOutfit>><<worn_over_upper_name_ ul>><<else>><<worn_over_upper_name_ gwa>> <<worn_over_lower_name_ ul>><</if>> 벗자마자, 당신은 외투 아래에 수영복만 입고 있다는 사실을 자각했다.
 		<<elseif $worn.over_upper.name isnot "naked" and $worn.over_lower.name isnot "naked" and $worn.under_upper.name isnot "naked" and $worn.under_lower.name isnot "naked">>
-			As you go to hang your <<if _middleOutfit>>$worn.over_upper.name<<else>>$worn.over_upper.name and $worn.over_lower.name<</if>>, you remember that you're only wearing underwear underneath.
+			<<if _middleOutfit>><<worn_over_upper_name_ ul>><<else>><<worn_over_upper_name_ gwa>> <<worn_over_lower_name_ ul>><</if>> 벗자마자, 당신은 외투 아래에 속옷만 입고 있다는 사실을 자각했다.
 		<</if>>
 		<br><br>
 		<<npc Sirris>><<person1>>
-		Sirris looks at you while you stand there. "What are you staring into space for? You can't just be wearing nothing under that coat can you? The head might have some spares if you need them."
+		당신이 우두커니 서 있는 동안 시리스가 당신을 쳐다본다. "허공은 뭐하러 보는 거니? 코트 아래에 아무것도 안 입고 있으면 안 되지. 교복을 찾는다면 교장 선생님이 여분을 갖고 있을 거야."
 		<br><br>
 		<!--<<link [[Hang up coat|]]>><<endevent>><</link>>
 		<br><br> good starting point for when you can go to class naked-->
 		<<link [[다음|Hallways]]>><<endevent>><</link>>
 		<br><br>
 	<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and $rightarm isnot "bound">>
-		<<if $scienceattended is 1>>
+		<<if $daily.school.attended.science>>
 			당신은 과학 수업에 다시 들어와,
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 				교실 뒷편에 코트를 건 뒤
@@ -31,9 +31,14 @@
 			<br><br>
 			<<link [[다음|Science Lesson]]>><<endevent>><</link>>
 			<br>
-		<<elseif $time lte ($hour * 60 + 5)>>
+		<<elseif Time.minute lte 5>>
 
-			당신은 과학 교실에 들어간다.
+			<<if $daily.sydney.scienceWalk>>
+				<<run delete $daily.sydney.scienceWalk>>
+				당신은 시드니와 함께 과학 교실에 들어간다.
+			<<else>>
+				당신은 과학 교실에 들어간다.
+			<</if>>
 			<<npc Sirris>><<person1>>
 			학생들이 자리에 앉는 동안 시리스가 교실 앞쪽에서 수업 준비를 하고 있다.
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
@@ -46,12 +51,33 @@
 			<br>
 
 		<<else>>
-			당신은 과학 교실에 들어간다.
-			<<npc Sirris>><<person1>>
-			시리스가 말을 하다 말고 당신을 바라본다. "미안하지만, 지각 기록을 해야겠어."
-			<<gdelinquency>>
-			<br><br>
-			<<detention 1>>
+			<<if $daily.sydney.scienceWalk>>
+				<<run delete $daily.sydney.scienceWalk>>
+				당신은 시드니와 함께 과학 교실에 들어간다.
+				<<npc Sirris>><<person1>>
+				<<if $daily.school.scienceExcused is true>>
+					<<run delete $daily.school.scienceExcused>>
+					시리스가 말을 하다 말고 당신을 바라본다. "너희 둘 다, 지각 사유를 들었단다. 가서 앉아라." <<He_ nun>> 당신에게 웃음짓는다.
+				<<else>>
+					시리스가 말을 하다 말고 당신을 바라본다. "미안하지만, 지각 기록을 해야겠어. 너희 둘 다 말이야." 시드니는 부끄러워하는 것 처럼 보인다.
+					<<gdelinquency>><<lspurity>>
+					<br><br>
+					<<detention 1>>
+				<</if>>
+			<<else>>
+				당신은 과학 교실에 들어간다.
+				<<npc Sirris>><<person1>>
+				<<if $daily.school.scienceExcused is true>>
+					<<run delete $daily.school.scienceExcused>>
+					시리스가 말을 하다 말고 당신을 바라본다. "지각 사유를 들었으니, 가서 앉아라." <<He_ nun>> 당신에게 웃음짓는다.
+				<<else>>
+					시리스가 말을 하다 말고 당신을 바라본다. "미안하지만, 지각 기록을 해야겠어."
+					<<gdelinquency>>
+					<br><br>
+					<<detention 1>>
+				<</if>>
+			<</if>>
+
 			당신은
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 				교실 뒷편에 코트를 건 뒤
@@ -96,7 +122,7 @@
 	<br>
 
 <<elseif $schoollesson is 1>>
-	<<if $scienceinterrupted is 1>>
+	<<if $daily.school.scienceInterrupted is 1>>
 
 		<<npc Sirris>><<person1>>당신은 과학 교실에 들어간다. 당신이 들어오는 걸 보자 시리스가 말을 멈추고는, 처음에는 놀란 표정을 지었다가, 곧 짜증이 난 듯한 표정을 짓는다. "또 너냐? 계속 이런 식으로 방해하면 안돼, 훠이!" <<HePost "은">> 당신의 눈 앞에서 문을 닫는다.
 		<<gdelinquency>>
@@ -108,7 +134,11 @@
 
 		<<npc Sirris>><<person1>>당신은 과학 교실의 문을 연다. 당신이 들어오는 것을 보자, 시리스는 말을 멈추고는 놀란 표정을 짓는다. "무슨 일이니?" 보아하니 당신이 수업을 방해한 모양이다.
 		<br><br>
-		<<set $scienceinterrupted to 1>>
+		<<if $NPCName[$NPCNameList.indexOf("Sydney")].init is 1 and $schoolstate is "second" and $sydneyScience isnot 1>>
+			당신은 시드니가 교실 맨 앞에 앉아 있는 것을 발견한다. <<nnpc_He_ nun "Sydney">> 당혹한 얼굴로 당신을 바라보고 있다.
+			<br><br>
+		<</if>>
+		<<set $daily.school.scienceInterrupted to 1>>
 
 		<<link [[사과한다|Science Classroom Apology]]>><<trauma 1>><<stress 1>><</link>><<gstress>><<gtrauma>>
 		<br>
@@ -120,6 +150,9 @@
 <<else>>
 	당신은 과학 교실에 있다. 실험 장비들은 사용하지 않을 때에는 안전하게 보관함에 넣어 잠궈 둔다.
 	<br><br>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmLocation "emptyClassroom">>
+	<</if>>
 	<<storeon "scienceClassroom" "check">>
 	<<if _store_check is 1>>
 		<<storeon "scienceClassroom">>
@@ -145,9 +178,18 @@
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 당신은 선생님을 조롱한다. "흰색 실험실 가운은 좋은 생각 같아요, 선생님. 얼룩을 가려줄 테니까요." 앉아있던 학생들이 웃음을 터트린다.
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].init is 1 and $schoolstate is "second" and $sydneyScience isnot 1>>
+	<<run statusCheck("Sydney")>>
+	<<if _sydneyStatus.includes("corrupt")>>
+		시드니조차도 웃음보를 터뜨리지 않으려 몸부림치고 있다.
+	<<else>>
+		시드니의 눈이 충격으로 크게 벌어져 있다.
+	<</if>>
+	<<lspurity>>
+<</if>>
 <br><br>
 
-시리스는 몹시 화가난 것 같다. "좋아. 이런 행동은 교장에게 전달하도록 하지. 그러니, 그냥 가렴."
+시리스는 몹시 화가 난 것 같다. "좋아. 이런 행동은 교장에게 전달하도록 하지. 그러니, 그냥 가렴."
 <<gdelinquency>>
 <br><br>
 <<detention 1>><<npcincr Sirris love -1>>
@@ -185,8 +227,8 @@
 <</if>>
 
 <<schooleffects>>
-<<set _time_to_pass to 60 - $minute>>
-<<if $hour is 7>>
+<<set _time_to_pass to 60 - Time.minute>>
+<<if Time.hour is 7>>
 <!-- lesson starts at 9 -->
 	<<set _time_to_pass += 60>>
 <</if>>
@@ -195,32 +237,36 @@
 <!-- add stress every 5 minutes -->
 <<set _stress to Math.trunc(_time_to_pass / 5)>>
 <<stress _stress>>
-<!-- improve science grade with half of efficiency of a proper lesson -->
-<<set _science to _time_to_pass / 10>>
+<!-- improve science grade with same efficiency as studying in the library -->
+<<set _science to _time_to_pass / 20>>
 <<scienceskill _science>>
 
 :: Science Lesson
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
-<<set $scienceattended to 1>>
+<<set $daily.school.attended.science to true>>
 
-<<if $weekday is 6 and $minute gte 37>>
+<<if Time.weekDay is 6 and Time.minute gte 37>>
 	<<npc Sirris>><<person1>>
 	"금요일 시험 시간이란다." 시리스가 소책자를 들고 말한다. "긴장하지 마렴."<<gstress>><<stress 6>>
 	<br><br>
+	<<if $arousal gte $arousalmax>>
+		<<set _teacher to "Sirris">>
+		<<orgasmLocation "classroom">>
+	<</if>>
 
 	<<exam science>>
 	<br><br>
-	학생을이 첫 페이지를 넘기는 소리가 울린다. "시험시간 동안 대화는 금지야" 시리스가 반의 맨 앞에 앉아서 덧붙인다. "다 했다고 해도 말이야. 별로 오래 안걸릴거야."
+	학생들이 첫 페이지를 넘기는 소리가 울린다. "시험시간 동안 대화는 금지야" 시리스가 반의 맨 앞에 앉아서 덧붙인다. "다 했다고 해도 말이야. 별로 오래 안걸릴거야."
 	<br><br>
 	<<endevent>>
 	<<exam_cheat science>>
-	<<link [[집중한다|Science Exam]]>><<stress 6>><<set $phase to 0>><<set $exam_chance += 5>><</link>><<gstress>> | <span class="green">+ 5% 합격 기회</span>
+	<<link [[집중한다|Science Exam]]>><<stress 6>><<set $phase to 0>><<set $exam_chance += 5>><</link>><<gstress>><<passPercent 5>>
 	<br>
 	<<link [[진정한다|Science Exam]]>><<set $phase to 1>><</link>>
 	<br>
 	<<link [[부정행위|Science Exam]]>><<set $phase to 2>><</link>><<skulduggerydifficulty>>
 	<br>
-<<elseif $schoolevent is 0 and $schooleventtimer lte 0 and $weekday isnot 6>><<set $schoolevent += 1>><<set $schooleventtimer to 14>>
+<<elseif $schoolevent is 0 and $schooleventtimer lte 0 and Time.weekDay isnot 6>><<set $schoolevent += 1>><<set $schooleventtimer to 14>>
 	<<npc Sirris>><<person1>>"교장 선생님이 오늘 수업에 참관하겠다고 하셨단다." 시리스가 말한다. "다들 제대로 행동하리라 믿는다." <<HePost "이">> 말을 마치자 문이 열리며, 레이턴이 들어온다.
 	<br><br>
 
@@ -241,7 +287,7 @@
 
 	<<link [[다음|Penis Inspection]]>><<pass 5>><</link>>
 	<br>
-<<elseif $schoolevent is 1 and $schooleventtimer lte 0 and $weekday isnot 6>><<set $schoolevent += 1>><<set $schooleventtimer to 14>>
+<<elseif $schoolevent is 1 and $schooleventtimer lte 0 and Time.weekDay isnot 6>><<set $schoolevent += 1>><<set $schooleventtimer to 14>>
 	<<npc Sirris>><<person1>>"교장 선생님께서 다시 한 번 수업을 하시겠다고 하셨단다." 시리스가 말한다.<<endevent>><<npc Leighton>><<person1>> "왜 갑자기 재미를 붙이셨는지는 모르겠다만, 지난 번에는 나름 만족하신 것 같더라고."
 	<br><br>
 
@@ -262,7 +308,7 @@
 
 	<<link [[다음|Pussy Inspection]]>><<pass 5>><</link>>
 	<br>
-<<elseif $schoolevent is 2 and $schooleventtimer lte 0 and $weekday isnot 6>><<set $schoolevent += 1>><<set $schooleventtimer to 14>>
+<<elseif $schoolevent is 2 and $schooleventtimer lte 0 and Time.weekDay isnot 6>><<set $schoolevent += 1>><<set $schooleventtimer to 14>>
 	<<npc Sirris>><<person1>>"교장 선생님께서 수업을 하시겠다고 하셨단다." 시리스가 말한다. "내가 일을 제대로 하지 않아서 그런 것이 아니면 좋겠는데 말이야."
 	<br><br>
 
@@ -286,12 +332,16 @@
 	<<link [[다음|Breast Inspection]]>><<pass 5>><</link>>
 	<br>
 <<else>>
-	<<if $time lte ($hour * 60 + 5)>>
+	<<if Time.minute lte 5>>
 		과학 수업이 시작되었다. 무엇을 할까?
 		<br><br>
 	<<else>>
 		과학 수업이 계속된다. 무엇을 할까?
 		<br><br>
+	<</if>>
+	<<if $arousal gte $arousalmax>>
+		<<set _teacher to "Sirris">>
+		<<orgasmLocation "classroom">>
 	<</if>>
 
 	<<link [[수업에 집중한다|Science Lesson Focus]]>><</link>><<gstress>><<gscience>>

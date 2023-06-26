@@ -1,0 +1,62 @@
+:: Saves Export/Import Overlay [widget]
+
+<<widget "optionsExportImport">>
+	<<if SugarCube.Browser.isMobile.any() is true>>
+		파일로 저장 및 불러오기 기능은 안드로이드에서 작동하지 않습니다.
+	<<else>>
+		<<set $_errorCount to document.querySelectorAll('.error').length>>
+		<<set $_dolErrorCount to document.querySelectorAll('.dol-error').length>>
+		<<set $_customErrorCount to Errors.log.length>>
+		<<set $_bypassRestrictions to $debug is 1 or $_errorCount gt 0 or $_dolErrorCount gt 0 or $_customErrorCount gt 0>>
+		파일에서 불러오기: <input id="saveImport" type="file" value="Load from file" onchange="importSave(this.files)">
+		<br><br>
+		<<if tags().includes("nosave")>>
+			여기에서는 현재 세이브를 내보낼 수 없습니다!
+		<<elseif $ironmanmode>>
+			<<if $_bypassRestrictions>>
+				<input type="button" class="saveMenuButton" value="파일로 저장" onclick="IronMan.exportCurrent()">
+			<<else>>
+				철인 모드에서는 세이브를 파일로 저장할 수 없습니다. 자동저장 세이브만이 내보낼 수 있습니다.
+			<</if>>
+		<<elseif ($replayScene is undefined) or $_bypassRestrictions>>
+			<<set _exportName to "'degrees-of-lewdity"+($saveName isnot ''?'-'+$saveName:'')+ "'">>
+			<input type="button" class="saveMenuButton" value="파일로 저장" @onclick="'updateExportDay();SugarCube.Save.export('+_exportName+')'">
+		<<else>>
+			현재 파일로 저장할 수 없습니다.
+		<</if>>
+	<</if>>
+	<br><br>
+
+	<span class="gold">텍스트 불러오기/내보내기</span>
+	<<if !($dancing is 0 and $combat is 0 and $replayScene is undefined)>>
+		<span class="red"><b>전투 이벤트가 진행중이므로, 결과 세이브 파일을 버그 제보를 위해서만 사용 가능합니다!!</b></span><br>
+	<</if>>
+		이 기능은 안드로이드처럼 세이브 파일에 접근할 수 없는 기기에 세이브를 이동시킬 수 있게 해줍니다.
+		<br>
+		저장하기 위해선, "세이브 데이터 가져오기"를 누른 뒤, 필요한 곳에 세이브 데이터를 복사하여 붙여넣으세요.
+		<br>
+		불러오기 위해선, 세이브 데이터를 붙여넣은 뒤 "세이브 데이터 불러오기"를 누르세요.
+		<br>
+		안드로이드 상에서 세이브를 이동시키려면 이메일이나 페이스트빈 같은 서비스를 사용하시는 걸 권장합니다. 문제가 생기는 것을 방지하기 위해 세이브 데이터를 정확히 기입하시기 바랍니다.
+		<br>
+		"텍스트 영역 복사"를 눌러 내용물을 복사하세요. 만약 장치나 브라우저가 이를 지원하지 않는다면 버튼의 이름이 "복사 오류"로 바뀔 것입니다.
+		<br><br>
+		<textarea id="saveDataInput" rows="4" cols="40" onClick="if(V.disableAutoSelect == false)this.select();"><<if _presetData>>_presetData<</if>></textarea>
+		<br>
+		<input type="button" class="saveMenuButton" value="텍스트 상자 내용 삭제" onclick="clearTextBox('saveDataInput')"/>
+		<input type="button" class="saveMenuButton" value="텍스트 상자 상단으로" onclick="topTextArea('saveDataInput')"/>
+		<input type="button" class="saveMenuButton" value="텍스트 상자 하단으로" onclick="bottomTextArea('saveDataInput')"/>
+		<<if $ironmanmode is true || !_saveUnlock>>
+			<input type="button" value="세이브 데이터 가져오기" disabled>
+		<<else>>
+			<input type="button" class="saveMenuButton" value="세이브 데이터 가져오기" onclick="getSaveData()"/>
+		<</if>>
+		<input type="button" class="saveMenuButton" value="세이브 데이터 불러오기" onclick="loadSaveData()"/>
+		<input id="CopyTextArea" class="saveMenuButton" type="button" value="텍스트 영역 복사" onclick="copySavedata('saveDataInput')">
+	<br><br>
+	<label>
+		<<print '<<checkbox "$disableAutoSelect" false true '+($disableAutoSelect is true? "checked":"")+'>>'>>
+		자동 선택 비활성화.
+	</label>
+	<br><br>
+<</widget>>

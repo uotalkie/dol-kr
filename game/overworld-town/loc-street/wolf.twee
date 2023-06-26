@@ -1,8 +1,8 @@
 :: Wolf Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "wolf">>
-당신은 울프 가에 있다. 근처의 숲이 여기서 도시와 만나고, 그 지점에는 교회가 있다.
-<<if $daystate is "day">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "wolf">><<getTarget true>>
+당신은 울프 가에 있다. 근처의 숲이 여기서 도시와 만나고, 그 지점에는 사원이 있다.
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
 		바람에 나뭇가지들이 흔들린다.
 	<<elseif $weather is "snow">>
@@ -10,12 +10,33 @@
 	<<else>>
 		이곳은 이 도시에서 조용한 축에 속하는 지역이다.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	안쪽에서 성가가 들려온다.
-<<elseif $daystate is "dusk">>
-	어두워져가는 하늘 때문에 으스스한 인상을 준다.
-<<elseif $daystate is "night">>
-	칠흑같이 어둡다.
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		You hear chanting from within, clear above the rain.
+	<<elseif $weather is "snow">>
+		You hear chanting from within, muffled by the snow.
+	<<else>>
+		안쪽에서 성가가 들려온다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		It strikes a forbidding silhouette against the dark rain.
+	<<elseif $weather is "snow">>
+		The coating of snow does not detract from its forbidding silhouette.
+	<<else>>
+		어두워져가는 하늘 때문에 으스스한 인상을 준다.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		You can't even makes out its silhouette behind the curtains of rain.
+		<<if $hallucinations gte 2>>
+			But you feel it watching.
+		<</if>>
+	<<elseif $weather is "snow">>
+		칠흑같이 어둡다.
+	<<else>>
+		칠흑같이 어둡다.
+	<</if>>
 <</if>>
 <<streeteffects>>
 <br><br>
@@ -25,33 +46,33 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "wolf">>
 			<br>
 		<</if>>
 		주요 장소
 		<br>
-		<<wolficon>><<link [[교회 (0:01)|Temple]]>><<pass 1>><</link>>
+		<<wolficon>><<link [[사원 (0:01)|Temple]]>><<pass 1>><</link>>
 		<br>
 			<<if $soup_kitchen_known is 1 and $exposed lte 0>>
-				<<if $hour gte 18 and $hour lte 20>>
-				<<soupkitchenicon>><<link [[무료 급식소 (0:01)|Soup Kitchen]]>><<pass 1>><</link>>
+				<<if Time.hour gte 18 and Time.hour lte 20>>
+					<<soupkitchenicon>><<link [[무료 급식소 (0:01)|Soup Kitchen]]>><<pass 1>><</link>>
 				<<else>>
-				<<soupkitchenicon>><<link [[무료 급식소 (0:01)|Soup Kitchen Closed]]>><<pass 1>><</link>>
+					<<soupkitchenicon>><<link [[무료 급식소 (0:01)|Soup Kitchen Closed]]>><<pass 1>><</link>>
 				<</if>>
 			<br>
 			<</if>>
 		<br>
 		<<foresticon>><<link [[숲 (0:10)|Forest]]>><<pass 10>><<set $forest to 0>><<set $eventskip to 1>><</link>>
 		<br><br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<danube>>
@@ -67,7 +88,7 @@
 		<<commercial>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "wolf">>
 		<</if>>

@@ -1,138 +1,130 @@
 :: Widgets trNPCdesc [widget nobr]
-<<widget "trinit_NPCdescAdj">>
-    <<if _NPCdescList is undefined>>
-        <<set _NPCdescList to {
-           "cute":"귀여운",
-            "shapely":"균형잡힌",
-            "voluptuous":"관능적인",
-            "lush":"푸릇푸릇한",
-            "vulgar":"상스러운",
-            "plush":"귀품있는",
-            "curvy":"곡선미가 있는",
-            "petite":"자그마한",
-            "slight":"가냘픈",
-            "slim":"날씬한",
-            "thin":"마른",
-            "slender":"멀쑥한",
-            "lanky":"호리호리한",
-            "lissome":"늘씬한",
-            "lithe":"유연한",
-            "trim":"균형잡힌",
-            "mousy":"소심해 보이는",
-            "fit":"매력적인",
-            "lean":"야윈",
-            "taut":"튼튼한",
-            "graceful": "품위있어 보이는",
-            "plump":"통통한",
-            "wide-eyed":"눈이 큰",
-            "toned":"탄탄한",
-            "bulky":"덩치 큰",
-            "broad":"어깨가 넓은",
-            "robust":"팔팔한",
-            "rugged":"다부진",
-            "muscular":"근육질",
-            "burly":"건장한",
-            "brutish":"야수 같은",
-            "minor":"작은",			
-            "demon":"악마같은",
-            "Tutorial":"튜토리얼"
-        }>>
-    <</if>>
+<<widget "trNPCdesc">><<silently>>
+	<<if setup.trNamedNPCList is undefined>>
+		<<trinit_namedNPC>>
+	<</if>>
+	<<if setup.trBeasttypeList is undefined>>
+		<<trinit_beastsList>>
+		<<trinit_beastAdjList>>
+	<</if>>
+	<<if setup.trNPCdescAdjList is undefined>>
+		<<trinit_NPCdescAdj>>
+	<</if>>
+	<<if setup.trGenderList is undefined>>
+		<<trinit_genderNoun>>
+	<</if>>
+	<<if setup.trRoleList is undefined>>
+		<<trinit_roleList>>
+	<</if>>
 
-    <<trinit_genderNoun>>
+    <<unset _trResult>>
+	<<if Array.isArray(_args[0])>>
+		<<set $_name to _args[0][0]>>
+	<<elseif typeof _args[0] is "string">>
+		<<set $_name to _args[0]>>
+	<</if>>
 
-    <<trinit_beastsList>>
-<</widget>>
+	<<if $_name isnot undefined>>
+		/* namedNPC? */
+		<<trNamedNPCInner $_name>>
+		<<if _trResult isnot undefined>>
+			<<trPost _postNum _args[1] _args[2]>>
+		<<else>>
 
-<<widget "trNPCdesc">>
-    <<trinit_NPCdescAdj>>
-    <<trinit_namedNPC>>
-    <<trinit_beastsList>>
-	<<trinit_beastAdjList>>
-    <<set _trResult to undefined>>
-    
-    <<if typeof $args[0] is "string">>
-        <<set _tempArray to $args[0].split(' ')>>
-
-        <<if _namedNPCList.find(function(select){
-            if(select.name  == $args[0] or select.title  == $args[0]){return true;}
-            }) isnot undefined>>
-            <<trNamedNPC $args[0] $args[1] $args[2]>>
-        <</if>>
-
-        <<if _trResult is undefined>>
-            <<for _i to 0; _i lt _tempArray.length; _i++>>
-                <<if _beasttypeList.hasOwnProperty(_tempArray[_i])>>
-                    <<trBeastdesc $args[0] $args[1] $args[2]>>
+		/* beast? */
+			<<set $_tempArray to $_name.split(' ')>>
+            <<for $_i to 0; $_i lt $_tempArray.length; $_i++>>
+                <<if setup.trBeasttypeList.hasOwnProperty($_tempArray[$_i])>>
+                    <<trBeastdesc $_name _args[1] _args[2]>>
                     <<break>>
                 <</if>>
             <</for>>
         <</if>>
 
-
+		/* Adjective + genderNoun? */
         <<if _trResult is undefined>>
-            <<if _NPCdescList[_tempArray[0]] isnot undefined>>
-                <<set _trResult to _NPCdescList[_tempArray[0]]>>
-            <<elseif _beastAdjList[_tempArray[0]] isnot undefined>>
-				<<set _trResult to _beastAdjList[_tempArray[0]]>>
+            <<if setup.trNPCdescAdjList[$_tempArray[0]] isnot undefined>>
+                <<set _trResult to setup.trNPCdescAdjList[$_tempArray[0]]>>
+            <<elseif setup.trBeastAdjList[$_tempArray[0]] isnot undefined>>
+				<<set _trResult to setup.trBeastAdjList[$_tempArray[0]]>>
 			<<else>>
-                <<if _tempArray[0] is undefined>>
+                <<if $_tempArray[0] is undefined>>
                     <<set _trResult to "">>
                 <<else>>
-                    <<set _trResult to _tempArray[0]>>
+                    <<set _trResult to $_tempArray[0]>>
                 <</if>>
             <</if>>
 			
-			<<if _trResult isnot undefined and _tempArray.length gte 3>>
+			<<if _trResult isnot undefined and $_tempArray.length gte 3>>
 				/* ex: minor demon */
-				<<if _NPCdescList[_tempArray[1]] isnot undefined>>
-					<<set _trResult += " "+_NPCdescList[_tempArray[1]]>>
-					<<set _tempArray.deleteAt(0)>>
+				<<if setup.trNPCdescAdjList[$_tempArray[1]] isnot undefined>>
+					<<set _trResult += " "+setup.trNPCdescAdjList[$_tempArray[1]]>>
+					<<set $_tempArray.deleteAt(0)>>
 				<</if>>
 			<</if>>
 
-            <<if _genderList[_tempArray[1]] isnot undefined>>
-                <<if _tempArray[0] is undefined>>
-                    <<set _trResult to _genderList[_tempArray[1]].ko>>
+			<<set $_found to setup.trRoleList[$_tempArray[1]]>>
+			<<if $_found is undefined>>
+				<<set $_found to setup.trGenderList[$_tempArray[1]]>>
+			<</if>>
+
+            <<if $_found isnot undefined>>
+                <<if $_tempArray[0] is undefined>>
+                    <<set _trResult to $_found.ko>>
                 <<else>>
-                    <<set _trResult += " "+_genderList[_tempArray[1]].ko>>
+                    <<set _trResult += " "+$_found.ko>>
                 <</if>>
-                <<if $args[1] isnot undefined>>
-                    <<trPost _genderList[_tempArray[1]].post $args[1] $args[2]>>
+                <<if _args[1] isnot undefined>>
+                    <<trPost $_found.post _args[1] _args[2]>>
                 <</if>>
             <</if>>
         <</if>>
     <</if>>
 
     <<if _trResult is undefined>>
-        <<if $args[0] is undefined>>
+        <<if _args[0] is undefined>>
             <<set _trResult to "">>
         <<else>>
-            <<set _trResult to $args[0]>>
+            <<set _trResult to "trNPCdesc에서 찾지 못함:" +_args[0]>>
         <</if>>
     <</if>>
-<</widget>>
+<</silently>><</widget>>
 
-<<widget "trNPCname">>
-	<<if $args[0] is undefined>>
+<<widget "trNPCname">><<silently>>
+	<<if _args[0] is undefined>>
 		<<set $_name to $NPCList[0].name>>
-	<<elseif isNaN($args[0])>>
-		<<set $_name to $args[0]>>
+	<<elseif typeof _args[0] is "string">>
+		<<if _args[0].substring(0,1).search("[가-힣]") gte 0>>
+			<<set $_name to $NPCList[0].name>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_name to _args[0]>>
+		<</if>>
+	<<elseif typeof _args[0] is "number">>
+		<<set $_name to $NPCList[Number(_args[0])].name>>
 	<<else>>
-		<<set $_name to $NPCList[Number($args[0])].name>>
+		<<set $_name to _args[0][0]>>
 	<</if>>
 	
-	<<trinit_NPCname>>
-	<<set $_found to _NPCnameList[$_name]>>
-	<<if $_found is undefined>>
-		<<trinit_namedNPC>>
-		<<set $_found to _namedNPCList.find(function(select){
-			if(select.name == $args[0]){
-				return true;
-			}
-		})>>
+	<<if !$_post>>
+		<<set $_post to _args[1]>><<set $_sep to _args[2]>>
 	<</if>>
+	
+	<<if setup.trNPCnameList is undefined>>
+		<<trinit_NPCname>> /* 대신 trNPCdesc에 맡겨버릴까? */
+	<</if>>
+	<<set $_found to setup.trNPCnameList[$_name]>>
 	<<if $_found is undefined>>
+		<<if setup.trNamedNPCList is undefined>>
+			<<trinit_namedNPC>>
+		<</if>>
+		<<trNamedNPCInner $_name>>
+		<<if _trResult isnot undefined>>
+			<<set $_found to {}>>
+			<<set $_found.koname to _trResult>>
+			<<set $_found.post to _postNum>>
+		<</if>>
+	<</if>>
+	<<if $_found is undefined>> /* 대신 trNPCdesc에 맡겨버릴까? */
 		<<set $_found to {}>>
 		<<set $_found.koname to $_name>>
 		<<getPostNum $_name>>
@@ -140,7 +132,7 @@
 	<</if>>
 	
 	<<set _trResult to $_found.koname>>
-	<<if $args[1] isnot undefined>>
-		<<trPost $_found.post $args[1] $args[2]>>
+	<<if $_post isnot undefined>>
+		<<trPost $_found.post $_post $_sep>>
 	<</if>>
-<</widget>>
+<</silently>><</widget>>

@@ -1,63 +1,91 @@
 :: Widgets trListboxItems [widget nobr]
 <<widget "trListboxItemsInit">>
-	<<if _trListboxItemsCollection is undefined>>
-		<<set _trListboxItemsCollection to {
-			"_options" :
-			{
-				"Everyone":"모두",
-				"Strangers":"낯선 사람",
-				"Animals":"동물",
-				"Tentacles":"촉수",
-				"Acquaintances":"아는 사람",
-				"Robin":"로빈",
-				"Bailey":"베일리",
-				"Whitney":"휘트니",
-				"Kylar":"카일라",
-				"Eden":"에덴",
-				"Avery":"에이버리",
-				"Leighton":"레이턴",
-				"Alternative":"대안 행동",
-				"Defiant":"반항적 행동",
-				"Submissive":"순종적 행동"
-			},
-			
-			"_potentialLoveInterests" : 
-			{
-				"None":"없음",
-				"Robin":"로빈",
-				"Whitney":"휘트니",
-				"Kylar":"카일라",
-				"Eden":"에덴",
-				"Avery":"에이버리",
-				"Black Wolf":"검은 늑대",
-				"Great Hawk":"거대 매",
-				"Alex":"알렉스",
-			},
-		}>>
-	<</if>>
+	<<set _trListboxItemsCollection to {
+		/* 번역표 */
+		"_options" :
+		{
+			"Everyone":"모두",
+			"Strangers":"낯선 사람",
+			"Animals":"짐승",
+			"Tentacles":"촉수",
+			"Acquaintances":"아는 사람",
+			"Robin":"로빈",
+			"Bailey":"베일리",
+			"Whitney":"휘트니",
+			"Kylar":"카일라",
+			"Eden":"에덴",
+			"Avery":"에이버리",
+			"Leighton":"레이턴",
+			"Sydney":"시드니",
+			"Alex":"알렉스",
+			"Ivory Wraith":"상아 유령",
+			"Black Wolf":"검은 늑대",
+			"Great Hawk":"거대 매",
+			"Alternative":"대안 행동",
+			"Defiant":"반항적 행동",
+			"Submissive":"순종적 행동"
+		},
+		
+		"_potentialLoveInterests" : 
+		{
+			"None":"없음",
+			"Robin":"로빈",
+			"Whitney":"휘트니",
+			"Kylar":"카일라",
+			"Sydney":"시드니",
+			"Eden":"에덴",
+			"Avery":"에이버리",
+			"Black Wolf":"검은 늑대",
+			"Great Hawk":"거대 매",
+			"Alex":"알렉스",
+		},
+		
+		"_penOptions" :
+		{
+			"Tattoo":"문신",
+			"Brand":"낙인",
+		},
+		
+		/* 번역 매크로 */
+		"_bodyPartOptions" : "trBodypart",
+		"_featsTattooOptions" : "trBodyWriting",
+		"_trTempColours" : "trColour",
+		"$NPCNameList" : "trNamedNPC",
+	}>>
 <</widget>>
 
-<<widget "trListboxItemsFromArray">>
-<<silently>>
-	<<if $args[0] isnot undefined>>
-		<<trListboxItemsInit>>
-		<<print "<<set _listboxarray to " + $args[0] + ">>">>
-		<<set _listboxitems to _trListboxItemsCollection[$args[0]]>>
-		<<if _listboxitems is undefined>>
-			<<set _trListboxItems to _listboxarray>>
+<<widget "trListboxItemsFromArray">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if _trListboxItemsCollection is undefined>>
+			<<trListboxItemsInit>>
+		<</if>>
+		<<print "<<set $_listboxarray to " + _args[0] + ">>">>
+		<<set $_listboxitems to _trListboxItemsCollection[_args[0]]>>
+		<<if $_listboxitems is undefined>>
+			<<set _trListboxItems to $_listboxarray>>
+		<<elseif typeof $_listboxitems is "string">>
+			<<set _trListboxItems to {}>>
+				<<for $_item range $_listboxarray>>
+					<<print "<<" + $_listboxitems + " \"" + $_item + "\">>">>	/* e.g. <<trBodypart "Forehead">> */
+					<<set $_tritem to _trResult>>
+					<<if $_tritem isnot undefined>>
+						<<set _trListboxItems[$_tritem] to $_item>>
+					<<else>>
+						<<set _trListboxItems[$_item] to $_item>>
+					<</if>>
+				<</for>>
 		<<else>>
 				<<set _trListboxItems to {}>>
-				<<for _item range _listboxarray>>
-					<<set _tritem to _listboxitems[_item]>>
-					<<if _tritem isnot undefined>>
-						<<set _trListboxItems[_tritem] to _item>>
+				<<for $_item range $_listboxarray>>
+					<<set $_tritem to $_listboxitems[$_item]>>
+					<<if $_tritem isnot undefined>>
+						<<set _trListboxItems[$_tritem] to $_item>>
 					<<else>>
-						<<set _trListboxItems[_item] to _item>>
+						<<set _trListboxItems[$_item] to $_item>>
 					<</if>>
 				<</for>>
 		<</if>>
 	<<else>>
 		<<set _trListboxItems to {" / trListboxItemsFromArrayErr: No args" : ""}>>
 	<</if>>
-<</silently>>
-<</widget>>
+<</silently>><</widget>>

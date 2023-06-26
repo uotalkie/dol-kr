@@ -1,29 +1,29 @@
 :: Spa
 <<set $outside to 0>><<set $location to "spa">><<effects>>
 
-<<if !$spa_event>>
+<<if !$daily.spaEvent>>
 	<<spa_event_select>>
 <</if>>
 
-You are in the spa on Danube Street. Large windows open onto a natural spring, and a corridor to the side leads to other facilities.
-A sign reads: "Tanning beds available.
-<<if $season is "summer">>
+당신은 다뉴브 가의 온천에 있다. 큰 창이 천연 온천으로 열려있고, 옆으로 난 복도는 다른 시설로 통한다.
+표지판이 적혀있다: "태닝 베드 이용가능. 회당
+<<if Time.season is "summer">>
 	£10
-<<elseif $season is "winter">>
+<<elseif Time.season is "winter">>
 	£60
 <<else>>
 	£25
 <</if>>
-per session. Price may change with the season."
+. 계절에 따라 가격이 다를 수 있음."
 <br><br>
 <<if $openinghours is 1>>
-	<<if $spa_event is "party">>
-		<span class="purple">The spring is packed with bodies, and loud music plays.</span> Someone's hired the venue for a party.
+	<<if $daily.spaEvent is "party">>
+		<span class="purple">온천탕은 사람들로 가득 차 있고, 시끄러운 음악이 연주된다.</span> 누군가가 파티를 위해 장소를 빌렸다.
 	<<else>>
-		Patrons relax in and around the many pools.
+		고객들은 많은 탕에서 휴식을 취하고 있다.
 	<</if>>
 <<else>>
-	You can hear running water, but the establishment is otherwise quiet.
+	흐르는 물소리가 들리지만, 그 외에는 시설이 조용하다.
 <</if>>
 <br><br>
 
@@ -31,74 +31,77 @@ per session. Price may change with the season."
 
 	<<passoutshop>>
 <<else>>
-	<<if $hour is $closinghour>>
-		It's closing time. The receptionist is herding everyone outside.<<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should you be found in this state of dress.<</if>>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmLocation "spa">>
+	<</if>>
+	<<if Time.hour is $closinghour>>
+		닫을 시간이다. 접수원들이 모두를 밖으로 안내하고 있다.<<if $exposed gte 1>>이런 복장 상태를 들키면 당신이 얼마나 노출될지 깨닫자 공포심이 부풀어오른다.<</if>>
 		<br>
 	<<elseif $openinghours is 0>>
-		You are alone in the darkness.
+		당신은 어둠 속에 혼자 있다.
 		<br><br>
 	<<elseif $exposed gte 1>>
 		<<if $uncomfortable.nude is false>>
-		You hide in a cupboard. The thought of being caught is thrilling, but you decide it would be wiser to stay put.
+		당신은 찬장에 숨는다. 잡히는 상상은 짜릿하지만, 가만히 있는 것이 더 현명하다고 결정한다.
 		<<else>>
-		You hide in a cupboard to protect your dignity.
+		당신은 존엄성을 지키기 위해 찬장에 숨는다.
 		<</if>>
 		<br><br>
 	<</if>>
 	<<if $openinghours is 1 and $exposed lt 1>>
 		<<generate1>><<person1>>
 		<<if $spa_job gte 1>>
-			<<link [[Work as a masseur (0:50)|Spa Work Start]]>><<endevent>><<set $money += 1000>><</link>>
+			<<link [[안마사로 일한다 (0:50)|Spa Work Start]]>><<endevent>><<set $money += 1000>><</link>>
 			<br>
 		<<else>>
-			The receptionist, a <<person>>, looks up from <<his>> desk, and curls <<his>> nose. "Make it quick," <<he>> says. "Our clientele don't mix with riff-raff off the street."
+			접수원인 <<person_ i>> 책상에서 고개를 들고, 코를 비죽거린다. "짧게 끝내," <<he_ ga>> 말한다. "우리 고객들은 길거리의 쓰레기들과 어울리지 않아."
 			<br><br>
-			<<link [[Ask for work|Spa Work Ask]]>><</link>>
+			<<link [[도울 일이 있는지 묻는다|Spa Work Ask]]>><</link>>
 			<br>
 		<</if>>
-		<<if $season is "spring" or $season is "autumn">>
+		<<if Time.season is "spring" or Time.season is "autumn">>
 			<<if $money gte 2500>>
-				<<link [[Tanning Salon (£25 1:00)|Spa Tan]]>><<set $money -= 2500>><</link>><<lstress>><<gggtanned>>
+				<<link [[태닝 살롱 (£25 1:00)|Spa Tan]]>><<set $money -= 2500>><</link>><<lstress>><<gggtanned>>
 				<br>
 			<</if>>
-		<<elseif $season is "winter">>
+		<<elseif Time.season is "winter">>
 			<<if $money gte 6000>>
-				<<link [[Tanning Salon (£60 1:00)|Spa Tan]]>><<set $money -= 6000>><</link>><<lstress>><<gggtanned>>
+				<<link [[태닝 살롱 (£60 1:00)|Spa Tan]]>><<set $money -= 6000>><</link>><<lstress>><<gggtanned>>
 				<br>
 			<</if>>
 		<<else>>
 			<<if $money gte 1000>>
-				<<link [[Tanning Salon (£10 1:00)|Spa Tan]]>><<set $money -= 1000>><</link>><<lstress>><<gggtanned>>
+				<<link [[태닝 살롱 (£10 1:00)|Spa Tan]]>><<set $money -= 1000>><</link>><<lstress>><<gggtanned>>
 				<br>
 			<</if>>
 		<</if>>
 	<</if>>
-	<<if $openinghours is 0 and $hour isnot $closinghour and $spatheft isnot 1>>
-		<<link [[Examine the cash register|Spa Register]]>><</link>>
+	<<if $openinghours is 0 and Time.hour isnot $closinghour and !$weekly.theft.spa>>
+		<<link [[금전 등록기를 조사한다|Spa Register]]>><</link>>
 		<br>
 	<</if>>
 	<br>
 <</if>>
-<<link [[Leave|Danube Street]]>><<endevent>><</link>>
+<<link [[떠난다|Danube Street]]>><<endevent>><</link>>
 <br>
 
 :: Spa Tan
 <<effects>>
 
-The <<person1>><<person>> sniffs, but takes your money without complaint.
+<<person1>><<person_ un>> 콧방귀를 뀌지만, 불평 없이 당신의 돈을 가져간다.
 <<endevent>>
 <br><br>
-You enter a small room dominated by a tanning bed. There's a large window, but it's already covered by a curtain.
+당신은 태닝 베드로 꽉 찬 작은 방에 들어간다. 큰 창문이 있지만, 커튼으로 가려져있다.
 <br><br>
 
 <<if $worn.under_lower.name isnot "naked">>
-	<<link [[Strip to your underwear|Spa Tan Underwear]]>><<stress -6>><<pass 60>><</link>>
+	<<link [[속옷을 벗는다 (1:00)|Spa Tan Underwear]]>><<stress -6>><<pass 60>><</link>>
 	<br>
 <</if>>
-<<link [[Strip naked|Spa Tan Naked]]>><<stress -6>><<pass 60>><</link>><<exhibitionist1>>
+<<link [[다 벗는다 (1:00)|Spa Tan Naked]]>><<stress -6>><<pass 60>><</link>><<exhibitionist1>>
 <br>
 <<if $exhibitionism gte 75>>
-	<<link [[Strip naked, and open the curtains|Spa Tan Curtains]]>><<stress -6>><<pass 60>><</link>><<exhibitionist5>>
+	<<link [[다 벗고, 커튼을 연다 (1:00)|Spa Tan Curtains]]>><<stress -6>><<pass 60>><</link>><<exhibitionist5>>
 	<br>
 <</if>>
 
@@ -110,29 +113,29 @@ You enter a small room dominated by a tanning bed. There's a large window, but i
 <<lowerstrip>>
 <<tanned 120 "tanLines">>
 
-You leave your clothes in a neat pile, and climb onto the tanning bed, closing it after you.
+옷가지를 가지런히 쌓아두고, 당신은 태닝 베드에 들어가, 덮개를 닫는다.
 <br><br>
 
-Surrounded by a blue glow, you close your eyes and relax as the warmth seeps into your skin.
+푸른 빛에 둘러싸여, 당신은 눈을 감고 피부에 온기가 스며들자 긴장을 푼다.
 <br><br>
 
 <<if $rng gte 91>>
 	<<spa_tan_events>>
 <<elseif $rng gte 81>>
-	Your session ends before you know it, and the lights fade. You dozed off.<<ltiredness>><<tiredness -6>>
+	어느 새 시간이 끝나고, 불이 꺼진다. 깜빡 졸았다.<<ltiredness>><<tiredness -6>>
 	<br><br>
 
 
 
-	<<link [[Next|Spa]]>><<clotheson>><</link>>
+	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <<else>>
-	You relax until the session ends, and the lights fade.
+	시간이 끝날 때까지 긴장을 풀자, 빛이 희미해진다.
 	<br><br>
 
 
 
-	<<link [[Next|Spa]]>><<clotheson>><</link>>
+	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <</if>>
 
@@ -142,32 +145,32 @@ Surrounded by a blue glow, you close your eyes and relax as the warmth seeps int
 
 <<clothesstrip>>
 <<tanned 120>>
-You strip naked, and leave your clothes in a neat pile.
+당신은 옷을 전부 벗어, 옷가지를 가지런히 쌓아둔다.
 <<exhibitionism1>>
 
-Suitably unburdened, you climb onto the tanning bed, and close it after you.
+적당히 짐을 내려둔 기분으로, 당신은 태닝 베드에 들어가, 덮개를 닫는다.
 <br><br>
 
-Surrounded by a blue glow, you close your eyes and relax as the warmth seeps into your skin.
+푸른 빛에 둘러싸여, 당신은 눈을 감고 피부에 온기가 스며들자 긴장을 푼다.
 <br><br>
 
 <<if $rng gte 91>>
 	<<spa_tan_events>>
 <<elseif $rng gte 81>>
-	Your session ends before you know it, and the lights fade. You dozed off.<<ltiredness>><<tiredness -6>>
+	어느 새 시간이 끝나고, 불이 꺼진다. 깜빡 졸았다.<<ltiredness>><<tiredness -6>>
 	<br><br>
 
 
 
-	<<link [[Next|Spa]]>><<clotheson>><</link>>
+	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <<else>>
-	You relax until the session ends, and the lights fade.
+	시간이 끝날 때까지 긴장을 풀자, 빛이 희미해진다.
 	<br><br>
 
 
 
-	<<link [[Next|Spa]]>><<clotheson>><</link>>
+	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <</if>>
 
@@ -179,39 +182,39 @@ Surrounded by a blue glow, you close your eyes and relax as the warmth seeps int
 <<generate1>><<person1>>
 <<clothesstrip>>
 <<tanned 120>>
-<<if $spa_event is "party">>
-	You pull open the curtains, revealing the party outside. The partiers are too busy dancing and drinking to pay you any attention. For now.
+<<if $daily.spaEvent is "party">>
+	당신이 커튼을 걷자 바깥에서 파티가 진행되고 있는 것이 보인다. 파티 참가자들은 춤추고 마시느라 당신에게 신경쓰지 않는다. 지금은.
 	<br><br>
 
-	<<flaunting>> you remove your clothes in plain view of anyone who cares to look. You hear an excited shout. A <<person>> in swimwear points at you, and you're soon the centre of attention. You climb onto the tanning bed, closing it after you.
+	<<flaunting>> 당신을 보려하는 사람들이 명확히 볼 수 있는 위치에서 당신의 옷을 벗는다. 당신은 흥분한 고함소리를 듣는다. 수영복을 입은 <<person_ i>> 당신을 가리키자, 당신은 관심의 중심이 된다. 당신은 태닝 베드에 들어가, 덮개를 닫는다.
 <<else>>
-	You pull open the curtains, revealing a couple of dozen patrons lounging in the pools outside. A <<person>> glances over, but that's all the attention you get. For now.
+	당신이 커튼을 걷자 바깥에서 욕탕을 돌아다니는 수 십명의 손님들이 드러난다. <<person_ i>> 당신을 흘끗거리지만, 그것이 당신이 받는 관심의 전부이다. 지금은.
 	<br><br>
 
-	<<flaunting>> you remove your clothes in plain view of anyone who cares to look. You feel eyes on you as you climb onto the tanning bed, closing it after you.
+	<<flaunting>> 당신을 보려하는 사람들이 명확히 볼 수 있는 위치에서 당신의 옷을 벗는다. 당신이 태닝 베드에 들어가, 덮개를 닫는 동안, 당신을 보는 시선이 느껴진다.
 <</if>>
 <<exhibitionism5>>
 
-Surrounded by a blue glow, you feel your heart pump as the warmth seeps into your skin.
+푸른 빛에 둘러싸이고, 따뜻함이 당신의 피부에 스며들자 심장이 뛰는 것을 느낀다.
 <br><br>
 <<endevent>>
 <<if $rng gte 81>>
 	<<spa_tan_events>>
 <<elseif $rng gte 71>>
-	Your session ends before you know it, and the lights fade. You dozed off.<<ltiredness>><<tiredness -6>>
+	어느 새 시간이 끝나고, 불이 꺼진다. 깜빡 졸았다.<<ltiredness>><<tiredness -6>>
 	<br><br>
 
 
 
-	<<link [[Next|Spa]]>><<clotheson>><</link>>
+	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <<else>>
-	You relax until the session ends, and the lights fade.
+	시간이 끝날 때까지 긴장을 풀자, 빛이 희미해진다.
 	<br><br>
 
 
 
-	<<link [[Next|Spa]]>><<clotheson>><</link>>
+	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <</if>>
 
@@ -221,48 +224,48 @@ Surrounded by a blue glow, you feel your heart pump as the warmth seeps into you
 
 <<set $outside to 0>><<effects>><<set $lock to 200>>
 <<openinghours>>
-<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
 	<br><br>
-	<<link [[Pick it (0:10)|Spa]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<<link [[자물쇠를 딴다 (0:10)|Spa]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
 	<br>
 <<else>>
-	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력 바깥의 물건이다.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<link [[Leave|Danube Street]]>><</link>>
+<<link [[떠난다|Danube Street]]>><</link>>
 <br>
 
 
 :: Spa Work Ask
 <<effects>>
 
-The <<person>> scoffs. "Let me make this clear," <<he>> says, pushing <<his>> spectacles up <<his>> nose.
+<<person_ un>> 비웃는다. "이건 확실히 해두지," <<he_ ga>> <<his_ yi>> 안경을 코 위로 밀어올리며 말한다.
 <<if $beauty gte ($beautymax / 7) * 6>>
 	<<spa_job_init>>
-	"Our clientele expect-"
+	"우리 고객들은-"
 	<br><br>
-	<<He>> cuts off as <<he>> regards you, <span class="green">surprised by your beauty.</span> "Well," <<he>> continues. "Exceptions can be made for particularly... talented individuals. We might have a place for you."
-	<br><br>
-
-	<<He>> clears <<his>> throat. "Just do as the clients tell you. It's 50 minutes per session, but allow an hour. Pay is <span class="gold">£10</span> per hour. Plus tips. You can work when you like. Any questions?"
+	<<He_ nun>> 당신을 바라보다, <span class="green">당신의 아름다움에 놀라</span> 말을 끊는다. "뭐," <<he_ ga>> 계속한다. "특별히 예외가 있을 수는 있지... 재능 있는 사람들을 위해서. 너를 위한 자리가 있을 수도 있어."
 	<br><br>
 
-	<<link [[Ask for advice|Spa Work Advice]]>><</link>>
+	<<He_ nun>> 목청을 가다듬는다. "고객들이 말하는 대로 해. 회당 50분이지만, 한 시간 까지는 허용이야. 보수는 시간당 <span class="gold">£10</span>이야. 팁은 따로. 네가 마음 내킬 때 일해도 돼. 질문 있어?"
+	<br><br>
+
+	<<link [[조언을 구한다|Spa Work Advice]]>><</link>>
 	<br>
-	<<link [[No|Spa Work No]]>><</link>>
+	<<link [[아니요|Spa Work No]]>><</link>>
 	<br>
 <<else>>
-	"Our clientele expect a certain," <<he>> pauses. "Standard. <span class="red">You don't meet them.</span> Good day."
+	"우리 고객들은 어떤," <<he_ ga>> 잠시 멈춘다. "수준의 서비스를 기대하지. <span class="red">너는 그들을 만족시킬 수 없을 것 같군.</span> 잘 가라."
 	<br><br>
 
-	<i><<He>> might feel differently were you particularly beautiful.</i>
+	<i><<He_ nun>> 당신이 특별히 아름답다면 다르게 생각할 수도 있습니다.</i>
 	<br><br>
 
 
-	<<link [[Say you have skilled hands|Spa Work Hands]]>><</link>>
+	<<link [[손 기술이 있다고 말한다|Spa Work Hands]]>><</link>>
 	<br>
-	<<link [[Leave|Danube Street]]>><<endevent>><</link>>
+	<<link [[떠난다|Danube Street]]>><<endevent>><</link>>
 	<br>
 
 <</if>>
@@ -273,55 +276,55 @@ The <<person>> scoffs. "Let me make this clear," <<he>> says, pushing <<his>> sp
 <<effects>>
 
 <<if $submissive gte 1150>>
-	"C-can you give advice about how to be a masseur?" you ask.
+	"마-마사지사가 되는 법에 대해 조언해줄 수 있나요?" 당신이 묻는다.
 <<elseif $submissive lte 850>>
-	"Do I get any training?" you ask. "You haven't asked about my experience."
+	"마사지 교육을 받을 수 있나?" 당신이 묻는다. "내 경험에 대해 묻지 않았잖아."
 <<else>>
-	"Do you have any tips for me?" you ask.
+	"조언을 해 줄 수 있나요?" 당신이 묻는다.
 <</if>>
 <br><br>
-The <<person>> laughs. "No. As I said, just do as the client asks. You can start when you like." <<He>> turns back to <<his>> desk.
+<<person_ i>> 웃는다. "아니. 내가 말했듯, 고객들이 시키는대로 해. 마음내킬 때 시작해." <<He_ nun>> <<his_ yi>> 책상으로 돌아간다.
 <br><br>
 
-<<link [[Next|Spa]]>><<endevent>><</link>>
+<<link [[다음|Spa]]>><<endevent>><</link>>
 <br>
 
 
 :: Spa Work No
 <<effects>>
 
-You shake your head. "Good," the <<person>> says. "You can start when you like." <<He>> turns back to <<his>> desk.
+당신은 고개를 가로젓는다. "좋아," <<person_ i>> 말한다. "마음내킬 때 시작해." <<He_ nun>> <<his_ yi>> 책상으로 돌아간다.
 <br><br>
 
-<<link [[Next|Spa]]>><<endevent>><</link>>
+<<link [[다음|Spa]]>><<endevent>><</link>>
 <br>
 
 
 :: Spa Work Hands
 <<effects>>
 
-"Skilled hands?" the <<person>> asks. "We'll see." <<He>> reaches over the desk, grasps your hands in <<his>> own, and leans forward to observe them.
+"손 기술?" <<person_ ga>> 묻는다. "어디 보자." <<He_ nun>> 책상 위로 손을 뻗어, 당신의 손을 움켜쥐고, 그것을 들여다보기 위해 몸을 굽힌다.
 
 <<if $handskill gte 400>>
 	<<spa_job_init>>
-	<<He>> frowns. "Unexpected. <span class="green">Maybe there is a place for you.</span>" <<He>> pulls away.
+	<<He_ ga>> 눈살을 찌푸린다. "뜻밖이군. <span class="green">너를 위한 자리가 있을 수도 있어.</span>" <<He_ ga>> 물러선다.
 	<br><br>
 
-	<<He>> clears <<his>> throat. "Just do as the clients tell you. It's 50 minutes per session, but allow an hour. Pay is <span class="gold">£10</span> per hour. Plus tips. You can work when you like. Any questions?"
+	<<He_ nun>> 목청을 가다듬는다. "고객들이 말하는 대로 해. 회당 50분이지만, 한 시간 까지는 허용이야. 보수는 시간당 <span class="gold">£10</span>이야. 팁은 따로. 네가 마음 내킬 때 일해도 돼. 질문 있어?"
 	<br><br>
 
-	<<link [[Ask for advice|Spa Work Advice]]>><</link>>
+	<<link [[조언을 구한다|Spa Work Advice]]>><</link>>
 	<br>
-	<<link [[No|Spa Work No]]>><</link>>
+	<<link [[아니요|Spa Work No]]>><</link>>
 	<br>
 <<else>>
-	<<He>> releases <<his>> grasp with a disdainful sneer. "You're not suitable. Good day." <<He>> turns back to <<his>> desk.
+	<<He_ nun>> 경멸스러운 비웃음과 함께 손을 놓는다. "적합하지 않군. 잘 가라." <<He_ nun>> <<his_ yi>> 책상으로 돌아간다.
 	<br><br>
 
-	<i><span class="blue">C</span> Hand Skill or higher required.</i>
+	<i><span class="blue">C</span> 이상의 손기술이 필요합니다.</i>
 	<br><br>
 
-	<<link [[Next|Spa]]>><<endevent>><</link>>
+	<<link [[다음|Spa]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -330,70 +333,70 @@ You shake your head. "Good," the <<person>> says. "You can start when you like."
 <<effects>>
 
 <<generate1>><<person1>>
-You tear around the corner, and see the culprit, a <<person>>, up ahead. You rush after <<him>>,
+당신이 모퉁이를 돌자, 범인인 <<person_ i>> 앞에 있는 것을 볼 수 있다. 당신은 <<him_ ul>> 쫓아가,
 
 <<if $athleticsSuccess>>
-	<span class="green">and manage to catch up.</span> You dive and throw your arms around <<his>> waist, dragging <<him>> to the ground.
+	<span class="green">간신히 따라잡는다.</span> 당신은 뛰어들어 <<his_ yi>> 허리에 팔을 감아, <<him_ ul>> 땅으로 쓰러뜨린다.
 	<br><br>
 
-	It would seem <<he>> finds the situation awfully funny.
+	<<he_ nun>> 이 상황을 몹시 재미있다고 생각하는 것 같다.
 	<br><br>
 
 	<<if $leftarm isnot "bound" or $rightarm isnot "bound">>
-		<<link [[Slap|Spa Tan Slap]]>><<def 1>><<trauma -6>><</link>><<ltrauma>>
+		<<link [[뺨을 때린다|Spa Tan Slap]]>><<def 1>><<trauma -6>><</link>><<ltrauma>>
 		<br>
 	<</if>>
-	<<link [[Turn the other cheek|Spa Tan Turn]]>><</link>>
+	<<link [[화를 참는다|Spa Tan Turn]]>><</link>>
 	<br>
 <<else>>
-	<span class="red">but <<he>> has too great a lead.</span> <<He>> pushes through a pair of doors leading outside, and keeps going, hauling <<himself>> over the exterior wall.
+	<span class="red">하지만 <<he_ nun>> 너무 앞서있다.</span> <<He_ nun>> 밖으로 통하는 한 쌍의 문을 열고 나가, 외벽을 타고 넘어 계속 간다.
 	<br><br>
 
-	You come to a stop beside the doors. The pools are around a corner, so you don't think anyone would see you. The spa is raised above the surrounding terrain however, and following would be a one-way trip. This wall faces the forest.
+	당신은 문 옆에 멈춰선다. 탕은 모퉁이를 돌면 있어서, 아무도 당신을 볼 수 없을 것이라 생각한다. 하지만 온천은 주변 지형보다 높고, 따라간다면 돌아올 수 있는 길이 없다. 외벽은 숲과 마주보고 있다.
 	<br><br>
 
-	<<link [[Follow|Spa Tan Follow]]>><</link>>
+	<<link [[따라간다|Spa Tan Follow]]>><</link>>
 	<br>
-	<<link [[Ask someone for help instead|Spa Tan Help]]>><<endevent>><</link>>
+	<<link [[대신 누군가에게 도움을 요청한다|Spa Tan Help]]>><<endevent>><</link>>
 	<br>
 	<<set $skulduggerydifficulty to 500>>
-	<<link [[Search for towels instead|Spa Tan Sneak]]>><<endevent>><</link>><<skulduggerydifficulty>>
+	<<link [[대신할 수건을 찾는다|Spa Tan Sneak]]>><<endevent>><</link>><<skulduggerydifficulty>>
 	<br>
 <</if>>
 
 :: Spa Tan Follow
 <<effects>>
 
-<<covered>> You glance left and right. You don't see anyone. You dart outside, and haul yourself over the wall. You land on grass, surrounded by trees.
+<<covered>> 당신은 좌우를 살핀다. 아무도 보이지 않는다. 당신은 밖으로 뛰쳐나가, 벽을 뛰어넘는다. 당신은 나무에 둘러싸인 풀밭에 착지한다.
 <br><br>
 
-You hear the snap of twigs straight ahead, and you follow. The trees grow dense. You can't run, but neither can your quarry.
+당신은 바로 앞에서 나뭇가지가 부러지는 소리를 듣고, 따라간다. 나무들이 울창하다. 당신은 달릴 수 없지만, 당신의 사냥감 또한 마찬가지다.
 <br><br>
 
-<span class="red">You hear a scream.</span> It came from up ahead.
+<span class="red">당신은 비명소리를 듣는다.</span> 앞에서 나는 소리다.
 <br><br>
 
 <<if $awarelevel gte 2>>
-	You emerge in a clearing, and find the <<person>> dangling limp in the air. A green tendril curls around <<his>> leg. A monstrous plant, oozing thick slime and standing almost as tall as the surrounding trees holds <<him>>. Other tentacles rise from the undergrowth. Your clothes lie discarded on the ground.
+	당신이 공터에 나오자, 허공에 매달려 있는 <<person_ ul>> 발견한다. 초록색 덩굴손이 <<his_ yi>> 다리에 감겨있다. 농축된 점액질을 뿜어내고, 주변 나무들만큼 커다란 괴물같은 식물이 <<him_ ul>> 붙잡고 있다. 다른 촉수들이 덤불에서 솟아난다. 당신의 옷은 땅에 떨어져 있다.
 	<<if $awareness lt 400>>
 		<<gawareness>><<awareness 1>>
 	<</if>>
 	<<gstress>><<stress 6>>
 	<br><br>
 
-	<<link [[Grab your clothes and run|Spa Tan Grab]]>><</link>><<athleticsdifficulty 1 400>>
+	<<link [[옷을 챙겨서 도망간다|Spa Tan Grab]]>><</link>><<athleticsdifficulty 1 400>>
 	<br>
-	<<link [[Leave your clothes and run|Spa Tan Leave]]>><</link>>
+	<<link [[옷을 두고 도망간다|Spa Tan Leave]]>><</link>>
 	<br>
-	<<link [[Rescue the thief|Spa Tan Rescue]]>><</link>><<athleticsdifficulty 300 1500>>
+	<<link [[도둑을 구한다|Spa Tan Rescue]]>><</link>><<athleticsdifficulty 300 1500>>
 	<br>
 <<else>>
-	You emerge in a clearing, and find the <<person>> lying on the dirt. <<Hes>> unconscious. Maybe <<he>> tripped.
+	당신이 공터에 나오자, 흙 위에 쓰러진 <<person_ ul>> 발견한다. <<He_ nun>> 의식을 잃었다. 아마 <<he_ nun>> 넘어진 것 같다.
 	<br><br>
 
-	<<link [[Rob|Spa Tan Rob]]>><</link>><<crime>>
+	<<link [[훔친다|Spa Tan Rob]]>><</link>><<crime>>
 	<br>
-	<<link [[Just take your clothes|Spa Tan Clothes]]>><</link>>
+	<<link [[당신의 옷만 챙긴다|Spa Tan Clothes]]>><</link>>
 	<br>
 <</if>>
 
@@ -401,30 +404,28 @@ You hear the snap of twigs straight ahead, and you follow. The trees grow dense.
 <<effects>>
 <<athleticsdifficulty 1 400 true>>
 <<if $athleticsSuccess>>
-	You retrieve your clothes, <span class="green">and escape between the trees before the monster reacts to you.</span>
+	당신은 당신의 옷을 되찾고, <span class="green">괴물이 당신에게 반응하기 전에 나무사이로 도망친다.</span>
 	<br><br>
 
 	<<clotheson>>
-	You run until you reach the spa. The wall is too high to climb from this side. You walk around the perimeter. The trees thin, and you emerge on Danube Street.
+	당신은 온천에 도착할 때까지 달린다. 벽이 너무 높아 이쪽에서는 올라갈 수 없다. 당신은 벽 둘레를 돌아 걸어간다. 나무들이 듬성듬성해지고, 당신은 다뉴브 가로 나온다.
 	<br><br>
 
 	<<endevent>>
 
-	<<link [[Next|Danube Street]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
 	<br>
 
 <<else>>
-	You try to retrieve your clothes, <span class="red">but trip when a hidden tentacle rises from the grass.</span> It curls around your leg before you can recover, and hoists you into the air.<<gtrauma>><<gstress>><<gpain>><<trauma 6>><<stress 6>><<pain 4>>
+	당신은 당신의 옷을 되찾으려 하지만, <span class="red">숨어있던 촉수가 풀밭에서 솟아나 발이 걸려 넘어진다.</span> 그것은 당신이 회복하기 전에 당신의 다리를 휘감고, 공중으로 들어올린다.<<gtrauma>><<gstress>><<gpain>><<trauma 6>><<stress 6>><<pain 4>>
 	<br><br>
 
-	The monster carries you and the <<person>> closer. A maw tears through its side. It means to eat you.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+	괴물은 당신과 <<person_ ul>> 가까이 옮긴다. 구멍 하나가 옆으로 벌어진다. 당신을 먹어치울 것이라는 뜻이다.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 	<br><br>
 
-	<<link [[Next|Spa Tan Monks]]>><</link>>
+	<<link [[다음|Spa Tan Monks]]>><</link>>
 	<br>
 <</if>>
-
-
 
 :: Spa Tan Leave
 <<effects>>
@@ -432,186 +433,173 @@ You hear the snap of twigs straight ahead, and you follow. The trees grow dense.
 <<set $stealtextskip to 1>>
 <<stealclothes>>
 
-You turn and run. You keep running, until you arrive at the spa.
+당신은 돌아서서 달린다. 당신은 온천에 도착할 때까지 달린다.
 <br><br>
-The wall is too high to climb from this side. You walk around the perimeter. The trees thin, and you emerge on Danube Street.
+벽이 너무 높아 이쪽에서는 올라갈 수 없다. 당신은 벽 둘레를 돌아 걸어간다. 나무들이 듬성듬성해지고, 당신은 다뉴브 가로 나온다.
 <br><br>
 
 <<endevent>>
 
-<<link [[Next|Danube Street]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
 <br>
-
-
-
 
 :: Spa Tan Rescue
 <<effects>>
 
 <<athleticsdifficulty 1 1500 true>>
 <<if $athleticsSuccess>>
-	You run toward the <<person>>, and jump. <span class="green">You grasp <<his>> limp arm just before the monster pulls it out of reach.</span> The monster pulls you and the thief closer, and higher, until you're right above.
+	당신은 <<personPost>> 쪽으로 다가가, 뛰어오른다. <span class="green">당신은 괴물이 손 닿지 않는 곳으로 잡아당기기 전에 <<his_ yi>> 축 늘어진 팔을 잡는다.</span> 괴물은 당신이 괴물 바로 위에 올 때까지 당신과 도둑을 더 가까이, 그리고 더 높이 잡아당긴다.
 	<br><br>
 
-	You use your legs and one arm for purchase as you try to prise the <<person>> free. The tentacle's grip is firm, but not unyielding. You hear a rip. A maw tears open below. The monster means to eat you.
+	당신은 <<person_ ul>> 풀어주기 위해 당신의 다리와 한 팔을 대신 끼워넣는다. 촉수는 단단히 휘감고 있지만, 유연하지 않다. 당신은 찢어지는 소리를 듣는다. 구멍 하나가 옆으로 벌어진다. 당신을 먹어치울 것이라는 뜻이다.
 	<br><br>
 
-	<<link [[Next|Spa Tan Monks Success]]>><</link>>
+	<<link [[다음|Spa Tan Monks Success]]>><</link>>
 	<br>
 <<else>>
-	You run toward the <<person>>, and jump. <span class="red">The monster pulls the limp body out of reach.</span> Your fingers brush <<his>> hand, and then you fall.<<gtrauma>><<gstress>><<gpain>><<trauma 6>><<stress 6>><<pain 4>>
+	당신은 <<personPost>> 쪽으로 다가가, 뛰어오른다. <span class="red">괴물은 축 늘어진 몸뚱이를 뒤로 빼버린다.</span> 당신의 손이 <<his_ yi>> 손을 스치고, 당신은 추락한다.<<gtrauma>><<gstress>><<gpain>><<trauma 6>><<stress 6>><<pain 4>>
 	<br><br>
 
-	Another tentacle lay in wait beneath the grass. It curls around your ankle before you can recover, and hoists you into the air.
+	다른 촉수가 풀 밑에서 기다리고 있다. 그것은 당신이 회복하기 전에 당신의 다리를 휘감고, 공중으로 들어올린다.
 
-	The monster carries you and the <<person>> closer. A maw tears through its side. It means to eat you.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+	괴물은 당신과 <<person_ ul>> 가까이 옮긴다. 구멍 하나가 옆으로 벌어진다. 당신을 먹어치울 것이라는 뜻이다.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 	<br><br>
 
-	<<link [[Next|Spa Tan Monks]]>><</link>>
+	<<link [[다음|Spa Tan Monks]]>><</link>>
 	<br>
 <</if>>
-
-
 
 :: Spa Tan Monks
 <<effects>>
 
 <<generate2>><<generate3>><<generate4>><<generate5>><<generate6>>
-<span class="green">You hear a sharp crack.</span> Then another. Thin, black tendrils emerge from the trees, wrapping around the monster's tentacles. Figures emerge from the forest. They're dressed as <<monks_and_nuns>>, and each holds a whip in hand, now tensed against the creature's limbs.
+<span class="green">날카로운 소리가 들린다.</span> 그러더니 한 번 더 들린다. 가늘고, 검은 덩굴손이 나무에서 나와, 괴물의 촉수를 휘감는다. 숲 속에서 형체들이 나타난다. 그들은 <<monks_and_nunsPost>>처럼 입은 채 각자 손에 채찍을 손에 들고 있다. 그 채찍들은 괴물의 팔다리에 팽팽히 감겨져 있다.
 <br><br>
 
-You and the <<person>> are pulled closer to the ground by the newcomers' heaving. A <<person2>><<monk>> rushes forward, and strikes the tentacle with a staff. It releases your ankle, and you tumble to the ground.<<lstress>><<stress -6>>
+새로 온 사람들이 잡아당기자 당신과 <<person_ un>> 땅에 더 가깝게 끌어당겨진다. <<person2>><<monk_ ga>> 달려나가, 지팡이로 촉수를 타격한다. 촉수는 당신의 발목을 놓아주고, 당신은 땅으로 떨어진다.<<lstress>><<stress -6>>
 <br><br>
 
-With a frightening speed, the monster squirms away, disappearing between the trees. The <<monks_and_nuns>> give chase, aside from one, who kneels beside you.
+괴물은 움찔거리며, 무서운 속도로 나무 사이로 사라진다. 당신 옆에 무릎 꿇고 있는 사람을 제외한 <<monks_and_nuns_ nun>> 그것을 추격한다.
 <br><br>
 <<person2>>
 <<if $temple_rank is "monk" or $temple_rank is "priest">>
-	"You should know better than to take on a beast like that alone," <<he>> says. <<He>> glances at the <<person1>><<person>>. "I'll see to <<him>>. Get dressed, and return to town." You'd forgotten how exposed you are. <<covered>>
+	"당신은 저런 짐승과 혼자 싸우면 안 된다는 것을 알아야 해요," <<he_ ga>> 말한다. <<He_ nun>> <<person1>><<person_ ul>> 힐끗 본다. "내가 <<him_ ul>> 돌보겠습니다. 옷을 입고, 마을로 돌아가세요." 당신은 당신이 얼마나 노출되어 있는지 잊고 있었다. <<covered>>
 	<br><br>
 <<elseif $temple_rank is "initiate">>
-	"You're a bit green to be witnessing this," <<he>> says. "Best not mention it to anyone." <<He>> glances at the <<person1>><<person>>. "I'll see to <<him>>. Get dressed, and return to town." You'd forgotten how exposed you are. <<covered>>
+	"이런 것을 보기에는 아직 이르군요," <<he_ ga>> 말한다. "다른 사람들에게는 말하지 않는게 좋을 거에요." <<He_ nun>> <<person1>><<person_ ul>> 힐끗 본다. "내가 <<him_ ul>> 돌보겠습니다. 옷을 입고, 마을로 돌아가세요." 당신은 당신이 얼마나 노출되어 있는지 잊고 있었다. <<covered>>
 	<br><br>
 <<else>>
-	"It would be best if you kept what you saw here to yourself," <<he>> says. <<He>> glances at the <<person1>><<person>>. "I'll see to <<him>>. Get dressed, and return to town." You'd forgotten how exposed you are. <<covered>>
+	"여기서 본 것은 비밀로 하는 것이 좋을 겁니다," <<he_ ga>> 말한다. <<He_ nun>> <<person1>><<person_ ul>> 힐끗 본다. "내가 <<him_ ul>> 돌보겠습니다. 옷을 입고, 마을로 돌아가세요." 당신은 당신이 얼마나 노출되어 있는지 잊고 있었다. <<covered>>
 	<br><br>
 <</if>>
 
 <<clotheson>>
 
-You return to the spa. The wall is too high to climb from this side. You walk around the perimeter. The trees thin, and you emerge on Danube Street.
+당신은 온천으로 돌아온다. 벽이 너무 높아 이쪽에서는 올라갈 수 없다. 당신은 벽 둘레를 돌아 걸어간다. 나무들이 듬성듬성해지고, 당신은 다뉴브 가로 나온다.
 <br><br>
 
 <<endevent>>
 
-<<link [[Next|Danube Street]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
 <br>
-
 
 :: Spa Tan Monks Success
 <<effects>>
 
-
 <<generate2>><<generate3>><<generate4>><<generate5>><<generate6>>
-<span class="green">You hear a sharp crack.</span> Then another. Thin, black tendrils emerge from the trees, wrapping around the monster's tentacles. Figures emerge from the forest. They're dressed as <<monks_and_nuns>>, and each holds a whip in hand, now tensed against the creature's limbs.
+<span class="green">날카로운 소리가 들린다.</span> 그러더니 한 번 더 들린다. 가늘고, 검은 덩굴손이 나무에서 나와, 괴물의 촉수를 휘감는다. 숲 속에서 형체들이 나타난다. 그들은 <<monks_and_nunsPost>>처럼 입은 채 각자 손에 채찍을 손에 들고 있다. 그 채찍들은 괴물의 팔다리에 팽팽히 감겨져 있다.
 <br><br>
 
-The tentacle holding the <<person>> loosens, and you're able to pry <<him>> free. A <<person2>><<monk>> rushes forward and catches <<person1>><<him>> while you make a deft landing on the grass.<<gcontrol>><<control 10>><<lstress>><<stress -6>>
+<<person_ ul>> 잡고 있던 촉수가 느슨해지고, 당신은 <<him_ ul>> 풀어줄 수 있게 된다. 당신이 능숙하게 풀밭에 착지하는 사이, <<person2>><<monk_ ga>> 달려와 <<person1>><<him_ ul>> 받아낸다.<<gcontrol>><<control 10>><<lstress>><<stress -6>>
 <br><br>
 
-Another <<person2>><<monk>> rushes by, a staff in both hands, and strikes the main body of the monster. It squirms away with a frightening speed, disappearing between the trees. The <<monks_and_nuns>> give chase, aside from the <<monk>> holding the <<person1>><<person>>.
+다른 <<person2>><<monk_ ga>> 달려와, 양 손에 든 지팡이로 괴물의 몸체를 타격한다. 괴물은 움찔거리며, 무서운 속도로 나무 사이로 사라진다. 당신 옆에서 <<person1>><<person_ ul>> 잡고 있는 사람을 제외한 <<monks_and_nuns_ ga>> 그것을 추격한다.
 <br><br>
 
 <<if $temple_rank is "monk" or $temple_rank is "priest">>
-	"That was daring of you," the <<person2>><<monk>> says. "But you shouldn't try to take on a beast like this alone. I'll see to the civilian. You get dressed, and return to town." You'd forgotten how exposed you are. <<covered>>
+	"용감한 행동이었어요," <<person2>><<monk_ ga>> 말한다. "하지만 당신은 저런 짐승과 혼자 싸우면 안 된다는 것을 알아야 해요. 제가 이 사람을 돌보겠습니다. 옷을 입고, 마을로 돌아가세요." 당신은 당신이 얼마나 노출되어 있는지 잊고 있었다. <<covered>>
 	<br><br>
 <<elseif $temple_rank is "initiate">>
-	"You're not ready for this," the <<person2>><<monk>> says. "But you handled yourself well. You might be ready soon. Still, best not mention it to anyone." <<He>> lays the <<person1>><<person>> on the grass. "I'll see to this one. You get dressed, and return to town." You'd forgotten how exposed you are. <<covered>>
+	"당신은 아직 이르군요," <<person2>><<monk_ ga>> 말한다. "하지만 잘 했어요. 곧 준비될 수도 있겠네요. 그 때 까지는, 다른 사람들에게 말하지 않는게 좋을겁니다." <<He_ nun>> <<person1>><<person_ ul>> 풀밭에 눕힌다. "제가 이 사람을 돌보겠습니다. 옷을 입고, 마을로 돌아가세요." 당신은 당신이 얼마나 노출되어 있는지 잊고 있었다. <<covered>>
 	<br><br>
 <<else>>
-	"You weren't meant to see this," the <<person2>><<monk>> says. "But you handled yourself well. Have you considered joining the temple? We could use someone like you. Either way, keep what you saw here to yourself." <<He>> lays the <<person2>><<person>> on the grass. "I'll see to this one. Get dressed, and return to town." You'd forgotten how exposed you are. <<covered>>
+	"당신은 이런 걸 보면 안 됩니다," <<person2>><<monk_ ga>> 말한다. "하지만 잘 했어요. 사원에 들어오시겠어요? 당신 같은 사람이 필요해요. 어떤 걸 선택하든, 여기서 본 것은 비밀로 하세요." <<He_ nun>> <<person1>><<person_ ul>> 풀밭에 눕힌다. "제가 이 사람을 돌보겠습니다. 옷을 입고, 마을로 돌아가세요." 당신은 당신이 얼마나 노출되어 있는지 잊고 있었다. <<covered>>
 	<br><br>
 <</if>>
 
-
 <<clotheson>>
 
-You return to the spa. The wall is too high to climb from this side. You walk around the perimeter. The trees thin, and you emerge on Danube Street.
+당신은 온천으로 돌아온다. 벽이 너무 높아 이쪽에서는 올라갈 수 없다. 당신은 벽 둘레를 돌아 걸어간다. 나무들이 듬성듬성해지고, 당신은 다뉴브 가로 나온다.
 <br><br>
 
 <<endevent>>
 
-<<link [[Next|Danube Street]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
 <br>
-
-
 
 :: Spa Tan Rob
 <<effects>>
 
 <<clotheson>>
 
-You get dressed, then rifle through the <<persons>> pockets.
-
+당신은 옷을 입고, <<persons_ yi>> 주머니를 샅샅히 뒤진다.
 
 <<if $rng gte 99>>
-	They're empty, but <<his>> watch looks valuable, if you could find a buyer.<<crimeup 1000>><<set $blackmoney += 1000>>
+	주머니는 비어있지만, <<his_ yi>> 시계는 값져보인다, 구매자를 찾는다면 말이다.<<crimeup 1000>><<set $blackmoney += 1000>>
 <<elseif $rng gte 81>>
-	You find <<moneyGain 100 true true>> in cash.
+	당신은 현금 <<moneyGain 100 true true>>를 찾는다.
 <<elseif $rng gte 61>>
-	You find <<moneyGain 50 true true>> in cash.
+	당신은 현금 <<moneyGain 50 true true>>를 찾는다.
 <<elseif $rng gte 41>>
-	You find <<moneyGain 20 true true>> in cash.
+	당신은 현금 <<moneyGain 20 true true>>를 찾는다.
 <<elseif $rng gte 21>>
-	You find <<moneyGain 10 true true>> in cash.
+	당신은 현금 <<moneyGain 10 true true>>를 찾는다.
 <<else>>
-	You find <<moneyGain 5 true true>> in cash.
+	당신은 현금 <<moneyGain 5 true true>>를 찾는다.
 <</if>>
 <br><br>
-You return to the spa. The wall is too high to climb from this side. You walk around the perimeter. The trees thin, and you emerge on Danube Street.
+당신은 온천으로 돌아온다. 벽이 너무 높아 이쪽에서는 올라갈 수 없다. 당신은 벽 둘레를 돌아 걸어간다. 나무들이 듬성듬성해지고, 당신은 다뉴브 가로 나온다.
 <br><br>
 
 <<endevent>>
 
-<<link [[Next|Danube Street]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
 <br>
-
 
 :: Spa Tan Clothes
 <<effects>>
 
 <<clotheson>>
-You get dressed, and return to the spa. The wall is too high to climb from this side. You walk around the perimeter. The trees thin, and you emerge on Danube Street.
+당신은 옷을 입고, 온천으로 돌아온다. 벽이 너무 높아 이쪽에서는 올라갈 수 없다. 당신은 벽 둘레를 돌아 걸어간다. 나무들이 듬성듬성해지고, 당신은 다뉴브 가로 나온다.
 <br><br>
 
 <<endevent>>
 
-<<link [[Next|Danube Street]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
 <br>
-
 
 :: Spa Tan Slap
 <<effects>>
 
-You wipe away the <<persons>> smirk with a firm slap, then return to your room, covering your <<bottom>> with a hand.
+당신은 단호하게 뺨을 때려, <<persons_ yi>> 히죽거리는 웃음을 지워버리고, 당신의 <<bottom_ ul>> 손으로 가리며 방으로 돌아온다.
 <br><br>
 
 <<clotheson>>
 <<endevent>>
 
-<<link [[Next|Spa]]>><</link>>
+<<link [[다음|Spa]]>><</link>>
 <br>
 
 :: Spa Tan Turn
 <<effects>>
 
-You leave the <<person>> to <<his>> mirth, and return to your room, covering your <<bottom>> with a hand.
+당신은 <<person_ i>> 웃게 내버려 두고, 당신의 <<bottom_ ul>> 손으로 가리며 방으로 돌아온다.
 <br><br>
 
 <<clotheson>>
 <<endevent>>
 
-<<link [[Next|Spa]]>><</link>>
+<<link [[다음|Spa]]>><</link>>
 <br>
 
 
@@ -621,35 +609,35 @@ You leave the <<person>> to <<his>> mirth, and return to your room, covering you
 <<set $stealtextskip to 1>>
 <<stealclothes>>
 
-<<covered>> You crouch and peek around the corner. There's no one around. <<tearful>> you creep down the hall. You hear voices up ahead.
-<<generate1>><<generate2>><<person1>>
-Two members of staff, a <<person>> and a <<person2>><<person>>, chat in a staff room.
+<<covered>> 당신은 웅크린 채 모퉁이를 돈다. 아무도 없다. <<tearful>> 당신은 복도를 살금살금 내려간다. 앞쪽에서 목소리가 들린다.
+<<generate1>><<generate2>>
+직원 두 명, <<fullGroup_ i>> 직원 대기실에서 수다를 떨고 있다.
 <br><br>
 
 <<if $submissive gte 1150>>
-	"E-excuse me," you say, interrupting their conversation. "Someone took my clothes. Could you help?"
+	"시-실례합니다," 당신이 그들의 대화에 끼어들며 말한다. "누군가 제 옷을 가져갔어요. 도와주시겠어요?"
 <<elseif $submissive lte 850>>
-	"Hey," you say, interrupting their conversation. "A thief ran off with my clothes. Could you give me a hand?"
+	"이봐," 당신이 그들의 대화에 끼어들며 말한다. "도둑이 내 옷을 들고 튀었어. 좀 도와주겠어?"
 <<else>>
-	"Hello," you say, interrupting their conversation. "Someone stole my clothes. Could you give me a hand?"
+	"안녕하세요," 당신이 그들의 대화에 끼어들며 말한다. "누군가 제 옷을 훔쳐갔어요. 도와주시겠어요?"
 <</if>>
 <br><br>
 
 <<if $rng gte 51>>
-	The pair pause for a moment, then laugh. "Hold tight," the <<person>> says. <<He>> doesn't even pretend <<hes>> not ogling as <<he>> passes by, returning a moment later with some towels. "All we got, sorry. We don't have a staff uniform or anything."
+	둘은 잠시 멈추더니, 웃는다. "기다려요," <<person_ i>> 말한다. <<He_ nun>> 당신을 힐끗거리지 않는 척도 하지 않으면서 당신을 지나치더니, 잠시 후 수건을 몇 장 가져온다. "미안하지만, 이게 다에요. 우린 직원 유니폼 같은 게 없거든요."
 	<br><br>
 
-	You slip back to the tanning room, and tie a towel around your body.
+	당신은 태닝 룸에 돌아와, 몸에 수건을 두른다.
 	<br><br>
 
 	<<towelup>>
 
-	<<link [[Next|Spa]]>><<endevent>><</link>>
+	<<link [[다음|Spa]]>><<endevent>><</link>>
 	<br>
 <<else>>
-	The pair pause for a moment, then share a look. "Sure thing," the <<person>> says. "I'll just get you something." <<He>> looks away as <<he>> approaches, but as <<he>> passes, <span class="red"> wraps a hand around your mouth.</span>
+	둘은 잠시 멈추더니, 눈빛을 나눈다. "물론이죠," <<person_ i>> 말한다. "뭘 좀 갖다줄게요." <<He_ nun>> 당신의 시선을 피한 채로 다가오지만, <<he_ ga>> 가까이 다가오자 <span class="red">한 손으로 당신의 입을 막는다.</span>
 	<br><br>
-	<<link [[Next|Spa Tan Rape]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Spa Tan Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -661,76 +649,66 @@ Two members of staff, a <<person>> and a <<person2>><<person>>, chat in a staff 
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-
-	<<set $rescue to 1>><<set $leftarm to "grappled">><<set $rightarm to "grappled">><<hand_gag 0 left>><<set $NPCList[0].righthand to "arms">>
+	<<enable_rescue>><<set $leftarm to "grappled">><<set $rightarm to "grappled">><<hand_gag 0 left>><<set $NPCList[0].righthand to "arms">>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Spa Tan Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Spa Tan Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Spa Tan Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Spa Tan Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Spa Tan Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Spa Tan Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Spa Tan Rape Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	You're shoved to the ground. A moment later a towel lands on top of you. The staff room door clicks shut.
+	당신은 바닥에 밀쳐진다. 잠시 후 수건이 당신 위로 떨어진다. 직원 대기실 문이 달칵하고 닫긴다.
 	<br><br>
-	<<tearful>> you tie the towel around your body.
+	<<tearful>> 당신은 수건을 당신의 몸에 두른다.
 	<br><br>
 	<<clothesontowel>>
 	<<endcombat>>
-	<<link [[Next|Spa]]>><</link>>
+	<<link [[다음|Spa]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
-	The <<person1>><<person>> staggers backwards, loses <<his>> footing, and smashes through a glass table. The noise attracts attention. <<generate3>>A <<person3>><<person>> arrives on the scene, <<his>> eyes flicking over the <<person1>><<personsimple>> lying on the floor, then over your <<nudity>>.
+	<<person1>><<person_ i>> 비틀거리며 뒤로 물러나다, 발을 헛디디고, 유리 테이블을 박살낸다. 그 소음이 주의를 끈다. <<generate3>> <<person3>><<person_ i>> 현장에 도착하고, <<his_ yi>> 눈이 바닥에 쓰러져 있는 <<person1>><<personsimple_ ul>> 훑어보고 나서, 당신의 <<nudity_ rul>> 향한다.<<nudityPostend>>
 	<br><br>
-	<<person3>><<He>> seems lost for words.
+	<<person3>><<He_ nun>> 할 말을 잃은 것 같다.
 	<br><br>
 
-
-
-	<<link [[Say you were attacked|Spa Tan Rape Attacked]]>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
+	<<link [[당신이 공격받았다고 한다|Spa Tan Rape Attacked]]>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
 	<br>
-	<<link [[Say the staff were helping you get a towel, but tripped|Spa Tan Rape Tripped]]>><<sub 1>><</link>>
+	<<link [[직원이 당신을 돕기 위해 수건을 가져오다, 넘어졌다고 한다|Spa Tan Rape Tripped]]>><<sub 1>><</link>>
 	<br>
 <<else>>
 	<<set $rescued += 1>>
-	Your cry attracts attention. <<generate3>>A <<person3>><<person>> arrives on the scene, <<his>> eyes flicking over the assailants, then over your <<nudity>>.
+	당신의 비명소리가 주의를 끈다. <<generate3>> <<person3>><<person_ i>> 현장에 도착하고, <<his_ yi>> 눈이 <<group_ ul>> 훑어보고 나서, 당신의 <<nudity_ rul>> 향한다.<<nudityPostend>>
 	<br><br>
-	<<person3>><<He>> seems lost for words.
+	<<person3>><<He_ nun>> 할 말을 잃은 것 같다.
 	<br><br>
 
-
-
-	<<link [[Say you were attacked|Spa Tan Rape Attacked]]>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
+	<<link [[당신이 공격받았다고 한다|Spa Tan Rape Attacked]]>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
 	<br>
-	<<link [[Say the staff were helping you get a towel, but tripped|Spa Tan Rape Tripped]]>><<sub 1>><</link>>
+	<<link [[직원이 당신을 돕기 위해 수건을 가져오다, 넘어졌다고 한다]]>><<sub 1>><</link>>
 	<br>
 <</if>>
 
 :: Spa Tan Rape Attacked
 <<effects>>
 
-You tell the <<person3>><<person>> what happened. Turns out <<hes>> the pair's superior. They deny any wrongdoing, but the <<person>> doesn't believe it. This is not, apparently, the first incident.
+당신은 <<person3>><<person_>>에게 무슨 일인지 설명한다. 알고보니 <<he_ nun>> 직원 둘의 상사다. 그들은 잘못을 부인하지만, <<person_ un>> 그들을 믿지 않는다. 분명히, 이번이 처음이 아닌 것이다.
 <br><br>
 
-You walk away with a new set of clothes, a refund, and a fearful request that you don't tell anyone what happened here.
+당신은 사용하지 않은 새 옷 한벌과, 환불받은 돈, 그리고 여기서 무슨 일이 있었는지 아무에게도 이야기하지 말라는 우려스러운 요청을 듣고는 떠난다.
 <br><br>
 
 <<if $worn.upper.name is "naked">>
@@ -762,10 +740,9 @@ You walk away with a new set of clothes, a refund, and a fearful request that yo
 	<</if>>
 <</if>>
 
-
-<<if $season is "summer">>
+<<if Time.season is "summer">>
 	<<set $money += 1000>>
-<<elseif $season is "winter">>
+<<elseif Time.season is "winter">>
 	<<set $money += 6000>>
 <<else>>
 	<<set $money += 2500>>
@@ -773,16 +750,14 @@ You walk away with a new set of clothes, a refund, and a fearful request that yo
 
 <<endcombat>>
 
-<<link [[Next|Spa]]>><</link>>
+<<link [[다음|Spa]]>><</link>>
 <br>
-
 
 :: Spa Tan Rape Tripped
 <<effects>>
 
-The <<person3>><<person>> seems relieved, though not entirely convinced. <<He>> apologises for your lost clothing, and give you some spares.
+<<person3>><<person_ un>> 완전히 믿지는 않는 듯 하지만, 안심한 것처럼 보인다. <<He_ nun>> 잃어버린 당신의 옷에 대해 사과하고 여분의 옷을 준다.
 <br><br>
-
 
 <<if $worn.upper.name is "naked">>
 	<<if $player.gender_appearance is "m">>
@@ -813,10 +788,9 @@ The <<person3>><<person>> seems relieved, though not entirely convinced. <<He>> 
 	<</if>>
 <</if>>
 
-
 <<endcombat>>
 
-<<link [[Next|Spa]]>><</link>>
+<<link [[다음|Spa]]>><</link>>
 <br>
 
 :: Spa Tan Sneak
@@ -826,47 +800,33 @@ The <<person3>><<person>> seems relieved, though not entirely convinced. <<He>> 
 <<set $stealtextskip to 1>>
 <<stealclothes>>
 
-You crouch and peek around the door. There's no one around. You sneak through the building. The other rooms are occupied, but one of the doors is ajar. You enter. You see a shape lying in the tanning bed. There's a towel on a rack beside it.
+당신은 웅크린 채 모퉁이를 돈다. 아무도 없다. 당신은 몰래 건물을 지나간다. 다른 방들에는 사람이 있지만, 문 하나가 약간 열려있다. 당신은 들어간다. 태닝 베드에 누워있는 형체가 보인다. 그 옆 선반에 수건이 있다.
 <br><br>
-
-
 
 <<skulduggerycheck>>
 <<if $skulduggerysuccess is 1>>
 
-	You lift the towel from the rack, <span class="green">and sneak away without being noticed.</span>
+	당신은 선반에서 수건을 집어들고, <span class="green">들키지 않은 채 몰래 빠져나온다.</span>
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
-	<<link [[Next|Spa]]>><<towelup>><</link>>
+	<<link [[다음|Spa]]>><<towelup>><</link>>
 	<br>
 
 <<else>>
-	<<generate1>><<person1>>As you lift the towel, <span class="red">a hand emerges from the bed and grasps your mouth.</span> "Trying to steal from me?" the <<person>> says as <<he>> climbs naked from the bed. "I'll teach you a lesson."
+	<<generate1>><<person1>>당신이 수건을 집어들자, <span class="red">태닝 베드에서 손이 튀어나와 당신의 입을 막는다.</span> "내 것을 훔치려고?" <<person_ i>> 벌거벗고 태닝 베드에 올라간 채로 말한다. "교육 좀 해야겠어."
 	<br><br>
 
-	<<He>> bends you over <<his>> knees.
+	<<He_ nun>> 당신을 <<his_ yi>> 무릎 위에 엎드리게 한다.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
-	<<link [[Next|Spa Tan Spank]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Spa Tan Spank]]>><<set $molestationstart to 1>><</link>>
 	<br>
 
 <</if>>
-
-
 
 :: Spa Tan Spank
 
@@ -876,81 +836,68 @@ You crouch and peek around the door. There's no one around. You sneak through th
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 	<<npcspankgag>>
 	<<npcexpose>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Spa Tan Spank Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Spa Tan Spank Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Spa Tan Spank Finish]]>><</link>></span><<nexttext>>
-<<elseif $pain gte 100 and $willpowerpain is 0>>
-	<span id="next"><<link [[Next|Spa Tan Spank Finish]]>><</link>></span><<nexttext>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[다음|Spa Tan Spank Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Spa Tan Spank]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Spa Tan Spank]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Spa Tan Spank Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	The <<person>> lies back on the bed, exhausted. You snatch the towel. <<tearful>> you run.
+	<<person_ un>> 기진맥진한 채, 태닝 베드에 다시 눕는다. 당신은 수건을 낚아챈다. <<tearful>> 당신은 도망친다.
 	<br><br>
 	<<clothesontowel>>
 	<<endcombat>>
-	<<link [[Next|Spa]]>><</link>>
-	<br>
+	<<link [[다음|Spa]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
-	You shove the <<person>> back on <<his>> bed. You snatch the towel. <<tearful>> you run.
+	당신은 <<person_ ul>> 태닝 베드로 다시 밀어넣는다. 당신은 수건을 낚아챈다. <<tearful>> 당신은 도망친다.
 	<br><br>
 	<<clothesontowel>>
 	<<endcombat>>
-	<<link [[Next|Spa]]>><</link>>
-	<br>
+	<<link [[다음|Spa]]>><</link>>
 
 <<elseif $pain gte 100 and $willpowerpain is 0>>
-	"Let that be a lesson to you," the <<person>> says, giving your <<bottom>> a final smack before grasping your arm and pushing you to the door.
+	"교훈을 얻었으면 좋겠군," <<person_ un>> 마지막으로 당신의 <<bottom_ ul>> 한 대 때리고 당신의 팔을 잡아 문으로 끌고가며 말한다.
 	<br><br>
-	<<He>> keeps going, marching your exposed body down the hall. You're too hurt to resist.
-	<br><br>
-
-	<<He>> shoves you through another door, this one leading outside. There's no one around, but the pools are just around the corner. <<He>> doesn't take you that way however. Instead, <<he>> grasps your thighs, and hauls you up and over the exterior wall.
+	<<He_ nun>> 당신의 노출된 몸을 끌고, 계속해서 복도를 따라 걷는다. 당신은 너무 아파 저항할 수 없다.
 	<br><br>
 
-	You land on grass, surrounded by trees. You look up. The wall is too high to climb from this side. "Good luck getting home," the <<person1>><<person>> laughs.<<gpain>><<pain 4>>
+	<<He_ nun>> 당신을 바깥으로 이어지는 다른 문으로 끌고 간다. 주변에 아무도 없지만, 모퉁이만 돌면 욕탕이다. 하지만 <<He_ nun>> 당신을 그 쪽으로 끌고가지 않는다. 대신, <<he_ nun>> 당신의 넓적다리를 잡고 당신을 외벽 위로 넘겨버린다.
+	<br><br>
+
+	당신은 나무에 둘러싸인 풀밭에 떨어진다. 당신은 위를 올려본다. 벽은 너무 높아 이쪽에서 올라갈 수는 없다. "집에 잘 돌아가길 바란다," <<person1>><<person_ i>> 웃는다.<<gpain>><<pain 4>>
 	<br><br>
 
 	<<clotheson>>
 	<<endcombat>>
 
-	<<link [[Next|Forest]]>><<set $forest to 0>><<set $eventskip to 1>><</link>>
-	<br>
+	<<link [[다음|Forest]]>><<set $forest to 0>><<set $eventskip to 1>><</link>>
 <<else>>
 	<<set $rescued += 1>>
-	Your cry attracts attention. <<generate2>>A <<person2>><<person>> arrives on the scene, <<his>> eyes taking in the <<person1>><<person>>, and your pained expression.
+	당신의 비명소리는 주의를 끈다. <<generate2>> <<person2>><<person_ i>> 현장에 도착한다. <<his_ yi>> 눈은 <<person1>><<person_ gwa>>, 고통을 호소하는 당신을 본다.
 	<br><br>
-	<<person2>><<He>> seems lost for words. The <<person1>><<person>> releases you, and tries to stammer an explanation. <<He>> doesn't stop you covering with the towel, or leaving the room.
+	<<person2>><<He_ nun>> 할 말을 잃은 것 같다. <<person1>><<person_ i>> 당신을 놓아주고, 말을 더듬으며 해명한다. <<He_ nun>> 당신이 수건을 감고, 방을 나가는 것을 막지 않는다.
 	<br><br>
 
 	<<clothesontowel>>
 	<<endcombat>>
 
-	<<link [[Next|Spa]]>><</link>>
-	<br>
-
+	<<link [[다음|Spa]]>><</link>>
 <</if>>

@@ -1,38 +1,7 @@
 :: Widgets trClothes [widget nobr]
 <<widget "trClothes_init">>
-	<<set _trClothes to {}>>
-	<<if $args[0] isnot undefined>>
-		<<switch $args[0]>>
-			<<case "face">>
-				<<init_trFace>>
-			<<case "feet">>
-				<<init_trFeet>>
-			<<case "genitals">>
-				<<init_trGenitals>>
-			<<case "hands">>
-				<<init_trHands>>
-			<<case "head">>
-				<<init_trHead>>
-			<<case "legs">>
-				<<init_trLegs>>
-			<<case "lower">>
-				<<init_trLower>>
-			<<case "neck">>
-				<<init_trNeck>>
-			<<case "over_head">>
-				<<init_trOverHead>>
-			<<case "over_lower">>
-				<<init_trOverLower>>
-			<<case "over_upper">>
-				<<init_trOverUpper>>
-			<<case "under_lower">>
-				<<init_trUnder>>
-			<<case "under_upper">>
-				<<init_trUnderUpper>>
-			<<case "upper">>
-				<<init_trUpper>>
-		<</switch>>
-	<<else>>
+	<<if setup.trClothes is undefined>>
+		<<set setup.trClothes to {}>>
 		<<init_trFace>>
 		<<init_trFeet>>
 		<<init_trGenitals>>
@@ -47,72 +16,151 @@
 		<<init_trUnder>>
 		<<init_trUnderUpper>>
 		<<init_trUpper>>
+		
+		<<set $_trClothesAllNameIndex to {}>>
+		<<set $_trClothesParts to Object.getOwnPropertyNames(setup.trClothes)>>
+		<<for $_i, $_trClothesType range $_trClothesParts>>
+			<<set $_trClothesNameIndex to {}>>
+			<<set $_trClothesVarIndex to {}>>
+			<<for $_j, $_trClothesData range setup.trClothes[$_trClothesType]>>
+				<<set $_trClothesNameIndex[$_trClothesData.name] to $_trClothesData>>
+				<<set $_trClothesVarIndex[$_trClothesData.variable] to $_trClothesData>>
+			<</for>>
+			<<set setup.trClothes[$_trClothesType].nameIndex to $_trClothesNameIndex>>
+			<<set setup.trClothes[$_trClothesType].varIndex to $_trClothesVarIndex>>
+			<<run Object.assign($_trClothesAllNameIndex, $_trClothesNameIndex)>> 
+		<</for>>
+		<<set setup.trClothes.nameIndex to $_trClothesAllNameIndex>>
 	<</if>>
 <</widget>>
 
 
-<<widget "trClothes">>
-	<<trClothes_init $args[0]>>
+<<widget "trClothes">><<silently>>
+	<<set $_part to _args[0]>><<set $_name to _args[1]>>
+	<<if _args[2] is undefined or _args[2].substring(0,1).search("[가-힣]") gte 0>>
+		<<set $_mode to "name">><<set $_post to _args[2]>><<set $_sep to _args[3]>>
+	<<else>>
+		<<set $_mode to _args[2]>><<set $_post to _args[3]>><<set $_sep to _args[4]>>
+	<</if>>
 	
-	<<if _trClothes[$args[0]] isnot undefined>>
-		<<set _trTemp to _trClothes[$args[0]].find(function(select){
-					if(select.name == $args[1] or select.variable == $args[1]){return true;
-					}})>>
+	<<if ["butt_plug"].includes($_part)>>	/* sextoy 전용 part */
+		<<sextoyPost $_name $_mode $_post $_sep>>
 	<<else>>
-		<<set _trResult to "partSelectionErr:"+$args[0]>>
+		<<if setup.trClothes is undefined>>
+			<<trClothes_init>>
+		<</if>>
+		<<if $_name eq "piece of fabric">>
+			<<set $_trTemp to {name_ko:"옷 조각", post:0, description:"옷 조각"}>>
+		<<elseif setup.trClothes[$_part] isnot undefined>>
+			<<set $_trTemp to setup.trClothes[$_part].nameIndex[$_name]>>
+			<<if $_trTemp is undefined>>
+				<<set $_trTemp to setup.trClothes[$_part].varIndex[$_name]>>
+			<</if>>
+		
+			<<if $_trTemp is undefined>>
+				<<set _trResult to "clothesSelectionErr:"+$_name>>
+			<<else>>
+				<<switch $_mode>>
+					<<case "name">>
+						<<set _trResult to $_trTemp.name_ko>>
+						<<if $_post isnot undefined>>
+							<<trPost $_trTemp.post $_post $_sep>>
+						<</if>>
+					<<case "desc" "description">>
+						<<set _trResult to $_trTemp.description>>
+					<<default>>
+						<<set _trResult to "ModeSelectionErr:"+$_mode>>
+				<</switch>>
+			<</if>>
+		<<else>>
+			<<set _trResult to "partSelectionErr:"+$_part>>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>
+
+
+<<widget "trSearchClothes">><<silently>>
+	<<set $_name to _args[0]>>
+	<<if _args[1] is undefined or _args[1].substring(0,1).search("[가-힣]") gte 0>>
+		<<set $_mode to "name">><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+	<<else>>
+		<<set $_mode to _args[1]>><<set $_post to _args[2]>><<set $_sep to _args[3]>>
 	<</if>>
 
-	<<if _trTemp is undefined>>
-		<<set _trResult to "clothesSelectionErr:"+$args[1]>>
+	<<if $_name eq "piece of fabric">>
+		<<set $_trTemp to {name_ko:"옷 조각", post:0, description:"옷 조각"}>>
 	<<else>>
-		<<if $args[2] is undefined>>
-				<<set _trResult to _trTemp.name_ko>>
-		<<else>>
-			<<switch $args[2]>>
-				<<case "name">>
-					<<set _trResult to _trTemp.name_ko>>
-					<<if $args[3] isnot undefined>>
-						<<trPost _trTemp.post $args[3] $args[4]>>
-					<</if>>
-				<<case "desc" "description">>
-					<<set _trResult to _trTemp.description>>
-				<<default>>
-					<<set _trResult to "ModeSelectionErr:"+$args[2]>>
-			<</switch>>
+		<<if setup.trClothes is undefined>>
+			<<trClothes_init>>
 		<</if>>
+		
+		<<set $_trTemp to setup.trClothes.nameIndex[$_name]>>
+		<<set _trClothesIndexTemp to Object.getOwnPropertyNames(setup.trClothes)>>
 	<</if>>
-<</widget>>
-
-
-<<widget "trSearchClothes">>
-	<<trClothes_init>>
-	<<set _trClothesIndexTemp to Object.getOwnPropertyNames(_trClothes)>>
-	<<for _trIndexTemp, _trClothesTypeTemp range _trClothesIndexTemp>>
-		<<set _trTemp to _trClothes[_trClothesTypeTemp].find(function(select){
-					if(select.name == $args[0] /*or select.variable == $args[0]*/){return true;
-					}})>>
-		<<if _trTemp is undefined>>
-			<<continue>>
+	<<if $_trTemp isnot undefined>>
+		<<if $_mode is "name">>
+			<<set _trResult to $_trTemp.name_ko>>
+		<<elseif $_mode is "desc" or $_mode is "description">>
+			<<set _trResult to $_trTemp.description>>
 		<<else>>
-			<<break>>
-		<</if>>
-	<</for>>
-	<<if _trTemp isnot undefined>>
-		<<if $args[1] is undefined or $args[1] is "name">>
-			<<set _trResult to _trTemp.name_ko>>
-		<<elseif $args[1] is "desc" or $args[1] is "description">>
-			<<set _trResult to _trTemp.description>>
-		<<else>>
-			<<set _trResult to "modeSelectionErr: "+$args[1]>>
+			<<set _trResult to "modeSelectionErr: "+$_mode>>
 		<</if>>
 
-		<<if $args[2] isnot undefined>>
-			<<trPost _trTemp.post $args[2] $args[3]>>
+		<<if $_post isnot undefined>>
+			<<trPost $_trTemp.post $_post $_sep>>
 		<</if>>
 	<<else>>
-		<<set _trResult to "notfoundErr: "+$args[0]>>
+		<<if $_name and setup.trSextoyList[$_name.toLowerCase().replace('_',' ')]>>
+			<<sextoyPost $_name $_mode $_post $_sep>>
+		<<else>>
+			<<set _trResult to "trSearchClothes:notfoundErr: "+$_name>>
+		<</if>>
 	<</if>>
-<</widget>>
+<</silently>><</widget>>
+
+/* <<trNpcClothes *part *name post sep>> */
+<<widget "trNpcClothes">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if ["all", "set", "upper", "lower"].includes(_args[0])>>
+			<<set $_clothesType to _args[0]>><<set $_clothesName to _args[1]>>
+			<<set $_post to _args[2]>><<set $_sep to _args[3]>>
+		<<else>>
+			<<set $_clothesType to "all">><<set $_clothesName to _args[0]>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+
+		<<if typeof $_clothesName is "number">>
+			<<set $_clothesName to setup.npcClothesSets.find(item => item.name === $NPCList[$_clothesName].clothes.set).clothes[$_clothesType].name>>
+		<</if>>
+
+		<<if $_clothesName isnot undefined>>
+			<<if setup.trNpcClothes is undefined>>
+				<<init_trNpcClothes>>
+			<</if>>
+			
+			<<if $_clothesType isnot "all">>
+				<<set $_found to setup.trNpcClothes[$_clothesType].nameIndex[$_clothesName]>>
+				<<if $_found is undefined and $_clothesType eq "set">>
+					<<set $_found to setup.trNpcClothes[$_clothesType].descIndex[$_clothesName]>>
+				<</if>>
+			<<else>>
+				<<set $_found to setup.trNpcClothes.nameIndex[$_clothesName]>>
+				<<if $_found is undefined>>
+					<<set $_found to setup.trNpcClothes.set.descIndex[$_clothesName]>>
+				<</if>>
+			<</if>>
+			
+			<<if $_found isnot undefined>>
+				<<set _trResult to $_found.name_ko>>
+				<<trPost $_found.post $_post $_sep>>
+			<<else>>
+				<<set _trResult to "에러: trNpcClothes." + $_clothesType + "에 정의되어 있지 않음: " + $_clothesName>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>
+
+
 
 :: Scripts trIntegrityKeyword [script]
 
@@ -121,8 +169,8 @@
  * @param worn clothing article, State.variables.worn.XXXX
  * @return {string} condition key word ("tattered"|"torn|"frayed"|"full")
  */
-window.trIntegrityKeyword = function(worn) {
-	const i = worn.integrity/worn.integrity_max;
+window.trIntegrityKeyword = function(worn, slot) {
+	const i = worn.integrity/clothingData(slot,worn,'integrity_max');
 	if (i <= 0.2) {
 		return "너덜너덜한"
 	} else if (i <= 0.5) {

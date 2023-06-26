@@ -1,7 +1,15 @@
 /*window*/
 window.Customconfig = {
-    "version" : "0.1.1.0716.2"
+    "version" : "0.1.2023.0624"
 }
+
+l10nStrings.errorTitle = StartConfig.version + "-" + Customconfig.version + " Error";
+
+l10nStrings.restartTitle = "게임 재시작";
+l10nStrings.restartPrompt = "정말 재시작하시겠습니까? 저장되지 않은 진행상황은 사라지게 됩니다.";
+l10nStrings.cancel = "취소";
+l10nStrings.ok = "확인";
+
 
 window.sleep = function (ms) {
     sleep(ms);

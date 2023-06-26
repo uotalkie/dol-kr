@@ -32,7 +32,7 @@ Run `docker run -v <PROJECT_ROOT>:/src -it cordova-android npm run build-debug` 
 
 ### Building release
 
-The release build process is almost identical to debug: `docker run -v <PROJECT_ROOT>:src -it cordova-android npm run build-release`.
+The release build process is almost identical to debug: `docker run -v <PROJECT_ROOT>:/src -it cordova-android npm run build-release`.
 
 Note that building the release version requires a key (`/keys/dol.keystore`). Check the discord for details on how to get the official key.
     

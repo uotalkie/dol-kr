@@ -1,0 +1,72 @@
+:: Office Assignment Start
+<<effects>>
+<<set $officeFloor to random(4,15)>>
+<<rng>>
+
+<<if $rng gte 81>>
+	당신은 <<checkfloor>>의 직원들에게 커피를 배달하는 업무를 받았다.
+	<<acceptassignment "Office Coffee Start">>
+<<elseif $rng gte 61>>
+	당신은 <<checkfloor>>에서 열리는 회의의 회의록을 작성하라는 업무를 받았다.
+	<<acceptassignment "Office Meeting Start">>
+<<elseif $rng gte 41>>
+	You pick up an assignment to destroy some documents on <<checkfloor>>. 당신은 <<checkfloor>>의 일부 문서를 파기해 달라는 업무를 받았다.
+	<<acceptassignment "Office Shredder Start">>
+<<elseif $rng gte 21>>
+	당신은 <<checkfloor>>에 있는 임원을 보조하는 업무를 받았다.
+	<<acceptassignment "Office Executive Start">>
+<<else>>
+	당신은 <<checkfloor>>에 있는 비서를 돕는 업무를 받았다.
+	<<acceptassignment "Office Secretary Start">>
+<</if>>
+
+
+
+:: Widgets Office Assignment [widget]
+<<widget "acceptassignment">>
+	<<set _assignment to _args[0]>>
+	<br><br>
+	업무를 받아들이시겠습니까?
+	<br><br>
+	<<link [[그렇다|_assignment]]>><</link>>
+	<br>
+	<<link [[다음 업무를 기다린다 (0:10)|Office Assignment Start]]>><<pass 10>><</link>>
+	<br>
+	<<link [[로비로 돌아간다 (0:01)|Office Lobby]]>><<pass 1>><</link>>
+<</widget>>
+
+<<widget "completeassignment">>
+	<<if _args[0] is undefined>>
+		<<set $assignmentTime to 60>>
+	<<else>>
+		<<set $assignmentTime to _args[0]>>
+	<</if>>
+	<br>
+	<<set _assignmentPay to (625 * ($assignmentTime / 60))>>
+	<<if _assignmentPay gt 0>>
+		<<managerLove 1>>
+		당신은 임시직 휴게실로 돌아와 급여로 <span class="gold"><<printmoney _assignmentPay>></span>를 받는다. <<set $money += _assignmentPay>>
+		<<if $managerLove gte random(50,100)>>
+			<<set _managerTip to $managerLove * 20>><!-- £20 at 100 love-->
+			<span class="green"><<office_manager_ ga>> 당신에게 보너스로 <<printmoney _managerTip>>의 팁을 준다.</span> <<set $money += _managerTip>>
+		<</if>>
+		<br><br>
+	<</if>>
+	<<endevent>>
+	<<set $officeFloor to 0>>
+	<<link [[다음|Office Agency]]>><<pass $assignmentTime>><</link>>
+<</widget>>
+
+
+<<widget "assignmenttip">>
+	<<set $baseTip to _args[0]*100>>
+	<<set $tipMod to (1 + $officeFloor * .075)>>
+	<<set $tip to ($baseTip * $tipMod)>>
+	<<if $mathstrait gte 1>>
+		<<set $tip *= (1 + ($mathstrait / 4))>>
+	<</if>>
+	<<if $tip lte 0>>
+		<<set $tip to 0>>
+	<</if>>
+	<<tipreceive>>
+<</widget>>

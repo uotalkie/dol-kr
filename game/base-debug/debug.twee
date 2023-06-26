@@ -1,792 +1,222 @@
 :: Widgets Debug [widget]
 <<widget "debug">>
-<<button DEBUG>>
-<<script>>overlayShowHide('debugOverlay')<</script>>
-<</button>>
+	<<button DEBUG>>
+	<<script>>overlayShowHide('debugOverlay')<</script>>
+	<</button>>
 
-<<if $debugMenu is undefined>>
-	<<set $debugMenu to [false, 'debugMain']>>
-<</if>>
-
-<<if $debugMenu[0] is true>>
-	<div id="debugOverlay" class="debugOverlay">
-		<<debugContents>>
-	</div>
-<<else>>
-	<div id="debugOverlay" class="debugOverlay hidden">
-		<<debugContents>>
-	</div>
-<</if>>
+	<<if $debugMenu is undefined>>
+		<<set $debugMenu to [false, 'debugMain', ""]>>
+	<</if>>
+	<<if $debugMenu[2] is undefined>>
+		<<set $debugMenu[2] = "">>
+	<</if>>
+	<<if $debug_favourite == undefined>>
+		<<set $debug_favourite = []>>
+	<</if>>
+	<<if setup.debugMenu.cacheDebugDiv["debugOverlay"] == undefined or setup.debugMenu.cacheDebugDiv["debugOverlay"] == {}>>
+			<<if $debugMenu == []>>
+				<<set $debugMenu = [false, "debugMain", ""]>>
+			<</if>>
+			<<replace "#debugOverlay">><<debugContents>><</replace>>
+			<<if $debugMenu[0] is true>>
+				<<removeclass "#debugOverlay" "hidden">>
+			<<else>>
+				<<addclass "#debugOverlay" "hidden">>
+			<</if>>
+	<<else>>
+		<<saveLoadCache "load">>
+		<<if $debugMenu[2] != "" and $debugMenu[2] != undefined>>
+			<<run window.researchEvents($debugMenu[2])>>
+		<</if>>
+	<</if>>
+	<<run window.checkEventCondition()>>
 <</widget>>
 
 <<widget "debugContents">>
-<nav class="overlayMenu">
-	<ul>
-		<li><input type="button" class="close" value="Close" onclick="overlayShowHide('debugOverlay')"/></li>
-		<li><input type="button" value="Main" onclick="overlayMenu('debugMain', 'debug')"/></li>
-		<li><input type="button" value="Character" onclick="overlayMenu('debugCharacter', 'debug')"/></li>
-		<li><input type="button" value="Events" onclick="overlayMenu('debugEvents', 'debug')"/></li>
-	</ul>
-</nav>
+	<<set _selected = $debugMenu[1]>>
+	<nav class="overlayMenu">
+		<ul>
+			<li><input id="debugOverlayButton" type="button" class="close" style="width:45px;height: 35px;" value="⮨" onclick="overlayShowHide('debugOverlay', 'close')"/></li>
+			<li><input id="debugMainButton" @class="'bg-color-debug-unselected '+(_selected == 'debugMain' ? 'bg-color-debug-selected' : '')" type="button" value="Main" style="width: 60px;" onclick="overlayMenu('debugMain', 'debug')"/></li>
+			<li><input id="debugCharacterButton" @class="'bg-color-debug-unselected '+(_selected == 'debugCharacter' ? 'bg-color-debug-selected' : '')" type="button" value="Character" onclick="overlayMenu('debugCharacter', 'debug')"/></li>
+			<li><input id="debugEventsButton" @class="'bg-color-debug-unselected '+(_selected == 'debugEvents' ? 'bg-color-debug-selected' : '')" type="button" value="Events" style="width: 65px;" onclick="overlayMenu('debugEvents', 'debug')"/></li>
+			<li><input id="debugFavouritesButton" @class="'bg-color-debug-unselected '+(_selected == 'debugFavourites' ? 'bg-color-debug-selected' : '')" type="button" value="Favourites" onclick="overlayMenu('debugFavourites', 'debug')"/></li>
+			<li><input id="debugAddButton" @class="'bg-color-debug-unselected '+(_selected == 'debugAdd' ? 'bg-color-debug-selected' : '')" style="width: 20px; padding-left: 0.259em;" type="button" value="+" onclick="overlayMenu('debugAdd', 'debug')"/></li>
+		</ul>
+		<div class="header-content-search-content" id="formChangeColor" style="">
+			<input name="searchEvents" id="searchEvents" placeholder="Filtering..." onfocusout="window.changeBorderColor()" onfocus="window.changeBorderColor()" oninput="window.researchEvents()">
+		</div>
+	</nav>
 
-<<if $debugMenu[1] is "debugMain">>
-	<div id="debugMain" class="overlayItem">
-		<h3>Main</h3>
-		<<debugMain>>
-	</div>
-<<else>>
-	<div id="debugMain" class="overlayItem hidden">
-		<h3>Main</h3>
-		<<debugMain>>
-	</div>
-<</if>>
+	<<if $debugMenu[1] is "debugMain">>
+		<div id="debugMain" class="overlayItem">
+			<h3>Main</h3>
+			<<debugMain>>
+			<br>
+		</div>
+	<<else>>
+		<div id="debugMain" class="overlayItem hidden">
+			<h3>Main</h3>
+			<<debugMain>>
+			<br>
+		</div>
+	<</if>>
 
-<<if $debugMenu[1] is "debugCharacter">>
-	<div id="debugCharacter" class="overlayItem">
-		<h3>Character</h3>
-		<<debugCharacter>>
-	</div>
-<<else>>
-	<div id="debugCharacter" class="overlayItem hidden">
-		<h3>Character</h3>
-		<<debugCharacter>>
-	</div>
-<</if>>
+	<<if $debugMenu[1] is "debugCharacter">>
+		<div id="debugCharacter" class="overlayItem">
+			<h3>Character</h3>
+			<<debugCharacter>>
+			<br>
+		</div>
+	<<else>>
+		<div id="debugCharacter" class="overlayItem hidden">
+			<h3>Character</h3>
+			<<debugCharacter>>
+			<br>
+		</div>
+	<</if>>
 
-<<if $debugMenu[1] is "debugEvents">>
-	<div id="debugEvents" class="overlayItem" onload="restoreDebugMenuState">
-		<h3>Events</h3>
-		<<debugEvents>>
-	</div>
-<<else>>
-	<div id="debugEvents" class="overlayItem hidden" onload="restoreDebugMenuState">
-		<h3>Events</h3>
-		<<debugEvents>>
-	</div>
-<</if>>
+	<<if $debugMenu[1] is "debugEvents">>
+		<div id="debugEvents" class="overlayItem" onload="restoreDebugMenuState">
+			<h3>Events</h3>
+			<<debugEvents>>
+			<br>
+		</div>
+	<<else>>
+		<div id="debugEvents" class="overlayItem hidden" onload="restoreDebugMenuState">
+			<h3>Events</h3>
+			<<debugEvents>>
+			<br>
+		</div>
+	<</if>>
+	<<if $debugMenu[1] is "debugFavourites">>
+		<div id="debugFavourites" class="overlayItem" onload="restoreDebugMenuState">
+			<h3>Favourites</h3>
+			<<debugFavourites>>
+			<br>
+		</div>
+	<<else>>
+		<div id="debugFavourites" class="overlayItem hidden" onload="restoreDebugMenuState">
+			<h3>Favourites</h3>
+			<<debugFavourites>>
+			<br>
+		</div>
+	<</if>>
+	<<if $debugMenu[1] is "debugAdd">>
+		<div id="debugAdd" class="overlayItem" onload="restoreDebugMenuState">
+			<h3>Add passages to the Menu</h3>
+			<<debugAdd>>
+			<br>
+			<br>
+		</div>
+	<<else>>
+		<div id="debugAdd" class="overlayItem hidden" onload="restoreDebugMenuState">
+			<h3>Add passages to the Menu</h3>
+			<<debugAdd>>
+			<br>
+		</div>
+	<</if>>
+	<<if $debugMenu[2] != "" and $debugMenu[2] != undefined>>
+		<<run window.researchEvents($debugMenu[2])>>
+	<</if>>
+	<<saveLoadCache "save">>
 <</widget>>
 
 <<widget "debugMain">>
-
-Allure: <<print $allure>>
-<br>
-Rng: <<print $rng>>
-<br>
-Danger: <<print $danger>>
-<br>
-Passage: <<print $passage>>
-<br>
-
-<input type="button" id="backwords" value="Back" onclick="SugarCube.State.backward()"/>
-<br>
-<<link [[test|Test]]>><<set $molestationstart to 0>><</link>>
-<br>
-[[CanvasModel Example]]
-<br>
-[[Home|Bedroom]]
-<br>
-[[Wardrobe|Wardrobe]]
-<br>
-
-<<link [[Strip|$passage]]>><<undressclothes "wardrobe">><</link>>
-<br>
-<<link [[Strip to undies|$passage]]>><<generalUndress wardrobe over_upper>><<generalUndress wardrobe over_lower>><<generalUndress wardrobe upper>><<generalUndress wardrobe lower>><</link>>
-<br>
-<<link [[Strip all|$passage]]>><<undress "wardrobe">><</link>>
-<br>
-<<link [[Pass 1 minute|$passage]]>><<pass 1>><</link>>
-<br>
-<<link [[Pass 15 minutes|$passage]]>><<pass 15>><</link>>
-<br>
-<<link [[Pass 20 minutes|$passage]]>><<pass 20>><</link>>
-<br>
-<<link [[Pass 1 hour|$passage]]>><<pass 60>><</link>>
-<br>
-<<link [[Pass 3 hours|$passage]]>><<pass 3 hours>><</link>>
-<br>
-<<link [[Pass 6 hours|$passage]]>><<pass 6 hours>><</link>>
-<br>
-<<link [[Pass 12 hours|$passage]]>><<pass 12 hours>><</link>>
-<br>
-<<link [[Pass 18 hours|$passage]]>><<pass 18 hours>><</link>>
-<br>
-<<link [[Pass 23 hours|$passage]]>><<pass 23 hours>><</link>>
-<br>
-<<link [[Pass 24 hours|$passage]]>><<pass 24 hours>><</link>>
-<br>
-
-<<link [[Trust me|$passage]]>><<set $enemytrust += 2000>><<set $enemyanger -= 1000>><</link>>
-<br>
-<<link [[Hate me|$passage]]>><<set $enemytrust -= 2000>><<set $enemyanger += 1000>><</link>>
-<br>
-<<link [[Super Punch|$passage]]>><<set $enemyhealth to 0>><</link>>
-<br>
-<<link [[Super Stroke|$passage]]>><<set $enemyarousal to $enemyarousalmax>><</link>>
-<br>
-<<link [[Scream|$passage]]>><<set $alarm to 1>><</link>>
-<br>
-<<link [[Finish|$passage]]>><<set $finish to 1>><</link>>
-<br>
-<<link [[Make Rape|$passage]]>><<set $consensual to 0>><</link>>
-<br>
-<<link [[Make consensual|$passage]]>><<set $consensual to 1>><</link>>
-<br>
-<<link [[Frigify|$passage]]>><<set $enemyarousal to 0>><</link>>
-<br>
-<<if $position is "missionary">>
-	<<link [[Roll over|$passage]]>><<set $position to "doggy">><</link>>
 	<br>
-<<elseif $position is "doggy">>
-	<<link [[Roll over|$passage]]>><<set $position to "missionary">><</link>>
+	<div id="MainDebugInfo">
+		Allure: <<print $allure>>
+		<br>
+		Rng: <<print $rng>>
+		<br>
+		Danger: <<print $danger || '0'>>
+		<br>
+		Passage: <<print $passage>>
+		<br>
+	</div>
+
+	<input type="button" id="backwords" value="Back" onclick="SugarCube.State.backward()"/>
 	<br>
-<</if>>
-
-<<link [[RNG 1|$passage]]>><<set $rng to 1>><</link>>
-<br>
-<<link [[RNG 11|$passage]]>><<set $rng to 11>><</link>>
-<br>
-<<link [[RNG 21|$passage]]>><<set $rng to 21>><</link>>
-<br>
-<<link [[RNG 31|$passage]]>><<set $rng to 31>><</link>>
-<br>
-<<link [[RNG 41|$passage]]>><<set $rng to 41>><</link>>
-<br>
-<<link [[RNG 51|$passage]]>><<set $rng to 51>><</link>>
-<br>
-<<link [[RNG 61|$passage]]>><<set $rng to 61>><</link>>
-<br>
-<<link [[RNG 71|$passage]]>><<set $rng to 71>><</link>>
-<br>
-<<link [[RNG 81|$passage]]>><<set $rng to 81>><</link>>
-<br>
-<<link [[RNG 91|$passage]]>><<set $rng to 91>><</link>>
-<br>
-<<link [[RNG 100|$passage]]>><<set $rng to 100>><</link>>
-<br>
-<<link [[Wear sundress|$passage]]>><<upperwear 1>><</link>>
-<br>
-<<link [[Wear swimsuit|$passage]]>><<underlowerwear 6>><</link>>
-<br>
-
-<<link [[Testing Room]]>><<upperstrip>><<lowerstrip>><<underlowerstrip>><</link>>
-<br>
-
-<<link [[End Event|$passage]]>><<endevent>><</link>>
-<br>
-<<link [[Escape Vore|$passage]]>><<set $vorestage to 0>><</link>>
-<br><br>
-
-<<link [[Make all beasts monster boys|$passage]]>><<set $monsterchance to 100>><<set $monsterhallucinations to "f">><<set $beastmalechance to 100>><<set $cbchance to 0>><</link>>
-<br>
-<<link [[Make all beasts monster girls|$passage]]>><<set $monsterchance to 100>><<set $monsterhallucinations to "f">><<set $beastmalechance to 0>><<set $dgchance to 0>><</link>>
-<br>
-<<link [[Make all beasts monster cuntboys|$passage]]>><<set $monsterchance to 100>><<set $monsterhallucinations to "f">><<set $beastmalechance to 100>><<set $cbchance to 100>><</link>>
-<br>
-<<link [[Make all beasts monster dickgirls|$passage]]>><<set $monsterchance to 100>><<set $monsterhallucinations to "f">><<set $beastmalechance to 0>><<set $dgchance to 100>><</link>>
-<br>
-<<link [[Make all beasts male animals|$passage]]>><<set $monsterchance to 0>><<set $beastmalechance to 100>><</link>>
-<br>
-<<link [[Make all beasts female animals|$passage]]>><<set $monsterchance to 0>><<set $beastmalechance to 0>><</link>>
-<br>
-<br>
-
-<<link [[Spring|$passage]]>><<set $season to "spring">><</link>>
-<br>
-<<link [[Summer|$passage]]>><<set $season to "summer">><</link>>
-<br>
-<<link [[Autumn|$passage]]>><<set $season to "autumn">><</link>>
-<br>
-<<link [[Winter|$passage]]>><<set $season to "winter">><</link>>
-<br>
-<br>
-
-<<link [[Enable basic Pregnancy features|$passage]]>><<set $sexStats.anus.pregnancy.seenDoctor to 2>><<set $sexStats.anus.pregnancy.maxCount to 2>><</link>>
-<br>
-<<link [[Get Initial Mother Trait|$passage]]>><<set $sexStats.anus.pregnancy.motherStatus to 1>><</link>>
-<br>
-<<link [[Fertilise New Eggs|$passage]]>><<fertilise>><</link>>
-<br>
-<<link [[Pregnancy Progress Day|$passage]]>><<pregProgressDay>><</link>>
-<br>
-<<link [[Pregnancy Progress Week|$passage]]>>
-	<<pregProgressDay>>
-	<<pregProgressDay>>
-	<<pregProgressDay>>
-	<<pregProgressDay>>
-	<<pregProgressDay>>
-	<<pregProgressDay>>
-	<<pregProgressDay>>
-<</link>>
-<br>
-<<link [[Set all pregnancy events to next $pass|$passage]]>>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<if _pregnancy[0] isnot null>><<set _pregnancy[0].timeLeft to 1>><</if>>
-	<<if _pregnancy[1] isnot null>><<set _pregnancy[1].timeLeft to 1>><</if>>
-	<<if _pregnancy[2] isnot null>><<set _pregnancy[2].timeLeft to 1>><</if>>
-	<<if _pregnancy[3] isnot null>><<set _pregnancy[3].timeLeft to 1>><</if>>
-<</link>>
-<br>
-
-<br>
-These still require Fertilise
-<br>
-<<link [[Get Pregnant with an eel|$passage]]>><<impregnate "eels" 1000>><</link>>
-<br>
-<<link [[Get Pregnant with a slime|$passage]]>><<impregnate "slimes" 1000>><</link>>
-<br>
-<<link [[Get Pregnant with a worm|$passage]]>><<impregnate "worms" 1000>><</link>>
-<br>
-<<link [[Get Pregnant with a tentacle|$passage]]>><<impregnate "tentacle" 1000>><</link>>
-<br><br>
-
-<<link [[Repair Pregnancy Objects|$passage]]>><<prenancyObjectRepair>><</link>>
-<br>
-<<link [[Reset Pregnancy Objects|$passage]]>><<unset $container>><<unset $sexStats.anus>><<physicalAdjustmentsInit>><<containersInit>><</link>>
-<br><br>
-
-<<link [["Enable Debug Lines"|$passage]]>><<set $debugLines to true>><</link>>
-<br>
-<<link [["Disable Debug Lines"|$passage]]>><<set $debugLines to false>><</link>>
-
+	<div id='debugEventsMain'>
+		<<debugGenerateDivs "Main">>
+	</div>
 <</widget>>
 
 <<widget "debugCharacter">>
-
-<<if $alluretest gte 1>>
-<<link [[Default allure|$passage]]>><<set $alluretest to 0>><</link>>
-<br>
-<<else>>
-<<link [[Become Alluring|$passage]]>><<set $alluretest to 1>><</link>>
-<br>
-<<link [[Become Unalluring|$passage]]>><<set $alluretest to 2>><</link>>
-<br>
-<</if>>
-<<if $dontHide is true>>
-	<<link [[Hide|$passage]]>><<dontHideRevert>><</link>>
-	<br>
-<<else>>
-	<<link [[Don't hide|$passage]]>><<dontHideForNow>><</link>>
-	<br>
-<</if>>
-<<link [[Fame|$passage]]>><<set $fame += 4000>><<famescrap 1000>><<famebusiness 1000>><<famegood 1000>><<famepimp 1000>><<set $fameexhibitionism += 1000>><<set $famesex += 1000>><<set $famerape += 1000>><<set $famebestiality += 1000>><<set $fameprostitution += 1000>><</link>>
-<br>
-
-<<link [[Fame Sex|$passage]]>><<set $fame += 4000>><<set $famesex += 4000>><</link>>
-<br>
-
-<<link [[Timer|$passage]]>><<set $timer -= 60>><</link>>
-<br>
-
-<<link [[Size Up|$passage]]>><<set $devlevel += 1>><</link>>
-<br>
-
-<<link [[Stress|$passage]]>><<set $stress to $stress + 5000>><</link>>
-<br>
-
-<<link [[Destress|$passage]]>><<set $stress to $stress - 5000>><</link>>
-<br>
-
-<<link [[Traumatise me|$passage]]>><<set $trauma to $trauma + 2000>><</link>>
-<br>
-
-<<link [[DeTraumatise me|$passage]]>><<set $trauma to $trauma - 2000>><</link>>
-<br>
-
-<<link [[Exhibitionism|$passage]]>><<set $exhibitionism to $exhibitionism + 20>><</link>>
-<br>
-
-<<link [[Promiscuity|$passage]]>><<set $promiscuity to $promiscuity + 20>><</link>>
-<br>
-
-<<link [[Deviancy|$passage]]>><<set $deviancy to $deviancy + 20>><</link>>
-<br>
-
-<<link [[Full Lewd|$passage]]>><<set $promiscuity to $promiscuity + 100>><<set $exhibitionism to $exhibitionism + 100>><<set $deviancy += 100>><</link>>
-<br>
-
-<<link [[Beauty|$passage]]>><<set $beauty to $beauty + 10000>><</link>>
-<br>
-
-<<link [[Physique|$passage]]>><<set $physique to $physique + 2000>><</link>>
-<br>
-
-<<link [[Sunlight|$passage]]>><<set $weather to "clear">><</link>>
-<br>
-
-<<link [[Booze|$passage]]>><<set $drunk += 60>><</link>>
-<br>
-
-<<link [[Drugged|$passage]]>><<set $drugged += 600>><</link>>
-<br>
-
-<<link [[Wash|$passage]]>><<wash>><</link>>
-<br>
-
-<<link [[Hallucinogen|$passage]]>><<set $hallucinogen += 600>><</link>>
-<br>
-
-<<link [[Seduction|$passage]]>><<set $seductionskill to $seductionskill + 200>><</link>>
-<br>
-
-<<link [[Skulduggery|$passage]]>><<set $skulduggery to $skulduggery + 200>><</link>>
-<br>
-
-<<link [[Crime|$passage]]>><<set $crime to $crime + 500>><<set $crimehistory += 500>><</link>>
-<br>
-
-<<link [[Bind|$passage]]>><<set $leftarm to "bound">><<set $rightarm to "bound">><</link>>
-<br>
-
-<<link [[UnBind|$passage]]>>
-<<unbind>>
-<</link>>
-<br>
-
-<<link [[Breasts up|$passage]]>><<set $breastsize += 1>><</link>>
-<br>
-<<link [[Breasts down|$passage]]>><<set $breastsize -= 1>><</link>>
-<br>
-<<link [[Butt up|$passage]]>><<set $bottomsize += 1>><</link>>
-<br>
-<<link [[Butt down|$passage]]>><<set $bottomsize -= 1>><</link>>
-<br>
-<<link [[Penis up|$passage]]>><<set $penissize += 1>><</link>>
-<br>
-<<link [[Penis down|$passage]]>><<set $penissize -= 1>><</link>>
-<br>
-<<link [[Balls up|$passage]]>><<set $ballssize += 1>><</link>>
-<br>
-<<link [[Balls down|$passage]]>><<set $ballssize -= 1>><</link>>
-<br>
-
-<<link [[Fame|$passage]]>><<set $fame += 4000>><<set $fameexhibitionism += 1000>><<set $famesex += 1000>><<set $famerape += 1000>><<set $famebestiality += 1000>><<set $fameprostitution += 1000>><</link>>
-<br>
-
-<<link [[Fame Sex|$passage]]>><<set $fame += 4000>><<set $famesex += 4000>><</link>>
-<br>
-
-<<link [[Timer|$passage]]>><<set $timer -= 60>><</link>>
-<br>
-
-<<link [[Stress|$passage]]>><<set $stress += 5000>><</link>>
-<br>
-<<link [[Destress|$passage]]>><<set $stress -= 5000>><</link>>
-<br>
-<<link [[Traumatise me|$passage]]>><<set $trauma += 2000>><</link>>
-<br>
-<<link [[DeTraumatise me|$passage]]>><<set $trauma -= 2000>><</link>>
-<br>
-<<link [[Exhibitionism|$passage]]>><<set $exhibitionism += 20>><</link>>
-<br>
-<<link [[Promiscuity|$passage]]>><<set $promiscuity += 20>><</link>>
-<br>
-
-<<link [[Full Lewd|$passage]]>><<set $promiscuity += 100>><<set $exhibitionism += 100>><<set $deviancy += 100>><</link>>
-<br>
-
-<<link [[Beauty|$passage]]>><<set $beauty += 10000>><</link>>
-<br>
-
-<<link [[Physique|$passage]]>><<set $physique += 2000>><</link>>
-<br>
-
-<<link [[Sunlight|$passage]]>><<set $weather to "clear">><</link>>
-<br>
-
-<<link [[Booze|$passage]]>><<set $drunk += 60>><</link>>
-<br>
-<<link [[Drugged|$passage]]>><<set $drugged += 600>><</link>>
-<br>
-<<link [[Hallucinogen|$passage]]>><<set $hallucinogen += 600>><</link>>
-<br>
-
-<<link [[Seduction|$passage]]>><<set $seductionskill += 200>><</link>>
-<br>
-
-<<link [[Skulduggery|$passage]]>><<set $skulduggery += 200>><</link>>
-<br>
-
-<<link [[Crime|$passage]]>><<set $crime += 500>><</link>>
-<br>
-
-<<link [[Chastity Belt|$passage]]>><<genitalswear 1>><</link>>
-<br>
-<<link [[Chastity Cage|$passage]]>><<genitalswear 2>><</link>>
-<br>
-<<link [[Collar|$passage]]>><<neckwear 1>><</link>>
-<br>
-<<link [[Bind|$passage]]>><<set $leftarm to "bound">><<set $rightarm to "bound">><</link>>
-<br>
-
-<<link [[Money|$passage]]>><<set $money += 500000>><</link>>
-<br>
-<<link [[Grow hair|$passage]]>><<set $hairlength += 100>><</link>>
-<br>
-<<link [[Grow fringe|$passage]]>><<set $fringelength += 100>><</link>>
-<br>
-<<link [[Arousal|$passage]]>><<arousal 10000>><</link>>
-<br>
-<<link [[Arousal down|$passage]]>><<arousal -10000>><</link>>
-<br>
-<<link [[Chest Parasite|$passage]]>><<parasite nipples urchin>><</link>> |
-<<link [[Penis Parasite|$passage]]>><<parasite penis urchin>><</link>> |
-<br>
-<<link [[Chastity Parasite|$passage]]>><<set $analchastityparasite to "worms">><</link>>
-<br>
-<<link [[Month|$passage]]>><<set $monthday += 31>><<day>><</link>>
-<br>
-<<link [[Delinquency|$passage]]>><<set $delinquency += 1000>><</link>>
-<br>
-<<link [[Detention|$passage]]>><<set $detention += 10>><</link>>
-<br>
-<<link [[School Skills|$passage]]>><<set $school += 8000>><<set $science += 800>><<set $maths += 800>><<set $english += 800>><<set $history += 800>><<set $sciencetrait to 4>><<set $mathstrait to 4>><<set $englishtrait to 4>><<set $historytrait to 4>><</link>>
-<br>
-<<link [[School Exam Skill|$passage]]>><<set $science_exam += 1000>><<set $maths_exam += 1000>><<set $english_exam += 1000>><<set $history_exam += 1000>><</link>>
-<br>
-<<link [[All Skills|$passage]]>><<set $school += 448>><<set $science += 112>><<set $maths += 112>><<set $english += 112>><<set $history += 112>><<set $skulduggery += 112>><<set $danceskill += 112>><<set $swimmingskill += 112>><<set $bottomskill += 112>><<set $seductionskill += 112>><<set $handskill += 112>><<set $feetskill += 112>><<set $chestskill += 112>><<set $thighskill += 112>><<set $oralskill += 112>><<set $analskill += 112>><<set $vaginalskill += 112>><<set $penileskill += 112>><</link>>
-<br>
-<<link [[All Skills Super|$passage]]>><<set $school += 4000>><<set $science += 1000>><<set $maths += 1000>><<set $english += 1000>><<set $history += 1000>><<set $sciencetrait to 4>><<set $mathstrait to 4>><<set $englishtrait to 4>><<set $historytrait to 4>><<set $skulduggery += 1000>><<set $danceskill += 1000>><<set $swimmingskill += 1000>><<set $bottomskill += 1000>><<set $seductionskill += 1000>><<set $handskill += 1000>><<set $feetskill += 1000>><<set $chestskill += 1000>><<set $thighskill += 1000>><<set $oralskill += 1000>><<set $analskill += 1000>><<set $vaginalskill += 1000>><<set $penileskill += 1000>><</link>>
-<br>
-<<link [[Status|$passage]]>><<set $cool += 400>><</link>>
-<br>
-<<link [[Status Down|$passage]]>><<set $cool -= 400>><</link>>
-<br>
-<<link [[Destroy Swimming Outfits|$passage]]>><<set $upperschoolswimsuitno to 0>><<set $lowerschoolswimsuitno to 0>><<set $schoolswimshortsno to 0>><</link>>
-<br>
-
-<<link [[Towels|$passage]]>><<clothesontowel>><</link>>
-<br>
-<<link [[Submission|$passage]]>><<set $submissive += 250>><</link>>
-<br>
-<<link [[Defiance|$passage]]>><<set $submissive -= 250>><</link>>
-<br>
-
-<<link [[Imprison Me|Underground Intro2]]>><<generate1>><<person1>><</link>>
-<br>
-
-<<link [[Towels Please|$passage]]>><<towelup>><</link>>
-<br>
-
-<<link [[Pain Up|$passage]]>><<set $pain += 50>><</link>>
-<br>
-
-<<link [[Pain Down|$passage]]>><<set $pain -= 200>><</link>>
-<br>
-
-<<link [[Robin Love|$passage]]>><<set $NPCName[$NPCNameList.indexOf("Robin")].love += 100>><<set $NPCName[$NPCNameList.indexOf("Robin")].lust += 100>><</link>>
-<br>
-
-<<link [[Robin Note|$passage]]>><<set $robinnote to 1>><</link>>
-<<link [[Robin Romance|$passage]]>><<set $robinromance to 1>><</link>>
-<br>
-
-<<link [[Stats Up|$passage]]>>
-<<set $orgasmstat += 2000>>
-<<set $ejacstat += 2000>>
-<<set $moleststat += 2000>>
-<<set $rapestat += 1000>>
-<<set $beastrapestat += 500>>
-<<set $tentaclerapestat += 200>>
-<<set $swallowedstat += 100>>
-<<set $prostitutionstat += 10>>
-<</link>>
-<br>
-
-<<link [[Almost Destroy Lowerclothes|$passage]]>><<set $worn.lower.integrity to 1>><</link>>
-<br>
-<<link [[Almost Destroy Upperclothes|$passage]]>><<set $worn.upper.integrity to 1>><</link>>
-<br>
-<<link [[Almost Destroy Underclothes|$passage]]>><<set $worn.under_lower.integrity to 1>><</link>>
-<br>
-<<link [[Almost Destroy Underupperclothes|$passage]]>><<set $worn.under_upper.integrity to 1>><</link>>
-<br>
-<<link [[Damage Lowerclothes|$passage]]>><<set $worn.lower.integrity -= 200>><</link>>
-<br>
-<<link [[Damage Upperclothes|$passage]]>><<set $worn.upper.integrity -= 200>><</link>>
-<br>
-<<link [[Damage Underupperclothes|$passage]]>><<set $worn.under_upper.integrity -= 200>><</link>>
-<br>
-<<link [[Damage Underclothes|$passage]]>><<set $worn.under_lower.integrity -= 200>><</link>>
-<br>
-<<link [[Damage Chastity|$passage]]>><<set $worn.genitals.integrity -= 5000>><</link>>
-<br>
-<<link [[Swimming Skill|$passage]]>><<set $swimmingskill += 100>><</link>>
-<br>
-
-<<link [[Disable Hands|$passage]]>><<set $NPCList[0].lefthand to 0>><<set $NPCList[0].righthand to 0>><</link>>
-<br>
-
-<<link [[Purity Down|$passage]]>><<set $purity -= 500>><</link>>
-<br>
-
-<<if $wolfgirl is 6>>
-<<link [[Wolf off|$passage]]>><<set $wolfgirl to 0>><</link>>
-<br>
-<<else>>
-<<link [[Wolf up|$passage]]>><<set $wolfgirl += 1>><</link>>
-<br>
-<</if>>
-
-<<link [[Wolf build up|$passage]]>><<set $wolfbuild += 40>><</link>>
-<br>
-
-<<link [[Wolf build down|$passage]]>><<set $wolfbuild -= 40>><</link>>
-<br>
-
-<<link [[Angel build up|$passage]]>><<set $angelbuild += 40>><</link>>
-<br>
-
-<<link [[Angel build down|$passage]]>><<set $angelbuild -= 40>><</link>>
-<br>
-
-<<link [[Demon build up|$passage]]>><<set $demonbuild += 40>><</link>>
-<br>
-<<link [[Demon build down|$passage]]>><<set $demonbuild -= 40>><</link>>
-<br>
-
-<<link [[Awareness up|$passage]]>><<set $awareness += 200>><</link>>
-<br>
-
-<<link [[Awareness down|$passage]]>><<set $awareness -= 200>><</link>>
-<br>
-
-<<link [[Goo Me|$passage]]>><<drench both 5>><</link>>
-<br>
-
-<<link [[Goo Me Small|$passage]]>><<drench both 1>><</link>>
-<br>
-
-<<link [[Undertemp off|$passage]]>><<set $undertemp to 0>><</link>>
-<br>
-
-<<link [[Drench me|$passage]]>><<set $upperwet to 200>><<set $lowerwet to 200>><<set $underlowerwet to 200>><</link>>
-<br>
-
-<<link [[Bully Timer|$passage]]>><<set $bullytimer to 100>><<set $bullytimeroutside to 100>><</link>>
-<br>
-
-<<link [[Whitney Lower Dominance|$passage]]>><<set $NPCName[$NPCNameList.indexOf("Whitney")].dom -= 20>><</link>>
-<br>
-
-<<link [[Whitney Raise Dominance|$passage]]>><<set $NPCName[$NPCNameList.indexOf("Whitney")].dom += 20>><</link>>
-<br>
-
-<<link [[Whitney Love|$passage]]>><<set $NPCName[$NPCNameList.indexOf("Whitney")].love += 20>><<set $NPCName[$NPCNameList.indexOf("Whitney")].lust += 20>><</link>>
-<br>
-
-<<link [[Whitney Romance|$passage]]>><<set $whitneyromance to 1>><</link>>
-<br>
-
-<<link [[Pub Whore|$passage]]>><<set $pubwhore += 10>><</link>>
-<br>
-
-<<link [[Make Creature|$passage]]>><<beasttype bear>><</link>>
-<br>
-
-<<link [[Full Spray|$passage]]>><<set $spraymax to 5>><<spray 5>><</link>>
-<br>
-
+	<div id='debugEventsCharacter'>
+		<<debugGenerateDivs "Character">>
+	</div>
 <</widget>>
 
 <<widget "debugEvents">>
+	<div id='debugEventsEvents'>
+		<<debugGenerateDivs "Events">>
+	</div>
+<</widget>>
 
-<<link [[Start Robin Event|$passage]]>><<set $robindebt to 9>><</link>>
-<br>
-<<link [[School Start|Oxford Street]]>><<pass 1 day>><</link>>
-<br>
-<<link [[Rape Me->Molestation]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Double Rape Me->Forest Molestation]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Gang Rape Me w/ Audience->The Pod]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [["Sex Me [M]"|Beach Day Encounter Sex]]>><<generateNPC 1 a m m>><<person1>><<set $sexstart to 1>><</link>>
-<br>
-<<link [["Sex Me [F]"|Beach Day Encounter Sex]]>><<generateNPC 1 a f f>><<person1>><<set $sexstart to 1>><</link>>
-<br>
-<<link [[Gang Sex Me w/ Audience->Maths Lesson Gang Bang]]>><<set $sexstart to 1>><</link>>
-<br>
-<<link [[DP Test]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Choke Suffocate Test|Beach Day Encounter Sex]]>><<generate1>><<person1>><<set $sexstart to 1>><<set $oxygen to 0>><<set $suffocating to 3>><<set $NPCList[0].righthand to "throat">><<set $neckuse to "hand">><<set $askedtochoke to 1>><</link>>
-<br>
-<<link [[Swarm|Sea Eels]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Machine|Machine]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Struggle|Struggle]]>><<set $struggle_start to 1>><</link>>
-<br>
-<<link [[Bus Rape->Bus move]]>><<generate1>><<person1>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Monster Rape Me->Monster Test]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Beast Rape Me|Street Dogs]]>><<set $molestationstart to 1>><<beastNEWinit 3 dog>><<set $outside to 1>><<set $location to "town">><<set $bus to "domus">><</link>>
-<br>
-<<link [[Beast Gang Test|The Farm]]>><<set $molestationstart to 1>><<set $outside to 1>><<set $location to "forest">><<set $bus to "forest">><</link>>
-<br>
-<<link [[Dolphin Sex Me|Sea Dolphins Sex]]>><<set $sexstart to 1>><<set $outside to 1>><<set $location to "sea">><<set $bus to "sea">><</link>>
-<br>
-<<link [[Tentacle Rape Me|Sea Tentacles]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Bailey Test->Bus move]]>><<set $molestationstart to 1>><<npc Bailey>><<person1>><</link>>
-<br>
-<<link [[Leighton Office Spank->School Detention]]>><<set $detention to 55>><</link>>
-<br>
-<<link [[Enslave Me->Underground Intro]]>><<generate1>><<generate2>><<person1>><</link>>
-<br>
-<<link [[Work as a dancer|Brothel Dance]]>><<danceinit>><<set $dancing to 1>><<set $venuemod to 3>><<stress -4>><<tiredness 4>><<set $dancelocation to "brothel">><</link>>
-<br>
-<<link [[Eden Start|Eden Cabin]]>><<set $syndromeeden to 1>><<set $NPCName[$NPCNameList.indexOf("Eden")].lust to 0>><<set $edenshrooms to 0>><<set $edengarden to 0>><<set $edenspring to 0>><</link>>
-<br>
-<<link [[Kylar Basement Rape|Kylar Basement Rape]]>><<set $molestationstart to 1>><<npc Kylar>><<person1>><</link>>
-<br>
-<<link [[Kylar Sex|Street Kylar Sex]]>><<set $sexstart to 1>><<set $location to "town">><<npc Kylar>><<person1>><</link>>
-<br>
-<<link [[Robin Sex Start|Bed Robin Sex]]>><<set $sexstart to 1>><<npc Robin>><<person1>><</link>>
-<br>
-<<link [[Briar Pay Refuse|Brothel Pay Refuse]]>><<set $molestationstart to 1>><<npc Briar>><<generate2>><<generate3>><<person1>><</link>>
-<br>
-<<link [[Leighton Sex|Head's Office Photoshoot Sex]]>><<set $sexstart to 1>><<set $phase to 1>><<npc Leighton>><<person1>><</link>>
-<br>
-<<link [[Leighton Forced|Head's Office Blackmail Rape]]>><<set $molestationstart to 1>><<npc Leighton>><<person1>><</link>>
-<br>
-<<link [[Avery Date|Domus Street]]>><<set $averydate to 1>><<set $time to 1200>><</link>>
-<br>
-<<link [[Black Wolf Forced|Forest Wolf Molestation]]>>/*<<beastNNPCinit>>*/<<npc "Black Wolf">><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[Police Pillory Start|Police Pillory Start]]>><<set $crime to 5000>><<generate1>><<person1>><</link>>
-<br>
-<<link [[Hole in wall|Temple Arcade 2]]>><</link>>
-<br>
-<<link [[Brothel Punishment]]>><</link>>
-<br>
-<<link [[Brothel Gloryhole]]>><</link>>
-<br>
-<<link [[Clothing Shop|Clothing Shop]]>><</link>>
-<br>
-<<link [[Forest Shop|Forest Shop]]>><</link>>
-<br>
-<<link [[Sea]]>><<set $sea to 0>><</link>>
-<br>
-<<link [[Hospital|Hospital Foyer]]>><</link>>
-<br>
-<<link [[Wolf Pack|Forest Wolf Cave]]>><<set $wolfpacktrust to 12>><</link>>
-<br>
-<<link [[Halloween|$passage]]>><<set $days to 47>><<set $monthday to 21>><<set $yeardays to 47>><<set $month to "october">><</link>>
-<br>
-<<link [[Full winter|$passage]]>><<set $days to 92>><<set $yeardays to 92>><<set $monthday to 1>><<set $month to "december">><</link>>
-<br>
-<<link [[Christmas|$passage]]>><<set $days to 110>><<set $yeardays to 110>><<set $monthday to 18>><<set $month to "december">><</link>>
-<br>
-<<link [[Blood moon|$passage]]>><<set $monthday to 31>><<set $daystate to "night">><<set $hour to 21>><<set $time to 1260>><<set $moonstate to "evening">><</link>>
-<br>
-<<link [[Test|$passage]]>><<set $month to "october">><</link>>
-<br>
-<br>
-<<link [[Wake up|Ambulance rescue]]>><<pass 1 hour>><</link>>
-<br>
-<<link [[Appointment|Hospital Foyer]]>><<set $weekday to 6>><<set $time to 960>><</link>>
-<br>
-<<link [[Deep forest|Forest]]>><<set $forest to 80>><</link>>
-<br>
-<<link [[Street Police Extreme|Street Police Extreme]]>><<pass 1 week>><<pass 1 week>><<npc Leighton>><<person1>><</link>>
-<br>
-<<link [[Brothel Show Swarm|Brothel Show Swarm]]>><<neckwear 1>><<set $leftarm to "bound">><<set $rightarm to "bound">><<set $feetuse to "bound">><<set $sexstart to 1>><<set $rng to random(1,100)>><<npc Briar>><<person1>><</link>>
-<br>
-<<link [[Pussy Inspection|Pussy Inspection]]>><<pass 1 week>><<pass 1 week>><<npc Leighton>><<person1>><</link>>
-<br>
-<<link [[Penis Inspection|Penis Inspection]]>><<pass 1 week>><<pass 1 week>><<npc Leighton>><<person1>><</link>>
-<br>
-<<link [[Breast Inspection|Breast Inspection]]>><<pass 1 week>><<pass 1 week>><<npc Leighton>><<person1>><</link>>
-<br>
-<<link [[Science Class Exposure|Science Event3]]>><<set $scienceprogression to 3>><<set $delinquency to 600>><</link>>
-<br>
-<<link [[History Class Pillory|History Lesson Pillory]]>><</link>>
-<br>
-<<link [[Alley Dog]]>><</link>>
-<br>
-<<link [[NNPC Parade]]>><</link>>
-<br>
-<<link [[Beast Parade]]>><</link>>
-<br>
-<<link [[Beast Train]]>><</link>>
-<br>
-<<link [[Demon Encounter|Demon Start]]>><</link>>
-<br>
-<<link [[Temple Initiate|Temple]]>><<inittemple>><</link>>
-<br>
-<<link [[Strip Club|Strip Club]]>><<set $id to 1>><</link>>
-<br>
-<<link [[Asylum|Hospital Bed]]>><<set $trauma to 4900>><</link>>
-<br>
-<<link [[Remy's Farm|Livestock Intro]]>><</link>>
-<br>
-<<link [[Farmlands|Farmland]]>><</link>>
-<br>
-<<link [[Museum|Museum]]>><</link>>
-<br>
-<<link [[Beach Cave|Beach Cave]]>><<set $cave to 0>><<beach_cave_init>><</link>>
-<br>
-<<link [[Stall Rent|Stall Rent]]>><<set $time to 360>><<set $daystate to "dawn">><</link>>
-<br>
-<<link [[Estate|Estate]]>><<estate_end>><<estate_init secret>><</link>>
-<br>
-<br><br>
-Turn beast into: <<link [[Creature|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "creature">><</link>>
-<br>
-<<link [[Dog|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "dog">><</link>>
-<br>
-<<link [[Wolf|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "wolf">><</link>>
-<br>
-<<link [[Dolphin|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "dolphin">><</link>>
-<br>
-<<link [[Bear|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "bear">><</link>>
-<br>
-<<link [[Boar|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "boar">><</link>>
-<br>
-<<link [[Pig|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "pig">><</link>>
-<br>
-<<link [[Lizard|$passage]]>><<set _xy to $enemyno-1>><<set $NPCList[_xy].type to "lizard">><</link>>
-<br><br>
-Swarm Encounters:
-<br>
-<<link [[Ruin Fish|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "fish" "containers" "shaking" "shatter" "steady" 4 6>>
-	<<set $water to 1>>
-<</link>>
-<br>
-<<link [[Lake Fish|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "fish" "swarms" "moving towards you" "encircle you" "fend off" 1 7>>
-	<<set $water to 1>>
-<</link>>
-<br>
-<<link [[Forest Snakes|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "snakes" "swarms" "slithering" "slither" "keep back" 10 0>>
-<</link>>
-<br>
-<<link [[Danube Spiders|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "spiders" "sacs" "slipping" "break" "steady" 1 9>>
-<</link>>
-<br>
-<<link [[Bath Slimes|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "slimes" "slime masses" "moving towards you" "encircle you" "fend off" 8 0>>
-<</link>>
-<br>
-<<link [[Trash Maggots|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "maggots" "swarms" "crawling" "crawl" "keep back" 2 8>>
-<</link>>
-<br>
-<<link [[Science Worms|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "worms" "jars" "held above the terrarium" "fall into the terrarium" "block" 0 10>>
-<</link>>
-<br>
-<<link [[Sea Eels|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "eels" "swarms" "moving towards you" "encircle you" "fend off" 1 9>>
-	<<set $water to 1>>
-<</link>>
-<br>
-<<link [[Crate Worms|Swarm Test]]>><<set $molestationstart to 1>>
-	<<swarminit "worms" "containers" "shaking" "shatter" "steady" 1 9>>
-<</link>>
-<br><br>
+<<widget "debugFavourites">>
+	<<if _args[0] == "replace">>
+		<<replace "#debugEventsFavourites">>
+			<<debugGenerateDivs "Favourites">>
+		<</replace>>
+	<<else>>
+	<div id='debugEventsFavourites'>
+		<<debugGenerateDivs "Favourites">>
+	</div>
+	<</if>>
+<</widget>>
+
+<<widget "debugAdd">>
+	<div id='debugEventsAdd'>
+		<<debugGenerateDivs "Add">>
+	</div>
+<</widget>>
+
+<<widget "debugGenerateDivs">>
+	<<if ndef _event_list>>
+		<<set _event_list to window.returnEventList()>>
+	<</if>>
+	<<if _event_list["Favourites"] == undefined>>
+		<<set _event_list["Favourites"] = $debug_favourite>>
+	<</if>>
+	<<if _args[0] != "Add">>
+		<<for _index = 0; _index < _event_list[_args[0]].length; _index++>>
+			<<if _event_list[_args[0]][_index].text_only != undefined>>
+				<<for _c = 0; _event_list[_args[0]][_index].text_only[_c] == '\n'; _c++>><br name="#"><</for>>
+				<<if _c < _event_list[_args[0]][_index].text_only.length>>
+					<div name="#" @id="_args[0]+'-'+_index">
+						<<print _event_list[_args[0]][_index].text_only>>
+					</div>
+					<<for _c = _event_list[_args[0]][_index].text_only.length - 1; _event_list[_args[0]][_index].text_only[_c] == '\n'; _c-->><br name="#"><</for>>
+				<</if>>
+			<<else>>
+				<<run window.getNameAndPassage(_args[0], T.index)>>
+				<<capture _args[0] _index _link_name _link_passage>>
+					<<set _onclickTemp = "window.debugCreateLinkAndRedirect("+"'"+_args[0]+"'"+","+_index+","+"'"+_args[0]+"-"+_index+"'"+");">>
+					<div @name="_link_name" @id="_args[0]+'-'+_index">
+						<a tabindex="0" @onclick="_onclickTemp">_link_name</a>
+						<<run window.addFavouriteIcon(_args[0], _index, _args[0]+'-'+_index)>>
+					</div>
+					<<run window.addonClickDivPassage(_args[0], _index, _args[0]+'-'+_index)>>
+				<</capture>>
+			<</if>>
+		<</for>>
+	<<else>>
+		<<run window.addDebugForm()>>
+	<</if>>
+<</widget>>
+
+
+<<widget "saveLoadCache">>
+	<<if _args[0] == "save">>
+		<<run window.cacheDebugDiv()>>
+	<<else>>
+		<<run $(document).one(':passageend', (ev) => window.loadCachedDebugDiv())>>
+	<</if>>
+<</widget>>
+
+<<widget "resetDebugLinks">>
+	<<link _link_name _link_passage>>
+		<<run window.runWidgetsInsideLink(_args[0], _index)>>
+	<</link>>
 <</widget>>

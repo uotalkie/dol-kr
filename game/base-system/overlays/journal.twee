@@ -1,0 +1,713 @@
+:: Widgets Journal [widget]
+<<widget "journal">>
+	<br>
+	<<trMonth `Time.monthName`>><<print "오늘은 " + Time.year + "년 " + _trResult + " " + Time.monthDay + "일 이다." >>
+	<br>
+	게임이 시작된지 <<print Time.days>>일이 지났다.
+	<br>
+	게임이 시작된 계절은 <<trSeason $startingseason "이다">>_trResult.
+	<br>
+	<<if $hardmodedays isnot undefined>>
+		당신은 하드모드에서 <span class="gold">$hardmodedays</span>일 동안 생존했다.
+		<br>
+	<</if>>
+	<<schoolterm>>
+	<br>
+	지금은 <<trSeason `Time.season` "이다">>_trResult.
+	<br><br>
+	<<if $antiquemoney gt 0>>
+		당신은 £<<print $antiquemoney>> 어치의 골동품을 갖고 있다.
+		<br>
+	<</if>>
+	<<if $blackmoney gt 0>>
+		당신은 £<<print $blackmoney>> 어치의 장물을 갖고 있다.
+		<br>
+	<</if>>
+	<<set _plant_keys to Object.keys($plants)>>
+	<<for _t to 0; _t lt _plant_keys.length; _t++>>
+		<<if $plants[_plant_keys[_t]].amount gte 1>><<set _plant_temp to 1>>
+			당신은 <span class="gold"><<print $plants[_plant_keys[_t]].amount>></span> <<trPlants $plants[_plant_keys[_t]].plural "unit" "의">>_trResult
+			<<if $options.images is 1 and setup.plants[_plant_keys[_t]].icon>>
+				<img class="tending_icon" @src="`img/misc/icon/tending/` + setup.plants[_plant_keys[_t]].icon">
+			<</if>>
+			<<if setup.plants[$plants[_plant_keys[_t]].name].singular and $plants[_plant_keys[_t]].amount === 1>>
+				<<trPlants $plants[_plant_keys[_t]].singular "name" "을">>_trResult 가지고 있다. |
+			<<else>>
+				<<trPlants $plants[_plant_keys[_t]].plural "name" "을">>_trResult 가지고 있다. |
+			<</if>>
+		<</if>>
+	<</for>>
+	<<if _plant_temp is 1>>코누다투스 가에 가판대를 빌려서 새벽에 팔 수 있다.<</if>>
+	<<if $phials_held gte 2>>
+		당신은 $phials_held 병의 미약을 가지고 있으며 엘크 가에서 팔 수 있다.
+	<<elseif $phials_held gte 1>>
+		당신은 한 병의 미약을 가지고 있으며 엘크 가에서 팔 수 있다. <br>
+	<</if>>
+	<<if $lurkers_held gte 2>>
+		당신은 럴커를 $lurkers_held 마리 가지고 있다. <br>
+	<<elseif $lurkers_held is 1>>
+		당신은 럴커를 한 마리 가지고 있다. <br>
+	<</if>>
+	<br>
+
+	<<if $options.images is 1>>
+		<<if Time.season is "winter">>
+			<img id="world_map" src="img/misc/world_map_winter.png">
+		<<else>>
+			<img id="world_map" src="img/misc/world_map.png">
+		<</if>>
+		<br>
+	<</if>>
+
+
+	<<if $rentday isnot undefined>>
+		<<if $renttime lte 0>>
+			베일리가 당신을 찾고 있으며, <<printmoney $rentmoney>>를 원한다.<<babyRentDisplay " 그리고 당신이 아이를 돌보지 않았기 때문에 " "를 추가로 더 원한다" "gold">>.
+			<br>
+		<<else>>
+			베일리는 <<rentday>>까지 <<printmoney $rentmoney>>를 원한다.<<babyRentDisplay " 그리고 당신이 아이를 돌보지 않았기 때문에 " "를 추가로 더 원한다" "gold">>.
+			<br>
+		<</if>>
+	<<elseif $rentmoney isnot undefined>>
+		베일리는 <<printmoney $rentmoney>>를 원한다.<<babyRentDisplay " 그리고 당신이 아이를 돌보지 않았기 때문에 " "를 추가로 더 원한다" "gold">>.
+		<br>
+	<</if>>
+
+	<<if $psych is 1>>
+		금요일에 의사 하퍼와 약속이 있다.
+		<br>
+	<</if>>
+
+	<<if $eden_asylum_window is 1 and $location is "asylum">>
+		<<if Time.hour lt 22>>
+			에덴은 오늘밤 <<ampm 20 00>>에 정신병원을 관찰할 것이다.
+		<<else>>
+			에덴은 정신병원을 관찰하며, 당신이 당신의 방을 표시해 주기를 기다리고 있다.
+		<</if>>
+	<</if>>
+
+	<<if $daily.eden.distract gte 1 and $location is "asylum">>
+		<<if Time.hour lt 21>>
+			에덴은 오늘밤 <<ampm 21 00>>에 소동을 일으킬 것이다.
+		<</if>>
+	<</if>>
+
+	<<if $brothelshowdata.type isnot "none" and $brothelshowdata.intro>>
+		<<if Time.weekDay is 6 and not $brothelshowdata.done>>
+			오늘은 창관에서 일할 날이다.
+			<br>
+		<<else>>
+			금요일은 창관에서 일하는 날이다.
+			<br>
+		<</if>>
+	<<elseif $brothelshowdata.intro>>
+		창관의 쇼에서 주연을 맡을 수 있다.
+		<br>
+	<</if>>
+
+	<<if $dockwork gte 2>>
+		학교 가는 날을 제외한 다른 날에는 <<ampm 7 00>> - <<ampm 8 00>> 사이에 부두에서 일할 수 있다.
+		<br>
+	<</if>>
+
+	<<if $pubtask2 is 1>>
+		술집에 있는 랜드리에게 블랙박스를 돌려주자.
+		<br>
+	<<elseif $pubtask>>
+		랜드리는 <<putpost $pubtask>>에서 블랙박스를 찾아오길 원한다.
+		<br>
+	<</if>>
+
+	<<if $police_hack is 1>>
+		잠긴 경찰서 컴퓨터에 대해서는 랜드리가 도와줄 수 있을지도 모른다.
+		<br>
+	<<elseif $pub_hack_job is 1>>
+		랜드리는 도무스 가 고아원에 사는 아마 '미키'라는 해커를 찾아오길 원한다.
+		<br>
+	<<elseif $pub_hack_job is 2>>
+		함께 일하자고 '미키'를 설득해야 한다.
+		<br>
+	<<elseif $pub_hack_job is 3>>
+		<<if !$hacker_tasks.includes("bailey")>>
+			'미키'는 베일리가 컴퓨터에 로그인 되어있는 동안 그 컴퓨터에 어떤 장치를 심어오길 원한다.
+			<br>
+		<</if>>
+		<<if !$hacker_tasks.includes("leighton")>>
+			'미키'는 레이턴의 책상 밑에 있는 금고에서 메모리 카드를 훔쳐오길 원한다.
+			<br>
+		<</if>>
+		<<if $hacker_tasks.length gte 2>>
+			랜드리와 '미키'에 대해 이야기를 나눠야 한다.
+			<br>
+		<</if>>
+	<</if>>
+
+	<<if $pubfame>>
+		<<if $pubfame.status is "accepted">>
+			<<switch $pubfame.task>>
+				<<case "river">>
+					'미키'는 학교의 수학 선생님인 리버에 대해 확인해오기를 원한다.
+				<<case "gwylan">>
+					'미키'는 <<if $forest_shop_intro is 1>>그윌란의 가게<<else>>숲의 외곽에 있는 가게<</if>>에서 특별한 스노우볼을 찾아오기를 원한다.
+				<<case "temple">>
+					'미키'는 커버 안쪽에 암호가 쓰여있는 사원의 건축에 대한 책을 찾아주기를 원한다.
+				<<case "kylar">>
+					'미키'는 편지를
+					<<if $NPCName[$NPCNameList.indexOf("Kylar")].state is "prison">>
+						경찰서에 배달해서, 그들이 카일라에게 전해주기를 원한다.
+					<<else>>
+						<<if $NPCName[$NPCNameList.indexOf("Kylar")].init isnot 1>>당신의 학교 학생인, <</if>>카일라에게 전해주기를 원한다.
+					<</if>>
+				<<case "wren">>
+					'미키'는 편지를 <<if $wren_intro is undefined>>렌이라는 <<nnpc_genderPost "Wren">>에게 전해주기를 원한다. <<nnpc_He_ nun "Wren">> 황무지에 있는 레미의 사유지나, 밤에 부두에서 찾을 수 있을 것이다<<else>>렌에게 전해주기를 원한다<</if>>.
+				<<case "hospital">>
+					'미키'는 병원에서 키 카드를 훔쳐오기를 원한다.
+					<<if $location is "asylum">>
+						그러나, 당신은 그들도 역시 이 장소의 키 카드가 있으면 좋아할 것이라고 생각한다.
+					<</if>>
+				<<case "morgan">>
+					'미키'는 오래된 하수도에서 USB 드라이브를 가져오기를 원한다. 그들은 <<if $sewersintro is 1>>모건이<<else>>그 아래의 누군가가<</if>> 그걸 가지고 있으리라고 생각한다.
+				<<case "niki">>
+					'미키'는 니키의 사진 스튜디오에서 <<trColour $pubfame.niki.hair>>_trResult 머리의 <<trNPCdesc $per_npc.pubfame_model.fullDescription>> 사진을 가져오기를 원한다.
+				<<case "bailey">>
+					'미키'는 베일리가 컴퓨터에 로그인 되어있는 동안 그 컴퓨터에 어떤 장치를 심어오길 원한다.
+				<<case "briar">>
+					'미키'는 창관에서 브라이어가 컴퓨터에 로그인 되어있는 동안 그 컴퓨터에 어떤 장치를 심어오길 원한다.
+				<<case "remy">>
+					<!-- intentionally does not include the password -->
+					'미키'는 <<if $ridingschoolintro is undefined>>하베스트 거리 너머 시골 지역의<</if>> 레미의 승마 학교에 있는 정보원에게서 상자를 가져오기를 원한다.
+				<<case "compound">>
+					'미키'는 엘크 가의 단지 주위에 감시 카메라를 설치하기를 바란다.
+					<<if $pubfame.compound.cameras.length gte 1>>
+						당신은 이미 <<trList $pubfame.compound.cameras>><<print formatList(_trList, "그리고", true)>>에 카메라를 숨겼다.
+					<</if>>
+			<</switch>>
+			그들은 임무 완수의 보상으로 <<if $pubfame.goal.includes("perm")>>영구적으로<<else>>일시적으로<</if>> 당신의 <<fameProse $pubfame.target>> 명성을 <<if $pubfame.goal.includes("Raise")>>올려<<else>>내려<</if>>줄 것이다.
+			<br>
+		<<elseif $pubfame.status is "done">>
+			당신은 '미키'에게 임무를 완수했다고 알려줄 수 있다.
+			<br>
+		<</if>>
+	<</if>>
+
+	<<if $community_service gte 1>>
+		<<if $community_service_done is 1>>
+			<span class="lblue">당신은 오늘 사회봉사를 하였다.</span>
+		<<elseif ["asylum","prison"].includes($location)>>
+			당신의 사회봉사 기간은 당신의 <<if $location is "prison">>교도소 수감<<else>>정신병원 입원<</if>> 동안 정지되어 있다.
+		<<elseif Time.hour gte 21>>
+			오늘은 너무 늦어서 사회봉사를 할 수 없다.
+		<<elseif Time.hour lt 6>>
+			오늘자 사회봉사를 하기 위해서 나중에 경찰서에 가야 한다.
+		<<else>>
+			오늘자 사회봉사를 하기 위해서 경찰서에 가야 한다.
+		<</if>>
+		<<if $community_service is 1>>
+			당신의 사회봉사 기간은 <span class="purple">하루</span>남았다.
+		<<else>>
+			당신의 사회봉사 기간은 <span class="pink">$community_service</span>일 남았다.
+		<</if>>
+		<br>
+	<</if>>
+
+	<<if $robindebtevent gte 1 and $robinmissing is "docks" and $docksrobinintro isnot 1>>
+		로빈이 사라졌다. <<nnpc_He_ nun "Robin">> 메르 가의 부두로 끌려간 것 같다.
+		<br>
+	<</if>>
+
+	<<if $robindebtevent gte 1 and $robinmissing is "landfill" and $mistrobinintro isnot 1 and $robinmistknown>>
+		로빈이 사라졌다. <<nnpc_He_ nun "Robin">> 엘크 가의 쓰레기 매립지로 끌려간 것 같다.
+		<br>
+	<</if>>
+
+	<<if $robindebtevent gte 1 and $robinmissing is "pillory" and $robinPillory.known is 1>>
+		로빈이 사라졌다.
+		<<if Time.hour lte 14>>
+			<<nnpc_He_ nun "Robin">> <<ampm 15 00>>에 클리프 가의 공개처형장 구속대에 묶일 예정이다.
+		<<else>>
+			<<nnpc_He_ nun "Robin">> 현재 공개처형장에 있다. 당신은 <<nnpc_himPost "Robin">>에게 무슨 일이 생길 것인지 알지 못한다.
+		<</if>>
+		<br>
+	<</if>>
+
+	<<if $averydate is 1 and Time.hour lte 21 and $averydatedone isnot 1>>
+		에이버리와의 데이트가 예정되어 있다. <<nnpc_He_ nun "Avery">> <<ampm 20 00>>와 <<ampm 21 00>>사이에 도무스 가에서 기다리고 있을 것이다.
+		<br>
+	<</if>>
+
+	<<if $valentines is 1>>
+		2월 14일은 발렌타인 데이다.
+		<<if $valentines_eden is 1 and !$valentines_eden_bought>>
+			당신은 에덴과 발렌타인 데이를 기념하기 위헤 무언가를 살 수 있다.
+		<<elseif $valentines_eden_bought is 1>>
+			당신은 발렌타인 데이 <<ampm 17 00>>에 에덴과 목욕을 준비할 수 있다.
+		<</if>>
+		<br>
+	<</if>>
+
+	<<if $halloween is 1>>
+		10월 31일은 할로윈이다.
+		<<if $halloween_whitney is 1 and $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon">>
+			휘트니는 <<ampm 19 00>>부터 도무스 가에서 트릭-오어-트릿을 할 것이다.
+		<</if>>
+		<<if $halloween_robin is 1 and $robinmissing is 0>>
+			로빈은 <<ampm 16 00>>와 <<ampm 19 00>>사이에 트릭-오어-트릿을 하러 가고 싶어한다.
+		<</if>>
+		<<if $halloween_kylar is 1 and $NPCName[$NPCNameList.indexOf("Kylar")].state isnot "prison">>
+			카일라가 <<ampm 21 00>> 이후에 공원에서 만나자고 했다.
+		<</if>>
+		<<if $halloween_eden is 1>>
+			당신은 에덴과 할로윈을 기념하기 위해 사탕을 살 수 있다.
+		<</if>>
+		<<if $halloween_lake is 1>>
+			학생들은 <<ampm 15 00>>부터 자정까지 호수에서 파티를 열 것이다.
+			<<if $halloweenWolves>>
+				늑대 무리중 하나가 거기에서 다쳤다.
+			<</if>>
+		<</if>>
+		<br>
+	<</if>>
+
+	<<if $christmas is 1>>
+		<<if Time.monthDay is 25>>
+			<<if Time.hour lte 20>>
+				고아들이 크리스마스를 기념하고 있다.
+				<br>
+			<</if>>
+		<<else>>
+			고아들은 최선을 다해 25일에 크리스마스를 기념할 것이다.
+			<br>
+		<</if>>
+		<<if $christmas_gift is undefined>>
+			당신은 쇼핑센터에서 선물을 살 수 있다.
+			<br>
+		<<elseif $christmas_gift is "clothes_unwrapped">>
+			당신은 고아원에 있는 방에서 선물을 포장할 수 있다.
+			<br>
+		<</if>>
+		<<if $christmas_gift_robin is undefined and $NPCName[$NPCNameList.indexOf("Robin")].init is 1>>
+			당신은 쇼핑센터<<if $forest_shop_intro is 1>>나 숲가게<</if>>에서 선물을 살 수 있다.
+			<br>
+		<<elseif $christmas_gift_robin and $christmas_gift_robin_wrapped isnot 1 and $NPCName[$NPCNameList.indexOf("Robin")].init is 1>>
+			당신은 방에서 로빈의 선물을 포장할 수 있다.
+			<br>
+		<</if>>
+		<<if !$christmas_wrap>>
+			쇼핑센터에서 포장지를 팔고 있다.
+			<br>
+		<</if>>
+		<<if $syndromeeden gte 1>>
+			<<if Time.monthDay is 25>>
+				<<if Time.hour lte 20>>
+					당신은 오늘 에덴과 크리스마스를 기념할 수 있다.
+					<br>
+				<</if>>
+			<<else>>
+				크리스마스가 오고 있다. 당신은 에덴과 크리스마스를 기념할 수 있다.
+				<br>
+			<</if>>
+		<</if>>
+		<<if $christmas_gift_eden is undefined and $syndromeeden gte 1>>
+			당신은 쇼핑센터에서 에덴을 위해 선물을 살 수 있다.
+			<br>
+		<</if>>
+		<<if $edenmeal is 1>>
+			에덴은 당신에게 <<ampm 18 00>>에 크리스마스 저녁식사를 같이 하자고 초대하였다.
+			<br>
+		<</if>>
+	<</if>>
+
+	<<if $temple_rank is "prospective">>
+		조던이 사원의 한 자리를 권해주었으나, 우선 순결의 시험부터 거쳐야 한다.
+		<br>
+	<<elseif $temple_rank is "initiate">>
+		당신은 사원의 견습이다.
+		<<if $temple_chastity_timer lte 0>>
+			<span class="pink">정조 시험이 예정되어 있다.</span>
+		<<elseif $temple_chastity_timer is 1>>
+			당신은 내일까지 정조 시험을 받아야 한다.
+		<<else>>
+			$temple_chastity_timer일 뒤에 정조 시험을 거칠 것이다.
+		<</if>>
+		시험을 통과하면 <span class="gold">용돈</span>이 나올 것이다.
+		<br>
+	<</if>>
+
+	<<if $chef_state is 4>>
+		샘이 나이팅게일 가의 한 주소에 들르라고 했다.
+		<br>
+	<<elseif $chef_state is 7 and $chef_rework lte 0>>
+		오션 브리즈의 보수가 끝났다.
+		<br>
+	<<elseif $chef_state is 7 and $chef_rework lte 30>>
+		오션 브리즈는 보수 중이라 문을 닫았다. $chef_rework일 뒤에 끝날 것이다.
+		<br>
+	<<elseif $chef_state is 7>>
+		오션 브리즈는 보수를 위해 <<print ($chef_rework - 30)>>일 동안 문을 닫을 것이다.
+		<br>
+	<<elseif $chef_state is 8>>
+		샘은 당신이 <<ampm 18 00>>와 <<ampm 21 00>> 사이에 있을 오션 브리즈의 성대한 재개장식에 참여하길 원한다.
+		<br>
+	<</if>>
+
+	<<if $smuggler_known is 1 and $smuggler_timer gte 0>>
+		밀수꾼들이 무언가 귀중한 물건을
+		<<if $smuggler_timer is 0>>
+			오늘 밤, 자정 이전에
+		<<elseif $smuggler_timer is 1>>
+			내일, 자정 이전에
+		<<else>>
+			$smuggler_timer일 뒤에
+		<</if>>
+		<<if $smuggler_location is "forest">>
+			그들은 숲을 통해 들여올 것이다.
+		<<elseif $smuggler_location is "sewer">>
+			그들은 낡은 하수도관을 통해 들여올 것이다.
+		<<elseif $smuggler_location is "beach">>
+			그들은 해변 근처의 암반에 내릴 예정이다.
+		<<elseif $smuggler_location is "bus">>
+			그들은 버스를 통해 들여올 예정이다.
+		<</if>>
+		<br>
+	<</if>>
+
+	<<if $mason_pond is 1>>
+		메이슨이 도무스 가 지하에 흐르는 수맥에 대해 언급했다. 샘을 만드는데 사용될 수 있을 것 같다. 우선 베일리의 허가가 필요할 것이다.
+		<br>
+	<<elseif $mason_pond is 2>>
+		고아원 정원에 샘을 만들고 싶다면 베일리에게 <span class="gold">£6000</span>를 줘야 한다.
+		<br>
+	<<elseif $mason_pond is 3>>
+		고아원 정원에 샘이 만들어지고 있다.
+		<br>
+	<<elseif $mason_pond is 4>>
+		고아원 정원에 샘이 만들어졌을 것이다.
+		<br>
+	<</if>>
+
+	<<if $brothel_machine_repair is 1>>
+		브라이어에게 비밀 섹스 기계에 대해 물어보자.
+		<br>
+	<<elseif $brothel_machine_repair is 2>>
+		창관 섹스 기계를 다시 채워넣어야 한다. 기계는 아주 값비싼 분홍색 젤을 사용한다. 브라이어는 쓰레기 매립지를 뒤져보라고 하였다. 매립지 안쪽 깊숙한 곳, 쓰레기 압축기 근처에 있을 것이다.
+		<br>
+	<<elseif $brothel_machine_repair is 3>>
+		브라이어가 섹스 기계에 쓸 거라고 한 분홍색 젤을 얻었다.
+		<br>
+	<</if>>
+
+	<<if $harpy gte 6 and $birdFly isnot 1>>
+		날개는 강하지만 날개를 사용하는 방법을 모른다. 매는 당신을 가르칠 수 있다.
+		<br>
+	<</if>>
+
+	<<if $farm_state gte 5 and $estate_fence is undefined>>
+		레미는 황무지의 사유지에서 알렉스의 농장을 침해하고 있다.
+		<br>
+	<<elseif $estate_fence is "quest" and currentSkillValue('skulduggery') lt 800>>
+		당신이 레미의 사유지에 숨어들어가도록 도와줄 누군가를 찾자. 암흑가와 연결고리가 있는 누군가, 혹은 황무지에 대해 아는 누군가를.
+		<br>
+	<<elseif $estate_fence is "bird">>
+		거대 매가 만들어 놓은 통로를 사용해 레미의 사유지 울타리를 수색하자.
+		<br>
+	<<elseif $estate_fence is "landry">>
+		랜드리가 만들어 놓은 통로를 사용해 레미의 사유지 울타리를 수색하자.
+		<br>
+	<</if>>
+
+	<<if $farm>>
+		<<if $farm.tower gte 1 and !$farm.tower_guard>>
+			농장의 감시탑은 비어 있다. 당신은 하베스트 가의 술집에서 필요한 경비원 후보를 찾을 수 있다.
+			<br>
+		<</if>>
+	<</if>>
+
+	<<if $farm_stage gte 7>>
+		레미는 농장을 
+		<<if $farm_attack_timer is 0>>
+			오늘 공격할 것이다.
+		<<elseif $farm_attack_timer is 1>>
+			내일 공격할 것이다.
+		<<else>>
+			$farm_attack_timer일 안에 공격할 것이다.
+		<</if>>
+		그들은 <<ampm 21 00>>부터 자정 사이에 올 것이다.
+		<br>
+	<</if>>
+
+	<<if $photo>>
+		<<if $photo.silly is "accepted">>
+			하이 가의 사업주가 낮에 당신이 오기를 기다리고 있다
+			<br>
+		<<elseif $photo.silly is "done">>
+			당신은 니키에게서 하이 가에서 한 일에 대한 보수를 받을 수 있다.
+			<br>
+		<</if>>
+	<</if>>
+
+	<<if $jordan_ritual_dance is 1>>
+		조던이 당신에게 다뉴브 가의 저택 중 하나를 조사해 달라고 부탁했다. 사원의 신도들 중 하나가 그곳에서 직업을 얻은 후 실종되었다. 당신은 당신의 댄스 실력으로, 찰리를 통해 그 곳에 들어갈 수 있을 것이다.
+		<br>
+	<<elseif $jordan_ritual_dance is 2>>
+		당신은 다뉴브 가의 저택에서 수상한 의식과 맞닥뜨렸다. 사원의 수도승인 조던에게 알리자.
+		<br>
+	<</if>>
+
+	<br>
+	<<if $scienceproject is "ongoing">>
+		<hr>
+		<<if $scienceprojectdays is 0>>
+			과학 전람회가 클리프 가의 시청에서 오늘 <<ampm 9 00>>부터 <<ampm 18 00>>까지 열릴 예정이다.
+			<br>
+		<<else>>
+			과학 전람회가 클리프 가의 시청에서 $scienceprojectdays일 뒤에 열릴 예정이다.
+			<br>
+		<</if>>
+		다음과 같은 과학 프로젝트를 진행하고 있다. 전람회에 출품할 주제를 하나 골라야 한다.
+		<br>
+		<<if $sciencelichenknown is 1>>
+			-<span class="green">지역 이끼</span>
+			<br>
+			<<if $sciencelichenpark is 1>>
+				<<if $sciencelichenparkready is 1>>
+					--공원에서 자라고 있던 이끼를 프로젝트에 포함시켰다. <span class="gold">성공 확률 +25%.</span>
+					<br>
+				<<else>>
+					--공원의 이끼를 조사했다. 집이나 도서관에서 그에 관해 써야 한다.
+					<br>
+				<</if>>
+			<<else>>
+				--<span class="black">공원에서 흰색 이끼를 조사하라.</span>
+				<br>
+			<</if>>
+			<<if $sciencelichentemple is 1>>
+				<<if $sciencelichentempleready is 1>>
+					--사원에서 자라고 있던 이끼를 프로젝트에 포함시켰다. <span class="gold">성공 확률 +25%.</span>
+					<br>
+				<<else>>
+					--사원에서 자라고 있던 이끼를 조사했다. 집이나 도서관에서 그에 대한 것을 프로젝트에 추가해야 한다.
+					<br>
+				<</if>>
+			<<else>>
+				--<span class="black">사원에서 분홍색 이끼를 조사하라.</span>
+				<br>
+			<</if>>
+			<<if $sciencelichendrain is 1>>
+				<<if $sciencelichendrainready is 1>>
+					--빗물 배수관에서 자라고 있던 이끼를 프로젝트에 포함시켰다. <span class="gold">성공 확률 +25%.</span>
+					<br>
+				<<else>>
+					--빗물 배수관에서 자라고 있던 이끼를 조사했다. 집이나 도서관에서 그에 대한 것을 프로젝트에 추가해야 한다.
+					<br>
+				<</if>>
+			<<else>>
+				--<span class="black">바다로 향하는 빗물 배수관에서 제비꽃색 이끼를 조사하라.</span>
+				<br>
+			<</if>>
+			<<if $sciencelichenlake is 1>>
+				<<if $sciencelichenlakeready is 1>>
+					--호수 유적에서 자라고 있던 이끼를 프로젝트에 포함시켰다. <span class="gold">성공 확률 +25%.</span>
+					<br>
+				<<else>>
+					--호수 유적에서 자라고 있던 이끼를 조사했다. 집이나 도서관에서 그에 대한 것을 프로젝트에 추가해야 한다.
+					<br>
+				<</if>>
+			<<else>>
+				--<span class="black">호수 유적에서 보라색 이끼를 조사하라.</span>
+				<br>
+			<</if>>
+			결과적으로, 이 프로젝트는 전람회에서 <<print ($sciencelichenparkready * 25 + $sciencelichenlakeready * 25 + $sciencelichendrainready * 25 + $sciencelichentempleready * 25)>>% 확률로 우승할 것이다. 이 프로젝트로 우승한다면 트라우마가 큰 폭으로 하락하며 선생님들에게 사랑받을 수 있을 것이다.
+			<br><br>
+		<<else>>
+			<span class="black">????????????</span> - 탐험을 통해 확인.
+			<br><br>
+		<</if>>
+		<<if $scienceshroomknown is 1>>
+			-<span class="green">지역 버섯</span>
+			<br>
+			-- $scienceshroomheart/5개의 심장버섯을 찾았다.
+			<br>
+			-- $scienceshroomheartready/5개의 심장버섯을 프로젝트에 추가했다.
+			<<if $scienceshroomheart gte $scienceshroomheartready>>
+				집이나 도서관에서 프로젝트에 버섯에 대한 것을 추가해야 한다.
+			<</if>>
+			<<if $scienceshroomheartready gte 1>>
+				<span class="gold">성공 확률 +<<print ($scienceshroomheartready * 10)>>%.</span>
+			<</if>>
+			<br>
+			-- $scienceshroomwolf/5개의 늑대버섯을 찾았다.
+			<br>
+			-- $scienceshroomwolfready/5개의 늑대버섯을 프로젝트에 추가했다.
+			<<if $scienceshroomwolf gte $scienceshroomwolfready>>
+				집이나 도서관에서 프로젝트에 버섯에 대한 것을 추가해야 한다.
+			<</if>>
+			<<if $scienceshroomwolfready gte 1>>
+				<span class="gold">성공 확률 +<<print ($scienceshroomwolfready * 10)>>%.</span>
+			<</if>>
+			<br>
+			결과적으로, 이 프로젝트는 전람회에서 <<print ($scienceshroomwolfready * 10 + $scienceshroomheartready * 10)>>% 확률로 우승할 것이다. 이 프로젝트로 우승한다면 트라우마가 큰 폭으로 하락하며 학생들 사이에서 더욱 인기 있어질 것이다.
+			<br><br>
+		<<else>>
+			<span class="black">????????????</span> - 숲을 탐험하여 확인.
+			<br><br>
+		<</if>>
+		<<if $sciencephallusknown is 1>>
+			-<span class="green">지역 남근</span> - 날씨가 좋을 때 해변에서 참가자를 찾자.
+			<br>
+			-- $sciencephallus/10개의 남근을 측정했다.
+			<br>
+			-- $sciencephallusready/10개의 남근을 프로젝트에 추가하였다.
+			<<if $sciencephallus gte $sciencephallusready>>
+				집이나 도서관에서 프로젝트에 남근에 대한 것을 추가해야 한다.
+			<</if>>
+			<<if $sciencephallusready gte 1>>
+				<span class="gold">성공 확률 +<<print ($sciencephallusready * 10)>>%.</span>
+			<</if>>
+			<br>
+			결과적으로, 이 프로젝트는 전람회에서 <<print ($sciencephallusready * 10)>>% 확률로 우승할 것이다. 이 프로젝트로 우승한다면 트라우마가 큰 폭으로 하락하며 더욱 유명해질 것이다.
+			<br><br>
+		<<else>>
+			<span class="black">????????????</span> - 음란도를 높여서 확인.
+			<br><br>
+		<</if>>
+		<hr>
+	<</if>>
+
+	<<if $mathsproject is "ongoing">>
+		<<set $mathschance = Math.clamp($mathschance, 0, 100)>>
+		<hr>
+		<<if $mathsprojectdays is 0>>
+			수학 경시대회가 클리프 가의 시청에서 오늘 <<ampm 9 00>>부터 <<ampm 18 00>>까지 열릴 예정이다.
+			<br>
+		<<else>>
+			수학 경시대회가 클리프 가의 시청에서 $mathsprojectdays일 뒤에 열릴 예정이다. 그 전에 해답을 완성해야 한다. 고아원이나 학교 도서관에서 프로젝트에 대한 작업을 할 수 있다.
+			<br>
+		<</if>>
+		<<if $mathschance is 0>>
+			<span class="black">아직 해답을 알아내는 작업에 착수하지 않았다. 경시대회에서 우승할 확률은 $mathschance%다.</span>
+		<<elseif $mathschance lte 10>>
+			<span class="pink">이제 막 첫 발자국을 내딛은 수준이다. 경시대회에서 우승할 확률은 $mathschance%다.</span>
+		<<elseif $mathschance lte 30>>
+			<span class="purple">그렇게 진도가 많이 나간 것은 아니지만, 대충 갈피는 잡혔다. 경시대회에서 우승할 확률은 $mathschance%다.</span>
+		<<elseif $mathschance lte 50>>
+			<span class="blue">뼈대는 잡힌 상태지만, 아직도 가야할 길이 멀다. 경시대회에서 우승할 확률은 $mathschance%다.</span>
+		<<elseif $mathschance lte 80>>
+			<span class="lblue">전반적인 윤곽은 다 잡아놓았지만, 발전할 여지는 남아있다. 경시대회에서 우승할 확률은 $mathschance%다.</span>
+		<<elseif $mathschance lte 99>>
+			<span class="teal">정확한 해답은 아니지만, 상당한 수준이다. 이 수준까지도 온 사람은 없을 것 같다. 경시대회에서 우승할 확률은 $mathschance%다.</span>
+		<<else>>
+			<span class="green">완벽한 해답이다. 경시대회에서 우승할 확률은 $mathschance%다.</span>
+		<</if>>
+		<br>
+		<span class="gold">$mathsinfo</span>번의 영감을 얻었다.
+		<br>
+		<<if $stimdealerknown is 1>>
+			<span class="gold">$mathsstim</span>개의 각성제를 갖고 있다.
+			<br>
+			각성제는 옥스포드 가의 딜러들로부터 살 수 있다.
+			<br>
+		<</if>>
+		<hr>
+	<</if>>
+
+	<<if $englishPlay is "ongoing">>
+		<<if $englishPlayDays is 0>>
+			학교 연극이 클리프 가의 시청에서 오늘 밤 <<ampm 17 00>>부터 <<ampm 21 00>>까지 열릴 예정이다.
+		<<else>>
+			학교 연극이 클리프 가의 시청에서 $englishPlayDays일 뒤에 열릴 예정이다.
+		<</if>>
+		<<if $englishPlayRoles.Player isnot "none">>
+			<br>
+			당신은 <<trNamedNPC $englishPlayRoles.Player "name">>_trResult 역을 맡았다. 당신은 고아원에서 혼자 예행연습을 할 수 있다.
+			<<if $englishPlayRoles.Kylar isnot "none" and $englishPlayRoles.KylarKnown>>
+				<br>
+				카일라는 <<trNamedNPC $englishPlayRoles.Kylar "name" "을">>_trResult 연기한다. 당신은 방과 후에 <<nnpc_him_ gwa "Kylar">> <<if $weather is "rain" or $weather is "snow">>학교 도서실<<else>>학교 뒷마당<</if>>에서 예행연습을 할 수 있다.
+			<<elseif $englishPlayKylarReplace>>
+				<br>
+				연극에서 카일라의 배역은 다른 학생에게로 넘어갔다.
+			<</if>>
+			<<if $englishPlayRoles.SydneyKnown>>
+				<br>
+				시드니는 <<trNamedNPC $englishPlayRoles.Sydney "name" "을">>_trResult 연기한다. 당신은 방과 후에 <<nnpc_him_ gwa "Sydney">> 영어 교실에서 예행연습을 할 수 있다.
+			<</if>>
+			<<if !$englishPlayRoles.SydneyKnown and !$englishPlayRoles.KylarKnown>>
+				<br>
+				당신은 방과 후에 영어 교실에서 당신의 연극 동료들과 만날 수 있다.
+			<<elseif !$englishPlayRoles.SydneyKnown or (!$englishPlayRoles.KylarKnown and !$englishPlayKylarReplace)>>
+				<br>
+				당신은 방과 후에 영어 교실에서 당신의 다른 연극 동료와 만날 수 있다.
+			<</if>>
+			<br>
+			<<playReadiness>>
+			연기를 잘 하면 사교 명성을 퍼트리고 학교 평판에 큰 도움이 될 것이다.
+		<<else>>
+			<<if $englishPlayLate>>
+				당신이 배역을 맡으려면 <<trNumber $englishPlayLate>> <<if $englishPlayLate is 1>>일<<else>>일<</if>> 내에 신청해야 한다. 당신은 방과 후에 영어 교실에서 신청할 수 있고, 또는 그냥 다른 학생들이 예행연습을 하는 것을 도와줄 수도 있다.
+			<<else>>
+				당신이 배역을 맡기에는 너무 늦었지만, 아직 당신은 다른 학생들이 예행연습을 하는 것을 도와주고 관객들과 연극을 관람할 수 있다.
+			<</if>>
+		<</if>>
+		<br>
+	<</if>>
+
+	<<if $studyBooks isnot undefined and $studyBooks.rented isnot "none">>
+		<<if $book_rent_timer is 0>>
+			<span class="blue">당신은 반납기한이 된 책을 가지고 있다.</span>
+		<<elseif $book_rent_timer lt 0>>
+			<span class="red">당신은 반납기한이 지난 책을 가지고 있다.</span>
+		<<else>>
+			당신은 반납기한이 <span class="gold">$book_rent_timer 일<<if $book_rent_timer gt 1>><</if>>남은 책을 가지고 있다.</span>
+		<</if>>
+	<</if>>
+
+	<<adultShopOpeningProgressJournal>>
+
+	<<if $farm>>
+		<br>
+		<<farm_upgrades_current>>
+	<</if>>
+
+	<<if $location is "prison">>
+		당신은 상어 이빨을 <span class="gold"><<trNumber $prison.teeth>></span> 개 가지고 있다.
+		<br>
+		<<if $prison_wren_intro isnot 1>>
+			당신은 금요일 점심식사 후에 교도소 마당에서 렌을 찾을 수 있다.
+			<br>
+		<</if>>
+	<</if>>
+
+	<<if $museumAntiqueJournalHints.length gte 1>>
+		<<museumAntiqueText>>
+		<br><br>
+		<h4>윈터가 박물관에 없는 물건들에 대해 언급했다</h4>
+		<ul>
+		<<set _hintslist to clone($museumAntiqueJournalHints).reverse()>>
+		<!-- most recent go on top -->
+		<<for _hint range _hintslist>>
+			<<if _museumAntiqueText[_hint]>>
+				<li><<print _museumAntiqueText[_hint].journal>></li>
+			<<else>>
+				<li><span class="red">경고: 골동품 "_hint"에 해당하는 힌트가 없습니다. 모드가 적용된 버전에서 가져온 세이브일지도 모릅니다.</span></li>
+				<<set $museumAntiqueJournalHints.delete(_hint)>>
+			<</if>>
+		<</for>>
+		</ul>
+	<</if>>
+
+	<<if $plants_known.length gt 0>>
+		<h4>씨앗</h4>
+		<<set _plant_keys to Object.keys(setup.plants)>>
+		<<for _i to 0; _i lt _plant_keys.length; _i++>>
+			<<if setup.plants[_plant_keys[_i]].type is "flower" or setup.plants[_plant_keys[_i]].type is "vegetable">>
+				<<if $plants_known.includes( setup.plants[_plant_keys[_i]].name)>>
+					<<if $options.images is 1 and setup.plants[_plant_keys[_i]].icon>>
+						<img class="tending_icon" @src="`img/misc/icon/tending/` + setup.plants[_plant_keys[_i]].icon">
+					<</if>>
+					<<trPlants setup.plants[_plant_keys[_i]].name>><span class="green"><<print _trResult>></span> |
+				<<else>>
+					??? |
+				<</if>>
+			<</if>>
+		<</for>>
+	<</if>>
+<</widget>>

@@ -1,35 +1,38 @@
 window.Dynamic = window.Dynamic || {};
 
 /**
- * Re-renders dynamic elements in the current passage
- * @param {string} ids - IDs of elements to update, default - all dynamic elements on the page
+ * Re-renders dynamic elements in the current passage.
+ *
+ * @param {string} ids IDs of elements to update, default - all dynamic elements on the page.
  */
 Dynamic.render = (...ids) => {
 	if (!ids || ids.length === 0) ids = Object.keys(Dynamic.liveIds);
 	ids.forEach(id => {
 		if (!(id in Dynamic.liveIds)) return;
-		let content = Dynamic.liveIds[id];
+		const content = Dynamic.liveIds[id];
 		Dynamic.task(() => Dynamic.renderAt(id, content), `Dynamic.renderAt(${id}, ${content})`);
 	});
 	Dynamic.task(() => Links.generate(), `Links.generate()`);
 	Dynamic.processTasks();
-}
+};
 
 /**
- * Dynamic.eventBinder
+ * Dynamic.eventBinder.
  *
  * Will cause events on the bound element to re-render dynamic elements on the current passage.
  * Also allows you to immediately evaluate SugarCube variables, and use those value in the event handler
- * (manual string concat is no longer required)
+ * (manual string concat is no longer required).
  *
  * Note: currently only supports onclick events.
  * Note: events must *not* use the `@` notation. If you need to use it, then don't use this
- * Note: `@id="Dynamic.eventBinder()"` is required, even if not injecting values
+ * Note: `@id="Dynamic.eventBinder()"` is required, even if not injecting values.
  *
  * Example usage:
  *
- * <div
- * 	@id="Dynamic.eventBinder(_valueToBeInjected1, $anotherVar)"
+ * <div.
+ *
+ * @param {...any} valuesToInject
+ * 	'@id="Dynamic.eventBinder(_valueToBeInjected1, $anotherVar)"
  * 	onclick="(injectedValue1, injectedValue2) => { $var1 = injectedValue1; $var2 = injectedValue2; }"
  * ></div>"
  *
@@ -64,7 +67,7 @@ Dynamic.render = (...ids) => {
  */
 Dynamic.eventBinder = (...valuesToInject) => {
 	return Dynamic.eventBinderWithId(Dynamic.getNewId(), ...valuesToInject);
-}
+};
 Dynamic.eventBinderWithId = (id, ...valuesToInject) => {
 	/** We must let SugarCube finish rendering. Our element won't exist yet */
 	Dynamic.task(() => {
@@ -72,24 +75,27 @@ Dynamic.eventBinderWithId = (id, ...valuesToInject) => {
 		if (!elm) {
 			console.warn(`Unable to find Dynamic id ${id} on page. Page maybe rendered incorrectly`);
 		} else {
-			Dynamic.bindEvents(elm, {}, valuesToInject)
+			Dynamic.bindEvents(elm, {}, valuesToInject);
 		}
-	}, `Dynamic.bindEvents(${id}, {}, ${JSON.stringify(valuesToInject)})`)
+	}, `Dynamic.bindEvents(${id}, {}, ${JSON.stringify(valuesToInject)})`);
 	return id;
-}
+};
 
 /**
  * Underlying implementation of the <<dynamic>> widget. You probably want to use that instead.
  * Slightly more powerful in that any arbitrary sugarcube content is allowed.
  *
- * Usage: <div id="Dynamic.bind('Any sugarcube content can go here, and will be manually be evaluated. <<myDynamicContent>>')></div>"
+ * Usage: <div id="Dynamic.bind('Any sugarcube content can go here, and will be manually be evaluated. <<myDynamicContent>>')></div>".
+ *
+ * @param {any} content
+ * @param {string} customId
  */
 Dynamic.bind = (content, customId) => {
 	const id = customId || Dynamic.getNewId();
 	Dynamic.bindTo(id, content);
 	Dynamic.task(() => Dynamic.renderAt(id, content), `Dynamic.renderAt(${id}, ${content})`);
 	return id;
-}
+};
 
 /*
  * Creates a <div> with content that would be updated on Dynamic.render().
@@ -120,13 +126,13 @@ Dynamic.bind = (content, customId) => {
  * Will render <div id="myelement" class="red d-flex"></div> at start
  * and render 'Hello World' inside it on button click
  */
-Macro.add('dynamicblock', {
+Macro.add("dynamicblock", {
 	skipArgs: false,
 	tags: null,
 	handler() {
-		let div = document.createElement("DIV");
+		const div = document.createElement("DIV");
 		let delay = false;
-		for (let arg of this.args) {
+		for (const arg of this.args) {
 			if (arg === "delay") {
 				delay = true;
 			} else if (arg.indexOf("id=") === 0) {
@@ -134,39 +140,41 @@ Macro.add('dynamicblock', {
 			} else if (arg.indexOf("class=") === 0) {
 				div.className = arg.slice(6);
 			} else {
-				return this.error(`bad dynamicblock argument '${arg}'`)
+				return this.error(`bad dynamicblock argument '${arg}'`);
 			}
 		}
 		if (!div.id) div.id = Dynamic.getNewId();
 
-		let content = this.payload[0].contents;
+		const content = this.payload[0].contents;
 		this.output.append(div);
 		Dynamic.bindTo(div.id, content);
 		if (!delay) {
 			Dynamic.task(() => Dynamic.renderAt(div.id, content), `dynamicblock(${div.id}, ${content})`);
 		}
-	}
-})
+	},
+});
 
-/** ################
- * Sugarcube lifecycle
+/**
+ * ################
+ * Sugarcube lifecycle.
  */
-$(document).on(':passageinit', function (ev) {
+$(document).on(":passageinit", function (ev) {
 	// cleanup existing IDs and usages before we start rendering the next passage
 	Dynamic.dispose();
 	Dynamic.stage = Dynamic.Stage.SugarCubeRender;
 });
-$(document).on(':passagedisplay', function (ev) {
+$(document).on(":passagedisplay", function (ev) {
 	Dynamic.processTasks();
 });
 
-/** ################
- * Dynamic lifecycle
+/**
+ * ################
+ * Dynamic lifecycle.
  */
 Dynamic.Stage = {
-	Settled: 'Settled',
-	UpdateQueued: 'UpdateQueued',
-	SugarCubeRender: 'SugarCubeRender',
+	Settled: "Settled",
+	UpdateQueued: "UpdateQueued",
+	SugarCubeRender: "SugarCubeRender",
 };
 Dynamic.stage = Dynamic.Stage.Rendering;
 Dynamic.tasks = [];
@@ -177,9 +185,9 @@ Dynamic.processTasks = () => {
 	let inLoopTasks = 0;
 	while (Dynamic.tasks.length > 0) {
 		Dynamic.stage = Dynamic.Stage.UpdateQueued;
-		const task = Dynamic.tasks.pop()
+		const task = Dynamic.tasks.pop();
 		try {
-			task()
+			task();
 		} catch (e) {
 			errors.push([task, e]);
 		}
@@ -191,54 +199,63 @@ Dynamic.processTasks = () => {
 	}
 	Dynamic.stage = Dynamic.Stage.Settled;
 	if (errors.length) {
-		console.warn(`Encountered errors while finishing a Dynamic render:`, errors.map(([task, error]) => {
-			return [task.toString(), error]
-		}))
+		console.warn(
+			`Encountered errors while finishing a Dynamic render:`,
+			errors.map(([task, error]) => {
+				return [task.toString(), error];
+			})
+		);
 	}
-}
+};
 Dynamic.task = (fn, name) => {
 	fn.toString = () => name;
 	if (Dynamic.stage === Dynamic.Stage.Settled) {
 		try {
-			fn()
+			fn();
 		} catch (e) {
 			console.warn(`Encountered a unexpected critical error while performing a dynamic render task`, fn.toString(), e);
 		}
 	} else {
 		Dynamic.tasks.push(fn);
 	}
-}
+};
 
-/** ############################################################
- * Dynamic internal tools (you probably don't need to use these)
+/**
+ * ############################################################
+ * Dynamic internal tools (you probably don't need to use these).
  */
 
-Dynamic.nextGlobalId = 0
-Dynamic.liveIds = {}
-Dynamic.getNewId = () => `dynamic-${Dynamic.nextGlobalId++}`
+Dynamic.nextGlobalId = 0;
+Dynamic.liveIds = {};
+Dynamic.getNewId = () => `dynamic-${Dynamic.nextGlobalId++}`;
 /** Used to cleanup ids. Should be called occasionally, when confident that no ids are currently in use (ideally between passages) */
-Dynamic.dispose = () => { Dynamic.liveIds = {}; Dynamic.nextGlobalId = 0; }
+Dynamic.dispose = () => {
+	Dynamic.liveIds = {};
+	Dynamic.nextGlobalId = 0;
+};
 Dynamic.bindTo = (id, content) => {
 	Dynamic.liveIds[id] = content;
-}
+};
 Dynamic.renderAt = (id, content) => {
 	const elm = document.getElementById(id);
 	if (elm) {
-		while (elm.hasChildNodes()) { elm.removeChild(elm.lastChild); }
+		while (elm.hasChildNodes()) {
+			elm.removeChild(elm.lastChild);
+		}
 		const priorStage = Dynamic.stage;
 		Dynamic.stage = Dynamic.Stage.SugarCubeRender;
-		new Wikifier(elm, content);
+		elm.append(Wikifier.wikifyEval(content));
 		Dynamic.stage = priorStage;
 	} else {
 		console.warn(`Unable to locate element {#${id}} for rendering content:`, content);
 	}
-}
+};
 const SUGARCUBE_IDENTIFIER = /(.*?)\$([A-Za-z0-9_]+)(.*)/g;
 const LITERAL_EVENTS = Object.getOwnPropertyNames(window)
 	.filter(g => g.startsWith("HTML"))
 	.map(k => window[k])
 	.map(c => Object.getOwnPropertyNames(c.prototype).filter(p => p.startsWith("on")))
-	.reduce((acc, n) => new Set([...acc].concat(n)), [])
+	.reduce((acc, n) => new Set([...acc].concat(n)), []);
 Dynamic.bindEvents = (elm, options, valuesToInject) => {
 	const handlersToBind = options.customHandlers ? [...options.customHandlers, ...LITERAL_EVENTS] : LITERAL_EVENTS;
 	handlersToBind.forEach(handlerName => {
@@ -246,7 +263,7 @@ Dynamic.bindEvents = (elm, options, valuesToInject) => {
 			elm[handlerName] = Dynamic.createBoundHandler(elm[handlerName], ...valuesToInject);
 		}
 	});
-}
+};
 Dynamic.createBoundHandler = (sourceHandler, ...valuesToInject) => {
 	const handlerText = sourceHandler.toString();
 	let handlerContents, lastMatch;
@@ -256,20 +273,26 @@ Dynamic.createBoundHandler = (sourceHandler, ...valuesToInject) => {
 		lastMatch = SUGARCUBE_IDENTIFIER.exec(handlerContents);
 		while (lastMatch) {
 			const newContent = `V.${lastMatch[2]}`;
-			handlerContents = handlerContents.slice(0, lastMatch.index) + lastMatch[1] + newContent + lastMatch[3]
+			handlerContents = handlerContents.slice(0, lastMatch.index) + lastMatch[1] + newContent + lastMatch[3];
 			SUGARCUBE_IDENTIFIER.lastIndex = lastMatch.index + lastMatch[1].length + newContent.length;
 			lastMatch = SUGARCUBE_IDENTIFIER.exec(handlerContents);
 		}
-		const newHandler = new Function(`return (${handlerContents})`)()
+		// eslint-disable-next-line no-new-func
+		const newHandler = new Function(`return (${handlerContents})`)();
 		return () => {
-			newHandler(...valuesToInject); Dynamic.render();
-		}
+			newHandler(...valuesToInject);
+			Dynamic.render();
+		};
 	} catch (e) {
 		console.error(
-			`Failed to create bound handler from raw handler:`, handlerText,
-			`\nLast contents / match:`, handlerContents, lastMatch,
-			`\nError encountered:`, e
+			`Failed to create bound handler from raw handler:`,
+			handlerText,
+			`\nLast contents / match:`,
+			handlerContents,
+			lastMatch,
+			`\nError encountered:`,
+			e
 		);
 		throw e;
 	}
-}
+};

@@ -1,29 +1,29 @@
 :: Oxford Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "oxford">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "oxford">><<getTarget true>>
 당신은 옥스포드 가에 있다. 다양한 건물이 늘어서 있지만, 가장 눈에 띄는 것은 학교다.
-<<if $schoolday is 1>>
-	<<if $daystate is "day">>
+<<if Time.schoolDay>>
+	<<if Time.dayState is "day">>
 		<<if $weather is "rain">>
 			비가 오고 있어도 거리는 부산스럽다.
 		<<elseif $weather is "snow">>
 			거리는 추위에도 불구하고 붐빈다.
 		<<else>>
-			<<if $hour gte 7 and $hour lte 16>>
+			<<if Time.hour gte 7 and Time.hour lte 16>>
 				학교에서 수다 소리와 웃음 소리가 들려온다.
 			<<else>>
 				근처에 학생들이 모여있다.
 			<</if>>
 		<</if>>
-	<<elseif $daystate is "dawn">>
+	<<elseif Time.dayState is "dawn">>
 		근처에 학생들이 모여있다.
-	<<elseif $daystate is "dusk">>
+	<<elseif Time.dayState is "dusk">>
 		몇몇 학생들이 여전히 교복을 입은 채로 모여서 남아있다.
-	<<elseif $daystate is "night">>
+	<<elseif Time.dayState is "night">>
 		도시 한복판에 위치한 탓에 이 시간에도 사람들이 걸어다니고 있다.
 	<</if>>
 <<else>>
-	<<if $daystate is "day">>
+	<<if Time.dayState is "day">>
 		<<if $weather is "rain">>
 			비가 오고 있어도 거리는 부산스럽다.
 		<<elseif $weather is "snow">>
@@ -31,12 +31,30 @@
 		<<else>>
 			많은 자동차와 행인들이 지나다니고 있다.
 		<</if>>
-	<<elseif $daystate is "dawn">>
-		사람들이 직장에 오고 있다.
-	<<elseif $daystate is "dusk">>
-		하루의 끝에 사람들이 집으로 돌아가고 있다.
-	<<elseif $daystate is "night">>
-		도시 한복판에 위치한 탓에 이 시간에도 사람들이 걸어다니고 있다.
+	<<elseif Time.dayState is "dawn">>
+		<<if $weather is "rain">>
+			People hurry to work, eager to escape the rain.
+		<<elseif $weather is "snow">>
+			People hurry to work, eager to be out of the cold.
+		<<else>>
+			사람들이 직장에 오고 있다.
+		<</if>>
+	<<elseif Time.dayState is "dusk">>
+		<<if $weather is "rain">>
+			People hurry home, eager to be out of the rain.
+		<<elseif $weather is "snow">>
+			People hurry home, eager to be out of the cold.
+		<<else>>
+			하루의 끝에 사람들이 집으로 돌아가고 있다.
+		<</if>>
+	<<elseif Time.dayState is "night">>
+		<<if $weather is "rain">>
+			People are passing through despite the rain and hour.
+		<<elseif $weather is "snow">>
+			People are passing through, braving the dark snow.
+		<<else>>
+			도시 한복판에 위치한 탓에 이 시간에도 사람들이 걸어다니고 있다.
+		<</if>>
 	<</if>>
 <</if>>
 <<streeteffects>>
@@ -47,9 +65,9 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
-<<elseif $mathsproject is "ongoing" and $stimdealerknown isnot 1>>
+<<elseif $mathsproject is "ongoing" and $stimdealerknown isnot 1 and !$possessed>>
 	<<set $stimdealerknown to 1>>
 	<<generatey1>><<person1>>당신은 저 앞에 수학 수업을 같이 듣는 <<personPost "이">> 있는 걸 본다. <<HePost "은">> 학교 건너편 골목길 끝에 다른 여러 학생들과 함께 모여있다. 그들은 그림자 안쪽에서 두꺼운 코트를 입고 있는 인물과 대화하고 있다.
 	<br><br>
@@ -66,7 +84,7 @@
 	<<link [[다음|Oxford Street]]>><<endevent>><</link>>
 	<br>
 
-<<elseif $NPCName[$NPCNameList.indexOf("Avery")].state is "active" and $averyschoolpickup is 0 and $schoolday is 1 and $hour is 15 and $exposed lte 0 and (($NPCName[$NPCNameList.indexOf("Avery")].love gte random(20, 100) and ($rng gte 50 or $weather is "rain" or $weather is "snow")) or ($NPCName[$NPCNameList.indexOf("Avery")].love gte 20 and $weekday is 2)) >>
+<<elseif $NPCName[$NPCNameList.indexOf("Avery")].state is "active" and $averyschoolpickup is 0 and Time.schoolDay and Time.hour is 15 and $exposed lte 0 and (($NPCName[$NPCNameList.indexOf("Avery")].love gte random(20, 100) and ($rng gte 50 or $weather is "rain" or $weather is "snow")) or ($NPCName[$NPCNameList.indexOf("Avery")].love gte 20 and Time.weekDay is 2))>>
 <<npc Avery>><<person1>>
 <<set $averyschoolpickup to 1>>
 
@@ -74,10 +92,10 @@
 		차 한 대가 당신의 옆에 선다. 문이 열리고, <<if $pronoun is "m">>정장을 입은 남성<<else>>맵시 있는 드레스를 입은 여성<</if>>이 나타난다. 에이버리다. "내가 태워줄게." <<hePost "이">> 말한다. "타렴."
 	<<else>>
 		<<set $averyschoolpickupintro to 1>>
-		비싸보이는 차가 당신의 앞에 선다. 당신 주의에 있는 대부분의 학생이 멈춰 서 경외심을 갖고 처다본다. 창문이 낮아지고 운전자를 확인하니 에이버리였다. "거기있었네" <<hePost "이">> 미소를 지으며 말한다. "퇴근하고 오는 길인데, 널 데리러 가야겠다고 생각이 들었어."
+		비싸보이는 차가 당신의 앞에 선다. 당신 주위에 있는 대부분의 학생이 멈춰 서 경외심을 갖고 쳐다본다. 창문이 내려가자 당신은 운전자를 알아본다; 에이버리다. "거기 있었네" <<hePost "이">> 미소를 지으며 말한다. "퇴근하고 오는 길인데, 널 데리러 가야겠다고 생각이 들었어."
 		<br><br>
 
-		몇몇 학생들이 서로 속삭인다. 그들은 당신이 어떻게 그런 대우를 받을 수 있는지 놀라워한다.
+		몇몇 학생들이 서로 속삭인다. 그들은 당신이 어떻게 그런 대우를 받을 수 있는지 놀라워한다.<<gcool>><<status 1>>
 	<</if>>
 	<br><br>
 
@@ -88,61 +106,66 @@
 
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "oxford">>
 			<br>
 		<</if>>
+		<<set _robin to statusCheck("Robin")>>
 		<<if $robindebtevent gte 1>>
-		<<elseif $robinmissing isnot 1 and $schoolday is 1 and $hour is 15 and $NPCName[$NPCNameList.indexOf("Robin")].init is 1 and $robinschoolafternoon isnot 1 and $exposed lte 0>>
+		<<elseif Time.hour is 15 and _robin_location is "school" and $exposed lte 0>>
 			당신은 로빈이 상점 창문을 들여다보는 걸 본다.
 			<br><br>
-			<<if $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 80>>
-				<<link [[로빈과 함께 집까지 걸어간다 (0:40)|Robin Walk Home]]>><<set $robinschoolafternoon to 1>><<endevent>><<pass 40>><</link>><<glove>>
+			<<if _robin.trauma gte 80>>
+				<<link [[로빈과 함께 집까지 걸어간다 (0:40)|Robin Walk Home]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 40>><</link>><<glove>>
 				<br><br>
 			<<else>>
 				<<if ($player.gender is "f" or $player.gender is "h") and $worn.upper.exposed gte 2 and $genderknown.includes("Robin")>>
-				<<link [[로빈과 함께 집까지 걸어간다 (0:15)|Robin Walk Home Topless]]>><<set $robinschoolafternoon to 1>><<endevent>><<pass 15>><</link>><<glove>><<glust>>
+					<<link [[로빈과 함께 집까지 걸어간다 (0:15)|Robin Walk Home Topless]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 15>><</link>><<glove>><<glust>>
 				<<else>>
-				<<link [[로빈과 함께 집까지 걸어간다 (0:20)|Robin Walk Home]]>><<set $robinschoolafternoon to 1>><<endevent>><<pass 20>><</link>><<glove>>
+					<<link [[로빈과 함께 집까지 걸어간다 (0:20)|Robin Walk Home]]>><<run setRobinLocationOverride("orphanage", 15)>><<endevent>><<pass 20>><</link>><<glove>>
 				<</if>>
 				<br><br>
 			<</if>>
 		<</if>>
-		<<if $schoolday is 1 and $hour is 15 and $exposed lte 0 and $weather isnot "rain" and $weather isnot "snow">>
+		<<if Time.schoolDay and Time.hour is 15 and $exposed lte 0 and $weather isnot "rain" and $weather isnot "snow">>
 			근처에서 학생들이 대화를 나누고 있다. 호수에 간다는 것 같다.
 			<br><br>
-			<<link [[동참한다 (0:30)|Lake Journey]]>><<pass 30>><</link>>
+			<<if $town_projects.road gte 4>>
+				<<link [[동참한다 (0:15)|Lake Journey Road]]>><<pass 15>><</link>>
+			<<else>>
+				<<link [[동참한다 (0:30)|Lake Journey]]>><<pass 30>><</link>>
+			<</if>>
 			<br><br>
 		<</if>>
 		주요 장소
 		<br>
-		<<if $schoolday is 1 and $hour gte 7 and $hour lte 16>>
-			<<schoolicon>><<link [[학교 (0:02)|School Front Playground]]>><<pass 2>><</link>>
+		<<if Time.schoolDay and Time.hour gte 7 and Time.hour lte 16>>
+			<<schoolicon>><<link [[학교 (0:02)|School Front Courtyard]]>><<pass 2>><</link>>
 			<br>
 		<<else>>
-			<<schoolicon>><<link [[학교|School Locked]]>><</link>>
+			<<schoolicon>><<link [[학교 (0:01)|School Locked]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
-		<<if $daystate is "day" and $weekday is 7 or $daystate is "day" and $weekday is 1>>
+		<<if Time.isWeekEnd() and Time.dayState is "day" and $town_projects.diving isnot 3>>
 			<<if $exposed lte 0>>
 				<<museumicon>><<link [[박물관 (0:01)|Museum]]>><<pass 1>><</link>>
 				<br>
 			<</if>>
 		<<else>>
 			<<if $exposed lte 0>>
-				<<museumicon>><<link [[박물관|Museum Lock]]>><<pass 1>><</link>>
+				<<museumicon>><<link [[박물관 (0:01)|Museum Lock]]>><<pass 1>><</link>>
 				<br>
 			<</if>>
 		<</if>>
 		<<if $stimdealerknown is 1 and $mathsproject is "ongoing" and $exposed lte 0>>
-			<<link [[각성제 딜러|Stim Dealer]]>><</link>>
+			<<ind>><<link [[각성제 판매상|Stim Dealer]]>><</link>>
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 		<<add_link "이동<br>">><<hideDisplay>>
 			<<starfish>>
@@ -159,7 +182,7 @@
 		<<industrial>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "oxford">>
 		<</if>>

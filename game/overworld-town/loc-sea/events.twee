@@ -1,5 +1,4 @@
 :: Sea Dolphins
-<<set $outside to 1>><<set $location to "sea">>
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
@@ -8,30 +7,29 @@
 	<<molested>>
 	<<beastCombatInit>>
 	<<beastTrainGenerate>>
-	<<set $water to 1>><<set $claws to 0>>
-	<<if $daystate isnot "night" and $location is "beach">>
-		<<set $rescue to 1>>
+	<<set $water to 1>>
+	<!-- <<set $claws to 0>> -->
+	<<if Time.dayState isnot "night" and $location is "beach">>
+		<<enable_rescue>>
 	<</if>>
 	<<if $bus isnot "sea">>
-		<<set $bus to "sea">><span class="pink">The <<beastsplural>> push you out to sea.</span>
+		<span class="pink">The <<beastsplural>> push you out to sea.</span>
 	<</if>>
+	<<location "sea">>
 <</if>>
 <<effects>>
 <<effectsman>>
-<br>
+<<alarmstate>>
 <<beast $enemyno>>
 <br><br>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Sea Dolphins Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Sea Dolphins Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Sea Dolphins Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Sea Dolphins Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Sea Dolphins]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Dolphins]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Dolphins Finish
@@ -43,13 +41,13 @@
 		The <<beasttype>> recoils in pain and fear, but another is eager for a go.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins]]>><</link>>
+		<<link [[다음|Sea Dolphins]]>><</link>>
 		<br>
 	<<else>>
 		The <<beasttype>> recoils in pain and fear.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins Finish]]>><<set $finish to 1>><</link>>
+		<<link [[다음|Sea Dolphins Finish]]>><<set $finish to 1>><</link>>
 	<</if>>
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<beastejaculation>>
@@ -57,13 +55,13 @@
 		Satisfied, the <<beasttype>> moves and another takes its turn.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins]]>><</link>>
+		<<link [[다음|Sea Dolphins]]>><</link>>
 		<br>
 	<<else>>
 		Satisfied, the <<beasttype>> moves away from you.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins Finish]]>><<set $finish to 1>><</link>>
+		<<link [[다음|Sea Dolphins Finish]]>><<set $finish to 1>><</link>>
 	<</if>>
 <<elseif $finish is 1>>
 	<<if $enemywounded is 1 and $enemyejaculated is 0>>
@@ -78,16 +76,16 @@
 		The <<beastsplural>> leave you spent and shivering in the water.
 	<</if>>
 	<br><br>
-	<<tearful>> you gather yourself.
+	<<tearful>> 당신은 마음을 가다듬는다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 	<<destinationeventend>>
 <<elseif $alarm is 1 and $rescue is 1>>
 	<<set $rescued += 1>>
-	<<generate1>><<person1>>A whistle blows, startling the <<beastsplural>>. A lifeguard in a small boat races toward you. The <<beastsplural>> make a chittering noise, then flee away from the shore. Seeing them leave, the lifeguard heads back to the beach.
+	A whistle blows, startling the <<beastsplural>>. A lifeguard in a small boat races toward you. The <<beastsplural>> make a chittering noise, then flee away from the shore. Seeing them leave, the lifeguard heads back to the beach.
 	<br><br>
-	<<tearful>> you gather yourself.
+	<<tearful>> 당신은 마음을 가다듬는다.
 	<<clotheson>>
 	<<endcombat>>
 	<<destinationeventend>>
@@ -95,14 +93,14 @@
 
 :: Sea Eels
 
-<<set $outside to 1>><<set $location to "sea">><<effects>>
+<<if $location isnot "sea">><<location "sea">><</if>><<effects>>
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<molested>>
 	<<controlloss>>
 	<<set $combat to 1>>
 	<<set $enemytype to "swarm">>
-	<<swarminit "eels" "swarms" "moving towards you" "encircle you" "fend off" 1 9>>
+	<<swarminit "eels" "swarm" "moving towards you" "encircle you" "fend off" 1 9>>
 
 	<<set $swimdistance to 15>>
 	<<set $water to 1>>
@@ -122,19 +120,17 @@
 <<swarmeffects>>
 <<swarm>>
 <<swarmactions>>
-<<if $stress gte $stressmax>>
-	<span id="next"><<link [[Next|Sea Eels Finish]]>><</link>></span><<nexttext>>
-<<elseif $swimdistance lte 0>>
-	<span id="next"><<link [[Next|Sea Eels Finish]]>><</link>></span><<nexttext>>
+<<if $stress gte $stressmax or $swimdistance lte 0>>
+	<span id="next"><<link [[다음|Sea Eels Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Eels]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Eels Finish
 
 <<effects>>
 <<if $stress gte $stressmax>>
-	It's all just too much for you. You pass out.
+	이것은 당신에게는 너무 벅찬 일이다. 당신은 기절한다.
 	<br><br>
 	<<if $upperoff isnot 0>>
 		<<upperruined>>
@@ -149,7 +145,7 @@
 		<<underupperruined>>
 	<</if>>
 	<<endcombat>>
-	<<link [[Next|Passout Beach]]>><<pass 1 hour>><</link>>
+	<<link [[다음|Passout Beach]]>><<pass 1 hour>><</link>>
 <<else>>
 	<<tearful>> you haul yourself out of the water. The eels wriggle off of you to escape the open air. You cling to the buoy and hang above the writhing mass. The swarms soon dissipate and return to the depths.
 	<br><br>
@@ -167,8 +163,8 @@
 	<<neutral 1>>
 	<<molested>>
 	<<maninit>>
-	<<if $daystate isnot "night" and $location is "beach">>
-		<<set $rescue to 1>>
+	<<if Time.dayState isnot "night" and $location is "beach">>
+		<<enable_rescue>>
 	<</if>>
 	<<if $phase isnot 1>>
 		You try to pull away, but <<he>> won't let you!
@@ -186,25 +182,21 @@
 	<<neutral 1>>
 	<<maninit>>
 	<<set $enemytrust += 100>>
-	<<if $daystate isnot "night" and $location is "beach">>
-		<<set $rescue to 1>>
+	<<if Time.dayState isnot "night" and $location is "beach">>
+		<<enable_rescue>>
 	<</if>>
 <</if>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Sea Beach Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $finish is 1>>
-	<span id="next"><<link [[Next|Sea Beach Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Sea Beach Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Sea Beach Molestation Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Sea Beach Molestation Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Sea Beach Molestation]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Beach Molestation]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Beach Molestation Finish
@@ -218,7 +210,7 @@
 	<<destinationeventend>>
 <<elseif $enemyhealth lte 0>>
 	<<effects>>
-	<<He>> falls backwards into the water. By the time <<he>> recovers, you've disappeared into the crowds. <<tearful>> you gather yourself.
+	<<He>> falls backwards into the water. By the time <<he>> recovers, you've disappeared into the crowds. <<tearful>> 당신은 마음을 가다듬는다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -236,14 +228,14 @@
 		Smiling, <<he>> kisses you on the cheek. <<He>> leaves you floating in the water.
 		<br><br>
 	<</if>>
-	<<tearful>> you gather yourself.
+	<<tearful>> 당신은 마음을 가다듬는다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 	<<destinationeventend>>
 <<elseif $alarm is 1 and $rescue is 1>>
 	<<set $rescued += 1>>
-	<<generate1>><<person1>>A whistle blows, startling the <<person>>. A lifeguard in a small boat races toward you. The <<person>> gives you an angry look, but leaves without further fuss. Seeing <<him>> leave, the lifeguard heads back to the beach. <<tearful>> you gather yourself.
+	A whistle blows, startling the <<person>>. A lifeguard in a small boat races toward you. The <<person>> gives you an angry look, but leaves without further fuss. Seeing <<him>> leave, the lifeguard heads back to the beach. <<tearful>> 당신은 마음을 가다듬는다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -265,12 +257,10 @@
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Boat Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Boat Molestation Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Boat Molestation Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Boat Molestation]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Boat Molestation]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Boat Molestation Finish
@@ -285,7 +275,7 @@
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Sea]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Sea]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<elseif $enemyhealth lte 0>>
 	They recoil in pain. "Fuck, it's a violent one," says the <<person1>><<person>>. They push you off the boat.
@@ -295,13 +285,13 @@
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Sea]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Sea]]>><<set $eventskip to 1>><</link>>
 	<br>
 <</if>>
 
 :: Sea Vore
 
-<<set $outside to 1>><<set $location to "sea">><<effects>>
+<<if $location isnot "sea">><<location "sea">><</if>><<effects>>
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<set $combat to 1>>
@@ -310,9 +300,9 @@
 	<<if $tentacledisable is "f" and $hallucinations gte 1>>
 		<<set $enemytype to "tentacles">>
 		<<tentaclestart 2 15>>
-		<<set $tentacles[0].shaft to "leftarm">><<set $leftarm to "grappled">>
-		<<set $tentacles[1].shaft to "rightarm">><<set $rightarm to "grappled">>
-		<span class="purple">A $tentacles[0].desc tentacle and $tentacles[1].desc tentacle emerge from the creature and restrain your arms.</span>
+		<<set $tentacles[0].shaft to "leftarm">><<set $leftarm to "tentgrappled">><<set $lefttarget to "tentacles">>
+		<<set $tentacles[1].shaft to "rightarm">><<set $rightarm to "tentgrappled">><<set $righttarget to "tentacles">>
+		<span class="purple">A $tentacles[0].fullDesc and $tentacles[1].fullDesc emerge from the creature and restrain your arms.</span>
 		<br><br>
 	<<else>>
 		<<set $enemytype to "vore">>
@@ -332,27 +322,24 @@
 	<<voreeffects>><<effectstentacles>>
 	<<vore>><<tentacles>>
 	<<statetentacles>>
-	<<voreactions>><<actionstentacles>>
+	<br><br>
+	<<actionsvorentacles>>
 <<else>>
 	<<voreeffects>>
 	<<vore>>
 	<<voreactions>>
 <</if>>
-<<if $stress gte $stressmax>>
-	<span id="next"><<link [[Next|Sea Vore Finish]]>><</link>></span><<nexttext>>
-<<elseif $vorestage lte 0>>
-	<span id="next"><<link [[Next|Sea Vore Finish]]>><</link>></span><<nexttext>>
-<<elseif $vorestomach gte 5>>
-	<span id="next"><<link [[Next|Sea Vore Finish]]>><</link>></span><<nexttext>>
+<<if $stress gte $stressmax or $vorestage lte 0 or $vorestomach gte 5>>
+	<span id="next"><<link [[다음|Sea Vore Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Vore]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Vore Finish
 
 <<effects>>
 <<if $stress gte $stressmax or $vorestomach gte 5>>
-	It's all just too much for you. You pass out.
+	이것은 당신에게는 너무 벅찬 일이다. 당신은 기절한다.
 	<br><br>
 	<<if $upperoff isnot 0>>
 		<<upperruined>>
@@ -367,7 +354,7 @@
 		<<underupperruined>>
 	<</if>>
 	<<endcombat>>
-	<<link [[Next|Passout Beach]]>><<pass 1 hour>><</link>>
+	<<link [[다음|Passout Beach]]>><<pass 1 hour>><</link>>
 <<else>>
 	<<tearful>> you haul yourself out of the $vorecreature's maw. It decides against pursuing you further, and disappears back into the depths.
 	<br><br>
@@ -381,13 +368,12 @@
 <<water>><<effects>>
 You <<nervously>> remove your <<bottoms>>, exposing yourself beneath the water. Once removed, it's easy to untangle it from the seaweed.
 <<exhibitionism1>>
-<br><br>
 <<destinationeventend>>
 
 :: Sea Tangle
 
 <<water>><<effects>>
-You start to untangle yourself without undressing. It takes a minute to free yourself.
+You start to untangle yourself without undressing. 푸는 것만으로도 1분이 걸렸다.
 <br><br>
 <<destinationeventend>>
 
@@ -407,12 +393,10 @@ You start to untangle yourself without undressing. It takes a minute to free you
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Sea Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Sea Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Sea Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Sea Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Rape Finish
@@ -440,7 +424,7 @@ You start to untangle yourself without undressing. It takes a minute to free you
 
 :: Sea Tentacles
 
-<<set $outside to 1>><<set $location to "sea">>
+<<if $location isnot "sea">><<location "sea">><</if>>
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<set $combat to 1>>
@@ -457,9 +441,9 @@ You start to untangle yourself without undressing. It takes a minute to free you
 <<actionstentacles>>
 
 <<if $tentacles.active lte ($tentacles.max / 2)>>
-	<span id="next"><<link [[Next|Sea Tentacles Finish]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Tentacles Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Sea Tentacles]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Tentacles]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Tentacles Finish
@@ -481,9 +465,10 @@ The creature loses interest in you, and returns to the depths. <<tearful>> you s
 
 	<<beastTrainGenerate>>
 
-	<<set $water to 1>><<set $claws to 0>>
-	<<if $daystate isnot "night" and $location is "beach">>
-		<<set $rescue to 1>>
+	<<set $water to 1>>
+	<!-- <<set $claws to 0>> -->
+	<<if Time.dayState isnot "night" and $location is "beach">>
+		<<enable_rescue>>
 	<</if>>
 	You pet further and further down the $NPCList[0].type's belly. They take the hint, and swim closer to you in excitement.
 	<br>
@@ -491,22 +476,17 @@ The creature loses interest in you, and returns to the depths. <<tearful>> you s
 <</if>>
 <<effects>>
 <<effectsman>>
+<<alarmstate>>
 <br>
 <<beast $enemyno>>
 <br><br>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Sea Dolphins Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $finish is 1>>
-	<span id="next"><<link [[Next|Sea Dolphins Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Sea Dolphins Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Sea Dolphins Sex Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Sea Dolphins Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Sea Dolphins Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Dolphins Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Dolphins Sex Finish
@@ -519,12 +499,12 @@ The creature loses interest in you, and returns to the depths. <<tearful>> you s
 		The $NPCList[_na].type recoils in pain and fear, but the next takes its turn.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins Sex]]>><</link>>
+		<<link [[다음|Sea Dolphins Sex]]>><</link>>
 	<<else>>
 		The $NPCList[_na].type recoils in pain and fear.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins Sex Finish]]>><<set $finish to 1>><</link>>
+		<<link [[다음|Sea Dolphins Sex Finish]]>><<set $finish to 1>><</link>>
 	<</if>>
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<beastejaculation>>
@@ -532,12 +512,12 @@ The creature loses interest in you, and returns to the depths. <<tearful>> you s
 		Satisfied, the $NPCList[_na].type moves and the next takes its turn.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins Sex]]>><</link>>
+		<<link [[다음|Sea Dolphins Sex]]>><</link>>
 	<<else>>
 		Satisfied, the $NPCList[_na].type moves away from you.
 		<<combatTrainAdvance>>
 		<br><br>
-		<<link [[Next|Sea Dolphins Sex Finish]]>><<set $finish to 1>><</link>>
+		<<link [[다음|Sea Dolphins Sex Finish]]>><<set $finish to 1>><</link>>
 	<</if>>
 <<elseif $finish is 1>>
 	<<if $consensual is 1>>
@@ -557,16 +537,16 @@ The creature loses interest in you, and returns to the depths. <<tearful>> you s
 		<</if>>
 		<br><br>
 	<</if>>
-	<<tearful>> you gather yourself.
+	<<tearful>> 당신은 마음을 가다듬는다.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 	<<destinationeventend>>
 <<elseif $alarm is 1 and $rescue is 1>>
 	<<set $rescued += 1>>
-	<<generate1>><<person1>>A whistle blows, startling the <<beastsplural>>. A lifeguard in a small boat races toward you. The <<beastsplural>> make a chittering noise, then flee away from the shore. Seeing them leave, the lifeguard heads back to the beach.
+	A whistle blows, startling the <<beastsplural>>. A lifeguard in a small boat races toward you. The <<beastsplural>> make a chittering noise, then flee away from the shore. Seeing them leave, the lifeguard heads back to the beach.
 	<br><br>
-	<<tearful>> you gather yourself.
+	<<tearful>> 당신은 마음을 가다듬는다.
 	<<clotheson>>
 	<<endcombat>>
 	<<destinationeventend>>
@@ -577,7 +557,7 @@ The creature loses interest in you, and returns to the depths. <<tearful>> you s
 <<water>><<effects>>
 <<set $squidcount += 1>>
 You feel a thrill as you let the squid continue its devilish work.<<deviancy1>>
-<br><br>
+
 <<destinationeventend>>
 
 :: Sea Pull
@@ -601,11 +581,11 @@ A <<person1>><<person>> helps pull you aboard. <<covered>> A <<person2>><<person
 	<<person1>>"You look like you need help," the <<person>> says, looking you up and down. "No one rides for free, but it looks like you've got plenty to pay with." <<His>> ogling leaves no question as to the sort of payment <<he>> means.
 	<br><br>
 
-	<<link [[Accept|Sea Boat Accept]]>><</link>>
+	<<link [[받아들인다|Sea Boat Accept]]>><</link>>
 	<br>
 	<<link [[Offer to dance for them instead|Sea Boat Dance]]>><</link>>
 	<br>
-	<<link [[Refuse|Sea Boat Refuse]]>><</link>>
+	<<link [[거절한다|Sea Boat Refuse]]>><</link>>
 	<br>
 
 <<else>>
@@ -620,7 +600,7 @@ A <<person1>><<person>> helps pull you aboard. <<covered>> A <<person2>><<person
 	You're soon back at the dock. They wave you goodbye as you climb ashore.
 	<br><br>
 
-	<<link [[Next|Docks]]>><<endevent>><</link>>
+	<<link [[다음|Docks]]>><<endevent>><</link>>
 	<br>
 
 <</if>>
@@ -631,7 +611,7 @@ A <<person1>><<person>> helps pull you aboard. <<covered>> A <<person2>><<person
 You nod. The <<person1>><<person>> doesn't wait before shoving you to the deck.
 <br><br>
 
-<<link [[Next|Sea Boat Rape]]>><<set $molestationstart to 1>><</link>>
+<<link [[다음|Sea Boat Rape]]>><<set $molestationstart to 1>><</link>>
 <br>
 
 :: Sea Boat Rape
@@ -642,25 +622,21 @@ You nod. The <<person1>><<person>> doesn't wait before shoving you to the deck.
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
 
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Sea Boat Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Sea Boat Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Sea Boat Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Sea Boat Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Sea Boat Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Sea Boat Rape Finish
@@ -676,7 +652,7 @@ They let you stay indoors and give you some towels to dry with, at least. You so
 <<clothesontowel>>
 <<endcombat>>
 <<pass 30>>
-<<link [[Next|Docks]]>><</link>>
+<<link [[다음|Docks]]>><</link>>
 <br>
 
 <<else>>
@@ -695,7 +671,7 @@ You shove the <<person3>><<person>>, and <<he>> tumbles overboard. The <<person2
 <<effects>>
 
 <<if $submissive gte 1150>>
-	"Pl-please stop," you plead. "I never wanted to fight."
+	"P-please stop," you plead. "I never wanted to fight."
 <<elseif $submissive lte 850>>
 	"Calm down," you say. "No one has to know you got your asses kicked by a <<girl>> you met at sea."
 <<else>>
@@ -715,7 +691,7 @@ You spend the rest of the voyage indoors. You find towels to dry yourself with. 
 <<clothesontowel>>
 <<endcombat>>
 <<pass 30>>
-<<link [[Next|Docks]]>><</link>>
+<<link [[다음|Docks]]>><</link>>
 <br>
 
 :: Sea Boat Rape Intimidate
@@ -744,7 +720,7 @@ You spend the rest of the voyage indoors. You find towels to dry yourself with, 
 <<clothesontowel>>
 <<endcombat>>
 <<pass 30>>
-<<link [[Next|Docks]]>><</link>>
+<<link [[다음|Docks]]>><</link>>
 <br>
 
 :: Sea Boat Dance
@@ -788,11 +764,11 @@ The <<person1>><<person>> grumbles, but is convinced. They clear a space for you
 <<effects>>
 
 You dance for the three <<if $NPCList[0].pronoun is "f" and $NPCList[1].pronoun is "f" and $NPCList[2].pronoun is "f">>fisherwomen<<else>>fishermen<</if>>.
-<<if $danceskill gte 800>>
+<<if currentSkillValue('danceskill') gte 800>>
 	You're confident in your abilities, and you think you know what they want to see.
-<<elseif $danceskill gte 400>>
+<<elseif currentSkillValue('danceskill') gte 400>>
 	You think you're okay at this, but you hope their standards aren't too high.
-<<elseif $danceskill gte 100>>
+<<elseif currentSkillValue('danceskill') gte 100>>
 	This isn't your first dance by any means, but it's a strange situation and you worry they won't like it.
 <<else>>
 	You don't really know what you're doing, but do your best to be graceful. You hope it's enough.
@@ -835,14 +811,14 @@ You dance for the three <<if $NPCList[0].pronoun is "f" and $NPCList[1].pronoun 
 	<<dry>><<exposure>><<towelup>><<pass 30>>
 
 	<<endevent>>
-	<<link [[Next|Docks]]>><</link>>
+	<<link [[다음|Docks]]>><</link>>
 	<br>
 
 <<else>>
 	Unfortunately you <span class="red">slip</span> on the wet floor. "Don't worry <<girl>>," the <<person1>><<person>> says as <<his>> crew keel over laughing. "We'll help you up."
 	<br><br>
 
-	<<link [[Next|Sea Boat Rape]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Sea Boat Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -860,14 +836,14 @@ You dance for the three <<if $NPCList[0].pronoun is "f" and $NPCList[1].pronoun 
 	<br><br>
 	<<dry>><<exposure>><<towelup>><<pass 30>>
 	<<endevent>>
-	<<link [[Next|Docks]]>><</link>>
+	<<link [[다음|Docks]]>><</link>>
 	<br>
 <<else>>
 
 	The <<person1>><<person>> barks a laugh. "You'd best play along <<girl>>," <<he>> says as the <<person2>><<person>> and <<person3>><<person>> step closer.<<person1>> "There are nastier devils than us out on the sea. And I'm not talking about the fauna."
 	<br><br>
 
-	<<link [[Next|Sea Boat Rape]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Sea Boat Rape]]>><<set $molestationstart to 1>><</link>>
 	<br><br>
 
 <</if>>
@@ -906,16 +882,16 @@ You ignore the flotsam.
 <<destinationeventend>>
 
 :: Passout Sea
-You've pushed yourself too much.
+당신은 스스로를 너무 혹사시켰다.
 <br><br>
 <<passout>>
 <<set $danger to random(1, 10000)>>
 <<if $danger gte (9900 - $allure)>>
 	<<if $rng gte 51>>
-	<<link [[Wake up|Pirate Intro]]>><</link>>
+	<<link [[일어난다|Pirate Intro]]>><</link>>
 	<br>
 	<<else>>
-	<<link [[Wake up|Beach Abduction]]>><<strip>><</link>>
+	<<link [[일어난다|Beach Abduction]]>><<strip>><</link>>
 	<</if>>
 <<else>>
 <<ambulance>>
@@ -954,10 +930,10 @@ You've pushed yourself too much.
 
 
 <<if $struggle.done gte $struggle.number>>
-	<<link [[Next|Sea Struggle End]]>><</link>>
+	<span id="next"><<link [[다음|Sea Struggle End]]>><</link>></span>
 	<br>
 <<else>>
-	<<link [[Next|Sea Struggle]]>><</link>>
+	<span id="next"><<link [[다음|Sea Struggle]]>><</link>></span>
 	<br>
 <</if>>
 
@@ -971,5 +947,384 @@ The squid return to the deep. <<tearful>> you tread water.
 <<clotheson>>
 <<endcombat>>
 
-<<link [[Next|Sea]]>><<set $eventskip to 1>><</link>>
+<<link [[다음|Sea]]>><<set $eventskip to 1>><</link>>
 <br>
+
+:: Sea Eye
+<<effects>>
+
+You look down, beneath your treading feet. You see nothing, at first. The surface of the water is too tempestuous, and the depths too gloomy. Then the water shifts just so, and you see it. At an impossible depth, a colossal eye staring up at you.
+<br><br>
+
+A small wave washes over it, hiding it once more.
+<br><br>
+
+<<link [[다음|Sea]]>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Sea Eye Refuse
+<<effects>>
+
+You resist the urge to look, until the feeling passes.
+<br><br>
+
+<<link [[다음|Sea]]>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Sea Chest
+<<effects>>
+
+You swim toward the green rocks, your view of them disrupted by the waves.
+<<if $swimmingSuccess>>
+	A sudden surge of water carries you the final stretch. <span class="green">You use the momentum to land atop a rock with your feet.</span>
+<<else>>
+	A sudden surge of water carries you the final stretch, <span class="red">slamming you atop a rock.</span><<ggpain>><<gstress>><<pain 8>><<stress 6>>
+<</if>>
+<br><br>
+
+You climb higher, using firm seaweed for purchase, careful not to slip. From up here you can see the entire island. It's not large, but in the middle are the remains of a circular wall. There's a shape in the centre, covered by seaweed.
+<br><br>
+
+<<link [[다음|Sea Chest 2]]>><</link>>
+<br>
+
+
+:: Sea Chest 2
+<<effects>>
+<<set $lock to 600>>
+
+You climb down, and investigate. It's a chest. You peel back loose seaweed, revealing an engraving.
+<br><br>
+
+"Keep yer mitts off our booty," it says. Beneath it is a picture of a jawless skull with tentacles instead of teeth.
+<br><br>
+
+
+<<if currentSkillValue('skulduggery') gte $lock>>
+	It's locked, <span class="green">but you think you could open it.</span>
+	<br><br>
+	<<link [[Open|Sea Chest Open]]>><</link>>
+	<br>
+<<else>>
+	It's locked, <span class="red">and beyond your ability to pick.</span>
+	<br><br>
+<</if>>
+
+<<link [[떠난다|Sea Chest Leave]]>><</link>>
+<br>
+
+
+:: Sea Chest Leave
+<<effects>>
+
+You leave the chest where it lies, and return to the water.
+<br><br>
+
+<<link [[다음|Sea]]>><<set $eventskip to 1>><</link>>
+<br>
+
+
+:: Sea Chest Open
+<<effects>>
+
+You open the lock, laying bare the treasure inside. A variety of stolen jewelry. It's still dry.
+<<if $rng gte 100>>
+	Those look like actual diamonds. These could be worth a lot to a fence.
+	<<set $blackmoney += 1200>>
+<<elseif $rng gte 51>>
+	They'd be worth a pretty penny to a fence.
+	<<set $blackmoney += 300>>
+<<else>>
+	They might be worth something to a fence.
+	<<set $blackmoney += 50>>
+<</if>>
+<br><br>
+
+<<if $museumAntiques.antiques.antiquecoralring isnot "found" and $museumAntiques.antiques.antiquecoralring isnot "talk" and $museumAntiques.antiques.antiquecoralring isnot "museum">>
+	<<set $antiquemoney += 800>><<museumAntiqueStatus "antiquecoralring" "found">>
+	There's also a ring, studded with blooms of coral. There's something vulgar about it. The metal looks like gold, but tarnished with age. This one belongs in a museum.
+	<br><br>
+<</if>>
+
+<<if $skulduggery lt 700>>
+	<<skulduggeryskilluse>>
+<<else>>
+	<span class="blue">이렇게 간단한 자물쇠에서 배울 수 있는 것은 아무것도 없다.</span>
+<</if>>
+<<pirate_watch 1>>
+A breeze from the sea whips through your hair. <span class="blue">You shiver.</span>
+<br><br>
+
+You return to the water.
+<br><br>
+
+<<link [[다음|Sea]]>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Sea Pair Greet
+<<effects>>
+
+You wave at the pair as they draw closer.
+<br><br>
+
+"We swam out here for some privacy," the <<person1>><<person>> says. "But we don't mind a cutie like you joining us."
+<br><br>
+
+As <<he>> speaks, the <<person2>><<person>> swims around and behind you. <<Hes>> close enough to touch.
+<br><br>
+
+<<link [[Keep some distance|Sea Pair Distance]]>><<stress 6>><</link>><<difficulty 60>><<gstress>>
+<br>
+<<link [[Stay where you are|Sea Pair Stay]]>><</link>><<difficulty 40>>
+<br>
+
+:: Sea Pair Distance
+<<effects>>
+
+<<if $rng lt 41>>
+	You swim to the side, making it clear that you're wary of any funny business. <<person1>>"We don't mean no harm," the <<person>> laughs while the <<person2>> swims back to <<person1>> <<him>>. <span class="green">"But we won't be pushy."</span> They turn and swim away.
+	<br><br>
+	<<endevent>>
+	<<destinationeventend>>
+<<else>>
+	You swim to the side, <span class="red">but the <<person1>><<person>> cuts off your escape.</span> "What's wrong?" <<he>> laughs. "Aren't we being friendly?"
+	<br><br>
+	The <<person2>><<person>> swims up to you, and
+	<<if random(1, 2) is 2>>
+		grasps your <<breasts>>.
+		<<if $player.gender_appearance is "f" and $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1>>
+			"This slut's topless!" <<he>> shouts in excitement, squeezing them.<<gtrauma>><<gstress>><<ggarousal>><<trauma 6>><<stress 6>><<arousal 1200>>
+			<br><br>
+
+			"Swimming out here exposed," the <<person1>><<person>> tuts. "You must be a real pervert. I know just what you need."
+			<br><br>
+
+			<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			<<He>> gropes and squeezes them beneath the fabric.<<gtrauma>><<stress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+			<br><br>
+
+			<<sea_pair_orgasm>>
+		<</if>>
+	<<else>>
+		grasps your <<genitals>>.
+		<<if $worn.genitals.chastity>>
+			"This slut's wearing something odd," <<he>> says. "It feels like metal." <<He>> gives it a fruitless tug.
+			<br><br>
+			"I bet it's a chastity thing," the <<person1>> the <<person>> replies. "So <<pshe>> must be a pervert. Let's give <<phim>> what <<pshe>> really wants."
+			<br><br>
+
+			<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<elseif $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1>>
+			"This slut's not wearing anything!" <<he>> says. You recoil from <<his>> groping fingers, but <<he>> pulls you against <<his>> body with <<his>> other hand, immobilising you.
+			<br><br>
+			"Swimming out here exposed," the <<person1>><<person>> tuts. "You must be a real pervert. I know just what you need."
+			<br><br>
+
+			<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			<<He>> gropes and squeezes it beneath the fabric.<<gtrauma>><<stress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+			<br><br>
+
+			<<sea_pair_orgasm>>
+		<</if>>
+	<</if>>
+<</if>>
+
+:: Sea Pair Practise
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"I-I'm practising swimming," you say. "I didn't mean to get in your way."
+	<br><br>
+	"Don't worry about that," The <<person2>><<person>> laughs. "We appreciated the visit." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<<elseif $submissive lte 850>>
+	"I'm practising swimming," you say. "I trust that's not a problem."
+	<br><br>
+	"Not at all," the <<person2>><<person>> laughs. "We'll leave you to it." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<<else>>
+	"I'm practising swimming," you say. "I don't mean to intrude."
+	<br><br>
+	"No intrusion at all," the <<person2>><<person>> laughs. "It's a free country." <<He>> gives your <<bottom>> a swift spank before pulling away."<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<</if>>
+
+The pair disappear beyond the waves.
+<br><br>
+
+<<endevent>>
+<<destinationeventend>>
+
+:: Sea Pair Dragged
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"I-I'm looking for people w-who-" you say. "Who need help getting back to shore."
+	<br><br>
+	"A good samaritan!" the <<person2>><<person>> laughs. "We won't interfere." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<<elseif $submissive lte 850>>
+	"I'm looking for people need saving," you say. "You two alright?"
+	<br><br>
+	"We're fine," the <<person2>><<person>> laughs. "I hope your search is fruitless." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<<else>>
+	"I'm looking for anyone who needs help," you say. "Dragged away by the riptide."
+	<br><br>
+	"Ain't seen any in need of saving," the <<person2>><<person>> says. "But we won't stop you." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<</if>>
+
+The pair disappear behind the waves.
+<br><br>
+
+<<endevent>>
+<<destinationeventend>>
+
+:: Sea Pair Hunt
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"I-I'm looking for bad people," you say. "So I can teach them the error of their ways."
+	<br><br>
+	"Good luck on your search," the <<person2>><<person>> says. "We'll let you know if we find any ourselves." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<<elseif $submissive lte 850>>
+	"I'm looking for rapists to fuck up," you say. "Know any?"
+	<br><br>
+	"Not a one," the <<person2>><<person>> laughs. "But we know who to find if that changes." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<<else>>
+	"I'm keeping these waters safe," you say. "Lots of riffraff about."
+	<br><br>
+	"We don't know any riffraff," the <<person2>><<person>> laughs. "But we know who to find if we do." <<He>> gives your <<bottom>> a swift spank before pulling away.<<gpain>><<garousal>><<pain 1>><<arousal 600>>
+	<br><br>
+<</if>>
+
+<<endevent>>
+<<destinationeventend>>
+
+:: Sea Pair Stay
+<<effects>>
+
+<<if $rng lt 61>>
+	You tread water, awaiting their approach. <span class="red">The <<person2>><<person>> swims behind you,</span> and
+	<<if random(1, 2) is 2>>
+		grasps your <<breasts>>.
+		<<if $player.gender_appearance is "f" and $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1>>
+			"This slut's topless!" <<he>> shouts in excitement, squeezing them.<<gtrauma>><<gstress>><<ggarousal>><<trauma 6>><<stress 6>><<arousal 1200>>
+			<br><br>
+
+			"Swimming out here exposed," the <<person1>><<person>> tuts. "You must be a real pervert. I know just what you need."
+			<br><br>
+
+			<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			<<He>> gropes and squeezes them beneath the fabric.<<gtrauma>><<stress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+			<br><br>
+			<<sea_pair_orgasm>>
+		<</if>>
+	<<else>>
+		grasps your <<genitals>>.
+		<<if $worn.genitals.chastity>>
+			"This slut's wearing something odd," <<he>> says. "It feels like metal." <<He>> gives it a fruitless tug.
+			<br><br>
+			"I bet it's a chastity thing," the <<person1>> the <<person>> replies. "So <<pshe>> must be a pervert. Let's give <<phim>> what <<pshe>> really wants."
+			<br><br>
+
+			<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<elseif $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1>>
+			"This slut's not wearing anything!" <<he>> says. You recoil from <<his>> groping fingers, but <<he>> pulls you against <<his>> body with <<his>> other hand, immobilising you.
+			<br><br>
+			"Swimming out here exposed," the <<person1>><<person>> tuts. "You must be a real pervert. I know just what you need."
+			<br><br>
+
+			<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<else>>
+			<<He>> gropes and squeezes it beneath the fabric.<<gtrauma>><<stress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+			<br><br>
+
+			<<sea_pair_orgasm>>
+		<</if>>
+	<</if>>
+<<else>>
+	You tread water, awaiting their approach. <span class="green">They stop some distance from you.</span>
+	<br><br>
+
+	<<sea_pair_orgasm>>
+<</if>>
+
+
+:: Sea Pair Swim
+<<effects>>
+
+<<if $swimmingSuccess>>
+	You turn and swim as fast as you can. You hear splashes behind you as the pair give chase, <span class="green">but they're unable to keep up.</span> The sound of their paddling diminishes, until they disappear behind the waves.
+	<br><br>
+
+	<<endevent>>
+	<<destinationeventend>>
+<<else>>
+	You turn and swim as fast as you can. You hear splashes behind you as the pair give chase, gaining on you, <span class="red">until a pair of hands clutches your ankle.</span>
+	<br><br>
+
+	"What are you afraid of?" the <<person1>><<person>> laughs as <<he>> pulls you closer. "It's pretty private out here. Let's have some fun."
+	<br><br>
+
+	<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
+	<br>
+<</if>>
+
+
+:: Sea Pair Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Sea Pair Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Sea Pair Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Sea Pair Rape Finish
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	"See you around," the <<person1>><<person>> laughs. They swim away.
+	<br><br>
+	<<tearful>> you tread water.
+	<br><br>
+
+<<else>>
+	The pair turn and swim away as fast as they can, throwing anxious glances over their shoulders.
+	<br><br>
+	<<tearful>> you tread water.
+	<br><br>
+<</if>>
+
+<<clotheson>>
+<<endcombat>>
+
+<<destinationeventend>>

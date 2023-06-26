@@ -4,8 +4,47 @@
 	<<exposure>>
 	<<if $danceevent is 0>>
 		<<if $exposed gte 2 and $exhibitionism lte 74 and $forceddance isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel")>>
-		<<elseif $exposed gte 1 and $exhibitionism lte 34 and $forceddance isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel")>>
+			<!--
+				No dancing if:
+				Under 75 exhib, fully exposed, not forced, (not at brothel or not corrupt dance)
+			-->
+		<<elseif $exposed gte 1 and $exhibitionism lte 34 and $forceddance isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel") and !$worn.under_lower.type.includes("dance")>>
+			<!--
+				No dancing if:
+				Under 35 exhib, half exposed, not forced,
+				not wearing dance clothes, (not at brothel or not corrupt Dancing)
+			-->
 		<<else>>
+			<!-- Generate "dance near" boxes -->
+			<<if $audience gte 1>>
+				<<for $_audienceMemberIndex to 0; $_audienceMemberIndex lt $enemyno; $_audienceMemberIndex++>> <!-- For each audience member 1-6 -->
+					<<personselect $_audienceMemberIndex>>
+					<div class="dance_box"><label>
+						<<if $NPCList[$_audienceMemberIndex].masturbating gte 1>>
+							<<if $NPCList[$_audienceMemberIndex].traits.includes("relaxed") and _danceaction is "sophisticated">>
+								<span class="pink"><<person_ un>> 자위하고 있다.</span>
+							<<elseif $NPCList[$_audienceMemberIndex].traits.includes("sociable") and _danceaction is "cool">>
+								<span class="pink"><<person_ un>> 자위하고 있다.</span>
+							<<elseif $NPCList[$_audienceMemberIndex].traits.includes("brooding") and _danceaction is "sensual">>
+								<span class="pink"><<person_ un>> 자위하고 있다.</span>
+							<<elseif $NPCList[$_audienceMemberIndex].traits.includes("lecher") and _danceaction is "sexual">>
+								<span class="pink"><<person_ un>> 자위하고 있다.</span>
+							<<else>>
+								<<person_ un>> 자위하고 있다.
+							<</if>>
+							<<dance_npc_masturbation_chance $_audienceMemberIndex>>
+						<<else>>
+							<<person_ un>> 구경하고 있다.
+						<</if>>
+						<<capture $_audienceMemberIndex>>
+							| <<himPost>> 근처에서 춤춘다. <<radiobutton "$dance_place" $_audienceMemberIndex autocheck>>
+						<</capture>>
+					</label></div>
+					<br>
+				<</for>>
+				<br>
+			<</if>>
+			<!-- Generate general dance actions -->
 			<<if $danceactiondefault is "cool">>
 				<label>멋진 춤 (0:01) <<radiobutton "$danceaction" "cool" checked>></label> |
 			<<elseif $danceactiondefault is 0>>
@@ -34,106 +73,136 @@
 				<</if>>
 				<br>
 			<</if>>
-			<<goooutsidecount>>
-			<<if $cat gte 6 and ($goooutsidecount + $semenoutsidecount) gte 1 and $leftarm isnot "bound" and $rightarm isnot "bound">>
+			<<goocount>>
+			<<if $cat gte 6 and $liquidoutsidecount gte 1 and $leftarm isnot "bound" and $rightarm isnot "bound">>
 				<<if $danceactiondefault is "groom">>
 					<label><span class="sub">그루밍</span> (0:01) <span class="blue">고양이</span> <<radiobutton "$danceaction" "groom" checked>></label> |
 				<<else>>
 					<label><span class="sub">그루밍</span> (0:01) <span class="blue">고양이</span> <<radiobutton "$danceaction" "groom">></label> |
 				<</if>>
 			<</if>>
+			<!-- Generate stripping dance actions -->
 			<<dancestripactions>>
 			<br><br>
-			<<link "계속">>
-				<<script>>state.display(state.active.title, null)<</script>>
-			<</link>>
+			<<link [[계속|$passage]]>><</link>>
 			<br>
 		<</if>>
 	<<elseif $danceevent is "vip">>
-		<<link "허락한다">><<set $danceaction to "vipallow">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[허락한다|$passage]]>><<set $danceaction to "vipallow">><</link>>
 		<br>
-		<<link "밀처낸다">><<set $danceaction to "vippush">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[밀쳐낸다|$passage]]>><<set $danceaction to "vippush">><</link>>
 		<br>
+	<<elseif $danceevent is "darryl">>
+		<<link [[안심시킨다|$passage]]>><<set $danceaction to "darrylreassure">><<npcincr Darryl love 1>><</link>><<glove>>
+		<br>
+		<<link [[데릴을 무대 위로 당겨올린다|$passage]]>><<set $danceaction to "darrylpull">><</link>>
+		<br>
+	<<elseif $danceevent is "briar">>
+		<<link [[브라이어에게 윙크한다|$passage]]>><<set $danceaction to "briarwink">><<npcincr Briar love 1>><</link>><<glove>>
+		<br>
+		<<if $promiscuity gte 35>>
+			<<link [[브라이어를 유혹한다|$passage]]>><<set $danceaction to "briarseduce">><</link>><<promiscuous3>>
+			<br>
+		<<else>>
+			<span class="blue">브라이어를 유혹해본다는 생각이 당신의 머리를 스치지만, 당신은 그러기에는 충분히 음란하지 않다.</span>
+			<br>
+		<</if>>
 	<<elseif $danceevent is "strippertrouble">>
-		<<link "그들을 돕는다">><<set $danceaction to "stripperhelp">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[그들을 돕는다|$passage]]>><<set $danceaction to "stripperhelp">><</link>>
 		<br>
-		<<link "거절한다">><<set $danceaction to "stripperignore">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[무시한다|$passage]]>><<set $danceaction to "stripperignore">><</link>>
 		<br>
 	<<elseif $danceevent is "note">>
-		<<link "다가간다">><<set $danceaction to "noteapproach">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[다가간다|$passage]]>><<set $danceaction to "noteapproach">><</link>>
 		<br>
-		<<link "거절한다">><<set $danceaction to "noteignore">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[무시한다|$passage]]>><<set $danceaction to "noteignore">><</link>>
 		<br>
 	<<elseif $danceevent is "rape">>
 	<<elseif $danceevent is "molest">>
-		<<link "기분에 맞춰준다">><<script>>state.display(state.active.title, null)<</script>><</link>><<set $danceaction to "cop">>
+		<<link [[당신을 만지게 둔다|$passage]]>><<set $danceaction to "cop">><</link>>
 		<br>
 		<<if $dancelocation is "brothel" and $corruptionDancing isnot undefined>>
 			당신의 귀의 슬라임이 쇼를 끝내는 것을 막는다.
 		<<elseif $dancelocation isnot "underground" and $dancelocation isnot "smuggler_forced">>
-			<<link "너무 위험하다. 쇼를 끝낼 때가 됐다.">><<set $danceaction to "finish">><<script>>state.display(state.active.title, null)<</script>><</link>>
+			<<link [["너무 위험하다. 쇼를 끝낼 때가 됐다"|$passage]]>><<set $danceaction to "finish">><</link>>
 			<br>
 		<</if>>
 	<<elseif $danceevent is "skirtstrip">>
-		<<link "저항한다">><<set $danceaction to "skirtstruggle">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 뺏기지 않게 몸부림친다|$passage]]>><<set $danceaction to "skirtstruggle">><</link>>
 		<br>
-		<<link "옷을 포기한다">><<set $danceaction to "skirtsurrender">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 포기한다|$passage]]>><<set $danceaction to "skirtsurrender">><</link>>
 		<br>
 	<<elseif $danceevent is "overlowerstrip">>
-		<<link "저항한다">><<set $danceaction to "overlowerstruggle">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 뺏기지 않게 몸부림친다|$passage]]>><<set $danceaction to "overlowerstruggle">><</link>>
 		<br>
-		<<link "옷을 포기한다">><<set $danceaction to "overlowersurrender">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 포기한다|$passage]]>><<set $danceaction to "overlowersurrender">><</link>>
 		<br>
 	<<elseif $danceevent is "lowerstrip">>
-		<<link "저항한다">><<set $danceaction to "lowerstruggle">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 뺏기지 않게 몸부림친다|$passage]]>><<set $danceaction to "lowerstruggle">><</link>>
 		<br>
-		<<link "옷을 포기한다">><<set $danceaction to "lowersurrender">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 포기한다|$passage]]>><<set $danceaction to "lowersurrender">><</link>>
 		<br>
 	<<elseif $danceevent is "overupperstrip">>
-		<<link "저항한다">><<set $danceaction to "overupperstruggle">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 뺏기지 않게 몸부림친다|$passage]]>><<set $danceaction to "overupperstruggle">><</link>>
 		<br>
-		<<link "옷을 포기한다">><<set $danceaction to "overuppersurrender">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 포기한다|$passage]]>><<set $danceaction to "overuppersurrender">><</link>>
 		<br>
 	<<elseif $danceevent is "upperstrip">>
-		<<link "저항한다">><<set $danceaction to "upperstruggle">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 뺏기지 않게 몸부림친다|$passage]]>><<set $danceaction to "upperstruggle">><</link>>
 		<br>
-		<<link "옷을 포기한다">><<set $danceaction to "uppersurrender">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 포기한다|$passage]]>><<set $danceaction to "uppersurrender">><</link>>
 		<br>
 	<<elseif $danceevent is "understrip">>
-		<<link "저항한다">><<set $danceaction to "understruggle">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 뺏기지 않게 몸부림친다|$passage]]>><<set $danceaction to "understruggle">><</link>>
 		<br>
-		<<link "옷을 포기한다">><<set $danceaction to "undersurrender">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 포기한다|$passage]]>><<set $danceaction to "undersurrender">><</link>>
 		<br>
 	<<elseif $danceevent is "underupperstrip">>
-		<<link "저항한다">><<set $danceaction to "underupperstruggle">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 뺏기지 않게 몸부림친다|$passage]]>><<set $danceaction to "underupperstruggle">><</link>>
 		<br>
-		<<link "옷을 포기한다">><<set $danceaction to "underuppersurrender">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[옷을 포기한다|$passage]]>><<set $danceaction to "underuppersurrender">><</link>>
 		<br>
 	<<elseif $danceevent is "private" and $dancelocation isnot "underground">>
-		<<link "무시한다">><<set $danceaction to "privaterefuse">><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[무시한다|$passage]]>><<set $danceaction to "privaterefuse">><</link>>
 		<br>
 	<<elseif $danceevent is "leighton">>
-		<<link "무시한다">><<set $leightondancerefused to 1>><<script>>state.display(state.active.title, null)<</script>><</link>>
+		<<link [[무시한다|$passage]]>><<set $weekly.leightonDanceRefused to true>><</link>>
 		<br>
+	<<elseif $danceevent is "robin">>
+		<<link [[무시한다|$passage]]>><<set $danceaction to "robinignore">><<npcincr Robin love -5>><<npcincr Robin dom -20>><</link>>
+		<br>
+	<<elseif $danceevent is "drink">>
+		<<link [[마신다|$passage]]>><<set $danceaction to "drink">><</link>><<dancedifficulty 1 `800 + $drunk`>>
+		<br>
+		<<link [[조심스럽게 마신다|$passage]]>><<set $danceaction to "drink_careful">><</link>>
+		<br>
+		<<link [[무시한다|$passage]]>><<set $danceaction to "drink_ignore">><</link>>
+		<br>
+	<<elseif $danceevent is "light">>
+		<<if $exhibitionism gte 75>>
+			<<link [[과시한다|$passage]]>><<set $danceaction to "light_flaunt">><</link>><<ginterest>>
+			<br>
+		<</if>>
+		<<if $forceddance is 1>>
+			<<link [[몸을 가린다|$passage]]>><<set $danceaction to "light_cover">><</link>>
+			<br>
+		<</if>>
 	<<elseif $danceevent is "corruptionDance">>
 		<<if $promiscuity gte 75 and $submissive gte 1900>>
-			<<link "순순히 굴복한다">>
-				<<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<set $submissive += 2>>
+			<<link [[기꺼이 굴복한다|$passage]]>>
+				<<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>>
 				<<set $corruptionResult to "submit">><<set $danceaction to "corruptionResult">>
-				<<script>>state.display(state.active.title, null)<</script>>
 			<</link>><<promiscuous5>><<ggcorruption>><<llpain>><<llltrauma>><<llstress>>
 			<br>
 		<</if>>
-		<<link "복종한다">><<corruption 1>>
-			<<pain -4>><<stress -6>><<trauma -12>><<set $submissive += 1>>
+		<<link [[복종한다|$passage]]>>
+			<<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 1>>
 			<<set $corruptionResult to "obey">><<set $danceaction to "corruptionResult">>
-			<<script>>state.display(state.active.title, null)<</script>>
 		<</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
 		<br>
-		<<link "저항한다">><<corruption -1>>
-			<<pain 8>><<stress 6>><<trauma 6>><<set $submissive -= 1>>
+		<<link [[반항한다|$passage]]>>
+			<<corruption -1>><<pain 8>><<stress 6>><<trauma 6>><<def 1>>
 			<<set $corruptionResult to "defy">><<set $danceaction to "corruptionResult">>
-			<<script>>state.display(state.active.title, null)<</script>>
 		<</link>><<lcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
 		<br>
 	<</if>>
@@ -148,24 +217,16 @@
 		<<else>>
 			<<set _heelBonus to -4>>
 		<</if>>
-		<<set $rng to random(1, 100)>>
-		<<if ($allure / 100 + $danceskill / 20 + $audienceexcitement / 5 + $audiencearousal / 5 + _heelBonus) gte $rng>>
-			<<set $audience += 1>>
-			<<if $audience is 1>>
-				<<generatel>><<person1>><<personPost "이">> 당신을 보기 시작했다./*Not to be confused with generate1*/
-			<<elseif $audience is 2>>
-				<<generatel>><<person2>><<personPost "이">> 당신을 보기 시작했다.
-			<<elseif $audience is 3>>
-				<<generatel>><<person3>><<personPost "이">> 당신을 보기 시작했다.
-			<<elseif $audience is 4>>
-				<<generatel>><<person4>><<personPost "이">> 당신을 보기 시작했다.
-			<<elseif $audience is 5>>
-				<<generatel>><<person5>><<personPost "이">> 당신을 보기 시작했다.
-			<<elseif $audience is 6>>
-				<<generatel>><<person6>><<personPost "이">> 당신을 보기 시작했다.
+		<<rng>>
+		<<if ($allure / 100 + currentSkillValue('danceskill') / 20 + $audienceexcitement / 5 + $audiencearousal / 5 + _heelBonus) gte $rng>>
+			<<if $audience gte 0 and $audience lte 5>>
+				<<generatel>><<personselect $audience>>
+				<<personPost "이">> 당신을 보기 시작한다.
 			<<else>>
 				다른 사람이 청중에 합류한다.
 			<</if>>
+			<<set $audience += 1>>
+			<<person_dance>>
 		<</if>>
 		<<if $audience is 0>>
 			아무도 당신에게 관심을 주지 않는다.
@@ -201,25 +262,27 @@
 			많은 인원의 사람들이 당신을 지켜보고 있다. 뒤쪽에 있는 사람들은 좋은 시야를 얻기 위해 고군분투하고 있다.
 		<</if>>
 		<<dancespeech>>
+		<<dance_npc_masturbation>>
+		<<person_dance>>
 		<br><br>
 		<<if $audience gte 1>>
 			청중들은
 			<<if $audienceexcitement is 0>>
-				<span class="red">산만하며</span>
+				<span class="red">산만하게 보이며</span>
 			<<elseif $audienceexcitement lte 20>>
-				<span class="pink">별다른 관심이 없으며</span>
+				<span class="pink">별다른 관심이 없어 보이며</span>
 			<<elseif $audienceexcitement lte 40>>
-				<span class="purple">주의를 기울이며</span>
+				<span class="purple">주의를 기울이는 듯 보이며</span>
 			<<elseif $audienceexcitement lte 60>>
-				<span class="blue">흥미로워하며</span>
+				<span class="blue">흥미로운 듯 보이며</span>
 			<<elseif $audienceexcitement lte 80>>
-				<span class="lblue">깊은 인상을 받으며</span>
+				<span class="lblue">깊은 인상을 받은 듯 보이며</span>
 			<<elseif $audienceexcitement lte 99>>
-				<span class="teal">몰두하며</span>
+				<span class="teal">몰두하는 듯 보이며</span>
 			<<else>>
-				<span class="green">집착하며</span>
+				<span class="green">집착하는 듯 보이며</span>
 			<</if>>
-			,
+			
 			<<if $audiencearousal is 0>>
 				<span class="blue">온화하다.</span>
 			<<elseif $audiencearousal lte 20>>
@@ -235,13 +298,26 @@
 			<<else>>
 				<span class="red">욕망으로 가득 차있다.</span>
 			<</if>>
+			<<if $dance_stage_cum gte 10>>
+				무대의 <span class="red">어떤 곳에도</span> 정액이 묻지 않은 곳이 없다.
+			<<elseif $dance_stage_cum gte 8>>
+				무대는 정액으로 <span class="pink">흠뻑 젖어있다</span>.
+			<<elseif $dance_stage_cum gte 6>>
+				무대는 정액으로 <span class="purple">뒤덮여 있다</span>.
+			<<elseif $dance_stage_cum gte 4>>
+				무대는 정액으로 <span class="blue">젖어있다</span>.
+			<<elseif $dance_stage_cum gte 2>>
+				무대 위에는 <span class="lblue">커다란</span> 정액 웅덩이가 생겨있다.
+			<<elseif $dance_stage_cum gte 1>>
+				무대 위에는 <span class="teal">조그만</span> 정액 웅덩이가 생겨있다.
+			<</if>>
 			<<set $audiencemod to Math.clamp($audiencemod, 1, 10)>>
 			<br>
 			경외심: <<statbarinverted $audiencemod 10>>
 
-			<<set $rng to random(1, 100)>>
-			<<if ($allure / 100 + $danceskill / 20 + $audienceexcitement / 5 + $audiencearousal / 5) gte $rng + 50>>
-				<<set $rng to random(1, 10)>>
+			<<rng>>
+			<<if ($allure / 100 + currentSkillValue('danceskill') / 20 + $audienceexcitement / 5 + $audiencearousal / 5) gte $rng + 50>>
+				<<rng 10>>
 				<<set $dancetip to ($rng * $audience * $venuemod * $audiencemod)>>
 				<<if $worn.feet.type.includes("heels")>>
 					<<set $dancetip *= (1 + $worn.feet.reveal / 3000)>>
@@ -250,19 +326,43 @@
 				<</if>>
 				<<set $dancetip *= 1 + ($mathstrait / 4)>>
 				<<if $dancetip gte 5000>>
-					청중들이 당신의 전시회에 열광하며, 당신에게 돈다발을 뿌린다.
+					청중들이 당신의 과시에 열광하며, 당신에게 돈다발을 뿌린다.
 				<<elseif $dancetip gte 500>>
 					누군가 당신에게 상당한 양의 팁을 던진다.
 				<<else>>
 					누군가 당신에게 수수한 양의 팁을 던진다.
 				<</if>>
 				<<set $dancetip = Math.trunc($dancetip)>>
-				당신은 <<printmoney $dancetip>>를 얻었다.
-				<<set $money += $dancetip>>
+				<<if $dancetip gte 50>>
+					<<set $dancetip to 100 * Math.round( $dancetip / 100.0 )>>
+				<<else>>
+					<<set $dancetip to 5 * Math.round( $dancetip / 5.0 )>>
+				<</if>>
+				<<set $dancetip to Math.max( $dancetip, 5 )>>
+				<<if $venuemod is 0>>
+					그들은 당신이 그것을 가지도록 놓아두지 않았다.
+				<<else>>
+					당신은 <<printmoney $dancetip>>를 얻었다.
+					<<set $money += $dancetip>>
+				<</if>>
 			<</if>>
 			<br><br>
-			<<set $rng to random(1, 100)>>
-			<<if $dancelocation is 0>>
+			<<rng>><<rngWraith 2 "night">>
+			<<if ($wraith.state is "haunt" or $wraith.offspring is "dead") and _wraithEvent and $rng lte 10>>
+				<<danceWraith>>
+				<<set $_blockDancingEvents to true>>
+			<<elseif currentSkillValue('danceskill') lt ( ($dance_stage_cum * 50) + random(1,250) )>>
+				<<if currentSkillValue('danceskill') gte ( ($dance_stage_cum * 40) + random(1,100) )>>
+					당신의 발이 정액으로 뒤덮인 무대 위에서 미끄러졌지만, <span class="green">당신은 중심을 되찾을 수 있었고,</span> 그 움직임을 춤 속에 포함시킨다.
+				<<else>>
+					당신의 발이 정액으로 뒤덮인 무대 위에서 미끄러졌고, <span class="red">당신은 <<bottom_ ul>> 바닥에 부딪힌다.</span>
+					<<dancefall>>
+					<<set $_blockDancingEvents to true>>
+				<</if>>
+			<</if>>
+			<<if $_blockDancingEvents>>
+				<!-- No other events can trigger -->
+			<<elseif $dancelocation is 0>>
 				<<if $audiencearousal gte 100>>
 					<<if $rng gte 91>>
 						<<dancerape>>
@@ -300,6 +400,12 @@
 						<<dancestrippertrouble>>
 					<<elseif $rng gte 51>>
 						<<dancesalivate>>
+					<<elseif $rng gte 49>>
+						<<dancedarryl>>
+					<</if>>
+				<<else>>
+					<<if $rng gte 99>>
+						<<dancedarryl>>
 					<</if>>
 				<</if>>
 			<<elseif $dancelocation is "cafe">>
@@ -322,6 +428,8 @@
 				<<elseif $audiencearousal gte 100>>
 					<<if $rng gte 101 - ($corruption_slime / 20) and $corruptionDancing is undefined>>
 						<<danceCorruption>>
+					<<elseif $rng gte 99>>
+						<<dancebriar>>
 					<<elseif $rng gte 91>>
 						<<dancerape>>
 					<<elseif $rng gte 71>>
@@ -332,12 +440,16 @@
 						<<dancestrip>>
 					<<elseif $rng gte 31 and $privatedanceoffered isnot 1>>
 						<<danceprivate>>
-					<<elseif $rng gte 21 and $leightondanceoffered isnot 1 and $weekday gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
+					<<elseif $rng gte 21 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
 						<<danceleighton>>
+					<<elseif $rng gte 11 and $robinBrothel>>
+						<<dancebrothelrobin>>
 					<</if>>
 				<<elseif $audiencearousal gte 81>>
 					<<if $rng gte 101 - ($corruption_slime / 25) and $corruptionDancing is undefined>>
 						<<danceCorruption>>
+					<<elseif $rng gte 99>>
+						<<dancebriar>>
 					<<elseif $rng gte 91>>
 						<<dancemolest>>
 					<<elseif $rng gte 86 and $enemyno gte 2>>
@@ -346,20 +458,26 @@
 						<<dancestrip>>
 					<<elseif $rng gte 51 and $privatedanceoffered isnot 1>>
 						<<danceprivate>>
-					<<elseif $rng gte 41 and $leightondanceoffered isnot 1 and $weekday gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
+					<<elseif $rng gte 41 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
 						<<danceleighton>>
+					<<elseif $rng gte 31 and $robinBrothel>>
+						<<dancebrothelrobin>>
 					<</if>>
 				<<elseif $audiencearousal gte 41>>
 					<<if $rng gte 102 - ($corruption_slime / 25) and $corruptionDancing is undefined>>
 						<<danceCorruption>>
+					<<elseif $rng gte 99>>
+						<<dancebriar>>
 					<<elseif $rng gte 91>>
 						<<dancestrip>>
 					<<elseif $rng gte 86 and $enemyno gte 2>>
 						<<dancevip>>
 					<<elseif $rng gte 71 and $privatedanceoffered isnot 1>>
 						<<danceprivate>>
-					<<elseif $rng gte 61 and $leightondanceoffered isnot 1 and $weekday gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
+					<<elseif $rng gte 61 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
 						<<danceleighton>>
+					<<elseif $rng gte 51 and $robinBrothel>>
+						<<dancebrothelrobin>>
 					<</if>>
 				<<else>>
 					<<if $rng gte 103 - ($corruption_slime / 25) and $corruptionDancing is undefined>>
@@ -418,10 +536,119 @@
 						<<set $danceevent to "smuggler_rescue">>
 					<</if>>
 				<</if>>
+			<<elseif $dancelocation is "party">>
+				<<if $audiencearousal gte 90>>
+					<<dancepull>>
+				<<elseif $drunk gte random(1, 1000)>>
+					<<dancedrunktrip>>
+				<<else>>
+					<<if $audiencearousal gte 41>>
+						<<if $rng gte 51>>
+							<<dancedrink>>
+						<<else>>
+							<<dancelonging>>
+						<</if>>
+					<</if>>
+				<</if>>
+			<<elseif $dancelocation is "stage">>
+				<<if $audiencearousal gte 100>>
+					<<if $rng gte 91>>
+						<<dancerape>>
+					<<elseif $rng gte 71>>
+						<<dancemolest>>
+					<<elseif $rng gte 51>>
+						<<dancestrip>>
+					<<elseif $rng gte 31>>
+						<<dancelight>>
+					<</if>>
+				<<elseif $audiencearousal gte 81>>
+					<<if $rng gte 91>>
+						<<dancemolest>>
+					<<elseif $rng gte 71>>
+						<<dancestrip>>
+					<<elseif $rng gte 51>>
+						<<dancelight>>
+					<</if>>
+				<<elseif $audiencearousal gte 41>>
+					<<if $rng gte 91>>
+						<<dancestrip>>
+						<<dancestrip>>
+					<<elseif $rng gte 71>>
+						<<dancelight>>
+					<</if>>
+				<</if>>
 			<</if>>
 		<</if>>
 	<</if>>
 	<br><br>
+<</widget>>
+
+<<widget "dancelight">>
+	<<exposure>>
+	<<if $exposed gte 2>>
+		스포트라이트가 색상과 밝기를 바꿔가며, 당신을 찌푸리게 한다.
+	<<else>>
+		<<set $danceevent to "light">>
+		스포트라이트가 색상을 바꾸며, 당신 옷의 천을 뚫고, 그 아래의 피부를 밝힌다. <span class="lewd">마치 당신이 벌거벗은 것 같다!</span>
+	<</if>>
+<</widget>>
+
+<<widget "dancedrink">>
+	<<set $danceevent to "drink">>
+	<<person_ i>> 당신에게 와인 한 잔을 권한다.
+	<<if $drunk gte currentSkillValue('danceskill') - 800>>
+		당신은 벌써 몸이 휘청거리는 것을 느낀다.
+	<</if>>
+<</widget>>
+
+<<widget "dancepull">>
+	<<set $danceevent to "dancepull">>
+	정욕에 정신이 나가, <span class="pink"><<person_ i>> 당신의 다리를 잡고, 무대 밖으로 당신을 잡아당기려고 한다.</span>
+<</widget>>
+
+<<widget "dancedrunktrip">>
+	당신은 <span class="purple">술이 취해</span> 발을 헛디뎌 비틀거리며, 테이블에서 떨어진다.
+	<<if (!$worn.upper.type.includes("naked") or !$worn.under_upper.type.includes("naked")) and random(1)>>
+		<<if !$worn.upper.type.includes("naked")>>
+			<<set $worn.upper.integrity -= 10>>
+			누군가가 당신을 잡아주지만, 당신의 <<worn_upper_name_ i>> 걸린다.
+			<<if $worn.upper.integrity lte 0>>
+				<span class="pink">당신은 찢어지는 소리를 들었고,</span> 아래를 쳐다보고 그 찢어진 잔해가 군중들 안으로 사라지는 것을 본다.
+				<<arousal 100>><<upperruined>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
+			<<else>>
+				당신이 다시 올라가는 동안 누군가가 당신의 가슴을 만진다.
+			<</if>>
+		<<else>>
+			<<set $worn.under_upper.integrity -= 10>>
+			누군가가 당신을 잡아주지만, 당신의 <<worn_under_upper_name_ i>> 걸린다.
+			<<if $worn.under_upper.integrity lte 0>>
+				<span class="pink">당신은 찢어지는 소리를 들었고,</span> 아래를 쳐다보고 그 찢어진 잔해가 군중들 안으로 사라지는 것을 본다.
+				<<arousal 100>><<underupperruined>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
+			<<else>>
+				당신이 다시 올라가는 동안 누군가가 당신의 가슴을 만진다.
+			<</if>>
+		<</if>>
+	<<elseif !$worn.lower.type.includes("naked")>>
+		<<set $worn.lower.integrity -= 10>>
+		누군가가 당신을 잡아주지만, 당신의 <<worn_lower_name_ i>> 걸린다.
+		<<if $worn.lower.integrity lte 0>>
+			<span class="pink">당신은 찢어지는 소리를 들었고,</span> 아래를 쳐다보고 그 찢어진 잔해가 군중들 안으로 사라지는 것을 본다.
+			<<arousal 100>><<lowerruined>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
+		<<else>>
+			당신이 다시 올라가는 동안 누군가가 당신의 <<bottom_ ul>> 만진다.
+		<</if>>
+	<<elseif !$worn.under_lower.type.includes("naked")>>
+		<<set $worn.under_lower.integrity -= 10>>
+		누군가가 당신을 잡아주지만, 당신의 <<worn_under_lower_name_ i>> 걸린다.
+		<<if $worn.under_lower.integrity lte 0>>
+			<span class="pink">당신은 찢어지는 소리를 들었고,</span> 아래를 쳐다보고 그 찢어진 잔해가 군중들 안으로 사라지는 것을 본다.
+			<<arousal 100>><<underlowerruined>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
+		<<else>>
+			당신이 다시 올라가는 동안 누군가가 당신의 <<bottom_ ul>> 만진다.
+		<</if>>
+	<<else>>
+		<<person_ i>> 당신을 잡는다. 당신이 다시 올라가는 동안 누군가가 당신의 <<bottom_ ul>> 만진다.
+	<</if>>
 <</widget>>
 
 <<widget "dancerape">>
@@ -429,43 +656,48 @@
 	청중들은 정욕에 사로잡혀 당신을 향해 몰려온다. 청중들의 눈은 원초적인 굶주림으로 가득 차 있다.
 <</widget>>
 
+<<widget "dancefall">>
+	<<set $danceevent to "rape">>
+	당신의 취약한 상태에 이끌려 흥분하여, 눈에는 원초적인 굶주림이 가득 찬 채로, 청중들이 당신을 향해 몰려온다.
+<</widget>>
+
 <<widget "dancemolest">>
 	<<set $danceevent to "molest">><<molested>>
-	<<person1>><<personPost "이">> 손을 뻗어 당신의 허리를 잡는다.<<trauma 6>><<stress 6>>
+	<<personPost "이">> 손을 뻗어 당신의 허리를 잡는다!<<trauma 6>><<stress 6>>
 <</widget>>
 
 <<widget "dancestrip">>
-	<<if $worn.under_lower.name isnot "naked" and (($worn.over_lower.skirt is 1 and $worn.lower.skirt is 1) or ($worn.over_lower.skirt is 1 and $worn.lower.type.includes("naked")) or ($worn.lower.skirt is 1 and $worn.over_lower.type.includes("naked")))>>
-		당신이 스핀하자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "under_lower" $worn.under_lower.name "name" "을">>_trResult 잡고 달라든다.
+	<<if $worn.under_lower.name isnot "naked" and ((setup.clothes.over_lower[clothesIndex('over_lower', $worn.over_lower)].skirt is 1 and setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1) or (setup.clothes.over_lower[clothesIndex('over_lower', $worn.over_lower)].skirt is 1 and $worn.lower.type.includes("naked")) or (setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and $worn.over_lower.type.includes("naked")))>>
+		당신이 몸을 빙그르르 돌리자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "under_lower" $worn.under_lower.name "name" "을">>_trResult 잡고 달려든다.
 		<<set $danceevent to "skirtstrip">><<molested>>
 	<<elseif $worn.over_lower.name isnot "naked">>
-		당신이 스핀하자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "lower"$worn.over_lower.name "name" "을">>_trResult 잡고 달라든다.
+		당신이 몸을 빙그르르 돌리자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "lower"$worn.over_lower.name "name" "을">>_trResult 잡고 달려든다.
 		<<set $danceevent to "overlowerstrip">><<molested>>
 	<<elseif $worn.lower.name isnot "naked">>
-		당신이 스핀하자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "lower" $worn.lower.name "name" "을">>_trResult 잡고 달라든다.
+		당신이 몸을 빙그르르 돌리자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "lower" $worn.lower.name "name" "을">>_trResult 잡고 달려든다.
 		<<set $danceevent to "lowerstrip">><<molested>>
 	<<elseif $worn.over_upper.name isnot "naked">>
-		당신이 스핀하자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "over_upper" $worn.over_upper.name "name" "을">>_trResult 잡고 달라든다.
+		당신이 몸을 빙그르르 돌리자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "over_upper" $worn.over_upper.name "name" "을">>_trResult 잡고 달려든다.
 		<<set $danceevent to "overupperstrip">><<molested>>
 	<<elseif $worn.upper.name isnot "naked">>
-		당신이 스핀하자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "upper" $worn.upper.name "name" "을">>_trResult 잡고 달라든다.
+		당신이 몸을 빙그르르 돌리자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "upper" $worn.upper.name "name" "을">>_trResult 잡고 달려든다.
 		<<set $danceevent to "upperstrip">><<molested>>
 	<<elseif $worn.under_lower.name isnot "naked">>
-		당신이 스핀하자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "under_lower" $worn.under_lower.name "name" "을">>_trResult 잡고 달라든다.
+		당신이 몸을 빙그르르 돌리자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "under_lower" $worn.under_lower.name "name" "을">>_trResult 잡고 달려든다.
 		<<set $danceevent to "understrip">><<molested>>
 	<<elseif $worn.under_upper.name isnot "naked">>
-		당신이 스핀하자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다  <<trClothes "under_upper" $worn.under_upper.name "name" "을">>_trResult 잡고 달라든다
+		당신이 몸을 빙그르르 돌리자, 치마가 펄럭인다. 품위가 결여된 청중이 기회를 노리다 <<trClothes "under_upper" $worn.under_upper.name "name" "을">>_trResult 잡고 달려든다.
 		<<set $danceevent to "underupperstrip">><<molested>>
 	<</if>>
 	<<trauma 6>><<stress 6>>
 <</widget>>
 
 <<widget "dancefinish">>
-<<if $security_aware>>
-	경비요원이 무대에서 퇴장하라고 손짓한다. 그 이유는 소란스럽고 흥분해있는 청중들을 힐끗 처다만 보아도 알 수 있다.
-<<else>><<set $security_aware to 1>>
-	경비요원이 무대에서 퇴장하라고 손짓한다. 이유를 묻기 위해 입을 열었지만, 중간에 방해받는다, "사람들이 조금 소란스럽습니다. 조금 진정시킬 필요가 있습니다. 그렇지 않으면, 귀하를 보호할 수 없습니다." 청중을 보고, 동의하지 않을 수 없었다.
-<</if>>
+	<<if $security_aware>>
+		경비요원이 무대에서 퇴장하라고 손짓한다. 그 이유는 소란스럽고 흥분해있는 청중들을 힐끗 처다만 보아도 알 수 있다.
+	<<else>><<set $security_aware to 1>>
+		경비요원이 무대에서 퇴장하라고 손짓한다. 이유를 묻기 위해 입을 열었지만, 중간에 방해받는다, "사람들이 조금 소란스럽습니다. 조금 진정시킬 필요가 있습니다. 그렇지 않으면, 귀하를 보호할 수 없습니다." 청중을 보고, 동의하지 않을 수 없었다.
+	<</if>>
 	<<set $danceevent to "finish">>
 	<br><br>
 <</widget>>
@@ -486,34 +718,44 @@
 <</widget>>
 
 <<widget "danceprivate">>
-	<<person1>>The <<person>> raises <<his>> <<if $pronoun is "m">>wallet,<<else>>purse,<</if>> indicating <<he>> wants to hire your services.
+	그 <<person_ un>> <<his_ yi>> <<if $pronoun is "m">>지갑을 들어,<<else>>핸드백을 들어,<</if>> <<he_ ga>> 당신의 서비스를 받고 싶다는 것을 보인다.
 	<<set $danceevent to "private">>
 	<<if $promiscuity lte 34 and $uncomfortable.prostituting is true>>
-		하지만, 당신은 <<his_yi>> 제안을 받을 만큼 문란한 사람이 아니다.
+		하지만, 당신은 <<his_ yi>> 제안을 받을 만큼 문란한 사람이 아니다.
 		<<set $privatedanceoffered to 1>>
 	<</if>>
 	<<if $promiscuity lte 34 and $uncomfortable.prostituting is false>>
-		<<His_yi>> 제안은 짜증나지만, 당신은 돈이 필요하다.
+		<<His_ yi>> 제안은 짜증나지만, 당신은 돈이 필요하다.
 	<</if>>
 <</widget>>
 
 <<widget "dancelonging">>
-	<<person1>><<personPost "은">> 갈망하며 당신을 바라본다.
+	<<personPost "은">> 갈망하며 당신을 바라본다.
 <</widget>>
 
 <<widget "dancenote">>
 	<<set $danceevent to "note">>
-	<<person1>><<personPost "은">> 지폐를 펼저든다.
+	<<personPost "은">> 지폐를 펼쳐든다.
 <</widget>>
 
 <<widget "dancevip">>
 	<<set $danceevent to "vip">>
-	비싼 <<if $pronoun is "f">>드레스<<else>>슈트<</if>>를 입은 <<person2>><<personPost "은">> 당신의 팔을 잡고 끌어당기며. 경비는 눈을 피한다. "걔들은 우릴 귀찮게 안할꺼야" <<HePost "은">> 말한다. "걔네는 내가 누군지 알아."
+	비싼 <<if $pronoun is "f">>가운<<else>>정장<</if>>을 입은 <<personPost "은">> 당신의 팔을 잡고 끌어당긴다. 경비는 눈을 피한다. "걔들은 우릴 귀찮게 안 할거야" <<HePost "은">> 말한다. "걔네는 내가 누군지 알아."
+<</widget>>
+
+<<widget "dancedarryl">>
+	<<set $danceevent to "darryl">>
+	당신은 데릴이 무대 사이를 돌아다니며, 무용수들을 살피고 있는 것을 알아차린다. <<nnpc_He_ ga "Darryl">> 당신의 무대에 다가와, 당신을 본다.
+<</widget>>
+
+<<widget "dancebriar">>
+	<<set $danceevent to "briar">>
+	당신은 브라이어가 관중들 안에서, 당신을 보며 귓속말을 속삭이는 것을 알아차린다.
 <</widget>>
 
 <<widget "dancestrippertrouble">>
 	<<set $danceevent to "strippertrouble">>
-	<<person1>><<personPost "은">> 다른 종업원을 무대에서 끌어내리려고 한다.
+	<<personPost "은">> 다른 종업원을 무대에서 끌어내리려고 한다.
 <</widget>>
 
 <<widget "dancesalivate">>
@@ -521,12 +763,12 @@
 <</widget>>
 
 <<widget "dancesamfinish">>
-	<<endevent>><<npc Sam>><<person1>>샘이 테이블 스테이지 옆에 나타난다. "모두 그 정도면 됐어, 이 <<girlPost>>도 충분히 했어." <<HePost "은">> 당신의 팔을 잡고 뒷방으로 안내한다. "오늘 잘했어. 여기 조금 더 챙겨줄게." 당신은 <<moneyGain 10>>를 얻었다.
+	<<endevent>><<npc Sam>>샘이 테이블 스테이지 옆에 나타난다. "모두 그 정도면 됐어, 이 <<girlPost>>도 충분히 했어." <<HePost "은">> 당신의 팔을 잡고 뒷방으로 안내한다. "오늘 잘했어. 여기 조금 더 챙겨줄게." 당신은 <<moneyGain 10>>를 얻었다.
 	<<npcincr Sam love 2>><<glove>><<set $danceevent to "finish">>
 <</widget>>
 
 <<widget "danceleighton">>
-	<<set $leightondanceoffered to 1>><<set $danceevent to "leighton">>
+	<<set $daily.leightonDanceOffered to 1>><<set $danceevent to "leighton">>
 	<<if $headblackmailed is 1>>
 		"널 여기서 볼 줄 알았어,"
 	<<elseif $delinquency gte 400>>
@@ -536,11 +778,25 @@
 	<<else>>
 		"너 저기에서 귀엽더라,"
 	<</if>>
-	귀에 익은 목소리가 들린다. 레이튼이다. 레이튼은 지폐를 쌓아올리고 있다.
+	귀에 익은 목소리가 들린다. 레이턴이다. 레이턴은 지폐를 쌓아올리고 있다.
+	<br><br>
+<</widget>>
+
+<<widget "dancebrothelrobin">>
+	<<set $danceevent to "robin">>
+	당신은 익숙한 목소리가 당신의 이름을 부르는 것을 듣는다. 춤을 멈추지 않은 채로, 당신은 목소리의 주인공을 찾아 군중을 살핀다. <span class="pink">그건 로빈이었다.</span> <<nnpc_He_ nun "Robin">> 걱정스러운 눈으로 <<nnpc_himPost "Robin">>에게 오라고 손짓하고 있다.
+	<<set $weekly.robinBrothel to true>><<unset $robinBrothel>>
 	<br><br>
 <</widget>>
 
 <<widget "danceCorruption">>
 	<<set $danceevent to "corruptionDance">>
 	<span class="lewd">당신 귓속의 슬라임이 군중을 위해 춤을 멈추지 말라고 명령한다.</span> 당신이 그것에 응하면 보상을 받을 것이고, 아니면 당신을 위협하는 결과를 초래할 것이다.
+<</widget>>
+
+<<widget "danceWraith">>
+	<<set $danceevent to 0>><<set $audiencearousal -= 5>><<set $audienceexcitement -= 5>>
+	당신은 몸에 손이 하나 닿는 것을 느낀다. 그리고 또 하나. 그리고는 세 번째, 그리고 네 번째. 당신은 미친 듯이 주변을 둘러보고, <span class="red">수없이 많은 창백한 팔이 아래에서 솟아나와, 잡을 수 있을 때마다 당신을 잡는 것을 본다.</span> 당신은 비명을 지르려 하지만, 손 하나가 당신의 입을 막는다.
+	<br><br>
+	당신은 눈을 깜박이고, 그것들이 전부 사라진다. 당신은 이상한 번득임을 본다. <<stress 12>><<trauma 4>><<ggstress>><<gtrauma>>
 <</widget>>

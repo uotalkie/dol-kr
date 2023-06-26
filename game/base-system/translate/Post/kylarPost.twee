@@ -1,0 +1,113 @@
+:: Widgets kylarPost [widget nobr]
+/* 카일라 관련 Post 시리즈 */
+
+/* kylar_pet_namePost : <<kylar_pet_name>> 의 대용 버전 (overworld-town/special-kylar/main.twee) */
+<<widget "kylar_pet_namePost">><<silently>>
+	<<if def _args[0]>>
+		<<if _args[0] is "cap">>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<<else>>
+			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<</if>>
+	<</if>>
+
+	<<set _kylar to statusCheck("Kylar")>>
+
+	/*
+	<<set $_dom to Math.floor(_kylar.dom/40)>>
+	<<set $_rage to Math.floor(_kylar.rage/40)>>
+
+	<<set $_petNames to [
+		[ "my love",    "my love",   "my love"         ],
+		[ "my blossom", "my cherry", "my lover"        ],
+		[ "my gaoler",  "my flame",  "my little tease" ]
+	]>>
+
+	<<set _trResult to $_petNames[$_rage][$_dom]>>
+	*/
+
+	<<if _kylar.dom gte 80>>
+		<<if _kylar.rage gte 80>>
+			<<set _trResult to "내 작은 희롱꾼">><<set _postNum to 0>>
+		<<elseif _kylar.rage gte 40>>
+			<<set _trResult to "내 연인">><<set _postNum to 0>>
+		<<else>>
+			<<set _trResult to "내 사랑">><<set _postNum to 0>>
+		<</if>>
+	<<elseif _kylar.dom gte 40>>
+		<<if _kylar.rage gte 80>>
+			<<set _trResult to "내 불꽃">><<set _postNum to 0>>
+		<<elseif _kylar.rage gte 40>>
+			<<set _trResult to "내 체리">><<set _postNum to 1>>
+		<<else>>
+			<<set _trResult to "내 사랑">><<set _postNum to 0>>
+		<</if>>
+	<<else>>
+		<<if _kylar.rage gte 80>>
+			<<set _trResult to "내 간수">><<set _postNum to 1>>
+		<<elseif _kylar.rage gte 40>>
+			<<set _trResult to "내 꽃">><<set _postNum to 0>>
+		<<else>>
+			<<set _trResult to "내 사랑">><<set _postNum to 0>>
+		<</if>>
+	<</if>>
+	<<if def $_post>>
+		<<trPost _postNum $_post $_sep>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+
+/* kylarClothesPost : <<trNpcClothes>>에 카일라의 속옷 번역을 추가한 버전. 카일라 속옷은 (overworld-town/special-kylar/main.twee)의 <<kylarRandomUnderwear>> 에서 생성됨 */
+<<widget "kylarClothesPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if ["all", "set", "upper", "lower", "underwear", "undies", "under_lower"].includes(_args[0])>>
+			<<set $_clothesType to _args[0]>><<set $_clothesName to _args[1]>>
+			<<set $_post to _args[2]>><<set $_sep to _args[3]>>
+		<<else>>
+			<<set $_clothesType to "all">><<set $_clothesName to _args[0]>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+
+		<<set $_clothesNameArray to $_clothesName.split(' ')>>
+		<<if $_clothesType is "all" and $_clothesNameArray.includesAny("panties", "briefs", "underwear")>>
+				<<set $_clothesType to "underwear">>
+		<</if>>
+
+		<<if $_clothesType.substring(0,2) eq "un">>	/* 속옷만 골라냄 */
+			<<set $_undiesName to $_clothesNameArray.delete("panties", "briefs")>>
+			<<if $_undiesName.length gt 0>>
+				/* (panties) with XX and YY stripes | XX (panties) | XX and YY striped (panties) | (panties) */
+				<<set $_trClothesNameArray to []>>
+				<<for $_i, $_adj range $_clothesNameArray>>
+					<<if ["with", "and"].includes($_adj)>>
+						<<continue>>	/* 무시 */
+					<<elseif ["stripes", "striped"].includes($_adj)>>
+						<<set $_stripe to true>>	/* 줄무늬 */
+					<<else>>
+						<<if $_clothesNameArray[$_i + 1] eq "and">>
+							<<trColour $_adj "과">>	/* 2색 줄무늬 */
+						<<else>>
+							<<trColour $_adj>>
+						<</if>>
+							<<set $_trClothesNameArray.push(_trResult)>>
+					<</if>>
+				<</for>>
+				
+				<<if $_stripe>>
+					<<set $_trClothesNameArray.push("줄무늬")>>
+				<</if>>
+				<<set $_trClothesNameArray.push($_undiesName[0] eq "panties"? "팬티" : "삼각팬티")>>
+				
+				<<set _trResult to $_trClothesNameArray.join(' ')>>
+				<<trPost 1 $_post $_sep>>
+			<<elseif $_clothesNameArray[0] eq "underwear">>
+				<<set _trResult to "속옷">>
+				<<trPost 0 $_post $_sep>>
+			<<else>>
+				/* not found */
+				<<set _trResult to "<span class= 'red'>에러: kylarClothesPost: 알려지지 않은 속옷: " + $_clothesName + "</span>">>
+			<</if>>
+		<<else>>
+			<<trNpcClothes $_clothesType $_clothesName $_post $_sep>>
+		<</if>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>

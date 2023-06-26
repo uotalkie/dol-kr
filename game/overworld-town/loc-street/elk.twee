@@ -1,19 +1,39 @@
 :: Elk Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "elk">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "elk">><<getTarget true>>
 당신은 엘크 가에 있다. 여러 큰 공업 단지로 향하는 도로들이 있다.
-<<if $daystate is "day">>
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
-		계속해서 물이 금속에 부딪히는 소리가 들려온다.
+		사방에서 물이 금속에 튀긴다.
+	<<elseif $weather is "snow">>
+		기계들이 내는 소리가 눈에 덮인다.
 	<<else>>
 		사방에서 기계 소리가 들려온다.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	사방에서 기계 소리가 들려온다.
-<<elseif $daystate is "dusk">>
-	사방에서 기계 소리가 들려온다.
-<<elseif $daystate is "night">>
-	이 시간까지도 기계 소리가 들려온다.
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		당신은 커다란 기계들이 잠에서 깨어나 신음하는 소리 때문에, 비가 오는 소리를 들을 수가 없다.
+	<<elseif $weather is "snow">>
+		당신은 커다란 기계들이 잠에서 깨어나 신음하는, 눈에 덮인 소리를 듣는다.
+	<<else>>
+		커다란 기계들이 잠에서 깨어나, 신음하는 소리가 사방에서 들린다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		일꾼들이 하루의 일을 마치고, 빗속을 뚫고 급히 뛰어간다.
+	<<elseif $weather is "snow">>
+		기계들이 계속 우르릉대지만, 그 소리는 눈에 덮인다.
+	<<else>>
+		기계들의 신음소리는 이 시간에는 더 조용하지만, 완전히 잦아들지는 않는다.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		가끔씩 들리는 금속이 신음하는 소리가 빗소리를 뚫고 들린다.
+	<<elseif $weather is "snow">>
+		눈에 덮인다 하더라도, 당신은 기계들의 소리를 이런 시간까지도 들을 수 있다.
+	<<else>>
+		이 시간까지도 기계 소리가 들려온다.
+	<</if>>
 <</if>>
 <<streeteffects>>
 <br><br>
@@ -23,45 +43,73 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
+<<elseif $compound_breakout is undefined and ($museumAntiques.antiques.antiquewhitecrystal is "found" or $museumAntiques.antiques.antiquewhitecrystal is "talk" or $museumAntiques.antiques.antiquewhitecrystal is "museum")>>
+	<<set $compound_breakout to 1>>
+	<<generate1>><<generate2>><<person1>>
+	A <<person>> in a white uniform runs across the road, forcing oncoming traffic to screech to a halt. <<He>> carries a long pole in both hands, with a small net on the end. A small creature runs ahead of <<him>>. <<He>> swings the net in an arc, but it finds empty space as the creature escapes down a drain.
+	<br><br>
+	
+	<<He>> curses, then looks at the surrounding traffic and pedestrians observing <<him>>. "Nothing to see fo-," <<he>> begins, but a bang from within the nearby compound interrupts <<him>>. A plume of white smoke billows into the air, and two more small creatures dart through the fence. <<He>> takes off after one of them, net held aloft.
+	<br><br>
+	
+	<<link [[Next|Elk Street]]>><<endevent>><</link>>
+	<br>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "elk">>
 			<br>
 		<</if>>
 		주요 장소
 		<br>
 		<<if $trash_unlocked is 1>>
-			<<link [[쓰레기 매립지 (0:10)|Trash]]>><<pass 10>><<set $trash to 0>><</link>>
-			<br>
-		<<elseif $trash_key is 1>>
-			<<link [[열쇠를 사용한다 (0:10)|Trash Enter]]>><<set $trash_unlocked to 1>><<pass 10>><</link>>
+			<<landfillicon>><<link [[쓰레기 매립지 (0:10)|Trash]]>><<pass 10>><<set $trash to 0>><</link>>
 			<br>
 		<<else>>
-			<<link [[쓰레기 매립지 (0:05)|Trash Gate Enter]]>><<pass 5>><</link>>
+			<<landfillicon>><<link [[쓰레기 매립지 (0:05)|Trash Gate Enter]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
-		<<if $compoundstate is 1>>
+		<<if $daily.compoundState is 1>>
 			<span class="blue">단지에는 경비원이 돌아다닌다.</span> 내일엔 동요가 덜할 것이다.
 			<br>
-		<<elseif $compoundstate is 0>>
-			<<link [[단지에 몰래 들어간다|Elk Compound]]>><<crimeup 1>><</link>><<crime>>
+		<<elseif $compoundcard is 2>>
+			<<if $wraithCompoundEvent>>
+				<<hallucinogen 5>>
+				<span class="pink">희미한 안개가 단지 위에 감돌고 있다.</span>
+				<br>
+			<</if>>
+			<<ind>><<link [[단지에 몰래 들어간다 (0:02)|Elk Compound]]>><<pass 2>><<crimeup 1>><</link>><<crime>>
 			<br>
 			<<if $farm_stage gte 9 and $phials_held gte 1 and $exposed lte 0>>
-				<<link [[이상한 단지 안에 들어간다|Elk Compound Approach]]>><</link>>
+				<<ind>><<link [[단지 안에 들어간다 (0:01)|Elk Compound Approach]]>><<pass 1>><</link>>
 				<br>
 			<</if>>
 		<<elseif ($compoundcard is 1 or $farm_stage gte 9) and $exposed lte 0>>
-			<<link [[이상한 단지 안에 들어간다|Elk Compound Approach]]>><</link>>
+			<<ind>><<link [[이상한 단지 안에 들어간다 (0:01)|Elk Compound Approach]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
+		<<if $adultshopunlocked is undefined>>
+			<<if $adultshopgrandopening is true>>
+				<<adultshopicon>><<link [[성인용품점의 개점행사에 참석한다 (1:00)|Adult Shop Opening]]>><<pass 10>><</link>>
+			<<else>>
+				<<ind>><<link [[낡아빠진 가게 (0:01)|Dilapidated Shop]]>><<pass 1>><</link>>
+				<br>
+			<</if>>
+		<<elseif $exposed lte 0>>
+			<<if $adultShop.ban gt 0>>
+				<<adultshopicon>><<link [[성인용품점 (0:01)|Adult Shop Guard]]>><<pass 1>><</link>>
+			<<else>>
+				<<adultshopentryevent>>
+			<</if>>
+		<</if>>
 		<br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<br>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<nightingale>>
@@ -76,7 +124,7 @@
 		<<industrial>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "elk">>
 		<</if>>

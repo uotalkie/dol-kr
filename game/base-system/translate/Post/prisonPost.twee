@@ -1,0 +1,58 @@
+:: Widgets prisonPost [widget nobr]
+/* 교도소 관련 Post 시리즈. 위젯 원본은 overworld-town/loc-prison/widgets.twee 에 있으므로 해당 파일이 변경되면 확인할 것 */
+
+<<widget "trPrisonPerson">><<silently>>
+	<<if def _args[0]>>
+		<<if ndef _args[1]>>
+			<<set _args[1] to $NPCList[_args[0]].description + " " + $NPCList[_args[0]].role>>
+		<</if>>
+		
+		<<for $_i to 2; $_i lt _args.length; $_i++>>
+			<<if def _args[$_i] and _args[$_i].substring(0,1).search("[가-힣]") gte 0>>
+				<<set $_post to _args[$_i]>><<set $_sep to _args[$_i+1]>>
+				<<break>>
+			<</if>>
+		<</for>>
+		
+		<<if $NPCList[_args[0]].name_known is 1>>
+			<<trNPCname $NPCList[_args[0]].name $_post $_sep>>
+		<<else>>
+			<<if ndef setup.trNPCdescAdjList>>
+				<<trinit_NPCdescAdj>>
+			<</if>>
+			<<if ndef setup.trRoleList>>
+				<<trinit_roleList>>
+			<</if>>
+			<<set $_roleArray to _args[1].split(' ')>>
+			<<set $_trArray to []>>
+			<<for $_i to 0; $_i lt $_roleArray.length; $_i++>>
+				<<if $_roleArray[$_i] eq "the">>
+					<<continue>>
+				<</if>>
+				<<set $_found to setup.trNPCdescAdjList[$_roleArray[$_i]]>>
+				<<if def $_found>>
+					<<set $_trArray.push($_found)>>
+					<<continue>>
+				<</if>>
+				<<set $_found to setup.trRoleList[$_roleArray[$_i]]>>
+				<<if def $_found>>
+					<<set $_trArray.push($_found.ko)>>
+					<<set _postNum to $_found.post>>
+				<<else>>
+					<<set $_trArray.push("<span class='red'>에러: trPrisonPerson: 정의되지 않음: " + $_roleArray[$_i] + "</span>")>>
+				<</if>>
+			<</for>>
+			<<set _trResult to $_trArray.join(' ')>>
+			<<if def _postNum and def $_post>>
+				<<trPost _postNum $_post $_sep>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>
+
+<<widget "relaxed_guardPost">><<trPrisonPerson _args[0] "relaxed guard" _args[1] _args[2] _args[3]>><span class="relaxed"><<print _trResult>></span><</widget>>
+<<widget "anxious_guardPost">><<trPrisonPerson _args[0] "anxious guard" _args[1] _args[2] _args[3]>><span class="anxious"><<print _trResult>></span><</widget>>
+<<widget "veteran_guardPost">><<trPrisonPerson _args[0] "veteran guard" _args[1] _args[2] _args[3]>><span class="veteran"><<print _trResult>></span><</widget>>
+<<widget "methodical_guardPost">><<trPrisonPerson _args[0] "methodical guard" _args[1] _args[2] _args[3]>><span class="methodical"><<print _trResult>></span><</widget>>
+<<widget "tattooed_inmatePost">><<trPrisonPerson _args[0] "tattooed inmate" _args[1] _args[2] _args[3]>><span class="tattooed"><<print _trResult>></span><</widget>>
+<<widget "scarred_inmatePost">><<trPrisonPerson _args[0] "scarred inmate" _args[1] _args[2] _args[3]>><span class="scarred"><<print _trResult>></span><</widget>>

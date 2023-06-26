@@ -2,179 +2,267 @@
 
 <<widget "landryoptions">>
 	<<if $blackmoney gte 1>>
-		<<link [[Sell Stolen Goods|Pub Sell]]>><</link>>
+		<<link [[장물을 판매한다|Pub Sell]]>><</link>>
 		<br>
 	<</if>>
 	<<if $spray lt $spraymax and $money gte 250000>>
-		<<link [[Buy pepper spray charge (£2500)|Pub Spray]]>><<spray 1>><<set $money -= 250000>><</link>>
+		<<link [[후추 스프레이를 충전한다 (£2500)|Pub Spray]]>><<spray 1>><<set $money -= 250000>><</link>>
 		<br>
 	<</if>>
 	<<if $crime gte 500 and !$pubtask>>
-		<<link [[Ask for help covering your tracks|Pub Task]]>><</link>>
+		<<link [[범죄 기록을 감추는 방법을 묻는다|Pub Task]]>><</link>>
 		<br>
 	<</if>>
 	<<if $police_hack is 1>>
-		<<link [[Ask for help breaking into the police computer|Pub Hack]]>><</link>>
+		<<link [[경찰 컴퓨터에 침입하는 방법을 묻는다|Pub Hack]]>><</link>>
+		<br>
+	<<elseif $police_hack is 4 and $money gte 30000>>
+		<<link [[변경된 경찰서 비밀번호를 요청한다 (£300)|Pub Hack]]>><<set $money -= 30000>><</link>>
 		<br>
 	<<elseif $pub_hack_job is 3 and $hacker_tasks.length gte 2>>
-		<<link [[Pass on the hacker's message|Pub Hack]]>><<set $pub_hack_job to 4>><</link>>
-		<br>
-	<<elseif $police_hack is 4>>
-		<<link [[Ask for updated police password (£300)|Pub Hack]]>><<set $money -= 30000>><</link>>
+		<<link [["해커의 메세지를 전달한다"|Pub Hack]]>><<set $pub_hack_job to 4>><</link>>
 		<br>
 	<</if>>
 	<<if $pubtask2 is 1>>
-		<<link [[Hand over the black box|Pub Box]]>><</link>>
+		<<link [[검은 상자를 건넨다|Pub Box]]>><<set $pub_task_stat++>><</link>>
 		<br>
 	<</if>>
 	<<if $estate_fence is "quest" and _estate_asked isnot true>>
-		<<link [[Ask about breaking into the Remy estate|Pub Estate]]>><</link>>
+		<<link [[레미의 사유지에 침입하는 방법을 묻는다|Pub Estate]]>><</link>>
 		<br>
 	<</if>>
-<</widget>>
-
-:: Pub
-
-<<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
-<<if $pubbooze is "herbal">>
-	<<set $pubbooze to 0>>
-	The bartender pours a glass of a locally produced spirit. The pub seems more colourful after drinking it.
-<<elseif $pubbooze is "booze">>
-	<<set $pubbooze to 0>>
-	The bartender pours a glass of a cheap and popular beverage.
-<<else>>
-	You enter the pub. It's busy as always.
-<</if>>
-<br><br>
-<<if $averyPub is 1 and ($daystate is "day" or $daystate is "dusk")>>
-	<<npc Avery>><<person1>>
-	<<loadNPC 1 avery_sidepiece>><<person2>>
-	You try to remain inconspicuous, looking for Avery. You quickly spot the <<person>> and Avery at the bar, having an animated chat.
-	You now recognize that the <span class="red"><<person>> is from the orphanage.</span>
-	<br><br>
-	Avery leans in and places a hand on <<his>> thigh, causing <<him>> to tense up. The <<person>> stands up suddenly, and excuses <<himself>> to the restrooms.
-	<br><br>
-	<<link [[Go to the restrooms|Avery Dismissal Restroom]]>><</link>><br>
-	<<link [[Go to the bar|Avery Dismissal Bar]]>><</link>><br>
-<<elseif $pubwhore gte 10 and $pubattack isnot 1>>
-	<<set $pubattack to 1>>
-	A black sack is thrown over your head and two pairs of arms grab you from behind. They drag you out of the pub and into a waiting van.
-	<br><br>
-	<<link [[Next|Brothel Punishment]]>><</link>>
-	<br>
-<<elseif $pubwhore gte 20>>
-	<<set $pubwhore to 10>>
-	<<generate1>><<generate2>><<person1>> A <<person>> shoves you against the wall. A <<person2>><<person>> stands beside <<person1>><<him>>. The pub staff and clientele look away. "Boss sent us," the <<person1>><<person>> says. "Says you've been naughty. We're gonna bring you in." <<He>> glances at the bar. "And don't try nothing. No one's gonna help you."
-	<br><br>
-	<<if $money gte 50000>>
-		<<link [[Bribe (£500)|Pub Accost]]>><<set $phase to 0>><</link>>
-		<br>
-	<</if>>
-	<<link [[Fight|Pub Accost Fight]]>><<set $fightstart to 1>><</link>>
-	<br>
-	<<link [[Go with them|Pub Accost]]>><<set $phase to 1>><</link>>
-	<br>
-<<else>>
-	<<link [[Ask for Landry|Pub Landry]]>><<endevent>><</link>>
-	<br>
-	<<if $money gte 1000>>
-		<<link [[Drink booze (£10 0:05)|Pub]]>><<endevent>><<set $money -= 1000>><<set $pubbooze to "booze">><<set $drunk += 120>><<pass 5>><</link>> | <span class="red">+ + Alcohol</span>
-		<br>
-	<</if>>
-	<<if $money gte 2000>>
-		<<link [[Drink herbal booze (£20 0:05)|Pub]]>><<endevent>><<set $money -= 2000>><<set $pubbooze to "herbal">><<pass 5>><<set $drunk += 60>><<set $hallucinogen += 20>><</link>> | <span class="red">+ Alcohol</span> | <span class="red">+ Hallucinogen</span>
-		<br>
-	<</if>>
-	<<if $farm>>
-		<<if $farm.tower gte 1 and !$farm.tower_guard>>
-			<<link [[Look for a guard for your farm (0:30)|Pub Guard]]>><<endevent>><<pass 30>><</link>>
+	<<if $pubfame>>
+		<<if $pubfame.status is "ready">>
+			<<link [[당신의 명성 때문에 도움을 받을 수 있는지 묻는다|Pub Fame]]>><<set $phase to 0>><</link>>
+			<br>
+		<<elseif $pubfame.status is "hiding">>
+			<<link [[당신의 명성 때문에 도움을 받을 수 있는지 묻는다|Pub Fame Hiding]]>><</link>>
+			<br>
+		<<elseif $pubfame.status is "accepted">>
+			<<link [[당신의 임무에 대해 미키와 대화한다|Pub Fame]]>><<set $phase to 0>><</link>>
+			<br>
+		<<elseif $pubfame.status is "done">>
+			<<link [[미키에게 임무를 완수했다고 알려준다|Pub Fame]]>><<set $phase to 0>><</link>>
+			<br>
+		<<elseif $pubfame.intro and $hacker_tasks.length gte 2>>
+			<<link [[당신의 명성 때문에 도움을 받을 수 있는지 묻는다|Pub Fame Return]]>><</link>>
 			<br>
 		<</if>>
 	<</if>>
 	<br>
-	<<generate1>><<person1>>You see a <<person>> sitting alone.
-	<br>
-	<<link [[Flirt (0:05)|Pub Flirt]]>><<pass 5>><<set $pubdrink to 0>><</link>><<promiscuous1>>
-	<br>
-	<<link [[Look for someone else (0:01)|Pub]]>><<endevent>><<pass 1>><</link>>
-	<br>
+<</widget>>
 
+:: Pub
+<<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
+
+<<if $exposed gte 1>>
+	You are hiding in a trolley to conceal your <<lewdness>>. Everyone's too busy or intoxicated to notice you.
 	<br><br>
-	<<link [[Leave|Harvest Street]]>><<endevent>><</link>>
+
+	<<link [[Look for something to cover with|Pub Exposed]]>><</link>>
 	<br>
+	<<link [[Sneak out the back|Industrial alleyways]]>><</link>>
+	<br>
+<<else>>
+	<<if $pubbooze is "herbal">>
+		<<set $pubbooze to 0>>
+		바텐더가 마을 특제 음료를 한 잔 따라준다. 마시고나니 내부가 좀 더 화사하게 보인다.
+	<<elseif $pubbooze is "booze">>
+		<<set $pubbooze to 0>>
+		바텐더가 싸지만 인기있는 음료를 한 잔 따라준다.
+	<<else>>
+		당신은 술집에 들어간다. 늘 그렇듯이 내부는 바빠보인다.
+	<</if>>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmLocation "pub">>
+	<</if>>
+	<br><br>
+	<<if $averyPub is 1 and (Time.dayState is "day" or Time.dayState is "dusk")>>
+		<<npc Avery>><<person1>>
+		<<loadNPC 1 avery_sidepiece>><<person2>>
+		당신은 눈에 띄지 않도록 조심하면서, 에이버리를 찾는다. 당신은 곧 바 스톨에서, 활발하게 이야기 중인 <<person_ gwa>> 에이버리를 발견한다.
+		당신은 이제 그 <span class="red"><<person_ i>> 같은 고아원 사람이라는 것을 알아차린다.</span>
+		<br><br>
+		에이버리가 몸을 숙여 <<his_ yi>> 허벅지 위에 손을 얹어, <<him_ ul>> 긴장시킨다. <<person_ un>> 벌떡 일어나, 화장실 핑계를 대며 사라진다.
+		<br><br>
+		<<link [[화장실로 간다|Avery Dismissal Restroom]]>><</link>>
+		<br>
+		<<link [[바 스톨로 간다|Avery Dismissal Bar]]>><</link>>
+		<br>
+	<<elseif ($fame.bestiality gte 400 or $fame.rape gte 400 or $fame.prostitution gte 400 or $fame.sex gte 400 or $fame.exhibitionism gte 400) and !$pubfame>>
+		<<set $pubfame to {seen: [], tasksDone: []}>><<set $fameDecay to {}>><<set $fameDecayTimer to {}>>
+		<<generate1>><<person1>>
+		A hand lands on your shoulder from behind. "You've been busy," a <<person>> says in your ear. You can smell the alcohol on <<his>> breath. "Don't think I don't recognise you. You're the talk of the town.
+		<<if $fame.bestiality gte 400>>
+			Bit surprising not seeing a buncha mutts fucking you raw, though."
+		<<elseif $fame.sex gte 400 or $fame.rape gte 400 or $fame.prostitution gte 400>>
+			Bit surprising not seeing you being fucked raw, though."
+		<<else>>
+			Bit surprising seeing you all covered up, though."
+		<</if>>
+		<<stress 3>><<gstress>>
+		<br><br>
+		<<His>> grip tightens. "I reckon it's time I got my slice of the pie. <<if $fame.prostitution gte 400>>Hope you don't mind that I'm not paying for it.<<elseif $fame.rape gte 400>>You like it rough, right? That's what I've heard.<</if>> Come 'ere, sweetheart."
+		<br><br>
+		<<link [[다음|Pub Fame Intro]]>><</link>>
+	<<elseif $pubwhore gte 10 and $pubattack isnot 1>>
+		<<set $pubattack to 1>>
+		<span class="red">당신의 머리 위로 검은 자루가 씌워지더니</span> 두 쌍의 팔이 뒤에서 당신을 붙잡는다. 그들은 대기 중인 밴으로 당신을 끌고간다.
+		<br><br>
+		<<link [[다음|Brothel Punishment]]>><</link>>
+		<br>
+	<<elseif $pubwhore gte 20>>
+		<<set $pubwhore to 10>>
+		<<generate1>><<generate2>><<person1>><<person_ i>> 당신을 벽에 밀친다. <<personPost "의">> 옆에는 <<person2>><<person_ i>> 서있다. 술집 직원과 손님들은 모른척 고개를 돌린다. "<span class="red">보스가 우리를 보냈어,</span>" <<person1>><<person_ i>> 말한다. "말하길 네가 최근에 버릇없이 굴었다더군. 우리는 너를 데려가야 해." <<he_ ga>> 힐끗 바를 쳐다본다. "그리고 뭔가 시도할 생각 마. 누구도 너를 도와주지 않을 거다."
+		<br><br>
+		<<if $money gte 50000>>
+			<<link [[뇌물을 준다 (£500)|Pub Accost]]>><<set $phase to 0>><</link>>
+			<br>
+		<</if>>
+		<<link [[싸운다|Pub Accost Fight]]>><<set $fightstart to 1>><</link>>
+		<br>
+		<<link [[그들과 함께 간다|Pub Accost]]>><<set $phase to 1>><</link>>
+		<br>
+	<<else>>
+		<<ind>><<link [[랜드리에게 부탁한다|Pub Landry]]>><<endevent>><</link>>
+		<br>
+		<<if playerAwareTheyArePregnant()>>
+			당신의 배 속에 아이가 있다는 걸 알면서도 술을 마실 수는 없다.
+			<br>
+		<<else>>
+			<<if $money gte 1000>>
+				<<beericon>><<link [[술을 마신다 (£10 0:05)|Pub]]>><<endevent>><<set $money -= 1000>><<set $pubbooze to "booze">><<alcohol 120>><<pass 5>><</link>><<ggalcohol>>
+				<br>
+			<</if>>
+			<<if $money gte 2000>>
+				<<ind>><<link [[약초주를 마신다 (£20 0:05)|Pub]]>><<endevent>><<set $money -= 2000>><<set $pubbooze to "herbal">><<pass 5>><<alcohol 60>><<hallucinogen 20>><</link>><<galcohol>><<ghallucinogens>>
+				<br>
+			<</if>>
+		<</if>>
+		<<if $farm>>
+			<<if $farm.tower gte 1 and !$farm.tower_guard>>
+				<<ind>><<link [[농장에서 일할 경비원을 찾는다 (0:30)|Pub Guard]]>><<endevent>><<pass 30>><</link>>
+				<br>
+			<</if>>
+		<</if>>
+		<br>
+		<<generate1>><<person1>>당신은 혼자 앉아있는 <<person_ ul>> 발견한다.
+		<br>
+		<<link [[추파를 던진다 (0:05)|Pub Flirt]]>><<pass 5>><<set $pubdrink to 0>><</link>><<promiscuous1>>
+		<br>
+		<<link [[다른 사람을 찾는다 (0:01)|Pub]]>><<endevent>><<pass 1>><</link>>
+		<br>
+
+		<<if Time.weekDay is 1 and Time.hour gte 21 and C.npc.Whitney.state is "active">>
+			<br>
+			Some delinquents occupy a table, drowning the room in revelry.
+			<<if $weekly.whitneyPub>>
+				<span class="purple">You shouldn't provoke them further.</span>
+			<<else>>
+				You spot Whitney among them.
+				<<if $NPCName[$NPCNameList.indexOf("Whitney")].love gte 10>>
+					<span class="teal"><<nnpc_He "Whitney">> eyes you from <<nnpc_his "Whitney">> seat.</span>
+				<<else>>
+					<span class="blue">If <<nnpc_he "Whitney">> notices you, <<nnpc_he "Whitney">> doesn't show it.</span>
+				<</if>>
+				<br>
+				<<link [[Approach|Whitney Pub Approach]]>><<endevent>><<set $weekly.whitneyPub to 1>><<set $phase to 0>><</link>>
+			<</if>>
+			<br>
+		<</if>>
+
+		<br><br>
+		<<link [[떠난다|Harvest Street]]>><<endevent>><</link>>
+		<br>
+	<</if>>
 <</if>>
 
 :: Pub Intro
 
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
-You enter the pub. The interior has a cosy, rustic look. Old farm tools decorate the walls, a nod to the long-standing agricultural businesses nearby.
-<<if $daystate is "night">>
-	Despite the hour, the place teems with activity. Getting a table must be difficult.
+당신은 술집 안으로 들어간다. 내부는 아늑하면서도 소박한 느낌이다. 오래된 농기구들이 벽에 장식 되어있어, 근처의 오랜 농업 역사를 나타내고 있다.
+<<if Time.dayState is "night">>
+	늦은 시간임에도 불구하고 술집은 사람들로 활기가 넘쳐 자리 잡기 까다로웠다.
 <<else>>
-	The place teems with activity. Getting a table must be difficult.
+	술집은 사람들로 활기가 넘쳐 자리 잡기 까다로웠다.
 <</if>>
 <br><br>
 <<npc Landry>><<person1>>
 <<if $pronoun is "m">>
-	"I've not seen you around," says a man's voice beside you. <<He>> has short black hair, a grey sweater and dark trousers. Not someone you'd normally look twice at, least of all in a place like this. "Would you like to join me? I have a proposition for you."
+	"본 적 없는 얼굴인데." 남자의 목소리가 내려앉는다. <<he_ nun>> 짧은 검은 머리에 회색 스웨터, 어두운 바지를 입고 있다. 특히 이런 곳에서는 더욱, 당신이 주의를 기울일 만한 사람은 아니다. "같이 일해볼래? 너한테 제안할 게 있어."
 	<br><br>
 <<else>>
-	"I've not seen you around," says a woman's voice beside you. <<He>> has shoulder-length black hair, a grey cardigan and dark trousers. Not someone you'd normally look twice at, least of all in a place like this. "Would you like to join me? I have a proposition for you."
+	"본 적 없는 얼굴인데." 여자의 목소리가 내려앉는다. <<he_ nun>> 검은 머리를 어깨까지 내리고 회색 가디건과 어두운 바지를 입고 있다. 특히 이런 곳에서는 더욱, 당신이 주의를 기울일 만한 사람은 아니다. "같이 일해볼래? 너한테 제안할 게 있어." 
 	<br><br>
 <</if>>
-Deciding there's no chance of danger in public like this, you agree. <<He>> leads you to a small area adjacent to the main room, partially shielded from view. Oddly the tables here are empty. <<He>> sits at a small table, and you follow suit. You realise <<he>> has a slender build, concealed by <<his>> somewhat plain and baggy clothing.
+이렇게 오픈된 공공장소라면 위험하지 않을 거라고 판단한 당신은, <<his_ yi>> 제안을 받아들인다. <<his_ yi>> 안내를 따라 중앙의 방으로 들어가자, 부분 부분 시야가 차단된 작은 장소가 나타난다. 이상하게도 이곳의 테이블들만 비어있는 채다. <<he_ ga>> 그 작은 테이블에 자리하고, 당신도 뒤따라 앉는다. <<he_ nun>> 소박하고 헐렁한 옷차림에 가려져서 그렇지, 날씬한 체형인 듯 하다.
 <br><br>
-"I'll be frank," <<he>> says. "I know you need money. Don't ask me how I know, word gets around. I think I can help you. If you come across any jewellery or other items you don't know what to do with, I can take them off your hands. I'll pay well."
+"까놓고 말할게." <<he_ ga>> 입을 열었다. "네가 돈이 필요한 처지라는 거 알고있어. 어떻게 아는지는 묻지 마, 소문이 퍼지니까. 내가 널 도울 수 있을 것 같은데. 나한테 보석이나, 네가 어떻게 해야 할지 모르겠는 물건이 있다면 넘겨. 돈은 후하게 쳐줄게."
 <br><br>
-<<He>> looks over your shoulder, as if making sure you're still alone. "As well as can be expected, anyway. We might also be able to help each other out from time to time. That's all I had to say." <<He>> stands up and puts out <<his>> hand. "Keep me in mind at least. Ask one of the staff when you want to speak with me, they'll know where to find me. My name's Landry."
+<<he_ nun>> 누군가 있는건 아닌지, 다시 한 번 확인한다. "어쨌든 내 생각대로라면, 우리는 서로 각자에게 도움을 줄 수 있을 거라 생각해. 뭐, 그게 내가 하고 싶은 말의 전부야." <<he_ ga>> 일어나서 손을 내민다. "기억해둬. 나랑 이야기하고 싶다면 직원에게 이야기 해. 그럼 내가 있는 곳을 알려줄거야. 내 이름은 랜드리야." 
 <<set $pubintro to 1>>
 <br><br>
-<<link [[Leave|Pub]]>><<endevent>><</link>>
+<<link [[떠난다|Pub]]>><<endevent>><</link>>
 <br>
 
 :: Pub Landry
 
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
-<<npc Landry>><<person1>>You ask the bartender for Landry, who nods and beckons you over to your usual table. You've barely sat down when Landry arrives and sits opposite you.
+
+<<if $phase is 1>>
+	<<endevent>><<npc Landry>><<person1>>
+	You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+<<else>>
+	<<npc Landry>><<person1>>바텐더에게 랜드리를 요청한다. 바텐더는 고개를 끄덕이더니 늘 앉던 테이블을 향해 손짓한다. 당신은 랜드리가 도착해 맞은 편에 앉은 후에야 겨우 자리에 앉는다.
+	<br><br>
+
+	"뭘 가지고 왔지?" <<he_ ga>> 묻는다.
+	<<if $pubfame>>
+		<<if $pubfame.status is "finished">>
+			"If you're looking for our friend, they're busy. Should be ready to see you <span class="gold"><<if $pubfame.timer gt 1>>in <<number $pubfame.timer>> days<<else>>tomorrow<</if>></span>."
+		<<elseif $pubfame.status is "hidingKnown">>
+			"If you're looking for our friend, they're still lying low. Should be ready to see you <span class="gold"><<if $pubfame.timer gt 1>>in <<number $pubfame.timer>> days<<else>>tomorrow<</if>></span>."
+		<</if>>
+	<</if>>
+<</if>>
 <br><br>
-"What have you got for me?" <<he>> asks.
-<br><br>
+
 <<landryoptions>>
-<<link [[Leave|Pub]]>><<endevent>><</link>>
+<<link [[떠난다|Pub]]>><<endevent>><</link>>
 <br>
 
 :: Pub Spray
 
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
-You put the money on the table. Landry swaps it with a small canister.
+당신이 테이블 위에 돈을 올려 놓자, 랜드리가 작은 통을 교환해준다.
 <<gspray>>
 <br><br>
 <<if $pubspray isnot 1>>
 	<<set $pubspray to 1>>
-	"Sorry about the cost," <<he>> says. "Ingredients are hard to find."
+	"가격에 관해선 유감이지만," <<he_ ga>> 말한다. "성분 재료를 구하기가 까다로워서 말이야."
 	<br><br>
 <</if>>
 <<landryoptions>>
-<<link [[Leave|Pub]]>><<endevent>><</link>>
+<<link [[떠난다|Pub]]>><<endevent>><</link>>
 <br>
 
 :: Pub Sell
 
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
 <<if $blackmoney lt 100>>
-	You put the goods on the table. Landry appraises them with the relaxed demeanour of someone accustomed to their work. "Good job. You know where to find me if you get anything else."
+	당신이 물건들을 테이블 위에 올려놓는다. 랜드리는 익숙한 일인 듯 느긋한 태도로 물건의 가치를 매겼다. "잘 했어. 또 이런 걸 손에 넣는다면 어디서 날 찾아야할 지는 알고 있겠지?"
 	<br><br>
 <<elseif $blackmoney lt 500>>
-	You put the goods on the table. Landry appraises them with the relaxed demeanour of someone accustomed to their work. "Quite the haul. You know where to find me if you get anything else."
+	당신이 물건들을 테이블 위에 올려놓는다. 랜드리는 익숙한 일인 듯 느긋한 태도로 물건의 가치를 매겼다. "꽤나 많이 가져왔네. 또 이런 걸 손에 넣는다면 어디서 날 찾아야할 지는 알고 있겠지?"
 	<br><br>
 <<else>>
-	You put the goods on the table. Landry appraises them with the relaxed demeanour of someone accustomed to their work. "This is quite the haul, I hope you haven't bitten off more than you can chew. You know where to find me if you need help covering your tracks."
+	당신이 물건들을 테이블 위에 올려놓는다. 랜드리는 익숙한 일인 듯 느긋한 태도로 물건의 가치를 매겼다. "이거 상당히 많은 양이군. 네가 감당할 수 없는 만큼은 아니었길 바래. 혹시 네 기록을 지우고 싶다면 어디서 날 찾아야할 지는 알고 있겠지?"
 	<br><br>
 <</if>>
-You make £<<print $blackmoney>>.
+당신은 £<<print $blackmoney>>를 얻었다.
 <<set $money += $blackmoney * 100>><<set $blackmoney to 0>>
 <br><br>
-<<link [[Leave|Pub]]>><<endevent>><</link>>
+<<link [[떠난다|Pub]]>><<endevent>><</link>>
 <br>
 
 :: Pub Task
@@ -182,91 +270,119 @@ You make £<<print $blackmoney>>.
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
 
 <<if $pubstage is undefined>>
-	"I can help you," Landry says, reclining. "But I need you to do something for me. And no, it's not about money. I was expecting a package that never arrived, I need you to find it for me. Good thing I know exactly where to find it, it had a GPS tracker. It's deep in the forest beside the town."
+	"내가 좀 도와줄 수 있어." 랜드리가 비스듬히 기대어, 누운 채로 말한다. "단, 네가 날 위해 해줘야 할 일이 있어. 돈과 관련된 건 아니야. 내가 지금 기다리고 있는 물건이 오지않고 있는데. 네가 찾아줬으면 좋겠어. 다행히도 GPS 추적기가 달려 있어서 그게 어디 있는진 정확히 알고 있어. 마을 옆에 있는 숲의 깊은 곳에 있지."
 	<br><br>
-	"Get it for me and I'll prevent any of your past misdemeanours being pinned on you. It's a small black box. You shouldn't get it confused with any rocks or twigs. Oh, and do be careful. People disappear in there all the time."
+	"나에게 그걸 가져와 준다면 네가 저지른 범죄의 댓가를 치르는 걸 막아주지. 작은 검은 상자야. 다른 바위나 나뭇 가지와 헷갈리지마. 아아, 그리고 조심하는게 좋아. 거긴 늘 실종되는 사람들이 있으니까."
 	<br><br>
 	<<set $pubtask to "forest">>
 	<<set $pubstage to 1>>
-	<<link [[Leave|Pub]]>><<endevent>><</link>>
+	<<link [[떠난다|Pub]]>><<endevent>><</link>>
 	<br>
 <<elseif $pubstage is 1>>
-	"I can help again," Landry says, reclining. "But I have another job for you. Another package failed to arrive. This one was lost on the moor, some distance from town. You'll need to leave on the Harvest road to reach it."
+	"내가 또 도와줄 수 있어." 랜드리가 비스듬히 기대어, 누운 채로 말한다. "단, 네가 날 위해 해줘야 할 일이 있어. 도착하지 않은 다른 물건에 관한 거야. 이번엔 마을에서 좀 떨어진 황무지에서 잃어버린듯 해. 거길 가려면 하베스트 가를 벗어나야 할 거야."
 	<br><br>
-	"Get it for me and I'll prevent any of your past misdemeanours being pinned on you. It's another small black box. Oh, and do be careful. I don't believe the tales of monsters, but there's a sensible reason behind some superstitions."
+	"나에게 그걸 가져와 준다면 네가 저지른 범죄의 댓가를 치르는 걸 막아주지. 작은 검은 상자 알지? 아아, 그리고 조심하는 게 좋아. 괴물이니 뭐니 하는 이야기는 믿지 않지만 어떤 괴담들은 그럴싸해 보이거든."
 	<br><br>
 	<<set $pubtask to "moor">>
 	<<unset $pubstage>>
-	<<link [[Leave|Pub]]>><<endevent>><</link>>
+	<<link [[떠난다|Pub]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
 :: Pub Box
 
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
-"That's it! You're a lifesaver." <<He>> examines the box more closely. "I hope it wasn't too much trouble. Don't worry, I'll fulfil my side of things. You'll be clean as can be." <<He>> stands. "Now if you'll excuse me, I've some favours to call in."
+"이거야! 넌 내 생명의 은인이야." <<he_ ga>> 상자를 자세히 살펴본다. "가는 길에 큰 문제는 없었길 바래. 그리고 걱정 마. 내가 해야할 일은 다 할거니까. 넌 이제 깨끗해질 수 있을거야." <<he_ ga>> 일어선다. "실례가 안된다면, 난 이제 해야할 일이 좀 있어서."
 <br><br>
 <<unset $pubtask>>
 <<unset $pubtask2>>
 <<unset $pubtasksetting>>
-<<if $crime gte 10000>>
-	<<set $crime -= 10000>>
-<<else>>
-	<<set $crime to 0>>
-<</if>>
-<<link [[Leave|Pub]]>><<endevent>><</link>>
+<<crimeup -10000>>
+<<link [[떠난다|Pub]]>><<endevent>><</link>>
 <br>
 
 :: Pub Hack
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">><<set $phase to 1>>
 <<if $police_hack is 1>>
-	"Hacking a police computer?!" Landry nods, reclining. "I like your style. But if you're looking for my help you're out of luck.
-	Never been into all that cyber stuff."
-	<br><br>
-	Landry sits forward, rubs <<his>> chin thoughtfully. "Times change though. And they all keep telling me that's where the money is nowadays. Tell you what -
-	they say there's this kid in town, <span class="teal">some orphan kid at the home on Domus.</span> Some kind of computers whiz. Makes stuff, breaks stuff.
-	I think the kid's called Mickey or McKay or something like that."
-	<br><br>
-	You think of the other orphans. One face leaps to mind.
-	<br>
-	"Whatever," Landry sits back. "Best hope is to go to the orphanage on Domus and find this kid. Just watch out. Person who runs the place is called Bailey.
-	Nasty piece of work. Makes Briar look like a bleeding-heart humanitarian. You know Briar? Well anyway, Bailey's protective. If you get caught, you're on your own.
-	Bailey's connected. My name won't help. But if you can get this kid to come work with me, there'll be money in it for you."
-	<br><br>
+	<<if $pubfame and !$pubfame.intro>>
+		"Hacking a police computer?" Landry asks, reclining. "I like your style.
+		<<if $pubfame.status is "hiding">>
+			<<set $pubfame.status to "hidingKnown">>
+			I can't help you there, and unfortunately <span class="red">our friend is out of commission for the moment</span>. Needs to lie low, keep some nasty folk off their trail. Someone spilt important information about them."
+			<<stress 12>><<ggstress>>
+			<br><br>
 
-	<<link [[Deal|Pub Hack Deal]]>><<set $police_hack to 2>><<set $pub_hack_job to 1>><<set $phase to 1>><</link>>
-	<br>
-	<<link [[No Deal|Pub Hack Deal]]>><<set $phase to 2>><</link>>
-	<br>
+			<<He>> shakes <<his>> head before you can say anything. "Don't apologise. I've said worse under torture. They'll be able to hook you up once they're back in business. Should be fine <span class="gold"><<if $pubfame.timer gt 1>>in <<number $pubfame.timer>> days<<else>>tomorrow<</if>></span>."
+			<br><br>
+
+			<<link [[떠난다|Pub]]>><<endevent>><</link>>
+		<<elseif $pubfame.status is "hidingKnown">>
+			I can't help you there, and unfortunately our friend is still lying low. They'll be able to hook you up once they're back in business, though."
+			<br><br>
+
+			<<link [[떠난다|Pub]]>><<endevent>><</link>>
+		<<else>>
+			<<set $police_hack to 4>>
+			I can't help you here, but I think I know who can." <<He>> checks to make sure nobody's nearby, then jerks a thumb toward a door behind the table. "<span class="teal">Our mutual friend should be able to hook you up.</span>"
+			<br><br>
+
+			You knock on the door. "It's me."
+			<br><br>
+
+			'Mickey' inches it open. "Hey. I overheard you and Landry. A police password? Easy. But it'll cost you. <<printmoney 30000>>." They raise an eyebrow at your expression. "What? I need cash too. Favours don't pay for everything."
+			<br><br>
+
+			<<if $money gte 30000>>
+				<<link [[Deal (£300)|Pub Hack Deal Mickey]]>><<set $police_hack to 5>><<set $phase to 1>><<set $money -= 30000>><</link>>
+				<br>
+				<<link [[No deal|Pub Hack Deal Mickey]]>><<set $police_hack to 4>><<set $phase to 2>><</link>>
+			<<else>>
+				You don't have enough.
+				<<link [[다음|Pub Hack Deal Mickey]]>><<set $police_hack to 4>><<set $phase to 2>><</link>>
+			<</if>>
+		<</if>>
+	<<else>>
+		"Hacking a police computer?" Landry asks, reclining. "I like your style. But if you're looking for my help with cyber stuff, you're out of luck." <<He>> rubs <<his>> chin in thought. "There is someone.
+		<<if $pubfame and $pubfame.intro>>
+			Remember Mickey? The hacker I pointed you to for your fame issue. They should be able to get things done."
+		<<else>>
+			<span class="teal">This orphan at the home on Domus Street.</span> A computer whiz. Mickey, or Mckay, something like that."
+			<br><br>
+
+			당신은 랜드리가 말하는 사람이 누구인지 알고있지만 입 밖으로 꺼내진 않았다. 외부인들에게 그들의 정보는 비밀이다.
+			<br><br>
+
+			"아마도 그게 최선일거야." 랜드리의 말이 이어진다. "그 고아를 찾는 것만이. 만약 네가 녀석을 데려와 나와 함께 일하게 해준다면, 너한테도 약간의 돈은 챙겨줄게. 베일리의 심기를 거스르는 일만 하지마." <<he_ ga>> 말하며 웃는다. "뭐, 내가 말하지 않아도 알고 있겠지만."
+		<</if>>
+		<br><br>
+
+		<<link [[Deal|Pub Hack Deal]]>><<set $police_hack to 2>><<if $pub_hack_job lte 1>><<set $pub_hack_job to 1>><</if>><<set $phase to 1>><</link>>
+		<br>
+		<<link [[수락하지 않는다|Pub Hack Deal]]>><<set $phase to 2>><</link>>
+		<br>
+	<</if>>
 <<elseif $police_hack is 4>>
-	"Sure," Landry says. "Give me 10 minutes."
+	"그럼." 랜드리가 말한다. "10분만 기다려."
 	<br><br>
 
-	You watch the other bar customers for a while. Landry soon returns.
+	당신은 잠깐동안 술집의 다른 손님들을 구경한다. 곧 랜드리가 돌아왔다.
 	<br>
-	"Here you are," Landry says. "One new police master password. And our mutual friend says hi."
+	"여기." 랜드리가 말한다. "새로운 경찰서 마스터 패스워드야. 그리고 우리 둘의 친구가 인사 전해달라는군."
 	<br><br>
 	<<set $police_hack to 5>>
-	<<link [[Leave|Pub]]>><<endevent>><</link>>
+	<<link [[떠난다|Pub]]>><<endevent>><</link>>
 	<br>
 <<else>>/*Was elseif $pub_hack_job is 4*/
-	"Yeah, the kid turned up already," Landry rubs <<his>> head. "Strange one. Won't even tell me his name? Her name? I can't even tell. Smart as you like though.
-	Said you'd have a bunch of Esty cards for me to take?"
-	<br>
-	You hand over the SD memory cards. In return Landry gives you an envelope. Inside is money and a card with a word scrawled on it.
+	"미키가 찾아왔었어." 랜드리가 말한다. "이상한 녀석. 네가 나한테 줄 SD카드들을 좀 갖고 있다고 말하던데."
 	<br><br>
-	"Thanks. And that there's the police master password along with a £500 thank you for bringing in some talent. I may have new kinds of work in the future.
-	There's also this."
-	<br>
-	Landry hands you a USB stick.
+	당신은 SD 메모리 카드를 건냈다. 랜드리가 당신에게 봉투를 들려준다. 안에는 돈과 글씨가 휘갈겨진 카드가 들어있다.
 	<br><br>
-
-	"Some kind of virus. Spreads over an eye-pee network? Wipes every computer clean. To quote our mutual friend: 'it will most certainly ruin someone's day.'
-	Should be able to cause some trouble with that one. Or make old trouble disappear. Right? Maybe next thing I'll be asking you to clear up my past misdeeds.
-	Happy hunting."
+	"고마워. 그건 경찰서 마스터 패스워드야. 나한테 인재를 데려와준 보답으로 500 파운드도. 어쩌면 나중에 새로운 일을 하게 될 지도 모르겠어."
 	<br><br>
-	<<set $money += 50000>><<set $police_hack to 5>>
-	<<link [[Leave|Pub]]>><<endevent>><</link>>
+	"그리고 이거." <<he_ ga>> USB 스틱을 건네며 말한다. "바이러스지. 컴퓨터 시스템을 깨끗하게 지워주지. 몇몇 문제를 일으키는데 쓸만할 거야. 아니면 오래된 문제들을 없애버리든지. 행운을 빌게."
+	<br><br>
+	<<set $money += 50000>><<set $police_hack to 5>><<set $mickeyPub to 2>>
+	<<link [[떠난다|Pub]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -274,148 +390,154 @@ You make £<<print $blackmoney>>.
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
 
 <<if $phase is 1>>
-	"Excellent. Good hunting."
+	"훌륭하군. 잘 찾아보라고."
 <<elseif $phase is 2>>
-	"Then I can't help you. Good luck with that computer."
+	"그럼 난 도와줄 수 없어. 잘 해결해 봐."
 <</if>>
 <br><br>
-<<link [[Next|Pub]]>><<endevent>><</link>>
+<<link [[다음|Pub]]>><<endevent>><</link>>
 
+:: Pub Hack Deal Mickey
+<<effects>>
+<<if $phase is 1>>
+	"Great." Mickey abruptly closes the door, before opening it again. "Sorry. I'll be a few minutes. I wasn't just taking your money." They shut the door again.
+	<br><br>
+
+	You watch the other bar customers for a while. Mickey soon returns.
+	<br>
+	"Here," they say. They give you an envelope with a card, with a word scrawled on it. They also give you a USB stick. "This is a virus. Use it to wipe the whole system. Only if you need to. You'll need a new password if you do."
+<<elseif $phase is 2>>
+	Mickey abruptly closes the door. "Talk to Landry if you change your mind," they say through the door.
+<</if>>
+<br><br>
+<<link [[다음|Pub]]>><<endevent>><</link>>
 :: Pub Estate
 <<effects>>
 
-Landry glances around the corner when you mention the estate. <<He>> waits until you finish, observing you with a cool expression. "<span class="pink">£2000,</span>" <<he>> says. "Not for me. For the specialist. It's a risk, messing with aristocracy. But <<nnpc_he Wren>> will get you in."
+랜드리는 당신이 사유지를 언급하자 구석을 힐끗 돌아본다. <<he_ nun>> 당신의 말이 끝나기를 기다리며 냉정한 얼굴로 당신을 관찰한다. "<span class="pink">2,000 파운드.</span>" <<he_ ga>> 말한다. "날 위해서가 아냐. 이 분야의 전문가를 위해서지. 지역 유지를 골탕먹이려는 건, 좀 위험하지만. <<nnpc_he_ nun Wren>> 네가 들어갈 수 있도록 해줄거야."
 <br><br>
 <<set _estate_asked to true>>
 
 <<if $money gte 200000>>
-	<<link [[Pay (£2000)|Pub Estate Pay]]>><<set $money -= 200000>><</link>>
+	<<link [[지불한다 (£2000)|Pub Estate Pay]]>><<set $money -= 200000>><</link>>
 	<br>
 <<else>>
-	You can't afford the expense.
+	당신에겐 그만한 돈이 없다.
 	<br>
 <</if>>
 <br>
 
 <<landryoptions>>
-<<link [[Leave|Pub]]>><<endevent>><</link>>
+<<link [[떠난다|Pub]]>><<endevent>><</link>>
 <br>
 
 
 :: Pub Estate Pay
 <<effects>>
 
-You push the money across the table. 
+당신은 테이블 너머로 돈을 건넸다.
 <<set $estate_fence to "landry">>
-<<if $skulduggery gte 200>>
-	It disappears up Landry's sleeve.
+<<if currentSkillValue('skulduggery') gte 200>>
+	돈은 랜드리의 소매 속으로 사라진다.
 <<else>>
-	It's gone in a moment.
+	눈 깜짝할 새에 돈이 사라진다.
 <</if>>
-"I'll make the call," <<he>> says. "They should be done by the time you arrive."
+"전화해 두지." <<he_ ga>> 말한다. "당신이 도착할 때쯤이면 그들이 작업을 마쳤을거야."
 <br><br>
 
 <<landryoptions>>
-<<link [[Leave|Pub]]>><<endevent>><</link>>
+<<link [[떠난다|Pub]]>><<endevent>><</link>>
 <br>
 
 :: Pub Guard
 <<effects>>
 
-<<generate1>><<person1>>
-You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a
-<<endevent>><<generate1>><<person1>>
+<<generate1>><<set $NPCList[0].skills.security to random(1, 600)>><<npcClothesName $NPCList[0] "wildsFlannel">>
+<<generate2>><<person2>>
+당신은 사장에게 일이 필요한 사람을 알고있는지 물어봤다. <<he_ ga>> <<person1>><<person_ ul>> 향해 고개를 까닥인다.
 <<if $NPCList[0].traits.includes("relaxed")>>
-	<<person>> sat alone, reclining near the window. <<He>> looks up as you walk over. "How can I help you?" <<he>> asks, gesturing at the seat opposite.
+	<<he_ nun>> 혼자 앉아, 창가에 기대어 있다. 당신이 다가가자 <<he_ ga>> 당신을 올려다본다. "뭘 도와드릴까요?" <<he_ ga>> 맞은편 의자에 손짓하며 묻는다.
 	<br><br>
-	
+
 	<<if $submissive gte 1150>>
-		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
+		"저, 저는 농장을 지킬 경비원이 필요해요." 당신이 말한다. "밤 늦게 일해도 괜찮은 사람을요."
 	<<elseif $submissive lte 850>>
-		"I'm looking to employ security for my farm," you say. "It's a night job. You interested?"
+		"농장을 지킬 보안 요원을 구하고 있어." 당신이 말한다. "야간 업무야. 관심 있어?"
 	<<else>>
-		"I'm searching for security for my farm," you say. "Someone who wants to work nights."
+		"제 농장의 안전을 살펴줄 사람을 원해요." 당신이 말한다. "밤 늦게 일해도 괜찮은 사람을요."
 	<</if>>
 	<br><br>
-	
-	The <<person>> regards you over <<his>> drink. "Sounds interesting," <<he>> says. "It'll cost you."
+
+	그 <<person_ i>> 술잔을 비우며 당신을 바라본다. "괜찮을 것 같군." <<he_ ga>> 말한다. "비용이 들거야."
 	<br><br>
 <<elseif $NPCList[0].traits.includes("sociable")>>
-	<<person>> sat with friends, chatting. You have to tap <<his>> shoulder to get <<his>> attention.
+	<<he_ nun>> 친구들과 앉아, 떠들고 있다. 당신은 <<his_ yi>> 어깨를 두드린다.
 	<br><br>
-	
-	<<He>> agrees to sit with you at another table. "So what's this about?" <<he>> says.
+
+	<<he_ ga>> 다른 테이블로 당신을 데려간다. "그래서, 뭐죠?" <<he_ ga>> 묻는다.
 	<br><br>
-	
+
 	<<if $submissive gte 1150>>
-		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
+		"저, 저는 농장을 지킬 경비원이 필요해요." 당신이 말한다. "밤 늦게 일해도 괜찮은 사람을요."
 	<<elseif $submissive lte 850>>
-		"I'm looking to employ security for my farm," you say. "It's a night job. You interested?"
+		"농장을 지킬 보안 요원을 구하고 있어." 당신이 말한다. "야간 업무야. 관심 있어?"
 	<<else>>
-		"I'm searching for security for my farm," you say. "Someone who wants to work nights."
+		"제 농장의 안전을 살펴줄 사람을 원해요." 당신이 말한다. "밤 늦게 일해도 괜찮은 사람을요."
 	<</if>>
 	<br><br>
-	
-	"Security? Bet that's boring, but a job's a job."
+
+	"보안 요원? 지루할 것 같긴한데, 뭐 일이란게 다 그렇지."
 	<br><br>
-	
+
 <<elseif $NPCList[0].traits.includes("brooding")>>
-	<<person>> sat alone in a dark corner. <<Hes>> already watching you.
+	<<he_ nun>> 어두운 구석에 혼자 앉아 이미 당신을 바라보고 있다.
 	<br><br>
-	
-	You take the seat opposite <<him>>.
+
+	당신은 <<his_ yi>> 맞은 편에 자리잡았다.
 	<<if $submissive gte 1150>>
-		"I-I need-"
+		"저, 저한테 필요한 건-,"
 	<<elseif $submissive lte 850>>
-		"I'm looking-"
+		"구하고 있는게 있는데-,"
 	<<else>>
-		"I'm searching-"
+		"제가 원하는 건-,"
 	<</if>>
 	<br>
-	"I'll do it," the <<person>> interrupts. <<He>> laughs. "Don't look at me like that. You're not so inconspicuous. Let's discuss my terms."
+	"내가 할게." 그 <<person_ i>> 끼어든다. <<he_ nun>> 웃는다. "그렇게 보지마. 넌 눈에 띄는 편이라고. 자 그럼 이제 조건을 이야기해보자."
 	<br><br>
-	
+
 <<else>>
-	<<person>> trying to chat up a
-	<<if $pronoun is "m">>
-		<<if $homochance gte random(1, 100)>>
-			boy
-		<<else>>
-			girl
-		<</if>>
+	<<he_ nun>> 바에서 한
+	<<if random(1, 100) lte $homochance>>
+		<<print ($pronoun is "m" ? "소년과" : "소녀와")>>
 	<<else>>
-		<<if $homochance gte random(1, 100)>>
-			girl
-		<<else>>
-			boy
-		<</if>>
+		<<print ($pronoun is "m" ? "소녀와" : "소년과")>>
 	<</if>>
-	at the bar. <<His>> quarry walks away, leaving <<him>> leaning against the counter. You take the now vacant seat.
+	대화를 시도하고 있다. <<His_ yi>> 사냥감이 떠나가버려 <<he_ nun>> 카운터에 홀로 기대고 있다. 당신이 비어있는 자리를 차지한다.
 	<br><br>
-	
-	"You're not half bad either," the <<person>> says, looking you up and down.
+
+	"너도 아주 나쁘진 않네." <<person_ un>> 당신을 위 아래로 훑어보며 말한다.
 	<br><br>
-	
+
 	<<if $submissive gte 1150>>
-		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
+		"저, 저는 농장을 지킬 경비원이 필요해요." 당신이 말한다. "밤 늦게 일해도 괜찮은 사람을요."
 	<<elseif $submissive lte 850>>
-		"I'm looking to employ security for my farm," you say. "It's a night job. You interested?"
+		"농장을 지킬 보안 요원을 구하고 있어." 당신이 말한다. "야간 업무야. 관심 있어?"
 	<<else>>
-		"I'm searching for security for my farm," you say. "Someone who wants to work nights."
+		"제 농장의 안전을 살펴줄 사람을 원해요." 당신이 말한다. "밤 늦게 일해도 괜찮은 사람을요."
 	<</if>>
 	<br><br>
-	
-	"A farm?" <<he>> asks, then shrugs. "As long as I don't need to get muddy. I'm skint."
+
+	"농장이라고?" <<he_ ga>> 묻고는 어깨를 으쓱한다. "진흙만 안 묻힐 수 있다면야. 난 지금 땡전 한 푼 없거든."
 	<br><br>
-	
+
 <</if>>
 
 <<guard_terms>>
 <br><br>
-	
-<<link [[Accept|Pub Guard Accept]]>><<famebusiness 2>><</link>>
+
+<<link [[수락한다|Pub Guard Accept]]>><<famebusiness 2>><</link>>
 <br>
-<<link [[Refuse|Pub]]>><<endevent>><</link>>
+<<link [[거절한다|Pub]]>><<endevent>><</link>>
 <br>
 
 
@@ -425,47 +547,39 @@ You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a
 
 
 <<if $NPCList[0].traits.includes("relaxed")>>
-	"Here's to a long business relationship," the <<person>> says, knocking back <<his>> drink. "The name's <span class="gold"><<print $NPCList[0].name>></span>. Just point me in the right direction."
+	"우리의 장기 계약을 위해." <<person_ i>> 술을 마시며 말한다. "내 이름은 <span class="gold"><<NPCname_ iya $NPCList[0].name>></span>. 내가 어디로 가야할지 가르쳐줘."
 	<br><br>
-	
-	You give directions to the farm. "Alright. I'll arrive at dusk, and hold the post until dawn. Easy enough."
+
+	당신은 농장으로 향하는 길을 알려준다. "알겠어. 해질 쯤에 도착하도록 할게. 그리고 새벽까지 지키는거지. 쉽군."
 	<br><br>
-	
-	<<He>> stumbles a little on the way out of the pub.
+
+	<<He_ nun>> 일어나 술집을 나가는 동안 약간 비틀거린다.
 	<br><br>
-	
-	<<link [[Next|Pub]]>><<endevent>><</link>>
-	<br>
+
 <<elseif $NPCList[0].traits.includes("sociable")>>
-	"Sounds grand," the <<person>> says. "Call me <span class="gold"><<print $NPCList[0].name>></span>. So where is this farm of yours?"
+	"좋네." <<person_ i>> 말한다. "내 이름은 <span class="gold"><<NPCname_ iya $NPCList[0].name>></span>. 그래서 내가 일해야 하는 네 농장이 어디라고?"
 	<br><br>
-	
-	You give directions. "Got it. I'll be there late afternoon. Wonder when I'll get to scare away my first fox."
+
+	당신은 농장으로 향하는 길을 알려준다. "알겠어. 오후 늦게까진 갈거야. 언제 첫 여우를 쫓아낼 수 있을지 기대되는데."
 	<br><br>
-	
-	<<He>> rises, and returns to <<his>> friends.
+
+	<<He_ nun>> 일어서서 <<his_ yi>> 친구들에게 돌아간다.
 	<br><br>
-	
-	<<link [[Next|Pub]]>><<endevent>><</link>>
-	<br>
+
 <<elseif $NPCList[0].traits.includes("brooding")>>
-	"Alright," the <<person>> says. "I'm <span class="gold"><<print $NPCList[0].name>></span>." <<He>> rises to <<his>> feet. "I know the way." <<He>> leaves the pub.
+	"그래." <<person_ i>> 말한다. "내 이름은 <span class="gold"><<NPCname_ iya $NPCList[0].name>></span>." <<he_ nun>> 자리에서 일어섰다. "어디로 가야할 진 알고있어." <<he_ nun>> 그대로 술집을 떠난다.
 	<br><br>
-	
-	<<link [[Next|Pub]]>><<endevent>><</link>>
-	<br>
+
 <<else>>
-	The <<person>> hesitates, then nods. "Could be fun," <<he>> says. "You can call me <span class="gold"><<print $NPCList[0].name>></span>. Plenty of time to get to know each other. Where's this farm?
+	<<person_ un>> 머뭇거리다가, 고개를 끄덕이며 말한다. "재미있을 수도 있겠지," <<he_ ga>> 말한다. "난 <span class="gold"><<trNPCname $NPCList[0].name "이라고" "sep">>_trResult</span>_trPost 부르면 돼. 서로 알아갈 시간은 많으니까. 그래서 그 농장은 어디에 있지?"
 	<br><br>
-	
-	You give <<him>> directions. "No bus service out there," <<he>> complains. "But I'll get there for the night shift."
+
+	당신은 <<himPost>>에게 농장으로 향하는 길을 알려준다. "거긴 버스가 안다니잖아." <<he_ ga>> 불평한다. "그래도 야간 근무시간까진 가도록 할게."
 	<br><br>
-	
-	<<He>> swaggers from the pub.
+
+	<<he_ ga>> 으스대며 간다.
 	<br><br>
-	
-	<<link [[Next|Pub]]>><<endevent>><</link>>
-	<br>
+
 <</if>>
 
 <<saveNPC 0 "farm_tower_guard">>
@@ -473,3 +587,175 @@ You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a
 <<set $farm.tower_guard_unpaid to 1>>
 <<set $farm.tower_guard_skill to clone($NPCList[0].skills.security)>>
 <<earnFeat "To Watch the Fields">>
+
+<<link [[다음|Pub]]>><<endevent>><</link>>
+<br>
+
+:: Pub Exposed
+<<set $outside to 0>><<set $location to "pub">><<effects>>
+<<generate1>><<person1>>
+
+You scan the room for anything you can cover up with.
+<br><br>
+
+<<switch random(1, 3)>>
+	<<case 3>>
+		Your efforts are cut short by an approaching <<person>>. You pull your head back in as <<he>> loads the trolley with dirty dishes. Miraculously, <<he>> doesn't notice you.
+		<br><br>
+
+		A bundle of cleaning rags land in your lap. They smell of whiskey, but they're better than nothing. You wrap them around your body and sneak to safety.
+		<<towelup>>
+		<br><br>
+
+		<<link [[다음|Pub]]>><<endevent>><</link>>
+		<br>
+	<<case 2>>
+		Before you can make a move, the trolley rattles into motion. You quickly duck back inside.
+		<br><br>
+
+		Cautiously, you poke your head out as you roll past the bar. A sweater sits abandoned on a barstool. You can't tell if the owner's nearby.
+		<br><br>
+
+		<<set $skulduggerydifficulty to 600>>
+		<<link [[Swipe it|Pub Exposed Sweater]]>><</link>><<skulduggerydifficulty>>
+		<br>
+		<<link [[Leave it|Pub Exposed Kitchen]]>><</link>>
+		<br>
+	<<case 1>>
+		By the bar, a <<person>> folds a stack of towels, until <<hes>> called away. The towels are left unguarded.
+		<br><br>
+
+		<<link [[Go for the towels|Pub Exposed Bar]]>><<endevent>><</link>>
+		<br>
+		<<link [[Keeping looking|Pub Exposed No Towels]]>><</link>>
+		<br>
+<</switch>>
+
+:: Pub Exposed Kitchen
+<<set $outside to 0>><<set $location to "pub">><<effects>>
+
+The pub's din fades as you're pushed along. The squeak of the trolley is joined by shuffling feet and clattering plates. You must be in the kitchen.
+<br><br>
+
+Suddenly, <span class="pink">the cloth covering your trolley lifts up.</span> You come face-to-face with a <<person>>. <<He>> shrieks.<<stress 12>><<ggstress>>
+<br><br>
+
+Panicked, you escape through the back. The <<person>> hurls obscenities after you, but doesn't give chase.
+<br><br>
+
+<<link [[다음|Industrial alleyways]]>><<endevent>><</link>>
+<br>
+
+:: Pub Exposed Sweater
+<<set $outside to 0>><<set $location to "pub">><<effects>>
+
+You wait until you're just inches away, then reach for the sweater.
+<<silently>><<skulduggerycheck>><</silently>>
+<<if $skulduggerysuccess is 1>>
+	<span class="green">Nobody stops you.</span> You whisk it into the trolley, get dressed, and sneak out before anyone notices.
+	<<if $pronoun is "f">>
+		<<upperwear 29>>
+	<<else>>
+		<<upperwear 24>>
+	<</if>>
+	<br><br>
+
+	<<skulduggeryuse>>
+
+	<<link [[다음|Pub]]>><<endevent>><</link>>
+<<else>>
+	Just as your fingers brush the fabric, <span class="red">someone snatches your wrist.</span> You're pulled from your hiding spot by a <<person>>. "You little sneak," <<he>> snarls. "What do you think you-"
+	<br><br>
+
+	Shock replaces <<his>> anger when <<he>> sees your <<lewdness>>. <<His>> grip loosens enough for you to break free. You flee the pub in a panic.<<trauma 6>><<stress 6>><<gtrauma>><<gstress>>
+	<br><br>
+
+	<<skulduggeryuse>>
+
+	<<link [[다음|Harvest Street]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Pub Exposed Bar
+<<set $outside to 0>><<set $location to "pub">><<effects>>
+<<generate1>><<generate2>>
+
+You keep low and make your way to the bar. Just as the towels are within reach, a mug slams down overhead, startling you.
+<br><br>
+
+"You, <<girl>>," calls a voice. You peek over the bar to find a <<person1>><<person>> and <<person2>><<person>>. They slide their empty glasses to you. "How about a refill?"
+<br><br>
+
+They can't tell you're exposed from behind the bar, but you'll look suspicious if you refuse.
+<br><br>
+
+<<link [[Serve them|Pub Exposed Bar Serve]]>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
+<br>
+<<link [[Refuse|Pub Exposed Bar Refuse]]>><</link>><<difficulty 50>>
+<br>
+
+:: Pub Exposed Bar Serve
+<<set $outside to 0>><<set $location to "pub">><<effects>>
+
+<<if $player.gender_appearance is "f" and $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1>>
+	You top off a tray of drinks, holding it to your chest as you make your way over. The froth ought to hide your <<breasts>>. You hope.
+<<else>>
+	You top off a tray of drinks and hold it low, just above your <<genitals>>, as you make your way over.
+<</if>>
+<br><br>
+
+They grab a pair of glasses and empty them before you even have a chance to escape. You're forced to stand still and watch them down glass after glass. One clumsy grab could spell disaster.
+<<if $player.gender_appearance is "f" and $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1>>
+	Even worse, at the rate they're going, you're losing cover rapidly.
+<</if>>
+<br><br>
+
+Three drinks in, the <<person>> excuses <<himself>> to use the restroom. Seizing the distraction, you snatch the towels and slip away from the bar.
+<<towelup>>
+<br><br>
+
+<<link [[다음|Pub]]>><<endevent>><</link>>
+<br>
+
+:: Pub Exposed Bar Refuse
+<<set $outside to 0>><<set $location to "pub">><<effects>>
+
+You crouch low behind the bar.
+<<if $submissive gte 1150>>
+	"S-sorry," you say. "I'm a bit busy."
+<<elseif $submissive lte 850>>
+	"I'm on break," you lie. "Piss off."
+<<else>>
+	"I can't," you say. "Ask someone else."
+<</if>>
+<br><br>
+
+<<if random(1)>>
+	There's a pause. Then, <span class="green">the <<person>> sighs.</span> "Gonna have a talk with <<pher>> boss," <<he>> mutters.
+	<br><br>
+
+	Up above, you hear chairs creak as the pair depart. You're free to snatch the towels and slip away.
+	<<towelup>>
+	<br><br>
+
+	<<link [[다음|Pub]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	"You what?" the <<person>> scoffs. <span class="red">The bar creaks above you as <<he>> leans over.</span> "Who do you think you're-"
+	<br><br>
+
+	A gasp cuts <<him>> off. "<<pShes>>-" <<he>> stammers. "<<pShes>> naked!" You can't tell if <<hes>> appalled or excited. You don't stick around to find out. Cheers chase after you as you flee onto the street.<<trauma 6>><<stress 6>><<gtrauma>><<gstress>>
+	<br><br>
+
+	<<link [[다음|Harvest Street]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Pub Exposed No Towels
+<<set $outside to 0>><<set $location to "pub">><<effects>>
+
+You continue your scan over the room. Before you can find anything suitable, <span class="purple">the trolley rattles into motion.</span> You wrench your head back under the cover.
+<br><br>
+
+<<link [[다음|Pub Exposed Kitchen]]>><</link>>
+<br>

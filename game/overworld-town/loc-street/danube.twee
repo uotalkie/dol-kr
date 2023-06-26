@@ -1,8 +1,8 @@
 :: Danube Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "danube">>
-당신은 다누베 가에 있다. 이곳에 있는 집들은 다들 널찍하고 우아하다.
-<<if $daystate is "day">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "danube">><<getTarget true>>
+당신은 다뉴브 가에 있다. 이곳에 있는 집들은 다들 널찍하고 우아하다.
+<<if Time.dayState is "day">>
 	<<if $weather is "rain">>
 		비 때문에 사람들이 실내로 들어간다.
 	<<elseif $weather is "snow">>
@@ -10,12 +10,30 @@
 	<<else>>
 		울타리 있는 정원 안쪽에서 인기척이 들려온다.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	창문 안쪽에서 움직임이 보인다.
-<<elseif $daystate is "dusk">>
-	어두워져가자 으스스한 그림자가 드리워진다.
-<<elseif $daystate is "night">>
-	창문에서 흘러나오는 빛은 어둠을 밝히는 데에 별 도움이 되지 않는다.
+<<elseif Time.dayState is "dawn">>
+	<<if $weather is "rain">>
+		사람들이 비 사이로, 커다란 집에서 나와 비싸보이는 자동차로 황급히 뛰어간다.
+	<<elseif $weather is "snow">>
+		커다란 정원들이 이른 아침의 눈 때문에 고풍스러워 보인다.
+	<<else>>
+		창문 안쪽에서 움직임이 보인다.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if $weather is "rain">>
+		머리 위의 비구름이 이른 어둠을 드리운다.
+	<<elseif $weather is "snow">>
+		눈이 밤에 내려앉는다.
+	<<else>>
+		어두워져가자 으스스한 그림자가 드리워진다.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if $weather is "rain">>
+		당신은 길에서 멀리 있는 창문에서, 빛이 얼룩지는 것을 알아본다.
+	<<elseif $weather is "snow">>
+		빛이 장식된 창문을 통해, 눈 위로 비쳐나온다.
+	<<else>>
+		창문에서 흘러나오는 빛은 어둠을 밝히는 데에 별 도움이 되지 않는다.
+	<</if>>
 <</if>>
 <<if $halloween is 1>>
 몇몇 집에 화려한 할로윈 진열물이 걸려있다.
@@ -28,14 +46,14 @@
 <<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte $stressmax>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "danube">>
 			<br>
 		<</if>>
@@ -50,19 +68,23 @@
 			<<spaicon>><<link [[온천 (0:02)|Spa Lock]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
-		<<if $exhibitionismrun is "danube" and $exposed lte 1>>
-			<<ind>><<link [[온천 뒤의 참나무|Danube Oak]]>><</link>>
+		<<if $syndromekylar gte 1>>
+			<<kylarmanoricon>><<link [[카일라의 저택 (0:02)|Manor Garden]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
-		<<if $daystate is "night">>
-			<<ind>><<link [[한 집에 다가간다 (0:02)|Danube House Lock]]>><<pass 2>><</link>>
+		<<if $exhibitionismrun is "danube" and $exposed lte 1>>
+			<<ind>><<link [[온천 뒤의 참나무 (0:02)|Danube Challenge]]>><<pass 2>><</link>>
+			<br>
+		<</if>>
+		<<if Time.dayState is "night">>
+			<<danubehouseicon>><<link [[한 집에 다가간다 (0:02)|Danube House Lock]]>><<pass 2>><</link>>
 			<br>
 		<<elseif $exposed lte 0>>
-			<<ind>><<link [[한 집의 문을 두드린다 (0:02)|Danube House Knock]]>><<pass 2>><</link>>
+			<<danubehouseicon>><<link [[한 집의 문을 두드린다 (0:02)|Danube House Knock]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "이동<br>">><<hideDisplay>>
 			<<domus>>
@@ -77,7 +99,7 @@
 		<<residential>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "danube">>
 		<</if>>
@@ -85,39 +107,141 @@
 <</if>>
 <<set $eventskip to 0>>
 
-:: Danube Oak
+:: Danube Challenge
 
 <<set $outside to 1>><<set $location to "town">><<effects>>
-온천 뒤로 걸어가자, 쪽지가 말하던 참나무가 보인다. 숲 가장자리에 자라나 있다. 바로 여기가 옷을 벗으라고 써있던 장소다. 주변에는 아무도 없다.
-<br><br>
-<<if $exhibitionism gte 35>>
-	<<link [[옷을 벗는다|Danube Oak Strip]]>><<set $phase to 0>><</link>><<exhibitionist3>>
+
+<<if $exhibitionismrunon is 0>>
+
+	온천 뒤로 걸어가자, 쪽지가 말하던 참나무가 보인다. 숲 가장자리에 자라나 있다. 바로 여기가 옷을 벗으라고 써있던 장소다. 주변에는 아무도 없다.
+	<br><br>
+	<<if $exhibitionism gte 35>>
+		<<link [[옷을 벗는다|Danube Challenge Strip]]>><<set $phase to 0>><</link>><<exhibitionist3>>
+		<br>
+	<<else>>
+		<span class="blue">당신은 이런 짓을 할 정도로 노출광이 아니다.</span>
+		<br>
+	<</if>>
+	<<link [[떠난다|Danube Street]]>><</link>>
 	<br>
+
 <<else>>
-	<<link [[옷을 벗는다|Danube Oak Strip]]>><<set $phase to 1>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
-	<br>
+
+	당신은 온천 뒤의 참나무로 돌아온다. 주위에는 아무도 없고, 당신은 큰길에서 보이지 않는다. 당신은 나뭇가지들 안쪽을 살펴본다. 당신은 카메라를 볼 수 없었지만, 거기에 있다는 것은 알고 있다.
+	<br><br>
+
+	<<if $exhibitionism gte 35>>
+		<<link [[옷을 벗는다|Danube Challenge 2]]>><</link>><<exhibitionist3>>
+		<br>
+	<<else>>
+		<span class="blue">당신은 이런 짓을 할 정도로 노출광이 아니다.</span>
+		<br>
+	<</if>>
+	<<link [[떠난다|Danube Street]]>><</link>>
+
 <</if>>
-<<link [[떠난다|Danube Street]]>><</link>>
-<br>
 
-:: Danube Oak Strip
+:: Danube Challenge Strip
 
+<<set $challengetimer to 10>>
 <<set $outside to 1>><<set $location to "town">><<effects>>
 <<strip>>
 <<if $phase is 0>>
 	당신은 <<nervously>> 쪽지에 쓰인 대로 옷을 벗는다. 곧 여기 도시 변두리에 있는 장소에서 알몸이 된다.
-	<<exhibitionism3>>
 <<else>>
 	당신은 심호흡을 하고는 주변을 바라본다. 꽤 많은 돈이 약속되어 있다. 당신은 <<nervously>> 쪽지에 쓰인 대로 옷을 벗는다. 곧 여기 도시 변두리에 있는 장소에서 알몸이 된다.
 <</if>>
-<br><br>
+<<exhibitionism3>>
 무언가 참나무 가지 사이에서 번쩍인다. 카메라다. <<covered>> 당신은 얼굴이 뜨거워지는 걸 느끼지만, 위에 뭔가가 있다는 걸 깨닫는다. 작은 낙하산이 서서히 내려오는데, 거기엔 작은 상자가 메달려있다. 그걸 잡아서 보니, 안에는 쪽지가 들어있다.
 <br><br>
 <i>그쪽과 일하게 되어서 좋았어.</i>
 <br><br>
 쪽지 뒤에는 <<moneyGain 100>>가 있다. 당신은 떨리는 손으로 최대한 빨리 옷을 입는다. 누가 본 것 같지는 않다. 그 카메라를 빼면 말이다.
 <br><br>
-<<set $exhibitionismrun to "danubedone">>
-<<set $exhibitionismrunon to 0>>
+<<set $exhibitionismrun to undefined>><<set $exhibitionismrunon to 1>>
 <<link [[다음|Danube Street]]>><<clotheson>><</link>>
 <br>
+
+:: Danube Challenge 2
+<<effects>><<strip>>
+
+You quickly take off all your clothes. You take one last look around, making sure no one's there to see your nudity. There's a flash from the tree's branches, just like last time. But you're not done yet.
+<br><br>
+
+<<if $exhibitionism gte 75>>
+
+	<<link [[Masturbate|Danube Challenge Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist5>>
+	<br>
+
+<<else>>
+
+	<<link [[Masturbate|Danube Challenge Masturbate]]>><<set $masturbationstart to 1>><<trauma 6>><<stress 12>><</link>><<ggtrauma>><<ggstress>>
+	<br>
+
+<</if>>
+
+	<<link [[다음|Danube Street]]>><<clotheson>><</link>>
+	<br>
+
+:: Danube Challenge Masturbate
+<<strip>><<effects>>
+
+<<if $masturbationstart is 1>>
+	<<set $masturbationstart to 0>>
+	<<set $masturbationstat += 1>>
+	Shivering, you begin to pleasure yourself.
+	<<exhibitionism5>>
+	<<masturbationstart>>
+<</if>>
+
+<<masturbationeffects>>
+<<masturbationactions>>
+
+<div id="masturbationButtons">
+	<<if $orgasmdown gte 1>>
+		<div><<link [[Continue|Danube Challenge Masturbate End]]>><</link>><<nexttext>></div>
+	<<else>>
+		<div><<link [[Continue|Danube Challenge Masturbate]]>><</link>><<nexttext>></div>
+	<</if>>
+
+	<<if $corruptionMasturbation isnot true and random(0,3) gt $orgasmcurrent and $corruption_slime gt (currentSkillValue('willpower') / 10)>>
+		<div><<link [[Stop|$passage]]>><<set $corruptionMasturbation to true>><</link>></div>
+	<<elseif $corruptionMasturbation isnot true>>
+		<div><<link [[Stop|Danube Challenge Masturbate End]]>><<set $finish to 1>><</link>></div>
+	<<else>>
+		<div class="red">The slime in your ear will not allow you to stop.</div>
+	<</if>>
+</div>
+
+:: Danube Challenge Masturbate End
+<<effects>><<set $challengetimer to 10>>
+
+<<if $orgasmdown gte 1>>
+	<<fameexhibitionism 1>><<generate1>><<person1>>
+	You finish and catch your breath. Your skin is covered in a thin layer of sweat. It's not long before another parachute carrying a box descends towards you, same as last time. You open the box to find <<moneyGain 300>> and another note. 
+	<br><br>
+
+	<i>Another good job. Here's your cash. Will contact you again.</i>
+	<br><br>
+
+	You take the money. You see some movement out of the corner of your eye. You turn. Standing there, right next to the sauna's back door, is a <<person1>><<person>>. <<He>> stares at you in shock, a cigarette dangling limply from <<his>> mouth. You are standing completely naked in front of <<him>>, and <<he>> can see everything. <<if $exhibitionism gte 75>><<ggarousal>><<arousal 1200>><<else>><<gtrauma>><<gstress>><<trauma 6>><<stress 6>><</if>>
+	<br><br>
+
+	<<if $submissive lte 850>>
+		You pick up your clothes to cover yourself, then yell at the <<person1>><<person>>. "Hey, fuck off!" That snaps <<him>> out of it, and <<he>> quickly leaves.
+	<<else>>
+		You yelp. You grab your clothes and run off, finding a quiet place to put your clothes back on. 
+	<</if>>
+
+	<<endmasturbation>>
+	<<endcombat>>
+	<<set $exhibitionismrun to undefined>><<set $exhibitionismrunon to 2>><<clotheson>>
+	<<link [[Leave|Danube Street]]>><<endevent>><</link>>
+
+<<else>>
+	You stop what you're doing. You wait for another balloon or another camera flash, but nothing happens. After a few minutes, you put on your clothes and walk away. The note said to orgasm, and you stopped before you came.
+	<br><br>
+	<<endmasturbation>>
+	<<endcombat>>
+	<<link [[Next|Danube Street]]>><<clotheson>><</link>>
+<</if>>

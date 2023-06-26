@@ -1,15 +1,15 @@
 :: Tailor Shop
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 
-You are in the tailor shop. It has cloth of various colours hanging on racks.
+당신은 옷 수선 가게에 있다. 다채로운 색의 옷들이 선반에 걸려 있다.
 <br><br>
 
-<<if $sewingKit isnot 1 and $dev is 1>>
-	Looks like the shop has a new machine for sale in the display.
+<<if $sewingKit isnot 1 and $debug is 1>>
+	가게에 새 기계를 판매하기 위해 전시해 둔 것 같다.
 	<br><br>
 <</if>>
 <<if $sewingBought is 1>>
-	"Thank you for your purchase. I'll have this delivered to your room by the time you get back."
+	"구매해 주셔서 감사합니다. 돌아가실 때 까지는 방에 배송해 드리도록 하겠습니다."
 	<br><br>
 	<<set $sewingBought to 0>>
 <</if>>
@@ -18,18 +18,20 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 <<set _time to 0>>
 <<set _outfitTime to 0>>
 
-<<for _e to 0; _e lt $clothing_number; _e++>>
-<<activeclothes>>
+<<for _active_clothes range Object.keys($worn)>>
+	<<if _active_clothes is "butt_plug">>
+		<<continue>>
+	<</if>>
 	<<if _active_clothes is "lower" or _active_clothes is "under_lower">>
 		<<if $worn[_active_clothes].one_piece is 1>>
-			<<if $worn[_active_clothes].integrity lt $worn[_active_clothes].integrity_max>>
+			<<if $worn[_active_clothes].integrity lt clothingData(_active_clothes,$worn[_active_clothes],'integrity_max')>>
 				<<set _outfitTime += 5>>
 			<</if>>
 			<<continue>>
 		<</if>>
 	<</if>>
-	<<if $worn[_active_clothes].integrity lt $worn[_active_clothes].integrity_max and $worn[_active_clothes].integrity gt 0 and $worn[_active_clothes].integrity_max gt 0>>
-		<<set $tailor_cost += Math.trunc(getClothingCost($worn[_active_clothes]) * (1 - $worn[_active_clothes].integrity / $worn[_active_clothes].integrity_max))>>
+	<<if $worn[_active_clothes].integrity lt clothingData(_active_clothes,$worn[_active_clothes],'integrity_max') and $worn[_active_clothes].integrity gt 0 and clothingData(_active_clothes,$worn[_active_clothes],'integrity_max') gt 0>>
+		<<set $tailor_cost += Math.trunc(getClothingCost($worn[_active_clothes],_active_clothes) * (1 - $worn[_active_clothes].integrity / clothingData(_active_clothes,$worn[_active_clothes],'integrity_max')))>>
 		<<set _time += 5>>
 	<</if>>
 <</for>>
@@ -37,223 +39,218 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 <<if $stress gte $stressmax>>
 	<<passoutshop>>
 <<else>>
-	<<if $hour is 21>>
-	닫힌 시간이다. 보안요원이 모두를 밖으로 이동시킨다.<<if $exposed gte 1>>이런 차림새의 당신이 보안요원에게 얼마나 노출되어 있는지를 깨닫는 순간 공포가 일어난다.<</if>>
+	<<if Time.hour is 21>>
+	폐점 시간이다. 보안요원이 모두를 밖으로 이동시킨다.<<if $exposed gte 1>>당신은 이렇게 노출된 차림으로 보안요원에게 발각된다면 당신이 얼마나 부끄러울지를 깨닫자 공포가 일어난다..<</if>>
 	<br><br>
 
 		<<if $exposed lte 0>>
-			<<link [[Go Outside|High Street]]>><<endevent>><</link>>
+			<<link [[밖으로 나간다|High Street]]>><<endevent>><</link>>
 			<br>
 		<<else>>
-			<<link [[Hide until it's over (1:00)|Tailor Shop]]>><<pass 1 hour>><<endevent>><</link>>
+			<<link [["끝날때까지 숨어 있는다 (1:00)"|Tailor Shop]]>><<pass 1 hour>><<endevent>><</link>>
 		<</if>>
 	<<else>>
-		<<if $daystate is "night">>
-			You are alone in the darkness.
+		<<if Time.dayState is "night">>
+			당신은 어둠 속에 혼자 있다.
 			<br><br>
 
-			<<if $hour isnot $closinghour and $tailortheft isnot 1>>
-			<<link [[Examine the cash register|Tailor Register]]>><</link>>
+			<<if Time.hour isnot $closinghour and !$weekly.theft.tailor>>
+			<<link [[금전등록기를 살펴본다|Tailor Register]]>><</link>>
 			<br>
 			<</if>>
 
 		<<elseif $exposed gte 1>>
 
-			You are hiding behind bolts of cloth to protect your dignity.
+			당신은 존엄성을 지키기 위해 옷감 두루마리들 뒤에 숨어 있다.
 			<br><br>
 		<<else>>
-			<<generate1>><<person1>>"Welcome," the tailor says, "What services are you looking for today?
-			We offer repairs on clothes. We also offer a monthly service to repair by delivery."
+			<<generate1>><<person1>>"어서오세요," 재봉사가 말한다. "오늘은 어떤 일로 오셨나요?
+			저희는 옷을 수선해 드릴 수 있고요. 또 옷을 수선해 드리는 월간 배송 서비스도 해 드리고 있어요."
 			<br><br>
 			<<if $tailor_cost gte 1 and $money gte $tailor_cost>>
-				<<He>> offers to fix what you're currently wearing for <<printmoney `Math.trunc($tailor_cost)`>>.
+				<<He_ nun>> 당신이 현재 입고 있는 옷을 수선하는 데에 <<printmoney `Math.trunc($tailor_cost)`>>를 제시한다.
 				<br>
-				<<print'<<link [[Fix Clothes (0:'+(_time lt 10 ? "0":"")+_time+')|Fix Clothes]]>><<set $money -= $tailor_cost>><<pass _time>><</link>>'>>
+				<<print '<<link [[옷을 수선한다 (0:'+(_time lt 10 ? "0":"")+_time+')|Fix Clothes]]>><<set $money -= $tailor_cost>><<pass _time>><</link>>'>>
 				<br><br>
 				<<set _options to true>>
 			<<elseif $money lt $tailor_cost>>
-				You don't have enough cash to repair your current clothes. (<span class="red"><<printmoney `Math.trunc($tailor_cost)` true>>.</span>)
+				당신은 옷을 수선할 만한 충분한 돈이 없다. (<<printmoney `Math.trunc($tailor_cost)` "red">>.)
 				<br><br>
 				<<set _options to true>>
 			<</if>>
 
-			<<if ($worn.upper.set is $worn.lower.set and $worn.lower.integrity lt $worn.lower.integrity_max) or ($worn.under_upper.set is $worn.under_lower.set and $worn.under_lower.integrity lt $worn.under_lower.integrity_max)>>
-				The tailor will repair the lower halves of outfits for free.
+			<<if ($worn.upper.set is $worn.lower.set and $worn.lower.integrity lt clothingData('lower',$worn.lower,'integrity_max')) or ($worn.under_upper.set is $worn.under_lower.set and $worn.under_lower.integrity lt clothingData('under_lower',$worn.under_lower,'integrity_max'))>>
+				재봉사가 당신의 옷 아랫부분을 무료로 수선해 준다고 한다.
 				<br>
-				<<print '<<link [[Fix Clothes (0:'+(_outfitTime lt 10 ? "0":"")+_outfitTime+')|Fix Lower]]>><<pass _outfitTime>><</link>>'>>
+				<<print '<<link [[옷을 수선한다 (0:'+(_outfitTime lt 10 ? "0":"")+_outfitTime+')|Fix Lower]]>><<pass _outfitTime>><</link>>'>>
 				<br><br>
 				<<set _options to true>>
 			<</if>>
 
 			<<if _options isnot true>>
-				Your currently worn clothes are fully repaired already.
+				당신이 입고 있는 옷은 이미 완벽하게 수선되어 있다.
 				<br><br>
 			<</if>>
 
 			<<if $wardrobeRepair isnot undefined>>
-				You need to visit your wardrobe to collect your repaired clothes.
+				당신이 수선된 옷을 가져가기 위해서는 당신의 옷장을 방문할 필요가 있다.
 			<<elseif $tailorMonthlyService is undefined>>
-				The tailor catches you looking at the small crate beside <<him>>. "Ah, you're in luck if you need our monthly service. We have a spot free as long as it's somewhere local."
+				재봉사는 당신이 <<himPost>> 뒤의 작은 상자를 쳐다보고 있는 것을 알아챈다. "아, 저희 월간 서비스가 필요하신 거라면 운이 좋으시네요. 이 근처 어디라면 무료로 배송해 드립니다."
 				<br>
-				/*<<link [[Ask how much they offer for old clothes|Tailor Monthly Discard]]>><</link>>*/
+				/*<<link [[오래된 옷을 얼마에 구매하는지 물어본다|Tailor Monthly Discard]]>><</link>>*/
 				<br>
-				<<link [[Ask how much they charge to repair all clothes|Tailor Monthly Repair]]>><</link>>
+				<<link [[옷을 전부 수선하는 데 얼마인지 물어본다|Tailor Monthly Repair]]>><</link>>
 			<<elseif $tailorMonthlyService is "repair">>
-				You have a crate waiting to receive clothing for repair.
+				당신은 옷을 수선보내기 위한 상자가 있다.
 			<<elseif $tailorMonthlyService is "discard">>
-				You have a crate waiting to receive clothing you want to sell.
+				당신은 옷을 팔기 위한 상자가 있다.
 			<<elseif $tailorMonthlyService gt 0>>
-				You recently made use of this service and have to wait $tailorMonthlyService days before you can do so again.
+				당신은 최근에 이 서비스를 이용했고 다시 이용하기 위해서는 $tailorMonthlyService일을 기다려야 한다.
 			<</if>>
 			<br><br>
 
-			<<if $sewingKit isnot 1 and $dev is 1>>
-				<<link [[Approach the Display Cabinet|Tailor Shop Sewing Machine]]>><</link>>
+			<<if $sewingKit isnot 1 and $debug is 1>>
+				<<link [[진열장에 다가간다|Tailor Shop Sewing Machine]]>><</link>>
 				<br><br>
 			<</if>>
 		<</if>>
-		<<link [[Leave|Shopping Centre Top]]>><<endevent>><</link>>
+		<<link [[떠난다|Shopping Centre Top]]>><<endevent>><</link>>
 	<</if>>
 <</if>>
 
 :: Fix Clothes
 
-Your clothes have been fixed.
+당신의 옷은 수선되었다.
 <br><br>
-<<set $worn.upper.integrity = $worn.upper.integrity_max>>
-<<set $worn.lower.integrity = $worn.lower.integrity_max>>
-<<set $worn.under_upper.integrity = $worn.under_upper.integrity_max>>
-<<set $worn.under_lower.integrity = $worn.under_lower.integrity_max>>
-<<set $worn.head.integrity = $worn.head.integrity_max>>
-<<set $worn.face.integrity = $worn.face.integrity_max>>
-<<set $worn.neck.integrity = $worn.neck.integrity_max>>
-<<set $worn.legs.integrity = $worn.legs.integrity_max>>
-<<set $worn.feet.integrity = $worn.feet.integrity_max>>
+<<set _equip to setup.clothingLayer.all>>
+<<for _i to 0; _i lt _equip.length; _i++>>
+	<<set $worn[_equip[_i]].integrity = clothingData(_equip[_i],$worn[_equip[_i]],'integrity_max')>>
+<</for>>
 
-<<link [[Back|Tailor Shop]]>><<endevent>><</link>>
+<<link [[뒤로|Tailor Shop]]>><<endevent>><</link>>
 
 :: Fix Lower
 
-Your lower clothes have been fixed.
+당신의 옷 아랫부분은 수선되었다.
 <br><br>
 <<if $worn.upper.set is $worn.lower.set>>
-<<set $worn.lower.integrity = $worn.lower.integrity_max>>
+	<<set $worn.lower.integrity = clothingData('lower',$worn.lower,'integrity_max')>>
 <</if>>
 
 <<if $worn.under_upper.set is $worn.under_lower.set>>
-<<set $worn.under_lower.integrity = $worn.under_lower.integrity_max>>
+	<<set $worn.under_lower.integrity = clothingData('under_lower',$worn.under_lower,'integrity_max')>>
 <</if>>
 
-<<link [[Back|Tailor Shop]]>><<endevent>><</link>>
+<<link [[뒤로|Tailor Shop]]>><<endevent>><</link>>
 
 :: Tailor Shop Sneak
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 
-	<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
+	<<if currentSkillValue('skulduggery') gte $lock>>
+	<span class="green">자물쇠를 따기 쉬워 보인다.</span>
 	<br><br>
 
-	<<link [[Pick it (0:10)|Tailor Shop]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<<link [[자물쇠를 딴다 (0:10)|Tailor Shop]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
 	<br>
 	<<else>>
-	<span class="red">The lock looks beyond your ability to pick.</span>
+	<span class="red">잠금장치는 당신이 해제할 수 있는 능력 이상인 것 같다.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 	<</if>>
 
-<<link [[Leave|Shopping Centre Top]]>><<endevent>><</link>>
+<<link [[떠난다|Shopping Centre Top]]>><<endevent>><</link>>
 <br>
 
 :: Tailor Shop Sewing Machine
 <<effects>>
-	You approach the display, inside it lies a sewing machine. An advertisement poster hangs beside the display, it reads:
+	당신은 진열대로 다가갔고, 그 안에는 재봉틀이 있다. 광고 포스터가 그 뒤에 걸려있고, 다음과 같이 적혀있다:
 
 	<br><br>
 	THE SEWINATOR-9000 <sup>tm</sup>
 	<br><br>
-	- Dog Chewed Your Undies? <span class="pink">~Tentacles~</span> Tore Your Clothes? No Problem!
+	- 개가 여러분의 속옷을 씹었나요? <span class="pink">~촉수들이~</span> 여러분의 옷을 찢었나요? 문제 없습니다!
 	<br><br>
-	- Can Fix Any Piece of Clothing in One minute!
+	- 어떤 옷도 일 분 내에 수선할 수 있습니다!
 	<br><br>
-	- Requires <span class="green">No Skill</span>! Even Bailey Could Use It!
+	- <span class="green">어떤 기술도</span> 필요하지 않습니다! 베일리라도 사용할 수 있을 겁니다!
 	<br><br>
-	- Comes With a Lifetime Supply of Cloth For Repairs!
+	- 평생 수선에 필요한 옷감도 제공됩니다!
 	<br><br>
-	- Only <span class ="gold">£1000.00!</span>
+	- 단지 <span class ="gold">£1000.00!</span>
 	<br><br>
 
 	<<if $money gte 100000>>
-		<<link [[Purchase Sewing Machine - Repair your clothes in your room! £1000|Tailor Shop]]>><<set $money -= 100000>><<set $sewingKit to 1>><<set $sewingBought to 1>><<endevent>><</link>>
+		<<link [[재봉틀을 구매한다 - 당신의 방에서 옷을 수선하세요! £1000|Tailor Shop]]>><<set $money -= 100000>><<set $sewingKit to 1>><<set $sewingBought to 1>><<endevent>><</link>>
 		<br>
 	<</if>>
-	<<link [[Go Back|Tailor Shop]]>><<endevent>><</link>>
+	<<link [[돌아간다|Tailor Shop]]>><<endevent>><</link>>
 
 :: Tailor Monthly Discard
-"Certainly <<if $player.gender_appearance is "m">>sir<<else>>madam<</if>>. We'll have the crate delivered. Fill it as soon as you're ready to sell them. Please bear in mind that we are not allowed to return any items. We will also only take items we can repair and resell."
+"그럼요 <<if $player.gender_appearance is "m">>선생님<<else>>아가씨<</if>>. 배송을 위한 상자가 있습니다. 거기에 넣으시면 판매가 가능합니다. 보낸 것들은 저희가 어떤 것도 돌려드릴 수 없다는 것을 주의해 주세요. 또한 저희가 수선해 재판매할 수 있는 것들만 받습니다."
 <br><br>
 
 <<set _value to 0>>
-<<for _items range $wardrobe>>
+<<for _label, _items range $wardrobe>>
 	<<for _i to 0; _i lt _items.length; _i++>>
-		<<if _items[_i].shop.length is 0>>
+		<<if setup.clothes[_label][clothesIndex(_label,_items[_i])].shop.length is 0>>
 			<<continue>>
 		<</if>>
 		<<if _items[_i].outfitSecondary isnot undefined>>
 			<<continue>>
 		<</if>>
-		<<set _value += Math.floor(getClothingCost(_items[_i]) * (_items[_i].integrity / _items[_i].integrity_max) / 3)>>
+		<<set _value += Math.floor(getClothingCost(_items[_i]) * (_items[_i].integrity / clothingData(_label,_items[_i],'integrity_max')) / 3,_label)>>
 	<</for>>
 <</for>>
-You think it will earn you <<printmoney `_value + 5000`>> currently after getting the deposit back.
+당신은 보증금을 포함해 <<printmoney `_value + 5000`>>를 받을 수 있을 것이라 생각한다.
 
 <br><br>
 <<if $money gte 5000>>
-	<<link [[Confirm the sale and pay the £50 deposit|Tailor Monthly Driver]]>>
+	<<link [[판매하기로 정하고 보증금 £50를 지불한다|Tailor Monthly Driver]]>>
 		<<set $money -= 5000>>
 		<<set $tailorMonthlyService to "discard">>
 	<</link>>
 <<else>>
-	You can't afford the deposit.
+	당신은 보증금을 낼 돈이 없다.
 	<br>
 <</if>>
 <br>
-<<link [[Back out of the sale|Tailor Shop]]>><<endevent>><</link>>
+<<link [[판매하지 않고 돌아간다|Tailor Shop]]>><<endevent>><</link>>
 
 :: Tailor Monthly Repair
-"Certainly <<if $player.gender_appearance is "m">>sir<<else>>madam<</if>>. We'll have the crate delivered. Fill it as soon as you're ready for repairs. Please bear in mind that it will take a day before we get them back to you.
-Please make sure you don't buy too many new clothes once you send them to us, or our driver will have to take them back as a donation."
+"그럼요 <<if $player.gender_appearance is "m">>선생님<<else>>아가씨<</if>>. 배송을 위한 상자가 있습니다. 거기에 넣으시면 수선이 가능합니다. 저희가 수선해 다시 보내드릴 때 까지 하루가 필요하다는 것을 주의해 주세요.
+저희에게 옷들을 보내신 후에는 너무 많은 옷을 사지 않도록 해 주세요, 그렇지 않으면 저희 배달원이 보내신 옷들을 기부하게 될 겁니다."
 <br><br>
 
 <<set _value to 0>>
-<<for _items range $wardrobe>>
+<<for _label, _items range $wardrobe>>
 	<<for _i to 0; _i lt _items.length; _i++>>
 		<<if _items[_i].outfitSecondary isnot undefined>>
 			<<continue>>
 		<</if>>
-		<<set _value += Math.floor(getClothingCost(_items[_i]) * (1 - (_items[_i].integrity / _items[_i].integrity_max)) * 1.25)>>
+		<<set _value += Math.floor(getClothingCost(_items[_i],_label) * (1 - (_items[_i].integrity / clothingData(_label,_items[_i],'integrity_max'))) * 1.25,_label)>>
 	<</for>>
 <</for>>
-You think it will cost you
+당신은 보증금을 제외하고 
 <<if _value gt 5000>>
-	<<printmoney `_value - 5000`>>
+	<<printmoney `_value - 5000`>>가 필요할 것이라고
 <<else>>
-	nothing
+	추가로 돈이 필요없을 것이라고
 <</if>>
-currently with the deposit reducing the cost.
+생각한다.
 
 <br><br>
 <<if $money gte 5000>>
-	<<link [[Confirm the repair and pay the £50 deposit|Tailor Monthly Driver]]>>
+	<<link [[수선하기로 정하고 보증금 £50를 지불한다|Tailor Monthly Driver]]>>
 		<<set $money -= 5000>>
 		<<set $tailorMonthlyService to "repair">>
 	<</link>>
 <<else>>
-	Unable to pay the deposit.
+	당신은 보증금을 낼 돈이 없다.
 <</if>>
 <br>
-<<link [[Back out of the repair|Tailor Shop]]>><<endevent>><</link>>
+<<link [[수선하지 않고 돌아간다|Tailor Shop]]>><<endevent>><</link>>
 
 :: Tailor Monthly Driver
-The tailor picks up the crate and carries it into the back of the shop.
+재봉사가 상자를 받아들고 가게 뒤로 가져간다.
 <br><br>
-<<link [[Next|Tailor Shop]]>><<endevent>><</link>>
+<<link [[다음|Tailor Shop]]>><<endevent>><</link>>

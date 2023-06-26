@@ -3,28 +3,27 @@
 <<widget "exitclothingshop">>
 	<div class="button-back-to-shop div-link">
 		<<if $clothes_choice and $shopDefaults.alwaysBackToShopButton is false>>
-			<<link "뒤로">>
-				<<unset $clothes_choice>><<updateclotheslist>><</link>>
+			<<link "뒤로">><<unset $clothes_choice>><<updateclotheslist>><<set $retrieveShopCustomColor to {}>><</link>>
 		<<else>>
-			<<link "매장으로 돌아간다">><<unset $clothes_choice>><<updateclothingshop>><</link>>
+			<<link "매장으로 돌아간다">><<unset $clothes_choice>><<updateclothingshop>><<set _shopNameFilter to "">><<set $retrieveShopCustomColor to {}>><</link>>
 		<</if>>
 	</div>
 <</widget>>
 
 /*
-	args[0] should be "clothing" or "forest"
+	args[0] should be "clothing", "forest" or "school"
 	args[1] is a slot: "upper", "lower", "under_upper", etc.
 	args[2] should be "outfits" or missing. Combination of "over_upper", "upper" or "under_upper" in args[1] with "outfits" provides respective outfits category
 */
 <<widget "clothingShopv2">>
 	<<exitclothingshop>>
-	<<if $args[0]>>
-		<<set _shopLocation to $args[0]>>
+	<<if _args[0]>>
+		<<set _shopLocation to _args[0]>>
 	<</if>>
-	<<if $args[1]>>
-		<<set $clothingShopSlot to $args[1]>>
+	<<if _args[1]>>
+		<<set $clothingShopSlot to _args[1]>>
 	<</if>>
-	<<set _outfits to $args[2] == "outfits" or $args[2] == true>>
+	<<set _outfits to _args[2] == "outfits" or _args[2] == true>>
 
 	<<if $shopClothingFilter is undefined>>
 		<<shopClothingFilterReset>>
@@ -41,7 +40,6 @@
 		<</link>>
 		<br><br>
 	<</if>>
-
 	<!-- Details about the selected item -->
 	<div class="clothing-details">
 		<<shopDetailsv2>>
@@ -51,14 +49,45 @@
 	<<set _iconName to clothingSlotToIconName($clothingShopSlot, _outfits)>>
 	<<shopCategoryTabs _iconName>>
 
+	<!-- Search bar -->
+	<<if !_shopNameFilter>>
+		<<set _shopNameFilter to "">>
+	<</if>>
+	<span class="searchButtons">
+		검색: <<textbox "_shopNameFilterTextbox" _shopNameFilter>>
+		<<button 지운다>>
+			<<set _shopNameFilter to "">>
+			<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>
+		<</button>>
+	</span>
+		<<run $(() => {
+		var shopTimer = null;
+		$('#textbox--shopnamefiltertextbox').on('input change', e => {
+			T.shopNameFilter = shopSearchReplacer(e.target.value);
+			clearTimeout(shopTimer);
+			shopTimer = setTimeout(updateShop, 300);
+		});
+		var updateShop = () => {
+			new Wikifier (null, "<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>");
+			$('#textbox--shopnamefiltertextbox').focus();
+		}
+	})>>
+
 	<!-- List of clothes -->
 	<<set _items = setup.clothes[$clothingShopSlot].filter(x => x.shop.includes(_shopLocation) and x.outfitSecondary is undefined
-		and ((_outfits and x.outfitPrimary isnot undefined and Object.keys(x.outfitPrimary).some(secSlot => secSlot.contains("lower")))
+		and ($clothingShopSlot === 'all'
 			or
-			(!_outfits and (x.outfitPrimary is undefined or Object.keys(x.outfitPrimary).every(secSlot => !secSlot.contains("lower")))))
+			(_outfits and x.outfitPrimary isnot undefined and Object.keys(x.outfitPrimary).some(secSlot => secSlot.includes("lower")))
+			or
+			(!_outfits and (x.outfitPrimary is undefined or Object.keys(x.outfitPrimary).every(secSlot => !secSlot.includes("lower")))))
+		and (_shopNameFilter is '' or x.name.includes(_shopNameFilter.toLowerCase()))
 	)>>
 	<<set _items = applyClothingShopFilters(_items)>>
 	<<set _maxPage = Math.ceil(_items.length / $shopItemsPerPage)>>
+	<!-- Makes sure $shopPage is never showing a blank page -->
+	<<if $shopPage gte _maxPage>>
+		<<set $shopPage to 0>>
+	<</if>>
 
 	<div id="shop-list-pages" class="shop-list-pages">
 		<!-- Generate current page immediately -->
@@ -70,27 +99,25 @@
 		<<timed 0.2s>>
 			<<set _ppre = $shopPage - 1>>
 			<<repeat 0.1s>>
+			 	<<if document.getElementById("shop-list-pages") eq null or _ppre lt 0>>
+            		<<stop>>
+        		<</if>>
 				<!-- Prepend pages before the current page -->
-				<<if _ppre >= 0>>
-					<<prepend '#shop-list-pages'>>
-						<<generateshoppage _ppre>>
-					<</prepend>>
-					<<set _ppre-->>
-				<<else>>
-					<<stop>>
-				<</if>>
+				<<prepend '#shop-list-pages'>>
+					<<generateshoppage _ppre>>
+				<</prepend>>
+				<<set _ppre-->>
 			<</repeat>>
 			<!-- Append pages after the current page -->
 			<<set _papp = $shopPage + 1>>
 			<<repeat 0.1s>>
-				<<if _papp < _maxPage>>
-					<<append '#shop-list-pages'>>
-						<<generateshoppage _papp>>
-					<</append>>
-					<<set _papp++>>
-				<<else>>
-					<<stop>>
-				<</if>>
+				<<if document.getElementById("shop-list-pages") eq null or _papp gte _maxPage>>
+            		<<stop>>
+        		<</if>>
+				<<append '#shop-list-pages'>>
+					<<generateshoppage _papp>>
+				<</append>>
+				<<set _papp++>>
 			<</repeat>>
 		<</timed>>
 	</div>
@@ -148,7 +175,7 @@
 
 	<!-- Filters -->
 	<div class="filters-button no-numberify div-link">
-		<<if $images is 1>>
+		<<if $options.images is 1>>
 			<span class="button-icon"><img src="img/misc/icon/filter.png"></span>
 		<<else>>
 			필터
@@ -165,7 +192,7 @@
 
 	<!-- Options -->
 	<div class="clothingshop-options-button no-numberify div-link">
-		<<if $images is 1>>
+		<<if $options.images is 1>>
 			<span class="button-icon"><img src="img/misc/icon/options.png"></span>
 		<<else>>
 			Opt.
@@ -183,7 +210,7 @@
 	<!-- Help / Legend button -->
 	<<if !$shopDefaults.noHelp>>
 		<div class="shop-legend-button no-numberify div-link">
-			<<if $images is 1>>
+			<<if $options.images is 1>>
 				<span class="button-icon"><img src="img/misc/icon/help.png"></span>
 			<<else>>
 				Help
@@ -227,7 +254,7 @@
 <</widget>>
 
 <<widget "generateshoppage">>
-	<<set _page = $args[0]>>
+	<<set _page = _args[0]>>
 	<<set _itemsOnPage = _items.slice(_page * $shopItemsPerPage, (_page + 1) * $shopItemsPerPage)>>
 	<<set _hidden = _page == $shopPage ? "" : " hidden">>
 	<<set _compact = $shopDefaults.compactMode ? "compact" : "">>
@@ -238,18 +265,20 @@
 	<div @class="'clothing-shop-page page-' + _page + _hidden">
 		<<for _itemTemp range _itemsOnPage>>
 			<<set _item = clone(_itemTemp)>>
+			<<set $_realSlot to ($clothingShopSlot is "all" ? _item.realSlot : $clothingShopSlot)>>
+			<<set _itemData = setup.clothes[$_realSlot][clothesIndex($_realSlot,_item)]>>
 			<<set _locked = $specialClothes[_item.name.replace(/ /g,"")] is "locked">>
 			<<set _unlocked = $specialClothes[_item.name.replace(/ /g,"")] is "unlocked">>
 			<div class="clothing-item div-link">
 				<!-- Clothing icon -->
 				<div @class="'clothing-icon ' + _compact">
-					<<if _locked and $images is 1>>
+					<<if _locked and $options.images is 1>>
 						<img src="img/misc/icon/lock.png" class="clothing-locked">
 					<<else>>
 						<<if _item.colour_options.length > 0>>
 							<<if $shopDefaults.colourItems == "random">>
 								<<set _item.colour = _item.colour_options[random(_item.colour_options.length - 1)]>>
-							<<elseif $shopDefaults.colourItems == "default" and _item.colour_options.contains($shopDefaults.color)>>
+							<<elseif $shopDefaults.colourItems == "default" and _item.colour_options.includes($shopDefaults.color)>>
 								<<set _item.colour = $shopDefaults.color>>
 								<<if $shopDefaults.color == "custom">>
 									<<set _item.colourCustom = _colCustomPrimary>>
@@ -259,14 +288,14 @@
 						<<if _item.accessory_colour_options.length > 0>>
 							<<if $shopDefaults.colourItems == "random">>
 								<<set _item.accessory_colour = _item.accessory_colour_options[random(_item.accessory_colour_options.length - 1)]>>
-							<<elseif $shopDefaults.colourItems == "default" and _item.accessory_colour_options.contains($shopDefaults.secColor)>>
+							<<elseif $shopDefaults.colourItems == "default" and _item.accessory_colour_options.includes($shopDefaults.secColor)>>
 								<<set _item.accessory_colour = $shopDefaults.secColor>>
 								<<if $shopDefaults.secColor == "custom">>
 									<<set _item.accessory_colourCustom = _colCustomSecondary>>
 								<</if>>
 							<</if>>
 						<</if>>
-						<<clothingicon _item>>
+						<<clothingicon _item $_realSlot>>
 						<!-- Gender icon -->
 						<<if _item.gender isnot "n">>
 							<span class="clothing-gender">
@@ -277,7 +306,7 @@
 										<div class="female"></div>
 									<</if>>
 								<<else>>
-									<<if $images is 1>>
+									<<if $options.images is 1>>
 										<<if _item.gender is "m">>
 											<img src="img/misc/icon/male.png" class="male">
 										<<elseif _item.gender is "f">>
@@ -300,22 +329,32 @@
 					<<if !$shopDefaults.compactMode>>
 						<div class="pricetag-placeholder"></div>
 					<</if>>
-					<span class="clothing-name"><<trSearchClothes _item.name>>
+					<span class="clothing-name"><<trSearchClothes _itemData.name "name">>
 						<<if _locked>>
 							<span class="lblue">_trResult</span><span class="black">&nbsp;| 잠김</span>
 						<<else>>
-							<<set _csslot = $clothingShopSlot>>
-							<<capture _item _shopLocation _csslot _outfits>>
+							<<set _csslot = $_realSlot>>
+							<<capture _item _itemData _shopLocation _csslot _outfits>>
 								<<link _trResult>>
-									<<set $clothes_choice = _item.index>>
+									<<set $clothes_choice = clothesIndex(_csslot,_item)>>
 									<<set $clothes_choice_reveal = _item.reveal>>
-									<<set $clothes_choice_integrity = _item.integrity_max>>
+									<<set $clothes_choice_integrity = _itemData.integrity_max>>
 									<<unset $colouraction>>
 									<<unset $accessorycolouraction>>
 									<<run window.scrollTo(0, 0)>>
 									<<updateclotheslist _shopLocation _csslot _outfits>>
 								<</link>>
 							<</capture>>
+							<<set $_count to getOwnedClothingCount(_item.index, $_realSlot)>>
+							<<if $_count isnot 0>>
+								<span class="white">
+									&nbsp;|
+									<<if !_compact>>
+										소유:
+									<</if>>
+									$_count
+								</span>
+							<</if>>
 							<<if _unlocked>>
 								<span class="gold">&nbsp;| 풀림</span>
 							<</if>>
@@ -329,11 +368,11 @@
 						</div>
 					<<else>>
 						<!-- Price tag -->
-						<span class="clothing-price"><<printmoney `getClothingCost(_item)` true>></span>
+						<span class="clothing-price"><<printmoney `getClothingCost(_item, $_realSlot)` true>></span>
 						<!-- Integrity, Reveal and Warmth indicators -->
 						<<if !$shopDefaults.compactMode>>
 							<div class="clothing-integrity">
-								<<if $images is 1>>
+								<<if $options.images is 1>>
 									<img class="clothing-stats-icon" src="img/misc/icon/integrity.png">
 								<<else>>
 									<span class="clothing-stats-text">I.</span>
@@ -344,7 +383,7 @@
 								<</for>>
 							</div>
 							<div class="clothing-reveal">
-								<<if $images is 1>>
+								<<if $options.images is 1>>
 									<img class="clothing-stats-icon" src="img/misc/icon/reveal.png">
 								<<else>>
 									<span class="clothing-stats-text">R.</span>
@@ -355,7 +394,7 @@
 								<</for>>
 							</div>
 							<div class="clothing-warmth">
-								<<if $images is 1>>
+								<<if $options.images is 1>>
 									<img class="clothing-stats-icon" src="img/misc/icon/warmth.png">
 								<<else>>
 									<span class="clothing-stats-text">W.</span>
@@ -394,25 +433,30 @@
 <</widget>>
 
 <<widget "updateclotheslist">>
-	<<set _shop = $args[0] or _shopLocation>>
-	<<set _slot = $args[1] or $clothingShopSlot>>
-	<<set _outf = $args[2] or _outfits>>
+	<<set _shop = _args[0] or _shopLocation>>
+	<<set _slot = _args[1] or $clothingShopSlot>>
+	<<set _outf = _args[2] or _outfits>>
 	<<replace "#clothes-list">><<clothingShopv2 _shop _slot _outf>><</replace>>
 <</widget>>
 
 <<widget "clothingtrait">>
-	<<if $images is 1 and ($args[1] or $args[0] isnot "normal")>>
-		<img @src="'img/misc/icon/clothes/traits/' + $args[0] + '.png'" class="clothing-trait">
+	<<if $options.images is 1 and (_args[1] or _args[0] isnot "normal")>>
+		<<silently>><<shopTraitDescription _args[0]>><</silently>>
+		<mouse class="tooltip-tiny black"><img @src="'img/misc/icon/clothes/traits/' + _args[0] + '.png'" class="clothing-trait">
+		<<if _args[1] is undefined>><span><<trClothingTrait _clothesTrait>>_trResult</span><</if>>
+		</mouse>
 	<</if>>
 <</widget>>
 
 <<widget "shopDetailsv2">>
-	<<unset _mannequinGenderOverrite>>
+	<<unset _mannequinGenderOverride>>
 	<<if $clothes_choice and setup.clothes[$clothingShopSlot][$clothes_choice] is undefined>>
 		<<unset $clothes_choice>>
 
 	<<elseif $clothes_choice>>
 		<<set _temp_choice to clone(setup.clothes[$clothingShopSlot][$clothes_choice])>>
+		<<set _realSlot to ($clothingShopSlot is "all" ? _item.realSlot : $clothingShopSlot)>>
+		<<set _realIndex to _temp_choice.index>>
 
 		<!-- Unlocked text -->
 		<<if $specialClothes[_temp_choice.name.replace(/ /g,"")] is "unlocked">>
@@ -428,28 +472,28 @@
 		<<else>>
 			<<integrity $clothes_choice_integrity>>
 		<</if>>
-		<<reveal $clothes_choice_reveal>> <<print '<<trSearchClothes _temp_choice.name>>_trResult'>>.
+		<<reveal $clothes_choice_reveal>> <<trSearchClothes _temp_choice.name "name">><<print _trResult>>.
 		<<if _temp_choice.gender is "m">>
 			<span class="lblue">남성용.</span>
 		<<elseif _temp_choice.gender is "f">>
 			<span class="pink">여성용.</span>
 		<</if>>
-		<<print '<<trSearchClothes _temp_choice.name "desc">>_trResult'>> 가격 <<printmoney `getClothingCost(_temp_choice)`>>.
+		<<trSearchClothes _temp_choice.name "desc">><<print _trResult>> 가격 <<printmoney `getClothingCost(_temp_choice,$clothingShopSlot)`>>.
 		<br>
 		<<set _truewarmth = getTrueWarmth(_temp_choice)>>
 		<<warmth _truewarmth>>
 		<br><br>
 		<<shoptraits>>
-		<<set _slimeSlots to ["over_upper","over_lower","upper","lower","under_upper","under_lower"]>>
-		<<if !_slimeSlots.includes($clothingShopSlot) or $willpower gte 800 or _temp_choice.reveal gte 500 or _temp_choice.type.includesAny("school", "event") or $corruption_slime lt 80>>
+		<<set _slimeSlots to setup.clothingLayer.torso>>
+		<<if !_slimeSlots.includes($clothingShopSlot) or currentSkillValue('willpower') gte 800 or _temp_choice.reveal gte 500 or _temp_choice.type.includesAny("school", "event") or $corruption_slime lt 80>>
 			<div class="clothing-colours-div">
-				<<set _hiddenMannequin = $images is 1 ? "" : "hidden">>
+				<<set _hiddenMannequin = $options.images is 1 ? "" : "hidden">>
 				<!-- Item preview -->
-				<div id="mannequin" @class="'mannequin ' + _hiddenMannequin + ($sidebarRenderer is 'both' ? ' both-renderers' : '')">
+				<div id="mannequin" @class="'mannequin ' + _hiddenMannequin + ($options.sidebarRenderer is 'both' ? ' both-renderers' : '')">
 					<<mannequin>>
 				</div>
 				<!-- Item colour selection -->
-				<<set _translate = $images is 1 ? "translate-colours-container" : "">>
+				<<set _translate = $options.images is 1 ? "translate-colours-container" : "">>
 				<div @class="'colours-container ' + _translate">
 					<div @class="'mannequin-placeholder ' + _hiddenMannequin"></div>
 					<<if _temp_choice.colour_options.length gt 1>>
@@ -472,11 +516,11 @@
 			<!-- Check if current clothing can be unequiped -->
 			<<unset _cursedPrevent>>
 			<<set _preventSlots to []>>
-			<<if $worn[$clothingShopSlot].cursed is 1>>
+			<<if $worn[_realSlot].cursed is 1>>
 				<<set _cursedPrevent to true>>
-				<<run _preventSlots.push($clothingShopSlot)>>
+				<<run _preventSlots.push(_realSlot)>>
 			<</if>>
-			<<set _wardrobeSlots to [$clothingShopSlot]>>
+			<<set _wardrobeSlots to [_realSlot]>>
 			<<if _temp_choice.outfitPrimary isnot undefined>>
 				<<for _slot, _name range _temp_choice.outfitPrimary>>
 					<<run _wardrobeSlots.push(_slot)>>
@@ -487,23 +531,39 @@
 				<</for>>
 			<</if>>
 
+			<!-- Check if selected clothes can't be worn by pregnant players -->
+			<<unset _preggyPrevent>>
+			<<if playerBellySize() gte 12 and _temp_choice.type.includes("constricting")>>
+				<<set _preggyPrevent to true>>
+			<</if>>
+
 			<span>따뜻함:</span>
 			<<warmthscale>>
 			<div id="warmth-description">
 				<<warmth_description>>
 			</div>
-			<br><br>
+			<br>
+			<<if $multipleWardrobes is "all">>
+				<span>의상 보내기:</span>
+				<div id="sendItemsTo">
+					<<sendItemsTo>>
+				</div>
+			<<else>>
+				<<set $wardrobes.shopReturn to "wardrobe">>
+			<</if>>
 			<<shopBuyItemStatus _wardrobeSlots>>
 			<<if _spaceLeft < 1>>
 				<span class="blue">당신의 옷장은 가득 찼다.</span>
 				<br>
-			<<elseif $daystate is "night">>
+			<<elseif Time.dayState is "night">>
 				<<if $clothingShop.stolenClothes lte 20>>
-					<<if $worn[$clothingShopSlot].cursed is 1>>
+					<<if $worn[_realSlot].cursed is 1>>
 						<<printcursed>>
+					<<elseif _preggyPrevent>>
+						<<printpreggy _temp_choice>>
 					<<else>>
 						<<link "훔쳐 입는다">>
-							<<shopbuyv2 $clothingShopSlot "steal" "wear" $clothes_choice>><<crimeup `getClothingCost(_temp_choice) / 100`>>
+							<<shopbuyv2 _realSlot "steal" "wear" _realIndex>><<crimeup `getClothingCost(_temp_choice,$clothingShopSlot) / 100`>>
 							<<set $clothingShop.stolenClothes++>>
 							<<set $clothingShop.totalStolenClothes++>>
 							<<if $shopDefaults.disableReturn is false>>
@@ -523,7 +583,7 @@
 						<br>
 					<</if>>
 					<<link "훔쳐 집으로 가져간다">>
-						<<shopbuyv2 $clothingShopSlot "steal" "send" $clothes_choice>><<crimeup `getClothingCost(_temp_choice) / 100`>>
+						<<shopbuyv2 _realSlot "steal" "send" _realIndex>><<crimeup `getClothingCost(_temp_choice,$clothingShopSlot) / 100`>>
 						<<set $clothingShop.stolenClothes++>>
 						<<set $clothingShop.totalStolenClothes++>>
 						<<if $shopDefaults.disableReturn is false>>
@@ -538,22 +598,24 @@
 					<span class="red">당신은 이 이상 옷을 가지고 다닐 수 없다.</span> 당신은 옷들을 옷장에 가져가야 한다.
 					<br>
 				<</if>>
-			<<elseif $money >= getClothingCost(_temp_choice)>>
+			<<elseif $money >= getClothingCost(_temp_choice,$clothingShopSlot)>>
 				<<if _cursedPrevent>>
 					<<printcursed>>
+				<<elseif _preggyPrevent>>
+					<<printpreggy _temp_choice>>
 				<</if>>
 
 				<div class="buy-buttons">
-					<<set _cantWear = _cursedPrevent == true ? "disabled" : "div-link">>
+					<<set _cantWear = (_cursedPrevent == true || _preggyPrevent == true ? "disabled" : "div-link")>>
 					<div class="buy-button">
 						<div @class="'buy-button-inner ' + _cantWear">
-							<<if _cursedPrevent>>
+							<<if _cursedPrevent or _preggyPrevent>>
 								Buy and wear
 							<<else>>
 								<<link "옷을 산다">>
-									<<clothingReset $clothingShopSlot>>
-									<<shopbuyv2 $clothingShopSlot "buy" "wear" $clothes_choice>>
-									<<set $money -= getClothingCost(_temp_choice)>>
+									<<clothingReset _realSlot>>
+									<<shopbuyv2 _realSlot "buy" "wear" _realIndex>>
+									<<set $money -= getClothingCost(_temp_choice,$clothingShopSlot)>>
 									<<if $shopDefaults.disableReturn is "false">>
 										<<unset $clothes_choice>>
 									<</if>>
@@ -569,7 +631,7 @@
 									<</if>>
 									<<run updateMoment()>>
 								<</link>>
-								(<<printmoney `getClothingCost(_temp_choice)`>>)
+								(<<printmoney `getClothingCost(_temp_choice,$clothingShopSlot)`>>)
 							<</if>>
 						</div>
 					</div>
@@ -585,11 +647,12 @@
 				<br>
 			<</if>>
 
-			<<if _cursedPrevent != true and $tryOn.tryingOn>>
+			<<if _spaceLeft < 1>>
+			<<elseif _cursedPrevent != true and _preggyPrevent != true and $tryOn.tryingOn>>
 				<div class="try-buttons">
 					<div class="try-button div-link">
-						<<link "입어본다">>
-							<<shopbuyv2 $clothingShopSlot "try" null $clothes_choice>>
+						<<link "착용해 본다">>
+							<<shopbuyv2 _realSlot "try" null _realIndex>>
 							<<updateclotheslist>>
 							<<exposedcheck>>
 							<<updatesidebarimg>>
@@ -603,7 +666,7 @@
 					<<if $tryOn.tryingOn[$clothingShopSlot] isnot null>>
 						<div class="try-button div-link">
 							<<link "돌려준다">>
-								<<shopbuyv2 $clothingShopSlot "return" null $clothes_choice>>
+								<<shopbuyv2 _realSlot "return" null _realIndex>>
 								<<updateclotheslist>>
 								<<exposedcheck>>
 								<<updatesidebarimg>>
@@ -615,6 +678,15 @@
 							<</link>>
 						</div>
 					<</if>>
+					<<if $worn[$clothingShopSlot].name is _temp_choice.name and isConnectedToHood($clothingShopSlot)>>
+						<!-- If selected item is a hood or selected item has a secondary hood piece -->
+						<div class="try-button div-link"><<toggleHoodLink "shop">></div>
+						<br>
+					<</if>>
+					<<if ["upper","lower"].includes($clothingShopSlot) and $worn.lower.name isnot "naked" and $worn.upper.outfitPrimary is undefined and !setup.clothes.upper[clothesIndex("upper",$worn.upper)].notuck>>
+						<div class="try-button div-link"><<toggleUpperTuck>></div>
+						<br>
+					<</if>>
 				</div>
 			<</if>>
 		<<else>>
@@ -625,24 +697,25 @@
 <</widget>>
 
 <<widget "printbuysendhome">>
-	<<set _canAfford = ($money >= getClothingCost(_temp_choice) * $buyMultiple and _spaceLeft >= $buyMultiple) ? "" : "disabled">>
+	<<set _clothingCost = getClothingCost(_temp_choice, $clothingShopSlot)>>
+	<<set _canAfford = ($money >= _clothingCost * $buyMultiple and _spaceLeft >= $buyMultiple) ? "" : "disabled">>
 	<div class="buy-button">
 		<div @class="'buy-button-inner buy-multiple div-link ' + _canAfford">
-				<<link `'옷을 사서 집으로 보낸다 × ' + $buyMultiple`>>
-					<<if $money >= getClothingCost(_temp_choice) * $buyMultiple and _spaceLeft >= $buyMultiple>>
-						<<clothingReset $clothingShopSlot>>
-						<<shopbuyv2 $clothingShopSlot "buy" "send" $clothes_choice $buyMultiple>>
-						<<set $money -= getClothingCost(_temp_choice) * $buyMultiple>>
-						<<if $shopDefaults.disableReturn is false>>
-							<<unset $clothes_choice>>
-						<</if>>
-						<<updateclotheslist>>
-						<<updatesidebarimg>>
-						<<updatesidebarmoney>>
-						<<run updateMoment()>>
+			<<link `'옷을 사서 집으로 보낸다 × ' + $buyMultiple`>>
+				<<if $money >= _clothingCost * $buyMultiple and _spaceLeft >= $buyMultiple>>
+					<<clothingReset _realSlot>>
+					<<shopbuyv2 _realSlot "buy" "send" _realIndex $buyMultiple>>
+					<<set $money -= _clothingCost * $buyMultiple>>
+					<<if $shopDefaults.disableReturn is false>>
+						<<unset $clothes_choice>>
 					<</if>>
-				<</link>>
-				<span>(<span class="gold"><<print getClothingCost(_temp_choice) * $buyMultiple / 100>></span>)</span>
+					<<updateclotheslist>>
+					<<updatesidebarimg>>
+					<<updatesidebarmoney>>
+					<<run updateMoment()>>
+				<</if>>
+			<</link>>
+			<span>(<span class="gold"><<printmoney `_clothingCost * $buyMultiple`>></span>)</span>
 		</div>
 
 		<div id="buy-multiple-slider" class="buy-multiple-slider">
@@ -650,15 +723,17 @@
 		</div>
 		<!-- Update text of "Buy and send home" button -->
 		<!-- <<run $(() => { $('#buy-multiple-slider input').on('change', () => { new Wikifier (null, "<<updateclotheslist>>") }); })>> -->
-		<<run $(() => { $('#buy-multiple-slider input').on('input change', () => {
+		<<run $(() => {
+			$('#buy-multiple-slider input').on('input change', () => {
+				let cost = getClothingCost(_temp_choice, $clothingShopSlot);
 				let el = $('#buy-send-home > .buy-button > .buy-button-inner > a');
 				let text = el.text().split(' ');
 				text.pop();
 				text.push($buyMultiple);
 				el.text(text.join(' '));
 
-				$('#buy-send-home > .buy-button > .buy-button-inner > span > span').text('£' + getClothingCost(_temp_choice) * $buyMultiple / 100);
-				$('#buy-send-home > .buy-button > .buy-button-inner').toggleClass('disabled', $money < getClothingCost(_temp_choice) * $buyMultiple or _spaceLeft < $buyMultiple);
+				$('#buy-send-home > .buy-button > .buy-button-inner > span > span').text('£' + cost * $buyMultiple / 100);
+				$('#buy-send-home > .buy-button > .buy-button-inner').toggleClass('disabled', $money < cost * $buyMultiple || _spaceLeft < $buyMultiple);
 			});
 		})>>
 	</div>
@@ -671,15 +746,23 @@
 <</widget>>
 
 <<widget "printShopColourOptions">>
-	<<set _colourType = $args[0] == "secondary" ? "accessory_colour_options" : "colour_options">>
+	<<set _colourType = _args[0] == "secondary" ? "accessory_colour_options" : "colour_options">>
 
 	<!-- Reset colour to default if invalid -->
-	<<if $args[0] == "secondary" and !$accessorycolouraction and setup.clothes[$clothingShopSlot][$clothes_choice][_colourType].includes($shopDefaults.secColor)>>
-		<<set $accessorycolouraction = $shopDefaults.secColor>>
-	<<elseif !$colouraction and setup.clothes[$clothingShopSlot][$clothes_choice][_colourType].includes($shopDefaults.color)>>
-		<<set $colouraction = $shopDefaults.color>>
+	<<if _args[0] == "secondary" and !$accessorycolouraction>>
+		<<if setup.clothes[$clothingShopSlot][$clothes_choice][_colourType].includes($shopDefaults.secColor)>>
+			<<set $accessorycolouraction = $shopDefaults.secColor>>
+		<<else>>
+			<<set $accessorycolouraction = setup.clothes[$clothingShopSlot][$clothes_choice][_colourType][0]>>
+		<</if>>
+	<<elseif !$colouraction>>
+		<<if setup.clothes[$clothingShopSlot][$clothes_choice][_colourType].includes($shopDefaults.color)>>
+			<<set $colouraction = $shopDefaults.color>>
+		<<else>>
+			<<set $colouraction = setup.clothes[$clothingShopSlot][$clothes_choice][_colourType][0]>>
+		<</if>>
 	<</if>>
-	<<set _acc = $args[0] == "secondary" ? "secondary" : "primary">>
+	<<set _acc = _args[0] == "secondary" ? "secondary" : "primary">>
 
 	<!-- Generate button for each colour -->
 	<<set _highContrast = $shopDefaults.highContrast ? "colour-name-span-highcontrast" : "colour-name-span">>
@@ -688,7 +771,7 @@
 			<<set _active = (_acc == "primary" ? $colouraction : $accessorycolouraction) == _buttonName ? "active" : "">>
 			<div @class="'colour-button div-link ' + _active">
 				<div @class="'bg-' + _buttonName.replace(/ /g, '-')">
-					<<if $images is 1>>
+					<<if $options.images is 1>>
 						<<if _buttonName == "custom">>
 							<img src="img/misc/icon/custom.png">
 						<</if>>
@@ -697,15 +780,16 @@
 						<</if>>
 					<</if>>
 					<span @class="'capitalize ' + _highContrast"><<trColour _buttonName>>_trResult</span>
-					<<capture _buttonName $args[0] _acc $clothingShopSlot>>
+					<<capture _buttonName _args[0] _acc $clothingShopSlot>>
 						<<link "">>
 							<<if _buttonName == "random">>
-								<<set _col_array = setup.clothes[$clothingShopSlot][$clothes_choice][_colourType]>>
-								<<set _colour = _col_array[Math.floor(Math.random() * _col_array.length)]>>
+								<<set $customColors.color[_acc] to random(0, 360)>> /* 0,360 are min/max hue values, representing colours */
+								<<run updateHueSlider($customColors.color[_acc], _acc)>>
+								<<set _colour = "custom">>
 							<<else>>
 								<<set _colour = _buttonName>>
 							<</if>>
-							<<if $args[0] == "secondary">>
+							<<if _args[0] == "secondary">>
 								<<set $accessorycolouraction = _colour>>
 							<<else>>
 								<<set $colouraction = _colour>>
@@ -736,33 +820,37 @@
 	</div>
 
 	<!-- Custom colour sliders -->
-	<<if $args[0] == "secondary">>
+	<<if _args[0] == "secondary">>
 		<<set _hidden = $accessorycolouraction == "custom" ? "" : " hidden">>
 	<<else>>
 		<<set _hidden = $colouraction == "custom" ? "" : " hidden">>
 	<</if>>
 	<<capture _acc $clothingShopSlot>>
-		<div @class="'custom-colour ' + _acc + _hidden">
+		<div @class="'pt-1-em pc-c fw-wrap custom-colour ' + _acc + _hidden">
 			<div @class="'custom-colour-sliders ' + _acc">
-				<<set _varHue = "$customColors.color." + _acc>>
+				/*<<set _varHue = "$customColors.color." + _acc>>
 				<<set _varBri = "$customColors.brightness." + _acc>>
-				<<set _varSat = "$customColors.saturation." + _acc>>
+				<<set _varSat = "$customColors.saturation." + _acc>>*/
 				<<set _varCon = "$customColors.contrast." + _acc>>
-				<div class="colour-slider"><span class="colour-slider-caption">색조</span><<numberslider _varHue $customColors.color[_acc] 0 360 1>></div>
+/* 				<div class="colour-slider"><span class="colour-slider-caption">Hue</span><<numberslider _varHue $customColors.color[_acc] 0 360 1>></div>
 				<div class="colour-slider"><span class="colour-slider-caption">명도</span><<numberslider _varBri $customColors.brightness[_acc] 0 4 0.01>></div>
 				<div class="colour-slider"><span class="colour-slider-caption">채도</span><<numberslider _varSat $customColors.saturation[_acc] 0 4 0.01>></div>
-				<div class="colour-slider"><span class="colour-slider-caption">대비</span><<numberslider _varCon $customColors.contrast[_acc] 0 4 0.01>></div>
+				<div class="colour-slider"><span class="colour-slider-caption">Contrast</span><<numberslider _varCon $customColors.contrast[_acc] 0 4 0.01>></div>*/
+				<<setShopCustomColors _acc>>
+				<<set $retrieveShopCustomColor[_acc] to true>>
+				<<shopclothingcustomcolourwheel _acc>>
+				<div class="colour-slider text-align-center elem-fill-available"><span class="colour-slider-caption">Contrast</span><<numberslider _varCon $customColors.contrast[_acc] 0 4 0.01>></div>
 			</div>
-			<div class="custom-colour-presets no-numberify">
+			<div class="custom-colour-presets no-numberify preset-colour-options">
 				<div class="presets-dropdown">
 					<<if _preset_choice is undefined>><<set _preset_choice = {}>><</if>>
 					<<listbox "_preset_choice[_acc]" autoselect>>
-						<!-- Just... don't try to understand the next line. In short, it adds [L] to legacy preset names in dropdown -->
+							<!-- Just... don't try to understand the next line. In short, it adds [L] to legacy preset names in dropdown -->
 						<<optionsfrom {...{'---': '---'}, ...Object.keys($customColors.presets).reduce((acc, val) => ({...acc, [($customColors.presets[val].ver >= 2 ? '' : '[L] ') + val]: val }), {})}>>
 					<</listbox>>
-					<<set _delDisabled = Object.keys($customColors.presets).contains(_preset_choice[_acc]) ? "" : "disabled">>
+					<<set _delDisabled = Object.keys($customColors.presets).includes(_preset_choice[_acc]) ? "" : "disabled">>
 					<div @class="'delete-preset div-link ' + _delDisabled">
-						<<if $images is 1>><img src="img/misc/icon/delete.png"><<else>>삭제<</if>>
+						<<if $options.images is 1>><img src="img/misc/icon/delete.png"><<else>>Del<</if>>
 						<<link "">>
 							<<if _preset_choice[_acc] and $customColors.presets[_preset_choice[_acc]] and confirm('Delete preset "' + _preset_choice[_acc] + '"?')>>
 								<<run delete $customColors.presets[_preset_choice[_acc]]>>
@@ -773,33 +861,82 @@
 					</div>
 				</div>
 				<div class="save-preset div-link">
-					<<if $images is 1>><img src="img/misc/icon/save.png"><<else>>저장<</if>>
+					<<if $options.images is 1>><img src="img/misc/icon/save.png"><<else>>Save<</if>>
 					<<link "">>
 						<<run saveCustomColourPreset(_acc)>>
 						<<updateclotheslist>>
 						<<run updateMoment()>>
 					<</link>>
 				</div>
+				/* import/export custom colour buttons */
+				<div class="import-export-buttons">
+					<div class="colour-button div-link ">
+						<div>
+							<img src="img/ui/import-preset-colour.png">
+							<span class="capitalize colour-name-span">import</span>
+							<<link "">>
+								<<run importCustomColour(_acc)>>
+								<<run updateMoment()>>
+							<</link>>
+						</div>
+					</div>
+					<div class="colour-button div-link active">
+						<div class="bg-custom-export">
+						 	<img src="img/ui/export-preset-colour.png">
+							<span class="capitalize colour-name-span">export</span>
+							<<link "">>
+								<<run exportCustomColour(_acc)>>
+							<</link>>
+						</div>
+					</div>
+				</div>
+				<div id="export-custom-colour-box"></div>
 			</div>
 		</div>
 	<</capture>>
 <</widget>>
 
+<<widget "setShopCustomColors">>
+	<<if $retrieveShopCustomColor[_acc] is true>>
+		<<set $retrieveShopCustomColor[_acc] to false>>
+	<<else>>
+		<<set $customColors.color[_acc] to 61>>
+		<<set $customColors.contrast[_acc] to 1.46>>
+		<<set $customColors.brightness[_acc] to 3.08>>
+		<<set $customColors.value[_acc] to 100>>
+		<<set $customColors.saturation[_acc] to 0.6016>>
+		<<set $customColors.sepia[_acc] to 0>>
+	<</if>>
+<</widget>>
+
 <<widget "printcursed">>
 	<span class="blue">먼저 당신의
-	<<set _preventClothes = _preventSlots.map(x => $worn[x].name)>>
-	<<if _preventClothes.length > 1>><<trSearchClothes _preventClothes.slice(0, -1) "name" "과">>_trResult <</if>>
-	<<trSearchClothes _preventClothes.slice(-1) "name" "을">>_trResult <<print _preventClothes.slice(-1)>> 벗지 않으면 입을 수 없다.</span>
+	<<set _preventClothes = _preventSlots.map(x => $worn[x].name)>><<set $_preventClothes to []>><<for $_i, $_value range _preventClothes>><<trSearchClothes $_value "name">><<set $_preventClothes.push(_trResult)>><</for>>
+	<<set _trResult to formatList($_preventClothes)>><<trPost _postNum "을">><<print _trResult>> 벗지 않으면 입을 수 없다.</span>
 	<br>
 <</widget>>
 
+<<widget "printpreggy">>
+	<<if _args[0]>>
+		<<set _blockedItem to _args[0]>>
+		<<set _blockedItemWord to (_blockedItem.word isnot "n" ? _blockedItem.word : "")>>
+		<<if _blockedItem.type.includes("chest_bind")>>
+			<span class="red">당신의 임신한 몸은 <<trSearchClothes _blockedItem.name "name" "을">>_trResult 입기에는 너무 예민하다.</span>
+		<<else>>
+			<span class="red">당신의 <<bellyDescription_ un "pc">> <<trSearchClothes _blockedItem.name "name" "을">>_trResult 입기에는 너무 크다.</span>
+		<</if>>
+	<<else>>
+		<span class="red">ERROR: No argument provided for widget printpreggy</span>
+	<</if>>
+	<br>
+<</widget>>
 
 <<widget "shopbuyv2">>
-	<<set _slot to $args[0]>>
-	<<set _action to $args[1]>>
-	<<set _subaction to $args[2]>>
-	<<set _choice_index to $args[3]>>
-	<<set _amount to $args[4]>>
+	<<set _slot to _args[0]>>
+	<<set _action to _args[1]>>
+	<<set _subaction to _args[2]>>
+	<<set _choice_index to _args[3]>>
+	<<set _amount to _args[4]>>
 	<<set $clothes_choice_previous to $clothes_choice>>
 
 	<<if _choice_index isnot undefined>>
@@ -819,10 +956,19 @@
 	<<if _action is "buy" or _action is "steal">>
 		You _action the <<print setup.clothes[_slot][_choice_index].name>>.
 		<br><br>
+		<<if $shopName is "school" and _action is "buy">>
+			<<set $schoolShopAction.push("buy")>>
+		<</if>>
 	<<elseif _action is "try">>
 		<<tryOnWear _slot _choice_index>>
+		<<if $shopName is "school">>
+			<<set $schoolShopAction.push("try")>>
+		<</if>>
 	<<elseif _action is "return">>
 		<<clothingReset _slot>>
+		<<if $shopName is "school">>
+			<<set $schoolShopAction.push("return")>>
+		<</if>>
 	<<elseif _action is "reset">>
 		<<unset $colouraction>>
 		<<unset $colouraction2>>
@@ -835,64 +981,62 @@
 	<<if _subaction is "wear">>
 		<<generalWear _slot _choice_index $colouraction2 $accessorycolouraction2>>
 		<<updateOwned _slot>>
+		<<if $shopName is "school">>
+			<<set $schoolShopAction.push("wear")>>
+		<</if>>
 	<<elseif _subaction is "send">>
 		<<set _loop to _amount or 1>>
 		<<for _s = 0; _s lt _loop; _s++>>
-			<<generalSend "wardrobe" _slot _choice_index $colouraction2 $accessorycolouraction2>>
+			<<generalSend $wardrobes.shopReturn _slot _choice_index $colouraction2 $accessorycolouraction2>>
 		<</for>>
 	<</if>>
-
 <</widget>>
 
 <<widget "mannequin">>
-	<<if $images is 1>>
-		<<set _slot = $args[0] or $clothingShopSlot>>
-		<<set _index = $args[1] or $clothes_choice>>
+	<<if $options.images is 1>>
+		<<set _slot = _args[0] or _realSlot>>
+		<<set _index = _args[1] or _realIndex>>
 		<<set _item = setup.clothes[_slot][_index]>>
 
 		<<if _item.colour_options.length > 0>>
-			<<set _col = $args[2] or $colouraction or (_item.colour_options.contains($shopDefaults.color) ? $shopDefaults.color : _item.colour_options[0])>>
+			<<set _col = _args[2] or $colouraction or (_item.colour_options.includes($shopDefaults.color) ? $shopDefaults.color : _item.colour_options[0])>>
 		<<else>>
 			<<set _col = "">>
 		<</if>>
 		<<if _item.accessory_colour_options.length > 0>>
-			<<set _acc_col = $args[3] or $accessorycolouraction or (_item.accessory_colour_options.contains($shopDefaults.secColor) ? $shopDefaults.secColor : _item.accessory_colour_options[0])>>
+			<<set _acc_col = _args[3] or $accessorycolouraction or (_item.accessory_colour_options.includes($shopDefaults.secColor) ? $shopDefaults.secColor : _item.accessory_colour_options[0])>>
 		<<else>>
 			<<set _acc_col = "">>
 		<</if>>
 
 		<<if _item>>
 			<!-- Set gender of the mannequin -->
-			<<if _mannequinGenderOverrite>>
-				<<set _mannequinGender = _mannequinGenderOverrite>>
+			<<if _mannequinGenderOverride>>
+				<<set _mannequinGender to _mannequinGenderOverride>>
 			<<else>>
 				<<if $shopDefaults.mannequinGenderFromClothes and _item.gender != "n">>
-					<<set _mannequinGender = _item.gender>>
+					<<set _mannequinGender to _item.gender>>
 				<<else>>
-					<<if $shopDefaults.mannequinGender == "same">>
-						<<set _mannequinGender = $player.gender>>
-					<<elseif $shopDefaults.mannequinGender == "opposite">>
-						<<set _mannequinGender = $player.gender == "f" ? "m" : "f">>
+					<<if $shopDefaults.mannequinGender is "same">>
+						<<set _mannequinGender to $player.gender>>
+					<<elseif $shopDefaults.mannequinGender is "opposite">>
+						<<set _mannequinGender to ($player.gender is "f" ? "m" : "f")>>
 					<<else>>
-						<<set _mannequinGender = $shopDefaults.mannequinGender.first()>>
+						<<set _mannequinGender to $shopDefaults.mannequinGender.first()>>
 					<</if>>
 				<</if>>
 			<</if>>
-			<<if _mannequinGender == "m" or _mannequinGender == "h">>
-				<<set $mannequinHasPenis = 1>>
-			<<else>>
-				<<set $mannequinHasPenis = 0>>
-			<</if>>
+			<<set $mannequinHasPenis to (_mannequinGender isnot "f")>>
 
 			<<if _item.type.includes("chest_bind")>>
-				<<set _breastImg = 0>>
+				<<set _breastImg to 0>>
 			<<else>>
-				<<set _breastImg = $mannequinBreastsSize is undefined ? 3 : (_mannequinGender == "f" or _mannequinGender == "h" ? $mannequinBreastsSize : 0)>>
+				<<set _breastImg to ($mannequinBreastsSize is undefined ? 3 : (_mannequinGender is "m" ? 0 : $mannequinBreastsSize))>>
 			<</if>>
-			<<set _clothed = (((_slot != "under_upper" and $neverNudeMenus) or (_slot == "under_upper" and !_item.type.includes("naked"))) and _breastImg >= 2) ? "_clothed" : "">>
+			<<set _clothed = (((_slot != "under_upper" and $options.neverNudeMenus) or (_slot == "under_upper" and !_item.type.includes("naked"))) and _breastImg >= 2) ? "_clothed" : "">>
 
 			<div class="mannequin-inner">
-				<<if $sidebarRenderer isnot "img">>
+				<<if $options.sidebarRenderer isnot "img">>
 					<<selectmodel "main" "shop">>
 						<<set _modeloptions.mannequin to true>>
 						<<set _modeloptions.show_face to false>>
@@ -903,7 +1047,7 @@
 						<<if $mannequinHasPenis>>
 							<<set _modeloptions.penis to "default">>
 						<</if>>
-						<<if $neverNudeMenus>>
+						<<if $options.neverNudeMenus>>
 							<<if _slot != "under_upper" and (_mannequinGender == "f" or _mannequinGender == "h")>>
 								<<set _modeloptions.worn_under_upper to 12>>
 								<<set _modeloptions.worn_under_upper_colour to "pale white">>
@@ -923,7 +1067,7 @@
 						<<for _clothing range _items_list>>
 							<<set _item = _clothing.item>>
 							<<set _slot = _clothing.slot>>
-							<<set _modeloptions['worn_' + _slot] to _item.index>>
+							<<set _modeloptions['worn_' + _slot] to clothesIndex(_slot,_item)>>
 							<<if _col>>
 								<<set _modeloptions['worn_' + _slot + '_colour'] to _col>>
 								<<if _col is "custom">>
@@ -945,14 +1089,14 @@
 								<</if>>
 							<</if>>
 						<</for>>
-						<<if $sidebarRenderer is "both">>
+						<<if $options.sidebarRenderer is "both">>
 							<<set _item = _items_list[0].item>>
 							<<set _slot = _items_list[0].slot>>
 						<</if>>
 					<<rendermodel "canvas-mannequin">>
 				<</if>>
 
-				<<if $sidebarRenderer isnot "canvas">>
+				<<if $options.sidebarRenderer isnot "canvas">>
 				<div class="mannequin-body">
 					<img src="img/body/mannequin/leftarmidle.png">
 					<img src="img/body/mannequin/basenoarms.png">
@@ -963,7 +1107,7 @@
 						<img src="img/body/mannequin/penis.png">
 					<</if>>
 
-					<<if $neverNudeMenus>>
+					<<if $options.neverNudeMenus>>
 						<div class="neverNudeMenus">
 							<<if _slot != "under_upper" and (_mannequinGender == "f" or _mannequinGender == "h")>>
 								<div class="layer-under_upper clothes-pale-white">
@@ -987,7 +1131,7 @@
 				<!-- Mannequin gender toggle button -->
 				<div class="mannequin-buttons no-numberify">
 					<div class="div-link mannequin-gender-button">
-						<<if $images is 1>>
+						<<if $options.images is 1>>
 							<<set _genderIcon = (_mannequinGender == "m" ? "male" : (_mannequinGender == "f" ? "female" : "unisex"))>>
 							<img @src="'img/misc/icon/' + _genderIcon + '.png'">
 						<<else>>
@@ -997,7 +1141,7 @@
 					</div>
 				</div>
 
-				<<if $sidebarRenderer isnot "canvas">>
+				<<if $options.sidebarRenderer isnot "canvas">>
 				<div class="mannequin-clothes">
 					<<unset _styleP>>
 					<<unset _styleS>>
@@ -1018,14 +1162,14 @@
 								<img @src="'img/clothes/' + _slot + '/' + _item.variable + '/full.png'">
 							<</if>>
 
-							<<if _item.sleeve_img or _item.leftImage>>
+							<<if setup.clothes[_slot][clothesIndex(_slot,_item)].sleeve_img or _item.leftImage>>
 								<img @src="'img/clothes/' + _slot + '/' + _item.variable + '/left.png'">
 							<</if>>
-							<<if _item.sleeve_img or _item.rightImage>>
+							<<if setup.clothes[_slot][clothesIndex(_slot,_item)].sleeve_img or _item.rightImage>>
 								<img @src="'img/clothes/' + _slot + '/' + _item.variable + '/right.png'">
 							<</if>>
 
-							<<if _item.breast_img>>
+							<<if setup.clothes[_slot][clothesIndex(_slot,_item)].breast_img>>
 								<img @src="'img/clothes/' + _slot + '/' + _item.variable + '/' + _breastImg + '.png'">
 							<</if>>
 
@@ -1070,16 +1214,20 @@
 <</widget>>
 
 <<widget "toggleMannequinGender">>
-	<<if _mannequinGender == "f">>
-		<<set _mannequinGenderOverrite = "m">>
+	<<if _mannequinGender is "f">>
+		<<set _mannequinGenderOverride to "m">>
 	<<else>>
-		<<set _mannequinGenderOverrite = "f">>
+		<<if $player.gender is "h" and _mannequinGender is "m">> /* if player is herm, toggle mannequin through herm gender */
+			<<set _mannequinGenderOverride to "h">>
+		<<else>>
+			<<set _mannequinGenderOverride to "f">>
+		<</if>>
 	<</if>>
 	<<updatemannequin>>
 <</widget>>
 
 <<widget "updatemannequin">>
-	<<replace "#mannequin">><<mannequin $args[0] $args[1]>><</replace>>
+	<<replace "#mannequin">><<mannequin _args[0] _args[1]>><</replace>>
 	<<run linkifyDivs('#mannequin')>>
 <</widget>>
 
@@ -1088,7 +1236,7 @@
 <</widget>>
 
 <<widget "updatesidebarmoney">>
-	<<if $images>>
+	<<if $options.images>>
 		<<replace #stats>><<statsCaption>><</replace>>
 	<<else>>
 		<<replace #money-noimg>><<statsMoneyNoImg>><</replace>>
@@ -1127,9 +1275,9 @@
 				<</if>>
 
 				<span class="bold gold">성별</span>
-				<label><<checkbox "$shopClothingFilter.gender.female" false true `$shopClothingFilter.gender.female ? "checked" : ""`>> 여성용</label>
-				<label><<checkbox "$shopClothingFilter.gender.neutral" false true `$shopClothingFilter.gender.neutral ? "checked" : ""`>> 남녀 공용</label>
-				<label><<checkbox "$shopClothingFilter.gender.male" false true `$shopClothingFilter.gender.male ? "checked" : ""`>> 남성용</label>
+				<label><<checkbox "$shopClothingFilter.gender.female" false true autocheck>> 여성용</label>
+				<label><<checkbox "$shopClothingFilter.gender.neutral" false true autocheck>> 남녀 공용</label>
+				<label><<checkbox "$shopClothingFilter.gender.male" false true autocheck>> 남성용</label>
 			</div>
 
 			<div id="filter-reveal" class="filter-block">
@@ -1148,17 +1296,75 @@
 				</div>
 			</div>
 
+			<div id="filter-sort" class="filter-block">
+				<<if $shopClothingFilter.sorting is undefined>>
+					<<set $shopClothingFilter.sorting = { prop: "price", order: 'asc', enabled: false }>>
+				<</if>>
+
+				<span class="bold gold">정렬</span>
+				<div class="filter-sorting">
+					<label>
+						기준
+						<<listbox "$shopClothingFilter.sorting.prop" autoselect>>
+							<<option "가격" "price">>
+							<<option "보호" "protection">>
+							<<option "노출" "reveal">>
+							<<option "온열" "warmth">>
+						<</listbox>>
+					</label>
+					<label>
+						순서
+						<<listbox "$shopClothingFilter.sorting.order" autoselect>>
+							<<option "오름차순" "asc">>
+							<<option "내림차순" "desc">>
+						<</listbox>>
+					</label>
+					<label>
+						<<checkbox "$shopClothingFilter.sorting.enabled" false true autocheck>>
+						활성화
+					</label>
+				</div>
+			</div>
+
+			<div id="filter-outfit" class="filter-block">
+				<<if $shopClothingFilter.outfit is undefined>>
+					<<set $shopClothingFilter.outfit = { index: "none" }>>
+				<</if>>
+				<<if $shopClothingFilter.outfit.index isnot "none" and $shopClothingFilter.outfit.index gte $outfit.length >>
+					<!-- shouldn't be possible since this ideally gets reset whenever we leave the shop, but I'll futureproof here - better safe than sorry  -->
+					<<set $shopClothingFilter.outfit.index = "none">>
+				<</if>>
+
+				<span class="bold gold">복장 필터</span>
+				<div class="filter-outfit">
+					<label>
+					복장:
+					<<listbox "$shopClothingFilter.outfit.index" autoselect>>
+						<<optionsfrom getFilterOutfitOptions()>>
+					<</listbox>>
+					</label>
+				</div>	
+			</div>
+
 			<div id="filter-traits" class="filter-block">
 				<span class="bold gold">특성</span>
 				<div class="traits-list">
-					<<set _traitsInThisShop = [...new Set(Object.keys(setup.clothes).flatMap(x => setup.clothes[x]).filter(x => x.shop.contains(_shopLocation)).flatMap(x => x.type))]>>
-					<<for _trait range _traitsInThisShop>>
+					<<set _traitsInThisShop = [...new Set(Object.keys(setup.clothes).flatMap(x => setup.clothes[x]).filter(x => x.shop.includes(_shopLocation)).flatMap(x => x.type))]>>
+					<<for _trait range _traitsInThisShop.sort()>>
+						<<silently>><<shopTraitDescription _trait>><</silently>>
 						<div class="filters-trait-row">
 							<label>
-								<<set _checked = $shopClothingFilter.traits.contains(_trait) ? 'checked="checked"' : ''>>
-								<<print '<input type="checkbox" @id="_trait" @value="_trait" ' + _checked + ' onclick="window.shopClothingFilterToggleTrait(this.value)">'>>
+								<<set _checked = $shopClothingFilter.traits.includes(_trait) ? 'checked="checked"' : ''>>
 								<<clothingtrait _trait 'display_normal'>>
-								<span class="capitalize"><<trClothingTrait _trait>></span>
+								<<print '<input type="checkbox" @id="_trait" @value="_trait" ' + _checked + ' onclick="window.shopClothingFilterToggleTrait(this.value)">'>>
+								<<if $noTraitDescription>>
+									<<trClothingTrait _clothesTrait>>_trResult
+								<<else>>
+									<mouse class = "tooltip-small">
+										<<trClothingTrait _clothesTrait>>_trResult
+										<span class="black"><<print _clothesDesc>></span>
+									</mouse>
+								<</if>>
 							</label>
 						</div>
 					<</for>>
@@ -1203,8 +1409,8 @@
 			<br>
 			<<for _col range _colorOptions>><<trColour _col>>
 				<label>
-					<<print '<<radiobutton "$shopDefaults.color" "'+ _trResult +'" ' + ($shopDefaults.color is _col ? "checked" : "") + '>>'>>
-					<<print '<span class="'+ _col +'">' + _trResult + '</span>'>>
+					<<radiobutton "$shopDefaults.color" _trResult autocheck>>
+					<span @class="_col">_trResult</span>
 				</label>
 				|
 			<</for>>
@@ -1213,21 +1419,21 @@
 			<br>
 			<<for _col range _colorOptions>><<trColour _col>>
 				<label>
-					<<print '<<radiobutton "$shopDefaults.secColor" "'+ _trResult +'" ' + ($shopDefaults.secColor is _col ? "checked" : "") + '>>'>>
-					<<print '<span class="'+ _col +'">' + _trResult + '</span>'>>
+					<<radiobutton "$shopDefaults.secColor" _trResult autocheck>>
+					<span @class="_col">_trResult</span>
 				</label>
 				|
 			<</for>>
 			<br><hr>
 
 			<label>
-				<<print '<<checkbox "$shopDefaults.disableReturn" false true ' + ($shopDefaults.disableReturn is true? "checked" : "")+'>>'>>
+				<<checkbox "$shopDefaults.disableReturn" false true autocheck>>
 				옷을 산 후 목록으로 돌아가지 않는다.
 			</label>
 			<br><hr>
 
 			<label>
-				<<print '<<checkbox "$shopDefaults.alwaysBackToShopButton" false true ' + ($shopDefaults.alwaysBackToShopButton is true? "checked" : "")+'>>'>>
+				<<checkbox "$shopDefaults.alwaysBackToShopButton" false true autocheck>>
 				항상 "매장으로 돌아간다" 버튼을 보여준다.
 			</label>
 			<br><hr>
@@ -1255,7 +1461,7 @@
 
 			<div class="high-contrast-example">
 				<label>
-					<<print '<<checkbox "$shopDefaults.highContrast" false true ' + ($shopDefaults.highContrast is true? "checked" : "")+'>>'>>
+					<<checkbox "$shopDefaults.highContrast" false true autocheck>>
 					색상 이름을 고대비로 표시한다.
 				</label>
 				&nbsp;&nbsp;예:&nbsp;&nbsp;
@@ -1266,7 +1472,7 @@
 			<hr>
 
 			<label>
-				<<print '<<checkbox "$shopDefaults.mannequinGenderFromClothes" false true ' + ($shopDefaults.mannequinGenderFromClothes is true? "checked" : "")+'>>'>>
+				<<checkbox "$shopDefaults.mannequinGenderFromClothes" false true autocheck>>
 				마네킹의 성별을 옷의 성별과 맞춘다 (남녀 공용의 경우 아래의 성별을 따라감).
 			</label>
 			<br>
@@ -1289,17 +1495,17 @@
 			<br><hr>
 
 			<label>
-				<<print '<<checkbox "$shopDefaults.compactMode" false true ' + ($shopDefaults.compactMode is true? "checked" : "")+'>>'>>
+				<<checkbox "$shopDefaults.compactMode" false true autocheck>>
 				목록에 표시되는 정보를 줄여 목록을 작게 한다.
 			</label>
 			<br>
 			<label>
-				<<print '<<checkbox "$shopDefaults.noTraits" false true ' + ($shopDefaults.noTraits is true? "checked" : "")+'>>'>>
+				<<checkbox "$shopDefaults.noTraits" false true autocheck>>
 				옷의 특성 아이콘을 숨긴다.
 			</label>
 			<br>
 			<label>
-				<<print '<<checkbox "$shopDefaults.noHelp" false true ' + ($shopDefaults.noHelp is true? "checked" : "")+'>>'>>
+				<<checkbox "$shopDefaults.noHelp" false true autocheck>>
 				목록의 도움말 / 범례 버튼을 보이지 않게 한다.
 			</label>
 		</div>
@@ -1311,7 +1517,7 @@
 		<div class="legend-caption bold gold">범례</div>
 		<br>
 
-		<<if $images is 1>>
+		<<if $options.images is 1>>
 			<div>
 				<img src="img/misc/icon/integrity.png">
 				내구도 등급. 옷이 얼마나 잘 찢어져 조각나지 않는가.
@@ -1328,11 +1534,11 @@
 
 			<div class="legend-2em">
 				<img src="img/misc/icon/options.png">
-				옷가게 옵션.
+				옷 가게 옵션.
 			</div>
 			<div class="legend-2em">
 				<img src="img/misc/icon/filter.png">
-				옷가게 필터.
+				옷 가게 필터.
 			</div>
 			<br>
 		<<else>>
@@ -1370,7 +1576,7 @@
 
 <<widget "warmthscale">>
 	<div class="warmth-scale-container">
-		<<warmthscale-internal $args[0]>>
+		<<warmthscale-internal _args[0]>>
 	</div>
 <</widget>>
 
@@ -1384,10 +1590,10 @@
 <</widget>>
 
 <<widget "warmthscale-internal">>
-	<<if $args[0]>>
-		<<set _newWarmth = $args[0]>>
+	<<if _args[0]>>
+		<<set _newWarmth = _args[0]>>
 	<<elseif $clothes_choice>>
-		<<set _newWarmth = getWarmthWithOtherClothing($clothingShopSlot, $clothes_choice)>>
+		<<set _newWarmth = getWarmthWithOtherClothing(_realSlot, _realIndex)>>
 	<</if>>
 	<<set _warmthData = getWarmthScaleData(_newWarmth)>>
 
@@ -1398,13 +1604,66 @@
 		<div @class="'warm ' + _warmthData.nohot" @style="'width: ' + _warmthData.warm"></div>
 		<div class="hot" @style="'width: ' + _warmthData.hot"></div>
 
-		<<if $clothes_choice or $args[0]>>
+		<<if $clothes_choice or _args[0]>>
 			<div @class="'diff ' + _warmthData.diffUpDown" @style="'left: ' + _warmthData.diffStart + '; width: ' + _warmthData.diffWidth"></div>
 		<</if>>
 	</div>
 
 	<img src="img/misc/icon/warmth_indicator.png" class="warmth-indicator" @style="'left: ' + _warmthData.player">
-	<<if $clothes_choice or $args[0]>>
+	<<if $clothes_choice or _args[0]>>
 		<img src="img/misc/icon/small_uarrow.png" class="warmth-indicator" @style="'left: ' + _warmthData.playerNew">
+	<</if>>
+<</widget>>
+
+<<widget "sendItemsTo">>
+	<div class="returnOptions no-numberify">
+		<<for _label, _value range $wardrobes>>
+			<<if _value.unlocked and _value.shopSend>><<trWardrobeName _value.name>>
+				<<if $wardrobes.shopReturn is _label>>
+					<div class="try-button div-link">
+						<span class="gold"><<print _trResult>></span>
+					</div>
+				<<else>>
+					<div class="try-button div-link">
+						<<capture _label>>
+							<<link _trResult>>
+								<<set $wardrobes.shopReturn to _label>>
+								<<updateclotheslist>>
+								<<updatesidebardescription>>
+								<<updatewarmthscale>>
+								<<updatewarmthdescription>>
+								<<run updateMoment()>>
+							<</link>>
+						<</capture>>
+					</div>
+				<</if>>
+			<</if>>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "sendItemsToDropdown">>
+	<<if $multipleWardrobes is "all">>
+		<label>보내는 옷장:
+		<<set _options to {}>>
+		<<for _label, _value range $wardrobes>>
+			<<if _value.unlocked and !$wardrobes[_label].isolated>>
+				<<trWardrobeName _value.name>><<set _options[_trResult] to _label>>
+			<</if>>
+		<</for>>
+		<<listbox '$wardrobes.shopReturn' autoselect>>
+			<<optionsfrom _options>>
+		<</listbox>>
+		</label>
+		<br>
+	<<else>>
+		<<set $wardrobes.shopReturn to "wardrobe">>
+	<</if>>
+<</widget>>
+
+/*If the player just goes to the shop and puts up their hood, make sure whatever they had on their head doesn't just disappear*/
+<<widget "shopHoodCheck">>
+	<<if $tryOn.tryingOn.head is null and $tryOn.ownedStored.head.name isnot "naked" and $tryOn.ownedStored.head.name isnot $worn.head.name and $worn.head.hood is 1>>
+		<<wardrobeSend "head" $tryOn.ownedStored.head>>
 	<</if>>
 <</widget>>

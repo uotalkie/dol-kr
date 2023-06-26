@@ -1,23 +1,71 @@
 :: Widgets trColour[widget nobr]
 
-<<widget "trColour">>
-    <<trinit_colorList>>
-
-    <<if _koColour.hasOwnProperty($args[0].replace(/\s/gi, "").toLowerCase())>>
-        <<set _trResult to _koColour[$args[0].replace(/\s/gi, "").toLowerCase()]>>
-	<<else>>
-		<<set _colourarray to [$args[0].toLowerCase()].flatMap(function (val) { return val.split(" "); })>>
-		<<if _colourarray.length is 2>>
-			<<set _colourAux to _koColourAux[_colourarray[0]]>>
-			<<set _colourMain to _koColour[_colourarray[1]]>>
-
-			<<if _colourAux is undefined or _colourMain is undefined>>
-				<<set _trResult to $args[0]>>
-			<<else>>
-				<<set _trResult to _colourAux+_colourMain>>
-			<</if>>
-		<<else>>
-			<<set _trResult to $args[0]>>
+<<widget "trColour">><<silently>>
+	<<if _args[0] and typeof _args[0] is "string">>
+		<<if _koColour is undefined>>
+			<<trinit_colorList>>
 		<</if>>
-    <</if>>
-<</widget>>
+		<<set $_colour to _args[0].toLowerCase()>>
+		/* Case 1: 04-Variables/colours.js 에 있는지 찾는다 */
+		<<set $_found to _koColour[$_colour.replace(/[\-\s]/gi, "")]>>
+
+		/* Case 2: 03-JavaScript/colour-namer.js의 커스텀 색상인지 찾는다 */
+		<<if $_found is undefined>>
+			<<if _koColourAux is undefined>>
+				<<trinit_colorAuxList>>
+			<</if>>
+			<<set $_colourNameArray to $_colour.split(" ")>>
+			<<if $_colourNameArray.length is 2>>
+				<<set $_colourAux to _koColourAux[$_colourNameArray[0]]>>
+				<<set $_colourMain to _koColour[$_colourNameArray[1]]>>
+
+				<<if $_colourAux and $_colourMain>>
+					<<set $_found to $_colourAux + " " + $_colourMain>>
+				<</if>>
+			<</if>>
+		<</if>>
+
+		/* Case 3: 03-JavaScript/external/colour-namer.js에서 찾는다 */
+		<<if $_found is undefined>>
+			<<if _koColour2 is undefined>>
+				<<trinit_colorList2>>
+			<</if>>
+			<<set $_foundEntry to _koColour2.find(function(select){
+				if(select.variable == $_colour or select.name == $_colour) {return true;}
+				})>>
+			<<if $_foundEntry>>
+				<<set $_found to $_foundEntry.koname>>
+			<</if>>
+		<</if>>
+		
+		<<if $_found is undefined>>
+			/* 없음 */
+			<<set _trResult to "trColour에 정의되지 않음: " + _args[0]>>
+		<<else>>
+			<<set _trResult to $_found>>
+			<<if _args[1]>>
+				<<getPostNum _trResult>>
+				<<trPost _postNum _args[1] _args[2]>>
+			<</if>>
+		<</if>>
+	<<else>>
+		/* 옷의 색 같은 경우 색상지정이 없는 경우가 있음 */
+		<<set _trResult to "">>
+	<</if>>
+<</silently>><</widget>>
+
+:: Scripts trColour [script]
+/* 03-Javascript/eyesRelated.js 에서 눈/콘택트 렌즈 색상 번역이 필요하여 추가하는 간단 js코드
+   만약 퍼포먼스에 문제가 생기면 trColour 위젯 자체를 js화 하는 것을 생각해볼것 */
+function trColourJS(colour, post, sep)
+{
+	let cmdText = '<<trColour "' + colour + '"';
+	if (post)
+		cmdText += ' "' + post + '"';
+	if (sep)
+		cmdText += ' "' + sep + '"';
+	cmdText += ">>";
+	Wikifier.wikifyEval(cmdText);
+	return T.trResult;
+}
+window.trColourJS = trColourJS;

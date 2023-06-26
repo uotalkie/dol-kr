@@ -1,15 +1,15 @@
 :: Riding School Lock
 <<set $outside to 1>><<effects>><<set $lock to 200>>
-<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
 	<br><br>
-	<<link [[Pick it (0:10)|Riding School]]>><<pass 10>><<crimeup 20>><</link>><<crime>>
+	<<link [[자물쇠를 딴다 (0:10)|Riding School]]>><<pass 10>><<crimeup 20>><</link>><<crime>>
 	<br>
 <<else>>
-	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력 바깥의 물건이다.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<link [[Leave|Farmland]]>><</link>>
+<<link [[떠난다|Farmland]]>><</link>>
 <br>
 
 :: Riding School
@@ -18,26 +18,26 @@
 You are at Remy's riding school. Stables surround a central courtyard. A small office sits to one side. A dirt track leads into the surrounding countryside. Lessons cost £25.
 <br><br>
 
-<<if $daystate isnot "night" and $hour isnot $closinghour>>
+<<if Time.dayState isnot "night" and Time.hour isnot $closinghour>>
 	Several people chat in the courtyard, waiting for the next lesson to begin.
 	<br><br>
 <</if>>
 
 <<if $stress gte $stressmax>>
 	<<passoutfarmroad>>
-<<elseif $hour is $closinghour>>
+<<elseif Time.hour is $closinghour>>
 	It's closing time. The horses are being herded into their stables, and the customers from the grounds. <<if $exposed gte 1>>You skulk away before anyone sees your <<lewdness>>.<</if>>
 	<br><br>
 
-	<<link [[Next|Farmland]]>><</link>>
+	<<link [[다음|Farmland]]>><</link>>
 	<br>
-<<elseif $daystate is "night">>
-	<<if $hour isnot $closinghour and $ridingschooltheft isnot 1>>
+<<elseif Time.dayState is "night">>
+	<<if Time.hour isnot $closinghour and !$weekly.theft.ridingSchool>>
 		<<link [[Examine the office building|Riding School Register]]>><</link>>
 		<br>
 	<</if>>
 
-	<<link [[Leave|Farmland]]>><</link>>
+	<<link [[떠난다|Farmland]]>><</link>>
 	<br>
 <<else>>
 	<<if $ridingschoolintro is undefined>>
@@ -52,7 +52,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<<He>> spurs <<his>> horse to a trot, and rides away.
 			<br><br>
 
-			<<link [[Next|Riding School]]>><<endevent>><</link>>
+			<<link [[다음|Riding School]]>><<endevent>><</link>>
 			<br>
 		<<elseif $remy_seen is "farm">>
 			<<npc Remy>><<person1>>A horse trots up to you. Upon its back sits Remy, <<if $pronoun is "m">><<his>> short, pale brown hair flicking in the breeze<<else>><<his>> pale brown hair tied in a neat bun<</if>>.
@@ -63,7 +63,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<<He>> spurs <<his>> horse to a trot, and rides away.
 			<br><br>
 
-			<<link [[Next|Riding School]]>><<endevent>><</link>>
+			<<link [[다음|Riding School]]>><<endevent>><</link>>
 			<br>
 		<<else>>
 			<<npc Remy>><<person1>>A horse trots up to you. Upon its back sits a <<if $pronoun is "m">>man with short, pale brown hair flicking in the breeze<<else>>woman with pale brown hair tied in a neat bun<</if>>.
@@ -75,7 +75,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<<He>> spurs <<his>> horse to a trot, and rides away.
 			<br><br>
 
-			<<link [[Next|Riding School]]>><<endevent>><</link>>
+			<<link [[다음|Riding School]]>><<endevent>><</link>>
 			<br>
 		<</if>>
 		<<set $remy_seen to "riding_school">>
@@ -89,17 +89,22 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 		<<He>> spurs <<his>> horse to a trot, and rides away.
 		<br><br>
 
-		<<link [[Next|Riding School]]>><<endevent>><</link>>
+		<<link [[다음|Riding School]]>><<endevent>><</link>>
 		<br>
 		<<set $remy_seen to "riding_school">>
 	<<else>>
 
 		<<if $money gte 2500>>
-			<<link [[Take riding lesson (1:00)|Riding School Lesson]]>><<set $riding_lesson to 0>><<set $money -= 2500>><<set $thighskill += 12>><</link>><<gtiredness>> | <span class="green">+ Thigh skill</span>
+			<<link [[Take riding lesson (1:00)|Riding School Lesson]]>><<set $riding_lesson to 0>><<set $money -= 2500>><<thighskill 18>><</link>><<gtiredness>><<gthighskill>>
 			<br>
 		<</if>>
 
-		<<link [[Leave|Farmland]]>><</link>>
+		<<if isPubfameTaskAccepted("remy")>>
+			<<link [[Look for Landry's contact (0:20)|Riding School Contact]]>><<pass 20>><</link>>
+			<br>
+		<</if>>
+
+		<<link [[떠난다|Farmland]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -114,7 +119,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 		<br><br>
 	<</if>>
 	<!-- Modified for Monster People -->
-	<<if ($monsterchance gte 1 and $hallucinations gte 1) or ($monsterchance gte 1 and $monsterhallucinations is "f") or ($bestialitydisable is "t")>>
+	<<if ($monsterchance gte 1 and $hallucinations gte 1) or ($monsterchance gte 1 and $monsterhallucinations is "f")>>
 		<<if $malechance lt random(1, 100)>>
 			Remy assigns you to a centaur, who watches as you <<thightext>> climb into the saddle.
 			<<set $steed to "female">>
@@ -155,17 +160,18 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 	Remy leads you back to the dirt track leading to the riding school. The <<steed_text>> looks tired. <<steed_He>> must be looking forward to a rest.
 	<br><br>
 
-	<<link [[Next|Riding School]]>><<unset $steed>><</link>>
+	<<link [[다음|Riding School]]>><<unset $steed>><</link>>
 	<br>
 <<else>>
 	<<set $riding_lesson += 1>><<pass 20>><<tiredness 2>>
-	<<set $rng to random(1, 100)>>
+	<<rng>>
 	<<set $danger to random(1, 10000)>>
 	<<if $danger gte (9900 - $allure)>>
-		<<if $rng gte 81>>
+		<<if $rng gte 81 and $horsedisable is "f">>
 			Remy leads you to an open field. The steeds are eager to frolic, and become harder to control.
 			<br><br>
 			<!-- Modified for Monster People -->
+			<<if $steed isnot "mare" and $steed isnot "stallion" or $bestialitydisable is "f">>
 				<<if $thighskill gte 200>>
 					Your <<steed_text>> bolts. You manage to remain steady, but nothing you do convinces the steed to stop.
 				<<else>>
@@ -181,13 +187,14 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 				<br>
 				<<link [[Brace yourself|Riding School Lesson Brace]]>><</link>>
 				<br>
-				<!-- You manage to keep yours in line, but some of the newer students lose control. Remy gallops after them, herding them back to the others. -->
-				<!-- Your <<steed_text>> lurches aside, and gallops. You throw your arms around <<steed_his>> neck and cling as hard as you can, until Remy catches up and grasps the reins, pulling you to a stop.<<gstress>><<stress 6>> -->
-				<!-- <br><br> -->
+			<<else>>
+				You manage to keep yours in line, but some of the newer students lose control. Remy gallops after them, herding them back to the others.
+				Your <<steed_text>> lurches aside, and gallops. You throw your arms around <<steed_his>> neck and cling as hard as you can, until Remy catches up and grasps the reins, pulling you to a stop.<<gstress>><<stress 6>>
+				<br><br>
 
-				<!-- <<link [[Next|Riding School Lesson]]>><</link>> -->
-				<!-- <br> -->
-
+				<<link [[다음|Riding School Lesson]]>><</link>>
+				<br>
+			<</if>>
 		<<elseif $rng gte 61>>
 			<<npc Remy>><<person1>>
 			Remy leads you to a smooth lane, and pushes <<his>> steed to a trot. The other horses follow suit.
@@ -215,10 +222,10 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<<elseif $worn.upper.type.includes("naked")>>
 				<<if $worn.under_upper.type.includes("naked")>>
 					<!-- Full topless -->
-					A <<person>> rides alongside you. <<He>> leans over and grasps your <<breasts>>, squeezing and fondling.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+					A <<person>> rides alongside you. <<He>> leans over and grasps your <<breasts>>, squeezing and fondling.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600 "breasts">>
 				<<else>>
 					<!-- Generic undertop -->
-					A <<person>> rides alongside you. <<He>> leans over and grasps your <<breasts>> through your $worn.under_upper.name, squeezing and fondling.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+					A <<person>> rides alongside you. <<He>> leans over and grasps your <<breasts>> through your $worn.under_upper.name, squeezing and fondling.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600 "breasts">>
 				<</if>>
 
 					<br><br>
@@ -255,7 +262,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 
 			<<else>>
 				<!-- Generic top / one-piece clothing -->
-				A <<person>> rides alongside you. <<He>> leans over and grasps your <<breasts>> through your $worn.upper.name, squeezing and fondling.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+				A <<person>> rides alongside you. <<He>> leans over and grasps your <<breasts>> through your $worn.upper.name, squeezing and fondling.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600 "breasts">>
 
 				<br><br>
 				You bat <<his>> arm away before anyone sees. <<He>> shoots you a mocking smirk before riding on.
@@ -264,7 +271,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 
 			<<link [[Get revenge|Riding School Lesson Revenge]]>><<def 1>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
 			<br>
-			<<link [[Ignore|Riding School Lesson]]>><<endevent>><</link>>
+			<<link [[무시한다|Riding School Lesson]]>><<endevent>><</link>>
 			<br>
 
 		<<elseif $rng gte 41>>
@@ -287,15 +294,15 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<</if>>
 			<br><br>
 
-			<<link [[Next|Riding School Lesson]]>><</link>>
+			<<link [[다음|Riding School Lesson]]>><</link>>
 			<br>
 		<<elseif $rng gte 21>>
 			A <<generate1>><<person1>><<person>> rides up to you. Seems <<he>> wants to chat.
 			<br><br>
 
-			<<link [[Chat|Riding School Lesson Proposition]]>><<ltrauma>><<lstress>><</link>><<ltrauma>><<lstress>>
+			<<link [[대화한다|Riding School Lesson Proposition]]>><<ltrauma>><<lstress>><</link>><<ltrauma>><<lstress>>
 			<br>
-			<<link [[Ignore|Riding School Lesson Ignore]]>><</link>>
+			<<link [[무시한다|Riding School Lesson Ignore]]>><</link>>
 			<br>
 		<<else>>
 			You ride up a hill, into a dense thicket. The canopy scratches and tears at your clothes.
@@ -321,7 +328,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<</if>>
 			<br><br>
 
-			<<link [[Next|Riding School Lesson]]>><</link>>
+			<<link [[다음|Riding School Lesson]]>><</link>>
 			<br>
 		<<elseif $rng gte 61>>
 			<<npc Remy>><<person1>>
@@ -333,21 +340,21 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<</if>>
 			<br><br>
 
-			<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+			<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 			<br>
 		<<elseif $rng gte 41>>
 			Remy leads you across a tranquil meadow.<<lstress>><<stress -6>>
 			<br><br>
 
-			<<link [[Next|Riding School Lesson]]>><</link>>
+			<<link [[다음|Riding School Lesson]]>><</link>>
 			<br>
 		<<elseif $rng gte 21>>
 			<<generate1>><<person1>>A <<person>> rides alongside you. Seems <<he>> wants to chat.
 			<br><br>
 
-			<<link [[Chat|Riding School Lesson Chat]]>><<ltrauma>><<lstress>><</link>><<ltrauma>><<lstress>>
+			<<link [[대화한다|Riding School Lesson Chat]]>><<ltrauma>><<lstress>><</link>><<ltrauma>><<lstress>>
 			<br>
-			<<link [[Ignore|Riding School Lesson Ignore]]>><</link>>
+			<<link [[무시한다|Riding School Lesson Ignore]]>><</link>>
 			<br>
 
 		<<else>>
@@ -356,7 +363,7 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 
 			<<link [[Grab one|Riding School Lesson Grab]]>><</link>>
 			<br>
-			<<link [[Ignore|Riding School Lesson]]>><</link>>
+			<<link [[무시한다|Riding School Lesson]]>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -369,13 +376,13 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 	You tell the <<steed_text>> to stop. <span class="green">It hears the urgency in your voice,</span> and halts in its tracks. You fumble with the branch until you manage to free your $worn.lower.name, then spur on your steed once more.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson]]>><</link>>
+	<<link [[다음|Riding School Lesson]]>><</link>>
 	<br>
 <<else>>
 	You tell the <<steed_text>> to stop. <span class="red"><<steed_He>> ignores you.</span> You cling on tight as the branch continues to tug.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson Hold]]>><</link>>
+	<<link [[다음|Riding School Lesson Hold]]>><</link>>
 	<br>
 <</if>>
 
@@ -401,10 +408,10 @@ You cling to the saddle. The branch pulls against your <<print $worn[_slot].name
 			<<link [[Ask Remy for something to cover with|Riding School Lesson Ask]]>><<trauma 6>><<stress 6>><<npcincr Remy dom 1>><<fameexhibitionism 10>><</link>><<gtrauma>><<gstress>><<gdom>>
 			<br>
 		<<else>>
-			You feel a tear, and look behind you. The tattered remains of your $worn.over_lower.name hang from the branch. The wind snatches it into the canopy.</span>
+			You feel a tear, and look behind you. <span class="red">The tattered remains of your $worn.over_lower.name hang from the branch. The wind snatches it into the canopy.</span>
 			<br><br>
 
-			<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+			<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 		<</if>>
 		<<integritycheck no_text>><<exposure>>
 	<<else>>
@@ -412,7 +419,7 @@ You cling to the saddle. The branch pulls against your <<print $worn[_slot].name
 		Your clothing is worse for wear, but you manage to remain in the saddle.
 		<br><br>
 
-		<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+		<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 		<br>
 	<</if>>
 <<elseif $worn.lower.integrity lte 50>>
@@ -432,7 +439,7 @@ You cling to the saddle. The branch pulls against your <<print $worn[_slot].name
 	Your clothing is worse for wear, but you manage to remain in the saddle.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+	<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -445,7 +452,7 @@ The branch pulls you from the saddle, and you thud to the dirt.
 You run to catch up with your <<steed_text>>. Someone laughs as you climb atop it.
 <br><br>
 
-<<link [[Next|Riding School Lesson]]>><</link>>
+<<link [[다음|Riding School Lesson]]>><</link>>
 <br>
 
 :: Riding School Lesson Ask
@@ -463,7 +470,7 @@ You ride up the procession, doing your best to keep yourself covered. You hope n
 <<if random(1, 2) is 2>>
 	"Get dressed, <<girl>>!"
 <<else>>
-	"No compliants from me."
+	"No complaints from me."
 <</if>>
 <br>
 <<if random(1, 2) is 2>>
@@ -478,7 +485,7 @@ You're blushing furiously when you reach Remy. <<He>> regards you with amusement
 <br><br>
 
 <<towelup>>
-<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 <br>
 
 :: Riding School Lesson Ride
@@ -489,7 +496,7 @@ You steer the <<steed_text>> into the trees, away from prying eyes. You ride dow
 
 Perhaps there are clothes inside.
 <<if $physiquesize lte 6000>>
-	If you move some of the smaller bits of debris, you small frame should have no trouble squeezing through.
+	If you move some of the smaller bits of debris, your small frame should have no trouble squeezing through.
 <<else>>
 <</if>>
 <br><br>
@@ -509,7 +516,7 @@ Perhaps there are clothes inside.
 You drop to your knees, scoop out some of the debris, then squeeze into the dark and dusy interior.
 <br><br>
 
-<<link [[Next|Riding School Lesson Building]]>><</link>>
+<<link [[다음|Riding School Lesson Building]]>><</link>>
 <br>
 
 :: Riding School Lesson Crawl
@@ -519,15 +526,15 @@ You drop to your knees and crawl inside. The interior is dark and dusty. You get
 <br><br>
 
 <!-- Modified for Monster People -->
-	<<if $horsedisable is "f">>
+	<<if $horsedisable is "f" and $analingusdisablereceiving is "f" and ($steed isnot "mare" and $steed isnot "stallion" or $bestialitydisable is "f")>>
 		You push against the wall and wiggle your hips. You're making progress, but then something wet touches your <<bottom>>. It's a tongue.
 
 		<<if $steed is "male" or $steed is "female">>
-			"I can't help it," says the centaur, <<steed_his>> voice muffled by the rubble. "Your skin is so salty."<<gstress>><<garousal>><<stress 6>><<arousal 600>>
+			"I can't help it," says the centaur, <<steed_his>> voice muffled by the rubble. "Your skin is so salty."<<gstress>><<garousal>><<stress 6>><<arousal 600 "bottom">>
 			<br><br>
 
 		<<else>>
-			A very long tongue. Its the horse.<<gstress>><<garousal>><<stress 6>><<arousal 600>>
+			A very long tongue. It's the horse.<<gstress>><<garousal>><<stress 6>><<arousal 600 "bottom">>
 			<br><br>
 		<</if>>
 
@@ -535,13 +542,13 @@ You drop to your knees and crawl inside. The interior is dark and dusty. You get
 		<br>
 		<<link [[Kick|Riding School Lesson Kick]]>><</link>><<physiquedifficulty 4000 $physiquemax>>
 		<br>
-		<<link [[Endure|Riding School Lesson Endure]]>><<trauma 6>><<stress 6>><<arousal 600>><</link>><<gtrauma>><<gstress>><<garousal>>
+		<<link [[Endure|Riding School Lesson Endure]]>><<trauma 6>><<stress 6>><<arousal 600 "bottom">><</link>><<gtrauma>><<gstress>><<garousal>>
 		<br>
 	<<else>>
 		You push against the wall and wiggle your hips, until you at last slide through.<<gpain>><<pain 4>>
 		<br><br>
 
-		<<link [[Next|Riding School Lesson Building]]>><</link>>
+		<<link [[다음|Riding School Lesson Building]]>><</link>>
 		<br>
 	<</if>>
 
@@ -560,7 +567,7 @@ You drop to your knees and crawl inside. The interior is dark and dusty. You get
 
 <<if $tendingSuccess>>
 	<<if $steed is "male" or $steed is "female">>
-		"Sorry," the <<steed_text>> says. <span class="green">It backs a way from you.</span>
+		"Sorry," the <<steed_text>> says. <span class="green">It backs away from you.</span>
 	<<else>>
 		The <<steed_text>> responds to something in your voice, <span class="green">and backs away from you.</span>
 	<</if>>
@@ -568,14 +575,14 @@ You drop to your knees and crawl inside. The interior is dark and dusty. You get
 	You keep pushing against the wall until, at last, your hips slide through. You climb to your feet.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson Building]]>><</link>>
+	<<link [[다음|Riding School Lesson Building]]>><</link>>
 	<br>
 
 <<else>>
 	<span class="red">The <<steed_text>> ignores you.</span> <<steed_He>> continues the assault.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson Endure]]>><</link>>
+	<<link [[다음|Riding School Lesson Endure]]>><</link>>
 	<br>
 <</if>>
 
@@ -587,7 +594,7 @@ You drop to your knees and crawl inside. The interior is dark and dusty. You get
 	<br><br>
 
 
-	<<link [[Next|Riding School Lesson Building]]>><</link>>
+	<<link [[다음|Riding School Lesson Building]]>><</link>>
 	<br>
 <<else>>
 	<<if $steed is "male" or $steed is "female">>
@@ -599,7 +606,7 @@ You drop to your knees and crawl inside. The interior is dark and dusty. You get
 	<<steed_He>> continues the assault.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson Endure]]>><</link>>
+	<<link [[다음|Riding School Lesson Endure]]>><</link>>
 	<br>
 <</if>>
 
@@ -623,7 +630,7 @@ You brace yourself.
 	<</if>>
 
 	You feel <<steed_his>> breath against your cheeks a moment before the tongue assaults your rear again.
-	<<if $worn.genitals.anal_shield is 1>>
+	<<if playerChastity("anus")>>
 		Your $worn.genitals.name proves no defence against the squirming menace.
 	<<else>>
 
@@ -646,7 +653,7 @@ You brace yourself.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Riding School Lesson Building]]>><</link>>
+	<<link [[다음|Riding School Lesson Building]]>><</link>>
 	<br>
 <<else>>
 	<<if !$worn.under_lower.type.includes("naked")>>
@@ -660,7 +667,7 @@ You brace yourself.
 	<<else>>
 	<</if>>
 	You feel <<steed_his>> breath against your cheeks a moment before the tongue assaults your rear again.
-	<<if $worn.genitals.anal_shield is 1>>
+	<<if playerChastity("anus")>>
 		Your $worn.genitals.name proves no defence against the squirming menace.
 	<<else>>
 
@@ -683,7 +690,7 @@ You brace yourself.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Riding School Lesson Building]]>><</link>>
+	<<link [[다음|Riding School Lesson Building]]>><</link>>
 	<br>
 <</if>>
 
@@ -701,7 +708,7 @@ You open the doors, and cough at the scatter of dust. Something heavy thuds to t
 You almost panic, but the pin is still in. It also looks old. So old that it can't still be live, surely. A collector would be interested in this.
 <br><br>
 
-<<link [[Next|Riding School Lesson Building 2]]>><</link>>
+<<link [[다음|Riding School Lesson Building 2]]>><</link>>
 <br>
 
 :: Riding School Lesson Building 2
@@ -713,7 +720,7 @@ There are no clothes in the cabinet, but there is an old towel. It's still in go
 You mount your <<steed_text>>, and spur it toward the thicket. You ride up the hill, until you find the dirt road. The procession is gone, so you trot until you catch up to them.
 <br><br>
 
-<<link [[Next|Riding School Lesson]]>><</link>>
+<<link [[다음|Riding School Lesson]]>><</link>>
 <br>
 
 :: Riding School Lesson Plants
@@ -725,7 +732,7 @@ You search among the wild grass for suitable material. You find a number of firm
 You mount your <<steed_text>>, and spur it toward the thicket. You ride up the hill, until you find the dirt road. The procession is gone, so you trot until you catch up to them.
 <br><br>
 
-<<link [[Next|Riding School Lesson]]>><</link>>
+<<link [[다음|Riding School Lesson]]>><</link>>
 <br>
 
 :: Riding School Lesson Revenge
@@ -752,12 +759,7 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 	<span class="green"><<He>> turns away from you.</span> You grasp the hem of <<his>> shirt, and after a brief struggle, tug it up and over <<his>> head.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-		<</if>>
+	<<skulduggeryuse>>
 
 
 	<<if $pronoun is "f">>
@@ -774,7 +776,7 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 	Remy ends the chase by riding in front of you, but not before everyone in the class gets to see the <<persons>> humiliation. <<He>> snatches the shirt back with a huff.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+	<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 	<br>
 
 <<else>>
@@ -783,17 +785,12 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 	<br><br>
 
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
 	The <<person>> laughs as you climb back into your saddle.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+	<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 	<br>
 
 <</if>>
@@ -808,7 +805,7 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 	You can't contain the smirk as you ride away.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+	<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	You try to shove the <<person>>, <span class="red">but slip from the saddle</span>. You tumble to the dirt.
@@ -817,7 +814,7 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 	The <<person>> laughs as you climb back atop your <<steed_text>>.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+	<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -826,7 +823,7 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 
 <<if $steed is "male" or $steed is "female">>
 	<<if $submissive gte 1150>>
-		"Pl-please don't hurt me," you say, trying to remain calm. "I didn't do anything to hurt you."
+		"P-please don't hurt me," you say, trying to remain calm. "I didn't do anything to hurt you."
 	<<elseif $submissive lte 850>>
 		"Knock if off," you say, trying to remain calm. "Or I'll knock some sense into you."
 	<<else>>
@@ -848,13 +845,13 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 	You ride back to the others. You hear voices calling as you draw closer, until you crest a ridge and see the rest of the procession. Remy rides over to make sure you and your steed are okay.
 	<br><br>
 
-	<<link [[Next|Riding School Lesson]]>><</link>>
+	<<link [[다음|Riding School Lesson]]>><</link>>
 	<br>
 <<else>>
 	<span class="red">The <<steed_text>> charges,</span> knocking you down and taking position above you.
 	<br><br>
 
-	<<link [[Next|Riding School Horse Rape]]>><<set $molestationstart to 1>><</link>>
+	<<link [[다음|Riding School Horse Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -864,20 +861,18 @@ You lean behind the <<person>>, and tap <<him>> on the opposite shoulder.
 You brace yourself as the horse charges, knocking you down and taking position above you.
 <br><br>
 
-<<link [[Next|Riding School Horse Rape]]>><<set $molestationstart to 1>><</link>>
+<<link [[다음|Riding School Horse Rape]]>><<set $molestationstart to 1>><</link>>
 <br>
 
 :: Riding School Horse Rape
 <<if $molestationstart is 1>>
-<<set $molestationstart to 0>>
-<<controlloss>>
-<<violence 1>>
-<<neutral 1>>
-<<molested>>
-
-<<steed_init>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<steed_init>>
 	<<beastCombatInit>>
-
 <</if>>
 
 <<effects>>
@@ -885,17 +880,14 @@ You brace yourself as the horse charges, knocking you down and taking position a
 <br><br>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-<span id="next"><<link [[Next|Riding School Horse Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-<span id="next"><<link [[Next|Riding School Horse Rape Finish]]>><</link>></span><<nexttext>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Riding School Horse Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Riding School Horse Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Riding School Horse Rape Finish
@@ -929,7 +921,7 @@ The <<steed_text>> rears up and away from you, where it loses its footing and sl
 You ride back to the others. You hear voices calling as you draw closer, until you crest a ridge and see the rest of the procession. Remy rides over to make sure you and your steed are okay.
 <br><br>
 
-<<link [[Next|Riding School Lesson]]>><</link>>
+<<link [[다음|Riding School Lesson]]>><</link>>
 <br>
 
 :: Riding School Lesson Grab
@@ -941,7 +933,7 @@ You reach up, and manage to snag one off the branch. Greens and purples blend to
 "Don't eat the fruit," Remy says from further up the procession. "It's toxic without preparation."
 <br><br>
 
-<<link [[Eat it anyway|Riding School Lesson Eat]]>><<def 1>><<set $drugged += 60>><<stress -6>><</link>><<garousal>><<lstress>>
+<<link [[Eat it anyway|Riding School Lesson Eat]]>><<def 1>><<drugs 60>><<stress -6>><</link>><<garousal>><<lstress>>
 <br>
 <<link [[Throw it away|Riding School Lesson]]>><</link>>
 <br>
@@ -958,7 +950,7 @@ You eat until only a large seed remains. You throw it aside.
 A few moments later you feel lightheaded. An unnatural warmth builds within you.
 <br><br>
 
-<<link [[Next|Riding School Lesson]]>><</link>>
+<<link [[다음|Riding School Lesson]]>><</link>>
 <br>
 
 :: Riding School Lesson Chat
@@ -979,7 +971,7 @@ You have a pleasant time chatting with the <<person>>.
 <</if>>
 <br><br>
 
-<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 <br>
 
 :: Riding School Lesson Ignore
@@ -988,7 +980,7 @@ You have a pleasant time chatting with the <<person>>.
 You pull away from the <<person>>.
 <br><br>
 
-<<link [[Next|Riding School Lesson]]>><<endevent>><</link>>
+<<link [[다음|Riding School Lesson]]>><<endevent>><</link>>
 <br>
 
 :: Riding School Lesson Proposition
@@ -997,9 +989,9 @@ You pull away from the <<person>>.
 You have a pleasant time chatting with the <<person>>, until <<he>> leans over. "How about we find somewhere secluded?" <<he>> whispers. "They won't notice we're gone."
 <br><br>
 
-<<link [[Accept|Riding School Lesson Accept]]>><</link>><<promiscuous1>>
+<<link [[받아들인다|Riding School Lesson Accept]]>><</link>><<promiscuous1>>
 <br>
-<<link [[Refuse|Riding School Lesson Ignore]]>><</link>>
+<<link [[거절한다|Riding School Lesson Ignore]]>><</link>>
 <br>
 
 :: Riding School Lesson Accept
@@ -1013,7 +1005,7 @@ You duck under a bough, and arrive in a small and sheltered clearing. The <<pers
 
 <<He>> pulls you atop <<him>> as soon as you step close enough.<<promiscuity1>>
 
-<<link [[Next|Riding School Lesson Sex]]>><<set $sexstart to 1>><</link>>
+<<link [[다음|Riding School Lesson Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
 :: Riding School Lesson Sex
@@ -1024,23 +1016,21 @@ You duck under a bough, and arrive in a small and sheltered clearing. The <<pers
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 100>>
 <</if>>
+
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Riding School Lesson Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Riding School Lesson Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Riding School Lesson Sex Finish]]>><</link>></span><<nexttext>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Riding School Lesson Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Riding School Lesson Sex]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Riding School Lesson Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Riding School Lesson Sex Finish
@@ -1063,5 +1053,289 @@ You duck under a bough, and arrive in a small and sheltered clearing. The <<pers
 <<endcombat>>
 <<tearful>> you climb atop your <<steed_text>>. You follow the track back to the procession, and trot to catch up.
 <br><br>
-<<link [[Next|Riding School Lesson]]>><</link>>
+<<link [[다음|Riding School Lesson]]>><</link>>
 
+:: Riding School Contact
+<<effects>><<set $pubfame.remy.attempts++>>
+
+You look around the courtyard for anyone on their own. Most students are in groups of two or three, chatting idly, but you see a few stragglers around.
+<br><br>
+
+<<generate1>><<person1>>
+A <<person>> catches your eye, <<print either("leaning against the fence","leaning against a stable","scrolling on <<his>> phone","idly walking in circles")>>. "Excuse me," you say, approaching <<him>>. "Where do the flowers bloom?"
+<br><br>
+
+<<rng>>
+<<if $rng gte 86 or $pubfame.remy.attempts % 10 is 0>> <!-- 15% chance. Correct answer. Also guaranteed correct answer after ten failed attempts -->
+	<<set $phase to 1>>
+	<<set _looks to ["doesn't look","doesn't look","doesn't look","glances"][random(3)]>>
+	<<set _password to 0>>
+<<elseif $rng gte 51>> <!-- 35% chance. Wrong or almost answer, leads to rape -->
+	<<set $phase to 2>>
+	<<set _looks to ["doesn't look","doesn't look","doesn't look","glances"][random(3)]>>
+	<<set _password to ["wrong","wrong","wrong","almost","almost"][random(4)]>>
+<<elseif $rng gte 31>> <!-- 20% chance. Wrong or almost answer answer, leads to capture -->
+	<<set $phase to 3>>
+	<<set _looks to ["doesn't look","glances","glances","glances"][random(3)]>>
+	<<set _password to ["wrong","wrong","wrong","almost","almost"][random(4)]>>
+<<elseif $rng gte 26>> <!-- 5% chance. Correct answer, leads to capture-->
+	<<set $phase to 4>>
+	<<set _looks to ["doesn't look","glances","glances","glances"][random(3)]>>
+	<<set _password to 0>>
+<<else>> <!-- 30% chance. No password at all -->
+	<<set _failed to true>>
+	<<He>> stares at you blankly for a second.
+	"<<print either(
+		"Is that a riddle? I'm no good with riddles.",
+		"There's a farm just up the road, try there.",
+		"I'm not interested in your cult, <<girl>>.",
+		"Is that a... reference to something?",
+		"I'm in the middle of something.",
+		"I have a <<spouse>>."
+	)>>" <<He>> turns <<his>> back to you.
+	<br><br>
+
+	<<if Time.hour isnot $closinghour>>
+		<<link [[Find someone else (0:20)|Riding School Contact]]>><<pass 20>><<endevent>><</link>>
+		<br>
+		<<link [[Give up for now|Riding School]]>><<endevent>><</link>>
+	<<else>>
+		It's closing time. The horses are being herded into their stables, and the customers from the grounds. <<if $exposed gte 1>>You skulk away before anyone sees your <<lewdness>>.<</if>>
+		<br><br>
+
+		<<link [[Next|Farmland]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+<<if !_failed>>
+	<<He>> _looks at you. "<<pubfameRemyPassword _password "cap">>," <<he>> says. <<He>> turns around and walks behind a stable.
+	<<if $awareness gte 1000 and $phase gte 3>>
+		<br>
+		<span class="purple">You notice Remy watching you out of the corner of your eye.</span>
+	<</if>>
+	<br><br>
+
+	<<link [["Follow " + $NPCList[0].pronouns.him|Riding School Contact Follow]]>><</link>>
+	<br>
+	<<link [[Leave|Riding School Contact Leave]]>><<set $phase to Math.ceil($phase / 2)>><</link>>
+<</if>>
+
+:: Riding School Contact Leave
+<<effects>>
+You shake your head and walk away.
+<<if $phase is 1>>
+	The <<person>> looks confused, but doesn't pursue you.
+<<else>>
+	You hear the <<person>> click <<his>> tongue in disappointment, but <<he>> doesn't pursue you.
+<</if>>
+<br><br>
+
+<<if Time.hour isnot $closinghour>>
+	<<link [[Find someone else (0:20)|Riding School Contact]]>><<pass 20>><<endevent>><</link>>
+	<br>
+	<<link [[Give up for now|Riding School]]>><<endevent>><</link>>
+<<else>>
+	It's closing time. The horses are being herded into their stables, and the customers from the grounds. <<if $exposed gte 1>>You skulk away before anyone sees your <<lewdness>>.<</if>>
+	<br><br>
+
+	<<link [[Next|Farmland]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Riding School Contact Follow
+<<effects>>
+
+You follow the <<person>> behind the stable.
+<br><br>
+
+<<switch $phase>>
+	<<case 1>>
+		<<He>> digs around in a hay bale for a moment, before pulling out a small black box, about the size of your hand. <<He>> leaves it on the hay and walks out without a word, the opposite way <<he>> came from.
+		<br><br>
+
+		You pick up the box. You don't see any visible seams or openings, and running your fingers over it, you don't feel any either. It sounds hollow when you tap it, but you can't tell if there's anything inside.
+		<br><br>
+
+		<<pubfameComplete "remy">>
+
+		<<link [[다음|Riding School]]>><<endevent>><</link>>
+	<<case 2>>
+		<<He>> stands there for a few seconds, before suddenly <span class="red">lunging for you, knocking you into a pile of hay</span>. "Don't know what you're on about," <<he>> laughs. "And I don't care."
+		<br><br>
+
+		<<link [[Next|Riding School Contact Rape]]>><<set $molestationstart to 1>><</link>>
+	<<case 3>>
+		<<generate2>><<generate3>>
+		<<He>> stands there for a few seconds, before suddenly lunging for you and grabbing your arms, pinning them to your sides. "Don't know what you're on about," <<he>> laughs. "But figured if I went along with it, you'd be an easy gain."
+		<br><br>
+
+		A <<person2>><<person>> and <<person3>><<person>> walk toward you, the <<person2>><<person>> holding a rag and bottle. <<He>> approaches you, grinning.
+		<br><br>
+
+		<<link [[Fight|Riding School Contact Fight]]>><<set $fightstart to 1>><</link>>
+		<br>
+		<<link [[Give in|Riding School Contact Give]]>><</link>>
+	<<case 4>>
+		<<generate2>><<generate3>>
+		<<He>> digs around in a hay bale for a moment, before pulling out a small black box, about the size of your hand. <<He>> examines it for a moment, before <span class="red">tossing it to the side and lunging for you</span>. <<He>> grabs your arms, pinning them to your sides. "Some bridges are worth burning, if there's enough of a payout," <<he>> laughs. "Tell Landry <<nnpc_he "Landry">> can get bent."
+		<br><br>
+
+		A <<person2>><<person>> and <<person3>><<person>> walk toward you, the <<person2>><<person>> holding a rag and bottle. <<He>> approaches you, grinning.
+		<br><br>
+
+		<<pubfameComplete "remy" "betray">>
+
+		<<link [[Fight|Riding School Contact Fight]]>><<set $fightstart to 1>><</link>>
+		<br>
+		<<link [[Give in|Riding School Contact Give]]>><</link>>
+<</switch>>
+
+:: Riding School Contact Rape
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<set $enemyanger to 20>>
+<</if>>
+
+<<effects>>
+<<effectsman>><<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Riding School Contact Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Riding School Contact Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Riding School Contact Rape Finish
+<<effects>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	<<if $enemyanger gte ($enemyangermax / 5) * 3>>
+		<<He>> smacks your face, then leaves you lying in the hay.
+		<br>
+		<<underlowersteal>>
+		<<violence 3>>
+	<<elseif $enemyanger gte 1>>
+		Without a word, <<he>> leaves.
+		<br>
+		<<underlowersteal>>
+	<<else>>
+		Smiling, <<he>> kisses you on the cheek. "This is for you." <<He>> gets up and leaves you lying on the ground.
+		<br>
+		You've gained <<moneyGain 5>>.
+	<</if>>
+<<else>>
+	You shove <<him>> off you, and <<he>> tips over into the stable with a cry.
+<</if>>
+<br><br>
+
+<<tearful>> you rise to your feet.
+<br><br>
+
+<<clotheson>>
+<<endcombat>>
+
+<<if Time.hour isnot $closinghour>>
+	<<link [[Find someone else (0:20)|Riding School Contact]]>><<pass 20>><<endevent>><</link>>
+	<br>
+	<<link [[Give up for now|Riding School]]>><<endevent>><</link>>
+<<else>>
+	It's closing time. The horses are being herded into their stables, and the customers from the grounds. <<if $exposed gte 1>>You skulk away before anyone sees your <<lewdness>>.<</if>>
+	<br><br>
+
+	<<link [[Next|Farmland]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Riding School Contact Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
+	<<npcidlegenitals>>
+<</if>>
+
+<<effects>>
+<<effectsman>><<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Riding School Contact Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Riding School Contact Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Riding School Contact Fight Finish
+<<effects>>
+
+<<if $pain gte 100 and $willpowerpain is 0>>
+	It's too much. <<tearful>> you collapse to the ground.
+	<br><br>
+
+	The <<person3>><<person>> soaks the rag with the bottle and holds it to your mouth. You weakly try to turn away, but <<he>> holds your face still with <<his>> other hand. The sweet smell makes your mind swim, and your consciousness fades.
+	<br><br>
+
+	<<endcombat>>
+
+	<<link [[Next|Moor Abduction Wake]]>><<pass 60>><<set $stress -= 2000>><<set $moor to 50>><<clotheson>><</link>>
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	The <<fullGroup>> collapse against the stable. <<tearful>> you rise to your feet and run away.
+	<br><br>
+
+	<<endcombat>><<clotheson>>
+
+	<<if Time.hour isnot $closinghour>>
+		<<link [[Find someone else (0:20)|Riding School Contact]]>><<pass 20>><<endevent>><</link>>
+		<br>
+		<<link [[Give up for now|Riding School]]>><<endevent>><</link>>
+	<<else>>
+		It's closing time. The horses are being herded into their stables, and the customers from the grounds. <<if $exposed gte 1>>You skulk away before anyone sees your <<lewdness>>.<</if>>
+		<br><br>
+
+		<<link [[Next|Farmland]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<<else>>
+	You push the <<person1>><<person>> off of you, who falls onto the <<person2>><<person>>, who knocks over the <<person3>><<person>>. <<tearful>> you rise to your feet and run away, leaving them arguing about whose fault it was.
+	<br><br>
+
+	<<endcombat>><<clotheson>>
+
+	<<if Time.hour isnot $closinghour>>
+		<<link [[Find someone else (0:20)|Riding School Contact]]>><<pass 20>><<endevent>><</link>>
+		<br>
+		<<link [[Give up for now|Riding School]]>><<endevent>><</link>>
+	<<else>>
+		It's closing time. The horses are being herded into their stables, and the customers from the grounds. <<if $exposed gte 1>>You skulk away before anyone sees your <<lewdness>>.<</if>>
+		<br><br>
+
+		<<link [[Next|Farmland]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Riding School Contact Give
+<<effects>>
+
+You do nothing as the <<person>> soaks the rag. <<He>> holds your head still anyway, holding the rag up to your face.
+<br><br>
+
+The sweet smell makes your mind swim. "Look at how gentle <<pshe>> is," you hear the <<person2>><<person>> say before your consciousness fades.
+<br><br>
+
+<<link [[Next|Moor Abduction Wake]]>><<pass 60>><<set $stress -= 2000>><<set $moor to 50>><<endevent>><<clotheson>><</link>>

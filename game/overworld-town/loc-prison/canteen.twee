@@ -1,0 +1,718 @@
+:: Prison Canteen
+<<set $bus to "canteen">><<set $outside to 0>><<effects>><<effects_prison>>
+
+You are in the canteen. Rows of tables fill the large room. The ceiling hangs low enough that taller inmates can't stand upright, giving it a claustrophobic feel despite its length and breadth.
+<<if $prison.schedule is "wake" or $prison.schedule is "lunch" or $prison.schedule is "dinner">>
+	Inmates queue for their grub. <<generate_methodical_guard 0>><<methodical_guard 0 cap>> stands in the corner, flipping through the pages of a book.
+<<elseif $prison.schedule is "work">>
+	You hear clattering from the kitchen.
+<<else>>
+	It's currently empty.
+<</if>>
+<<endevent>>
+<br><br>
+<<if Time.hour is 20>>
+	You hear a bell ring. "Lockdown," <<generate_methodical_guard 0>><<methodical_guard 0>> shouts. "Back to your cells."
+	<br><br>
+	You're shuffled along with the other prisoners.
+	<br><br>
+	<<link [[다음|Prison Cell]]>><<endevent>><</link>>
+	<br>
+<<elseif $stress gte $stressmax>>
+	<<passout_prison>>
+<<else>>
+
+	<<if $prison.schedule isnot "lockdown" and $prison.attention gte 100>>
+		<<events_prison_attention>>
+	<<else>>
+		<<if $prison.schedule isnot "lockdown" and $eventskip isnot 1>>
+			<<events_prison>>
+		<</if>>
+		<<if $prison_event_trigger>>
+			<<events_prison_triggered>>
+		<<else>>
+			<<if random(1, 5) is 5 and $eventskip isnot 1 and ($prison.schedule is "wake" or $prison.schedule is "lunch" or $prison.schedule is "dinner")>>
+				<<prison_guard_watch methodical>>
+			<<else>>
+				<<if $prison.schedule is "wake">>
+					<<link [[Breakfast (Up to an hour)|Prison Breakfast]]>><<stress -6>><</link>><<lstress>>
+					<br>
+				<<elseif $prison.schedule is "lunch">>
+					<<link [[Lunch (Up to an hour)|Prison Lunch]]>><<stress -6>><</link>><<lstress>>
+					<br>
+				<<elseif $prison.schedule is "dinner">>
+					<<link [[Dinner (Up to an hour)|Prison Dinner]]>><<stress -6>><</link>><<lstress>>
+					<br>
+				<</if>>
+				<br><br>
+				<<link [[떠난다|Prison Yard]]>><</link>>
+				<br>
+				<<prison_map canteen>>
+			<</if>>
+		<</if>>
+		<<set $eventskip to 0>>
+	<</if>>
+<</if>>
+
+
+:: Prison Breakfast
+<<effects>>
+<<pass 1>><<advancetohour>>
+
+
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<generate1>><<person1>>
+	You queue with the other prisoners. The <<person>> behind the counter fills a bowl full of sloppy porridge, and rests it on your head.
+	<<if $worn.face.type.includes("gag")>>
+		There's a straw included, which you might be able to winkle past your gag.
+	<</if>>
+	<br><br>
+	<<endevent>>
+	<<if $worn.face.type.includes("gag")>>
+		<span class="blue">You'd be able to ask for help, if not for your gag.</span>
+		<br>
+	<<else>>
+		<<link [[Ask someone for help|Prison Breakfast Help]]>><<prison_inmates -1>><</link>><<lrespect>>
+		<br>
+	<</if>>
+	<<link [[Carefully find a seat|Prison Breakfast Careful]]>><</link>><<dancedifficulty 1 600>>
+	<br>
+<<else>>
+	You queue with the other prisoners, and receive a bowl full of sloppy porridge.
+	<<if $worn.face.type.includes("gag")>>
+		There's a straw included, which you might be able to winkle past your gag.
+	<</if>>
+	<br><br>
+
+	You look for a free seat.
+	<<if $prison.protection is "scarred">>
+		<<generate_scarred_inmate 0>><<scarred_inmate 0 cap>><<person1>> asks you to sit on <<his>> lap.
+		<br><br>
+
+		<<link [[Sit on lap|Prison Breakfast Scarred]]>><<prison_rep scarred 1>><<prison_attention 1>><</link>><<glove>><<gattention prison>>
+		<br>
+		<<link [[거절한다|Prison Breakfast Scarred Refuse]]>><<prison_inmates 1>><</link>><<grespect>>
+	<<else>>
+		<br><br>
+
+		<<link [[다음|Prison Breakfast Prayer]]>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Prison Breakfast Help
+<<effects>>
+
+<<generate1>><<person1>>
+<<if $submissive gte 1150>>
+	"C-could someone help me?" you ask. "Please?"
+<<elseif $submissive lte 850>>
+	"Someone gimme a hand," you say.
+<<else>>
+	"Could someone give me a hand," you say.
+<</if>>
+<br><br>
+
+A <<person>> takes the bowl from your head. "Sure darling," <<he>> smacks your <<bottom>>. "Get moving."
+<br><br>
+
+<<He>> feeds you by hand while the other inmates watch. They look amused.
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Breakfast Careful
+<<effects>>
+
+<<if $danceSuccess>>
+	You walk to a free seat. A couple of inmates stick out their legs, <span class="green">but you step over them without losing balance.</span>
+	<br><br>
+
+	<<link [[다음|Prison Breakfast Prayer]]>><</link>>
+	<br>
+<<else>>
+	You walk towards a free seat. An inmate sticks out a leg, <span class="red">tripping you.</span> Your bowl clatters against the ground, spilling food everywhere.
+	<br><br>
+
+	<<if $worn.face.type.includes("gag")>>
+		<<generate_veteran_guard 0>><<person1>>
+		You hear the stomp of boots. Before you can stand, <<veteran_guard 0>> presses <<his>> foot against your back. "Dirtying our nice clean floor?" <<he>> says. "I won't have it."
+		<br><br>
+
+		<<link [[다음|Prison Breakfast Lick Refuse]]>><<set $phase to 1>><</link>>
+		<br>
+	<<else>>
+		<<generate_veteran_guard 0>><<person1>>
+		You hear the stomp of boots. Before you can stand, <<veteran_guard 0>> presses <<his>> foot against your back. "Dirtying our nice clean floor?" <<he>> says. "I won't have it. Lick it up. All of it."
+		<br><br>
+
+		<<link [[Lick|Prison Breakfast Lick]]>><<prison_inmates -3>><<trauma 6>><</link>><<llrespect>><<gtrauma>>
+		<br>
+		<<link [[거절한다|Prison Breakfast Lick Refuse]]>><<prison_inmates 3>><<pain 8>><<trauma 12>><<stress 12>><<prison_guards -1>><</link>><<ggpain>><<ggtrauma>><<ggstress>><<gsuspicion>><<ggrespect>>
+		<br><br>
+	<</if>>
+<</if>>
+
+
+
+:: Prison Breakfast Lick
+<<effects>>
+
+You can feel the other inmates watching. <<veteran_guard 0 cap>> doesn't remove <<his>> boot until you've licked up the entire spillage. "Good," <<he>> says. "Now sit down."
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+
+:: Prison Breakfast Lick Refuse
+<<effects>>
+
+<<generate_methodical_guard 1>>
+
+<<veteran_guard 0 cap>> removes <<his>> boot, only to smack you back against the ground with <<his>> baton. You curl up as best you can with your arms bound, as <<he>> delivers blow after blow.<<if $phase is 1>><<prison_inmates 3>><<pain 8>><<trauma 12>><<stress 12>><<prison_guards -1>><<ggpain>><<ggtrauma>><<ggstress>><<gsuspicion>><<ggrespect>><</if>>
+<br><br>
+
+"That's enough," cuts in <<methodical_guard 1>>. "I'm not delaying prayer for this."
+<br><br>
+
+<<veteran_guard 0 cap>> backs away from you. <<tearful>> you rise to your feet, and find a seat.
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Breakfast Scarred
+<<effects>>
+
+You sit on <<scarred_inmate 0 apo>> lap.
+
+<<if $prison.scarred gte 80>>
+	<<He>> takes your bowl and spoon, and feeds you <<himself>>. If <<his>> gang finds this strange, they give no sign.
+<<elseif $prison.scarred gte 20>>
+	<<He>> takes your bowl, and holds it from you as you eat.
+<<else>>
+	You're too high, and far, from the table to use it. You rest the bowl on your own thigh while eating.
+<</if>>
+<br><br>
+<<if random(1, 2) is 2>>
+	You endure the occasional pinch.<<gstress>><<gpain>><<stress 6>><<pain 4>>
+<</if>>
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Breakfast Scarred Refuse
+<<effects>>
+
+You refuse <<scarred_inmate 0>>, and sit elsewhere.
+<<if $prison.scarred gte 80>>
+	<<He>> looks hurt.
+<<else>>
+	You hear <<him>> snarl.
+<</if>>
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Breakfast Prayer
+<<effects>>
+
+<<generate_methodical_guard 0>><<methodical_guard 0 cap>><<person1>> clears <<his>> throat, still holding the book in <<his>> hands and seemingly settled on a passage. "Bow your heads," <<he>> says. "In prayer." Most of the inmates have already bowed.
+<br><br>
+
+<<link [[Bow your head|Prison Breakfast Prayer Bow]]>><<sub 1>><<purity 2>><</link>><<gpurity>>
+<br>
+<<link [[Bow your head and daydream|Prison Breakfast Prayer Daydream]]>><<stress -6>><</link>><<lstress>>
+<br>
+<<link [[Refuse|Prison Breakfast Prayer Refuse]]>><<def 1>><<prison_inmates 1>><<suspicion 1>><</link>><<gsuspicion>><<grespect>>
+<br>
+<<if $angel gte 6 and !$worn.face.type.includes("gag")>>
+	<<link [[Offer to hold the sermon|Prison Breakfast Prayer Angel]]>><<prison_hope 1>><</link>><<angel>><<ghope>>
+	<br>
+<</if>>
+<<if $fallenangel gte 2 and !$worn.face.type.includes("gag")>>
+	<<link [[Offer to hold the sermon|Prison Breakfast Prayer Fallen]]>><<prison_reb 3>><<prison_hope -1>><</link>><<fallenangel>><<lhope>><<ggreb>>
+	<br>
+<</if>>
+<<if $demon gte 6 and !$worn.face.type.includes("gag")>>
+	<<link [[Offer to hold the sermon|Prison Breakfast Prayer Demon]]>><<prison_reb 1>><</link>><<demon>><<greb>>
+	<br>
+<</if>>
+
+:: Prison Breakfast Prayer Angel
+<<effects>>
+
+You rise, and walk to <<methodical_guard 0>>. <<He>> seems angry at your impertinence, but something in your eyes softens <<him>>.
+
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	You can't hold the prayer book with your arms bound, but you don't need it. You recite a sermon from memory.
+<<else>>
+	<<He>> holds out the prayer book, but you don't need it. You put your hands to your chest, and recite a sermon from memory.
+<</if>>
+<br><br>
+
+The prisoners listen in rapt attention. You think some are hiding tears beneath their bowed heads.
+<<methodical_guard 0 cap>> wears a distant expression, until the schedule catches up to <<him>> and <<he>> snaps to attention. "Rise," <<he>> takes a deep breath. "Everyone outside."
+<br><br>
+
+<<link [[다음|Prison Yard]]>><<endevent>><</link>>
+<br>
+
+:: Prison Breakfast Prayer Fallen
+<<effects>>
+
+You rise, and walk to <<methodical_guard 0>>. <<He>> seems angry at your impertinence, but something in your eyes frightens <<him>>.
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	You can't hold the prayer book with your arms bound, but you don't need it. You recite a sermon from memory.
+<<else>>
+	<<He>> holds out the prayer book, but you don't need it. You put your hands to your chest, and recite a sermon from memory.
+<</if>>
+<br><br>
+
+This is not a sermon they would give at the temple. Not in public. But it's fitting here. You speak of emptiness and loss. Damnation and despair. A cloud descends over the room, even <<methodical_guard 0>> is affected. "Stop," <<he>> says at last. "Rise. Everyone outside."
+<br><br>
+
+<<link [[다음|Prison Yard]]>><<endevent>><</link>>
+<br>
+
+:: Prison Breakfast Prayer Demon
+<<effects>>
+
+You rise, and walk to <<methodical_guard 0>>. <<He>> seems angry at your impertinence, but something in your eyes entices <<him>>.
+
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	You can't hold the prayer book with your arms bound, but you don't need it. You recite a sermon from memory.
+<<else>>
+	<<He>> holds out the prayer book, but you don't need it. You put your hands to your chest, and recite a sermon from memory.
+<</if>>
+<br><br>
+
+You change details here and there, slipping in innuendo and blasphemy. Some of the more learned prisoners stifle laughter. <<methodical_guard 0 cap>> scans the room, looking for the culprits. "That's enough," <<he>> says. "Rise. Everyone outside."
+<br><br>
+
+<<link [[다음|Prison Yard]]>><<endevent>><</link>>
+<br>
+
+
+:: Prison Breakfast Prayer Bow
+<<effects>>
+
+You bow your head. <<methodical_guard 0 cap>> recites a litany of punishment, before slamming the book shut. "Rise. Everyone outside."
+<br><br>
+
+You shuffle outside with the other inmates.
+<br><br>
+
+<<link [[다음|Prison Yard]]>><<endevent>><</link>>
+<br>
+
+
+:: Prison Breakfast Prayer Daydream
+<<effects>>
+
+You bow your head, but pay no attention to <<methodical_guard 0 apo>> words.
+
+<<if random(1,3) is 3>>
+	<<if isLoveInterest("Robin")>>
+		You think about Robin. You hope <<nnpc_he "Robin">>'s doing okay without you.
+	<<elseif isLoveInterest("Whitney")>>
+		You think about Whitney. You bet <<nnpc_he Whitney>> misses you, whether <<nnpc_he Whitney>> would admit it or not.
+	<<elseif isLoveInterest("Eden")>>
+		You think about Eden. You hope <<nnpc_he Eden>> isn't too worried. You doubt even <<nnpc_he Eden>> could make it out here.
+	<<elseif isLoveInterest("Kylar") and $NPCName[$NPCNameList.indexOf("Kylar")].state is "prison">>
+		You think about Kylar. You wonder if <<nnpc_he "Kylar">> would be able to break out, though you doubt it.
+	<<elseif isLoveInterest("Avery")>>
+		You think about Avery, and wonder if <<nnpc_he Avery>> could buy your freedom.
+	<<elseif isLoveInterest("Sydney")>>
+		You think about Sydney. You know you're in <<nnpc_his Sydney>> thoughts as well.
+	<<elseif isLoveInterest("Alex")>>
+		You think about Alex, and wonder how the farm is doing.
+	<<elseif isLoveInterest("Black Wolf")>>
+		You think about the black wolf, and the pack. You hope they're not hungry.
+	<<elseif isLoveInterest("Great Hawk")>>
+		You think about the great hawk. <<nnpc_He "Great Hawk">> must be watching for you, but you doubt <<nnpc_he "Great Hawk">> would search this far.
+	<<else>>
+		You think about the town, and realise how much of it you took for granted.
+	<</if>>
+<<else>>
+	<<if $rng gte 81>>
+		You hope the orphans are okay.
+	<<elseif $rng gte 61>>
+		You think about school, and hope your absence doesn't count as truancy.
+	<<elseif $rng gte 41>>
+		Your thoughts wander all over.
+	<<elseif $rng gte 21>>
+		You wonder how many of the other inmates are paying attention.
+	<<else>>
+		You hear <<his>> voice though. It seems to echo, but there's something wrong with it. Like another voice is layered atop <<his>>.
+	<</if>>
+<</if>>
+<br><br>
+
+<<He>> slams the book shut. "Rise. Everyone outside."
+<br><br>
+
+You shuffle outside with the other inmates.
+<br><br>
+
+<<link [[다음|Prison Yard]]>><<endevent>><</link>>
+<br>
+
+:: Prison Breakfast Prayer Refuse
+<<effects>>
+
+<<if $prison.shock is 1>>
+	<<if $prison.guards gte 40>>
+		You stare at <<methodical_guard 0>>. "Prisoner 144," <<he>> snaps. "<span class="green">I'll give you another chance.</span> Bow your head at once."
+		<br><br>
+
+		<<link [[Bow|Prison Breakfast Prayer Bow]]>><<sub 1>><<purity 2>><</link>><<gpurity>>
+		<br>
+		<<link [[다시 거절한다|Prison Breakfast Prayer Refuse 2]]>><<prison_inmates 1>><<prison_guards -1>><</link>><<gsuspicion>><<grespect>>
+		<br>
+	<<else>>
+		You stare at <<methodical_guard 0>>. <<He>> reaches into <<his>> shirt pocket. <span class="red">A terrible jolt runs through you,</span> emanating from your neck. It only lasts a moment, but it's enough to make you fall to the ground, and twitch.<<gtrauma>><<ggstress>><<gggpain>><<trauma 4>><<stress 4>><<pain 4>>
+		<br><br>
+		You're too hurt to resist as <<methodical_guard 0>> cuffs you, and drags you from the canteen. The other inmates tease you as you pass, but it doesn't sound malicious.
+		<<bind>>
+		<br><br>
+		<<link [[다음|Prison Punishment]]>><<endevent>><</link>>
+	<</if>>
+<<else>>
+	You stare at <<methodical_guard 0>>. <<He>> reaches into <<his>> shirt pocket, <span class="green">then hesitates.</span> <<He>> commences without mentioning you.
+	<br><br>
+	<<He>> recites a litany of punishment, before slamming the book shut. "Rise. Everyone outside."
+	<br><br>
+
+	You shuffle outside with the other inmates.
+	<br><br>
+
+	<<link [[다음|Prison Yard]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+
+:: Prison Breakfast Prayer Refuse 2
+<<effects>>
+
+You stare at <<methodical_guard 0>>. <<He>> reaches into <<his>> shirt pocket. <span class="red">A terrible jolt runs through you,</span> emanating from your neck. It only lasts a moment, but it's enough to make you fall to the ground, and twitch.<<gtrauma>><<ggstress>><<gggpain>><<trauma 4>><<stress 4>><<pain 4>>
+<br><br>
+You're too hurt to resist as <<methodical_guard 0>> cuffs you, and drags you from the canteen. The other inmates tease you as you pass, but it doesn't sound malicious.
+<<bind>>
+<br><br>
+<<link [[다음|Prison Punishment]]>><<endevent>><</link>>
+
+:: Prison Lunch
+<<effects>>
+<<pass 1>><<advancetohour>>
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<generate1>><<person1>>
+	You queue with the other prisoners. The <<person>> behind the counter fills a bowl full of sloppy potato soup, and rests it on your head.
+	<<if $worn.face.type.includes("gag")>>
+		There's a straw included, which you might be able to winkle past your gag.
+	<</if>>
+	<br><br>
+	<<endevent>>
+	<<if $worn.face.type.includes("gag")>>
+		<span class="blue">You'd be able to ask for help, if not for your gag.</span>
+		<br>
+	<<else>>
+		<<link [[Ask someone for help|Prison Breakfast Help]]>><<prison_inmates -1>><</link>><<lrespect>>
+		<br>
+	<</if>>
+	<<link [[Carefully find a seat|Prison Breakfast Careful]]>><</link>><<dancedifficulty 1 600>>
+	<br>
+<<else>>
+	You queue with the other prisoners, and receive a bowl of potato soup.
+	<<if $worn.face.type.includes("gag")>>
+		There's a straw included, which you might be able to winkle past your gag.
+	<</if>>
+	<br><br>
+
+	You look for a free seat.
+	<<if $prison.protection is "tattooed">>
+		<<generate_tattooed_inmate 0>><<tattooed_inmate 0 cap>><<person1>> steps in your way. "My <<girl>>'s not sitting alone," <<he>> says, grabbing your arm.
+		<br><br>
+
+		<<link [[Comply|Prison Lunch Tattooed]]>><<prison_rep tattooed 1>><<prison_attention 1>><</link>><<glove>><<gattention prison>>
+		<br>
+		<<link [[거절한다|Prison Lunch Tattooed Refuse]]>><<prison_inmates 1>><</link>><<grespect>>
+	<<else>>
+		<br><br>
+
+		<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Prison Lunch Tattooed
+<<effects>>
+
+You sit beside <<tattooed_inmate 0>>, the pair of you flanked by <<his>> gang.
+<<if $prison.tattooed gte 80>>
+	<<He>> brags openly about "having" you, stopping passers by and making sure they have a good look.
+<<elseif $prison.tattooed gte 20>>
+	<<He>> brags openly about "having" you.
+<<else>>
+	<<He>> draws a lot of attention, and seems eager to be seen with you.
+<</if>>
+<br><br>
+
+<<if random(1, 2) is 2>>
+	You endure the occasional grope.<<gstress>><<stress 6>><<garousal>><<arousal 3 "breasts">><<arousal 3 "bottom">>
+	<br><br>
+<</if>>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+
+:: Prison Lunch Tattooed Refuse
+<<effects>>
+
+You shake off <<tattooed_inmate 0 apo>> hand.
+<<if $prison.tattooed gte 80>>
+	"Fuck I do?" <<he>> asks. "Fine. Mind some fucker doesn't rape you."
+<<else>>
+	<<He>> grabs you again, but a <<generate2>><<person2>><<person>> beside <<him>> grabs <<his>> arm in turn, and glances at the guard. <<tattooed_inmate 0 cap>> releases you, and parts with a glare.
+<</if>>
+<br><br>
+
+You find somewhere to sit, and eat your soup.
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Dinner
+<<effects>>
+<<pass 1>><<advancetohour>>
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<generate1>><<person1>>
+	You queue with the other prisoners. The <<person>> behind the counter fills a bowl full of mixed vegetable soup and diced meat. <<He>> rests it on your head.
+	<<if $worn.face.type.includes("gag")>>
+		There's a straw included, which you might be able to winkle past your gag. Good for the soup, at least.
+	<</if>>
+	<br><br>
+	<<endevent>>
+	<<if $worn.face.type.includes("gag")>>
+		<span class="blue">You'd be able to ask for help, if not for your gag.</span>
+		<br>
+	<<else>>
+		<<link [[Ask someone for help|Prison Breakfast Help]]>><<prison_inmates -1>><</link>><<lrespect>>
+		<br>
+	<</if>>
+	<<link [[Carefully find a seat|Prison Breakfast Careful]]>><</link>><<dancedifficulty 1 600>>
+	<br>
+<<else>>
+	You queue with the other prisoners, and receive a slab of meat and a ladle-full of mixed vegetable soup.
+	<<if $worn.face.type.includes("gag")>>
+		There's a straw included, which you might be able to winkle past your gag. Good for the soup, at least.
+	<</if>>
+	<br><br>
+	<<if $prison.kylar is "active">>
+		Kylar appears behind you, following close.
+		<br><br>
+		<<npc Kylar>><<person1>>
+		<<link [["Let " + $NPCList[0].pronouns.him + " sit beside you"|Prison Dinner Kylar]]>><<npcincr Kylar love 1>><<npcincr Kylar rage -1>><<prison_inmates -1>><</link>><<lrespect>><<glove>><<lksuspicion>>
+		<br>
+		<<link [[Insist on sitting alone|Prison Dinner Kylar Refuse]]>><<npcincr Kylar love -1>><<npcincr Kylar rage 1>><<prison_inmates 1>><</link>><<llove>><<gksuspicion>><<grespect>>
+		<br>
+	<<elseif $rng gte 81>>
+		You find a seat, and eat your meal.
+		<br><br>
+		<<generate1>><<person1>>
+		"Hey <<girl>>," says the <<person>> opposite. <<He>> rests <<his>> elbow on the table. "Wrestle?"
+		<br><br>
+
+		<<if $leftarm is "bound" and $rightarm is "bound">>
+			<span class="blue">You can't wrestle with your arms bound.</span>
+		<<else>>
+			<<link [[Wrestle|Prison Dinner Wrestle]]>><</link>><<physiquedifficulty 2000 16000>>
+		<</if>>
+		<br>
+		<<link [[Decline|Prison Dinner Wrestle Decline]]>><<prison_inmates -1>><</link>><<lrespect>>
+		<br>
+	<<elseif $rng gte 61>>
+		<<generate1>><<person1>>
+		"Oi," says a <<person>>, slamming <<his>> tray beside you. "This is my seat."
+		<br><br>
+
+		<<link [[Threaten|Prison Dinner Threaten]]>><<prison_inmates 1>><</link>><<grespect>>
+		<br>
+		<<link [[Move|Prison Dinner Move]]>><<prison_inmates -1>><</link>><<lrespect>>
+		<br>
+	<<else>>
+		No one pays you much mind.
+		<br><br>
+		<<link [[다음|Prison Breakfast Prayer]]>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Prison Dinner Kylar
+<<effects>>
+
+You take a seat, and Kylar sits beside you. The inmate on the other side of <<him>> gives you a dirty looks as <<he>> moves seats.
+<br><br>
+
+Kylar insists on tasting your food before you eat any.
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Dinner Kylar Refuse
+<<effects>>
+
+You take a seat in a crowded spot. Kylar tries to squeeze in beside you, but the adjacent inmate shoves <<him>> away. Kylar falls, and <<his>> tray scatters across the ground.
+<br><br>
+
+<<He>> covers <<his>> face as <<he>> runs from the room.
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+
+
+
+:: Prison Dinner Wrestle
+<<effects>>
+
+You grasp <<his>> hand, and wrestle.
+<<if $physiqueSuccess>>
+	<<He>> holds firm at first, but once you have momentum, <span class="green">you push <<him>> all the way.</span> "Stronger than you look," <<he>> comments, wringing <<his>> hand.<<grespect>><<prison_inmates 1>>
+	<br><br>
+<<else>>
+	You strain with all your might, <span class="red">but <<he>> gains momentum</span> and pins your hand against the table. "Gotcha," <<he>> says with pride.<<gpain>><<pain 4>>
+	<br><br>
+<</if>>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Dinner Wrestle Decline
+<<effects>>
+
+You refuse the challenge.
+<br><br>
+
+"Wuss," <<he>> says, before bothering the <<generate2>><<person2>><<person>> beside <<him>>
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Dinner Threaten
+<<effects>>
+
+<<if $submissive gte 1150>>
+	You stand, your fists clenched, and glare at the <<person>>. <<gagged_speech "I-I'm not moving" ,>> you say.
+<<elseif $submissive lte 850>>
+	You stand and shove the <<person>>. <<gagged_speech "Fucking make me" ,>> you say.
+<<else>>
+	You stand and glare at the <<person>>. <<gagged_speech "No" ,>> you say. "What you gonna do?"
+<</if>>
+<br><br>
+
+<<if $prison.inmates gte random(1, 100)>>
+	<<He>> takes a deep breath, <span class="green">and laughs.</span> "Turns out this ain't my seat," <<he>> says. "Carry on." <<He>> sits some distance away.
+	<br><br>
+
+	<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<He>> takes a deep breath, <span class="red">and pulls <<his>> arm back for a punch.</span>
+	<br><br>
+
+	<<link [[Dodge|Prison Dinner Dodge]]>><</link>><<dancedifficulty 1 500>>
+	<br>
+	<<link [[Dodge and humiliate|Prison Dinner Humiliate]]>><</link>><<dancedifficulty 1 1000>>
+	<br>
+	<<link [[Punch back|Prison Dinner Punch]]>><</link>><<physiquedifficulty 1 16000>>
+	<br>
+<</if>>
+
+
+:: Prison Dinner Dodge
+<<effects>>
+
+<<generate_methodical_guard 1>>
+<<if $danceSuccess>>
+	<span class="green">You duck and twirl beneath the <<persons>> blow.</span> The other inmates cheer, but a whistle pierces the din.<<grespect>><<prison_inmates 1>>
+	<br><br>
+	"Order," <<methodical_guard 1>> shouts. "I will have order!" You sit back down. The <<person>> hesitates, then finds a seat elsewhere.
+	<br><br>
+<<else>>
+	You try to duck, <span class="red">but the <<person>>'s fist connects with your cheek.</span> You end up flat on your back.<<gpain>><<gstress>><<lrespect>><<pain 4>><<stress 6>><<prison_inmates -1>>
+	<br><br>
+
+	"Order," <<methodical_guard 1>> shouts. "I will have order!" The <<person>> takes your seat, so you sit elsewhere.
+	<br><br>
+<</if>>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Dinner Humiliate
+<<effects>>
+
+<<generate_methodical_guard 1>>
+<<if $danceSuccess>>
+	<span class="green">You duck and twirl beneath the <<persons>> blow,</span> grab the hem of <<his>> trousers, <span class="lewd">and tug them down to <<his>> knees.</span>
+	<br><br>
+	<<He>> covers <<his>>
+	<<if $NPCList[0].penis isnot "none">>
+		<<print $NPCList[0].penisdesc>> in a hurry,
+	<<else>>
+		pussy in a hurry,
+	<</if>>
+	as the inmates erupt in laughter.
+	<<ggrespect>><<prison_inmates 3>>
+	<br><br>
+
+	"Order," <<methodical_guard 1>> shouts. "I will have order!" You sit back down. The <<person>>, face red, finds a seat elsewhere.
+	<br><br>
+<<else>>
+	You try to duck, <span class="red">but the <<person>>'s fist connects with your cheek.</span> You end up flat on your back.<<gpain>><<gstress>><<lrespect>><<pain 4>><<stress 6>><<prison_inmates -1>>
+	<br><br>
+
+	"Order," <<methodical_guard 1>> shouts. "I will have order!" The <<person>> takes your seat, so you sit elsewhere.
+	<br><br>
+<</if>>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Dinner Punch
+<<effects>>
+
+<<if $physiqueSuccess>>
+	<span class="green">You're faster,</span> and smack <<him>> right on the nose. <<He>> shouts and clutches <<his>> face while staggering backwards. The inmates cheer.<<ggrespect>><<prison_inmates 3>>
+	<br><br>
+	"Order," <<methodical_guard 1>> shouts. "I will have order!" You take your seat. The <<person>> finds <<his>> own.
+	<br><br>
+<<else>>
+	You try to counterattack, <span class="red">but you're too slow.</span> <<His>> fist collides with your face, and you end up flat on your back.<<gpain>><<gstress>><<lrespect>><<pain 4>><<stress 6>><<prison_inmates -1>>
+	<br><br>
+
+	"Order," <<methodical_guard 1>> shouts. "I will have order!" The <<person>> takes your seat, so you sit elsewhere.
+	<br><br>
+<</if>>
+
+<<link [[다음|Prison Breakfast Prayer]]>><<endevent>><</link>>
+<br>
+
+:: Prison Dinner Move
+<<effects>>
+
+You decide to find another seat. The inmates were hoping for drama, but that's not your concern.
+<br><br>
+
+<<link [[다음|Prison Breakfast Prayer]]>><</link>>
+<br>

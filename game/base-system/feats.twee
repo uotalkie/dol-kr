@@ -1,18 +1,16 @@
 :: Feats [widget]
 
 <<widget "earnFeat">>
-<<if $args[0] and $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $alluremod gte 1>>
-	<<featsData>>
-	<<if $feats.currentSave[$args[0]] is undefined and ($feats.soft isnot true or _feats[$args[0]].softLockable isnot true)>>
-		<<set $feats.currentSave[$args[0]] to Date()>>
+	<<if _args[0] and $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $alluremod gte 1>>
+		<<if $feats.currentSave[_args[0]] is undefined and (!$feats.soft or !setup.feats[_args[0]].softLockable) and (!$feats.pregnancyLocked or !setup.feats[_args[0]].pregnancyLockable)>>
+			<<set $feats.currentSave[_args[0]] to Date()>>
 
-		<<displayFeat $args[0]>>
+			<<displayFeat _args[0]>>
+		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "updateFeats">>
-	<<featsData>>
 	<<if _passageCheck is "Start">>
 		<<set _recalledFeats to JSON.parse(localStorage.getItem("dolFeats"))>>
 	<</if>>
@@ -20,7 +18,7 @@
 		<<set _recalledFeats to {points: 0}>>
 	<</if>>
 	<<set _points to 0>>
-	<<set _keys to Object.keys(_feats)>>
+	<<set _keys to Object.keys(setup.feats)>>
 	<<for _i to 0; _i lt _keys.length; _i++>>
 		<<set _gainPoints to false>>
 		<<if $feats.currentSave[_keys[_i]] isnot undefined>>
@@ -46,7 +44,7 @@
 			<</if>>
 		<</if>>
 		<<if _gainPoints is true>>
-			<<set _points += _feats[_keys[_i]].difficulty>>
+			<<set _points += setup.feats[_keys[_i]].difficulty>>
 		<</if>>
 	<</for>>
 	<<set $feats.allSaves.points to _points>>
@@ -72,1668 +70,606 @@
 <</widget>>
 
 <<widget "setupFeats">>
-<<if $featsBoosts is undefined or $args[0] is true>>
-	<<set _keys to Object.keys($feats.allSaves)>>
+	<<if $featsBoosts is undefined or _args[0] is true>>
+		<<set _keys to Object.keys($feats.allSaves)>>
 
-	<<set _moneyFeats to _keys.count("Pocket Change") + _keys.count("Money Maker") + _keys.count("Tycoon") + _keys.count("Millionaire")>>
-	<<set _moneyFeatsLimit to (_moneyFeats * 10)>>
-	<<set _purityFeats to _keys.count("Angel") + _keys.count("Fallen Angel")>>
+		<<set _moneyFeats to _keys.count("Pocket Change") + _keys.count("Money Maker") + _keys.count("Tycoon") + _keys.count("Millionaire")>>
+		<<set _moneyFeatsLimit to (_moneyFeats * 10)>>
+		<<set _purityFeats to _keys.count("Angel") + _keys.count("Fallen Angel")>>
 
-	<<set _newLife to _keys.count("Broodmother Host") + _keys.count("Top Broodmother Host")>>
-	<<set _newLifeLimit to (_newLife * 20)>>
+		<<set _newLife to _keys.count("Broodmother Host") + _keys.count("Top Broodmother Host")>>
+		<<set _newLifeLimit to (_newLife * 20)>>
 
-	<<set _tattoosFeats to _keys.count("A Living Canvas") + _keys.count("Billboard")>>
+		<<set _tattoosFeats to _keys.count("A Living Canvas") + _keys.count("Billboard")>>
 
-	<<set $featsBoosts to {
-		upgrades:{
-			money:0,
-			grades:0,
-			skulduggery:0,
-			dancing:0,
-			swimming:0,
-			tending:0,
-			seduction:0,
-			purity:0,
-			impurity:0,
-			newLife:0,
-			aNewBestFriend:0,
-			tattoos:0,
-			defaultMoves: 0,
-			randomClothing:0,
-			specialClothing:0,
-		},
-		upgradeDetails:{
-			money:{cost:5, limit: _moneyFeatsLimit, minCount: 1, count:_moneyFeats, exclusive:""},
-			grades:{cost:15, limit: 30, minCount: 1, count:_keys.count("Perfect Record"), exclusive:""},
-			skulduggery:{cost:5, limit: 20, minCount: 1, count:_keys.count("Thief"), exclusive:""},
-			dancing:{cost:5, limit: 20, minCount: 1, count:_keys.count("May I have this Dance?"), exclusive:""},
-			swimming:{cost:5, limit: 20, minCount: 1, count:_keys.count("Aquanaut"), exclusive:""},
-			tending:{cost:5, limit: 20, minCount: 1, count:_keys.count("Green Fingered"), exclusive:""},
-			seduction:{cost:5, limit: 20, minCount: 1, count:_keys.count("Seductress"), exclusive:""},
-			purity:{cost:20, limit: 100, minCount: 2, count:_purityFeats, exclusive:"impurity"},
-			impurity:{cost:20, limit: 100, minCount: 1, count:_keys.count("Demon"), exclusive:"purity"},
-			newLife:{cost:20, limit: _newLifeLimit, minCount: 1, count:_newLife, exclusive:""},
-			aNewBestFriend:{cost:10, limit: 10, minCount: 1, count:_keys.count("Ear Slime Lover"), exclusive:""},
-			tattoos:{cost:5, limit: 25, minCount: 2, count:_tattoosFeats, exclusive:""},
-			defaultMoves:{cost:5, limit: 25, minCount: 1, count:_keys.count("A New Life"), exclusive:""},
-			randomClothing:{cost:1, limit: 20, minCount: 0, count:0, exclusive:""},
-			specialClothing:{cost:40, limit: 40, minCount: 1, count:_keys.count("Curious Attire"), exclusive:""},
-		},
-		missing:{
-			money:"돈 달성과제 달성 못함",
-			grades:"'만점' 달성 못함",
-			skulduggery:"'도둑' 달성 못함",
-			dancing:"'한 곡 추시겠어요?' 달성 못함",
-			swimming:"'잠수부' 달성 못함",
-			tending:"'초록 손가락' 달성 못함",
-			seduction:"'요부' 달성 못함",
-			purity:"'천사처럼 걷기'나 '추락하고, 추락하고, 추락하고...' 달성 못함",
-			impurity:"'악마같은 모습' 달성 못함",
-			newLife:"`?????` 달성 못함",
-			aNewBestFriend:"`?????` 달성 못함",
-			tattoos:"'광고판'이나 '살아있는 캔버스' 달성 못함",
-			defaultMoves:"'?????' 달성 못함",
-			randomClothing:"",
-			specialClothing:"'?????' 달성 못함",
-		},
-		name:{
-			money:"Money",
-			grades:"School grades",
-			skulduggery:"Skulduggery grade",
-			dancing:"Dancing grade",
-			swimming:"Swimming grade",
-			tending:"Tending grade",
-			seduction:"Seduction grade",
-			purity:"Daily purity",
-			impurity:"Daily impurity",
-			newLife:"New Life",
-			aNewBestFriend:"A new best friend",
-			tattoos:"Tattoos",
-			defaultMoves:"Default Moves",
-			randomClothing:"Random Clothing",
-			specialClothing:"Special Clothing",
-		},
-		pointsUsed: 0,
-		clothingGender:"Either",
-		clothingCustomColors:false,
-		tattoos:{
-			1:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
-			2:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
-			3:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
-			4:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
-			5:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
-		}
-	}>>
-<</if>>
+		<<set _sexToysFeats to _keys.count("Opened Pandoras Box") + _keys.count("Opened Pandoras Cocks")>>
+
+		<<set $featsBoosts to {
+			upgrades:{
+				money:0,
+				grades:0,
+				skulduggery:0,
+				dancing:0,
+				swimming:0,
+				athletics:0,
+				tending:0,
+				greenThumb:0,
+				seduction:0,
+				purity:0,
+				impurity:0,
+				newLife:0,
+				aNewBestFriend:0,
+				tattoos:0,
+				defaultMoves: 0,
+				randomClothing:0,
+				specialClothing:0,
+				sexToys:0,
+			},
+			upgradeDetails:{
+				money:{cost:5, limit: _moneyFeatsLimit, minCount: 1, count:_moneyFeats, exclusive:""},
+				grades:{cost:15, limit: 30, minCount: 1, count:_keys.count("Perfect Record"), exclusive:""},
+				skulduggery:{cost:5, limit: 20, minCount: 1, count:_keys.count("Thief"), exclusive:""},
+				dancing:{cost:5, limit: 20, minCount: 1, count:_keys.count("May I have this Dance?"), exclusive:""},
+				swimming:{cost:5, limit: 20, minCount: 1, count:_keys.count("Aquanaut"), exclusive:""},
+				athletics:{cost:5, limit: 20, minCount: 1, count:_keys.count("Swift"), exclusive:""},
+				tending:{cost:5, limit: 20, minCount: 1, count:_keys.count("Green Fingered"), exclusive:""},
+				greenThumb:{cost:40, limit: 40, minCount: 1, count:_keys.count("Green Fingered"), exclusive:"", hidden:true},
+				seduction:{cost:5, limit: 20, minCount: 1, count:_keys.count("Seductress"), exclusive:""},
+				purity:{cost:20, limit: 100, minCount: 2, count:_purityFeats, exclusive:"impurity"},
+				impurity:{cost:20, limit: 100, minCount: 1, count:_keys.count("Demon"), exclusive:"purity"},
+				newLife:{cost:20, limit: _newLifeLimit, minCount: 1, count:_newLife, exclusive:""},
+				aNewBestFriend:{cost:10, limit: 10, minCount: 1, count:_keys.count("Ear Slime Lover"), exclusive:""},
+				tattoos:{cost:5, limit: 25, minCount: 2, count:_tattoosFeats, exclusive:""},
+				defaultMoves:{cost:5, limit: 25, minCount: 1, count:_keys.count("A New Life"), exclusive:""},
+				randomClothing:{cost:1, limit: 20, minCount: 0, count:0, exclusive:""},
+				specialClothing:{cost:40, limit: 40, minCount: 1, count:_keys.count("Curious Attire"), exclusive:""},
+				sexToys:{cost:30, limit: 30 * _sexToysFeats, minCount: 1, count:_sexToysFeats, exclusive:""},
+			},
+			missing:{
+				money:"돈 달성과제 달성 못함",
+				grades:"'만점' 달성 못함",
+				skulduggery:"'도둑' 달성 못함",
+				dancing:"'한 곡 추시겠어요?' 달성 못함",
+				swimming:"'잠수부' 달성 못함",
+				athletics:"'재빠름' 달성 못함",
+				tending:"'초록 손가락' 달성 못함",
+				seduction:"'요부' 달성 못함",
+				purity:"'천사처럼 걷기'나 '추락하고, 추락하고, 추락하고...' 달성 못함",
+				impurity:"'악마같은 모습' 달성 못함",
+				newLife:"'?????' 달성 못함 (" + setup.feats["Broodmother Host"].hint + ")",
+				aNewBestFriend:"'?????' 달성 못함 (" + setup.feats["Ear Slime Lover"].hint + ")",
+				tattoos:"'광고판'이나 '살아있는 캔버스' 달성 못함",
+				defaultMoves:"'?????' 달성 못함 (" + setup.feats["A New Life"].hint + ")",
+				randomClothing:"",
+				specialClothing:"'?????' 달성 못함 (" + setup.feats["Curious Attire"].hint + ")",
+				sexToys:"해금되지 않았음"
+			},
+			name:{
+				money:"소지금",
+				grades:"학교 성적",
+				skulduggery:"속임수 스킬 등급",
+				dancing:"춤 스킬 등급",
+				swimming:"수영 스킬 등급",
+				athletics:"운동 스킬 등급",
+				tending:"관리 스킬 등급",
+				greenThumb:"원예가 특성",
+				seduction:"유혹 스킬 등급",
+				purity:"일일 순결도 상승 보너스",
+				impurity:"일일 순결도 하락 보너스",
+				newLife:"새로운 생명",
+				aNewBestFriend:"새로운 절친",
+				tattoos:"문신",
+				defaultMoves:"기본 행동 세트 추가",
+				randomClothing:"무작위 의상 추가",
+				specialClothing:"특수한 의상",
+				sexToys:"섹스 장난감",
+			},
+			pointsUsed: 0,
+			clothingGender:"Either",
+			clothingCustomColors:false,
+			tattoos:{
+				1:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
+				2:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
+				3:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
+				4:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
+				5:{bodypart:"Random",tattoo:"Random",pen:"Tattoo"},
+			},
+			sexToys:[{},{},{},{},{},{}],
+		}>>
+	<</if>>
 <</widget>>
 
-<<widget "update_school_skill">>
-<<print '<<if $' + $args[0] + 'trait gte 4>>
-	<<set $'+ $args[0] + ' to 1000>>
-<<elseif $' + $args[0] + 'trait gte 3>>
-	<<set $'+ $args[0] + ' to 700>>
-<<elseif $' + $args[0] + 'trait gte 2>>
-	<<set $'+ $args[0] + ' to 400>>
-<<elseif $' + $args[0] + 'trait gte 1>>
-	<<set $'+ $args[0] + ' to 200>>
-<<else>>
-	<<set $'+ $args[0] + ' to 100>>
-<</' + 'if>>'>>
+<<widget "update_school_skills">>
+	<<for _subject range ["science", "english", "maths", "history"]>>
+		<<if V[_subject + 'trait'] gte 4>>
+			<<set V[_subject] to 1000>>
+		<<elseif V[_subject + 'trait'] gte 3>>
+			<<set V[_subject] to 700>>
+		<<elseif V[_subject + 'trait'] gte 2>>
+			<<set V[_subject] to 400>>
+		<<elseif V[_subject + 'trait'] gte 1>>
+			<<set V[_subject] to 200>>
+		<<else>>
+			<<set V[_subject] to 100>>
+		<</if>>
+	<</for>>
 <</widget>>
 
 <<widget "applyFeatsBoost">>
-<<set _upgrades to $featsBoosts.upgrades>>
-<<set _details to $featsBoosts.upgradeDetails>>
-<<if $featsBoosts.pointsUsed gt 0>>
-	<<earnFeat "A New Life">>
-<</if>>
-<<if _upgrades.money gt 0>>
-	<<set $money += _upgrades.money * _details.money.count / _details.money.cost * 5000>>
-<</if>>
-<<if _upgrades.grades gt 0>>
-	<<set $sciencetrait += _upgrades.grades / _details.grades.cost * 1>>
-	<<set $englishtrait += _upgrades.grades / _details.grades.cost * 1>>
-	<<set $mathstrait += _upgrades.grades / _details.grades.cost * 1>>
-	<<set $historytrait += _upgrades.grades / _details.grades.cost * 1>>
-	<<update_school_skill science>>
-	<<update_school_skill maths>>
-	<<update_school_skill english>>
-	<<update_school_skill history>>
-<</if>>
-<<if _upgrades.skulduggery gt 0>>
-	<<set $skulduggery to _upgrades.skulduggery / _details.skulduggery.cost * 100>>
-	<<set $skulduggeryday to _upgrades.skulduggery / _details.skulduggery.cost * 100>>
-<</if>>
-<<if _upgrades.dancing gt 0>>
-	<<set $danceskill to _upgrades.dancing / _details.dancing.cost * 100>>
-<</if>>
-<<if _upgrades.tending gt 0>>
-	<<set $tending += _upgrades.tending / _details.tending.cost * 100>>
-<</if>>
-<<if _upgrades.swimming gt 0>>
-	<<set $swimmingskill to _upgrades.swimming / _details.swimming.cost * 100>>
-<</if>>
-<<if _upgrades.seduction gt 0>>
-	<<set $seductionskill to _upgrades.seduction / _details.seduction.cost * 100>>
-<</if>>
-<<if _upgrades.purity gt 0>>
-	<<set $featsPurityBoost to _upgrades.purity / _details.purity.cost>>
-<</if>>
-<<if _upgrades.impurity gt 0>>
-	<<set $featsPurityBoost to _upgrades.impurity / _details.impurity.cost * -1>>
-<</if>>
-<<if _upgrades.newLife gt 0>>
-	<<impregnate "tentacle" 400>>
-	<<fertilise>>
-	<<set _pregnancy to $sexStats.anus.pregnancy>>
-	<<set _pregnancy.motherStatus to 2>>
-	<<set _pregnancy.seenDoctor to 2>>
-	<<set _pregnancy.maxCount to 4>>
-	<<set _pregnancy[0].stats.gender to "Futa">>
-	<<if _upgrades.newLife is 40>>
-		<<set _pregnancy[0].stats.growth to 7>>
-		<<set _pregnancy[0].stats.speed to 54>>
+	<<set _upgrades to $featsBoosts.upgrades>>
+	<<set _details to $featsBoosts.upgradeDetails>>
+	<<if $featsBoosts.pointsUsed gt 0>>
+		<<earnFeat "A New Life">>
 	<</if>>
-	<<set _pregnancy[0].stats.lastEgg to Math.floor(_pregnancy[0].stats.growth / 3)>>
-<</if>>
-<<if _upgrades.aNewBestFriend gt 0>>
-	<<parasite left_ear slime>>
-<</if>>
-<<if _upgrades.randomClothing gt 0>>
-	<<set _clothingItems to _upgrades.randomClothing * 3>>
-	<<set _options to {
-		head:[],
-		face:[],
-		neck:[],
-		hands:[],
-		upper:[],
-		lower:[],
-		under_upper:[],
-		under_lower:[],
-		legs:[],
-		feet:[]
-	}>>
-	<<set _equip to ["head","face","neck","upper","lower","under_upper","under_lower", "hands","legs","feet"]>>
-	<<for _i to 0; _i lt _equip.length; _i++>>
-		<<set _slot to _equip[_i]>>
-		<<for _j to 0; _j lt setup.clothes[_slot].length; _j++>>
-			<<if (setup.clothes[_slot][_j].gender is "f" and $featsBoosts.clothingGender is "Male") or (setup.clothes[_slot][_j].gender is "m" and $featsBoosts.clothingGender is "Female")>>
-				<<continue>>
-			<</if>>
-			<<if _slot is "lower" or _slot is "under_lower">>
-				<<if setup.clothes[_slot][_j].one_piece is 1>>
+	<<if _upgrades.money gt 0>>
+		<<set $money += _upgrades.money * _details.money.count / _details.money.cost * 5000>>
+	<</if>>
+	<<if _upgrades.grades gt 0>>
+		<<set $sciencetrait += _upgrades.grades / _details.grades.cost * 1>>
+		<<set $englishtrait += _upgrades.grades / _details.grades.cost * 1>>
+		<<set $mathstrait += _upgrades.grades / _details.grades.cost * 1>>
+		<<set $historytrait += _upgrades.grades / _details.grades.cost * 1>>
+		<<update_school_skills>>
+	<</if>>
+	<<if _upgrades.skulduggery gt 0>>
+		<<set $skulduggery to _upgrades.skulduggery / _details.skulduggery.cost * 100>>
+		<<set $skulduggeryday to _upgrades.skulduggery / _details.skulduggery.cost * 100>>
+	<</if>>
+	<<if _upgrades.dancing gt 0>>
+		<<set $danceskill to _upgrades.dancing / _details.dancing.cost * 100>>
+	<</if>>
+	<<if _upgrades.tending gt 0>>
+		<<set $tending += _upgrades.tending / _details.tending.cost * 100>>
+	<</if>>
+	<<if _upgrades.swimming gt 0>>
+		<<set $swimmingskill += _upgrades.swimming / _details.swimming.cost * 100>>
+	<</if>>
+	<<if _upgrades.athletics gt 0>>
+		<<set $athletics += _upgrades.athletics / _details.athletics.cost * 100>>
+	<</if>>
+	<<if _upgrades.seduction gt 0>>
+		<<set $seductionskill to _upgrades.seduction / _details.seduction.cost * 100>>
+	<</if>>
+	<<if _upgrades.purity gt 0>>
+		<<set $featsPurityBoost to _upgrades.purity / _details.purity.cost>>
+	<</if>>
+	<<if _upgrades.impurity gt 0>>
+		<<set $featsPurityBoost to _upgrades.impurity / _details.impurity.cost * -1>>
+	<</if>>
+	<<if _upgrades.newLife gt 0 and $parasitepregdisable is "f">>
+		<<impregnateParasite "tentacle" 400>>
+		<<fertiliseParasites>>
+		<<set _pregnancy to $sexStats.anus.pregnancy>>
+		<<set _pregnancy.motherStatus to 2>>
+		<<set $pregnancyStats.parasiteDoctorEvents to 2>>
+		<<set _pregnancy.fetus[0].stats.gender to "Hermaphrodite">>
+		<<if _upgrades.newLife is 40>>
+			<<set _pregnancy.fetus[0].stats.growth to 7>>
+			<<set _pregnancy.fetus[0].stats.speed to 54>>
+		<</if>>
+		<<set _pregnancy.fetus[0].stats.lastEgg to Math.floor(_pregnancy.fetus[0].stats.growth / 3)>>
+	<</if>>
+	<<if _upgrades.aNewBestFriend gt 0>>
+		<<parasite left_ear slime>>
+	<</if>>
+	<<if _upgrades.greenThumb gt 0>>
+		<<set $backgroundTraits.pushUnique("greenthumb")>>
+		<<if $fertiliser>>
+			<<set $fertiliser.current++>>
+		<</if>>
+	<</if>>
+	<<if _upgrades.randomClothing gt 0>>
+		<<set _clothingItems to _upgrades.randomClothing * 3>>
+		<<set _options to {
+			head:[],
+			face:[],
+			neck:[],
+			hands:[],
+			upper:[],
+			lower:[],
+			under_upper:[],
+			under_lower:[],
+			legs:[],
+			feet:[]
+		}>>
+		<<set _equip to setup.clothingLayer.body>>
+		<<for _i to 0; _i lt _equip.length; _i++>>
+			<<set _slot to _equip[_i]>>
+			<<for _j to 0; _j lt setup.clothes[_slot].length; _j++>>
+				<<if (setup.clothes[_slot][_j].gender is "f" and $featsBoosts.clothingGender is "Male") or (setup.clothes[_slot][_j].gender is "m" and $featsBoosts.clothingGender is "Female")>>
 					<<continue>>
 				<</if>>
+				<<if setup.clothes[_slot][_j].outfitSecondary isnot undefined>>
+					<<continue>>
+				<</if>>
+				<<if setup.clothes[_slot][_j].shop.includes("clothing")>>
+					<<run _options[_slot].push(_j)>>
+				<</if>>
+			<</for>>
+		<</for>>
+		<<set _equip to ["head","face","neck","upper","upper","upper","upper","upper","lower","lower","lower","lower","lower","under_upper","under_upper","under_upper","under_lower","under_lower","under_lower","hands","legs","feet"]>>
+		<<for _i to 0; _i lt _clothingItems; _i++>>
+			<<set _slot to _equip.random()>>
+			<<set _index to _options[_slot].random()>>
+			<<set _item to clone(setup.clothes[_slot][_index])>>
+			<<if _item.colour_options.length gt 0>>
+				<<set _colors to clone(_item.colour_options)>>
+				<<if $featsBoosts.clothingCustomColors is false>>
+					<<run _colors.delete("custom")>>
+				<</if>>
+				<<set _item.colour to _colors.random()>>
+				<<if $featsBoosts.clothingCustomColors is true and _item.colour is "custom">>
+					<<set _item.colourCustom to customColour(random(0,360), (random(0,20)/10), (random(5,40)/10), (random(0,20)/10), (random(0,100)/100))>>
+				<</if>>
 			<</if>>
-			<<if setup.clothes[_slot][_j].shop.includes("clothing")>>
-				<<run _options[_slot].push(_j)>>
+			<<if _item.accessory_colour_options.length gt 0>>
+				<<set _colors to clone(_item.accessory_colour_options)>>
+				<<if $featsBoosts.clothingCustomColors is false>>
+					<<run _colors.delete("custom")>>
+				<</if>>
+				<<set _item.accessory_colour to _colors.random()>>
+				<<if $featsBoosts.clothingCustomColors is true and _item.accessory_colour is "custom">>
+					<<set _item.accessory_colourCustom to customColour(random(0,360), (random(0,20)/10), (random(5,40)/10), (random(0,20)/10), (random(0,100)/100))>>
+				<</if>>
+			<</if>>
+
+			<<set $_.outfitPrimary to _item.outfitPrimary>>
+			<<set $_.items to {}>>
+			<<run $_.items[_slot] to clone(_item)>>
+			<<if $_.outfitPrimary isnot undefined>>
+				<<for _labelf, _valuef range $_.outfitPrimary>>
+					<<for _j to 0; _j lt setup.clothes[_labelf].length; _j++>>
+						<<if _valuef is setup.clothes[_labelf][_j].name>>
+							<<set $_.items[_labelf] to clone(setup.clothes[_labelf][_j])>>
+							<<set $_.items[_labelf].colour to clone($_.items[_slot].colour)>>
+							<<set $_.items[_labelf].accessory_colour to clone($_.items[_slot].accessory_colour)>>
+							<<if $featsBoosts.clothingCustomColors is true and _item.colour is "custom">>
+								<<set $_.items[_labelf].colourCustom to clone($_.items[_slot].colourCustom)>>
+							<</if>>
+							<<if $featsBoosts.clothingCustomColors is true and _item.accessory_colour is "custom">>
+								<<set $_.items[_labelf].accessory_ColourCustom to clone($_.items[_slot].accessory_colourCustom)>>
+							<</if>>
+							<<break>>
+						<</if>>
+					<</for>>
+				<</for>>
+			<</if>>
+
+			<<if $_.items[_slot] isnot undefined and $wardrobe[_slot].length lt $wardrobe.space>>
+				<<for _labelf, _valuef range $_.items>>
+					<<run $wardrobe[_labelf].push(_valuef)>>
+				<</for>>
+			<<else>>
+				<<set _clothingItems += 1>>
+			<</if>>
+			<<unset _item>>
+		<</for>>
+	<</if>>
+
+	<<if _upgrades.tattoos gt 0>>
+		<<featsTattooOptions>>
+		<<set _totalTattoos to $featsBoosts.upgrades.tattoos / $featsBoosts.upgradeDetails.tattoos.cost>>
+		<<set _bodyPartOptions to ["forehead","left_cheek","right_cheek","left_shoulder","right_shoulder","back","breasts","left_bottom","right_bottom","left_thigh","right_thigh","pubic"]>>
+
+		/*Remove non-random locations*/
+		<<for _label, _value range $featsBoosts.tattoos>>
+			<<if _value.tattoo isnot "Random">>
+				<<set _bodyPart to _value.bodypart.toLowerCase()>>
+				<<set _bodyPart to _bodyPart.replace(" ", "_")>>
+				<<run _bodyPartOptions.delete(_bodyPart)>>
 			<</if>>
 		<</for>>
-	<</for>>
-	<<set _equip to ["head","face","neck","upper","upper","upper","upper","upper","lower","lower","lower","lower","lower","under_upper","under_upper","under_upper","under_lower","under_lower","under_lower","hands","legs","feet"]>>
-	<<for _i to 0; _i lt _clothingItems; _i++>>
-		<<set _slot to _equip.random()>>
-		<<set _index to _options[_slot].random()>>
-		<<set _item to clone(setup.clothes[_slot][_index])>>
-		<<if _item.colour_options.length gt 0>>
-			<<set _colors to clone(_item.colour_options)>>
-			<<if $featsBoosts.clothingCustomColors is false>>
-				<<run _colors.delete("custom")>>
-			<</if>>
-			<<set _item.colour to _colors.random()>>
-			<<if $featsBoosts.clothingCustomColors is true and _item.colour is "custom">>
-				<<set _item.colourCustom to customColour(random(0,360), (random(0,20)/10), (random(5,40)/10), (random(0,20)/10), (random(0,100)/100))>>
-			<</if>>
-		<</if>>
-		<<if _item.accessory_colour_options.length gt 0>>
-			<<set _colors to clone(_item.accessory_colour_options)>>
-			<<if $featsBoosts.clothingCustomColors is false>>
-				<<run _colors.delete("custom")>>
-			<</if>>
-			<<set _item.accessory_colour to _colors.random()>>
-			<<if $featsBoosts.clothingCustomColors is true and _item.accessory_colour is "custom">>
-				<<set _item.accessory_colourCustom to customColour(random(0,360), (random(0,20)/10), (random(5,40)/10), (random(0,20)/10), (random(0,100)/100))>>
-			<</if>>
-		<</if>>
 
-		<<set $_.outfitPrimary to _item.outfitPrimary>>
-		<<set $_.items to {}>>
-		<<run $_.items[_slot] to clone(_item)>>
-		<<if $_.outfitPrimary isnot undefined>>
-			<<for _labelf, _valuef range $_.outfitPrimary>>
-				<<for _j to 0; _j lt setup.clothes[_labelf].length; _j++>>
-					<<if _valuef is setup.clothes[_labelf][_j].name>>
-						<<set $_.items[_labelf] to clone(setup.clothes[_labelf][_j])>>
-						<<set $_.items[_labelf].colour to clone($_.items[_slot].colour)>>
-						<<set $_.items[_labelf].accessory_colour to clone($_.items[_slot].accessory_colour)>>
-						<<if $featsBoosts.clothingCustomColors is true and _item.colour is "custom">>
-							<<set $_.items[_labelf].colourCustom to clone($_.items[_slot].colourCustom)>>
-						<</if>>
-						<<if $featsBoosts.clothingCustomColors is true and _item.accessory_colour is "custom">>
-							<<set $_.items[_labelf].accessory_ColourCustom to clone($_.items[_slot].accessory_colourCustom)>>
-						<</if>>
-						<<break>>
-					<</if>>
-				<</for>>
-			<</for>>
-		<</if>>
-
-		<<if $_.items[_slot] isnot undefined and $wardrobe[_slot].length lt 40>>
-			<<for _labelf, _valuef range $_.items>>
-				<<run $wardrobe[_labelf].push(_valuef)>>
-			<</for>>
-		<<else>>
-			<<set _clothingItems += 1>>
-		<</if>>
-		<<unset _item>>
-	<</for>>
-<</if>>
-
-<<if _upgrades.tattoos gt 0>>
-	<<featsTattooOptions>>
-	<<set _totalTattoos to $featsBoosts.upgrades.tattoos / $featsBoosts.upgradeDetails.tattoos.cost>>
-	<<set _bodyPartOptions to ["forehead","left_cheek","right_cheek","left_shoulder","right_shoulder","back","breasts","left_bottom","right_bottom","left_thigh","right_thigh","pubic"]>>
-
-	/*Remove non-random locations*/
-	<<for _label, _value range $featsBoosts.tattoos>>
-		<<if _value.tattoo isnot "Random">>
+		/*Add non-random bodyparts*/
+		<<for _label, _value range $featsBoosts.tattoos>>
+			<<if _label gt _totalTattoos>>
+				<<break>>
+			<</if>>
+			<<if _value.bodypart is "Random">>
+				<<continue>>
+			<</if>>
 			<<set _bodyPart to _value.bodypart.toLowerCase()>>
 			<<set _bodyPart to _bodyPart.replace(" ", "_")>>
 			<<run _bodyPartOptions.delete(_bodyPart)>>
-		<</if>>
-	<</for>>
-
-	/*Add non-random bodyparts*/
-	<<for _label, _value range $featsBoosts.tattoos>>
-		<<if _label gt _totalTattoos>>
-			<<break>>
-		<</if>>
-		<<if _value.bodypart is "Random">>
-			<<continue>>
-		<</if>>
-		<<set _bodyPart to _value.bodypart.toLowerCase()>>
-		<<set _bodyPart to _bodyPart.replace(" ", "_")>>
-		<<run _bodyPartOptions.delete(_bodyPart)>>
-		<<if _value.tattoo is "Random">>
-			<<set _tattoo to _featsTattooOptions.pluck()>>
-		<<else>>
-			<<set _tattoo to _value.tattoo>>
-		<</if>>
-		<<for _label2, _value2 range setup.bodywriting>>
-			<<if _value2.writing is _tattoo>>
-				<<add_bodywriting _bodyPart _label2 `_value.pen.toLowerCase()`>>
+			<<if _value.tattoo is "Random">>
+				<<set _tattoo to _featsTattooOptions.pluck()>>
+			<<else>>
+				<<set _tattoo to _value.tattoo>>
+			<</if>>
+			<<for _label2, _value2 range setup.bodywriting>>
+				<<if _value2.writing is _tattoo>>
+					<<add_bodywriting _bodyPart _label2 `_value.pen.toLowerCase()`>>
+					<<break>>
+				<</if>>
+			<</for>>
+		<</for>>
+		/*Add random bodyparts*/
+		<<for _label, _value range $featsBoosts.tattoos>>
+			<<if _label gt _totalTattoos>>
 				<<break>>
 			<</if>>
-		<</for>>
-	<</for>>
-	/*Add random bodyparts*/
-	<<for _label, _value range $featsBoosts.tattoos>>
-		<<if _label gt _totalTattoos>>
-			<<break>>
-		<</if>>
-		<<if _value.bodypart isnot "Random">>
-			<<continue>>
-		<</if>>
-		<<set _bodyPart to _bodyPartOptions.pluck()>>
-		<<if _value.tattoo is "Random">>
-			<<set _tattoo to _featsTattooOptions.pluck()>>
-		<<else>>
-			<<set _tattoo to _value.tattoo>>
-		<</if>>
-		<<for _label2, _value2 range setup.bodywriting>>
-			<<if _value2.writing is _tattoo>>
-				<<add_bodywriting _bodyPart _label2 `_value.pen.toLowerCase()`>>
-				<<break>>
+			<<if _value.bodypart isnot "Random">>
+				<<continue>>
 			<</if>>
+			<<set _bodyPart to _bodyPartOptions.pluck()>>
+			<<if _value.tattoo is "Random">>
+				<<set _tattoo to _featsTattooOptions.pluck()>>
+			<<else>>
+				<<set _tattoo to _value.tattoo>>
+			<</if>>
+			<<for _label2, _value2 range setup.bodywriting>>
+				<<if _value2.writing is _tattoo>>
+					<<add_bodywriting _bodyPart _label2 `_value.pen.toLowerCase()`>>
+					<<break>>
+				<</if>>
+			<</for>>
 		<</for>>
-	<</for>>
-	<<bodywriting_exposure_check true>>
-<</if>>
-<<if _upgrades.defaultMoves gt 0>>
-	<<set $maxDefaultActionSets to 2 + _upgrades.defaultMoves / _details.defaultMoves.cost>>
-<</if>>
-<<if _upgrades.specialClothing gt 0>>
-	<<set _unlocked to $feats.allSaves.specialClothes>>
-	<<specialClothesSetup>>
-	<<for $_label, $_value range _unlocked>>
-		<<set $specialClothes[$_label] to $_value>>
-	<</for>>
-<</if>>
+		<<bodywritingExposureCheck true>>
+	<</if>>
+	<<if _upgrades.defaultMoves gt 0>>
+		<<set $maxDefaultActionSets to 2 + _upgrades.defaultMoves / _details.defaultMoves.cost>>
+	<</if>>
+	<<if _upgrades.specialClothing gt 0>>
+		<<set _unlocked to $feats.allSaves.specialClothes>>
+		<<specialClothesSetup>>
+		<<for $_label, $_value range _unlocked>>
+			<<set $specialClothes[$_label] to $_value>>
+		<</for>>
+	<</if>>
+	<<if _upgrades.sexToys gt 0>>
+		<<set _totalToys to _upgrades.sexToys / 10>>
+		<<set _indexList to []>>
+		<<run Object.values(setup.sextoys).forEach(toy => T.indexList.push(toy.index))>>
+		<<for _i to 0; _i lt _totalToys; _i++>>
+			<<if $featsBoosts.sexToys[_i].index isnot undefined and $featsBoosts.sexToys[_i].index isnot -1>>
+				<<set _sexToyIndex to $featsBoosts.sexToys[_i].index>>
+				<<set _sexToyColour to $featsBoosts.sexToys[_i].colour>>
+				<<run _indexList.delete(_sexToyIndex)>>
+			<<else>>
+				<<set _sexToyIndex to _indexList.pluck()>>
+			<</if>>
+			<<run console.log(_sexToyColour)>>
+			<<if !_sexToyColour or _sexToyColour is -1>>
+				<<set _sexToyColourOptions to Object.values(setup.sextoys).find(toy => toy.index is _sexToyIndex).colour_options>>
+				<<set _sexToyColour to _sexToyColourOptions[random(0, _sexToyColourOptions.length - 1)]>>
+			<</if>>
+			<<run sexShopOnBuyClick(_sexToyIndex, false, _sexToyColour, false)>>
+			<<unset _sexToyColour>>
+		<</for>>
+	<</if>>
+	/* Clean Up */
+	<<run delete $featsBoosts.name>>
+	<<run delete $featsBoosts.missing>>
+	<<run delete $featsBoosts.clothingCustomColors>>
+	<<run delete $featsBoosts.clothingGender>>
+	<<run delete $featsBoosts.upgradeDetails>>
+	<<run delete $featsBoosts.tattoos>>
+	<<run delete $featsBoosts.sexToys>>
 <</widget>>
 
 <<widget "earnAllFeats">>
-<<if $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $alluremod gte 1 and $replayScene is undefined>>
-	<<featsData>>
-	<<if $args[0] is true>>
-		/*Rarely occuring feats*/
-		<<if $player.gender is "m" and $days gte 50>>
-			<<earnFeat "Being a Boy">>
-		<</if>>
-		<<if $player.gender is "f" and $days gte 50>>
-			<<earnFeat "Being a Girl">>
-		<</if>>
-		<<if $player.gender is "h" and $days gte 50>>
-			<<earnFeat "Being a Hermaphrodite">>
-		<</if>>
-		<<if $days gte 150>>
-			<<earnFeat "Being an Orphan">>
-		<</if>>
-		<<if $days gte 50 and $passoutstat is 0>>
-			<<earnFeat "Stressful Challenge">>
-		<</if>>
-		<<if $days gte 150 and $passoutstat is 0>>
-			<<earnFeat "Long Stressful Challenge">>
-		<</if>>
-		<<if $awareness gte 500>>
-			<<earnFeat "Most Aware">>
-		<</if>>
-		<<if $awareness lte -199>>
-			<<earnFeat "Most Innocent">>
-		<</if>>
-		<<if $promiscuity gte 100 and $deviancy gte 100 and $exhibitionism gte 100>>
-			<<earnFeat "No More Control">>
-		<</if>>
-		<<if ($vaginaexist is 0 or $vaginalskill gte 1000) and ($penisexist is 0 or $penileskill gte 1000) and $oralskill gte 1000
-		and ($analskill gte 1000 or $analdisable is "t") and $handskill gte 1000 and $feetskill gte 1000 and $bottomskill gte 1000
-		and $thighskill gte 1000 and $chestskill gte 1000>>
-			<<earnFeat "Sex Specialist">>
-		<</if>>
-		<<if $submissive gte 2000>>
-			<<earnFeat "Perfect Sub">>
-		<</if>>
-		<<if $submissive lte 0>>
-			<<earnFeat "Defying the Odds">>
-		<</if>>
-		<<if $museumAntiques.museumCount is $museumAntiques.maxCount>>
-			<<earnFeat "It Belongs in a Museum">>
-		<</if>>
-		<<if $NPCName[10].love gte 100 and $NPCName[16].love gte 100 and $NPCName[19].love gte 30>>
-			<<earnFeat "Love Triangles">>
-		<</if>>
-		<<if $cat gte 6>>
-			<<earnFeat "Neko">>
-		<</if>>
-		<<if $wolfgirl gte 6>>
-			<<earnFeat "Wolf">>
-		<</if>>
-		<<if $angel gte 6>>
-			<<earnFeat "Angel">>
-		<</if>>
-		<<if $fallenangel gte 2>>
-			<<earnFeat "Fallen Angel">>
-		<</if>>
-		<<if $demon gte 6>>
-			<<earnFeat "Demon">>
-		<</if>>
-		<<if $cow gte 6>>
-			<<earnFeat "Cattle">>
-		<</if>>
-		<<if $orgasmtrait gte 1 or $ejactrait gte 1 or $molesttrait gte 1 or $rapetrait gte 1 or $bestialitytrait gte 1
-		or $tentacletrait gte 1 or $voretrait gte 1 or $milkdranktrait gte 1>>
-			<<earnFeat "A Special Trait">>
-		<</if>>
-		<<if $orgasmtrait gte 1 and $ejactrait gte 1 and $molesttrait gte 1 and $rapetrait gte 1 and $bestialitytrait gte 1
-		and $tentacletrait gte 1 and $voretrait gte 1 and $milkdranktrait gte 1>>
-			<<earnFeat "A Special Trait Collector">>
-		<</if>>
-		<<if $sexStats.anus.pregnancy.motherStatus is 2>>
-			<<earnFeat "Broodmother Host">>
-		<</if>>
-		<<if $spraymax gte 6>>
-			<<earnFeat "Max Those Shots">>
-		<</if>>
-		<<if ($semen_volume gte 2000 and $semen_amount gte $semen_volume)
-		or ($milk_volume gte 2000 and $milk_amount gte $milk_volume)>>
-			<<earnFeat "Feeling Full">>
-		<</if>>
-		<<if $cool gte 400>>
-			<<earnFeat "Social Butterfly">>
-		<</if>>
-		<<if $cool lte 2 and !$backgroundTraits.includes("nerd")>>
-			<<earnFeat "Anti-Social Moth">>
-		<</if>>
-		<<if $delinquency lte 0>>
-			<<earnFeat "Teachers Pet">>
-		<</if>>
-		<<if $delinquency gte 1000>>
-			<<earnFeat "Teachers Nightmare">>
-		<</if>>
-		<<if $feats.allSaves.points gte 150>>
-			<<earnFeat "My Collection of Feats">>
-		<</if>>
-		<<if $skin.forehead.writing and $skin.left_cheek.writing and $skin.right_cheek.writing and $skin.left_shoulder.writing and $skin.right_shoulder.writing
-		and $skin.breasts.writing and $skin.back.writing and $skin.pubic.writing and $skin.left_thigh.writing and $skin.right_thigh.writing>>
-			<<earnFeat "A Living Canvas">>
-		<</if>>
-		<<if $produce_sold gte 100>>
-			<<earnFeat "Hawker">>
-		<</if>>
-		<<if $produce_sold gte 1000>>
-			<<earnFeat "Vendor">>
-		<</if>>
-		<<if $produce_sold gte 5000>>
-			<<earnFeat "Merchant">>
-		<</if>>
-		<<if $plants_known.length gte 11>>
-			<<earnFeat "Seedy">>
-		<</if>>
-		<<if $ex_road is 1 and $ex_cream is 1 and $ex_flyover is 1>>
-			<<earnFeat "A Lewd Adventure">>
-		<</if>>
-		<<if $athletics gte 1000>>
-			<<earnFeat "Swift">>
-		<</if>>
-		<<if $farm_stage gte 2>>
-			<<if $farm.beasts.horses gte 20 and $farm.beasts.cattle gte 20 and $farm.beasts.dogs gte 20 and $farm.beasts.pigs gte 20>>
-				<<earnFeat "Animal Tender">>
+	<<specialClothesUpdate>>
+	<<if $feats.locked is false and $cheatdisable is "t" and $debug is 0 and $gamemode isnot "soft" and $alluremod gte 1 and $replayScene is undefined>>
+		<<if _args[0] is true>>
+			/*Rarely occuring feats*/
+			<<if Time.days gte 50>>
+				<<if $player.gender is "m">>
+					<<earnFeat "Being a Boy">>
+				<<elseif $player.gender is "f">>
+					<<earnFeat "Being a Girl">>
+				<<elseif $player.gender is "h">>
+					<<earnFeat "Being a Hermaphrodite">>
+				<</if>>
+
+				<<if Time.days gte 150>>
+					<<earnFeat "Being an Orphan">>
+				<</if>>
+
+				<<if $passoutstat is 0>>
+					<<earnFeat "Stressful Challenge">>
+					<<if Time.days gte 150>>
+						<<earnFeat "Long Stressful Challenge">>
+					<</if>>
+				<</if>>
 			<</if>>
+			<<if $awareness gte 500>>
+				<<earnFeat "Most Aware">>
+			<<elseif $awareness lte -199>>
+				<<earnFeat "Most Innocent">>
+			<</if>>
+			<<if $promiscuity gte 100 and $deviancy gte 100 and $exhibitionism gte 100>>
+				<<earnFeat "No More Control">>
+			<</if>>
+			<<if (!$player.vaginaExist or $vaginalskill gte 1000) and (!$player.penisExist or $penileskill gte 1000) and $oralskill gte 1000
+			and ($analskill gte 1000 or $analdisable is "t") and $handskill gte 1000 and $feetskill gte 1000 and $bottomskill gte 1000
+			and $thighskill gte 1000 and $chestskill gte 1000>>
+				<<earnFeat "Sex Specialist">>
+			<</if>>
+			<<if $submissive gte 2000>>
+				<<earnFeat "Perfect Sub">>
+			<<elseif $submissive lte 0>>
+				<<earnFeat "Defying the Odds">>
+			<</if>>
+			<<if $museumAntiques.museumCount is $museumAntiques.maxCount>>
+				<<earnFeat "It Belongs in a Museum">>
+			<</if>>
+			<<if ($robinromance gte 1 and $whitneyromance gte 1 and $kylarenglish gte 1) or ($robinromance gte 1 and $whitneyromance gte 1 and $sydneyromance gte 1) or ($robinromance gte 1 and $kylarenglish gte 1 and $sydneyromance gte 1) or ($kylarenglish gte 1 and $whitneyromance gte 1 and $sydneyromance gte 1)>>
+				<<earnFeat "Love Triangles">>
+			<</if>>
+			<<if $robinromance gte 1 and $whitneyromance gte 1 and $kylarenglish gte 1 and $sydneyromance gte 1>>
+				<<earnFeat "Love Trapezoids">>
+			<</if>>
+			<<if $cat gte 6>>
+				<<earnFeat "Neko">>
+			<</if>>
+			<<if $wolfgirl gte 6>>
+				<<earnFeat "Wolf">>
+			<</if>>
+			<<if $angel gte 6>>
+				<<earnFeat "Angel">>
+			<</if>>
+			<<if $fallenangel gte 2>>
+				<<earnFeat "Fallen Angel">>
+			<</if>>
+			<<if $demon gte 6>>
+				<<earnFeat "Demon">>
+			<</if>>
+			<<if $cow gte 6>>
+				<<earnFeat "Cattle">>
+			<</if>>
+			<<if $harpy gte 6>>
+				<<earnFeat "Harpy">>
+			<</if>>
+			<<if $fox gte 6>>
+				<<earnFeat "Fox">>
+			<</if>>
+			<<if $orgasmtrait gte 1 or $ejactrait gte 1 or $molesttrait gte 1 or $rapetrait gte 1 or $bestialitytrait gte 1
+			or $tentacletrait gte 1 or $voretrait gte 1 or $milkdranktrait gte 1 or $choketrait gte 1>>
+				<<earnFeat "A Special Trait">>
+			<</if>>
+			<<if $orgasmtrait gte 1 and $ejactrait gte 1 and $molesttrait gte 1 and $rapetrait gte 1 and $bestialitytrait gte 1
+			and $tentacletrait gte 1 and $voretrait gte 1 and $milkdranktrait gte 1 and $choketrait gte 1>>
+				<<earnFeat "A Special Trait Collector">>
+			<</if>>
+			<<if $sexStats.anus.pregnancy.motherStatus is 2 or $sexStats.vagina.pregnancy.motherStatus is 2>>
+				<<earnFeat "Broodmother Host">>
+			<</if>>
+			<<if $pregnancyStats.parasiteTypesSeen && $pregnancyStats.parasiteTypesSeen.length gte 14 and $pregnancyStats.parasiteVariantsSeen.length gte 2 and $pregnancyStats.parasiteBook is 3>>
+				<!-- typesSeen: fish, snake, slime, spider, maggot, worm, eel, wasp, bee, lurker, squid, slug, tentacle, vine -->
+				<!-- variantsSeen: pale, metal -->
+				<<earnFeat "Broodmother Zoologist">>
+			<</if>>
+			<<if $spraymax gte 7>>
+				<<earnFeat "Max Those Shots">>
+			<</if>>
+			<<if ($semen_volume gte 2000 and $semen_amount gte $semen_volume)
+			or ($milk_volume gte 2000 and $milk_amount gte $milk_volume)>>
+				<<earnFeat "Feeling Full">>
+			<</if>>
+			<<if $cool gte 400>>
+				<<earnFeat "Social Butterfly">>
+			<</if>>
+			<<if $cool lte 2 and !$backgroundTraits.includes("nerd")>>
+				<<earnFeat "Anti-Social Moth">>
+			<</if>>
+			<<if $delinquency lte 0>>
+				<<earnFeat "Teachers Pet">>
+			<<elseif $delinquency gte 1000>>
+				<<earnFeat "Teachers Nightmare">>
+			<</if>>
+			<<if $skin.forehead.writing and $skin.left_cheek.writing and $skin.right_cheek.writing and $skin.left_shoulder.writing and $skin.right_shoulder.writing
+			and $skin.breasts.writing and $skin.back.writing and $skin.pubic.writing and $skin.left_thigh.writing and $skin.right_thigh.writing>>
+				<<earnFeat "A Living Canvas">>
+			<</if>>
+			<<if $produce_sold gte 100>>
+				<<earnFeat "Hawker">>
+			<</if>>
+			<<if $produce_sold gte 1000>>
+				<<earnFeat "Vendor">>
+			<</if>>
+			<<if $produce_sold gte 5000>>
+				<<earnFeat "Merchant">>
+			<</if>>
+			<<if $plants_known.length gte 17>>
+				<<earnFeat "Seedy">>
+			<</if>>
+			<<if $daily.ex.road is 1 and $daily.ex.cream is 1 and $daily.ex.flyover is 1>>
+				<<earnFeat "A Lewd Adventure">>
+			<</if>>
+			<<if $athletics gte 1000>>
+				<<earnFeat "Swift">>
+			<</if>>
+			<<if $farm_stage gte 2>>
+				<<if $farm.beasts.horses gte 20 and $farm.beasts.cattle gte 20 and $farm.beasts.dogs gte 20 and $farm.beasts.pigs gte 20>>
+					<<earnFeat "Animal Tender">>
+				<</if>>
+			<</if>>
+			<<if $masochism_level gte 4 and $sadism_level gte 4>>
+				<<earnFeat "Sadomasochist">>
+			<</if>>
+			<<if $masochism_level gte 4>>
+				<<earnFeat "Twisted Desire">>
+			<</if>>
+			<<if $sadism_level gte 4>>
+				<<earnFeat "Served Hot">>
+			<</if>>
+			<<if $fame.sex lte 29 and $fame.prostitution lte 29 and $fame.rape lte 29 and $fame.bestiality lte 29 and $fame.exhibitionism lte 29 and $fame.pregnancy lte 29 and $fame.impreg lte 29
+			and $fame.scrap gte 1000 and $fame.good gte 1000 and $fame.business gte 1000 and $fame.social gte 1000 and $fame.model gte 1000 /* and $fame.pimp gte 1000 */>>
+				<<earnFeat "Shining Reputation">>
+			<</if>>
+
+			<<if Object.values($children).reduce((prev,curr) => {
+				prev.pushUnique(curr.type);
+				return prev;
+			}, []).length gte Object.keys(pregnancyGenerator).filter(type => type !== "parasite").length>>
+				<<earnFeat "Diversity of Life">>
+			<</if>>
+
+			<!-- Should be last -->
+			<<if $feats.allSaves.points gte 150>>
+				<<earnFeat "My Collection of Feats">>
+			<</if>>
+			<<if $feats.allSaves.points gte 300>>
+				<<earnFeat "My Timeless Collection of Feats">>
+			<</if>>
+			<<specialClothesUpdate>>
 		<</if>>
-		<<if $masochism_level gte 4 and $sadism_level gte 4>>
-			<<earnFeat "Sadomasochist">>
+		<<if $money gte 100000>>
+			<<earnFeat "Pocket Change">>
 		<</if>>
-		<<if $masochism_level gte 4>>
-			<<earnFeat "Twisted Desire">>
+		<<if $money gte 1000000>>
+			<<earnFeat "Money Maker">>
 		<</if>>
-		<<if $sadism_level gte 4>>
-			<<earnFeat "Served Hot">>
+		<<if $money gte 10000000>>
+			<<earnFeat "Tycoon">>
+		<</if>>
+		<<if $money gte 100000000>>
+			<<earnFeat "Millionaire">>
+		<</if>>
+		<<if $liquidoutsidecount gte 100
+		and ($analdisable is "t" or setup.bodyliquid.combined("anus") gte 5)
+		and (!$player.vaginaExist or setup.bodyliquid.combined("vagina") gte 5)
+		and setup.bodyliquid.combined("mouth") gte 5>>
+			<<earnFeat "Fully Covered">>
+		<</if>>
+		<<if $skulduggery gte 1000>>
+			<<earnFeat "Thief">>
+		<</if>>
+		<<if $danceskill gte 1000>>
+			<<earnFeat "May I have this Dance?">>
+		<</if>>
+		<<if $swimmingskill gte 1000>>
+			<<earnFeat "Aquanaut">>
+		<</if>>
+		<<if $seductionskill gte 1000>>
+			<<earnFeat "Seductress">>
+		<</if>>
+		<<if $tending gte 1000>>
+			<<earnFeat "Green Fingered">>
+		<</if>>
+		<<if $housekeeping gte 1000>>
+			<<earnFeat "Majordomo">>
+		<</if>>
+
+		<<if $baseAllure gte 7000 and $outside is 1 and $moonstate is 0>>
+			<<earnFeat "Alluring">>
+		<</if>>
+		<<if $science gte 1000 and $maths gte 1000 and $english gte 1000 and $history gte 1000>>
+			<<earnFeat "Perfect Record">>
+		<</if>>
+		<<if $corruption_slime gte 100>>
+			<<earnFeat "Ear Slime Lover">>
+		<</if>>
+		<<if $feats.allSaves.points gte 300>>
+			<<earnFeat "My Timeless Collection of Feats">>
 		<</if>>
 		<<specialClothesUpdate>>
 	<</if>>
-	<<if $money gte 100000>>
-		<<earnFeat "Pocket Change">>
-	<</if>>
-	<<if $money gte 1000000>>
-		<<earnFeat "Money Maker">>
-	<</if>>
-	<<if $money gte 10000000>>
-		<<earnFeat "Tycoon">>
-	<</if>>
-	<<if $money gte 100000000>>
-		<<earnFeat "Millionaire">>
-	<</if>>
-	<<if $goooutsidecount + $semenoutsidecount gte 100
-	and ($anusgoo + $anussemen gte 5 or $analdisable is "t")
-	and ($vaginagoo + $vaginasemen gte 5 or $vaginaexist is 0)
-	and $mouthgoo + $mouthsemen gte 5>>
-		<<earnFeat "Fully Covered">>
-	<</if>>
-	<<if $skulduggery gte 1000>>
-		<<earnFeat "Thief">>
-	<</if>>
-	<<if $danceskill gte 1000>>
-		<<earnFeat "May I have this Dance?">>
-	<</if>>
-	<<if $swimmingskill gte 1000>>
-		<<earnFeat "Aquanaut">>
-	<</if>>
-	<<if $seductionskill gte 1000>>
-		<<earnFeat "Seductress">>
-	<</if>>
-	<<if $tending gte 1000>>
-		<<earnFeat "Green Fingered">>
-	<</if>>
-
-	<<if $allure gte (7000 * $alluremod) and $outside is 1 and $moonstate is 0>>
-		<<earnFeat "Alluring">>
-	<</if>>
-	<<if $science gte 1000 and $maths gte 1000 and $english gte 1000 and $history gte 1000>>
-		<<earnFeat "Perfect Record">>
-	<</if>>
-	<<if $corruption_slime gte 100>>
-		<<earnFeat "Ear Slime Lover">>
-	<</if>>
-<</if>>
 <</widget>>
 
-<<widget "featsData">>
-<<if _feats is undefined>>
-	<<set _feats to {
-		"Pocket Change":{
-			title: "잔돈",
-			desc: "£1,000 가진다.",
-			difficulty: 1,
-			series: "money",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Money Maker":{
-			title: "큰손",
-			desc: "£10,000 가진다.",
-			difficulty: 1,
-			series: "money",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Tycoon":{
-			title: "거물",
-			desc: "£100,000 가진다.",
-			difficulty: 2,
-			series: "money",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Millionaire":{
-			title: "백만장자",
-			desc: "£1,000,000 가진다.",
-			difficulty: 3,
-			series: "money",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"It Belongs in a Museum":{
-			title: "이건 박물관으로 가야해!",
-			desc: "모든 유물을 찾는다",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Fully Covered":{
-			title: "완전히 뒤덮힌",
-			desc: "물 말고 다른 것으로 흠뻑 젖었다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "General"],
-		},
-		"Being a Boy":{
-			title: "남자아이의 삶",
-			desc: "소년으로 50일을 달성한다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Being a Girl":{
-			title: "여자아이의 삶",
-			desc: "소녀로 50일을 달성한다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Being a Hermaphrodite":{
-			title: "후타나리의 삶",
-			desc: "후타나리로 50일을 달성한다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Being an Orphan":{
-			title: "고아의 삶",
-			desc: "150일을 달성한다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Stressful Challenge":{
-			title: "스트레스 챌린지",
-			desc: "의식을 잃지 않고 50일을 달성한다.",
-			difficulty: 2,
-			series: "challenge",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Long Stressful Challenge":{
-			title: "기나긴 스트레스 챌린지",
-			desc: "의식을 잃지 않고 150일을 달성한다.",
-			difficulty: 3,
-			series: "challenge",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Billboard":{
-			title: "광고판",
-			desc: "광고를 그려넣고, 그 대가를 치른다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "General"],
-		},
-		"A Living Canvas":{
-			title: "살아있는 캔버스",
-			desc: "몸 구석구석에 잉크가 묻었다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "General"],
-		},
-		"Farmhand":{
-			title: "농장 일꾼",
-			desc: "알렉스가 농장을 확장하는 걸 돕는다.",
-			difficulty: 2,
-			series: "alex",
-			filter: ["All", "General"],
-		},
-		"Farmer":{
-			title: "농부",
-			desc: "농장에 예전의 영광을 돌려놓는다.",
-			difficulty: 3,
-			series: "alex",
-			filter: ["All", "General"],
-		},
-		"Cultivator":{
-			title: "경작자",
-			desc: "알렉스의 농장에서 모든 경작지를 경작한다.",
-			difficulty: 3,
-			series: "alex",
-			filter: ["All", "General"],
-		},
-		"The Rival Farm":{
-			title: "라이벌 농장",
-			desc: "농장 확장 하나를 끝까지 업그레이드한다.",
-			difficulty: 2,
-			series: "farm",
-			filter: ["All", "General"],
-		},
-		"The Rival Estate":{
-			title: "라이벌 대농장",
-			desc: "농장을 완전히 확장한다.",
-			difficulty: 3,
-			series: "farm",
-			filter: ["All", "General"],
-		},
-		"Heroic Victory":{
-			title: "영웅적인 승리",
-			desc: "레미에게서 아홉 경작지를 지키고, 하나도 잃지 않는다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "General"],
-		},
-		"Five in a Row":{
-			title: "5연승",
-			desc: "블랙잭을 5번 연속으로 이긴다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "General"],
-		},
-		"Distinction":{
-			title: "차이",
-			desc: "학교 시험에서 우수한 성적을 거두다.",
-			difficulty: 1,
-			series: "distinction",
-			filter: ["All", "General"],
-		},
-		"Distinctive":{
-			title: "우수한",
-			desc: "학교 시험에서 5회 우수한 성적을 거두다.",
-			difficulty: 2,
-			series: "distinction",
-			filter: ["All", "General"],
-		},
-		"Distinguished":{
-			title: "뛰어난",
-			desc: "학교 시험에서 15회 우수한 성적을 거두다.",
-			difficulty: 3,
-			series: "distinction",
-			filter: ["All", "General"],
-		},
-		"Science Fair Winner":{
-			title: "과학전람회 우승자",
-			desc: "과학으로 사람들을 현혹한다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Maths Competition Winner":{
-			title: "수학 경시대회 우승자",
-			desc: "비열한 방법을 썼든 아니든.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "General"],
-			softLockable: true,
-		},
-		"Most Aware":{
-			title: "지식이 뛰어난",
-			desc: "당신은 다른 사람들은 보지 못하는 것들을 본다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Most Innocent":{
-			title: "가장 순수한",
-			desc: "모든게 괜찮다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"No More Control":{
-			title: "통제불능",
-			desc: "어찌 이보다 더 음란해질 수 있겠는가!",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Thief":{
-			title: "도둑",
-			desc: "이제 어떻게 손을 써야 하는지 알고 있다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"May I have this Dance?":{
-			title: "한 곡 추시겠어요?",
-			desc: "당신의 몸놀림에 저항할 자는 없다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Aquanaut":{
-			title: "잠수부",
-			desc: "보물 사냥꾼들을 위해.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Seductress":{
-			title: "요부",
-			desc: "통제권을 쥐고 있다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Green Fingered":{
-			title: "초록 손가락",
-			desc: "무릎을 꿇은채로 정말 많은 걸 할 수 있다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Swift":{
-			title: "신속",
-			desc: "바람과 같이.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Alluring":{
-			title: "색기 넘치는",
-			desc: "시선을 끄는 건 쉬운 일이다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-			softLockable: true,
-		},
-		"Sex Specialist":{
-			title: "섹스 스페셜리스트",
-			desc: "다른 이들을 가게 만드는 데에는 도가 텄다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Perfect Record":{
-			title: "만점",
-			desc: "공부로는 따라올 자가 없다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Perfect Sub":{
-			title: "완벽한 섭",
-			desc: "순종의 절정.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Defying the Odds":{
-			title: "내 알아 할게요",
-			desc: "반항의 절정.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Hawker":{
-			title: "행상인",
-			desc: "지구가 준 이익.",
-			difficulty: 1,
-			series: "market",
-			filter: ["All", "Stats"],
-		},
-		"Vendor":{
-			title: "노점상",
-			desc: "장사 실력을 증명한다.",
-			difficulty: 2,
-			series: "market",
-			filter: ["All", "Stats"],
-		},
-		"Merchant":{
-			title: "상인",
-			desc: "시장을 지배하라.",
-			difficulty: 2,
-			series: "market",
-			filter: ["All", "Stats"],
-		},
-		"Twisted Desire":{
-			title: "뒤틀린 욕구",
-			desc: "고통은 선택이다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Served Hot":{
-			title: "뜨겁게 제공합니다",
-			desc: "그들을 아프게 할 것이다. 그리고 당신은 그것을 좋아한다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Sadomasochist":{
-			title: "새도마조히스트",
-			desc: "당신은 고통을 원한다. 주는 것도, 받는 것도.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Stats"],
-		},
-		"Social Butterfly":{
-			title: "사회적 나비",
-			desc: "당신은 모두의 관심 한가운데에 있다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Anti-Social Moth":{
-			title: "비사회적 나방",
-			desc: "난 친구 같은거 없어.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Teachers Pet":{
-			title: "선생님의 총아",
-			desc: "반에서 제일가는 학생이다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Teachers Nightmare":{
-			title: "선생님의 악몽",
-			desc: "당신은 공포 그 자체다!",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Robin the Lover":{
-			title: "연인 로빈",
-			desc: "로빈에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Whitney the Tsundere":{
-			title: "일진 휘트니",
-			desc: "휘트니에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Delinquent Antics":{
-			title: "불량스런 장난",
-			desc: "수업 중간에 휘트니를 가버리게 만들었다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Giddy Up":{
-			title: "이랴",
-			desc: "휘트니를 수영장에 던져넣는다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Kylar the Obsessed":{
-			title: "집착자 카일라",
-			desc: "카일라에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Eden the Lonely":{
-			title: "외톨이 에덴",
-			desc: "에덴에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Avery the Moneybags":{
-			title: "물주 에이버리",
-			desc: "에이버리에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Leighton the Shady":{
-			title: "수상한 레이턴",
-			desc: "레이턴에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Alex the Robust":{
-			title: "원기 왕성한 알렉스",
-			desc: "알렉스에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Great Hawk the Terror":{
-			title: "두려운 거대 매",
-			desc: "당신은 훌륭한 배우자가 될 것이다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"]
-		},
-		"Wren the Sly":{
-			title: "밀수꾼 렌",
-			desc: "렌에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Great Wolf the Alpha":{
-			title: "우두머리 검은 늑대",
-			desc: "늑대에게 순결을 바쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Love Triangles":{
-			title: "삼각관계",
-			desc: "도대체 누굴 골라야 할까.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Ballroom Show-off":{
-			title: "무도회 과시자",
-			desc: "에이버리와 대회에서 우승했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Under the Table":{
-			title: "책상 밑에서",
-			desc: "술 마시기 대회에서 자신의 패기를 입증했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Pub Crawl Victors":{
-			title: "술집 순례 우승자",
-			desc: "직장 동료들과 대회에서 우승했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Mason's Secret":{
-			title: "메이슨의 비밀",
-			desc: "메이슨이 꺼려하는 비밀을 공유하도록 만든다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Mason's Shame":{
-			title: "메이슨의 수치",
-			desc: "메이슨을 라커 안에서 절정시킨다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Animal Tender":{
-			title: "동물 돌보미",
-			desc: "알렉스의 농장에 있는 모든 동물들로부터 존중받는다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"I Spy":{
-			title: "숨바꼭질",
-			desc: "샤워 중인 알렉스를 훔쳐본다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"First Kiss":{
-			title: "첫 키스",
-			desc: "연애 대상에게 첫 키스를 주다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Social"],
-		},
-		"Neko":{
-			title: "야옹~",
-			desc: "관심을 끌기 위한 골골이.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Transformation"],
-		},
-		"Wolf":{
-			title: "밤중의 울음소리",
-			desc: "무리의 일원이 되고 싶다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Transformation"],
-		},
-		"Cattle":{
-			title: "황소와의 난장판",
-			desc: "착유될 준비가 됐다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Transformation"],
-		},
-		"Harpy":{
-			title: "독수리처럼 날다",
-			desc: "커다란 그림자를 드리우고 있다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Transformation"],
-		},
-		"Angel":{
-			title: "천사처럼 걷기",
-			desc: "추락하지 않도록 노력하자.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Transformation"],
-		},
-		"Fallen Angel":{
-			title: "추락하고, 추락하고, 추락하고...",
-			desc: "잔혹하게 더럽혀짐.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Transformation"],
-		},
-		"Demon":{
-			title: "악마같은 모습",
-			desc: "엄청난 음란함의 원인.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Transformation"],
-		},
-		"A Special Trait":{
-			title: "특수 도전과제",
-			desc: "특수 도전과제를 달성한다.",
-			difficulty: 2,
-			series: "special trait",
-			hint: "Hint: 무언가 특별함.",
-			filter: ["All", "Special"],
-		},
-		"A Special Trait Collector":{
-			title: "특수 도전과제 수집가",
-			desc: "모든 특수 도전과제를 획득한다.",
-			difficulty: 3,
-			hint: "Hint: 무언가 더욱 특별함.",
-			series: "special trait",
-			filter: ["All", "Special"],
-		},
-		"Broodmother Host":{
-			title: "산모 숙주",
-			desc: "수없이 많은 작은 생물들의 숙주가 되었다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 무언가 놓친게 있다."
-		},
-		"Top Broodmother Host":{
-			title: "최고 산모 숙주",
-			desc: "완벽한 생물의 숙주가 되었다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 무언가 엄청난 것을 놓쳤다."
-		},
-		"Producer of Lewd Fluids":{
-			title: "애액 생산자",
-			desc: "이제 저 촉수들은 누가 위인지 알 것이다.",
-			difficulty: 1,
-			series: "lewd fluids",
-			filter: ["All", "Special"],
-			hint: "Hint: 촉수들은 당신을 질투한다."
-		},
-		"Literally Buckets":{
-			title: "말 그대로 양동이째로",
-			desc: "촉수의 신.",
-			difficulty: 2,
-			series: "lewd fluids",
-			filter: ["All", "Special"],
-			hint: "Hint: 욕조를 [편집됨]으로 가득 채운다."
-		},
-		"Feeling Full":{
-			title: "가득찬 느낌",
-			desc: "잔뜩 쌓였다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 잔뜩 먹은 뒤."
-		},
-		"Head Chief":{
-			title: "주방장",
-			desc: "다들 당신의 빵을 사랑한다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 타인을 위해 빵을 굽는다."
-		},
-		"Locked In Gold":{
-			title: "황금에 갇히다",
-			desc: "그런다고 좌절감으로부터 지켜주진 않는다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 잃을 바에는 가둬놓는게 낫다."
-		},
-		"Bailey's Trouble Maker":{
-			title: "베일리의 골칫거리",
-			desc: "베일리를 가게 만들었다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 집에서 말썽을 일으킨다."
-		},
-		"Leighton's Nightmare":{
-			title: "레이턴의 악몽",
-			desc: "레이턴을 가게 만들었다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 학교에서 말썽을 일으킨다."
-		},
-		"Alex's Partner":{
-			title: "알렉스의 파트너",
-			desc: "알렉스를 가게 만들었다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 농장에서 재미를 좀 보자."
-		},
-		"Harper's Bane":{
-			title: "하퍼의 골칫거리",
-			desc: "하퍼가 자신의 혈청을 마시게 만들었다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 자기가 만든 약을 직접 맛보게 해주자."
-		},
-		"Laughingstock":{
-			title: "웃음거리",
-			desc: "누군가를 공개굴욕형으로 보냈다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 굴욕감을 주자."
-		},
-		"You're the Laughingstock":{
-			title: "네가 웃음거리다",
-			desc: "공개굴욕형에 처해졌다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 범죄자가 된다."
-		},
-		"The Endless Deep":{
-			title: "무저갱",
-			desc: "계속 바다로 수영했다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 세상의 끝으로."
-		},
-		"Wet and Ruined":{
-			title: "축축하고 폐허가 된",
-			desc: "폐허가 된 성을 발견하다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 수렁에서 길을 잃어라."
-		},
-		"Head of the Pack":{
-			title: "무리의 우두머리",
-			desc: "늑대들의 우두머리가 된다.",
-			difficulty: 2,
-			series: "wolves",
-			filter: ["All", "Special"],
-			hint: "Hint: 우두머리가 된다."
-		},
-		"Top of the Food Chain":{
-			title: "먹이사슬의 정점",
-			desc: "모두가 그 끔찍한 울부짖음을 두려워한다.",
-			difficulty: 2,
-			series: "wolves",
-			filter: ["All", "Special"],
-			hint: "Hint: 리더쉽을 증명하자."
-		},
-		"Illicit Science":{
-			title: "불법 과학",
-			desc: "단지를 찾아낸다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 법을 준수하는 이들로부터 숨겨진 비밀이 있다."
-		},
-		"Mouth Sealed Shut":{
-			title: "입을 굳게 닫고",
-			desc: "심문에서 살아남는다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 입 간수를 잘 한다."
-		},
-		"Neck Deep":{
-			title: "깊이 빠진",
-			desc: "미약에 빠졌다가 살아남았다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 가장 음란한 물질을 견뎌낸다."
-		},
-		"Seedy":{
-			title: "씨앗이 가득한",
-			desc: "씨앗은 정말로 작지만, 당신에게선 숨지 못한다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 자연의 비밀을 수확한다."
-		},
-		"Pride of the Farm":{
-			title: "농장의 자랑",
-			desc: "누구보다 많은 생산량을 자랑하자.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 우월한 생산량."
-		},
-		"Dawn to Dusk":{
-			title: "새벽부터 황혼까지",
-			desc: "하루종일 농장에서 일했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 정직한 농업 일꾼."
-		},
-		"Runaway Cattle":{
-			title: "도망친 가축",
-			desc: "레미의 농장에서 탈출했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 그 어떤 우리도 당신을 가둬놓을 수 없다."
-		},
-		"Equine Rescue":{
-			title: "말 구조대",
-			desc: "말 친구들에게 구조되었다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 밭에서 쓰러지나, 그로 인한 결과를 피한다."
-		},
-		"A Thunderous Response":{
-			title: "무수히 많은 악수의 요청이",
-			desc: "중심가에서 소동을 일으켰다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 군중을 분열시킨다."
-		},
-		"A Lewd Adventure":{
-			title: "음란한 모험",
-			desc: "발가벗고 도시 속을 모험했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 대담한 모험에 나선다."
-		},
-		"Sour Dealing":{
-			title: "잘못된 거래",
-			desc: "너무 깊히 들어간 패거리로부터 구출되었다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 부도덕한 지인을 몇 만든다."
-		},
-		"Rear Passenger":{
-			title: "뒷자석 승객",
-			desc: "엉덩이로 차를 거의 부술 뻔했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 교통 안전법을 위반한다."
-		},
-		"Cornered Rogue":{
-			title: "진퇴양난의 도둑",
-			desc: "짖궂은 여우로부터 옷을 되찾는다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 짖궂은 도둑을 한 수 앞지른다."
-		},
-		"Pain Rider":{
-			title: "탑승자의 고통",
-			desc: "윈터의 삼각목마 시연을 완수한다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 삼각목마를 끝까지 타고 있는다."
-		},
-		"Submerged":{
-			title: "잠수",
-			desc: "윈터의 물고문 의자 시연을 완수한다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 끝까지 물에 잠긴다."
-		},
-		"Farm Protector":{
-			title: "농장의 보호자",
-			desc: "라이벌 농장에서 고용한 어깨들로부터 농장을 보호한다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 침입자들은 한 대씩 걷어차일 것이다."
-		},
-		"A Knot to Remember":{
-			title: "기억에 남을만한 혹",
-			desc: "근처의 사람들과 함께 들판에서 개를 받아들인다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 가장 이상성욕적인 모습을 보인다."
-		},
-		"Wrong Size":{
-			title: "틀린 사이즈",
-			desc: "남학생들과 여학생들의 옷을 바꿨다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 소문을 종식시킨다."
-		},
-		"Idle Hands":{
-			title: "놀고 있던 손",
-			desc: "안마사로 일하면서 손님을 털었다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 숙련된 손은 쓸모가 많다."
-		},
-		"Stolen Technology":{
-			title: "훔친 기술",
-			desc: "창관의 섹스 기계를 수리했다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 브라이어에겐 모두가 쓸만한 무언가가 있다."
-		},
-		"Spelunking":{
-			title: "동굴탐험",
-			desc: "해변 근처에 있는 오래된 밀수꾼의 동굴을 찾다.",
-			difficulty: 1,
-			series: "beach cave",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 오래된 밀수꾼의 경로를 찾아라."
-		},
-		"X Marks the Spot":{
-			title: "X표시 지점",
-			desc: "밀수꾼의 동굴에서 보물지도를 찾다.",
-			difficulty: 2,
-			series: "beach cave",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 숨겨진 깊은곳."
-		},
-		/*"Buried Treasure":{
-			title: "매장된 보물",
-			desc: "보물지도를 따라서, 보물을 발견했다.",
-			difficulty: 3,
-			series: "beach cave",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 지도를 따라가라."
-		},*/
-		"Abnormal Mollusc":{
-			title:"비정상적인 동물",
-			desc: "거대한 민달팽이로부터 탈출하다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 파도 아래에 숨어라."
-		},
-		"Leverage":{
-			title: "영향력",
-			desc: "밀수꾼의 소굴에서 위협받다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint:악당에게서 저항하라."
-		},
-		"Flurry":{
-			title: "눈보라",
-			desc: "눈덩이를 던지는 비행청소년으로부터 로빈을 지키다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 눈싸움에서 이긴다."
-		},
-		"Under the Ice":{
-			title:"얼음 아래",
-			desc: "얼어붙은 호수에서 탈출하다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 벗어나라."
-		},
-		"A Festive Home":{
-			title: "집에서 즐기는 행사",
-			desc: "고아들에게 선물을 주었다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 고아들에게 겨울의 생기를 가져다준다."
-		},
-		"In Red Light":{
-			title: "붉은 빛에서",
-			desc: "블러드 레몬을 수확하다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 이상한 과일은 이상한 빛에서 자란다",
-			softLockable: true,
-		},
-		"Oh Bother":{
-			title: "다다익선",
-			desc: "야생 벌집을 수확하다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 달고 끈적하다.",
-			softLockable: true,
-		},
-		"Employee Benefits":{
-			title: "직원혜택",
-			desc: "낮에 금을 발견하고, 밤에 가져갔다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 금을 찾고, 나중에 훔쳐라.",
-			softLockable: true,
-		},
-		"Not Like the Movies":{
-			title: "영화 같지 않음",
-			desc: "유사에서의 지식.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 가라앉게되는 황야에서의 지혜.",
-			softLockable: true,
-		},
-		"Slippery":{
-			title: "약삭빠름",
-			desc: "레미의 폭력으로부터 탈출.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 레미의 폭력으로부터 탈출.",
-			softLockable: true,
-		},
-		"High Reflection":{
-			title: "높은 반사율",
-			desc: "거울을 성벽의 꼭대기에 돌려놓았다",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 눈이 멀어서 망하다.",
-			softLockable: true,
-		},
-		"Catch the Wind":{
-			title: "바람 잡기",
-			desc: "비행하는 법을 배웠다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 나는 법 배우기",
-			softLockable: true,
-		},
-		"Trading Dignity":{
-			title: "존엄성 거래",
-			desc: "레미의 하수인들을 입으로 만족시켰다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 일방적인 거래를 한다.",
-			softLockable: true,
-		},
-		"Playing with Fire":{
-			title: "불장난",
-			desc: "렌을 당신 앞에서 절정시켰다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 도박사의 요구를 견딘다.",
-			softLockable: true,
-		},
-		"Firestarter":{
-			title: "방화범",
-			desc: "렌이 불을 붙이도록 설득하였다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 파괴적인 경품을 딴다.",
-			softLockable: true,
-		},
-		"Dealing":{
-			title: "거래",
-			desc: "부도덕한 회사에 농작물을 팔았다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 알렉스의 이상한 농작물을 판다.",
-			softLockable: true,
-		},
-		"To Watch the Fields":{
-			title: "농작지 감시하기",
-			desc: "농장에 경비원을 고용했다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 도울 사람을 고용한다.",
-			softLockable: true,
-		},
-		"Reliable Employer":{
-			title: "믿을만한 고용주",
-			desc: "S-랭크 경비원을 고용했다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 경비원 한 사람의 잠재력을 끌어내도록 돕는다.",
-			softLockable: true,
-		},
-		"Into the Sunset":{
-			title: "노을 속으로",
-			desc: "말 탄 레미의 하수인들에게서 도망쳤다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 말 탄 추적자들에게서 도망친다.",
-			softLockable: true,
-		},
-		"Bent Copper":{
-			title: "비리 경찰",
-			desc: "부패한 뒷거래를 중지시켰다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 사회봉사 중에 경계를 게을리하지 않는다.",
-			softLockable: true,
-		},
-		"Social Contract":{
-			title: "사회 계약",
-			desc: "사회봉사를 끝마쳤다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 사회에 진 빚을 갚는다.",
-			softLockable: true,
-		},
-		"Max Those Shots":{
-			title: "다다익선",
-			desc: "정말 많은 수의 후추 스프레이를 갖고 있다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Discoveries"],
-			hint: "Hint: 최선의 방어는 공격이다.",
-			softLockable: true,
-		},
-		"Ear Slime Lover":{
-			title: "귀 슬라임 성애자",
-			desc: "당신의 최고의 친구다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 당신의 귀에 속삭인다."
-		},
-		"The Path to Redemption":{
-			title: "구원의 길",
-			desc: "내면의 악마로부터 인간성을 되찾는다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 잃은 것을 되찾는다.",
-			softLockable: true,
-		},
-		"A New Life":{
-			title: "새로운 삶",
-			desc: "부스트를 갖고 시작한다.",
-			difficulty: 1,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 빠르게 시작하자."
-		},
-		"Negotiator":{
-			title: "중재자",
-			desc: "한 번의 팁으로 £500 이상을 벌었다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 잔뜩 벌어들이자."
-		},
-		"Curious Attire":{
-			title: "별난 옷",
-			desc: "모든 특별한 옷들을 해금했다.",
-			difficulty: 2,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 모두 착용 가능.",
-			softLockable: true,
-		},
-		"My Collection of Feats":{
-			title: "도전과제 컬렉션",
-			desc: "너무 많아서 셀 수가 없다.",
-			difficulty: 3,
-			series: "",
-			filter: ["All", "Special"],
-			hint: "Hint: 무언가의 컬렉션."
-		}
-
-	}>>
-<</if>>
-<</widget>>
 <!--
-Paste in the console to get the total number of vrelcoins, the `featsData` widget needs to have been run first (open the feats list)
+Paste in the console to get the total number of vrelcoins
 var count = 0;
-for (var i = 0; i < Object.keys(T.feats).length;i++){
-	count += T.feats[Object.keys(T.feats)[i]].difficulty
+for (var i = 0; i < Object.keys(setup.feats).length;i++){
+	count += setup.feats[Object.keys(setup.feats)[i]].difficulty
 }-->

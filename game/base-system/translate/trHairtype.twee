@@ -1,48 +1,33 @@
 :: Widgets trHairtype [widget nobr]
 <<widget "trinit_hairtype">>
-    <<if _trHairtype is undefined>>
-        <<set _trHairtype to {
-        /* _hairTypeByName */ 
-        "default" : "자연스러운",
-        "braid left" : "왼쪽으로 땋은 머리",
-        "braid right" : "오른쪽으로 땋은 머리",
-        "flat ponytail" : "플랫 포니테일",
-        "loose" : "루즈",
-        "messy" : "지저분한",
-        "pigtails" : "피그테일",
-        "ponytail" : "포니테일",
-        "short" : "짧은",
-        "side tail left" : "왼쪽 사이드테일",
-        "side tail right" : "오른쪽 사이드테일",
-        "straight" : "스트레이트",
-        "swept left" : "왼쪽으로 쏠린 머리",
-        "twin braids" : "양쪽으로 땋은 머리",
-        "twintails" : "트윈테일",
-        "curl" : "곱슬머리",
-		"defined curl" : "디파인드 컬",
-        /* _fringeTypeByName */
-        "flaps" : "휘날리는",
-        "thin flaps" : "얇게 휘날리는",
-        "wide flaps" : "넓게 휘날리는",
-        "hime" : "히메",
-        "overgrown" : "너무 자란",
-        "ringlets" : "링렛",
-        "split" : "커튼헤어",
-        "back" : "뒤로 넘긴",
-        "parted" : "가르마",
-        "flat" : "납작한", 
-        "quiff" : "고수머리",
-        "straight curl" : "스트레이트 컬", 
-        "ringlet curl" : "링렛 컬",
-        }>>
-    <</if>>
-<</widget>>
-
-<<widget "trHairtype">>
-    <<trinit_hairtype>>
-
-    <<set _trResult to _trHairtype[$args[0]]>>
-	<<if _trResult is undefined>>
-		<<set _trResult to $args[0]>>
+	/* _hairTypeByName과 _fringeTypeByName 을 참고하여 리스트를 만든다 */
+	<<if setup.trHairtypeList is undefined>>
+		<<if !_hairTypeByName>>	/* 거울을 보지 않아 _hairTypeByName이 초기화되어 있지 않은 경우 강제로 초기화한다 */
+			<<silently>><<mirrorHair>><</silently>>
+		<</if>>
+		<<set setup.trHairtypeList to { "default" : "자연스러운" }>>
+		<<set $_trHairList to {}>>
+		<<run Object.assign($_trHairList, _hairTypeByName, _fringeTypeByName)>>
+		<<set $_trNameArray to Object.keys($_trHairList)>>
+		<<for $_i, $_trName range $_trNameArray>>
+			<<set $_name to $_trHairList[$_trName]>>
+			<<set setup.trHairtypeList[$_name] to $_trName>>
+		<</for>>
 	<</if>>
 <</widget>>
+
+<<widget "trHairtype">><<silently>>
+	<<if setup.trHairtypeList is undefined>>
+		<<trinit_hairtype>>
+	<</if>>
+
+    <<set _trResult to setup.trHairtypeList[_args[0]]>>
+	<<if _trResult isnot undefined>>
+		<<if _args[1] isnot undefined>>
+			<<getPostNum _trResult>>
+			<<trPost _postNum _args[1] _args[2]>>
+		<</if>>
+	<<else>>
+		<<set _trResult to "<span class='red'>에러: trHairtype: 정의되어 있지 않음: " + _args[0] + "</span>">>
+	<</if>>
+<</silently>><</widget>>

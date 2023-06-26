@@ -8,8 +8,8 @@ var Renderer;
         function () {
             return performance.now();
         } : function () {
-        return new Date().getTime();
-    };
+            return new Date().getTime();
+        };
     Renderer.DefaultImageLoader = {
         loadImage(src, layer, successCallback, errorCallback) {
             const image = new Image();
@@ -51,7 +51,7 @@ var Renderer;
         return {
             desaturate: false,
             blend: "",
-            blendMode: "",
+            blendMode: "source-over",
             brightness: 0.0,
             contrast: 1.0
         };
@@ -81,6 +81,18 @@ var Renderer;
         return c2d;
     }
     Renderer.createCanvas = createCanvas;
+    function ensureCanvas(image) {
+        if (image instanceof HTMLCanvasElement) {
+            return image;
+        }
+        let i2 = createCanvas(image.width, image.height);
+        i2.drawImage(image, 0, 0);
+        return i2.canvas;
+    }
+    Renderer.ensureCanvas = ensureCanvas;
+    /**
+     * Free to use CanvasRenderingContext2D (to create image data, gradients, patterns)
+     */
     Renderer.globalC2D = createCanvas(1, 1);
     /**
      * Creates a cutout of color in shape of sourceImage
@@ -121,9 +133,9 @@ var Renderer;
      * Repeatedly fill all sub-frames of canvas with same style.
      * (Makes sense with gradient and pattern fills, to keep consistents across all sub-frames)
      */
-    function fillFrames(fillStyle, canvas, frameCount, frameWidth) {
+    function fillFrames(fillStyle, canvas, frameCount, frameWidth, blendMode) {
         const frameHeight = canvas.canvas.height;
-        canvas.globalCompositeOperation = 'source-over';
+        canvas.globalCompositeOperation = blendMode;
         canvas.fillStyle = fillStyle;
         canvas.fillRect(0, 0, frameWidth, frameHeight);
         if (Renderer.pixelSize > 1) {
@@ -158,7 +170,7 @@ var Renderer;
                 gradient = Renderer.globalC2D.createLinearGradient(spec.values[0], spec.values[1], spec.values[2], spec.values[3]);
                 break;
             case "radial":
-                gradient = Renderer.globalC2D.createRadialGradient(spec.values[1], spec.values[2], spec.values[3], spec.values[4], spec.values[5], spec.values[6]);
+                gradient = Renderer.globalC2D.createRadialGradient(spec.values[0], spec.values[1], spec.values[2], spec.values[3], spec.values[4], spec.values[5]);
                 break;
             default:
                 throw new Error("Invalid gradient type: " + spec.gradient);
@@ -186,12 +198,26 @@ var Renderer;
      */
     function composeOverSpecialRect(sourceImage, fillStyle, blendMode, frameCount, targetCanvas = createCanvas(sourceImage.width, sourceImage.height)) {
         let fw = sourceImage.width / frameCount;
-        fillFrames(fillStyle, targetCanvas, frameCount, fw);
+        fillFrames(fillStyle, targetCanvas, frameCount, fw, 'source-over');
         targetCanvas.globalCompositeOperation = blendMode;
         targetCanvas.drawImage(sourceImage, 0, 0);
         return targetCanvas;
     }
     Renderer.composeOverSpecialRect = composeOverSpecialRect;
+    /**
+     * Paints sourceImage under same-sized canvas filled with pattern or gradient
+     */
+    function composeUnderSpecialRect(sourceImage, fillStyle, blendMode, frameCount, targetCanvas = createCanvas(sourceImage.width, sourceImage.height)) {
+        let fw = sourceImage.width / frameCount;
+        const fill = createCanvas(sourceImage.width, sourceImage.height);
+        fillFrames(fillStyle, fill, frameCount, fw, 'source-over');
+        targetCanvas.globalCompositeOperation = 'source-over';
+        targetCanvas.drawImage(sourceImage, 0, 0);
+        targetCanvas.globalCompositeOperation = blendMode;
+        targetCanvas.drawImage(fill.canvas, 0, 0);
+        return targetCanvas;
+    }
+    Renderer.composeUnderSpecialRect = composeUnderSpecialRect;
     /**
      * Paints sourceImage over same-sized canvas filled with color
      */
@@ -264,7 +290,34 @@ var Renderer;
     function mergeLayerData(target, source, overwrite = false) {
         for (let k of Object.keys(source)) {
             if (k === 'brightness' && 'brightness' in target) {
-                target.brightness += source.brightness;
+                if (typeof target.brightness === 'object' && typeof source.brightness === 'number') {
+                    for (const [adjustmentIndex, adjustment] of target.brightness.adjustments.entries()) {
+                        if (typeof adjustment === 'number') {
+                            target.brightness.adjustments[adjustmentIndex] += source.brightness;
+                        }
+                        else {
+                            target.brightness.adjustments[adjustmentIndex][1] += source.brightness;
+                        }
+                    }
+                }
+                else if (typeof target.brightness === 'number' && typeof source.brightness === 'object') {
+                    const brightnessToAdd = target.brightness;
+                    target.brightness = Object.assign({}, source.brightness);
+                    for (const [adjustmentIndex, adjustment] of target.brightness.adjustments.entries()) {
+                        if (typeof adjustment === 'number') {
+                            target.brightness.adjustments[adjustmentIndex] += brightnessToAdd;
+                        }
+                        else {
+                            target.brightness.adjustments[adjustmentIndex][1] += brightnessToAdd;
+                        }
+                    }
+                }
+                else if (typeof target.brightness === 'number' && typeof source.brightness === 'number') {
+                    target.brightness += source.brightness;
+                }
+                else {
+                    throw new Error("Not implemented: cannot merge two gradient brightnesses.");
+                }
             }
             else if (k === 'contrast' && 'contrast' in target) {
                 target.contrast *= source.contrast;
@@ -309,6 +362,67 @@ var Renderer;
         return resultCanvas.canvas;
     }
     Renderer.filterImage = filterImage;
+    function adjustGradientBrightness(image, frameCount, brightness, resultCanvas) {
+        if (brightness.adjustments.length !== 2) {
+            throw new Error("Not Implemented: Brightness gradients can have only exactly 2 stops.");
+        }
+        const gradientInitializations = [];
+        for (const [i, adjustment] of brightness.adjustments.entries()) {
+            let brightnessValue;
+            let offsetValue;
+            // [color |[offset, color]]
+            if (typeof adjustment === 'number') {
+                brightnessValue = adjustment;
+                offsetValue = i;
+            }
+            else {
+                brightnessValue = adjustment[1];
+                offsetValue = adjustment[0];
+            }
+            // lightnenig or darkening
+            if (brightnessValue > 0) {
+                gradientInitializations.push({
+                    grey: gray(brightnessValue),
+                    neutral: "#000000",
+                    offset: offsetValue,
+                    blendMode: 'color-dodge',
+                });
+            }
+            else {
+                gradientInitializations.push({
+                    grey: gray(1 + brightnessValue),
+                    neutral: "#FFFFFF",
+                    offset: offsetValue,
+                    blendMode: 'multiply',
+                });
+            }
+        }
+        // we needmultiple gradients if we are darkening and lightening at the same time
+        if (gradientInitializations[0].blendMode != gradientInitializations[1].blendMode) {
+            const gradients = [];
+            for (const [i, gradientInit] of gradientInitializations.entries()) {
+                gradients.push(createGradient(Object.assign(Object.assign({}, brightness), {
+                    colors: [
+                        [gradientInitializations[0].offset, i === 0 ? gradientInit.grey : gradientInit.neutral],
+                        [gradientInitializations[1].offset, i === 0 ? gradientInit.neutral : gradientInit.grey]
+                    ]
+                })));
+            }
+            const firstGradientApplied = composeUnderSpecialRect(image, gradients[0], gradientInitializations[0].blendMode, frameCount);
+            const secondGradientApplied = composeUnderSpecialRect(firstGradientApplied.canvas, gradients[1], gradientInitializations[1].blendMode, frameCount, resultCanvas);
+            return secondGradientApplied.canvas;
+        }
+        else {
+            const brightnessGradient = createGradient(Object.assign(Object.assign({}, brightness), {
+                colors: [
+                    [gradientInitializations[0].offset, gradientInitializations[0].grey],
+                    [gradientInitializations[1].offset, gradientInitializations[1].grey]
+                ]
+            }));
+            return composeUnderSpecialRect(image, brightnessGradient, gradientInitializations[0].blendMode, frameCount, resultCanvas).canvas;
+        }
+    }
+    Renderer.adjustGradientBrightness = adjustGradientBrightness;
     function adjustBrightness(image, brightness, resultCanvas, doCutout = true) {
         if (brightness > 0) {
             const value = gray(brightness);
@@ -327,15 +441,15 @@ var Renderer;
         }
     }
     Renderer.adjustBrightness = adjustBrightness;
-    function adjustLevels(image, 
-    /**
-     * scale factor, 1 - no change, >1 - higher contrast, <1 - lower contrast.
-     */
-    factor, 
-    /**
-     * shift, 0 - no change, >0 - brighter, <0 - darker
-     */
-    shift, resultCanvas) {
+    function adjustLevels(image,
+        /**
+         * scale factor, 1 - no change, >1 - higher contrast, <1 - lower contrast.
+         */
+        factor,
+        /**
+         * shift, 0 - no change, >0 - brighter, <0 - darker
+         */
+        shift, resultCanvas) {
         if (factor >= 1) {
             /*
              color-dodge ( color, X ) = color / (1 - X) ; 0..(1-X) -> 0..1, (1-X) and brighter become white
@@ -385,82 +499,142 @@ var Renderer;
         return adjustLevels(image, contrast, shift, resultCanvas);
     }
     Renderer.adjustBrightnessAndContrast = adjustBrightnessAndContrast;
+    const RenderingStepDesaturate = {
+        name: "desaturate",
+        condition(layer, context) {
+            return layer.desaturate;
+        },
+        render(image, layer, context) {
+            context.needsCutout = true;
+            return desaturateImage(image, undefined, false);
+        }
+    };
+    const RenderingStepPrefilter = {
+        name: "prefilter",
+        condition(layer, context) {
+            return layer.prefilter && layer.prefilter !== "none";
+        },
+        render(image, layer, context) {
+            return filterImage(image, layer.prefilter);
+        }
+    };
+    const RenderingStepBrightness = {
+        name: "brightness",
+        condition(layer, context) {
+            return typeof layer.brightness === 'number' && layer.brightness !== 0;
+        },
+        render(image, layer, context) {
+            context.needsCutout = true;
+            return adjustBrightness(image, layer.brightness, undefined, false);
+        }
+    };
+    const RenderingStepBrightnessGradient = {
+        name: "brightness:gradient",
+        condition(layer, context) {
+            return layer.brightness && typeof layer.brightness === 'object' && 'gradient' in layer.brightness;
+        },
+        render(image, layer, context) {
+            context.needsCutout = true;
+            return adjustGradientBrightness(image, context.rects.subspriteFrameCount, layer.brightness, undefined);
+        }
+    };
+    const RenderingStepContrast = {
+        name: "contrast",
+        condition(layer, context) {
+            return typeof layer.contrast === 'number' && layer.contrast !== 1;
+        },
+        render(image, layer, context) {
+            context.needsCutout = true;
+            return adjustContrast(image, layer.contrast, undefined);
+        }
+    };
+    const RenderingStepBlendColor = {
+        name: "blend:color",
+        condition(layer, context) {
+            return layer.blendMode && layer.blend && typeof layer.blend === "string";
+        },
+        render(image, layer, context) {
+            context.needsCutout = true;
+            return composeOverRect(image, layer.blend, layer.blendMode).canvas;
+        }
+    };
+    const RenderingStepBlendGradient = {
+        name: "blend:gradient",
+        condition(layer, context) {
+            return layer.blendMode && layer.blend && typeof layer.blend === 'object' && 'gradient' in layer.blend;
+        },
+        render(image, layer, context) {
+            context.needsCutout = true;
+            let gradient = createGradient(layer.blend);
+            return composeOverSpecialRect(image, gradient, layer.blendMode, context.rects.subspriteFrameCount).canvas;
+        }
+    };
+    const RenderingStepBlendPattern = {
+        name: "blend:pattern",
+        condition(layer, context) {
+            return layer.blendMode && layer.blend && typeof layer.blend === 'object' && 'pattern' in layer.blend;
+        },
+        render(image, layer, context) {
+            context.needsCutout = true;
+            let pattern = Renderer.PatternProvider(layer.blend.pattern);
+            if (!pattern) {
+                return ensureCanvas(image);
+            }
+            return composeOverSpecialRect(image, pattern, layer.blendMode, context.rects.subspriteFrameCount).canvas;
+        }
+    };
+    const RenderingStepMask = {
+        name: "mask",
+        condition(layer, context) {
+            return !!layer.mask;
+        },
+        render(image, layer, context) {
+            return cutoutFrom(ensureCanvas(image).getContext('2d'), layer.mask).canvas;
+        }
+    };
+    const RenderingStepCutout = {
+        name: "cutout",
+        condition(layer, context) {
+            return context.needsCutout;
+        },
+        render(image, layer, context) {
+            return cutoutFrom(ensureCanvas(image).getContext('2d'), layer.image).canvas;
+        }
+    };
+    /**
+     * Rendering steps used. Order matters!
+     */
+    Renderer.RenderingPipeline = [
+        RenderingStepDesaturate,
+        RenderingStepPrefilter,
+        RenderingStepBrightnessGradient,
+        RenderingStepBrightness,
+        RenderingStepContrast,
+        RenderingStepBlendPattern,
+        RenderingStepBlendGradient,
+        RenderingStepBlendColor,
+        RenderingStepMask,
+        RenderingStepCutout
+    ];
     function processLayer(layer, rects, listener) {
-        let name = layer.name || layer.src;
-        let image = layer.image;
-        let needsCutout = false;
-        if (layer.desaturate) {
-            image = desaturateImage(image, undefined, false);
-            needsCutout = true;
+        let context = {
+            layer: layer,
+            image: layer.image,
+            needsCutout: false,
+            rects: rects,
+            listener: listener
+        };
+        for (let step of Renderer.RenderingPipeline) {
+            if (!step.condition(context.layer, context))
+                continue;
+            let t0 = millitime();
+            let listener = context.listener;
+            context.image = step.render(context.image, context.layer, context);
             if (listener && listener.processingStep) {
-                listener.processingStep(name, "desaturate", image);
+                listener.processingStep(context.layer.name, step.name, context.image, millitime() - t0);
             }
         }
-        if (layer.prefilter && layer.prefilter !== 'none') {
-            image = filterImage(image, layer.prefilter);
-            if (listener && listener.processingStep) {
-                listener.processingStep(name, "prefilter", image);
-            }
-        }
-        if (typeof layer.brightness === 'number' && layer.brightness !== 0) {
-            image = adjustBrightness(image, layer.brightness, undefined, false);
-            needsCutout = true;
-            if (listener && listener.processingStep) {
-                listener.processingStep(name, "brightness", image);
-            }
-        }
-        if (typeof layer.contrast === 'number' && layer.contrast !== 1) {
-            image = adjustContrast(image, layer.contrast, undefined);
-            needsCutout = true;
-            if (listener && listener.processingStep) {
-                listener.processingStep(name, "contrast", image);
-            }
-        }
-        const blend = layer.blend;
-        if (blend && layer.blendMode) {
-            needsCutout = true;
-            let noop = false;
-            if (typeof blend === 'string') {
-                image = composeOverRect(image, blend, layer.blendMode).canvas;
-            }
-            else if ('gradient' in blend) {
-                let gradient = createGradient(blend);
-                image = composeOverSpecialRect(image, gradient, layer.blendMode, rects.subspriteFrameCount).canvas;
-            }
-            else if ('pattern' in blend) {
-                let pattern = Renderer.PatternProvider(blend.pattern);
-                if (pattern) {
-                    image = composeOverSpecialRect(image, pattern, layer.blendMode, rects.subspriteFrameCount).canvas;
-                }
-                else {
-                    noop = true;
-                }
-            }
-            else {
-                throw new Error("Invalid blend spec for layer " + layer.name + ": " + JSON.stringify(blend));
-            }
-            if (listener && listener.processingStep && !noop) {
-                listener.processingStep(name, "blend", image);
-            }
-        }
-        if (layer.mask) {
-            image = cutoutFrom(image.getContext('2d'), layer.mask).canvas;
-            if (listener && listener.processingStep) {
-                listener.processingStep(name, "mask", image);
-            }
-        }
-        if (needsCutout) {
-            if (!(image instanceof HTMLCanvasElement)) {
-                let i2 = createCanvas(image.width, image.height);
-                i2.drawImage(image, 0, 0);
-                image = i2.canvas;
-            }
-            image = cutoutFrom(image.getContext('2d'), layer.image).canvas;
-            if (listener && listener.processingStep) {
-                listener.processingStep(name, "cutout", image);
-            }
-        }
-        return image;
+        return context.image;
     }
     Renderer.processLayer = processLayer;
     function calcLayerRects(layer, layerImageWidth, targetWidth, targetHeight, frameCount) {
@@ -509,20 +683,20 @@ var Renderer;
         // Sort layers by z-index, then array index
         const layers = layerSpecs
             .filter(layer => layer.show !== false
-            && !(typeof layer.alpha === 'number' && layer.alpha <= 0.0))
+                && !(typeof layer.alpha === 'number' && layer.alpha <= 0.0))
             .map((layer, i) => {
-            if (isNaN(layer.z)) {
-                console.error("Layer " + (layer.name || layer.src) + " has z-index NaN");
-                layer.z = 0;
-            }
-            return [layer, i];
-        }) // map to pairs [element, index]
+                if (isNaN(layer.z)) {
+                    console.error("Layer " + (layer.name || layer.src) + " has z-index NaN");
+                    layer.z = 0;
+                }
+                return [layer, i];
+            }) // map to pairs [element, index]
             .sort((a, b) => {
-            if (a[0].z === b[0].z)
-                return a[1] - b[1];
-            else
-                return a[0].z - b[0].z;
-        })
+                if (a[0].z === b[0].z)
+                    return a[1] - b[1];
+                else
+                    return a[0].z - b[0].z;
+            })
             .map(e => e[0]); // unwrap values;
         if (listener && listener.composeLayers)
             listener.composeLayers(layers);
@@ -796,8 +970,10 @@ var Renderer;
                     if (listener && listener.keyframe)
                         listener.keyframe(animation.name, animation.keyframeIndex, animation.keyframe);
                 }
-                compose().catch((e) => { if (e)
-                    console.error(e); });
+                compose().catch((e) => {
+                    if (e)
+                        console.error(e);
+                });
             },
             stop() {
                 if (!this.playing)
@@ -817,8 +993,10 @@ var Renderer;
             invalidateCaches,
             time: 0,
             redraw() {
-                compose().catch((e) => { if (e)
-                    console.error(e); });
+                compose().catch((e) => {
+                    if (e)
+                        console.error(e);
+                });
             }
         };
         function genAnimationSpec() {
@@ -846,8 +1024,10 @@ var Renderer;
                         animatingCanvas.time = Math.max(t1, animatingCanvas.time);
                         for (let task of tasks)
                             task();
-                        compose().catch((e) => { if (e)
-                            console.error(e); });
+                        compose().catch((e) => {
+                            if (e)
+                                console.error(e);
+                        });
                     }
                     catch (e) {
                         rendererError(listener, e);

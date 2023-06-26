@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 function eleprop(e, k, v) {
-	if (k === '$oncreate') {
+	if (k === "$oncreate") {
 		v.call(e, e);
-	} else if (k.indexOf('on') === 0) {
+	} else if (k.indexOf("on") === 0) {
 		e.addEventListener(k.slice(2), v.bind(e));
 	} else if (v !== undefined) {
 		if (k in e) {
@@ -15,14 +16,14 @@ function eleprop(e, k, v) {
 
 function eleprops(e, props) {
 	if (!props) return e;
-	for (let kv of Object.entries(props)) {
+	for (const kv of Object.entries(props)) {
 		eleprop(e, kv[0], kv[1]);
 	}
 	return e;
 }
 
 function elechild(e, c) {
-	if (typeof c === 'string') {
+	if (typeof c === "string") {
 		if (c) {
 			e.appendChild(document.createTextNode(c));
 		}
@@ -37,10 +38,10 @@ function elechild(e, c) {
 function elechildren(e, children) {
 	if (arguments.length > 2) {
 		elechildren(e, Array.from(arguments).slice(1));
-	} else if (typeof children === 'string' || children instanceof Node) {
+	} else if (typeof children === "string" || children instanceof Node) {
 		elechild(e, children);
 	} else if (children) {
-		for (let c of children) {
+		for (const c of children) {
 			elechild(e, c);
 		}
 	}
@@ -48,13 +49,12 @@ function elechildren(e, children) {
 }
 
 /**
- * Create HTML Element with properties, attributes, events, and children.
- * Similar to Vue h() function
+ * Create HTML Element with properties, attributes, events, and children. Similar to Vue h() function.
  *
- * @param {string} tag Element tag name
- * @param [props] Object with properties, attributes, and events to set
- * @param {(string|Node|Array)} [children] Child elements and texts to add, either array or a single child
- * @return {HTMLElement} Created element
+ * @param {string} tag Element tag name.
+ * @param {object} props With properties, attributes, and events to set.
+ * @param {(string|Node|Array)} children Child elements and texts to add, either array or a single child.
+ * @returns {HTMLElement} Created element.
  * @example
  * element("span", {
  *     class: "red",
@@ -65,62 +65,66 @@ function elechildren(e, children) {
  * ])
  */
 function element(tag, props, children) {
-	if (children === undefined && (typeof props === 'string' || Array.isArray(props) || props instanceof Node)) {
+	if (children === undefined && (typeof props === "string" || Array.isArray(props) || props instanceof Node)) {
 		children = props;
 		props = null;
 	}
-	let e = document.createElement(tag);
+	const e = document.createElement(tag);
 	elechildren(e, children);
 	eleprops(e, props);
 	return e;
 }
 
 function elecustomprops(e, props, customProps) {
-	for (let kv of Object.entries(props)) {
-		let k = kv[0], v = kv[1];
+	for (const kv of Object.entries(props)) {
+		const k = kv[0];
+		const v = kv[1];
 		if (k in customProps) {
-			customProps[k](e, v)
+			customProps[k](e, v);
 		} else {
-			eleprop(e, k, v)
+			eleprop(e, k, v);
 		}
 	}
 }
 
 function customElement(tag, baseProps, props, children, customProps) {
-	let e = element(tag, baseProps, children);
+	const e = element(tag, baseProps, children);
 	elecustomprops(e, props, customProps);
 	return e;
 }
 
 /**
  * Extra props:
- * - set(newValue:(string|number)) - input listener
+ * - set(newValue:(string|number)) - input listener.
+ *
+ * @param {object} props
  */
 function eInput(props) {
-	return customElement("input", {type: "text"}, props, null, {
+	return customElement("input", { type: "text" }, props, null, {
 		set(e, set) {
 			set = set.bind(e);
-			e.addEventListener('input', () => {
+			e.addEventListener("input", () => {
 				let value = e.value;
-				if (e.type === 'number' || e.type === 'range') {
+				if (e.type === "number" || e.type === "range") {
 					value = parseFloat(value);
 					if (!isFinite(value)) return;
 				}
 				set(value);
-			})
-		}
-	})
+			});
+		},
+	});
 }
 
 /**
  * Extra props:
  * - value:boolean - same as 'checked'
- * - set(newValue:boolean) - change listener
+ * - set(newValue:boolean) - change listener.
+ *
+ * @param {object} props
  */
 function eCheckbox(props) {
-	let checkbox = customElement("input", {type: "checkbox"}, props, null, {
-		label() {
-		},
+	const checkbox = customElement("input", { type: "checkbox" }, props, null, {
+		label() {},
 		value(e, value) {
 			e.checked = !!value;
 		},
@@ -128,39 +132,43 @@ function eCheckbox(props) {
 			set = set.bind(e);
 			e.addEventListener("change", () => {
 				set(e.checked);
-			})
-		}
+			});
+		},
 	});
-	if (props && 'label' in props) {
-		return element('label', [
-			props.label,
-			checkbox
-		])
+	if (props && "label" in props) {
+		return element("label", [props.label, checkbox]);
 	}
-	return checkbox
+	return checkbox;
 }
 
 /**
  * Extra props:
  * - items:({value:string, text:string}] | string)[] - options
  * - value:string - selected item value
- * - set(newValue:string) - change listener
+ * - set(newValue:string) - change listener.
+ *
+ * @param {object} props
  */
 function eSelect(props) {
-	return customElement("select", null, props, null,
-		{
-			items(e, items) {
-				for (let item of items) {
-					if (typeof item === 'string') item = {value: item, text: item};
-					e.appendChild(element("option", {
-						value: item.value,
-						selected: item.value == e.value
-					}, item.text));
-				}
-			},
-			set(e, set) {
-				set = set.bind(e);
-				e.addEventListener("change", () => set(e.value));
+	return customElement("select", null, props, null, {
+		items(e, items) {
+			for (let item of items) {
+				if (typeof item === "string") item = { value: item, text: item };
+				e.appendChild(
+					element(
+						"option",
+						{
+							value: item.value,
+							selected: item.value === e.value,
+						},
+						item.text
+					)
+				);
 			}
-		})
+		},
+		set(e, set) {
+			set = set.bind(e);
+			e.addEventListener("change", () => set(e.value));
+		},
+	});
 }

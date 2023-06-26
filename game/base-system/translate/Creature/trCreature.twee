@@ -1,0 +1,90 @@
+:: Widgets trCreature [widget nobr]
+/*<<trCreature *type *name [num] post "sep">>*/
+<<widget "trCreature">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<set $_creatureNum to 1>>
+		<<set $_creatureTypeAlias to { "parasite":"parasite", "chastityparasite":"swarm", "struggle":"struggle", "swarm":"swarm", "swarmtype":"swarm", "swarmname":"swarm", "tentacle":"tentacle", "vore":"vore", }>>
+		<<set $_creatureType to $_creatureTypeAlias[_args[0]]>>
+		<<if $_creatureType is undefined>>
+			<<if _args[0] is "all">>
+				<<set $_creatureType to "all">><<set $_creatureName to _args[1]>><<set $_post to _args[2]>><<set $_sep to _args[3]>>
+			<<else>>
+				<<set $_creatureType to "all">><<set $_creatureName to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+			<</if>>
+		<<else>>
+			<<if _args[1] isnot undefined and typeof _args[1] is "number">>
+				<<set $_creatureType to "all">><<set $_creatureName to _args[0]>><<set $_creatureNum to _args[1]>><<set $_post to _args[2]>><<set $_sep to _args[3]>>
+			<<elseif _args[1] isnot undefined and _args[1].substring(0,1).search("[가-힣]") gte 0>>/* type과 name이 동일한데 type이 생략된 경우 (ex. "tentacle" "이랑") */
+				<<set $_creatureType to "all">><<set $_creatureName to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+			<<else>>
+				<<if typeof _args[2] is "number">>
+					<<set $_creatureName to _args[1]>><<set $_creatureNum to _args[2]>><<set $_post to _args[3]>><<set $_sep to _args[4]>>
+				<<else>>
+					<<set $_creatureName to _args[1]>><<set $_post to _args[2]>><<set $_sep to _args[3]>>
+				<</if>>
+			<</if>>
+		<</if>>
+		
+		<<set $_foundArray to []>>
+		
+		<<if $_creatureName isnot undefined>>
+			<<if setup.trCreatures is undefined>>
+				<<trinit_creature>>
+			<</if>>
+			<<set $_creatureNameArray to $_creatureName.toLowerCase().split(" ")>>
+			
+			<<for $_i, $_value range $_creatureNameArray>>
+				<<if $_creatureType isnot "all">>
+					<<set $_found to setup.trCreatures[$_creatureType].nameIndex[$_value]>>
+					<<if $_found is undefined>>
+						<<set $_found to setup.trCreatures[$_creatureType].pluralIndex[$_value]>>
+					<</if>>
+				<<else>>
+					<<set $_found to setup.trCreatures.nameIndex[$_value]>>
+					<<if $_found is undefined>>
+						<<set $_found to setup.trCreatures.pluralIndex[$_value]>>
+					<</if>>
+				<</if>>
+				<<if $_found isnot undefined>>
+					<<if $_value is $_found.name>>
+						<<set $_found.isplural to false>>
+					<<else>>
+						<<set $_found.isplural to true>>
+					<</if>>
+					<<set $_foundArray.push($_found)>>
+				<<else>>
+					<<set $_foundArray to []>>
+					<<break>>
+				<</if>>
+			<</for>>
+		<</if>>
+
+		<<if $_foundArray.length gt 0>>
+			<<set _trResult to "">>
+			<<for $_i, $_value range $_foundArray>>
+				<<if $_i eq $_foundArray.length - 1>>
+					/* last word */
+					<<if $_value.isplural eq true or $_creatureNum gt 1>>
+						/* 복수 */
+						<<set _trResult += $_value.koName + "들">>
+						<<set _postNum to 2>>
+					<<elseif $_value.post lt 0>>
+						<<set _trResult += $_value.koName + " 촉수">>
+						<<set _postNum to 1>>
+					<<else>>
+						<<set _trResult += $_value.koName>>
+						<<set _postNum to $_value.post>>
+					<</if>>
+				<<else>>
+					<<set _trResult += $_value.koName + " ">>
+				<</if>>
+			<</for>>
+			
+			<<if $_post isnot undefined>>
+				<<trPost _postNum $_post $_sep>>
+			<</if>>
+		<<else>>
+			<<set _trResult to "trCreatures." + $_creatureType + "에 정의되어 있지 않음: " + $_creatureName>>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>

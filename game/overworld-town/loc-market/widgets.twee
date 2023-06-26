@@ -1,494 +1,613 @@
 :: Widgets Market [widget]
 <<widget "stall_actions">>
-<<if $stress gte $stressmax>>
-	<<passoutstreet>>
-<<elseif $worn.upper.type.includes("naked") and $player.gender_appearance is "f">>
-	<<if $player.gender is "m">>
-		You can't do this with your <<breasts>> on display. Not while looking like a girl. You duck and run.
-	<<else>>
-		You can't do this with your <<breasts>> on display. You duck and run.
-	<</if>>
-	<br><br>
-	<<link [[Next|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><<set $eventskip to 1>><</link>>
-	<br>
-<<else>>
-	<<if random(1, 10000) is 10000>>
-		<<link [[Capitalism Ho! (0:20)|Stall]]>><<endevent>><<endstall>><<pass 20>><</link>>
-		<br>
-	<<else>>
-		<<link [[Continue (0:20)|Stall]]>><<endevent>><<endstall>><<pass 20>><</link>>
-		<br>
-	<</if>>
-	<<if $worn.lower.name isnot "naked">>
-		<<if $worn.under_lower.name isnot "naked">>
-			<<if $worn.upper.set isnot $worn.lower.set>>
-				<<if $exhibitionism gte 15>>
-					<<link [[Remove your bottoms|Stall Bottoms Strip]]>><<endevent>><<endstall>><</link>><<if $ex_stall isnot 1>><<exhibitionist2>><</if>>
-					<br>
-				<</if>>
-			<</if>>
+	<<if $stress gte $stressmax>>
+		<<passoutstreet>>
+	<<elseif $worn.upper.type.includes("naked") and $player.gender_appearance is "f">>
+		<<if $player.gender is "m">>
+			당신은 당신의 <<breastsPost "을">> 노출한 채로는 이걸 할 수 없다. 여자처럼 보이지 않는 동안에는. 당신은 웅크려서 도망친다.
 		<<else>>
-			<<if $worn.upper.set isnot $worn.lower.set>>
+			당신은 당신의 <<breastsPost "을">> 노출한 채로는 이걸 할 수 없다. 당신은 웅크려서 도망친다.
+		<</if>>
+		<br><br>
+		<<link [[다음|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><<set $eventskip to 1>><</link>>
+		<br>
+	<<else>>
+		<<if random(1, 10000) is 10000>>
+			<<link [[캐피탈리즘 호! (0:20)|Stall]]>><<endevent>><<endstall>><<pass 20>><</link>>
+			<br>
+		<<else>>
+			<<link [[계속한다 (0:20)|Stall]]>><<endevent>><<endstall>><<pass 20>><</link>>
+			<br>
+		<</if>>
+		<<if $worn.lower.name isnot "naked">>
+			<<if $worn.under_lower.name isnot "naked">>
+				<<if $worn.upper.set isnot $worn.lower.set>>
+					<<if $exhibitionism gte 15>>
+						<<link [[하의를 벗는다|Stall Bottoms Strip]]>><<endevent>><<endstall>><</link>><<if $daily.ex.stall isnot 1>><<exhibitionist2>><</if>>
+						<br>
+					<</if>>
+				<</if>>
+			<<else>>
+				<<if $worn.upper.set isnot $worn.lower.set>>
+					<<if $exhibitionism gte 55>>
+						<<link [[하의를 벗는다|Stall Bottoms Strip]]>><<endevent>><<endstall>><</link>><<if $daily.ex.stall isnot 1>><<exhibitionist4>><</if>>
+						<br>
+					<</if>>
+				<</if>>
+			<</if>>
+		<<elseif $worn.under_lower.name isnot "naked">>
+			<<if $worn.under_lower.set isnot $worn.under_upper.set>>
 				<<if $exhibitionism gte 55>>
-					<<link [[Remove your bottoms|Stall Bottoms Strip]]>><<endevent>><<endstall>><</link>><<if $ex_stall isnot 1>><<exhibitionist4>><</if>>
+					<<link [[속옷을 벗는다|Stall Undies Strip]]>><<endevent>><<endstall>><</link>><<if $daily.ex.stall isnot 1>><<exhibitionist4>><</if>>
 					<br>
 				<</if>>
 			<</if>>
 		<</if>>
-	<<elseif $worn.under_lower.name isnot "naked">>
-		<<if $worn.under_lower.set isnot $worn.under_upper.set>>
-			<<if $exhibitionism gte 55>>
-				<<link [[Remove your Undies|Stall Undies Strip]]>><<endevent>><<endstall>><</link>><<if $ex_stall isnot 1>><<exhibitionist4>><</if>>
-				<br>
-			<</if>>
+		<<if $exhibitionism gte 35>>
+			<<link [[자위한다|Stall Masturbation]]>><<endevent>><<endstall>><<set $phase to 0>><<set $masturbationstart to 1>><</link>><<if $daily.ex.stall isnot 1>><<exhibitionist3>><</if>>
+			<br>
 		<</if>>
-	<</if>>
-	<<if $exhibitionism gte 35>>
-		<<link [[Masturbate|Stall Masturbation]]>><<endevent>><<endstall>><<set $phase to 0>><<set $masturbationstart to 1>><</link>><<if $ex_stall isnot 1>><<exhibitionist3>><</if>>
+		<<link [[떠난다|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><<set $eventskip to 1>><</link>>
 		<br>
 	<</if>>
-	<<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><<set $eventskip to 1>><</link>>
-	<br>
-<</if>>
 <</widget>>
 
 <<widget "stall_inventory">>
+	<<silently>>
+		<<set $plant_inventory to []>>
+		<<set _plant_keys to Object.keys($plants)>>
+		<<set _total_worth to 0>>
+		<<set _total_amount to 0>>
+		<<set _total_sold_amount to 0>>
+		<<for _t to 0; _t lt _plant_keys.length; _t++>>
+			<<if ndef $stall_stats[_plant_keys[_t]]>>
+				<<set $stall_stats[_plant_keys[_t]] to { inventory:{amount:0, price:0, total:0}, sold:{amount:0, total:0} }>>
+			<</if>>
+			<<if $plants[_plant_keys[_t]].amount gte 1>>
+				<<set _plant_value to Math.round(setup.plants[$plants[_plant_keys[_t]].name].plant_cost)>>
+				<<set _total_worth += $plants[_plant_keys[_t]].amount * _plant_value>>
+				<<set _total_amount += $plants[_plant_keys[_t]].amount>>
+				<<set _inventory_found to 1>>
+				<<run $plant_inventory.push($plants[_plant_keys[_t]].name)>>
+				<<if ($stall_expensive is undefined) or ($plants[$stall_expensive].amount lte 0) or (setup.plants[$plants[_plant_keys[_t]].name].plant_cost gte setup.plants[$stall_expensive].plant_cost)>>
+					<<set $stall_expensive to clone(setup.plants[$plants[_plant_keys[_t]].name].name)>>
+				<</if>>
+				<<set $stall_stats[_plant_keys[_t]].inventory to {amount:$plants[_plant_keys[_t]].amount, price:_plant_value, total:($plants[_plant_keys[_t]].amount * _plant_value)}>>
+			<<else>>
+				<<set $stall_stats[_plant_keys[_t]].inventory to {amount:0, price:Math.round(setup.plants[$plants[_plant_keys[_t]].name].plant_cost), total:0}>>
+			<</if>>
+			<<set _total_sold_amount += $stall_stats[_plant_keys[_t]].sold.amount>>
+		<</for>>
+	<</silently>>
 
-<<silently>>
-<<set $plant_inventory to []>>
-<<set _plant_keys to Object.keys($plants)>>
-<<set _total_worth to 0>>
-<<set _total_amount to 0>>
-<<set _total_sold_amount to 0>>
-<<for _t to 0; _t lt _plant_keys.length; _t++>>
-	<<if ndef $stall_stats[_plant_keys[_t]]>>
-		<<set $stall_stats[_plant_keys[_t]] to { inventory:{amount:0, price:0, total:0}, sold:{amount:0, total:0} }>>
-	<</if>>
-	<<if $plants[_plant_keys[_t]].amount gte 1>>
-		<<set _plant_value to Math.round(setup.plants[$plants[_plant_keys[_t]].name].plant_cost)>>
-		<<set _total_worth += $plants[_plant_keys[_t]].amount * _plant_value>>
-		<<set _total_amount += $plants[_plant_keys[_t]].amount>>
-		<<set _inventory_found to 1>>
-		<<run $plant_inventory.push($plants[_plant_keys[_t]].name)>>
-		<<if ($stall_expensive is undefined) or ($plants[$stall_expensive].amount lte 0) or (setup.plants[$plants[_plant_keys[_t]].name].plant_cost gte setup.plants[$stall_expensive].plant_cost)>>
-			<<set $stall_expensive to clone(setup.plants[$plants[_plant_keys[_t]].name].name)>>
-		<</if>>
-		<<set $stall_stats[_plant_keys[_t]].inventory to {amount:$plants[_plant_keys[_t]].amount, price:_plant_value, total:($plants[_plant_keys[_t]].amount * _plant_value)}>>
-	<<else>>
-		<<set $stall_stats[_plant_keys[_t]].inventory to {amount:0, price:Math.round(setup.plants[$plants[_plant_keys[_t]].name].plant_cost), total:0}>>
-	<</if>>
-	<<set _total_sold_amount += $stall_stats[_plant_keys[_t]].sold.amount>>
-<</for>>
-<</silently>>
+	<<switch $mathstrait>>
+		<<case -1>><!-- F -->
+			<<set _canmath to ($maths_exam lt 50 ? 0 : 1)>>
+		<<case 0>><!-- D -->
+			<<set _canmath to ($maths_exam lt 50 ? 2 : 3)>>
+		<<case 1>><!-- C -->
+			<<set _canmath to 4>>
+		<<case 2>><!-- B -->
+			<<set _canmath to 5>>
+		<<case 3 4>><!-- A, A* -->
+			<<set _canmath to 6>>
+		<<default>>
+			<<set _canmath to 0>>
+	<</switch>>
 
-<<switch $mathstrait>>
-	<<case -1>><!-- F -->
-		<<set _canmath to ($maths_exam lt 50 ? 0 : 1)>>
-	<<case 0>><!-- D -->
-		<<set _canmath to ($maths_exam lt 50 ? 2 : 3)>>
-	<<case 1>><!-- C -->
-		<<set _canmath to 4>>
-	<<case 2>><!-- B -->
-		<<set _canmath to 5>>
-	<<case 3 4>><!-- A A* -->
-		<<set _canmath to 6>>
-	<<default>>
-		<<set _canmath to 0>>
-<</switch>>
+	<<set _mobile to ($options.useNarrowMarket and _canmath gt 4)>>
 
-<<set _mobile to ($useNarrowMarket and _canmath gt 4)>>
+	<!-- <<for _mobile to 0; _mobile lt 2; _mobile++>><<for _canmath to 0; _canmath lt 7; _canmath++>><center>---mobile:_mobile math:_canmath---</center> -->
 
-<!-- <<for _mobile to 0; _mobile lt 2; _mobile++>><<for _canmath to 0; _canmath lt 7; _canmath++>><center>---mobile:_mobile math:_canmath---</center> -->
+	<!--
+	_canmath			:	0		1		2		3		4		5		6
+	table				:	-		-		-		x		x		x		x
 
-<!--
-_canmath                :	0		1		2		3		4		5		6
-table                   :	-		-		-		x		x		x		x
+	item inventory worth	:	-		-		-		-		x		x		x
+	total inventory worth	:	-		-		txt		txt		x		x		x
 
-item inventory worth    :	-		-		-		-		x		x		x
-total inventory worth   :	-		-		txt		txt		x		x		x
+	sold average			:	-		-		-		-		-		-		x
+	per item sold			:	-		-		-		-		-		x		x
+	total sold				:	-		txt		txt		txt		txt		x		x
 
-sold average            :	-		-		-		-		-		-		x
-per item sold           :	-		-		-		-		-		x		x
-total sold              :	-		txt		txt		txt		txt		x		x
+	math skill min			:	F		F50		D		D50		C		B		A	A*
+	colums					:	-		-		-		2+0		3+0		3+2		3+3
+	total colums			:	-		-		-		2		3		5		6
+	-->
 
-math skill min          :	F		F50		D		D50		C		B		A	A*
-colums                  :	-		-		-		2+0		3+0		3+2		3+3
-total colums            :	-		-		-		2		3		5		6
--->
-
-<<if _canmath gte 3>>
-	<center style="max-height:50vh;overflow-y:auto">
-		<table border="1" style="background-color:#c0ffff08;font-size:95%"><!-- TODO: Put that CSS in some stylesheet -->
-			<<if _mobile and 0>>
+	<<if _canmath gte 3>>
+		<center style="max-height:50vh;overflow-y:auto">
+			<table border="1" style="background-color:#c0ffff08;font-size:95%"><!-- TODO: Put that CSS in some stylesheet -->
+				<<if _mobile and 0>>
+					<tr>
+						<<switch _canmath>>
+							<<case 3>>
+								<th colspan="2" align="left">물건</th>
+							<<case 4>>
+								<th colspan="3" align="left">물건</th>
+							<<case 5>>
+								<th colspan="4" align="left">물건</th>
+							<<case 6>>
+								<th colspan="6" align="left">물건</th>
+						<</switch>>
+					</tr>
+				<</if>>
 				<tr>
+					<<if not _mobile>>
+						<th rowspan="2" style="border-bottom-width:2px" valign="middle" width="40%" align="left">물건</th>
+					<</if>>
 					<<switch _canmath>>
 						<<case 3>>
-							<th colspan="2" align="left">Item</th>
-						<<case 4>>
-							<th colspan="3" align="left">Item</th>
+							<th colspan="2" align="center">소지품</th>
+						<<case 4 5 6>>
+							<th colspan="3" align="center">소지품</th>
+					<</switch>>
+					<<switch _canmath>>
 						<<case 5>>
-							<th colspan="4" align="left">Item</th>
+							<th colspan="2" align="center">오늘 판 것</th>
 						<<case 6>>
-							<th colspan="6" align="left">Item</th>
+							<th colspan="3" align="center">오늘 판 것</th>
 					<</switch>>
 				</tr>
-			<</if>>
-			<tr>
-				<<if not _mobile>>
-					<th rowspan="2" style="border-bottom-width:2px" valign="middle" width="40%" align="left">Item</th>
-				<</if>>
-				<<switch _canmath>>
-					<<case 3>>
-						<th colspan="2" align="center">Inventory</th>
-					<<case 4 5 6>>
-						<th colspan="3" align="center">Inventory</th>
-				<</switch>>
-				<<switch _canmath>>
-					<<case 5>>
-						<th colspan="2" align="center">Sold Today</th>
-					<<case 6>>
-						<th colspan="3" align="center">Sold Today</th>
-				<</switch>>
-			</tr>
-			<tr>
-				<th style="border-bottom-width:2px;min-width:7ch" align="center">Amount</th>
-				<th style="border-bottom-width:2px;min-width:7ch" align="center">Each</th>
-				<<if _canmath gte 4>>
-					<th style="border-bottom-width:2px;min-width:7ch" align="center">Total</th>
-				<</if>>
-				<<if _canmath gte 5>>
-					<th style="border-bottom-width:2px;min-width:7ch" align="center">Amount</th>
-					<<if _canmath gte 6>>
-						<th style="border-bottom-width:2px;min-width:7ch" align="center">Avg</th>
+				<tr>
+					<th style="border-bottom-width:2px;min-width:7ch" align="center">양</th>
+					<th style="border-bottom-width:2px;min-width:7ch" align="center">각각</th>
+					<<if _canmath gte 4>>
+						<th style="border-bottom-width:2px;min-width:7ch" align="center">전체</th>
 					<</if>>
-					<th style="border-bottom-width:2px;min-width:7ch" align="center">Total</th>
-				<</if>>
-			</tr>
+					<<if _canmath gte 5>>
+						<th style="border-bottom-width:2px;min-width:7ch" align="center">양</th>
+						<<if _canmath gte 6>>
+							<th style="border-bottom-width:2px;min-width:7ch" align="center">평균</th>
+						<</if>>
+						<th style="border-bottom-width:2px;min-width:7ch" align="center">전체</th>
+					<</if>>
+				</tr>
 
-			<<for _t to 0; _t lt _plant_keys.length; _t++>>
-				<<if $stall_stats[_plant_keys[_t]].inventory.amount gt 0 or (_canmath gte 5 and $stall_stats[_plant_keys[_t]].sold.amount gt 0)>>
-					<<if _mobile>>
+				<<for _t to 0; _t lt _plant_keys.length; _t++>>
+					<<if $stall_stats[_plant_keys[_t]].inventory.amount gt 0 or (_canmath gte 5 and $stall_stats[_plant_keys[_t]].sold.amount gt 0)>>
+						<<if _mobile>>
+							<tr>
+								<td align="left" colspan="6" style="border-top-width:2px"><<trPlants $plants[_plant_keys[_t]].plural "name">>_trResult</td>
+							</tr>
+						<</if>>
 						<tr>
-							<td align="left" colspan="6" style="border-top-width:2px"><<=$plants[_plant_keys[_t]].plural.charAt(0).toUpperCase() + $plants[_plant_keys[_t]].plural.slice(1)>></td>
-						</tr>
-					<</if>>
-					<tr>
-						<<if not _mobile>>
-							<td align="left"><<=$plants[_plant_keys[_t]].plural.charAt(0).toUpperCase() + $plants[_plant_keys[_t]].plural.slice(1)>></td>
-						<</if>>
-						<<if $stall_stats[_plant_keys[_t]].inventory.amount gt 0>>
-							<td align="right"><<=$stall_stats[_plant_keys[_t]].inventory.amount>></td>
-							<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].inventory.price>></td>
-							<<if _canmath gte 4>>
-								<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].inventory.total>></td>
+							<<if not _mobile>>
+								<td align="left"><<trPlants $plants[_plant_keys[_t]].plural "name">>_trResult</td>
 							<</if>>
-						<<else>>
-							<td align="right">-&nbsp;</td>
-							<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].inventory.price>></td>
-							<<if _canmath gte 4>>
-								<td align="right">-&nbsp;</td>
-							<</if>>
-						<</if>>
-						<<if _canmath gte 5>>
-							<<if $stall_stats[_plant_keys[_t]].sold.amount gt 0>>
-								<td align="right"><<=$stall_stats[_plant_keys[_t]].sold.amount>></td>
-								<<if _canmath gte 6>>
-									<td align="right"><<set _avg to Math.round($stall_stats[_plant_keys[_t]].sold.total / $stall_stats[_plant_keys[_t]].sold.amount)>><<printmoney _avg>></td>
+							<<if $stall_stats[_plant_keys[_t]].inventory.amount gt 0>>
+								<td align="right"><<print $stall_stats[_plant_keys[_t]].inventory.amount>></td>
+								<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].inventory.price>></td>
+								<<if _canmath gte 4>>
+									<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].inventory.total>></td>
 								<</if>>
-								<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].sold.total>></td>
 							<<else>>
 								<td align="right">-&nbsp;</td>
-								<<if _canmath gte 6>>
+								<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].inventory.price>></td>
+								<<if _canmath gte 4>>
 									<td align="right">-&nbsp;</td>
 								<</if>>
-								<td align="right">-&nbsp;</td>
 							<</if>>
+							<<if _canmath gte 5>>
+								<<if $stall_stats[_plant_keys[_t]].sold.amount gt 0>>
+									<td align="right"><<print $stall_stats[_plant_keys[_t]].sold.amount>></td>
+									<<if _canmath gte 6>>
+										<td align="right"><<set _avg to Math.round($stall_stats[_plant_keys[_t]].sold.total / $stall_stats[_plant_keys[_t]].sold.amount)>><<printmoney _avg>></td>
+									<</if>>
+									<td align="right"><<printmoney $stall_stats[_plant_keys[_t]].sold.total>></td>
+								<<else>>
+									<td align="right">-&nbsp;</td>
+									<<if _canmath gte 6>>
+										<td align="right">-&nbsp;</td>
+									<</if>>
+									<td align="right">-&nbsp;</td>
+								<</if>>
+							<</if>>
+						</tr>
+					<</if>>
+				<</for>>
+
+				<<if _canmath gte 4>>
+					<tr>
+						<<if not _mobile>>
+							<th style="border-top-width:4px;border-top-style:double" align="left">전체</th>
+						<</if>>
+						<td style="border-top-width:4px;border-top-style:double" align="right">_total_amount</td>
+						<td style="border-top-width:4px;border-top-style:double"></td>
+						<td style="border-top-width:4px;border-top-style:double" align="right"><<printmoney _total_worth>></td>
+						<<if _canmath gte 5>>
+							<td style="border-top-width:4px;border-top-style:double" align="right">_total_sold_amount</td>
+							<<if _canmath gte 6>>
+								<td style="border-top-width:4px;border-top-style:double"></td>
+							<</if>>
+							<td style="border-top-width:4px;border-top-style:double" align="right"><<printmoney $stall_money>></td>
 						<</if>>
 					</tr>
 				<</if>>
-			<</for>>
-
-			<<if _canmath gte 4>>
-				<tr>
-					<<if not _mobile>>
-						<th style="border-top-width:4px;border-top-style:double" align="left">Total</th>
+			</table>
+		</center>
+	<<elseif _inventory_found is 1>>
+		판매할 물품:
+		<<set _first to 1>>
+		<<for _t to 0; _t lt _plant_keys.length; _t++>>
+			<<if $stall_stats[_plant_keys[_t]].inventory.amount gt 0>>
+				<<if _first>>
+					<<if $options.images is 1 and $plants[_plant_keys[_t]].icon>>
+						<img class="tending_icon" @src="`img/misc/icon/tending/` + $plants[_plant_keys[_t]].icon">
 					<</if>>
-					<td style="border-top-width:4px;border-top-style:double" align="right">_total_amount</td>
-					<td style="border-top-width:4px;border-top-style:double"></td>
-					<td style="border-top-width:4px;border-top-style:double" align="right"><<printmoney _total_worth>></td>
-					<<if _canmath gte 5>>
-						<td style="border-top-width:4px;border-top-style:double" align="right">_total_sold_amount</td>
-						<<if _canmath gte 6>>
-							<td style="border-top-width:4px;border-top-style:double"></td>
-						<</if>>
-						<td style="border-top-width:4px;border-top-style:double" align="right"><<printmoney $stall_money>></td>
+					<span class="gold"><<print $stall_stats[_plant_keys[_t]].inventory.amount>></span>
+					<<trPlants $plants[_plant_keys[_t]].plural "name">><<print _trResult>>
+					(각 <<printmoney _plant_value>>)
+				<<else>>
+					|
+					<<if $options.images is 1 and $plants[_plant_keys[_t]].icon>>
+						<img class="tending_icon" @src="`img/misc/icon/tending/` + $plants[_plant_keys[_t]].icon">
 					<</if>>
-				</tr>
+					<span class="gold"><<print $stall_stats[_plant_keys[_t]].inventory.amount>></span>
+					<<trPlants $plants[_plant_keys[_t]].plural "name">><<print _trResult>>
+					(각 <<printmoney _plant_value>>)
+				<</if>>
+				<<set _first to 0>>
 			<</if>>
-		</table>
-	</center>
-<<elseif _inventory_found is 1>>
-	Inventory:
-	<<set _first to 1>>
-	<<for _t to 0; _t lt _plant_keys.length; _t++>>
-		<<if $stall_stats[_plant_keys[_t]].inventory.amount gt 0>>
-			<<if _first>>
-				<span class="gold"><<=$stall_stats[_plant_keys[_t]].inventory.amount>></span>
-				<<=$plants[_plant_keys[_t]].plural.charAt(0).toUpperCase() + $plants[_plant_keys[_t]].plural.slice(1)>>
-				(<<printmoney _plant_value>> each)
+		<</for>>
+		<br>
+	<<else>>
+		더이상 팔 수 있는 물건이 없다!<br>
+	<</if>>
+
+	<<switch _canmath>>
+		<<case 1>>
+			<<if $stall_money is 0>>
+				당신은 아직 아무것도 못 팔았다.
 			<<else>>
-				|
-				<span class="gold"><<=$stall_stats[_plant_keys[_t]].inventory.amount>></span>
-				<<=$plants[_plant_keys[_t]].plural>>
-				(<<printmoney _plant_value>> each)
+				당신은 오늘 <<printmoney $stall_money>> 어치를 팔았다.
 			<</if>>
-			<<set _first to 0>>
-		<</if>>
-	<</for>>
-	<br>
-<<else>>
-	Inventory: You're out of stock!<br>
-<</if>>
-
-<<switch _canmath>>
-	<<case 1>>
-		<<if $stall_money is 0>>
-			You haven't sold anything yet.
-		<<else>>
-			You earned <<printmoney $stall_money>> from sales today.
-		<</if>>
-	<<case 2>>
-		<<if $stall_money is 0>>
-			<<if _inventory_found is 1>>
-				Your inventory is worth <<printmoney _total_worth>>.
-			<</if>>
-			You haven't sold anything yet.
-		<<else>>
-			<<if _inventory_found is 1>>
-				Your remaining inventory is worth <<printmoney _total_worth>>.
-			<</if>>
-			You earned <<printmoney $stall_money>> from sales today.
-		<</if>>
-	<<case 3>>
-		<center>
+		<<case 2>>
 			<<if $stall_money is 0>>
 				<<if _inventory_found is 1>>
-					Your inventory is worth <<printmoney _total_worth>>.
+					당신의 판가판대에 올라와 있는 물건의 총 가치는 <<printmoney _total_worth>> 이다.
 				<</if>>
-				You haven't sold anything yet.
+				당신은 아직 아무것도 못 팔았다.
 			<<else>>
 				<<if _inventory_found is 1>>
-					Your remaining inventory is worth <<printmoney _total_worth>>.
+					당신의 판가판대에 남아있는 물건의 총 가치는 <<printmoney _total_worth>> 이다.
 				<</if>>
-				You earned <<printmoney $stall_money>> from sales today.
+				당신은 오늘 <<printmoney $stall_money>> 어치를 팔았다.
 			<</if>>
-		</center>
-	<<case 4>>
-		<center>
-			<<if $stall_money is 0>>
-				You haven't sold anything yet.
-			<<else>>
-				You earned <<printmoney $stall_money>> from sales today.
-			<</if>>
-		</center>
-<</switch>>
+		<<case 3>>
+			<center>
+				<<if $stall_money is 0>>
+					<<if _inventory_found is 1>>
+						당신의 판가판대에 올라와 있는 물건의 총 가치는 <<printmoney _total_worth>> 이다.
+					<</if>>
+					당신은 아직 아무것도 못 팔았다.
+				<<else>>
+					<<if _inventory_found is 1>>
+						당신의 판가판대에 남아있는 물건의 총 가치는 <<printmoney _total_worth>> 이다.
+					<</if>>
+					당신은 오늘 <<printmoney $stall_money>> 어치를 팔았다.
+				<</if>>
+			</center>
+		<<case 4>>
+			<center>
+				<<if $stall_money is 0>>
+					당신은 아직 아무것도 못 팔았다.
+				<<else>>
+					당신은 오늘 <<printmoney $stall_money>> 어치를 팔았다.
+				<</if>>
+			</center>
+	<</switch>>
 
-<!-- <</for>><</for>> -->
-
+	<!-- <</for>><</for>> -->
 <</widget>>
 
 <<widget "endstall">>
-<<unset $plant_inventory>>
-<<unset $stall_amount>>
-<<unset $stall_plant>>
-<<unset $stall_cost>>
-<<unset $stall_expensive>>
+	<<unset $plant_inventory>>
+	<<unset $stall_amount>>
+	<<unset $stall_plant>>
+	<<unset $stall_cost>>
+	<<unset $stall_expensive>>
 <</widget>>
 
 <<widget "stall_sell">>
-<<if ndef $stall_stats[$stall_plant]>>
-	<<set $stall_stats[$stall_plant] to { inventory:{amount:0, price:0, total:0}, sold:{amount:0, total:0} }>>
-<</if>>
-<<set $stall_stats[$stall_plant].sold.amount += $stall_amount>>
-<<set $stall_stats[$stall_plant].sold.total  += Math.round($stall_cost * $stall_amount)>>
+	<<if ndef $stall_stats[$stall_plant]>>
+		<<set $stall_stats[$stall_plant] to { inventory:{amount:0, price:0, total:0}, sold:{amount:0, total:0} }>>
+	<</if>>
+	<<set $stall_stats[$stall_plant].sold.amount += $stall_amount>>
+	<<set $stall_stats[$stall_plant].sold.total += Math.round($stall_cost * $stall_amount)>>
 
-<<set $plants[$stall_plant].amount -= $stall_amount>>
-<<set $money += Math.round($stall_cost * $stall_amount)>>
-<<set $stall_money += Math.round($stall_cost * $stall_amount)>>
-<<set $produce_sold += $stall_amount>>
-You sell
-<<if $stall_amount gte 2>>
-	$stall_amount <<print setup.plants[$stall_plant].plural>>
-<<else>>
-	one <<print setup.plants[$stall_plant].name.replace(/_/g," ")>>
-<</if>>
- for <<printmoney `$stall_cost * $stall_amount`>>
-<<if $stall_cost * $stall_amount / 100 gte 10000>>
-	It feels good to make so much money at once.
-	<<ltrauma>><<lstress>>
-<</if>>
-<<famebusiness 1>>
+	<<set $plants[$stall_plant].amount -= $stall_amount>>
+	<<set $money += Math.round($stall_cost * $stall_amount)>>
+	<<set $stall_money += Math.round($stall_cost * $stall_amount)>>
+	<<set $produce_sold += $stall_amount>>
+	당신은
+	<<if $stall_amount gte 2>>
+		$stall_amount <<trPlants setup.plants[$stall_plant].plural "unit" "의">>_trResult <<trPlants setup.plants[$stall_plant].plural "plural" "을">>_trResult
+	<<else>>
+		한 <<trPlants setup.plants[$stall_plant].name "unit" "의">>_trResult <<trPlants setup.plants[$stall_plant].name "을">>_trResult
+	<</if>>
+	<<printmoney `$stall_cost * $stall_amount`>>에 팔았다.
+	<<if $stall_cost * $stall_amount / 100 gte 10000>>
+		한 번에 이렇게 많은 돈을 버니 기분이 좋다.
+		<<ltrauma>><<lstress>>
+	<</if>>
+	<<famebusiness 1>>
 <</widget>>
 
 <<widget "eventsstall">>
-<<set $rng to random(1, 10)>>
-<<if $stall_rejected gte random(1, 200)>>
-	<<if $rng is 1>>
-		<<generate1>><<person1>>
-		You hear movement behind you.
-		<<if $worn.lower.type.includes("naked")>>
-			<<if $worn.under_lower.type.includes("naked")>>
-				Before you can turn, a pair of hands wrap around your waist and grope your <<genitals>>.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<br><br>
+	<<rng 10>>
+	<<if $stall_rejected gte random(1, 200)>>
+		<<if $rng is 1>>
+			<<generate1>><<person1>>
+			당신은 등 뒤에서 뭔가 움직이는 소리를 들었다.
+			<<if $worn.lower.type.includes("naked")>>
+				<<if $worn.under_lower.type.includes("naked")>>
+					돌아보기도 전에, 손 한 쌍이 튀어나와 당신의 허리를 감싸고 <<genitalsPost "을">> 움켜쥔다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<br><br>
 
-				"I heard the owner of this stall was a slut," says a <<if $pronoun is "m">>man's<<else>>woman's<</if>> voice. "But I didn't expect <<phim>> to have nothing on down here." <<He>> continues to fondle you.
-				<br><br>
+					"여기 노점이 걸레 거라고 들었는데." <<personsimple_ i>> 말한다. "하지만 이렇게 아래쪽에 아무것도 안 입고 있을 줄은 몰랐는걸." <<He_ ga>> 계속해 당신을 애무한다.
+					<br><br>
 
+				<<else>>
+					돌아보기도 전에, 손 한 쌍이 튀어나와 당신의 허리를 감싸고 <<worn_under_lower_name>> 너머로 당신의 <<genitalsPost "을">> 움켜쥔다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<br><br>
+
+					"여기 노점이 걸레 거라고 들었는데." <<personsimple_ i>> 말한다. "하지만 이렇게 아래쪽에 달랑 속옷 한 장만 몰래 걸치고 있을 줄은 몰랐는걸." <<He_ ga>> 계속해 당신을 애무한다.
+					<br><br>
+				<</if>>
 			<<else>>
-				Before you can turn, a pair of hands wrap around your waist and grope your <<genitals>> through your $worn.under_lower.name.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<br><br>
+				<<if $player.gender_appearance is "f">>
+					돌아보기도 전에, 당신의 어깨 아래서 손 한 쌍이 튀어나와 <<breastsPost "을">> 붙잡는다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<br><br>
 
-				"I heard the owner of this stall was a slut," says a <<if $pronoun is "m">>man's<<else>>woman's<</if>> voice. "But I didn't expect <<phim>> to be secretly wearing just underwear down here." <<He>> continues to fondle you.
-				<br><br>
+					"내게 거짓말하지 마." <<personsimple_ i>> 말한다. <<His_ yi>> 손이 당신의 몸을 더듬다 <<genitalsPost "로">> 내려간다. "관심 끌려고 이런 걸 세운 거지? 넌 이런 일이 일어나길 바랬던 거야." <<He_ ga>> 계속해 당신을 애무한다.
+					<br><br>
+				<<else>>
+					돌아보기도 전에, 당신의 어깨 아래서 손 한 쌍이 튀어나와 <<genitalsPost "을">> 붙잡는다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<br><br>
+
+					"내게 거짓말하지 마." <<personsimple_ i>> 말한다. "관심 끌려고 이런 걸 세운 거지? 넌 이런 일이 일어나길 바랬던 거야." <<He_ ga>> 계속해 당신을 애무한다.
+					<br><br>
+				<</if>>
 			<</if>>
+			<<link [[참는다 (0:05)|Stall Endure]]>><<pass 5>><<trauma 6>><<stress 6>><<arousal 300 "genitals">><<arousal 300 "breasts">><</link>><<gtrauma>><<gstress>><<garousal>>
+			<br>
+			<<link [[밀쳐낸다|Stall Shove]]>><<set $stall_rejected += 1>><<trauma -6>><</link>><<glewdity>><<ltrauma>>
+			<br>
+		<<elseif $rng is 2>>
+			<<generate1>><<person1>>
+			당신은 등 뒤에서 뭔가 움직이는 소리를 들었다. 돌아보기도 전에, 손 하나가 튀어나와 당신의 입을 막는다. "네 소문을 들었어." <<personsimple_ i>> 속삭인다. "<<slut_ a>>." <<He_ nun>> 당신의 다리를 걷어차, 강제로 당신을 땅에 고꾸라트린다.
+			<br><br>
+
+			<<link [[다음|Stall Rape]]>><<set $molestationstart to 1>><</link>>
+			<br>
+		<<elseif $rng is 3>>
+			<<generate1>><<person1>>
+			<<if $worn.upper.type.includes("naked") and $worn.over_upper.type.includes("naked")>>
+				<<if $worn.under_upper.type.includes("naked")>>
+					<<person_ i>> 당신의 가판대로 걸어와 진열된 상품들을 쳐다본다. 아무런 전조 없이, <<he_ nun>> 테이블을 넘어와 당신의 <<breastsPost "을">> 움켜쥐고는 달아나 버렸다.
+					<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600 "breasts">>
+					<br><br>
+				<<else>>
+					<<set $worn.under_upper.integrity -= 20>>
+					<<person_ i>> 당신의 가판대로 걸어와 진열된 상품들을 쳐다본다. 아무런 전조 없이, <<he_ nun>> 테이블을 넘어와 당신의 <<worn_under_upper_name_ ul>> 붙잡는다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<<integritycheck>><<exposure>>
+					<br>
+					<<if $worn.under_upper.name is "naked">>
+						<<He_ nun>> 찢어진 옷을 손에 쥔 채로 도망가 버렸다. <<covered>>
+						<br><br>
+					<<else>>
+						<<He_ nun>> 그걸 붙잡고 휙 내려, 당신이 미처 손을 떼어내기 전 당신의 <<breastsPost "을">> 노출시킨다. <<He_ nun>> 뒤돌아 도망쳤다.
+						<br><br>
+					<</if>>
+				<</if>>
+			<<elseif !$worn.over_upper.type.includes("naked")>>
+				<<set $worn.over_upper.integrity -= 20>>
+				<<if $worn.under_upper.type.includes("naked") and $worn.upper.type.includes("naked")>>
+					<<person_ i>> 당신의 가판대로 걸어와 진열된 상품들을 쳐다본다. 아무런 전조 없이, <<he_ nun>> 테이블을 넘어와 당신의 <<worn_over_upper_name_ ul>> 붙잡는다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<<integritycheck>><<exposure>>
+					<br>
+					<<if $worn.over_upper.name is "naked">>
+						<<He_ nun>> 찢어진 옷을 손에 쥔 채로 도망가 버렸다. <<covered>>
+						<br><br>
+					<<else>>
+						<<He_ nun>> 그걸 붙잡고 휙 내려, 당신이 미처 손을 떼어내기 전 당신의 <<breastsPost "을">> 노출시킨다.
+						<br><br>
+					<</if>>
+				<<else>>
+					<<person_ i>> 당신의 가판대로 걸어와 진열된 상품들을 쳐다본다. 아무런 전조 없이, <<he_ nun>> 테이블을 넘어와 당신의 <<worn_over_upper_name_ ul>> 붙잡는다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<<integritycheck>><<exposure>>
+					<br>
+					<<if $worn.over_upper.name is "naked">>
+						<<He_ nun>> 찢어진 옷을 손에 쥔 채로 도망가 버렸다. <<covered>>
+						<br><br>
+					<<else>>
+						<<He_ nun>> 그걸 붙잡고 휙 내려, 당신이 미처 손을 떼어내기 전 당신의 <<worn_over_upper_name_ ul>> 노출시킨다. <<He_ nun>> 뒤돌아 도망쳤다.
+						<br><br>
+					<</if>>
+				<</if>>
+			<<else>>
+				<<set $worn.upper.integrity -= 20>>
+				<<if $worn.under_upper.type.includes("naked")>>
+					<<person_ i>> 당신의 가판대로 걸어와 진열된 상품들을 쳐다본다. 아무런 전조 없이, <<he_ nun>> 테이블을 넘어와 당신의 <<worn_upper_name_ ul>> 붙잡는다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<<integritycheck>><<exposure>>
+					<br>
+					<<if $worn.upper.name is "naked">>
+						<<He_ nun>> 찢어진 옷을 손에 쥔 채로 도망가 버렸다. <<covered>>
+						<br><br>
+					<<else>>
+						<<He_ nun>> 그걸 붙잡고 휙 내려, 당신이 미처 손을 떼어내기 전 당신의 <<breastsPost "을">> 노출시킨다.
+						<br><br>
+					<</if>>
+				<<else>>
+					<<person_ i>> 당신의 가판대로 걸어와 진열된 상품들을 쳐다본다. 아무런 전조 없이, <<he_ nun>> 테이블을 넘어와 당신의 <<worn_upper_name_ ul>> 붙잡는다.
+					<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+					<<integritycheck>><<exposure>>
+					<br>
+					<<if $worn.upper.name is "naked">>
+						<<He_ nun>> 찢어진 옷을 손에 쥔 채로 도망가 버렸다. <<covered>>
+						<br><br>
+					<<else>>
+						<<He_ nun>> 그걸 붙잡고 휙 내려, 당신이 미처 손을 떼어내기 전 당신의 <<worn_under_upper_name_ ul>> 노출시킨다. <<He_ nun>> 뒤돌아 도망쳤다.
+						<br><br>
+					<</if>>
+				<</if>>
+			<</if>>
+			<<stall_actions>>
+		<<elseif $rng is 4>>
+			<<generate1>><<person1>>
+			당신은 길 건너편의 <<person_ i>> 카메라를 <<his_ yi>> 얼굴에 대고 있는 것을 발견했다. 당신 쪽을 향하고 있는 것 같다. 당신은 불안해졌다.
+			<<gstress>><<stress 6>>
+			<br><br>
+
+			<<stall_actions>>
+		<<elseif $rng is 5>>
+			<<generate1>><<person1>>
+			<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
+			어떤 <<person_ i>> 당신의 가판대로 걸어온다. <<He_ nun>> <<stall_check_text>>. "이거 <span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?" <<he_ ga>> 묻는다. <<He_ nun>> 당신을 대놓고 음흉하게 쳐다본다.
+			<br><br>
+
+			<<stall_trust>>
+			<br><br>
+
+			<<stall_sell_actions>>
+		<<elseif $rng is 6>>
+			<<generate1>><<person1>>
+			<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
+			어떤 <<person_ i>> 당신의 가판대로 걸어온다. <<He_ nun>> <<stall_check_text>>. "이거 <span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?" <<he_ ga>> 묻는다. "그리고 사탕발림으로 꾀어보려는 생각은 하지도 마쇼. 소문 다 듣고 왔으니까."
+			<br><br>
+
+			<<stall_trust>>
+			<br><br>
+
+			<<stall_sell_actions>>
+		<<elseif $rng is 7>>
+			<<generate1>><<person1>>
+			<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
+			당신은 <<person_ i>> 멀리서 당신을 지켜보는 걸 발견한다. <<He_ wa>> 눈이 마주치자 <<he_ nun>> 당신의 가판대로 걸어온다. <<He_ nun>> <<stall_check_text>>. "이거 <span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?" <<he_ ga>> 묻는다.
+			<br><br>
+
+			<<stall_trust>>
+			<br><br>
+
+			<<stall_sell_actions>>
+		<<elseif $rng is 8>>
+			<<generate1>><<person1>>
+			<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
+			어떤 <<person_ i>> 걸어오다가, 당신의 가판대 앞에서 멈춘다. <<His_ yi>> 눈이 당신의 얼굴과 가슴을 오락가락하며 <<he_ nun>> <<stall_check_text>>. "이거 <span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?" <<he_ ga>> 묻는다.
+			<br><br>
+
+			<<stall_trust>>
+			<br><br>
+
+			<<stall_sell_actions>>
+		<<elseif $rng is 9>>
+			<<generate1>><<person1>>
+			<<stall_init>><<set $enemyarousal += 40>><<set $enemytrust -= 20>>
+			어떤 <<person_ i>> 어슬렁거리며 당신의 가판대로 온다. 아무런 예고 없이, <<he_ ga>> 탁자 너머로 손을 뻗어 당신의 팔을 붙잡는다. <<He_ nun>> 당신이 탁자에 기대 있는 꼴이 되기까지 당신을 끌어당겨서, 몸을 숙여 당신의 뺨을 핥는다.
+			<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+			<br><br>
+			<<He_ nun>> 당신을 풀어주더니, <<stall_check_text>>. "이거 <span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?" <<he_ ga>> 탁자에 기대 선 채로 묻는다.
+			<br><br>
+
+			<<stall_trust>>
+			<br><br>
+
+			<<stall_sell_actions>>
 		<<else>>
-			<<if $player.gender_appearance is "f">>
-				Before you can turn, a pair of hands appear beneath your shoulders and grasp your <<breasts>>.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<br><br>
+			<<generate1>><<person1>>
+			<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
+			어떤 <<person_ i>> 당신의 가판대로 걸어온다. <<He_ nun>> <<stall_check_text>>. "이거 <span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?" <<he_ ga>> 탁자에 기대 선 채로 묻는다.
+			<br><br>
 
-				"Don't lie to me," says a <<if $pronoun is "m">>man's<<else>>woman's<</if>> voice. <<His>> hands wander down to your <<genitals>>. "You set this place up to draw attention to yourself. You want this." <<He>> continues to fondle you.
-				<br><br>
-			<<else>>
-				Before you can turn, a pair of hands appear beneath your shoulders and grasp your <<genitals>>.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<br><br>
+			<<stall_trust>>
+			<br><br>
 
-				"Don't lie to me," says a <<if $pronoun is "m">>man's<<else>>woman's<</if>> voice. "You set this place up to draw attention to yourself. You want this." <<He>> continues to fondle you.
-				<br><br>
-			<</if>>
+			<<stall_sell_actions>>
 		<</if>>
-		<<link [[Endure (0:05)|Stall Endure]]>><<pass 5>><<trauma 6>><<stress 6>><<arousal 600>><</link>><<gtrauma>><<gstress>><<garousal>>
+	<<elseif $rng is 1>>
+		<<generate1>><<person1>>
+		<<stall_init>>
+		<<person_ i>> 스쳐 지나가다가, 당신의 상품들을 예리한 눈초리로 확인한다.
+		<br><br>
+
+		<<link [[말을 건다|Stall Shuffle Talk]]>><</link>>
 		<br>
-		<<link [[Shove|Stall Shove]]>><<set $stall_rejected += 1>><<trauma -6>><</link>><<glewdity>><<ltrauma>>
+		<<link [[조용히 있는다|Stall Shuffle Silent]]>><</link>>
 		<br>
 	<<elseif $rng is 2>>
 		<<generate1>><<person1>>
-		You hear movement behind you. Before you can turn, a hand clasps around your mouth. "I've heard about you," the <<if $pronoun is "m">>man<<else>>woman<</if>> whispers. "Slut." <<He>> kicks your legs out from under you, forcing you to the ground.
+		<<stall_init>>
+		<<person_ i>> 지나가다가 당신의 상품들을 슥 둘러본다.
 		<br><br>
 
-		<<link [[Next|Stall Rape]]>><<set $molestationstart to 1>><</link>>
+		<<link [[말을 건다|Stall Walk Talk]]>><</link>>
 		<br>
+		<<link [[조용히 있는다|Stall Walk Silent]]>><</link>>
 	<<elseif $rng is 3>>
 		<<generate1>><<person1>>
-		<<if $worn.upper.type.includes("naked") and $worn.over_upper.type.includes("naked")>>
-			<<if $worn.under_upper.type.includes("naked")>>
-				A <<person>> walks up to your stall, looking at your display. Without warning, <<he>> reaches across the table and gropes your <<breasts>> before running away.
-				<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
-				<br><br>
-			<<else>>
-				<<set $worn.under_upper.integrity -= 20>>
-				A <<person>> walks up to your stall, looking at your display. Without warning, <<he>> reaches across the table and grasps your $worn.under_upper.name.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<<integritycheck>><<exposure>>
-				<br>
-				<<if $worn.under_upper.name is "naked">>
-					<<He>> runs away, clutching the fabric in <<his>> hand. <<covered>>
-					<br><br>
-				<<else>>
-					<<He>> tugs it down, exposing your <<breasts>> before you're able to break <<his>> grip. <<He>> turns and runs.
-					<br><br>
-				<</if>>
-			<</if>>
-		<<elseif !$worn.over_upper.type.includes("naked")>>
-			<<set $worn.over_upper.integrity -= 20>>
-			<<if $worn.under_upper.type.includes("naked") and $worn.upper.type.includes("naked")>>
-				A <<person>> walks up to your stall, looking at your display. Without warning, <<he>> reaches across the table and grasps your $worn.over_upper.name.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<<integritycheck>><<exposure>>
-				<br>
-				<<if $worn.over_upper.name is "naked">>
-					<<He>> runs away, clutching the fabric in <<his>> hand. <<covered>>
-					<br><br>
-				<<else>>
-					<<He>> tugs it down, exposing your <<breasts>> before you're able to break <<his>> grip. <<He>> turns and runs.
-					<br><br>
-				<</if>>
-			<<else>>
-				A <<person>> walks up to your stall, looking at your display. Without warning, <<he>> reaches across the table and grasps your $worn.over_upper.name.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<<integritycheck>><<exposure>>
-				<br>
-				<<if $worn.over_upper.name is "naked">>
-					<<He>> runs away, clutching the fabric in <<his>> hand. <<covered>>
-					<br><br>
-				<<else>>
-					<<He>> tugs it down, exposing your $worn.over_upper.name before you're able to break <<his>> grip. <<He>> turns and runs.
-					<br><br>
-				<</if>>
-			<</if>>
+		<<stall_init>>
+		<<person_ i>> 당신의 가판대로 걸어온다. <<He_ nun>> <span class="green"><<trPlants $stall_plant "을" "sep">>_trResult</span>_trPost 들어올려, 향기를 맡는다.
+		<br><br>
+		<<if $stall_amount gte 2>>
+			"이것들 다 얼마요?" <<he_ ga>> 꽃을 더 집어 <<his_ yi>> 바구니에 총 <span class="green"><<stall_amount>> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult를</span> 담은 채로 묻는다.
 		<<else>>
-			<<set $worn.upper.integrity -= 20>>
-			<<if $worn.under_upper.type.includes("naked")>>
-				A <<person>> walks up to your stall, looking at your display. Without warning, <<he>> reaches across the table and grasps your $worn.upper.name.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<<integritycheck>><<exposure>>
-				<br>
-				<<if $worn.upper.name is "naked">>
-					<<He>> runs away, clutching the fabric in <<his>> hand. <<covered>>
-					<br><br>
-				<<else>>
-					<<He>> tugs it down, exposing your <<breasts>> before you're able to break <<his>> grip. <<He>> turns and runs.
-					<br><br>
-				<</if>>
-			<<else>>
-				A <<person>> walks up to your stall, looking at your display. Without warning, <<he>> reaches across the table and grasps your $worn.upper.name.
-				<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-				<<integritycheck>><<exposure>>
-				<br>
-				<<if $worn.upper.name is "naked">>
-					<<He>> runs away, clutching the fabric in <<his>> hand. <<covered>>
-					<br><br>
-				<<else>>
-					<<He>> tugs it down, exposing your $worn.under_upper.name before you're able to break <<his>> grip. <<He>> turns and runs.
-					<br><br>
-				<</if>>
-			<</if>>
+			"<span class="green">이거 하나에</span> 얼마요?" <<he_ ga>> 묻는다.
 		<</if>>
-		<<stall_actions>>
+		<br><br>
+
+		<<stall_trust>>
+		<br><br>
+
+		<<stall_sell_actions>>
 	<<elseif $rng is 4>>
 		<<generate1>><<person1>>
-		You spot a <<person>> across the street holding a camera to <<his>> face. It looks like it's pointing at you. You feel uncomfortable.
-		<<gstress>><<stress>>
+		<<stall_init>>
+		<<person_ i>> 뒷짐을 진 채로 걸어온다. "오호라." <<he_ ga>> <span class="green"><<trPlants $stall_plant "을" "sep">>_trResult</span>_trPost 꼼꼼히 살피며 말한다. <<He_ nun>> 가까이 몸을 숙여, 상품에 대해 말하기 시작한다. <<He_ nun>> 아는 게 많은 것처럼 보인다.
 		<br><br>
 
-		<<stall_actions>>
+		<<link [[예의바르게 듣는다 (0:10)|Stall Listen]]>><<set $enemytrust += 20>><</link>><<gtrust>>
+		<br>
+		<<link [[재촉한다|Stall Hurry]]>><<set $enemytrust -= 20>><</link>><<ltrust>>
+		<br>
+		<<link [[대화한다|Stall Converse]]>><</link>><<tendingdifficulty 1 400>>
+		<br>
 	<<elseif $rng is 5>>
 		<<generate1>><<person1>>
-		<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
-		A <<person>> walks up to your display. <<He>> examines one of the <<print setup.plants[$stall_plant].plural>>. "How much for <<stall_amount>> of these?" <<he>> asks. <<He>> leers at you openly.
+		<<stall_init>>
+		당신은 <<person_ i>> 가판대를 따라 오는 걸 본다. <<He_ nun>> 가판대에서 어떤 상품을 팔던지 상관없이 하나하나 멈춰 서서, 가판대 주인과 대화를 나눈다. 마침내 <<he_ ga>> 당신의 가판대에 도착했다.
 		<br><br>
-
-		<<stall_trust>>
+		"오호," <<he_ ga>> <span class="green"><<trPlants $stall_plant "을" "sep">>_trResult</span>_trPost 들어올리며 말한다. "아주 멋진 꽃들이군요. 직접 길러서 파십니까?"
 		<br><br>
-
-		<<stall_sell_actions>>
+		<<link [[솔직히 대답한다|Stall Honest]]>><<set $enemytrust += 20>><</link>><<gtrust>>
+		<br>
+		<<link [[얼버무린다|Stall Evasive]]>><<set $enemytrust -= 20>><</link>><<ltrust>>
+		<br>
 	<<elseif $rng is 6>>
 		<<generate1>><<person1>>
-		<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
-		A <<person>> walks up to your display. <<He>> lifts one of the <<print setup.plants[$stall_plant].plural>>. "How much for <<stall_amount>> of these?" <<he>> asks. "And don't try to sweet talk me. I've heard about you."
+		<<stall_init>>
+		<<set $enemyarousal += 20>>
+		<<person_ i>> 으스대며 걷다가 당신의 탁자에 기대 선다. "거기 이쁜이." <<he_ ga>> 말한다. "이것들 멋진데." <<His_ yi>> 눈은 진열대는 쳐다보지도 않은 채, 당신에게만 머물러 있다.
 		<br><br>
 
-		<<stall_trust>>
-		<br><br>
-
-		<<stall_sell_actions>>
+		<<link [[뭐라도 사라고 말한다|Stall Encourage]]>><</link>>
+		<br>
+		<<link [[추파를 던진다|Stall Flirt]]>><<set $enemytrust += 20>><<set $enemyarousal += 20>><</link>><<promiscuous1>><<gtrust>><<glust>>
+		<br>
+		<<link [[떠나달라고 말한다|Stall Leave]]>><</link>>
+		<br>
 	<<elseif $rng is 7>>
 		<<generate1>><<person1>>
-		<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
-		You see a <<person>> watching you from afar. <<He>> walks over when your eyes meet. <<He>> stoops to examine one of the <<print setup.plants[$stall_plant].plural>>. "How much for <<stall_amount>> of these?" <<he>> asks.
+		<<stall_init>>
+		어떤 <<person_ i>> 당신의 가판대 앞에서 멈춘다. "<<spousePost>>에게 줄 것을 찾고 있는데," <<he_ ga>> 말한다. <<He_ nun>> 아래로 몸을 구부리며 <<stall_check_text>>. "이거 <span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?"
 		<br><br>
 
 		<<stall_trust>>
@@ -497,390 +616,346 @@ You sell
 		<<stall_sell_actions>>
 	<<elseif $rng is 8>>
 		<<generate1>><<person1>>
-		<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
-		A <<person>> walks by, and stops in front of your stall. <<His>> eyes flicker over your face and chest as <<he>> picks up one of the <<print setup.plants[$stall_plant].plural>>. "How much for <<stall_amount>> of these?" <<he>> asks.
+		<<stall_init>>
+		<<person1>><<person_ i>> 가판대를 스쳐지나가며 당신의 <span class="green"><<trPlants setup.plants[$stall_expensive].plural "을" "sep">>_trResult</span>_trPost 하나 낚아채더니, 휙 달려 도망친다.
 		<br><br>
 
-		<<stall_trust>>
-		<br><br>
+		<<if $worn.lower.type.includes("naked")>>
+			<<if $worn.under_lower.type.includes("naked")>>
+				당신은 <span class="lewd">허리 아래로는 완전히 나체 상태라는 것도 잊은 채</span> <<he_ rul>> 쫓아 달려나갈 뻔했다.
+				<br><br>
+				<<if $exhibitionism gte 75>>
+					<<link [[신경쓰지 않고 쫓는다|Stall Chase Naked]]>><</link>><<exhibitionist5>><<athleticsdifficulty 1 1200>>
+					<br>
+				<</if>>
+			<<else>>
+				당신은 <span class="lewd">허리 아래로는 속옷만 입은 상태라는 것도 잊은 채</span> <<he_ rul>> 쫓아 달려나갈 뻔했다.
+				<br><br>
 
-		<<stall_sell_actions>>
-	<<elseif $rng is 9>>
-		<<generate1>><<person1>>
-		<<stall_init>><<set $enemyarousal += 40>><<set $enemytrust -= 20>>
-		A <<person>> swaggers up to your display. Without warning, <<he>> reaches forward and grasps your arm. <<He>> tugs you forward, until you're leaning over the table, then <<he>> leans in and licks your cheek.
-		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
-		<br><br>
-		<<He>> releases you, then examines one of the <<print setup.plants[$stall_plant].plural>>. "How much for <<stall_amount>> of these?" <<he>> asks, leaning against the table.
-		<br><br>
-
-		<<stall_trust>>
-		<br><br>
-
-		<<stall_sell_actions>>
-	<<else>>
-		<<generate1>><<person1>>
-		<<stall_init>><<set $enemyarousal += 20>><<set $enemytrust -= 20>>
-		A <<person>> walks up to your display. <<He>> sniffs one of the <<print setup.plants[$stall_plant].plural>>. "How much for <<stall_amount>> of these?" <<he>> asks, leaning against the table.
-		<br><br>
-
-		<<stall_trust>>
-		<br><br>
-
-		<<stall_sell_actions>>
-	<</if>>
-<<elseif $rng is 1>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person>> shuffles by, examining your produce with a keen look.
-	<br><br>
-
-	<<link [[Talk|Stall Shuffle Talk]]>><</link>>
-	<br>
-	<<link [[Remain Silent|Stall Shuffle Silent]]>><</link>>
-	<br>
-<<elseif $rng is 2>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person>> walks by, casting a casual eye over your produce.
-	<br><br>
-
-	<<link [[Talk|Stall Walk Talk]]>><</link>>
-	<br>
-	<<link [[Remain Silent|Stall Walk Silent]]>><</link>>
-<<elseif $rng is 3>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person>> walks up to your stand. <<He>> lifts a <<print $stall_plant.replace(/_/g," ")>>, and sniffs it.
-	<br><br>
-	<<if $stall_amount gte 2>>
-		"How much?" <<he>> asks, picking up several more until <<he>> carries <<stall_amount>> in <<his>> basket.
-	<<else>>
-		"How much for one?" <<he>> asks.
-	<</if>>
-	<br><br>
-
-	<<stall_trust>>
-	<br><br>
-
-	<<stall_sell_actions>>
-<<elseif $rng is 4>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person>> walks over, holding <<his>> hands behind <<his>> back. "Aha," <<he>> says, spying a <<print $stall_plant.replace(/_/g," ")>>. <<He>> leans closer, and starts talking about it. <<He>> seems to know a lot.
-	<br><br>
-
-	<<link [[Listen politely (0:10)|Stall Listen]]>><<set $enemytrust += 20>><</link>><<gtrust>>
-	<br>
-	<<link [[Hurry them up|Stall Hurry]]>><<set $enemytrust -= 20>><</link>><<ltrust>>
-	<br>
-	<<link [[Converse|Stall Converse]]>><</link>><<tendingdifficulty 1 400>>
-	<br>
-<<elseif $rng is 5>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	You see a <<person>> moving along the stalls. <<He>> stops at each one, no matter what they're selling, and chats with the owner. At last <<he>> arrives at yours.
-	<br><br>
-	"Oho," <<he>> says, lifting a <<print $stall_plant.replace(/_/g," ")>>. "These are lovely. Do you produce them yourself?"
-	<br><br>
-	<<link [[Answer honestly|Stall Honest]]>><<set $enemytrust += 20>><</link>><<gtrust>>
-	<br>
-	<<link [[Answer evasively|Stall Evasive]]>><<set $enemytrust -= 20>><</link>><<ltrust>>
-	<br>
-<<elseif $rng is 6>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	<<set $enemyarousal += 20>>
-	A <<person>> swaggers up and leans against the table. "Hey beautiful," <<he>> says. "Nice goods you got there." <<His>> eyes remain on you. <<He>> doesn't even glance at the display.
-	<br><br>
-
-	<<link [[Encourage them to buy something|Stall Encourage]]>><</link>>
-	<br>
-	<<link [[Flirt|Stall Flirt]]>><<set $enemytrust += 20>><<set $enemyarousal += 20>><</link>><<promiscuous1>><<gtrust>><<glust>>
-	<br>
-	<<link [[Tell them to leave|Stall Leave]]>><</link>>
-	<br>
-<<elseif $rng is 7>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person>> stops in front of your stall. "Looking for something for the <<spouse>>," <<he>> says. <<He>> leans down and sniffs one of the <<print setup.plants[$stall_plant].plural>>. "How much for <<stall_amount>> of these?"
-	<br><br>
-
-	<<stall_trust>>
-	<br><br>
-
-	<<stall_sell_actions>>
-<<elseif $rng is 8>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person1>><<person>> snatches one of your <<print setup.plants[$stall_expensive].plural>> as <<he>> walks by, and breaks into a run.
-	<br><br>
-
-	<<if $worn.lower.type.includes("naked")>>
-		<<if $worn.under_lower.type.includes("naked")>>
-			You almost forget yourself and chase after <<him>>, before remembering you're <span class="lewd">naked below your waist.</span>
-			<br><br>
-			<<if $exhibitionism gte 75>>
-				<<link [[Chase anyway|Stall Chase Naked]]>><</link>><<exhibitionist5>><<athleticsdifficulty 1 1200>>
-				<br>
+				<<if $exhibitionism gte 35>>
+					<<link [[신경쓰지 않고 쫓는다|Stall Chase Undies]]>><</link>><<exhibitionist3>><<athleticsdifficulty 1 1200>>
+					<br>
+				<</if>>
 			<</if>>
 		<<else>>
-			You almost forget yourself and chase after <<him>>, before remembering you're <span class="lewd">wearing naught but underwear below your waist.</span>
-			<br><br>
-
-			<<if $exhibitionism gte 35>>
-				<<link [[Chase anyway|Stall Chase Undies]]>><</link>><<exhibitionist3>><<athleticsdifficulty 1 1200>>
-				<br>
-			<</if>>
+			<<link [[쫓는다|Stall Chase]]>><</link>><<athleticsdifficulty 1 1200>>
 		<</if>>
+		<br>
+		<<link [[내버려둔다|Stall Go]]>><</link>>
+		<br>
+	<<elseif $rng is 9>>
+		<<generate1>><<person1>>
+		<<stall_init>>
+		어떤 <<person1>><<person_ i>> 근처를 어정거린다.
+		<br><br>
+
+		<<link [[관심을 끈다|Stall Attention]]>><</link>>
+		<br>
+		<<link [[무시한다|Stall Ignore]]>><</link>>
+		<br>
 	<<else>>
-		<<link [[Chase|Stall Chase]]>><</link>><<athleticsdifficulty 1 1200>>
+		<<generate1>><<person1>>
+		<<stall_init>>
+		<<person1>><<person_ i>> 당신의 <span class="green"><<trPlants setup.plants[$stall_plant].plural>>_trResult</span>에 감명을 받은 것 같다. "<span class="green"><<stall_amount>></span> <<trPlants setup.plants[$stall_plant].plural "unit">>_trResult에 얼마죠?" <<he_ ga>> 묻는다.
+		<br><br>
+
+		<<stall_trust>>
+		<br><br>
+
+		<<stall_sell_actions>>
 	<</if>>
-	<br>
-	<<link [[Let them go|Stall Go]]>><</link>>
-	<br>
-<<elseif $rng is 9>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person1>><<person>> loiters nearby.
-	<br><br>
-
-	<<link [[Get their attention|Stall Attention]]>><</link>>
-	<br>
-	<<link [[Ignore|Stall Ignore]]>><</link>>
-	<br>
-<<else>>
-	<<generate1>><<person1>>
-	<<stall_init>>
-	A <<person1>><<person>> is impressed by your <<print setup.plants[$stall_plant].plural>>. "How much for $stall_amount?" <<he>> asks.
-	<br><br>
-
-	<<stall_trust>>
-	<br><br>
-
-	<<stall_sell_actions>>
-<</if>>
 <</widget>>
 
 <<widget "stall_chance">>
-Your attractiveness is giving you
-<<if $attractiveness gte 5000>>
-	an <span class="green">excellent</span>
-<<elseif $attractiveness gte 4000>>
-	a <span class="teal">great</span>
-<<elseif $attractiveness gte 3000>>
-	a <span class="lblue">good</span>
-<<elseif $attractiveness gte 2000>>
-	a <span class="blue">decent</span>
-<<elseif $attractiveness gte 1000>>
-	an <span class="purple">okay</span>
-<<else>>
-	a <span class="pink">poor</span>
-<</if>>
-chance to attract customers.
-Your fame for business is contributing
-<<if $famebusiness gte 1000>>
-	<span class="green">a great deal,</span>
-<<elseif $famebusiness gte 800>>
-	<span class="teal">a lot,</span>
-<<elseif $famebusiness gte 600>>
-	<span class="lblue">a decent amount,</span>
-<<elseif $famebusiness gte 400>>
-	<span class="blue">somewhat,</span>
-<<elseif $famebusiness gte 200>>
-	<span class="purple">a bit,</span>
-<<else>>
-	<span class="pink">little,</span>
-<</if>>
-and your tending skill is contributing
-<<if $tending gte 1000>>
-	<span class="green">a great deal.</span>
-<<elseif $tending gte 800>>
-	<span class="teal">a lot.</span>
-<<elseif $tending gte 600>>
-	<span class="lblue">a decent amount.</span>
-<<elseif $tending gte 400>>
-	<span class="blue">somewhat.</span>
-<<elseif $tending gte 200>>
-	<span class="purple">a bit.</span>
-<<else>>
-	<span class="pink">little.</span>
-<</if>>
-<<if $plant_inventory.length gte 6>>
-	You have an <span class="green">excellent</span> variety on display.
-<<elseif $plant_inventory.length gte 5>>
-	You have a <span class="teal">great</span> variety on display.
-<<elseif $plant_inventory.length gte 4>>
-	You have a <span class="lblue">good</span> variety on display.
-<<elseif $plant_inventory.length gte 3>>
-	You have an <span class="blue">okay</span> variety on display.
-<<elseif $plant_inventory.length gte 2>>
-	You have a <span class="purple">poor</span> variety on display.
-<<elseif $plant_inventory.length is 1>>
-	Only having <span class="pink">one</span> item for sale might hurt your chances.
-<<else>>
-	<span class="red">You're out of stock!</span>
-<</if>>
-<<if $stall_rejected gte 100>>
-	A <span class="lewd">lewd</span> aura permeates the area. <span class="red">Groups of people openly leer at you from afar.</span>
-<<elseif $stall_rejected gte 60>>
-	A <span class="lewd">lewd</span> aura permeates the area. <span class="pink">You think you see people watching you from afar, but they turn away when you look.</span>
-<<elseif $stall_rejected gte 30>>
-	A <span class="lewd">lewd</span> aura permeates the area. <span class="purple">People cast strange looks in your direction now and then.</span>
-<<elseif $stall_rejected gte 10>>
-	A <span class="lewd">lewd</span> aura permeates the area.
-<</if>>
+	당신의 매력은 고객들의 관심을 끌
+	<<if $attractiveness gte 5000>>
+		<span class="green">엄청난</span>
+	<<elseif $attractiveness gte 4000>>
+		<span class="teal">상당한</span>
+	<<elseif $attractiveness gte 3000>>
+		<span class="lblue">높은</span>
+	<<elseif $attractiveness gte 2000>>
+		<span class="blue">적당한</span>
+	<<elseif $attractiveness gte 1000>>
+		<span class="purple">작은</span>
+	<<else>>
+		<span class="pink">미미한</span>
+	<</if>>
+	가능성을 더해 준다.
+	당신의 사업적인 명성은 거래에
+	<<if $fame.business gte 1000>>
+		<span class="green">엄청난 영향을 미치고,</span>
+	<<elseif $fame.business gte 800>>
+		<span class="teal">상당한 영향을 미치고,</span>
+	<<elseif $fame.business gte 600>>
+		<span class="lblue">꽤 영향을 미치고,</span>
+	<<elseif $fame.business gte 400>>
+		<span class="blue">무난한 영향을 미치고,</span>
+	<<elseif $fame.business gte 200>>
+		<span class="purple">약간 영향을 미치고,</span>
+	<<else>>
+		<span class="pink">거의 영향을 미치지 못하고,</span>
+	<</if>>
+	당신의 관리 스킬은 거래에
+	<<if currentSkillValue('tending') gte 1200>>
+		<span class="gold">막대한 영향을 미친다.</span>
+	<<elseif currentSkillValue('tending') gte 1000>>
+		<span class="green">엄청난 영향을 미친다.</span>
+	<<elseif currentSkillValue('tending') gte 800>>
+		<span class="teal">상당한 영향을 미친다.</span>
+	<<elseif currentSkillValue('tending') gte 600>>
+		<span class="lblue">꽤 영향을 미친다.</span>
+	<<elseif currentSkillValue('tending') gte 400>>
+		<span class="blue">무난한 영향을 미친다.</span>
+	<<elseif currentSkillValue('tending') gte 200>>
+		<span class="purple">약간 영향을 미친다.</span>
+	<<else>>
+		<span class="pink">거의 영향을 미치지 못한다.</span>
+	<</if>>
+	<<if $plant_inventory.length gte 6>>
+		진열된 품종이 <span class="green">엄청나게 많다.</span>
+	<<elseif $plant_inventory.length gte 5>>
+		진열된 품종이 <span class="teal">상당히 많다.</span>
+	<<elseif $plant_inventory.length gte 4>>
+		진열된 품종이 <span class="lblue">많다.</span>
+	<<elseif $plant_inventory.length gte 3>>
+		진열된 품종이 <span class="blue">조금 있다.</span>
+	<<elseif $plant_inventory.length gte 2>>
+		진열된 품종이 <span class="purple">별로 없다.</span>
+	<<elseif $plant_inventory.length is 1>>
+		진열된 품종이 딱 <span class="pink">하나뿐이라면</span> 구매 가능성이 낮아질 수 있다.
+	<<else>>
+		<span class="red">팔 물건이 없다!</span>
+	<</if>>
+	<<if $stall_rejected gte 100>>
+		<span class="lewd">음란한</span> 기운이 구역에 퍼져나간다. <span class="red">많은 사람들이 멀리서 당신에게 음흉한 시선을 보낸다.</span>
+	<<elseif $stall_rejected gte 60>>
+		<span class="lewd">음란한</span> 기운이 구역에 퍼져나간다. <span class="pink">당신은 사람들이 멀리서 당신을 쳐다본다고 생각하지만, 당신이 눈을 마주치려 하면 그들은 시선을 돌린다.</span>
+	<<elseif $stall_rejected gte 30>>
+		<span class="lewd">음란한</span> 기운이 구역에 퍼져나간다. <span class="purple">사람들이 가끔씩 당신이 있는 쪽으로 이상한 눈길을 보낸다.</span>
+	<<elseif $stall_rejected gte 10>>
+		<span class="lewd">음란한</span> 기운이 구역에 퍼져나간다.
+	<</if>>
 <</widget>>
 
 <<widget "stall_trust">>
-<<He>> looks
-<<if $enemytrust gte 50>>
-	<span class="green">enraptured.</span>
-<<elseif $enemytrust gte 30>>
-	<span class="teal">eager.</span>
-<<elseif $enemytrust gte 10>>
-	<span class="lblue">pleased.</span>
-<<elseif $enemytrust gte -10>>
-	<span class="blue">interested.</span>
-<<elseif $enemytrust gte -30>>
-	<span class="purple">annoyed.</span>
-<<else>>
-	<span class="pink">angry.</span>
-<</if>>
-<<if $enemyarousal gte 20>>
-<<He>> also looks
-	<<if $enemyarousal gte 100>>
-		<span class="red">lecherous.</span>
-	<<elseif $enemyarousal gte 80>>
-		<span class="pink">lustful.</span>
-	<<elseif $enemyarousal gte 60>>
-		<span class="purple">horny</span>
-	<<elseif $enemyarousal gte 40>>
-		<span class="blue">aroused.</span>
+	<<He_ nun>>
+	<<if $enemytrust gte 50>>
+		<span class="green">황홀한 것 같다.</span>
+	<<elseif $enemytrust gte 30>>
+		<span class="teal">열렬한 것 같다.</span>
+	<<elseif $enemytrust gte 10>>
+		<span class="lblue">기쁜 것 같다.</span>
+	<<elseif $enemytrust gte -10>>
+		<span class="blue">흥미를 보이는 것 같다.</span>
+	<<elseif $enemytrust gte -30>>
+		<span class="purple">짜증난 것 같다.</span>
 	<<else>>
-		<span class="lblue">flirty.</span>
+		<span class="pink">화난 것 같다.</span>
 	<</if>>
-<</if>>
+	<<if $enemyarousal gte 20>>
+	또한 <<He_ nun>>
+		<<if $enemyarousal gte 100>>
+			<span class="red">욕망에 차 있다.</span>
+		<<elseif $enemyarousal gte 80>>
+			<span class="pink">호색하다.</span>
+		<<elseif $enemyarousal gte 60>>
+			<span class="purple">욕정한다.</span>
+		<<elseif $enemyarousal gte 40>>
+			<span class="blue">흥분한다.</span>
+		<<else>>
+			<span class="lblue">경박하다.</span>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "stall_sell_actions">>
-<<link [[Ask for normal price|Stall Sell]]>><</link>> <span class="gold">(<<printmoney `$stall_cost * $stall_amount`>>)</span>
-<br>
-<<link [[Give a discount|Stall Sell]]>><<set $stall_cost *= 0.8>><<set $enemytrust += 20>><</link>> <span class="gold">(<<printmoney `$stall_cost * $stall_amount * 0.8`>>)</span> <<gtrust>>
-<br>
-<<link [[Ask for more than they're worth|Stall Sell]]>><<set $enemytrust -= 20>><<set $stall_cost *= 1.2>><</link>> <span class="gold">(<<printmoney `$stall_cost * $stall_amount * 1.2`>>)</span> <<ltrust>>
-<br>
-<<if $stall_plant isnot $stall_expensive and $stall_expensive isnot undefined>>
-	<<link [[Push your most expensive stock|Stall Sell Push]]>><<set $stall_plant to $stall_expensive>><<set $enemytrust -= 20>><</link>><<ltrust>>
+	<<link [[적정 가격을 부른다|Stall Sell]]>><</link>><<note "(<<printmoney `$stall_cost * $stall_amount`>>)" "gold">>
 	<br>
-<</if>>
+	<<link [[가격을 깎아준다|Stall Sell]]>><<set $stall_cost *= 0.8>><<set $enemytrust += 20>><</link>><<note "(<<printmoney `$stall_cost * $stall_amount * 0.8`>>)" "gold">><<gtrust>>
+	<br>
+	<<link [[적정 가격보다 비싸게 부른다|Stall Sell]]>><<set $enemytrust -= 20>><<set $stall_cost *= 1.2>><</link>><<note "(<<printmoney `$stall_cost * $stall_amount * 1.2`>>)" "gold">><<ltrust>>
+	<br>
+	<<if $stall_plant isnot $stall_expensive and $stall_expensive isnot undefined>>
+		<<link [[가장 비싼 상품을 밀어준다|Stall Sell Push]]>><<set $stall_plant to $stall_expensive>><<set $enemytrust -= 20>><</link>><<ltrust>>
+		<br>
+	<</if>>
 <</widget>>
 
 <<widget "stall_sell_man">>
-<<if $enemyarousal gte random(50, 150)>>
-	The <<person1>><<person>> leans over the table and grasps your arm. "I've paid enough," <<he>> whispers. "Time for you to give up the actual goods."
-	<br><br>
-
-	<<if $promiscuity gte 55>>
-		<<link [[Offer Oral|Stall Oral]]>><</link>><<promiscuous4>>
-		<br>
-	<<else>>
-		You aren't promiscuous enough to accept
-		<br>
-	<</if>>
-	<<link [[Pull away|Stall Pull]]>><</link>><<glewdity>>
-	<br>
-<<elseif $enemytrust gte random(-50, 50)>>
-	The <<person1>><<person>> gives in.
-	<<stall_sell>>
-	<br><br>
-	<<endstall>>
-	<<stall_inventory>>
-	<br><br>
-
-	<<if _inventory_found isnot 1>>
-		With nothing to sell, there's little reason to attend your stall.
+	<<if $enemyarousal gte random(50, 150)>>
+		<<person1>><<person_ i>> 탁자 너머로 몸을 굽혀 당신의 팔을 붙잡는다. "돈은 충분히 냈어." <<he_ ga>> 속삭인다. "이젠 진짜 상품을 줄 때야."
 		<br><br>
 
-		<<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+		<<if $promiscuity gte 55>>
+			<<link [[구강 성교를 해 준다|Stall Oral]]>><</link>><<promiscuous4>>
+			<br>
+		<<else>>
+			당신은 이 제안을 받아들일 만큼 음란하지 않다.
+			<br>
+		<</if>>
+		<<link [[떼어낸다|Stall Pull]]>><</link>><<glewdity>>
 		<br>
+	<<elseif $enemytrust gte random(-50, 50)>>
+		<<person1>><<person_ i>> 마지못해 받아들인다.
+		<<stall_sell>>
+		<br><br>
+		<<endstall>>
+		<<stall_inventory>>
+		<br><br>
 
-	<<else>>
+		<<if _inventory_found isnot 1>>
+			팔 물건이 없으면 가판대를 세울 이유가 없다.
+			<br><br>
 
-		<<He>> turns to walk away.
+			<<link [[떠난다|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+			<br>
+
+		<<else>>
+
+			<<He_ nun>> 돌아서서 걸어간다.
+			<br><br>
+
+			<<stall_trust>>
+			<br><br>
+
+			<<if $stall_seduced is 0>>
+				<<link [[추파를 던져서 도로 끌어들인다|Stall Seduce]]>><</link>><<promiscuous1>><<glust>>
+				<br>
+			<<elseif $stall_seduced is 1>>
+				<<link [[몸을 과시하여 도로 끌어들인다|Stall Seduce]]>><</link>><<exhibitionist1>><<glust>>
+				<br>
+			<<elseif $stall_seduced is 2 and $promiscuity gte 15>>
+				<<link [[키스해서 도로 끌어들인다|Stall Seduce]]>><</link>><<promiscuous2>><<glust>>
+				<br>
+			<<elseif $stall_seduced gte 3 and $worn.lower.type.includes("naked")>>
+				<<if $worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+					<<link [[옷을 입고 있지 않다는 걸 보여줘서 도로 끌어들인다|Stall Seduce]]>><</link>><<exhibitionist3>><<gglust>>
+					<br>
+				<<elseif !$worn.under_lower.type.includes("naked") and $exhibitionism gte 15>>
+					<<link [[옷을 입고 있지 않다는 걸 보여줘서 도로 끌어들인다|Stall Seduce]]>><</link>><<exhibitionist2>><<glust>>
+					<br>
+				<</if>>
+			<</if>>
+
+			<<link [[가도록 내버려둔다 (0:20)|Stall]]>><<endevent>><<endstall>><<pass 20>><</link>>
+			<br>
+			<<link [[가판대를 떠난다|Connudatus Street]]>><<endevent>><<endstall>><<set $eventskip to 1>><<clotheson>><</link>>
+			<br>
+		<</if>>
+	<<elseif $enemytrust gte -50>>
+		<<set $enemytrust -= 10>>
+		<<person1>><<person_ i>> 더 낮은 가격으로 흥정을 시도한다.
 		<br><br>
 
 		<<stall_trust>>
 		<br><br>
 
-		<<if $stall_seduced is 0>>
-			<<link [[Reel them back with a flirt|Stall Seduce]]>><</link>><<promiscuous1>><<glust>>
-			<br>
-		<<elseif $stall_seduced is 1>>
-			<<link [[Reel them back by flaunting your body|Stall Seduce]]>><</link>><<exhibitionist1>><<glust>>
-			<br>
-		<<elseif $stall_seduced is 2 and $promiscuity gte 15>>
-			<<link [[Reel them back with a kiss|Stall Seduce]]>><</link>><<promiscuous2>><<glust>>
-			<br>
-		<<elseif $stall_seduced gte 3 and $worn.lower.type.includes("naked")>>
-			<<if $worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
-				<<link [[Reel them back by revealing your lack of clothing|Stall Seduce]]>><</link>><<exhibitionist3>><<gglust>>
-				<br>
-			<<elseif !$worn.under_lower.type.includes("naked") and $exhibitionism gte 15>>
-				<<link [[Reel them back by revealing your lack of clothing|Stall Seduce]]>><</link>><<exhibitionist2>><<glust>>
-				<br>
-			<</if>>
-		<</if>>
+		<<link [[흥정을 거절한다|Stall Sell]]>><</link>><<note "(<<printmoney `$stall_cost * $stall_amount`>>)" "gold">>
+		<br>
+		<<link [[낮은 가격으로 합의한다|Stall Sell]]>><<set $stall_cost *= 0.8>><<set $enemytrust += 20>><</link>><<note "(<<printmoney `$stall_cost * $stall_amount * 0.8`>>)" "gold">><<gtrust>>
+		<br>
+		<<link [[가격을 올린다|Stall Sell]]>><<set $enemytrust -= 20>><<set $stall_cost *= 1.2>><</link>><<note "(<<printmoney `$stall_cost * $stall_amount * 1.2`>>)" "gold">><<ltrust>>
+		<br>
+	<<else>>
+		<<person1>><<person_ un>> 비웃고는 걸어가 버린다.
+		<br><br>
 
-		<<link [[Let them go (0:20)|Stall]]>><<endevent>><<endstall>><<pass 20>><</link>>
-		<br>
-		<<link [[Leave your stall|Connudatus Street]]>><<endevent>><<endstall>><<set $eventskip to 1>><<clotheson>><</link>>
-		<br>
+		<<stall_actions>>
+
 	<</if>>
-<<elseif $enemytrust gte -50>>
-	<<set $enemytrust -= 10>>
-	The <<person1>><<person>> tries to haggle for a better price.
-	<br><br>
-
-	<<stall_trust>>
-	<br><br>
-
-	<<link [[Refuse to budge|Stall Sell]]>><</link>> <span class="gold">(<<printmoney `$stall_cost * $stall_amount`>>)</span>
-	<br>
-	<<link [[Agree to lower price|Stall Sell]]>><<set $stall_cost *= 0.8>><<set $enemytrust += 20>><</link>> <span class="gold">(<<printmoney `$stall_cost * $stall_amount * 0.8`>>)</span> <<gtrust>>
-	<br>
-	<<link [[Raise your price|Stall Sell]]>><<set $enemytrust -= 20>><<set $stall_cost *= 1.2>><</link>> <span class="gold">(<<printmoney `$stall_cost * $stall_amount * 1.2`>>)</span> <<ltrust>>
-	<br>
-<<else>>
-	The <<person1>><<person>> scoffs and walks away.
-	<br><br>
-
-	<<stall_actions>>
-
-<</if>>
 <</widget>>
 
 <<widget "stall_init">>
-<<set $stall_plant to $plant_inventory.random()>>
-<<if setup.plants[$stall_plant].special.includes("large")>>
-	<<set $stall_amount to 1>>
-<<else>>
-	<<set $stall_amount to random(11, 30)>>
-<</if>>
-<<if $stall_amount gte $plants[$stall_plant].amount>>
-	<<set $stall_amount to clone($plants[$stall_plant].amount)>>
-<</if>>
-<<set $enemytrust to 0>>
-<<set $enemyarousal to 0>>
-<<set $stall_seduced to 0>>
-<<set $stall_cost to Math.round(clone(setup.plants[$stall_plant].plant_cost))>>
+	<<set $stall_plant to $plant_inventory.random()>>
+	<<if setup.plants[$stall_plant].special.includes("large")>>
+		<<set $stall_amount to 1>>
+	<<elseif setup.plants[$stall_plant].special.includes("small")>>
+		<<set $stall_amount to random(110, 300)>>
+	<<else>>
+		<<set $stall_amount to random(11, 30)>>
+	<</if>>
+	<<if $stall_amount gte $plants[$stall_plant].amount>>
+		<<set $stall_amount to clone($plants[$stall_plant].amount)>>
+	<</if>>
+	<<set $enemytrust to 0>>
+	<<set $enemyarousal to 0>>
+	<<set $stall_seduced to 0>>
+	<<set $stall_cost to Math.round(clone(setup.plants[$stall_plant].plant_cost))>>
 <</widget>>
 
 <<widget "stall_amount">>
-<<if $stall_amount is 1>>
-	<<set _text_output to "one">>
-<<else>>
-	<<set _text_output to $stall_amount>>
-<</if>>
-<<print _text_output>>
+	<<if $stall_amount is 1>>
+		<<set _text_output to "한">>
+	<<elseif $stall_amount is 2 and random(1,5) is 1>>
+		<<set _text_output to "두">>
+	<<elseif $stall_amount is 12 and random(1,5) is 1>>
+		<<set _text_output to "열두">>
+	<<elseif $stall_amount is 13 and random(1,10) is 1>>
+		<<set _text_output to "열세">>
+	<<elseif $stall_amount is 20 and random(1,10) is 1>>
+		<<set _text_output to "스무">>
+	<<elseif $stall_amount is 24 and random(1,10) is 1>>
+		<<set _text_output to "스물네">>
+	<<elseif $stall_amount is 36 and random(1,15) is 1>>
+		<<set _text_output to "서른여섯">>
+	<<elseif $stall_amount is 40 and random(1,20) is 1>>
+		<<set _text_output to "마흔">>
+	<<elseif $stall_amount is 48 and random(1,15) is 1>>
+		<<set _text_output to "마흔여덟">>
+	<<elseif $stall_amount is 60 and random(1,20) is 1>>
+		<<set _text_output to "예순">>
+	<<elseif $stall_amount is 60 and random(1,15) is 1>>
+		<<set _text_output to "예순">>
+	<<elseif $stall_amount is 72 and random(1,10) is 1>>
+		<<set _text_output to "일흔두">>
+	<<elseif $stall_amount is 80 and random(1,20) is 1>>
+		<<set _text_output to "여든">>
+	<<elseif $stall_amount is 84 and random(1,20) is 1>>
+		<<set _text_output to "여든네">>
+	<<elseif $stall_amount is 96 and random(1,20) is 1>>
+		<<set _text_output to "아흔여섯">>
+	<<elseif $stall_amount is 108 and random(1,20) is 1>>
+		<<set _text_output to "백 하고도 여덟">>
+	<<elseif $stall_amount is 120 and random(1,20) is 1>>
+		<<set _text_output to "백 하고도 스무">>
+	<<elseif $stall_amount is 144 and random(1,5) is 1>>
+		<<set _text_output to "백 하고도 마흔네">>
+	<<else>>
+		<<trNumber $stall_amount silent>><<set _text_output to _trResult>>
+	<</if>>
+	<<print _text_output>>
 <</widget>>
+
+<<widget "stall_check_text">><<silently>>
+	<<set $_examines to ["examines","lifts","picks up","sniffs"].pluck()>><<set $_examines_ko to {"examines":"살펴본다","lifts":"들어올린다","picks up":"집어든다","sniffs":"들어 냄새를 맡아본다"}[$_examines]>>
+	<<switch $stall_plant>>
+		<<case "blood_lemon" "bottle_of_breast_milk" "baby_bottle_of_breast_milk" "bottle_of_semen" "strange_flower" "wolfshroom">>
+			<<if $_examines is "sniffs">>
+				<<set $_reacts to "">><<set $_examines_ko to "들어 냄새를 맡아보다가, 얼굴을 붉힌다">>
+			<<else>>
+				<<set $_reacts to "">>
+			<</if>>
+		<<case "apple" "banana" "cabbage" "orange" "peach" "pear" "plum" "strawberry">>
+			<<if $_examines is "examines">>
+				<<set $_reacts to "멍이 들었는지 ">>
+			<<elseif ["lifts","picks up"].includes($_examines)>>
+				<<set $_reacts to "멍이 들었나 확인하려고 ">>
+			<<else>>
+				<<set $_reacts to "">>
+			<</if>>
+		<<case "chicken_egg" "bird_egg">>
+			<<if $_examines is "sniffs">>
+				<<set $_examines_ko to "살펴본다">>
+				<<set $_reacts to "금이 갔는지 ">>
+			<<elseif $_examines is "examines">>
+				<<set $_reacts to "금이 갔는지 ">>
+			<<elseif ["lifts","picks up"].includes($_examines)>>
+				<<set $_reacts to "금이 갔는지 확인하려고 ">>
+			<</if>>
+		<<default>>
+			<<set $_reacts to "">>
+	<</switch>>
+
+	<<trPlants setup.plants[$stall_plant].plural>><<set _text_output to "<span class='green'>" + _trResult + "</span>중 하나를 " +  $_reacts + $_examines_ko>>
+<</silently>><<print _text_output>><</widget>>

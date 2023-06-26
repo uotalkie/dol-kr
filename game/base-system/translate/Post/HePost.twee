@@ -1,343 +1,371 @@
 :: Widgets HePost [widget nobr]
 <<widget "HePost">><<silently>>
-    <<if typeof $args[0] is "number">>
-        <<if $enemytype is "man">>
-            <<if $args[0] is 1>>
-                <<person1>>
-            <<elseif $args[0] is 2>>
-                <<person2>>
-            <<elseif $args[0] is 3>>
-                <<person3>>
-            <<elseif $args[0] is 4>>
-                <<person4>>
-            <<elseif $args[0] is 5>>
-                <<person5>>
-            <<elseif $args[0] is 6>>
-                <<person6>>
-            <</if>>
-        <</if>>
-        <<if $pronoun is "m">>
-            <<set _trResult to "그">>
-        <<elseif $pronoun is "f">>
-            <<set _trResult to "그녀">>
-        <<elseif $pronoun is "i">>
-            <<set _trResult to "녀석">>
-        <<elseif $pronoun is "n">>
-            <<set _trResult to "그자">>
-        <<elseif $pronoun is "t">>
-            <<set _trResult to "그들">>
-        <</if>>
-
-        <<if $args[1] isnot undefined>>
-            <<if $pronoun is "i">>
-                <<trPost 0 $args[1] $args[2]>>
-            <<elseif $pronoun is "t">>
-                <<trPost 2 $args[1] $args[2]>>
-            <<else>>
-                <<trPost 1 $args[1] $args[2]>>
-            <</if>>
-        <</if>>
-    <<elseif $NPCList[0].intro is 1 and $ejaculating isnot 1>>
-        <<set $NPCList[0].intro to 0>>
-        <<if $npc is 0>>
-            <<person1>><<personPost $args[0] $args[1]>>
-        <<else>>
-            <<trNamedNPC $npc $args[0] $args[1]>>
-        <</if>>
-    <<elseif $NPCList[1].intro is 1>>
-        <<set $NPCList[1].intro to 0>><<person2>><<personPost $args[0] $args[1]>>
-    <<elseif $NPCList[2].intro is 1>>
-        <<set $NPCList[2].intro to 0>><<person3>><<personPost $args[0] $args[1]>>
-    <<elseif $NPCList[3].intro is 1>>
-        <<set $NPCList[3].intro to 0>><<person4>><<personPost $args[0] $args[1]>>
-    <<elseif $NPCList[4].intro is 1>>
-        <<set $NPCList[4].intro to 0>><<person5>><<personPost $args[0] $args[1]>>
-    <<elseif $NPCList[5].intro is 1>>
-        <<set $NPCList[5].intro to 0>><<person6>><<personPost $args[0] $args[1]>>
-    <<else>>
-        <<if $pronoun is "m">>
-            <<set _trResult to "그">>
-        <<elseif $pronoun is "f">>
-            <<set _trResult to "그녀">>
-        <<elseif $pronoun is "i">>
-            <<set _trResult to "녀석">>
-        <<elseif $pronoun is "n">>
-            <<set _trResult to "그자">>
-        <<elseif $pronoun is "t">>
-            <<set _trResult to "그들">>
-        <</if>>
-        <<if $args[0] isnot undefined>>
-            <<if $pronoun is "i">>
-                <<trPost 0 $args[0] $args[1]>>
-            <<elseif $pronoun is "t">>
-                <<trPost 2 $args[0] $args[1]>>
-            <<else>>
-                <<trPost 1 $args[0] $args[1]>>
-            <</if>>
-        <</if>>
-    <</if>>
-    <</silently>>
-    <<print _trResult>>
-<</widget>>
-
-<<widget "simpleHePost">><<nobr>><<silently>>
-	<<if $pronoun is "m">>
-		<<set _trResult to "그">>
-	<<elseif $pronoun is "f">>
-		<<set _trResult to "그녀">>
-	<<elseif $pronoun is "i">>
-		<<set _trResult to "녀석">>
-	<<elseif $pronoun is "n">>
-		<<set _trResult to "그자">>
-	<<elseif $pronoun is "t">>
-		<<set _trResult to "그들">>
-	<</if>>
-	<<if $args[0] isnot undefined>>
-		<<if $pronoun is "i">>
-			<<trPost 0 $args[0] $args[1]>>
-		<<elseif $pronoun is "t">>
-			<<trPost 2 $args[0] $args[1]>>
-		<<else>>
-			<<trPost 1 $args[0] $args[1]>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>	/* 첫번째 옵션이 한글 - 조사 */
+			<<unset $_optionHe>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>	/* 첫번째 옵션이 영문 혹은 숫자 - He 매크로의 옵션 */
+			<<set $_optionHe to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
 		<</if>>
 	<</if>>
-	<</silently>>
-	<<print _trResult>>
-<</nobr>><</widget>>
+	<<if $_optionHe>>
+		<!-- Add the option to call for a named NPC's name -->
+		<<if $NPCNameList.includes($_optionHe)>>
+			<<set $pronoun to $NPCName[$NPCNameList.indexOf($_optionHe)].pronoun>>
+		<<else>>
+			<<if Number.isInteger($_optionHe) and between($_optionHe,0,5)>>
+				<<personselect $_optionHe>>
+			<</if>>
+		<</if>>
+	<</if>>
 
-<<widget "hePost">><<HePost $args[0] $args[1]>><</widget>>
-<<widget "ShePost">><<HePost $args[0] $args[1]>><</widget>>
-<<widget "shePost">><<HePost $args[0] $args[1]>><</widget>>
-<<widget "hisPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "HisPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "HerPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "herPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "himPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "HimPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "hersPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "HersPost">><<simpleHePost $args[0] $args[1]>><</widget>>
-<<widget "HesPost">><<HePost $args[0] $args[1]>><</widget>>
-<<widget "hesPost">><<HePost $args[0] $args[1]>><</widget>>
-<<widget "HimselfPost">><<silently>><<HePost>><<set _trResult += " 자신">><<trPost 0 $args[0] $args[1]>><</silently>><<print _trResult>><</widget>>
-<<widget "himselfPost">><<silently>><<HePost>><<set _trResult += " 자신">><<trPost 0 $args[0] $args[1]>><</silently>><<print _trResult>><</widget>>
 
-<<widget "bHePost">>
-    <<if typeof $args[0] is "number">>
-        <<set _na to $args[0]>>
+	<<if $NPCList[$index].intro is 1>>
+		<<set $NPCList[$index].intro to 0>>
+		<<if $npcrow.includes($index)>>
+			<<if $npc.includes("Black Wolf") or $npc.includes("Great Hawk")>>
+				<<trNamedNPC $npc[$npcrow.indexOf($index)] $_post $_sep>>
+			<<elseif $npc.includes("Ivory Wraith")>>
+				<<set _trResult to "창백한 형체">><<trPost 1 $_post $_sep>>
+			<<else>>
+				<<trNamedNPC $npc[$npcrow.indexOf($index)] $_post $_sep>>
+			<</if>>
+		<<else>>
+			<<if $enemytype is "beast">>
+				<<beasttypePost $_post $_sep>>
+			<<elseif $NPCList[$index].name_known is 1>>
+				<<trNPCname $NPCList[$index].name $_post $_sep>>
+			<<elseif $NPCList[$index].role is "normal">>
+				<<personPost $_post $_sep>>
+			<<else>>
+				<<trNPCdesc $NPCList[$index].description>><<set $_desc to _trResult>><<trRole $NPCList[$index].role $_post $_sep>><<set _trResult to $_desc + " " + _trResult>>
+			<</if>>
+		<</if>>
+	<<else>>
+		<<if $pronoun>>
+			<<simpleHePost $_post $_sep>>
+		<<else>>
+			<<set _trResult to `<span class="red">에러: HePost: 알려지지 않은 대명사 {$pronoun}</span>`>>
+		<</if>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "simpleHePost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>	/* 첫번째 옵션이 한글 - 조사 */
+			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>	/* 첫번째 옵션이 영문 혹은 숫자 - He 매크로의 옵션 */
+			<<if $NPCNameList.includes(_args[0])>>
+				<<set $pronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
+			<<elseif Number.isInteger(_args[0]) and between(_args[0],0,5)>>
+				<<personselect _args[0]>>
+			<<else>>
+				<<set _trResult to "<span class='red'>에러: simpleHePost: 잘못된 인수: " + _args[0] + "</span>">>
+			<</if>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<</if>>
+	<<if $pronoun is "m">>
+		<<set _trResult to "그">><<trPost 1 $_post $_sep>>
+	<<elseif $pronoun is "f">>
+		<<set _trResult to "그녀">><<trPost 1 $_post $_sep>>
+	<<elseif $pronoun is "i">>
+		<<set _trResult to "녀석">><<trPost 0 $_post $_sep>>
+	<<elseif $pronoun is "n">>
+		<<set _trResult to "그자">><<trPost 1 $_post $_sep>>
+	<<elseif $pronoun is "t">>
+		<<set _trResult to "그들">><<trPost 2 $_post $_sep>>
+	<<else>>
+		<<set _trResult to `<span class="red">에러: simpleHePost: 알려지지 않은 대명사 {$pronoun}</span>`>>
+
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "He_ShortPost">><<silently>>
+	<<if $pronoun>>
+		<<simpleHePost _args[0] _args[1] _args[2]>>
+	<<else>>
+		<<set _trResult to `<span class="red">[에러: "He_ShortPost"에서 pronoun 이 정의되지 않음]</span>`>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "hePost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "ShePost">><<HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "shePost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "hisPost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "HisPost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "HerPost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "herPost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "himPost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "HimPost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "HesPost">><<HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "hesPost">><<simpleHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "HimselfPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>	/* 첫번째 옵션이 한글 - 조사 */
+			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>	/* 첫번째 옵션이 영문 혹은 숫자 - He 매크로의 옵션 */
+			<<if $NPCNameList.includes(_args[0])>>
+				<<set $pronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
+			<<elseif Number.isInteger(_args[0]) and between(_args[0],0,5)>>
+				<<personselect _args[0]>>
+			<<else>>
+				<<set _trResult to "<span class='red'>에러: simpleHePost: 잘못된 인수: " + _args[0] + "</span>">>
+			<</if>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<</if>>
+	<<if $pronoun is "m">>
+		<<set _trResult to "그 자신">>
+	<<elseif $pronoun is "i">>
+		<<set _trResult to "녀석 자신">>
+	<<else>>
+		<<set _trResult to "그녀 자신">>
+	<</if>>
+	<<trPost 0 $_post $_sep>>
+<</silently>><<print _trResult>><</widget>>
+<<widget "himselfPost">><<HimselfPost _args[0] _args[1] _args[2]>><</widget>>
+
+<<widget "hersPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>	/* 첫번째 옵션이 한글 - 조사 */
+			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>	/* 첫번째 옵션이 영문 혹은 숫자 - He 매크로의 옵션 */
+			<<if $NPCNameList.includes(_args[0])>>
+				<<set $pronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
+			<<elseif Number.isInteger(_args[0]) and between(_args[0],0,5)>>
+				<<personselect _args[0]>>
+			<<else>>
+				<<set _trResult to "<span class='red'>에러: simpleHePost: 잘못된 인수: " + _args[0] + "</span>">>
+			<</if>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<</if>>
+	<<if $pronoun is "m">>
+		<<set _trResult to "그의 것">>
+	<<elseif $pronoun is "f">>
+		<<set _trResult to "그녀의 것">>
+	<<elseif $pronoun is "i">>
+		<<set _trResult to "녀석의 것">>
+	<<elseif $pronoun is "n">>
+		<<set _trResult to "그자의 것">>
+	<<elseif $pronoun is "t">>
+		<<set _trResult to "그들의 것">>
+	<</if>>
+	<<if _args[0] isnot undefined>>
+		<<trPost 0 _args[0] _args[1]>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+<<widget "HersPost">><<hersPost _args[0] _args[1]>><</widget>>
+
+<<widget "bHePost">><<silently>>
+    <<if typeof _args[0] is "number">>
+        <<set _na to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
     <<elseif $enemyno gte 0>>
-        <<set _na to $enemyno-1>>
+        <<set _na to $enemyno-1>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
     <<else>>
-        <<set _na to 0>>
+        <<set _na to 0>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
     <</if>>
     <<if $NPCList[_na].monster is "monster">>
         <<if $NPCList[_na].pronoun is "m">>
-            <<set _trResult to "그">>
+            <<set _trResult to "그">><<trPost 1 $_post $_sep>>
         <<else>>
-            <<set _trResult to "그녀">>
+            <<set _trResult to "그녀">><<trPost 1 $_post $_sep>>
         <</if>>
     <<else>>
-        <<set _trResult to "녀석">>
+        <<set _trResult to "녀석">><<trPost 0 $_post $_sep>>
     <</if>>
+<</silently>><<print _trResult>><</widget>>
 
-    <<if typeof $args[0] is "number">>
-        <<if $NPCList[_na].monster isnot "monster">>
-            <<trPost 0 $args[0] $args[1]>>
-        <<else>>
-            <<trPost 1 $args[1] $args[2]>>
-        <</if>>
+<<widget "bhePost">><<bHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "bHisPost">><<bHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "bhisPost">><<bHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "bHimPost">><<bHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "bhimPost">><<bHePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "bHimselfPost">><<silently>><<bHePost>><<set _trResult += " 자신">><<trPost 0 _args[0] _args[1]>><</silently>><<print _trResult>><</widget>>
+<<widget "bhimselfPost">><<silently>><<bHePost>><<set _trResult += " 자신">><<trPost 0 _args[0] _args[1]>><</silently>><<print _trResult>><</widget>>
+
+<<widget "bhersPost">><<silently>>
+    <<if typeof _args[0] is "number">>
+        <<set _na to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+    <<elseif $enemyno gte 0>>
+        <<set _na to $enemyno-1>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
     <<else>>
-        <<if $NPCList[_na].monster isnot "monster">>
-            <<trPost 0 $args[0] $args[1]>>
-        <<else>>
-            <<trPost 1 $args[0] $args[1]>>
-        <</if>>
+        <<set _na to 0>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
     <</if>>
-
-    <<print _trResult>>
-<</widget>>
-<<widget "bhePost">><<bHePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "bHisPost">><<bHePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "bhisPost">><<bHePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "bHimPost">><<bHePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "bhimPost">><<bHePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "bHimselfPost">><<silently>><<bHePost>><<set _trResult += " 자신">><<trPost 0 $args[0] $args[1]>><</silently>><<print _trResult>><</widget>>
-<<widget "bhimselfPost">><<silently>><<bHePost>><<set _trResult += " 자신">><<trPost 0 $args[0] $args[1]>><</silently>><<print _trResult>><</widget>>
-
-
-<<widget "pShePost">>
-    <<if $player.gender_appearance is "m">><<set _trResult to "그">>
-    <<elseif $player.gender_appearance is "f">><<set _trResult to "그녀">>
+    <<if $NPCList[_na].monster is "monster">>
+        <<set _trResult to ($NPCList[_na].pronoun is "m" ? "그의 것" : "그녀의 것")>>
+    <<else>>
+        <<set _trResult to "녀석의 것">>
     <</if>>
+	<<trPost 0 $_post $_sep>>
+<</silently>><<print _trResult>><</widget>>
 
-    <<if $args[0] isnot undefined>>
-        <<trPost 1 $args[0] $args[1]>>
+<<widget "bHersPost">><<bhersPost _args[0] _args[1]>><</widget>>
+
+<<widget "pShePost">><<silently>>
+	<<set _trResult to ($player.gender_appearance is "m"? "그" : "그녀")>><<gendercheck>>
+    <<if _args[0] isnot undefined>>
+        <<trPost 1 _args[0] _args[1]>>
     <</if>>
+<</silently>><<print _trResult>><</widget>>
 
-    <<print _trResult>>
-<</widget>>
-<<widget "pshePost">><<pShePost $args[0] $args[1]>><</widget>>
-<<widget "pHerPost">><<pShePost $args[0] $args[1]>><</widget>>
-<<widget "pherPost">><<pShePost $args[0] $args[1]>><</widget>>
-<<widget "phimPost">><<pShePost $args[0] $args[1]>><</widget>>
-<<widget "pHimPost">><<pShePost $args[0] $args[1]>><</widget>>
-<<widget "pshesPost">><<pShePost $args[0] $args[1]>><</widget>>
-<<widget "pShesPost">><<pShePost $args[0] $args[1]>><</widget>>
-<<widget "pHerselfPost">><<silently>><<pShePost>><<set _trResult += " 자신">><<trPost 0 $args[0] $args[1]>><</silently>><<print _trResult>><</widget>>
-<<widget "pherselfPost">><<silently>><<pShePost>><<set _trResult += " 자신">><<trPost 0 $args[0] $args[1]>><</silently>><<print _trResult>><</widget>>
+<<widget "pshePost">><<pShePost _args[0] _args[1]>><</widget>>
+<<widget "pHerPost">><<pShePost _args[0] _args[1]>><</widget>>
+<<widget "pherPost">><<pShePost _args[0] _args[1]>><</widget>>
+<<widget "phimPost">><<pShePost _args[0] _args[1]>><</widget>>
+<<widget "pHimPost">><<pShePost _args[0] _args[1]>><</widget>>
+<<widget "pshesPost">><<pShePost _args[0] _args[1]>><</widget>>
+<<widget "pShesPost">><<pShePost _args[0] _args[1]>><</widget>>
 
+<<widget "pHerselfPost">><<silently>>
+	<<set _trResult to ($player.gender_appearance is "m"? "그 자신" : "그녀 자신")>><<trPost 0 _args[0] _args[1]>><<gendercheck>>
+<</silently>><<print _trResult>><</widget>>
+<<widget "pherselfPost">><<pHerselfPost _args[0] _args[1]>><</widget>>
 
-<<widget "ohePost">>
+<<widget "phersPost">><<silently>>
+	<<set _trResult to ($player.gender_appearance is "m"? "그의 것" : "그녀의 것")>><<trPost 0 _args[0] _args[1]>><<gendercheck>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "ohePost">><<silently>>
     <<if $enemytype is "beast">>
-        <<bhePost $args[0] $args[1]>>
+        <<bhePost _args[0] _args[1]>>
     <<else>>
-        <<hePost $args[0] $args[1]>>
+        <<hePost _args[0] _args[1]>>
     <</if>>
-<</widget>>
+<</silently>><<print _trResult>><</widget>>
 
-
-<<widget "hisselectPost">><<nobr>>
+<<widget "hisselectPost">><<silently>>
 <!-- Note calls range from 0-5 corresponding to NPCs 1-6. This was done to simplify FOR loops -->
-<<set _args to []>>
-<<if isNaN($args[0]) and $args[2] is undefined>>
-	<<set _args[0] to 0>><<set _args[1] to $args[0]>><<set _args[2] to $args[1]>>
+<<if isNaN(_args[0]) and _args[2] is undefined>>
+	<<set $_hisnum to 0>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
 <<else>>
-	<<set _args[0] to $args[0]>><<set _args[1] to $args[1]>><<set _args[2] to $args[2]>>
+	<<set $_hisnum to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
 <</if>>
-<<set _n to _args[0]>>
-    <<if $enemytype is "man" and $enemyno gte 2>>
-        <<personselect _n>>
-        <<if $npc_named isnot 0>>
-        <<trNamedNPC $npc _args[1] _args[2]>>
-        <<elseif $NPCList[_n].intro is 1>>
-            <<set $NPCList[_n].intro to 0>>
-            <<personsPost _args[1] _args[2]>>
-        <<else>>
-            <<hisPost _args[1] _args[2]>>
-        <</if>>
+<<set _n to $_hisnum>>
+	<<if $enemytype is "man" and $enemyno gte 2>>
+		<<personselect _n>>
+		<!-- NPC's name will only appear if they are selected -->
+		<<if $NPCList[_n].intro is 1>>
+			<<if $npcrow.includes(_n)>>
+				<<trNamedNPC $npc[$npcrow.indexOf(_n)] $_post $_sep>>
+			<<else>>
+				<<personsPost $_post $_sep>>
+			<</if>>
+			<<set $NPCList[_n].intro to 0>>
+		<<else>>
+			<<hisPost $_post $_sep>>
+		<</if>>
     <<elseif $enemytype is "beast">>
-        <<bhisPost _args[1] _args[2]>>
+        <<bhisPost $_post $_sep>>
     <<else>>
-        <<hisPost _args[1] _args[2]>>
+        <<hisPost $_post $_sep>>
     <</if>>
-<</nobr>><</widget>>
+<</silently>><<print _trResult>><</widget>>
 
 <!-- Keeping his1-6 for legacy support as of v2.3 -->
-<<widget "his1Post">><<nobr>>
-<<person1>><<hisPost $args[0] $args[1]>>
-<</nobr>><</widget>>
+<<widget "his1Post">><<person1>><<hisPost _args[0] _args[1]>><</widget>>
 
-<<widget "his2Post">><<nobr>>
-<<person2>><<hisPost $args[0] $args[1]>>
-<</nobr>><</widget>>
+<<widget "his2Post">><<person2>><<hisPost _args[0] _args[1]>><</widget>>
 
-<<widget "his3Post">><<nobr>>
-<<person3>><<hisPost $args[0] $args[1]>>
-<</nobr>><</widget>>
+<<widget "his3Post">><<person3>><<hisPost _args[0] _args[1]>><</widget>>
 
-<<widget "his4Post">><<nobr>>
-<<person4>><<hisPost $args[0] $args[1]>>
-<</nobr>><</widget>>
+<<widget "his4Post">><<person4>><<hisPost _args[0] _args[1]>><</widget>>
 
-<<widget "his5Post">><<nobr>>
-<<person5>><<hisPost $args[0] $args[1]>>
-<</nobr>><</widget>>
+<<widget "his5Post">><<person5>><<hisPost _args[0] _args[1]>><</widget>>
 
-<<widget "his6Post">><<nobr>>
-<<person6>><<hisPost $args[0] $args[1]>>
-<</nobr>><</widget>>
+<<widget "his6Post">><<person6>><<hisPost _args[0] _args[1]>><</widget>>
 
 
-<<widget "farm_hePost">>
-    <<if $farm_work[$args[0]].monster is true>>
-        <<if $farm_work[$args[0]].gender is "m">>
-            <<set _trResult to "그">><<trPost 1 $args[0] $args[1]>>
+<<widget "farm_hePost">><<silently>>
+    <<if $farm_work[_args[0]].monster>>
+        <<if $farm_work[_args[0]].gender is "m">>
+            <<set _trResult to "그">><<trPost 1 _args[0] _args[1]>>
         <<else>>
-            <<set _trResult to "그녀">><<trPost 1 $args[0] $args[1]>>
+            <<set _trResult to "그녀">><<trPost 1 _args[0] _args[1]>>
         <</if>>
     <<else>>
-        <<set _trResult to "녀석">><<trPost 0 $args[0] $args[1]>>
+        <<set _trResult to "녀석">><<trPost 0 _args[0] _args[1]>>
     <</if>>
-    <<print _trResult>>
-<</widget>>
-<<widget "farm_HePost">><<farm_hePost $args[0] $args[1]>><</widget>>
-<<widget "farm_himPost">><<farm_hePost $args[0] $args[1]>><</widget>>
-<<widget "farm_HisPost">><<farm_hePost $args[0] $args[1]>><</widget>>
-<<widget "farm_hisPost">><<farm_hePost $args[0] $args[1]>><</widget>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "farm_HePost">><<farm_hePost _args[0] _args[1]>><</widget>>
+<<widget "farm_himPost">><<farm_hePost _args[0] _args[1]>><</widget>>
+<<widget "farm_HisPost">><<farm_hePost _args[0] _args[1]>><</widget>>
+<<widget "farm_hisPost">><<farm_hePost _args[0] _args[1]>><</widget>>
 
 
 
-<<widget "nnpc_HePost">><<nobr>><<silently>>
-<<set _npcPronoun to $NPCName[$NPCNameList.indexOf($args[0])].pronoun>>
+<<widget "nnpc_HePost">><<silently>>
+	<<set _npcPronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
+	<<set _trResult to (_npcPronoun is "m" ? "그" : "그녀")>>
+	<<trPost 1 _args[1] _args[2]>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "nnpc_hePost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_HimPost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_himPost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_HisPost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_hisPost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_HersPost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_hersPost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_HesPost">><<nnpc_HePost _args[0] _args[1] _args[2]>><</widget>>
+<<widget "nnpc_himselfPost">><<silently>><<nnpc_HePost _args[0]>><<set _trResult += " 자신">><<trPost 0 _args[1] _args[2]>><</silently>><<print _trResult>><</widget>>
+
+<<widget "nnpc_wifePost">><<silently>>
+<<set _npcPronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
 <<if _npcPronoun is "m">>
-	<<set _trResult to "그">>
+	<<set _trResult to "남편">><<trPost 0 _args[1] _args[2]>>
 <<else>>
-	<<set _trResult to "그녀">>
+	<<set _trResult to "아내">><<trPost 1 _args[1] _args[2]>>
 <</if>>
-<<trPost 1 $args[1] $args[2]>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
-<<widget "nnpc_hePost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_HimPost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_himPost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_HisPost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_hisPost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_HersPost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_hersPost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_HesPost">><<nnpc_HePost $args[0] $args[1] $args[2]>><</widget>>
-<<widget "nnpc_himselfPost">><<nnpc_HePost $args[0]>><<set _trResult += " 자신">><<trPost 0 $args[1] $args[2]>><</widget>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "nnpc_wifePost">><<nobr>><<silently>>
-<<set _npcPronoun to $NPCName[$NPCNameList.indexOf($args[0])].pronoun>>
+<<widget "nnpc_lassPost">><<silently>>
+<<set _npcPronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
 <<if _npcPronoun is "m">>
-	<<set _trResult to "남편">><<trPost 0 $args[1] $args[2]>>
+	<<set _trResult to "청년">><<trPost 0 _args[1] _args[2]>>
 <<else>>
-	<<set _trResult to "아내">><<trPost 1 $args[1] $args[2]>>
+	<<set _trResult to "아가씨">><<trPost 1 _args[1] _args[2]>>
 <</if>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "nnpc_lassPost">><<nobr>><<silently>>
-<<set _npcPronoun to $NPCName[$NPCNameList.indexOf($args[0])].pronoun>>
+<<widget "nnpc_genderPost">><<silently>>
+	<<set _npcPronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
+	<<set _trResult to (_npcPronoun is "m" ? "남자" : "여자")>>
+	<<trPost 1 _args[1] _args[2]>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "nnpc_genderyPost">><<silently>>
+<<set _npcPronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
 <<if _npcPronoun is "m">>
-	<<set _trResult to "청년">><<trPost 0 $args[1] $args[2]>>
+	<<set _trResult to "소년">><<trPost 0 _args[1] _args[2]>>
 <<else>>
-	<<set _trResult to "아가씨">><<trPost 1 $args[1] $args[2]>>
+	<<set _trResult to "소녀">><<trPost 1 _args[1] _args[2]>>
 <</if>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "nnpc_genderPost">><<nobr>><<silently>>
-<<set _npcPronoun to $NPCName[$NPCNameList.indexOf($args[0])].pronoun>>
-<<if _npcPronoun is "m">>
-	<<set _trResult to "남자">>
-<<else>>
-	<<set _trResult to "여자">>
-<</if>>
-<<trPost 1 $args[1] $args[2]>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<<widget "nnpc_genitalsPost">><<silently>>
+	<<set _npcGender to $NPCName[$NPCNameList.indexOf(_args[0])].gender>>
+	<<set _trResult to (_npcGender is "m" ? "자지" : "보지")>>
+	<<trPost 1 _args[1] _args[2]>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "nnpc_genderyPost">><<nobr>><<silently>>
-<<set _npcPronoun to $NPCName[$NPCNameList.indexOf($args[0])].pronoun>>
-<<if _npcPronoun is "m">>
-	<<set _trResult to "소년">><<trPost 0 $args[1] $args[2]>>
-<<else>>
-	<<set _trResult to "소녀">><<trPost 1 $args[1] $args[2]>>
-<</if>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<<widget "nnpc_girlfriendPost">><<silently>>
+	<<set _npcPronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
+	<<set _trResult to (_npcPronoun is "m" ? "남자친구" : "여자친구")>>
+	<<trPost 1 _args[1] _args[2]>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "nnpc_genitalsPost">><<nobr>><<silently>>
-<<set _npcGenitals to $NPCName[$NPCNameList.indexOf($args[0])].gender>>
-<<if _npcGenitals is "m">>
-	<<set _trResult to "자지">>
-<<else>>
-	<<set _trResult to "보지">>
-<</if>>
-<<trPost 1 $args[1] $args[2]>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<<widget "nnpc_brotherPost">><<silently>>
+<<set _npcPronoun to $NPCName[$NPCNameList.indexOf(_args[0])].pronoun>>
+<<set _trResult to (_npcPronoun is "m" ? "형제" : "자매")>><<trPost 1 _args[1] _args[2]>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "nnpc_girlfriendPost">><<nobr>><<silently>>
-<<set _npcPronoun to $NPCName[$NPCNameList.indexOf($args[0])].pronoun>>
-<<if _npcPronoun is "m">>
-	<<set _trResult to "남자친구">>
-<<else>>
-	<<set _trResult to "여자친구">>
-<</if>>
-<<trPost 1 $args[1] $args[2]>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<<widget "nnpc_BrotherPost">><<nnpc_brotherPost _args[0] _args[1] _args[2]>><</widget>>
+
+<<widget "nnpc_titlePost">><<silently>>
+<<trNamedNPC $NPCName[$NPCNameList.indexOf(_args[0])].title "title" _args[1] _args[2]>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "nnpc_TitlePost">><<nnpc_titlePost _args[0] _args[1] _args[2]>><</widget>>
+

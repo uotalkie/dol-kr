@@ -1,98 +1,126 @@
 :: Widgets personPost [widget nobr]
-<<widget "personPost">>
+<<widget "personPost">><<silently>>
 <<if $combat is 0>>
-    <<if $npc_named is 1 and $npcdescription>>
-        <<trNPCdesc $npcdescription $args[0] $args[1]>>
-    <<elseif $npcadult is 1>>
-        <<trNPCdesc $description>>
-        <<if $pronoun is "m">><<set _trResult to _trResult+" 남자">>
-        <<elseif $pronoun is "f">><<set _trResult to _trResult+" 여자">>
-        <</if>>
-        <<if $args[0] isnot undefined>>
-            <<trPost 1 $args[0] $args[1]>>
-        <</if>>
-    <<else>>
-        <<trNPCdesc $description>>
-        <<if $pronoun is "m">><<set _trResult to _trResult+" 소년">>
-        <<elseif $pronoun is "f">><<set _trResult to _trResult+" 소녀">>
-        <</if>>
-        <<if $pronoun is "m">>
-            <<trPost 0 $args[0] $args[1]>>
-        <<else>>
-            <<trPost 1 $args[0] $args[1]>>
-        <</if>>
-    <</if>>
-
-    <<print _trResult>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>	/* 첫번째 옵션이 한글 - 조사 */
+			<<unset $_optionPerson>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_optionPerson to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<</if>>
+	<<trNPCdesc $description>><<set $_text_output to _trResult + " ">>
+	<<if ($NPCList[$index].type and $NPCList[$index].type isnot "human") and $_optionPerson isnot "normal">>	/* beast */
+		<<if $pronoun is "m" or $pronoun is "f">>	/* monster boy/girl */
+			<<trBeasttypeFun $NPCList[$index].type>>
+		<<else>>
+			<<trBeasttypeFun $NPCList[$index].type $_post $_sep>>
+		<</if>>
+		<<set $_text_output += _trResult>>
+	<</if>>
+	<<if $npc_named is 1>>
+		<<trNPCdesc $description $_post $_sep>><<set $_text_output to _trResult>>
+	<<elseif $role and $role isnot "normal">>
+		<<trRole $role $_post $_sep>><<set $_text_output += _trResult>>
+	<<elseif $pronoun is "m">>
+		<<set _trResult to ($npcadult is 1 ? "남자" : "소년")>>
+		<<if $npcadult is 0>>
+			<<trPost 0 $_post $_sep>>
+		<<else>>
+			<<trPost 1 $_post $_sep>>
+		<</if>>
+		<<set $_text_output += _trResult>>
+	<<elseif $pronoun is "f">>
+		<<set _trResult to ($npcadult is 1 ? "여자" : "소녀")>>
+		<<trPost 1 $_post $_sep>>
+		<<set $_text_output += _trResult>>
+	<</if>>
+	<<set _trResult to $_text_output>> 
 <<else>>
-	<<combatpersonPost $args[0] $args[1]>>
+	<<combatpersonPost _args[0] _args[1] _args[2]>>
 <</if>>
-<</widget>>
-<<widget "personsPost">><<personPost $args[0] $args[1]>><</widget>>
+<</silently>><<print _trResult>><</widget>>
 
+<<widget "personsPost">><<personPost _args[0] _args[1] _args[2]>><</widget>>
 
-
-<<widget "personsimplePost">><<nobr>><<silently>>
-    <<if $npcadult is 1>>
-        <<if $pronoun is "m">>
-            <<set _trResult to "남자">>
+<<widget "personsimplePost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>	/* 첫번째 옵션이 한글 - 조사 */
+			<<unset $_optionPerson>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_optionPerson to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<</if>>
+	
+	<<if !$NPCList[$index].type or $NPCList[$index].type is "human" or $_optionPerson is "normal">>
+		<<set $_text_output to "">>
+	<<else>>
+		<<if $pronoun is "m" or $pronoun is "f">>
+			<<trBeasttypeFun $NPCList[$index].type>>
+		<<else>>
+			<<trBeasttypeFun $NPCList[$index].type $_post $_sep>>
+		<</if>>
+		<<set $_text_output to _trResult>>
+	<</if>>
+	
+	<<if $role and $role isnot "normal" and $_optionPerson isnot "normal">>
+		<<trRole $role $_post $_sep>><<set $_text_output += _trResult>>
+	<<elseif $npcadult is 1>>
+		<<set _trResult to ($pronoun is "m" ? "남자" : "여자")>>
+		<<trPost 1 $_post $_sep>>
+		<<set $_text_output += _trResult>>
+	<<else>>
+		<<set _trResult to ($pronoun is "m" ? "소년" : "소녀")>>
+		<<if $pronoun is "m">>
+            <<trPost 0 $_post $_sep>>
         <<else>>
-            <<set _trResult to "여자">>
-        <</if>>
-    <<else>>
-        <<if $pronoun is "m">>
-            <<set _trResult to "소년">>
-        <<else>>
-            <<set _trResult to "소녀">>
-        <</if>>
-    <</if>>
-
-    <<if $args[0] isnot undefined>>
-        <<if $npcadult isnot 1 and $pronoun is "m">>
-            <<trPost 0 $args[0] $args[1]>>
-        <<else>>
-            <<trPost 1 $args[0] $args[1]>>
-        <</if>>
-    <</if>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
-
+            <<trPost 1 $_post $_sep>>
+		<</if>>
+		<<set $_text_output += _trResult>>
+	<</if>>
+	<<set _trResult to $_text_output>> 
+<</silently>><<print _trResult>><</widget>>
 
 <<widget "combatpersonPost">><<silently>>
-    <<if $enemytype is "beast">>
-        <<beasttypePost $args[0] $args[1]>>
-    <<elseif $npc_named is 1 and $npcdescription>>
-        <<trNPCdesc $npcdescription $args[0] $args[1]>>
-    <<elseif $npcadult is 1>>
-        <<trNPCdesc $description>>
-        <<if $pronoun is "m">>
-            <<set _trResult to _trResult+" 남자">><<if $args[0] isnot undefined>><<trPost 1 $args[0] $args[1]>><</if>>
-        <<elseif $pronoun is "f">>
-            <<set _trResult to _trResult+" 여자">><<if $args[0] isnot undefined>><<trPost 1 $args[0] $args[1]>><</if>>
-        <</if>>
-    <<else>>
-        <<trNPCdesc $description>>
-        <<if $pronoun is "m">>
-            <<set _trResult to _trResult+" 소년">><<if $args[0] isnot undefined>><<trPost 0 $args[0] $args[1]>><</if>>
-        <<elseif $pronoun is "f">>
-            <<set _trResult to _trResult+" 소녀">><<if $args[0] isnot undefined>><<trPost 1 $args[0] $args[1]>><</if>>
-        <</if>>
-    <</if>>
+    <<if $npc_named is 1 and $description isnot "pale figure">>
+        <<trNPCdesc $NPCList[$index].fullDescription _args[0] _args[1]>>
+	<<elseif $NPCList[$index].name_known is 1>>
+		<<trNPCname $NPCList[$index].name _args[0] _args[1]>>
+    <<elseif $enemytype is "beast">>
+		<<trBeasttypeFun $NPCList[$index].type _args[0] _args[1]>>
+	<<elseif $role and $role isnot "normal">>
+		<<trNPCdesc $description>><<set $_desc to _trResult>>
+		<<trRole $role _args[0] _args[1]>><<set _trResult to $_desc + " " + _trResult>>
+	<<elseif $npcadult is 1>>
+		<<trNPCdesc $description>><<set $_desc to _trResult>>
+		<<if $pronoun is "m">>
+			<<set _trResult to $_desc+" 남자">><<trPost 1 _args[0] _args[1]>>
+		<<elseif $pronoun is "f">>
+			<<set _trResult to $_desc+" 여자">><<trPost 1 _args[0] _args[1]>>
+		<<elseif $description is "pale figure">>
+				<<set _trResult to $_desc>><<trPost 1 _args[0] _args[1]>> /* "창백한 형체" 한정. 필요시 변경할것 */
+		<<else>>
+			<<set _trResult to $_desc+" 녀석">><<trPost 0 _args[0] _args[1]>>
+		<</if>>
+	<<else>>
+		<<trNPCdesc $NPCList[$index].fullDescription _args[0] _args[1]>>	
+	<</if>>
 <</silently>><<print _trResult>><</widget>>
-<<widget "combatpersonsPost">><<combatpersonPost $args[0] $args[1]>><</widget>>
 
+<<widget "combatpersonsPost">><<combatpersonPost _args[0] _args[1]>><</widget>>
+<<widget "combatPersonPost">><<combatpersonPost _args[0] _args[1]>><</widget>>
 
-<<widget "peoplePost">><<nobr>><<silently>>
+<<widget "peoplePost">><<silently>>
 <<if $malechance is 100>>
 	<<set _trResult to "남자들">>
 <<elseif $malechance is 0>>
 	<<set _trResult to "여자들">>
 <<else>>
-	<<set _trResult to "사람들">>
+	<<set _trResult to "남자 여자들">>
 <</if>>
-<<if $args[0] isnot undefined>><<trPost 2 $args[0] $args[1]>><</if>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<<if _args[0] isnot undefined>><<trPost 2 _args[0] _args[1]>><</if>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "peopleyPost">><<nobr>><<silently>>
+<<widget "peopleyPost">><<silently>>
 <<if $malechance is 100>>
 	<<set _trResult to "소년들">>
 <<elseif $malechance is 0>>
@@ -100,18 +128,86 @@
 <<else>>
 	<<set _trResult to "소년 소녀들">>
 <</if>>
-<<if $args[0] isnot undefined>><<trPost 2 $args[0] $args[1]>><</if>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<<if _args[0] isnot undefined>><<trPost 2 _args[0] _args[1]>><</if>>
+<</silently>><<print _trResult>><</widget>>
 
-<<widget "personyPost">><<nobr>><<silently>>
-<<set $rng to random(1, 100)>>
-<<if $malechance is 100>>
-	<<set _trResult to "소년">><<if $args[0] isnot undefined>><<trPost 0 $args[0] $args[1]>><</if>>
-<<elseif $malechance is 0>>
-	<<set _trResult to "소녀">><<if $args[0] isnot undefined>><<trPost 1 $args[0] $args[1]>><</if>>
-<<elseif $rng gte 51>>
-	<<set _trResult to "소년">><<if $args[0] isnot undefined>><<trPost 0 $args[0] $args[1]>><</if>>
+<<widget "personyPost">><<silently>>
+<<rng>>
+<<if $rng lte $malechance>>
+	<<set _trResult to "소년">><<if _args[0] isnot undefined>><<trPost 0 _args[0] _args[1]>><</if>>
 <<else>>
-	<<set _trResult to "소녀">><<if $args[0] isnot undefined>><<trPost 1 $args[0] $args[1]>><</if>>
+	<<set _trResult to "소녀">><<if _args[0] isnot undefined>><<trPost 1 _args[0] _args[1]>><</if>>
 <</if>>
-<</silently>><<print _trResult>><</nobr>><</widget>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "groupPost">><<silently>>
+	<<if $enemyno gte 3 or ($combat is 1 and $enemynomax gte 3)>>
+		<<for _g to 0; _g lt $NPCList.length; _g++>>
+			<<if $NPCList[_g].pronoun is "m">>
+				<<set $_group_man to true>>
+			<<elseif $NPCList[_g].pronoun is "f">>
+				<<set $_group_woman to true>>
+			<</if>>
+		<</for>>
+		<<if $_group_man and $_group_woman>>
+			<<set _trResult to ($NPCList[0].teen is 1? "소년 소녀들" : "남자 여자들")>>
+		<<elseif $_group_man and !$_group_woman>>
+			<<set _trResult to ($NPCList[0].teen is 1? "소년들" : "남자들")>>
+		<<elseif !$_group_man and $_group_woman>>
+			<<set _trResult to ($NPCList[0].teen is 1? "소녀들" : "여자들")>>
+		<</if>>
+			<<trPost 2 _args[0] _args[1]>>
+	<<elseif $enemyno is 2 or ($combat is 1 and $enemynomax is 2)>>
+		<<if $NPCList[0].pronoun isnot $NPCList[1].pronoun>>
+			<<set _trResult to ($NPCList[0].teen is 1? "소년과 소녀" : "남자와 여자")>><<set $_postNum to 1>>
+		<<elseif $NPCList[0].pronoun is "m">>
+			<<set _trResult to ($NPCList[0].teen is 1? "소년들" : "남자들")>><<set $_postNum to 2>>
+		<<elseif $NPCList[0].pronoun is "f">>
+			<<set _trResult to ($NPCList[0].teen is 1? "소녀들" : "여자들")>><<set $_postNum to 2>>
+		<</if>>
+		<<trPost $_postNum _args[0] _args[1]>>
+	<<else>>
+		<<personPost _args[0] _args[1]>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "fullGroupPost">><<silently>>
+	<<if _args[0] is "cap">>
+		<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+	<<else>>
+		<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+	<</if>>
+	<<set $_person to []>>
+	<<for _fg to 0; _fg lt $enemyno; _fg++>>
+		<<personselect _fg>><<personPost>>
+		<<set $_person.push(_trResult)>>
+	<</for>>
+	<<set _trResult to formatList($_person, "그리고", true)>>
+	<<if def $_post>>
+		<<trPost _postNum $_post $_sep>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "enumeratedGroupPost">><<silently>>
+	<<set $_menCount to $NPCList.countWith(npc => npc.pronoun is "m")>>
+	<<set $_womenCount to $NPCList.countWith(npc => npc.pronoun is "f")>>
+	<<silently>>
+		<<trNumber $_menCount>><<set $_men to _trResult + " 명의 " + ($_menCount is 1 ? "남자" : "남자들")>>
+		<<trNumber $_womenCount>><<set $_women to _trResult + " 명의 " + ($_womenCount is 1 ? "여자" : "여자들")>>
+	<</silently>>
+
+	<<set [$_first, $_second, $_firstCount, $_secondCount] to ($_menCount gte $_womenCount ? [$_men, $_women, $_menCount, $_womenCount] : [$_women, $_men, $_womenCount, $_menCount])>>
+
+	<<set _trResult to $_first>>
+	<<set $_and to ($_firstCount is 1 ?"와 ":"과 ")>>
+	<<set _postNum to ($_firstCount is 1 ?1:2)>>
+	<<if $_secondCount gt 0>>
+		<<set _trResult += $_and + $_second>>
+		<<set _postNum to ($_secondCount is 1 ?1:2)>>
+	<</if>>
+	<<if def _args[0]>>
+		<<trPost _postNum _args[0] _args[1]>>
+	<</if>>
+<</silently>><<print _trResult>><</widget>>
+
+<<widget "EnumeratedGroupPost">><<enumeratedGroupPost _args[0] _args[1]>><</widget>>

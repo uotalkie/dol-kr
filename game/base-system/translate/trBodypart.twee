@@ -1,32 +1,48 @@
 :: Widgets trBodypart [widget nobr]
-<<widget "trBodypart">>
-    <<set _koPre to {"left":"왼쪽", "right":"오른쪽"}>>
-    <<trinit_bodypartList>>
-    
-    <<set _LowerCase to $args[0].toLowerCase()>>
-    <<set _LowerCase to _LowerCase.replace('_',' ')>>
-    <<set _trTemp to _LowerCase.split(' ')>>
+<<widget "trBodypart">><<silently>>
+	<<if _args[0] isnot undefined>>
+	
+		<<if setup.trBodypartsList is undefined>>
+			<<trinit_bodypartList>>
+		<</if>>
+	
+		<<set $_partArray to _args[0].toLowerCase().replace('_',' ').split(' ')>>
+		<<set $_resultArray to []>>
+		
+		<<for $_i, $_part range $_partArray>>
+			<<set $_trpart to setup.trBodypartsList.partIndex[$_part]>>
+			
+			<<if $_trpart isnot undefined>>
+				<<set $_resultArray.push($_trpart.koPart)>>
+				<<set _postNum to $_trpart.post>>
+			<<else>>
+				<<set $_resultArray to []>>
+				<<break>>
+			<</if>>
+		<</for>>
+		
+		<<if $_resultArray.length gt 0>>
+			<<set _trResult to $_resultArray.join(" ")>>
+			<<trPost _postNum _args[1] _args[2]>>
+		<<else>>
+			<<set _trResult to "<span class='red'>에러: trBodypart: 정의되지 않음: " + _args[0] + "</span>">>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>
 
-    <<if _trTemp[1] isnot undefined>>
-        <<set _trResult to _koPre[_trTemp[0]]>>
-        <<set _trTemp1 to _koBodyparts.find(function(select){
-                    if(select.part == _trTemp[1] or select.plural == _trTemp[1]){return true;
-                    }})>>
-        <<if _trTemp1 isnot undefined>>
-            <<set _trResult to _trResult+" "+_trTemp1.koPart>>
-            <<trPost _trTemp1.post $args[1] $args[2]>>
-        <<else>>
-            <<print "BodypartSelectionErr: "+$args[0]>>
-        <</if>>
-    <<else>>
-        <<set _trTemp1 to _koBodyparts.find(function(select){
-                    if(select.part == _LowerCase or select.plural == _LowerCase){return true;
-                    }})>>
-        <<if _trTemp1 isnot undefined>>
-            <<set _trResult to _trTemp1.koPart>>
-            <<trPost _trTemp1.post $args[1] $args[2]>>
-        <<else>>
-            <<print "BodypartSelectionErr: "+$args[0]>>
-        <</if>>
-    <</if>>
-<</widget>>
+<<widget "trBodysize">><<silently>>
+	<<if def _args[0]>>
+		<<if _trBodysize is undefined>>
+			<<set _trBodysize to {
+				"tiny":"조그마함",
+				"small":"작음",
+				"normal":"평범함",
+				"large":"큼",
+			}>>
+		<</if>>
+		<<set _trResult to _trBodysize[_args[0]]>>
+		<<if _trResult is undefined>>
+			<<set _trResult to "trBodysize에 지정되지 않음: " + _args[0]>>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>

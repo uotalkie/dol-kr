@@ -1,38 +1,55 @@
 :: Widgets trBeastdesc [widget nobr]
-<<widget "trBeastdesc">>
-    <<trinit_beastsList>>
-    <<trinit_beastAdjList>>
-    <<trinit_genderNoun>>
+<<widget "trBeastdesc">><<silently>>
+	<<if setup.trBeasttypeList is undefined>>
+		<<trinit_beastsList>>
+		<<trinit_beastAdjList>>
+	<</if>>
+	<<if setup.trGenderList is undefined>>
+		<<trinit_genderNoun>>
+	<</if>>
 
-    <<set _trResult to "">>
-    <<set _tempArray to $args[0].split(' ')>>
+	<<set _trResult to "">>
+	<<unset _postNum>>
+	<<set $_tempArray to _args[0].split(' ')>>
 
-    <<for _i to 0; _i lt _tempArray.length; _i++>>
-		<<if _i neq 0>>
+    <<for $_i to 0; $_i lt $_tempArray.length; $_i++>>
+		<<if $_i neq 0>>
 			<<set _trResult += " ">>
 		<</if>>
-        <<if _beastAdjList[_tempArray[_i]] isnot undefined>>
-            <<set _trResult += _beastAdjList[_tempArray[_i]]>>
-
-        <<elseif _genderList[_tempArray[_i]] isnot undefined>>
-            <<set _trResult += _genderList[_tempArray[_i]].ko>>
-            <<trBeastdescPost _i _tempArray.length _genderList[_tempArray[_i]].post $args[1] $args[2]>>
-
-        <<elseif _beasttypeList[_tempArray[_i]] isnot undefined>>
-            <<set _trResult += _beasttypeList[_tempArray[_i]].ko>>
-            <<trBeastdescPost _i _tempArray.length _beasttypeList[_tempArray[_i]].post $args[1] $args[2]>>
-
+        <<if setup.trBeastAdjList[$_tempArray[$_i]] isnot undefined>>
+            <<set _trResult += setup.trBeastAdjList[$_tempArray[$_i]]>>
+		<<elseif setup.trGenderList[$_tempArray[$_i]] isnot undefined>>
+            <<set _trResult += setup.trGenderList[$_tempArray[$_i]].ko>>
+            <<set _postNum to setup.trGenderList[$_tempArray[$_i]].post>>
+        <<elseif setup.trBeasttypeList[$_tempArray[$_i]] isnot undefined>>
+            <<set _trResult += setup.trBeasttypeList[$_tempArray[$_i]].ko>>
+            <<set _postNum to setup.trBeasttypeList[$_tempArray[$_i]].post>>
         <<else>>
-            <<set _trResult to "trbeastdesc: '$args[0]' is undefined: _tempArray[_i]">>
+            <<set _trResult to "trbeastdesc: '_args[0]' is undefined: $_tempArray[$_i]">>
             <<break>>
         <</if>>
     <</for>>
-<</widget>>
+	<<if _postNum isnot undefined>>
+		<<trPost _postNum _args[1] _args[2]>>
+	<</if>>
+<</silently>><</widget>>
 
-<<widget "trBeastdescPost">>
-    <<if $args[0] is ($args[1] - 1)>>
-        <<if $args[3] isnot undefined>>
-            <<trPost $args[2] $args[3] $args[4]>>
-        <</if>>
-    <</if>>
-<</widget>>
+<<widget "trBeastClaws">><<silently>>
+	<<if def _args[0]>>
+		<<if _trBeastClawsList is undefined>>
+			<<set _trBeastClawsList to {
+				"claws": {koName: "발톱", post: 0},
+				"talons": {koName: "부리", post: 1},
+				"hooves": {koName: "발굽", post: 0},
+				"flippers": {koName: "지느러미", post: 1},
+			}>>
+		<</if>>
+		<<set $_found to _trBeastClawsList[_args[0]]>>
+		<<if $_found>>
+			<<set _trResult to $_found.koName>>
+			<<trPost $_found.post _args[1] _args[2]>>
+		<<else>>
+			<<set _trResult to "<span class='red'>에러: trBeastClaw: 정의되지 않음: " + _args[0] + "</span>">>
+		<</if>>
+	<</if>>
+<</silently>><</widget>>

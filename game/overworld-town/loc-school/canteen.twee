@@ -1,7 +1,7 @@
 :: Canteen
-<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>><<sydneySchedule>>
 당신은 학생 식당에 있다.
-<<if $schoolday is 1>>
+<<if Time.schoolDay>>
 	<<if $schoolstate is "early">>
 		식당은 비어있다.
 		<br><br>
@@ -15,7 +15,7 @@
 		식당에는 한쪽 탁자에서 이야기를 나누는 작은 학생 집단을 제하면 아무도 없다.
 		<br><br>
 	<</if>>
-<<elseif $schoolday isnot 1>>
+<<else>>
 	식당은 비어있다.
 	<br><br>
 <</if>>
@@ -24,7 +24,7 @@
 	<<if $schoolstate is "lunch">>
 		당신은 카운터 뒤에 숨어서 <<nudityPost "을">> 감춘다.<<nudityPostend>> 바로 앞에서 학생들의 부산스러운 소리가 들려온다.
 		<br><br>
-	<<elseif $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late">>
+	<<elseif Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late">>
 		당신은 카운터 뒤에 숨어서 <<nudityPost "을">> 감춘다.<<nudityPostend>> 재빠르게 움직인다면 아무도 몰래 나갈 수 있을 것이다.
 		<br><br>
 	<<else>>
@@ -35,50 +35,134 @@
 <<if $stress gte $stressmax>>
 	<<link [[모든 것이 암흑 속으로 사라져간다...|School Passout]]>><</link>>
 <<else>>
-	<<if $schoolday is 1>>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmLocation "canteen">>
+	<</if>>
+	<<if Time.schoolDay>>
 		<<if $schoolstate is "early">>
 		<<elseif $schoolstate is "late">>
 		<<elseif $schoolstate is "lunch">>
-			<<if $NPCName[$NPCNameList.indexOf("Robin")].init is 0>>
-				<<set $robindebt to 0>><<set $robindebtlimit to 5>>
-				<<npc Robin>><<initnpc Robin>><<person1>>You hear a voice shout behind you. "Hey!" It's Robin. <<Hes>> another resident at the orphanage. <<Hes>> always looked up to you, despite being about the same age. <<He>> runs towards you and fails to slow down in time, colliding with you and almost spilling <<hisPost "의">> food tray. You hold <<hisPost "의">> arm to steady <<him>>. "Thanks," <<he>> says, looking embarrassed though still smiling.
+			<<run statusCheck("Robin")>>
+
+			<<if _robin_location is "school" and ($robinReunionScene is "dungeon" or $robinReunionScene is "dungeonRobin") and $exposed lte 0>>
+				<<npc Robin>><<person1>>
+				<<if $robinReunionScene is "dungeon">><<set $robinPostMortem to true>><</if>>
+				You hear a gasp from one of the tables. Turning in the direction of the sound, you spot Robin at a packed table, mouth agape.
+				A framed picture of the two of you sits nearby them. <<He>> jumps up and sprints towards you.
 				<br><br>
-				"I didn't see you this morning. Remember, <span class="gold">you can visit me in my room at home</span> anytime you want. I've been waiting to show you something. I'm so excited!" <<He>> gives you a one-armed hug, carefully balancing <<hisPost "의">> tray with the other arm, before running off to find a seat.
-				<br><br>
-				<<endevent>>
-				<<link [[로빈과 함께 먹는다 (0:20)|Canteen Lunch Robin]]>><<stress -6>><<trauma -2>><<pass 20>><<set $luncheaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
-				<br>
-			<<elseif $robinmissing isnot 1 and $NPCName[$NPCNameList.indexOf("Robin")].init is 1 and $luncheaten isnot 1 and $exposed lte 0>>
-				<<set $rng to random(1, 100)>>
-				<<if $rng gte 96>>
-					<<npc Robin>><<person1>>로빈이 점심을 먹으려 하는 와중에 일련의 불량학생들이 <<hePost "을">> 괴롭히는 모습이 보인다.<<endevent>>
-				<br>
-					<<link [[개입한다 (0:20)|Canteen Lunch Intervene]]>><<set $luncheaten to 1>><<npcincr Robin love 5>><</link>>
-				<br><br>
-				<<elseif $rng gte 91 and $NPCName[$NPCNameList.indexOf("Whitney")].dom gte 16 and $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon">>
-					로빈이 점심을 먹는 모습이 보인다.
-				<br><br>
-					<<link [[로빈과 함께 먹는다 (0:20)|Robin Kiyoura Start]]>><<stress -6>><<trauma -2>><<pass 20>><<set $luncheaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
-				<br>
+				<<if $robinReunionScene is "dungeon">>
+					"I don't believe it!" <<he>> squeals before burying <<himself>> in your chest. "I-I thought you were gone forever!"
+					<br>
+					Eventually, Robin calms down a bit. <<He>> looks at you with misty eyes.
+					"We need to talk about this at home," <<he>> says, sniffling. "Wh-when you're ready, of course."
+					<br><br>
 				<<else>>
-					로빈이 점심을 먹는 모습이 보인다.
+					"I don't believe it!" <<he>> squeals before burying <<himself>> in your chest. "I thought you'd never escape!"
+					<br>
+					Eventually, Robin calms down a bit. <<He>> looks at you with misty eyes.
+					"We both made it home," <<he>> says, sniffling. "I'm so happy to have you back."
+					<br><br>
+				<</if>>
+				<<unset $robinReunionScene>>
+				<<if $NPCName[$NPCNameList.indexOf("Kylar")].state is "active">>
+					<<if $NPCName[$NPCNameList.indexOf("Kylar")].rage gte 60>>
+						You open your mouth to respond, but before you get the chance, Kylar squeezes between the two of you.
+						<<nnpc_He "Kylar">> shoves Robin out of the way.
+						<br>
+						"I-I was worried about you too," <<nnpc_he "Kylar">> says. "I lost track of you."<<stress 3>><<gstress>>
+						<br><br>
+						You tell the two of them that you're fine. Kylar nods along, but <<nnpc_he "Kylar">> glares at Robin the whole time.
+						<<if $NPCName[$NPCNameList.indexOf("Robin")].dom gte 80>>
+							Robin takes notice, and <<he>> turns to face Kylar with a serious expression, arms crossed.
+							<br>
+							"Will you stop that?" <<he>> demands, causing Kylar to jolt in surprise.
+							"You're being a bother. <<pShes>> clearly under a lot of stress right now, so please, either behave yourself or leave my <<if $robinromance is 1>><<girl>><</if>>friend alone!"
+							<br>
+							Robin huffs as <<he>> finishes, breathing heavily. Kylar looks astonished.
+							<<nnpc_He "Kylar">> gapes at Robin for a moment, then sticks <<nnpc_his "Kylar">> tongue out and scurries back to <<nnpc_his "Kylar">> table.
+							<br><br>
+							Eventually, Robin starts to calm down. <<He>> looks embarrassed.
+							"S-sorry, that was rude," <<he>> mumbles. "I should apologise to <<nnpc_him "Kylar">>."
+							<<He>> glances towards Kylar's table, where <<nnpc_he "Kylar">> stabs <<nnpc_his "Kylar">> food with more resentment than usual.
+							"M-maybe later, though."
+							<br>
+							<<He>> gives you a nervous smile and a wave as <<he>> returns to <<his>> table.
+						<<else>>
+							Robin doesn't seem to notice. If <<he>> does, <<hes>> too worried about you to care.
+							<br><br>
+							After a while, the two finish fussing over you and return to their respective tables.
+						<</if>>
+					<<else>>
+						You tell Robin that you're fine. <<He>> nods and gives you one last squeeze, then walks back to <<his>> table.
+						<br>
+						Kylar watches from across the canteen. A hint of worry is spread across <<nnpc_his "Kylar">> face.<<npcincr Kylar rage 1>><<gksuspicion>>
+					<</if>>
+				<<else>>
+					You tell Robin that you're fine. <<He>> nods and gives you one last squeeze, then walks back to <<his>> table.
+				<</if>>
+				<br><br>
+
+				<<link [[다음|Canteen]]>><<endevent>><</link>>
 				<br>
-				<<link [[로빈과 함께 먹는다 (0:20)|Canteen Lunch Robin]]>><<stress -6>><<trauma -2>><<pass 20>><<set $luncheaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
-				<br>
+			<<else>>
+				<<if $NPCName[$NPCNameList.indexOf("Robin")].init is 0>>
+					<<set $robindebt to 0>><<set $robindebtlimit to 5>>
+					<<npc Robin>><<initnpc Robin>><<person1>>누군가가 당신 뒤편에서 소리치는 게 들린다. "어이!" 로빈이다. <<He_ nun>> 고아원에서 함께 사는 아이다. 
+					<<He_ nun>> 당신과 같은 나이임에도, 당신을 항상 동경해왔다. 
+					<<He_ nun>> 당신에게 달려오다가 속도를 늦출 타이밍을 놓쳐, 당신과 부딪히며 거의 <<hisPost "의">> 식판의 내용물을 쏟을 뻔 했다. 
+					당신은 <<his_ yi>> 중심을 잡는 걸 도와주려고 <<hisPost "의">> 팔을 잡는다. "고마워." 미소에서 부끄러움을 감추지 못하며, <<he_ ga>> 말한다.
+					<br><br>
+					"오늘 아침에는 못 봤네. <span class="gold">고아원에서 내 방으로 오기만 하면 언제든 날 만날 수 있다는 걸</span> 기억해. 
+					너한테 뭘 좀 보여주려고 하고 있었어. 완전 기대 중이야!" 
+					<<He_ nun>> 앉을 자리를 찾아 달려나가기 전, 당신을 한 팔로 안아주고 반대쪽 팔로는 조심스럽게 <<hisPost "의">> 식판의 균형을 맞춘다.
+					<br><br>
+					<<endevent>>
+					<<link [[로빈과 함께 먹는다 (0:20)|Canteen Lunch Robin]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
+					<br>
+				<<elseif _robin_location is "school" and $NPCName[$NPCNameList.indexOf("Robin")].init is 1 and $daily.school.lunchEaten isnot 1 and $exposed lte 0>>
+					<<if $NPCName[$NPCNameList.indexOf("Robin")].cdquest is 5 and $NPCName[$NPCNameList.indexOf("Robin")].trauma lte 20>>
+						로빈이 점심을 먹는 모습이 보이고, <<npc Robin>><<person1>><<he_ ga>> 사람들의 주의를 좀 끌고 있는 듯 하다.<<endevent>>
+						<br>
+						<<link [[로빈과 함께 먹는다 (0:20)|Canteen Lunch Robin CD 1]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
+						<br>
+					<<else>>
+						<<rng>>
+						<<if $rng gte 96>>
+							<<npc Robin>><<person1>>로빈이 점심을 먹으려 하는 와중에 일련의 불량학생들이 <<hePost "을">> 괴롭히는 모습이 보인다.<<endevent>>
+							<br>
+							<<link [[개입한다 (0:20)|Canteen Lunch Intervene]]>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 5>><</link>>
+							<br><br>
+						<<elseif $rng gte 91 and $NPCName[$NPCNameList.indexOf("Whitney")].dom gte 16 and $NPCName[$NPCNameList.indexOf("Whitney")].state isnot "dungeon">>
+							로빈이 점심을 먹는 모습이 보인다.
+							<br>
+							<<link [[로빈과 함께 먹는다 (0:20)|Robin Kiyoura Start]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
+							<br>
+						<<else>>
+							로빈이 점심을 먹는 모습이 보인다.
+							<br>
+							<<link [[로빈과 함께 먹는다 (0:20)|Canteen Lunch Robin]]>><<stress -6>><<trauma -2>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Robin love 1>><</link>><<ltrauma>><<lstress>>
+							<br>
+						<</if>>
+					<</if>>
+				<</if>>
+				<<if $NPCName[$NPCNameList.indexOf("Kylar")].state is "active" and $daily.school.lunchEaten isnot 1 and $exposed lte 0>>
+					카일라는 홀로 앉아 포크로 음식을 찌르고만 있다.
+					<br>
+					<<link [[카일라와 함께 먹는다 (0:20)|Canteen Lunch Kylar]]>><<pass 20>><<set $daily.school.lunchEaten to 1>><<npcincr Kylar love 1>><<npcincr Kylar rage -1>><</link>><<glove>><<lksuspicion>>
+					<br>
+				<</if>>
+				<<if $NPCName[$NPCNameList.indexOf("Sydney")].init is 1 and _sydney_location is "canteen" and $exposed lte 0>>
+					시드니는 외떨어진 구석에서 책과 종이를 쌓아놓고 앉아있다.
+					<br>
+					<<link [[시드니와 함께 먹는다 (0:15)|Canteen Lunch Sydney]]>><<stress -6>><<trauma -2>><<pass 15>><<set $daily.school.lunchEaten to 1>><<npcincr Sydney love 1>><</link>><<glove>><<lstress>>
+					<br><br>
+				<</if>>
+				<<if $daily.school.lunchEaten isnot 1 and $exposed lte 0>>
+					<<link [[점심을 먹는다 (0:10)|Canteen Lunch]]>><<pass 10>><<stress -6>><<set $daily.school.lunchEaten to 1>><</link>><<lstress>>
+					<br>
 				<</if>>
 			<</if>>
-			<<if $NPCName[$NPCNameList.indexOf("Kylar")].state is "active" and $luncheaten isnot 1 and $exposed lte 0>>
-				카일라는 홀로 앉아 포크로 음식을 찌르고만 있다.
-				<br>
-				<<link [[카일라와 함께 먹는다 (0:20)|Canteen Lunch Kylar]]>><<pass 20>><<set $luncheaten to 1>><<npcincr Kylar love 1>><<npcincr Kylar rage -1>><</link>><<glove>><<lksuspicion>>
-				<br><br>
-			<</if>>
-			<<if $luncheaten isnot 1 and $exposed lte 0>>
-				<<link [[점심을 먹는다 (0:10)|Canteen Lunch]]>><<pass 10>><<stress -6>><<set $luncheaten to 1>><</link>><<lstress>>
-				<br>
-			<</if>>
-
-		<<elseif $canteenapproach isnot 1 and $exposed lte 0>>
+		<<elseif $daily.school.canteenApproach isnot 1 and $exposed lte 0>>
 			<<link [[학생들에게 다가간다|Canteen Students]]>><</link>>
 			<br>
 		<</if>>
@@ -86,7 +170,6 @@
 		<<link [[밀크셰이크를 마신다 (0:10)|Canteen Milkshake]]>><<pass 10>><<set $milkshake -= 1>><<stress -5>><</link>><<lstress>>
 		<br>
 	<</if>>
-	<<elseif $schoolday isnot 1>>
 
 	<</if>>
 
@@ -106,25 +189,35 @@
 :: Canteen Lunch
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-<<if $cool gte 160>>
-	당신은 점심을 먹기 위해 앉는다. 같은 탁자에 앉은 학생들이 당신의 관심을 끌기 위해 경쟁한다.
-	<<stress -2>><<trauma -1>><<lstress>><<ltrauma>>
-<<elseif $cool lt 40>>
-	당신은 점심을 먹기 위해 앉는다. 다른 학생들은 당신과 함께 있는 모습이 보이기 싫어서 빠르게 탁자에서 떠난다.
-	<<gtrauma>><<stress 1>><<trauma 1>>
-<<else>>
-	당신은 점심을 먹기 위해 앉는다. 딱히 당신을 신경쓰는 사람은 없다.
-<</if>>
-<br><br>
+<<if $rng gte 91>>
+	<<generates1>><<generates2>><<person1>>
+	You sit down to eat. A <<person>> approaches you and taps you on the shoulder. "I made a lunch for you," <<he>> says, handing you a small brown paper bag. "Enjoy!" <<He>> drops the bag on the table in front of you and walks away, smiling.
+	<br><br>
 
-<<link [[다음|Canteen]]>><<endevent>><</link>>
+	<<link [[Eat it|Canteen Lunch Sandwich]]>><<set $phase to 1>><</link>>
+	<br>
+	<<link [[Throw it away|Canteen Lunch Sandwich]]>><<set $phase to 0>><<status -5>><</link>><<lcool>>
+<<else>>
+	<<if $cool gte 160>>
+		당신은 점심을 먹기 위해 앉는다. 같은 탁자에 앉은 학생들이 당신의 관심을 끌기 위해 경쟁한다.
+		<<stress -2>><<trauma -1>><<lstress>><<ltrauma>>
+	<<elseif $cool lt 40>>
+		당신은 점심을 먹기 위해 앉는다. 다른 학생들은 당신과 함께 있는 모습이 보이기 싫어서 빠르게 탁자에서 떠난다.
+		<<gtrauma>><<stress 1>><<trauma 1>>
+	<<else>>
+		당신은 점심을 먹기 위해 앉는다. 딱히 당신을 신경쓰는 사람은 없다.
+	<</if>>
+	<br><br>
+
+	<<link [[다음|Canteen]]>><<endevent>><</link>>
+<</if>>
 <br>
 
 :: Canteen Students
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<generatey1>>
 <<if $rng gte 51>>
-	당신은 상급생들에게 다가간다. <<person1>><<personPost "이">> 수상쩍다는 듯이 당신을 올려다본다. "뭐야?"
+	당신은 학생들에게 다가간다. <<person1>><<personPost "이">> 수상쩍다는 듯이 당신을 올려다본다. "뭐야?"
 	<br><br>
 
 	<<link [[추파를 던진다|Canteen Students Flirt]]>><</link>><<promiscuous1>>
@@ -132,20 +225,22 @@
 
 	<<link [[떠난다|Canteen]]>><<endevent>><</link>>
 <<else>>
-	당신은 상급생들에게 다가간다. 그들은 딱히 당신과 이야기를 나누고 싶어하지 않는 것 같다. "저리 꺼져, 꼬맹아." <<person1>><<personPost "이">> 무시하는듯이 말한다.
+	당신은 학생들에게 다가간다. 그들은 딱히 당신과 이야기를 나누고 싶어하지 않는 것 같다. "저리 꺼져, 꼬맹아." <<person1>><<personPost "이">> 무시하는듯이 말한다.
 	<br><br>
 	<<endevent>>
 
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 	<<if $danger gte (9900 - $allure)>>
-		<<set $canteenapproach to 1>>
-		<<generatey1>>몸을 돌려 떠나려 할때, <<person1>><<personPost "이">> 당신의 어깨 위에 손을 올린다. "잠깐 기다려봐. 보이는 것보다 더 성숙할 거 같은데 말이지. 우리한테 네 귀여운 <<if $player.gender_appearance is "m">>자지<<else>>보지<</if>>를 보여주는 건 어때?" <<personPost "이">> 당신을 희롱하는 동안 다른 이들이 웃음을 터트린다.
+		<<set $daily.school.canteenApproach to 1>>
+		<<generatey1>>몸을 돌려 떠나려 할때, <<person1>><<personPost "이">> 당신의 어깨 위에 손을 올린다. 
+		"더 좋은 생각이 있어," <<he_ ga>> 말한다. "우리한테 네 귀여운 <<print ($player.gender_appearance is "m" ? "자지" : "보지")>>를 보여주는 건 어때?"
+		<<personPost "이">> 당신을 희롱하는 동안 다른 이들이 웃음을 터트린다.
 		<br><br>
 
 		<<link [[다음|Canteen Students Molestation]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
-		<<set $canteenapproach to 1>>
+		<<set $daily.school.canteenApproach to 1>>
 		<<link [[다음|Canteen]]>><<endevent>><</link>>
 		<br>
 	<</if>>
@@ -160,33 +255,22 @@
 	<<molested>>
 
 	<<maninit>><<npcidlegenitals>><<npcstrip>>
-	<<if $delinquency lt 400>><<set $rescue to 1>><</if>>
+	<<enableSchoolRescue "Whitney" "delinquency">>
 	<<set $timer to 20>>
 <</if>>
 
 <<effects>>
-
-<<if $alarm is 1 and $rescue is 0>>
-	<<set $alarm to 0>>
-	당신의 불량학생으로서의 명성 때문에 아무도 당신을 도와주지 않는다.
-	<br><br>
-<</if>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate "<span class='red'>당신의 불량학생으로서의 명성 때문에, 누구도 당신을 도우러 오지 않는다.</span>">>
+<<man>>
 <<audience>>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[다음|Canteen Students Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[다음|Canteen Students Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[다음|Canteen Students Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $timer lte 0>>
+<<if $alarm is 1 and $rescue gte 2>>
+	<span id="next"><<link [[다음|Whitney Rescue]]>><<set $whitneyRescueExit to "canteen">><</link>></span><<nexttext>>
+<<elseif _combatend or ($timer lte 0)>>
 	<span id="next"><<link [[다음|Canteen Students Molestation Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Canteen Students Molestation]]>><</link>></span><<nexttext>>
@@ -194,7 +278,8 @@
 
 :: Canteen Students Molestation Finish
 <<if $enemyhealth lte 0>>
-	<<HePost "은">> 고통에 몸을 움찔거린다. <<HisPost "의">> 눈에서 공포가 얼핏 보인다. "할만큼 했잖아." <<HePost "은">> 자신감 있는 척을 해보지만, 어쩔 수 없이 목소리가 떨린다. <<tearful>> 당신은 히죽거리며 멀어진다.
+	<<HePost "은">> 고통에 몸을 움찔거린다. <<HisPost "의">> 눈에서 공포가 얼핏 보인다. 
+	"할만큼 했잖아." <<HePost "은">> 자신감 있는 척을 해보지만, 어쩔 수 없이 목소리가 떨린다. <<tearful>> 당신은 히죽거리며 멀어진다.
 	<br><br>
 
 	<<clotheson>>
@@ -204,7 +289,7 @@
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 
-	<<HisPost "의">> 친구들이 웃기 시작한다. "그 꼬맹이 가지고 너무 많이 재미 보는거 아니야?" 그 중 한 명이 말한다. <<personPost "은">> <<himself_rul>> 변호하려 한다. <<tearful>> 당신은 그 자리를 뜬다.
+	<<HisPost "의">> 친구들이 웃기 시작한다. "그 꼬맹이 가지고 너무 많이 재미 보는거 아니야?" 그 중 한 명이 말한다. <<personPost "은">> <<himself_ rul>> 변호하려 한다. <<tearful>> 당신은 그 자리를 뜬다.
 	<br><br>
 
 	<<clotheson>>
@@ -212,13 +297,13 @@
 
 	<<link [[다음|Canteen]]>><</link>>
 <<elseif $alarm is 1 and $rescue is 1>>
-	<<personPost "은">> 친구들에게 저지당한다. "자자, 말썽에 휘말려들고 싶진 않잖아." <<HePost "은">> 잠시 머뭇거리다가, 곧 하던 것을 멈춘다. 그러고는 당신을 밀치고는 떠난다. <<tearful>> 당신은 바닥에서 몸을 일으킨다.
+	<<personPost "은">> 친구들에게 저지당한다. "자자, 말썽에 휘말려들고 싶진 않잖아." <<HePost "은">> 잠시 머뭇거리다가, 곧 하던 것을 멈춘다. 
+	그러고는 <<He_ nun>> 당신을 밀치고는 떠난다. <<tearful>> 당신은 바닥에서 몸을 일으킨다.
 	<br><br>
 
 	<<clotheson>>
 	<<endcombat>>
 
-	<br><br>
 	<<link [[다음|Canteen]]>><</link>>
 <<elseif $timer lte 0>>
 	지루해졌는지, <<personPost "은">> 당신을 밀친다. <<tearful>> 당신은 바닥에서 몸을 일으킨다.
@@ -235,7 +320,6 @@
 
 당신은 유혹하는듯 탁자 위로 몸을 기울이며 <<personPost "에게">> 말을 건다. "긴장한 것처럼 보이는데. 내가 도와줄게 있을까?"
 <<promiscuity1>>
-<br><br>
 
 <<if $cool gte 160>>
 	<<HePost "은">> 당신을 보고는 얼굴을 붉힌다. "괜찮다면... 둘만 있을 수 있는 곳으로 갈래?" <<HePost "에겐">> 분명히 음란한 의도가 있는 것 같다.
@@ -247,7 +331,7 @@
 	<</if>>
 	<<link [[거절한다|Canteen]]>><<endevent>><</link>>
 <<elseif $cool lt 40>>
-	<<set $canteenapproach to 1>>
+	<<set $daily.school.canteenApproach to 1>>
 	굴욕감을 느끼고 있는 <<personPost "을">> 제외한 다른 사람들이 웃음을 터트린다. "좆까. 다신 내게 말걸지 마."
 	<br><br>
 
@@ -265,7 +349,7 @@
 		<</if>>
 		<<link [[거절한다|Canteen]]>><<endevent>><</link>>
 	<<else>>
-		<<set $canteenapproach to 1>>
+		<<set $daily.school.canteenApproach to 1>>
 		<<HePost "은">> 얼굴을 붉히며 시선을 돌린다. 갑자기 말수가 적어진 것에 대해 <<hisPost "의">> 친구들이 웃기 시작한다.
 		<br><br>
 
@@ -279,27 +363,20 @@
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 100>>
-
 	당신과 <<personPost "은">> 아무도 없을만한 창고를 찾는다.
-	<<set $canteenapproach to 1>> <<promiscuity2>>
-	<br><br>
+	<<set $daily.school.canteenApproach to 1>> <<promiscuity2>>
 <</if>>
 
 <<effects>>
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $finish is 1>>
-	<span id="next"><<link [[다음|Canteen Student Encounter Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[다음|Canteen Student Encounter Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
+<<if _combatend>>
 	<span id="next"><<link [[다음|Canteen Student Encounter Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Canteen Student Encounter]]>><</link>></span><<nexttext>>
@@ -335,7 +412,8 @@
 :: Canteen Tray
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-당신은 카운터 위로 손을 뻗어 식판을 잡는다. 식판으로 몸 앞을 가린 상태에서, 당신은 심호흡을 한 뒤 자리에서 일어난다. 당신은 아무 일도 없는 듯이 행동하며 식당 가장자리를 따라 걷는다. 다행히 아무도 당신을 눈치채지 못하고, 당신은 문으로 향한다.
+당신은 카운터 위로 손을 뻗어 식판을 잡는다. 식판으로 몸 앞을 가린 상태에서, 당신은 심호흡을 한 뒤 자리에서 일어난다. 
+당신은 아무 일도 없는 듯이 행동하며 식당 가장자리를 따라 걷는다. 다행히 아무도 당신을 눈치채지 못하고, 당신은 문으로 향한다.
 <br><br>
 
 <<if $rng gte 51>>
@@ -345,10 +423,12 @@
 
 	<<link [[다음|Hallways]]>><</link>>
 <<else>>
-	하지만 문손잡이를 잡으려는 찰나, 느닷없이 문이 열리는 바람에 당신은 뒤로 넘어지며 몸을 가리고 있던 식판을 저 멀리 날려버린다. 더 끔찍한 것은, 부딪히는 소리에 식당에 있던 사람들의 이목이 집중되었다는 것이다.
+	하지만 문손잡이를 잡으려는 찰나, 느닷없이 문이 열리는 바람에 당신은 뒤로 넘어지며 몸을 가리고 있던 식판을 저 멀리 날려버린다. 
+	더 끔찍한 것은, 부딪히는 소리에 식당에 있던 사람들의 이목이 집중되었다는 것이다.
 	<br><br>
 
-	바닥에 옷을 덜 입은 <<girlPost "이">> <<lewdnessPost "을">> 드러낸 채로 있는 것을 보자, 잠시동안 식당 전체가 정적에 휩싸인다. 곧 식당 안이 조롱조의 환호성으로 뒤덮이자 당신은 멍한 상태에서 잔인하게 깨어난다. 너무나 당황하여, 당신은 식당에서 뛰쳐나온다. 그 뒤를 조롱과 휘파람이 따른다.
+	바닥에 옷을 덜 입은 <<girlPost "이">> <<lewdnessPost "을">> 드러낸 채로 있는 것을 보자, 잠시동안 식당 전체가 정적에 휩싸인다. 
+	곧 식당 안이 조롱조의 환호성으로 뒤덮이자 당신은 멍한 상태에서 잔인하게 깨어난다. 너무나 당황하여, 당신은 식당에서 뛰쳐나온다. 그 뒤를 조롱과 휘파람이 따른다.
 	<<gtrauma>><<gstress>><<lcool>><<trauma 6>><<stress 6>><<status -10>>
 	<br><br>
 
@@ -358,12 +438,14 @@
 :: Canteen Wait
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-당신은 학생들이 점심을 먹는 동안 카운터 밑에 웅크리고 기다린다. 이토록 가까이에 있는데도 아무도 당신이 여기 있다는 것을 모른다. 곧 종이 울리고 사람들이 식당에서 빠져나가는 소리가 들려온다. 안전해진 것 같자, 당신은 머뭇거리며 숨어있던 곳에서 나온다. 당신은 문틈으로 밖을 내다봐 복도에 아무도 없다는 것을 확인한 뒤 식당에서 나온다.
+당신은 학생들이 점심을 먹는 동안 카운터 밑에 웅크리고 기다린다. 이토록 가까이에 있는데도 아무도 당신이 여기 있다는 것을 모른다. 
+곧 종이 울리고 사람들이 식당에서 빠져나가는 소리가 들려온다. 안전해진 것 같자, 당신은 머뭇거리며 숨어있던 곳에서 나온다. 
+당신은 문틈으로 밖을 내다봐 복도에 아무도 없다는 것을 확인한 뒤 식당에서 나온다.
 <br><br><br><br>
 <<link [[다음|Hallways]]>><</link>>
 <br>
 <<if $schoolstate is "lunch">>
-	<<set _time_left to 60 + random(3) - $minute>>
+	<<set _time_left to 60 + random(3) - Time.minute>>
 	<!-- give up to 3 extra minutes for students to leave the canteen -->
 	<<pass _time_left>>
 	<<schooleffects>>
@@ -373,3 +455,92 @@
 당신은 카페에서 산 밀크셰이크를 마신다. 아주 맛있으며 크리미하고, 한 모금 마실 때마다 학교에서 받은 스트레스가 녹아내린다.
 <br><br>
 <<link [[다음|Canteen]]>><</link>>
+
+:: Canteen Lunch Sandwich
+<<effects>>
+
+<<if $phase is 0>>
+	You toss the lunch in a nearby bin, deciding to eat the canteen food. You don't trust food prepared by a stranger. The rest of your meal is uneventful.
+	<br><br>
+
+	The <<person>> scowls across the canteen. <<lcool>>
+	<br><br>
+
+	<<link [[다음|Canteen]]>><<endevent>><</link>>
+<<else>>
+	You open the paper bag, finding a simple sandwich and a bag of crisps.
+	<<if $fame.sex gte random(15, 2000) or $cool lt 40>>
+		You take a bite into the sandwich.
+		<<if $ejactrait is 1>>
+			<span class="lewd">It tastes delicious.</span> You peel the bread away in wonder, and find a white, gooey substance coating the ham and cheese. It's cum.
+			<<arousal 600>><<garousal>>
+		<<else>>
+			<span class="pink">It tastes strange.</span> You peel the bread away in confusion, and find a white, gooey substance coating the ham and cheese.<<if $awarelevel gte 1>> It's cum.<</if>>
+			<<stress 6>><<gstress>>
+		<</if>>
+		<br><br>
+
+		You hear giggling from a nearby table. The <<person>>, along with a <<person2>><<person>>, whisper to each other while watching you.
+		<br><br>
+
+		<<if $promiscuity gte 55 or $ejactrait is 1>>
+			<<link [[Finish the lunch|Canteen Lunch Sandwich Finish]]>><</link>><<if $ejactrait is 1>><<ejacTrait>><<else>><<promiscuous4>><</if>>
+		<<else>>
+			<span class="blue">You are not lewd enough to continue eating, now that you know what's in it.</span>
+		<</if>>
+		<br>
+		<<link [[`Throw sandwich at ${$NPCList[0].pronouns.him}`|Canteen Lunch Sandwich Throw]]>><</link>><<athleticsdifficulty>>
+		<br>
+		<<link [[Throw lunch in the garbage|Canteen Lunch Sandwich Garbage]]>><</link>><<lcool>>
+	<<else>>
+		You take a bite into the sandwich. Plain ham and cheese, unbuttered. It's not particularly amazing, but better than the canteen food. You see the <<person>> smile and wave from another table.
+		<<stress -6>><<trauma -6>><<lstress>><<ltrauma>>
+		<br><br>
+
+		<<link [[다음|Canteen]]>><<endevent>><</link>>
+	<</if>>
+<</if>>
+
+:: Canteen Lunch Sandwich Finish
+<<effects>>
+
+You make a show of eating the sandwich, taking the time to make eye contact with the <<person1>><<person>> as you slowly take another bite. <<He>> and <<his>> friend's eyes are locked on you, and their attention goads you on.
+<<if $ejactrait is 1>>
+	It tastes so good, you don't even need to pretend to enjoy it.
+<</if>>
+<<promiscuity4>>
+
+A bit of the fluid drips onto your lips, but you lick it back up, leaving the two in awe. Finished, you get up and leave the canteen.
+<<status 1>><<gcool>><<famesex 10>><<bodyliquid "mouth" "semen">>
+<br><br>
+
+<<link [[다음|Canteen]]>><<endevent>><</link>>
+
+:: Canteen Lunch Sandwich Throw
+<<effects>>
+
+You pick up what's left of the sandwich and take aim, throwing it as hard as you can at the <<person1>><<person>>.
+<br><br>
+
+<<if $athleticsSuccess>>
+	The sandwich flies across the room and <span class="green">hits <<him>> in the face</span>, before slowly falling away. "Ew, gross!" the <<person>> shouts, furiously wiping <<his>> cheek with <<his>> shirt. The <<person2>><<person>> laughs, and the <<person1>><<person>> stands up and flees the canteen.
+	<<stress -6>><<trauma -6>><<status 1>><<lstress>><<ltrauma>><<gcool>>
+<<else>>
+	The sandwich flies across the room and <span class="red">lands face up on <<his>> table</span>, revealing the contents for the <<fullGroup>> to see. They look up from the sandwich, pointing and laughing at you as you stand up and leave.
+	<<status -10>><<lcool>>
+<</if>>
+<br><br>
+
+<<link [[다음|Canteen]]>><<endevent>><</link>>
+
+:: Canteen Lunch Sandwich Garbage
+<<effects>>
+
+You throw the remainder of the sandwich in the brown bag, standing up and making your way to a nearby bin. You drop the lewd lunch in, as the <<person1>><<person>> jeers at you.
+<<status -5>>
+<br><br>
+
+At least the crisps are untouched.
+<br><br>
+
+<<link [[다음|Canteen]]>><<endevent>><</link>>

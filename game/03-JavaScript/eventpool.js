@@ -2,7 +2,7 @@
  * Usage:
  *
  * 1. Registering events as widgets
- * <<widget EVENT_NAME>>
+ * <<widget "EVENT_NAME">>
  *   (Event content)
  * <</widget>>
  *
@@ -24,102 +24,113 @@
 
 /**
  * Return a weighted random item, that is, probability of each item is proportional to their weight,
- * probability P(event_i) = weight_i / sum_of_weights
+ * probability P(event_i) = weight_i / sum_of_weights.
  *
- * items - array of objects with optional 'weight' key - a number or a no-arg function returning number.
+ * Items - array of objects with optional 'weight' key - a number or a no-arg function returning number.
  * Default 1.
- * Weight of Infinity means "return this item, ignore others"
+ * Weight of Infinity means "return this item, ignore others".
+ *
+ * @param {any[]} items
  */
- function rollWeightedRandomFromArray(items) {
+function rollWeightedRandomFromArray(items) {
 	if (!Array.isArray(items)) throw new Error("Not an array: " + items);
 	// convert items to array of {weight:number, item:original_item} and filter out bad elements
-	items = items.map(function (el) {
-		if (!el || typeof el !== 'object') return null;
-		var w = el.weight;
-		if (typeof w === 'function') w = w();
-		if (typeof w === 'string') w = parseFloat(w);
-		if (typeof w !== 'number') w = 1;
-		return { weight: w, item: el };
-	}).filter(function (el) {
-		if (!el || !(el.weight > 0)) {
-			if (StartConfig.debug) {
-				console.debug("Filtered out ",el);
+	items = items
+		.map(function (el) {
+			if (!el || typeof el !== "object") return null;
+			let w = el.weight;
+			if (typeof w === "function") w = w();
+			if (typeof w === "string") w = parseFloat(w);
+			if (typeof w !== "number") w = 1;
+			return { weight: w, item: el };
+		})
+		.filter(function (el) {
+			if (!el || !(el.weight > 0)) {
+				if (StartConfig.debug) {
+					console.debug("Filtered out ", el);
+				}
+				return false;
 			}
-			return false;
-		}
-		return true;
-	});
+			return true;
+		});
 	if (StartConfig.debug) {
-		console.debug("Picking from random pool",items);
+		console.debug("Picking from random pool", items);
 	}
-	if (items.length == 0) return null; // Or could throw an exception (no items with positive weight)
-	var sum = 0;
-	for (var i = 0; i < items.length; i++) {
+	if (items.length === 0) return null; // Or could throw an exception (no items with positive weight)
+	let sum = 0;
+	for (let i = 0; i < items.length; i++) {
 		if (!isFinite(items[i].weight)) {
 			if (StartConfig.debug) {
-				console.debug("Returning infinite-weighted",items[i].item);
+				console.debug("Returning infinite-weighted", items[i].item);
 			}
 			return items[i].item;
 		}
 		sum += items[i].weight;
 	}
-	var roll = randomFloat(sum), roll0 = roll;
-	for (i = 0; i < items.length; i++) {
+	let roll = randomFloat(sum);
+	const roll0 = roll;
+	for (let i = 0; i < items.length; i++) {
 		roll -= items[i].weight;
 		if (roll <= 0) {
 			if (StartConfig.debug) {
-				console.debug("Roll = ",roll0,"sum = ",sum,"returning ",items[i].item);
+				console.debug("Roll = ", roll0, "sum = ", sum, "returning ", items[i].item);
 			}
 			return items[i].item;
 		}
 	}
 	// Should never happen
-	console.warn('Weighted random math went wrong', roll0, sum, items);
+	console.warn("Weighted random math went wrong", roll0, sum, items);
 	return items[0].item;
 }
 window.rollWeightedRandomFromArray = rollWeightedRandomFromArray;
 
 Macro.add("cleareventpool", {
 	skipArgs: true,
-	handler: function () {
+	handler() {
 		T.eventpool = [];
-	}
+	},
 });
 
 Macro.add("addinlineevent", {
 	tags: null,
-	handler: function () {
+	handler() {
 		T.eventpool.push({
 			name: this.args[0] || "",
-			weight: this.args.length == 2 ? +this.args[1] : 1.0,
-			content: this.payload[0].contents
+			weight: this.args.length === 2 ? +this.args[1] : 1.0,
+			content: this.payload[0].contents,
 		});
-	}
+	},
 });
 
 Macro.add("addevent", {
-	handler: function () {
-		var widget = this.args[0];
-		if (typeof widget !== 'string' || !widget || this.args.length > 2) throw new Error("Bad addevent args "+JSON.stringify(this.args));
+	handler() {
+		const widget = this.args[0];
+		if (typeof widget !== "string" || !widget || this.args.length > 2) throw new Error("Bad addevent args " + JSON.stringify(this.args));
 		T.eventpool.push({
 			name: widget,
-			content: "<<"+widget+">>",
-			weight: this.args.length == 2 ? +this.args[1] : 1.0
+			content: "<<" + widget + ">>",
+			weight: this.args.length === 2 ? +this.args[1] : 1.0,
 		});
-	}
+	},
 });
-
 
 Macro.add("runeventpool", {
 	skipArgs: true,
-	handler: function () {
-		if(T.eventpool.includes(V.eventPoolOverride)){
-			var pick = V.eventPoolOverride;
+	handler() {
+		let pick = T.eventpool.find(e => e.name === V.eventPoolOverride);
+		if (pick) {
 			delete V.eventPoolOverride;
-		}else{
-			var pick = rollWeightedRandomFromArray(T.eventpool);
+		} else if (T.eventpool.includes(V.eventPoolOverride)) {
+			pick = V.eventPoolOverride;
+			delete V.eventPoolOverride;
+		} else {
+			pick = rollWeightedRandomFromArray(T.eventpool);
 		}
 		if (!pick) throw new Error("Event pool is empty");
+		// Jimmy: For tracking where in the code you may be.
+		// E.G: ['eventAmbient', >>'autumn_anystreet_2'<<, 'generate1']
+		DOL.Stack.push(pick.name);
 		jQuery(this.output).wiki(pick.content);
-	}
+		DOL.Stack.pop();
+	},
 });

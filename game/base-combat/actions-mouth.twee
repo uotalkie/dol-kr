@@ -1,80 +1,46 @@
 :: Widgets Actions Mouth FlavorText [widget]
 <<widget "breastFlavorText">>
-<<if $combattype is "train">>
-	<<set _end to $enemyno-1>>
-<<else>>
-	<<set _end to 0>>
-<</if>>
-
-<<for _j = $enemyno-1; _j gte _end; _j-->>
-	<<if $NPCList[_j].chest is "mouthentrance">>
+	<<set _j to ($NPCList.findIndex(x => x.chest is "mouthentrance"))>>
+	<<if _j gte 0>>
+		<<personselect _j>>
 		당신의 머리가
 		<<if $enemyno gte 2>>
-			<<if _j is 0>>
-				<<person1>><<personPost "의">>
-			<<elseif _j is 1>>
-				<<person2>><<personPost "의">>
-			<<elseif _j is 2>>
-				<<person3>><<personPost "의">>
-			<<elseif _j is 3>>
-				<<person4>><<personPost "의">>
-			<<elseif _j is 4>>
-				<<person5>><<personPost "의">>
-			<<elseif _j is 5>>
-				<<person6>><<personPost "의">>
-			<</if>>
+			<<persons_ yi>>
 		<<else>>
-			<<person1>><<hisPost "의">>
+			<<his_ yi>>
 		<</if>>
 		<<trBreastsdesc $NPCList[_j].breastsdesc>>_trResult<<print ($NPCList[_j].breastsize gte 6?" 사이에":"에 대고")>> 눌린다.
-		<<break>>
+	<<elseif $debug or $options.debugdisable is "f">>
+		Errors.report("breastFlavorText failed to find correct index, ignoring")
 	<</if>>
-<</for>>
 <</widget>>
 
 <<widget "nippleFlavorText">>
-<<if $combattype is "train">>
-	<<set _end to $enemyno-1>>
-<<else>>
-	<<set _end to 0>>
-<</if>>
-
-<<for _j = $enemyno-1; _j gte _end; _j-->>
-	<<if $NPCList[_j].chest is "mouth">>
+	<<set _j to ($NPCList.findIndex(x => x.chest is "mouth"))>>
+	<<if _j gte 0>>
+		<<personselect _j>>
 		당신의 머리가
 		<<if $enemyno gte 2>>
-			<<if _j is 0>>
-				<<person1>><<personPost "의">>
-			<<elseif _j is 1>>
-				<<person2>><<personPost "의">>
-			<<elseif _j is 2>>
-				<<person3>><<personPost "의">>
-			<<elseif _j is 3>>
-				<<person4>><<personPost "의">>
-			<<elseif _j is 4>>
-				<<person5>><<personPost "의">>
-			<<elseif _j is 5>>
-				<<person6>><<personPost "의">>
-			<</if>>
+			<<persons_ yi>>
 		<<else>>
-			<<person1>><<hisPost "의">>
+			<<his_ yi>>
 		<</if>>
 		<<if $NPCList[_j].lactation is 1 and $breastfeedingdisable is "f">>
 			모유가 흐르는
 		<</if>>
 		<<trBreastsdesc $NPCList[_j].breastsdesc>>_trResult에 대고 눌린다.
-		<<break>>
+	<<elseif $debug or $options.debugdisable is "f">>
+		Errors.report("nippleFlavorText failed to find correct index, ignoring")
 	<</if>>
-<</for>>
 <</widget>>
 
 <<widget "facesitFlavorText">>
 	<<if $enemyno lt 2>>
 		<<person1>>
-		<<if $npc isnot 0>>
-			<<NPCName_i $npc>>
+		<<if $npc.length isnot 0>>
+			<<NPCname_ i $npc[0]>>
 		<<else>>
-			<<He_ga>>
+			<<He_ ga>>
 		<</if>>
 	<<else>>
 		<<if $mouthstate is "anal">>
@@ -82,8 +48,8 @@
 		<<else>>
 			<<selectNpcWithPartInPosition "vagina" "facesit">>
 		<</if>>
-		<<if $npc_named is 1>>
-			<<trNamedNPC $npc "이">>_trResult
+		<<if $npcrow.includes(_j)>>
+			<<trNamedNPC[$npcrow.indexOf(_j)] "이">>_trResult
 		<<else>>
 			<<personPost "이">>
 		<</if>>
@@ -99,113 +65,101 @@
 :: Widgets Actions Mouth [widget]
 
 <<widget "oral">>
+	<<if $combattype is "train">>
+		<<set _end to $enemyno-1>>
+	<<else>>
+		<<set _end to 0>>
+	<</if>>
 
-<<if $combattype is "train">>
-	<<set _end to $enemyno-1>>
-<<else>>
-	<<set _end to 0>>
-<</if>>
+	<<set _xx to $enemyno-1>>
+	<<if _xx is -1>>
+		<<set _stanceCheck to 0>>
+	<<else>>
+		<<set _stanceCheck to $NPCList[_xx].stance>>
+	<</if>>
 
-<<set _xx to $enemyno-1>>
-<<if _xx is -1>>
-	<<set _stanceCheck to 0>>
-<<else>>
-	<<set _stanceCheck to $NPCList[_xx].stance>>
-<</if>>
-
-<<if $consensual is 1 and $promiscuity lte 54 and $enemytype is "man" or $consensual is 1 and $deviancy lte 54 and $enemytype isnot "man">>
-	<!-- Do Nothing -->
-<<elseif _stanceCheck is "top">>
-	<!-- Do Nothing -->
-<<else>>
-	<<for _j = $enemyno-1; _j gte _end; _j-->>
-		<<if $NPCList[_j].penis is 0>>
-			<<if $mouthactiondefault is "mouth">>
-				| <label><span class="sub">입을 <<hisPost "의">> 자지로 옮긴다</span> <<radiobutton "$mouthaction" "mouth" checked>><<oraldifficulty>> <<combatpromiscuous4>></label>
-			<<else>>
-				| <label><span class="sub">입을 <<hisPost "의">> 자지로 옮긴다</span> <<radiobutton "$mouthaction" "mouth">><<oraldifficulty>> <<combatpromiscuous4>></label>
+	<<if $consensual is 1 and $promiscuity lte 54 and $enemytype is "man" or $consensual is 1 and $deviancy lte 54 and $enemytype isnot "man">>
+		<!-- Do Nothing -->
+	<<elseif _stanceCheck is "top">>
+		<!-- Do Nothing -->
+	<<else>>
+		<<for _j = $enemyno-1; _j gte _end; _j-->>
+			<<if $NPCList[_j].penis is 0>>
+				<<if $mouthactiondefault is "mouth">>
+					| <label><span class="sub">입을 <<hisPost "의">> 자지로 옮긴다</span> <<radiobutton "$mouthaction" "mouth" checked>><<oraldifficulty>> <<combatpromiscuous4>></label>
+				<<else>>
+					| <label><span class="sub">입을 <<hisPost "의">> 자지로 옮긴다</span> <<radiobutton "$mouthaction" "mouth">><<oraldifficulty>> <<combatpromiscuous4>></label>
+				<</if>>
+				<<break>>
 			<</if>>
-			<<break>>
-		<</if>>
-	<</for>>
-	<<for _j = $enemyno-1; _j gte _end; _j-->>
-		<<if $NPCList[_j].vagina is 0>>
-			<<if $mouthactiondefault is "othervagina">>
-				| <label><span class="sub">입을 <<hisPost "의">> 보지로 옮긴다</span><<radiobutton "$mouthaction" "othervagina" checked>><<oraldifficulty>> <<combatpromiscuous4>></label>
-			<<else>>
-				| <label><span class="sub">입을 <<hisPost "의">> 보지로 옮긴다</span><<radiobutton "$mouthaction" "othervagina">><<oraldifficulty>> <<combatpromiscuous4>></label>
+		<</for>>
+		<<for _j = $enemyno-1; _j gte _end; _j-->>
+			<<if $NPCList[_j].vagina is 0>>
+				<<if $mouthactiondefault is "othervagina">>
+					| <label><span class="sub">입을 <<hisPost "의">> 보지로 옮긴다</span><<radiobutton "$mouthaction" "othervagina" checked>><<oraldifficulty>> <<combatpromiscuous4>></label>
+				<<else>>
+					| <label><span class="sub">입을 <<hisPost "의">> 보지로 옮긴다</span><<radiobutton "$mouthaction" "othervagina">><<oraldifficulty>> <<combatpromiscuous4>></label>
+				<</if>>
+				<<break>>
 			<</if>>
-			<<break>>
-		<</if>>
-	<</for>>
-<</if>>
+		<</for>>
+	<</if>>
 
-<<if $consensual is 1 and $promiscuity lte 34>>
-	<!-- Do Nothing -->
-<<elseif !$gloryhole>>
-	<<for _j = $enemyno-1; _j gte _end; _j-->>
-		<<if $NPCList[_j].chest is 0>>
-			<<if $mouthactiondefault is "movetochest">>
-				| <label><span class="sub">입을 <<hisPost "의">> 가슴팍으로 옮긴다</span> <<radiobutton "$mouthaction" "movetochest" checked>><<oraldifficulty>> <<combatpromiscuous3>></label>
-			<<else>>
-				| <label><span class="sub">입을 <<hisPost "의">> 가슴팍으로 옮긴다</span> <<radiobutton "$mouthaction" "movetochest">><<oraldifficulty>> <<combatpromiscuous3>></label>
+	<<if $consensual is 1 and $promiscuity lte 34>>
+		<!-- Do Nothing -->
+	<<elseif !$gloryhole>>
+		<<for _j = $enemyno-1; _j gte _end; _j-->>
+			<<if $NPCList[_j].chest is 0>>
+				<<if $mouthactiondefault is "movetochest">>
+					| <label><span class="sub">입을 <<hisPost "의">> 가슴팍으로 옮긴다</span> <<radiobutton "$mouthaction" "movetochest" checked>><<oraldifficulty>> <<combatpromiscuous3>></label>
+				<<else>>
+					| <label><span class="sub">입을 <<hisPost "의">> 가슴팍으로 옮긴다</span> <<radiobutton "$mouthaction" "movetochest">><<oraldifficulty>> <<combatpromiscuous3>></label>
+				<</if>>
+				<<break>>
 			<</if>>
-			<<break>>
-		<</if>>
-	<</for>>
-<</if>>
-
+		<</for>>
+	<</if>>
 <</widget>>
 
 <<widget "oralnew">>
+	<<set _stanceCheck to $NPCList[$mouthtarget].stance>>
 
-<<if $combattype is "train">>
-	<<set _end to $enemyno-1>>
-<<else>>
-	<<set _end to 0>>
-<</if>>
-
-<<set _xx to $enemyno-1>>
-<<if _xx is -1>>
-	<<set _stanceCheck to 0>>
-<<else>>
-	<<set _stanceCheck to $NPCList[_xx].stance>>
-<</if>>
-
-<<if $consensual is 1 and ($promiscuity lte 54 and $enemytype is "man" or $deviancy lte 54 and $enemytype isnot "man")>>
-	<!-- Do Nothing -->
-<<elseif _stanceCheck is "top">>
-	<!-- Do Nothing -->
-<<else>>
-	<<for _j = $enemyno-1; _j gte _end; _j-->>
-		<<if $NPCList[_j].penis is 0 and ($enemytype isnot "man" or ($NPCList[_j].location.genitals is 0 and $NPCList[_j].location.head isnot "head"))>>
-			<<set _mouthaction["입을 자지로 옮긴다"] to "mouth">>
-		<<break>>
+	<<if $consensual is 1 and ($promiscuity lte 54 and $enemytype is "man" or $deviancy lte 54 and $enemytype isnot "man") and !$promiscuityIgnore>>
+		<!-- Do Nothing -->
+	<<elseif _stanceCheck is "top">>
+		<!-- Do Nothing -->
+	<<else>>
+		<<if $NPCList[$mouthtarget].penis is 0 and ($enemytype isnot "man" or ($NPCList[$mouthtarget].location.genitals is 0 and $NPCList[$mouthtarget].location.head isnot "head")) and !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+			<<if $NPCList[$mouthtarget].chastity.penis.includes("chastity")>>
+				<<trClothes "genitals" $NPCList[$mouthtarget].chastity.penis "name" "으로">><<set _mouthaction["머리를 " + $NPCList[$mouthtarget].pronouns.his + " " + _trResult + " 옮긴다"] to "mouth">>
+			<<elseif npcHasStrapon($mouthtarget)>>
+				<<set _mouthaction["입술을 " + $NPCList[$mouthtarget].pronouns.his + " 페니스 밴드 자지로 옮긴다"] to "mouth">>
+			<<else>>
+				<<set _mouthaction["입술을 " + $NPCList[$mouthtarget].pronouns.his + " 자지로 옮긴다"] to "mouth">>
+			<</if>>
 		<</if>>
-	<</for>>
-	<<for _j = $enemyno-1; _j gte _end; _j-->>
-		<<if $NPCList[_j].vagina is 0 and ($enemytype isnot "man" or ($NPCList[_j].location.genitals is 0 and $NPCList[_j].location.head isnot "head"))>>
-			<<set _mouthaction["입을 보지로 옮긴다"] to "othervagina">>
-			<<break>>
+		<<if $NPCList[$mouthtarget].vagina is 0 and ($enemytype isnot "man" or ($NPCList[$mouthtarget].location.genitals is 0 and $NPCList[$mouthtarget].location.head isnot "head")) and !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+			<<if $NPCList[$mouthtarget].chastity.vagina.includes("chastity")>>
+				<<trClothes "genitals" $NPCList[$mouthtarget].chastity.vagina "name" "으로">><<set _mouthaction["머리를 " + $NPCList[$mouthtarget].pronouns.his + " " + _trResult + " 옮긴다"] to "othervagina">>
+			<<else>>
+				<<set _mouthaction["입을 " + $NPCList[$mouthtarget].pronouns.his + " 보지로 옮긴다"] to "othervagina">>
+			<</if>>
 		<</if>>
-	<</for>>
-<</if>>
+	<</if>>
 
-<<if $consensual is 1 and ($promiscuity lte 34 and $enemytype is "man" or $deviancy lte 34 and $enemytype isnot "man")>>
-	<!-- Do Nothing -->
-<<elseif !$gloryhole>>
-	<<for _j = $enemyno-1; _j gte _end; _j-->>
-		<<if $NPCList[_j].chest is 0 and $NPCList[_j].location.genitals isnot "head" and $NPCList[_j].location.head isnot "head" and $NPCList[_j].location.head isnot "genitals">>
-			<<set _mouthaction["입을 가슴팍으로 옮긴다"] to "movetochest">>
-			<<break>>
+	<<if $consensual is 1 and ($promiscuity lte 34 and $enemytype is "man" or $deviancy lte 34 and $enemytype isnot "man") and !$promiscuityIgnore>>
+		<!-- Do Nothing -->
+	<<elseif _stanceCheck is "topface">>
+		<!-- Do Nothing -->
+	<<elseif !$gloryhole>>
+		<<if $NPCList[$mouthtarget].chest is 0 and $NPCList[$mouthtarget].location.genitals isnot "head" and $NPCList[$mouthtarget].location.head isnot "head" and $NPCList[$mouthtarget].location.head isnot "genitals" and !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+			<<set _mouthaction["입술을 " + $NPCList[$mouthtarget].pronouns.his + " 가슴팍으로 옮긴다"] to "movetochest">>
 		<</if>>
-	<</for>>
-<</if>>
-
+	<</if>>
 <</widget>>
 
 <<widget "oralswallow">>
-<!-- Below if-or statement is super-clumsy but not sure how to shorten NG -->
+	<!-- Below if-or statement is super-clumsy but not sure how to shorten NG -->
 	<<if $consensual is 1 and $promiscuity lte 74 and $enemytype is "man" or $consensual is 1 and $deviancy lte 74 and $enemytype isnot "man">>
 	<<else>>
 		<<if $NPCList[0].penis is "mouthentrance" or $NPCList[0].penis is "mouthimminent" or $NPCList[1].penis is "mouthentrance" or $NPCList[1].penis is "mouthimminent" or $NPCList[2].penis is "mouthentrance" or $NPCList[2].penis is "mouthimminent" or $NPCList[3].penis is "mouthentrance" or $NPCList[3].penis is "mouthimminent" or $NPCList[4].penis is "mouthentrance" or $NPCList[4].penis is "mouthimminent" or $NPCList[5].penis is "mouthentrance" or $NPCList[5].penis is "mouthimminent">>
@@ -219,89 +173,114 @@
 <</widget>>
 
 <<widget "oralswallownew">>
-<<if $consensual is 1 and ($promiscuity lte 74 and $enemytype is "man" or $deviancy lte 74 and $enemytype isnot "man")>>
-<<else>>
-	<<if $combattype is "train">>
-		<<set _end to $enemyno-1>>
+	<<if $consensual is 1 and ($promiscuity lte 74 and $enemytype is "man" or $deviancy lte 74 and $enemytype isnot "man") and !$promiscuityIgnore>>
 	<<else>>
-		<<set _end to 0>>
-	<</if>>
-	<<for _j = $enemyno-1; _j gte _end; _j-->>
-		<<if $NPCList[_j].penis is "mouthentrance" or $NPCList[_j].penis is "mouthimminent">>
-			<<set _mouthaction["자지를 입에 넣는다"] to "swallow">>
-			<<break>>
+		<<set $_pp to (npcHasStrapon($mouthtarget) ? "페니스 밴드 자지" : "자지")>>
+		<<set $_npc to $NPCList[$mouthtarget]>> <<set $_facetype to $worn.face.type>>
+		<<if !$_npc.chastity.penis.includes("chastity") and ($_npc.penis is "mouthentrance" or $_npc.penis is "mouthimminent") and !$_facetype.includes("covered") and !$_facetype.includes("gag")>>
+			<<set _mouthaction[$NPCList[$mouthtarget].pronouns.his + " " + $_pp + "를 입에 넣는다"] to "swallow">>
 		<</if>>
-	<</for>>
-<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "combatApologise">>
-<<if $enemyanger gte 20 and $underwater lte 0>>
-	<<set _mouthaction["사과한다"] to "apologise">>
-<</if>>
+	<<if $enemyanger gte 20 and $underwater lte 0>>
+		<<set _mouthaction["사과한다"] to "apologise">>
+	<</if>>
 <</widget>>
 
 <<widget "combatPenisEntrance">>
-<<set _mouthaction["키스한다"] to "peniskiss">>
+	<<if !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+		<<set _mouthaction["키스한다"] to "peniskiss">>
+	<</if>>
 
-<<if $consensual is 1 and ($promiscuity lte 34 and $enemytype is "man" or $deviancy lte 34 and $enemytype isnot "man")>>
-<<elseif $chestuse is 0>>
-	<<set _mouthaction["가슴골에 끼운다"] to "grasp">>
-<</if>>
-<<if $head isnot "grappled" and $head isnot "bound">>
-	<<set _mouthaction["밀어낸다"] to "pullaway">>
-<</if>>
-<<oralswallownew>>
-<<speak>>
+	<<if $consensual is 1 and ($promiscuity lte 34 and $enemytype is "man" or $deviancy lte 34 and $enemytype isnot "man") and !$promiscuityIgnore>>
+	<<elseif $chestuse is 0>>
+		<<set _mouthaction["가슴골에 끼운다"] to "grasp">>
+	<</if>>
+	<<if $head isnot "grappled" and $head isnot "bound">>
+		<<set _mouthaction["밀어낸다"] to "pullaway">>
+	<</if>>
+	<<oralswallownew>>
+	<<speak>>
 <</widget>>
 
 <<widget "combatPenisImminent">>
-<<set _mouthaction["핥는다"] to "lick">>
-<<set _mouthaction["밀어낸다"] to "pullaway">>
-<<oralswallownew>>
-<<speak>>
+	<<if !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+		<<set _mouthaction["핥는다"] to "lick">>
+	<</if>>
+	<<if ($consensual is 0 or ($enemytype is "man" ? $promiscuity : $deviancy) gte 55 or $promiscuityIgnore) and $oralskill gte 800>>
+		<<set _mouthaction["애태운다"] to "oraledge">>
+	<</if>>
+	<<set _mouthaction["밀어낸다"] to "pullaway">>
+	<<oralswallownew>>
+	<<speak>>
 <</widget>>
 
 <<widget "combatPenisPenetrated">>
-<<set _mouthaction["빤다"] to "suck">>
-<<if $consensual isnot 1>>
-	<<set _mouthaction["문다"] to "bite">>
-<</if>>
-<<if $head isnot "grappled" and $head isnot "bound">>
-	<<set _mouthaction["밀어낸다"] to "pullaway">>
-<</if>>
+	<<if $enemyarousal gte $enemyarousalmax and $consensual is 1 and ($enemytype is "man" ? $promiscuity : $deviancy) gte 75>>
+		<<set _mouthaction["삼킨다"] to "ejacswallow">>
+	<<else>>
+		<<set _mouthaction["빤다"] to "suck">>
+	<</if>>
+	<<if ($consensual is 0 or (($enemytype is "man" ? $promiscuity : $deviancy) gte 55 or $promiscuityIgnore ) and $enemyarousal lte $enemyarousalmax) and $oralskill gte 800>>
+		<<set _mouthaction["애태운다"] to "oraledge">>
+	<</if>>
+	<<if $consensual isnot 1 and ($fightTargets is undefined or $fightTargets.includes($mouthtarget))>>
+		<<set _mouthaction["문다"] to "bite">>
+	<</if>>
+	<<if $head isnot "grappled" and $head isnot "bound">>
+		<<if $enemyarousal gte $enemyarousalmax and $consensual is 1>>
+			<<set _mouthaction["뱉어낸다"] to "ejacspit">>
+		<<else>>
+			<<set _mouthaction["밀어낸다"] to "pullaway">>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "combatOthervagina">>
-<<set _mouthaction["핥는다"] to "vaginalick">>
-<<if $head isnot "grappled" and $head isnot "bound" and $mouthuse isnot "facesit">>
-	<<set _mouthaction["밀어낸다"] to "pullawayvagina">>
-<</if>>
+	<<set _mouthaction["핥는다"] to "vaginalick">>
+	<<if ($consensual is 0 or ($enemytype is "man" ? $promiscuity : $deviancy) gte 55 or $promiscuityIgnore) and $oralskill gte 800>>
+		<<set _mouthaction["애태운다"] to "oraledge">>
+	<</if>>
+	<<if $consensual isnot 1 and ($fightTargets is undefined or $fightTargets.includes($mouthtarget))>>
+		<<set _mouthaction["문다"] to "bitepussy">>
+	<</if>>
+	<<if $head isnot "grappled" and $head isnot "bound" and $mouthuse isnot "facesit">>
+		<<set _mouthaction["밀어낸다"] to "pullawayvagina">>
+	<</if>>
 <</widget>>
 
 <<widget "combatMouthOtherAnus">>
-	<<set _mouthaction["항문을 핥는다"] to "anallick">>
-	<<if $submissive gte 1150>>
-		<<set _mouthaction["항문에 키스한다"] to "analkiss">>
+	<<if !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+		<<set _mouthaction["항문을 핥는다"] to "anallick">>
+		<<if $submissive gte 1150>>
+			<<set _mouthaction["항문에 키스한다"] to "analkiss">>
+		<</if>>
+	<</if>>
+	<<if $consensual is 1 and $head isnot "grappled" and $head isnot "bound" and $mouthuse isnot "facesit">>
+		<<set _mouthaction["밀어낸다"] to "analpull">>
 	<</if>>
 <</widget>>
 
 <<widget "combatBreast">>
-<<set _mouthaction["빤다"] to "breastsuck">>
-<<set _mouthaction["핥는다"] to "breastlick">>
-<<set _mouthaction["입다물고 있는다"] to "breastclosed">>
-<<if $consensual is 1 or $head isnot "breasts">>
-	<<set _mouthaction["밀어낸다"] to "breastpull">>
-<</if>>
+	<<if !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
+		<<set _mouthaction["빤다"] to "breastsuck">>
+		<<set _mouthaction["핥는다"] to "breastlick">>
+		<<set _mouthaction["입다물고 있는다"] to "breastclosed">>
+	<</if>>
+	<<if $consensual is 1 or $head isnot "breasts">>
+		<<set _mouthaction["밀어낸다"] to "breastpull">>
+	<</if>>
 <</widget>>
 
 <<widget "combatNipple">>
-<<set _mouthaction["빤다"] to "breastsuck">>
-<<set _mouthaction["입다물고 있는다"] to "breastclosed">>
-<<if $consensual is 1 or $head isnot "breasts">>
-	<<set _mouthaction["밀어낸다"] to "breastpull">>
-<</if>>
-<<if $consensual isnot 1>>
-	<<set _mouthaction["문다"] to "breastbite">>
-<</if>>
+	<<set _mouthaction["빤다"] to "breastsuck">>
+	<<set _mouthaction["입다물고 있는다"] to "breastclosed">>
+	<<if $consensual is 1 or $head isnot "breasts">>
+		<<set _mouthaction["밀어낸다"] to "breastpull">>
+	<</if>>
+	<<if $consensual isnot 1 and ($fightTargets is undefined or $fightTargets.includes($mouthtarget))>>
+		<<set _mouthaction["문다"] to "breastbite">>
+	<</if>>
 <</widget>>

@@ -2,7 +2,7 @@
 <<set $outside to 0>><<set $location to "arcade">><<effects>><<set $lock to 300>>
 오락실 문은 닫혀있다. 문 뒤로 "개장: <span class="gold"><<ampm 9 00>></span>" 라는 네온 사인이 보인다.
 <br><br>
-<<if $skulduggery gte $lock>>
+<<if currentSkillValue('skulduggery') gte $lock>>
 	<span class="green">이 자물쇠는 아주 따기 쉬워 보인다.</span>
 	<br><br>
 	<<link [[자물쇠를 딴다 (0:10)|Arcade]]>><<pass 10>><<crimeup 20>><</link>><<crime>>
@@ -16,10 +16,10 @@
 
 :: Arcade
 <<set $outside to 0>><<set $location to "arcade">><<effects>>
-<<set $kylar_play to 0>>
+<<set $kylar.play to 0>>
 당신은 스타피쉬 가의 오락실에 있다.
 
-<<if $daystate is "day" or $daystate is "dusk">>
+<<if Time.dayState is "day" or Time.dayState is "dusk">>
 게임기와 슬롯 머신에서 삑삑 거리는 소리와 윙윙 거리는 소리가 난다.
 <<else>>
 게임기와 슬롯 머신은 조용히 서있다.
@@ -28,7 +28,10 @@
 <<if $stress gte $stressmax>>
 <<passoutarcade>>
 <<else>>
-	<<if $hour is 21>>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmLocation "arcade">>
+	<</if>>
+	<<if Time.hour is 21>>
 	폐점 시간이다. 경비원이 손님들을 밖으로 내보낸다.<<if $exposed gte 1>> 얼마나 노출된 상태인지를 자각하고, 이런 옷차림을 하고 있는걸 경비원에게 들킨다는 생각을 하자 공포가 스멀스멀 기어오른다.<</if>>
 	<br><br>
 
@@ -40,19 +43,22 @@
 		<</if>>
 	<<else>>
 
-		<<if $daystate is "night" or $daystate is "dawn">>
+		<<if Time.dayState is "night" or Time.dayState is "dawn">>
 		당신은 어둠 속에 홀로 있다.
 		<br><br>
 		<<elseif $exposed gte 1>>
 		자긍심을 지키기 위해 핀볼 기계 아래에 숨는다.
 		<br><br>
 		<</if>>
-		<<if $money gte 500 and ($daystate is "day" or $daystate is "dusk") and $exposed lte 0>>
+		<<if $arousal gte $arousalmax>>
+			<<orgasmLocation "arcade">>
+		<</if>>
+		<<if $money gte 500 and (Time.dayState is "day" or Time.dayState is "dusk") and $exposed lte 0>>
 			<<link [[게임을 한다 (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
 			<br>
 		<</if>>
-		<<if $exposed lte 0 and $NPCName[$NPCNameList.indexOf("Kylar")].state is "active" and ($weather is "rain" or $weather is "snow") and $daystate is "day">>
-			<<if ($schoolday isnot 1 or $hour lte 8 or $hour gte 15) and ($daystate is "day" or $daystate is "night")>>
+		<<if $exposed lte 0 and $NPCName[$NPCNameList.indexOf("Kylar")].state is "active" and ($weather is "rain" or $weather is "snow") and Time.dayState is "day" and $kylarwatched isnot 1>>
+			<<if !Time.schoolTime and (Time.dayState is "day" or Time.dayState is "night")>>
 				<br>
 				카일라가 게임을 하고 있는 것이 보인다.
 				<br>
@@ -60,15 +66,15 @@
 				<br>
 			<</if>>
 		<</if>>
-		<<if ($tenyclusPlayCount is undefined or $tenyclusPlayCount is 0) and $hallucinations gte 1 and ($tenyclusPlayed is undefined or $tenyclusPlayed is 0) and $money gte 500 and ($daystate is "day" or $daystate is "dusk") and $exposed lte 0>>
-			<<set $tenyclusPlayCount to 0>><<set $tenyclusPlayed to 0>>
+		<<if ($tenyclusPlayCount is undefined or $tenyclusPlayCount is 0) and $hallucinations gte 1 and !$daily.tenyclusPlayed and $money gte 500 and (Time.dayState is "day" or Time.dayState is "dusk") and $exposed lte 0>>
+			<<set $tenyclusPlayCount to 0>><<set $daily.tenyclusPlayed to 0>>
 			<br>
 			구석에 숨겨져있는 보관함을 발견했다. 이상하게도 아무도 알아 채지 못하는 것 같다.
 			<br>
 			<<link [[보관함 살펴보기|Arcade Tenyclus Intro]]>><</link>>
 			<br>
 		<</if>>
-		<<if $tenyclusPlayCount gte 1 and $tenyclusPlayCount lt 7 and $hallucinations gte 1 and $tenyclusPlayed is 0 and ($daystate is "day" or $daystate is "dusk") and $exposed lte 0>>
+		<<if $tenyclusPlayCount gte 1 and $tenyclusPlayCount lt 7 and $hallucinations gte 1 and !$daily.tenyclusPlayed and (Time.dayState is "day" or Time.dayState is "dusk") and $exposed lte 0>>
 			<br>
 			구석에 있는 "Tenyclus" 캐비닛을 발견하게 된다. 아무도 그것을 알아채지 못하는 것 같다.
 			<br>
@@ -86,25 +92,26 @@
 <<if $leftarm is "bound" and $rightarm is "bound">>
 	양손이 등 뒤로 묶여있는 상태로 오락실에서 게임을 하려니 <<print either("여간 까다로운 일이 아닐 수 없다.","예상했던 것만큼 어렵다.","어렵다. 딱히 놀랍지도 않다.")>>
 	<<print either("당신은 거의 게임을 시작하자마자 패배한다.","몇 초만에 당신이 조종하고 있던 반백의 생존자는 좀비 밥이 되어버린다.","순식간에 당신이 조종하고 있던 용감한 병사가 외계인 밥이 되어버린다.","일 분도 채 안 되어서, 당신이 조종하고 있던 용감한 승무원들은 상어 밥이 되어버리고 만다.")>>
-	<<if $rng lte 34>>근처에 있던 꼬맹이 몇 명이 당신이 처발리는 모습을 본다. 그 중 한 명이 어깨 너머로  화면을 <<print either("우스꽝스러운 표정으로 쳐다보며","바보 같은 표정을 지은 채로 쳐다보며","멍청하게 바라보며")>>
+	<<if $rng lte 34>><<generatey1>><<person1>>근처에 있던 학생들 몇 명이 당신이 처발리는 모습을 본다. 그 중 한 명이 <<his_ yi>> 어깨 너머로 화면을 <<print either("우스꽝스러운 표정으로 쳐다보며","바보 같은 표정을 지은 채로 쳐다보며","멍청하게 바라보며")>>
 		손을 등 뒤로 한 채로 조종간을 <<print either("잡아보려 애쓰며","향해 손을 파닥거리며","탁탁 치며")>> 당신을 따라한다.
 		<br>
-		친구들은 그 모습을 보며 웃는다.
+		<<His_ yi>> 친구들은 그 모습을 보며 웃는다.
 		<br>
 		꼬마의 편을 들어보자면, 당신은 지금 <<print either("약간 바보같아 보일","꽤나 멍청해 보일","약간 '특수한' 사람처럼 보일","상당히 미친 사람처럼 보일")>> 가능성이 높다.
 		<<lcool>><<status -5>>
+		<<endevent>>
 	<</if>>
 	<br><br>
-	<<if $money gte 500 and $daystate isnot "night">>
+	<<if $money gte 500 and Time.dayState isnot "night">>
 		<<link [[계속 한다 (£5 0:03)|Arcade Play]]>><<set $money -= 500>><<pass 3>><<stress 2>><</link>><<gstress>>
 		<br>
 	<</if>>
 	<<link [[그만 둔다|Arcade]]>><</link>>
 	<br>
 <<else>>
-	<<set $rng to random(0,10)>>
+	<<rng 11>>
 	<<switch $rng>>
-		<<case 0 1>>
+		<<case 1 2>>
 			당신은 총 게임을 하며, 상당히 많은 수의 <<print either("좀비를", "해적을", "외계인을", "병사를", "범죄자를", "돌연변이를")>> 죽인다.
 			<br><br>
 			<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
@@ -115,7 +122,7 @@
 
 				<<link [[계속 플레이한다|Arcade Keep Playing]]>><</link>>
 				<br>
-				<<link [[밀어내고는 쌍권총 플레이를 한다|Arcade Shove]]>><<set $submissive -= 1>><<trauma -2>><</link>><<ltrauma>>
+				<<link [[밀어내고는 쌍권총 플레이를 한다|Arcade Shove]]>><<def 1>><<trauma -2>><</link>><<ltrauma>>
 				<br>
 				<<set $skulduggerydifficulty to 400>>
 				<<link [[훔친다|Arcade Steal]]>><<crimeup 30>><</link>><<skulduggerydifficulty>><<gcrime>>
@@ -123,7 +130,7 @@
 				<<link [[그만 둔다|Arcade]]>><<endevent>><</link>>
 				<br>
 			<<else>>
-				<<set $rng to random(1, 100)>>
+				<<rng>>
 				<<if $rng gte 71>>
 					만족스러운 쩌억 소리가 나며 최종 보스의 머리가 날아간다.
 					<<ltrauma>><<trauma -2>>
@@ -135,7 +142,7 @@
 				<br><br>
 				<<arcadeEndLink>>
 			<</if>>
-		<<case 2 3>>
+		<<case 3 4>>
 			당신은 빠른 페이스의 슈팅 게임을 플레이한다.
 			<br><br>
 			<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
@@ -149,7 +156,7 @@
 				<<link [[계속 플레이한다|Arcade Watched Play]]>><</link>>
 				<br>
 			<<else>>
-				<<set $rng to random(1, 100)>>
+				<<rng>>
 				<<if $rng gte 71>>
 					행운의 여신은 당신의 편에 있다. 적절한 타이밍에 필요한 파워업 아이템이 떨어지고, 당신은 승리를 향해 거침없이 달려나간다.
 					<<ltrauma>><<trauma -2>>
@@ -161,7 +168,7 @@
 				<br><br>
 				<<arcadeEndLink>>
 			<</if>>
-		<<case 4 5>>
+		<<case 5 6>>
 			You step up to a fighting game cabinet, and before long you are greeted with the character selection screen. There are four characters you can choose from. Who do you pick?
 			<br><br>
 			<<link [[Pick the villainous-looking one|Arcade fighting cabinet]]>><<set $arcadeCharacter to "villainous">><</link>>
@@ -172,7 +179,7 @@
 			<br>
 			<<link [[Pick the very muscular one|Arcade fighting cabinet]]>><<set $arcadeCharacter to "muscular">><</link>>
 			<br>
-		<<case 6>>
+		<<case 7>>
 			<<generate1>><<person1>>
 			You are playing a platformer. You successfully leap over an enemy and grab the power up. A <<person>> speaks up, causing you to turn around.
 			<br><br>
@@ -184,8 +191,8 @@
 			<</if>>
 			<<link [[Stand down|Arcade Classmate Braggart]]>><<set $phase to 2>><</link>>
 			<br>
-			<<link [[Ignore|Arcade Classmate Braggart]]>><<set $phase to 3>><</link>>
-		<<case 7 8>>
+			<<link [[무시한다|Arcade Classmate Braggart]]>><<set $phase to 3>><</link>>
+		<<case 8 9>>
 			<<generate1>><<person1>>
 			You step up to a space themed shooter, taking the "Player 1" slot. Before you can start, a <<person>> walks up to you. A small crowd is gathered behind <<him>>. It seems this player is popular.
 			<br><br>
@@ -197,7 +204,7 @@
 			<<link [[Accept the match|Arcade Popular Gamer]]>><<set $phase to 1>><</link>>
 			<br>
 			<<link [[Deny|Arcade Popular Gamer]]>><<set $phase to 2>><</link>>
-		<<case 9>>
+		<<case 10>>
 			<<generate1>><<person1>>
 			You look for an open cabinet, spotting one near the corner of the room. You insert a token and begin to play, blasting away at the bad guys. <<stress -5>><<lstress>>
 			<br><br>
@@ -213,11 +220,11 @@
 				<br><br>
 				<<arcadeEndLink>>
 			<</if>>
-		<<case 10>>
+		<<case 11>>
 			<<generate1>><<person1>>
 			You choose a beat-em-up, whacking enemies away as they approach you. As you play, you hear a small crowd form behind you. They fixate on a <<person>> playing a classic game.
 			<br><br>
-			"Wow! <<He>>'s going to beat the high score at this rate!" One of the onlookers shout, "Everyone come look!"
+			"Wow! <<Hes>> going to beat the high score at this rate!" One of the onlookers shout, "Everyone come look!"
 			<br><br>
 			<<link [[Go watch|Arcade Watch High Score]]>><<set $phase to 1>><</link>>
 			<br>
@@ -231,7 +238,7 @@
 당신은 <<personPost>>에게서 멀어진다. 나중에 후회하느니 안전하게 구는 편이 낫다.
 <br><br>
 <<endevent>>
-	<<if $money gte 500 and $daystate isnot "night">>
+	<<if $money gte 500 and Time.dayState isnot "night">>
 		<<link [[계속 플레이한다 (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
 		<br>
 	<</if>>
@@ -251,13 +258,12 @@
 당신은 너무 피해망상적으로 군다고 생각하며 계속 플레이한다. <<personPost "은">> 곧 다른 사람에게 조언을 하러 떠나간다.
 <br><br>
 <<endevent>>
-	<<if $money gte 500 and $daystate isnot "night">>
+	<<if $money gte 500 and Time.dayState isnot "night">>
 		<<link [[계속 플레이한다 (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
 		<br>
 	<</if>>
 		<<link [[그만 한다|Arcade]]>><</link>>
 		<br>
-
 <</if>>
 
 :: Arcade Watched Rape
@@ -268,24 +274,18 @@
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[다음|Arcade Watched Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[다음|Arcade Watched Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+<<if _combatend>>
 	<span id="next"><<link [[다음|Arcade Watched Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Arcade Watched Rape]]>><</link>></span><<nexttext>>
@@ -305,7 +305,7 @@
 <<clotheson>>
 <<endcombat>>
 
-<<link [[Next|Arcade]]>><</link>>
+<<link [[다음|Arcade]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
 
@@ -342,7 +342,7 @@
 두 명이서 플레이하니 확실히 도움이 되긴 되며, 결국 당신은 게임을 끝까지 깬다. <<HePost "은">> 아무런 말도 없이 떠나간다.
 <br><br>
 <<endevent>>
-<<if $money gte 500 and $daystate isnot "night">>
+<<if $money gte 500 and Time.dayState isnot "night">>
 	<<link [[계속 플레이한다 (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
 	<br>
 <</if>>
@@ -358,7 +358,7 @@
 <br><br>
 
 <<endevent>>
-<<if $money gte 500 and $daystate isnot "night">>
+<<if $money gte 500 and Time.dayState isnot "night">>
 	<<link [[계속 플레이한다 (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
 	<br>
 <</if>>
@@ -377,12 +377,7 @@
 <span class="green"><<HePost "은">> 눈치채지 못한다.</span> <<moneyGain 30 true true>>를 얻었다.
 <br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-	<<skulduggeryskilluse>>
-	<<else>>
-	<span class="blue">너무 쉬웠다. 아무 것도 배우지 못했다.</span>
-	<br><br>
-	<</if>>
+<<skulduggeryuse>>
 <<endevent>>
 <<link [[다음|Arcade]]>><</link>>
 <br>
@@ -392,12 +387,7 @@
 <span class="red"><<HePost "은">> 고개를 돌려 당신의 행동을 목격한다.</span> "야." <<hePost "이">> 말한다. "그 손 어서 치워." <<HePost "은">> 다른 사람의 손이 닿지 않도록 돈을 주머니 더 깊숙한 곳으로 밀어넣는다.
 <br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-	<<skulduggeryskilluse>>
-	<<else>>
-	<span class="blue">너무 쉬웠다. 아무 것도 배우지 못했다.</span>
-	<br><br>
-	<</if>>
+<<skulduggeryuse>>
 <<endevent>>
 <<link [[다음|Arcade]]>><</link>>
 <br>
@@ -412,13 +402,13 @@
 <<passout>>
 <<set $danger to random(1, 10000)>>
 <<if $danger gte (9900 - $allure)>>
-	<<if $exposed gte 1 or $daystate is "night" or $daystate is "dawn">>
+	<<if $exposed gte 1 or Time.dayState is "night" or Time.dayState is "dawn">>
 	<<link [[일어난다|Arcade Trash]]>><</link>>
 	<<else>>
 	<<link [[일어난다|Arcade Crane]]>><</link>>
 	<</if>>
 <<else>>
-<<ambulance>>
+	<<ambulance>>
 <</if>>
 
 <<pass 1 hour>>
@@ -470,7 +460,7 @@
 			<<link [[다음|Arcade Crane 2]]>><<set $phase += 1>><</link>>
 		<<else>>
 			<<endevent>><<generate1>><<person1>>
-			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 아이들은 전부 몸을 돌려 달아난다.
+			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 관중들은 전부 몸을 돌려 달아난다.
 			<br><br>
 			<<personPost "이">> 시야에 들어온다. <<HePost "은">> 당신을 보고는 입을 떡 벌린다. 제정신을 차린 뒤, <<hePost "은">> 뽑기 기계 뒤에 쪼그려 앉는다. <<HePost "이">> 잠시 기계를 만지작거리자 기계의 문이 열린다. <<HePost "은">> 안으로 들어와서 당신을 묶어두고 있던 케이블을 풀어준다.
 			<br><br>
@@ -480,7 +470,7 @@
 				<<towelup>>
 				<</if>>
 			<br><br>
-			"요즘 애들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> 머리를 내저으며 말한다. "조심해서 가렴."
+			"요즘 사람들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> <<his_ yi>> 머리를 내저으며 말한다. "조심해서 가렴."
 			<br><br>
 
 			<<endevent>>
@@ -511,7 +501,7 @@
 	<</if>>
 
 <<elseif !$worn.lower.type.includes("naked")>>
-크레인이 당신의 허벅지 위에서 멈추었다가, <<trClothes "lower" $worn.lower.name "name" "을">>_trResult 향해 달려든다. 크레인에 천자락이 걸리더니, 점차 들어올려지기 시작한다. <<personPost "과">> 친구들은 열중하여 지켜보고 있다.
+크레인이 당신의 넓적다리 위에서 멈추었다가, <<trClothes "lower" $worn.lower.name "name" "을">>_trResult 향해 달려든다. 크레인에 천자락이 걸리더니, 점차 들어올려지기 시작한다. <<personPost "과">> 친구들은 열중하여 지켜보고 있다.
 
 <br><br>
 
@@ -539,7 +529,7 @@
 			<<link [[다음|Arcade Crane 2]]>><<set $phase += 1>><</link>>
 		<<else>>
 			<<endevent>><<generate1>><<person1>>
-			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 아이들은 전부 몸을 돌려 달아난다.
+			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 관중들은 전부 몸을 돌려 달아난다.
 			<br><br>
 			<<personPost "이">> 시야에 들어온다. <<HePost "은">> 당신을 보고는 입을 떡 벌린다. 제정신을 차린 뒤, <<hePost "은">> 뽑기 기계 뒤에 쪼그려 앉는다. <<HePost "이">> 잠시 기계를 만지작거리자 기계의 문이 열린다. <<HePost "은">> 안으로 들어와서 당신을 묶어두고 있던 케이블을 풀어준다.
 			<br><br>
@@ -549,7 +539,7 @@
 				<<towelup>>
 				<</if>>
 			<br><br>
-			"요즘 애들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> 머리를 내저으며 말한다. "조심해서 가렴."
+			"요즘 사람들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> <<his_ yi>> 머리를 내저으며 말한다. "조심해서 가렴."
 			<br><br>
 
 			<<endevent>>
@@ -570,7 +560,7 @@
 	<</if>>
 
 <<elseif !$worn.under_upper.type.includes("naked")>>
-크레인이 당신의 허벅지 위에서 멈추었다가, <<trClothes "under_upper" $worn.under_upper.name "name" "을">>_trResult 향해 달려든다. 크레인에 천자락이 걸리더니, 점차 들어올려지기 시작한다. <<personPost "과">> 친구들은 열중하여 지켜보고 있다.
+크레인이 당신의 넓적다리 위에서 멈추었다가, <<trClothes "under_upper" $worn.under_upper.name "name" "을">>_trResult 향해 달려든다. 크레인에 천자락이 걸리더니, 점차 들어올려지기 시작한다. <<personPost "과">> 친구들은 열중하여 지켜보고 있다.
 	<br><br>
 
 	<<if $rng gte 51>>
@@ -597,7 +587,7 @@
 			<<link [[다음|Arcade Crane 2]]>><<set $phase += 1>><</link>>
 		<<else>>
 			<<endevent>><<generate1>><<person1>>
-			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 아이들은 전부 몸을 돌려 달아난다.
+			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 관중들은 전부 몸을 돌려 달아난다.
 			<br><br>
 			<<personPost "이">> 시야에 들어온다. <<HePost "은">> 당신을 보고는 입을 떡 벌린다. 제정신을 차린 뒤, <<hePost "은">> 뽑기 기계 뒤에 쪼그려 앉는다. <<HePost "이">> 잠시 기계를 만지작거리자 기계의 문이 열린다. <<HePost "은">> 안으로 들어와서 당신을 묶어두고 있던 케이블을 풀어준다.
 			<br><br>
@@ -607,7 +597,7 @@
 				<<towelup>>
 				<</if>>
 			<br><br>
-			"요즘 애들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> 머리를 내저으며 말한다. "조심해서 가렴."
+			"요즘 사람들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> <<his_ yi>> 머리를 내저으며 말한다. "조심해서 가렴."
 			<br><br>
 
 			<<endevent>>
@@ -638,7 +628,7 @@
 	<</if>>
 
 <<elseif !$worn.under_lower.type.includes("naked")>>
-크레인이 당신의 허벅지 위에서 멈추었다가, <<trClothes "under_lower" $worn.under_lower.name "name" "을">>_trResult 향해 달려든다. 크레인에 천자락이 걸리더니, 점차 들어올려지기 시작한다. <<personPost "과">> 친구들은 열중하여 지켜보고 있다.
+크레인이 당신의 넓적다리 위에서 멈추었다가, <<trClothes "under_lower" $worn.under_lower.name "name" "을">>_trResult 향해 달려든다. 크레인에 천자락이 걸리더니, 점차 들어올려지기 시작한다. <<personPost "과">> 친구들은 열중하여 지켜보고 있다.
 
 	<br><br>
 
@@ -666,7 +656,7 @@
 			<<link [[다음|Arcade Crane 2]]>><<set $phase += 1>><</link>>
 		<<else>>
 			<<endevent>><<generate1>><<person1>>
-			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 아이들은 전부 몸을 돌려 달아난다.
+			"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 관중들은 전부 몸을 돌려 달아난다.
 			<br><br>
 			<<personPost "이">> 시야에 들어온다. <<HePost "은">> 당신을 보고는 입을 떡 벌린다. 제정신을 차린 뒤, <<hePost "은">> 뽑기 기계 뒤에 쪼그려 앉는다. <<HePost "이">> 잠시 기계를 만지작거리자 기계의 문이 열린다. <<HePost "은">> 안으로 들어와서 당신을 묶어두고 있던 케이블을 풀어준다.
 			<br><br>
@@ -676,7 +666,7 @@
 				<<towelup>>
 				<</if>>
 			<br><br>
-			"요즘 애들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> 머리를 내저으며 말한다. "조심해서 가렴."
+			"요즘 사람들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> <<his_ yi>> 머리를 내저으며 말한다. "조심해서 가렴."
 			<br><br>
 
 			<<endevent>>
@@ -697,10 +687,10 @@
 
 <<else>>
 	속수무책으로 누워있자니 <<personPost "과">> 친구들은 주머니에서 휴대전화를 꺼내 사진을 찍기 시작한다. 당신은 어떻게든 구속을 풀어보려 하나, 소용이 없다.
-	<<fameexhibitionism 20>>
+	<<fameexhibitionism 20 "pic">>
 	<br><br>
 	<<endevent>><<generate1>><<person1>>
-	"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 아이들은 전부 몸을 돌려 달아난다.
+	"너네 거기서 뭐 하는 거냐?" 시야 밖에서 <<personPost "이">> 외친다. 모였던 관중들은 전부 몸을 돌려 달아난다.
 	<br><br>
 	<<personPost "이">> 시야에 들어온다. <<HePost "은">> 당신을 보고는 입을 떡 벌린다. 제정신을 차린 뒤, <<hePost "은">> 뽑기 기계 뒤에 쪼그려 앉는다. <<HePost "이">> 잠시 기계를 만지작거리자 기계의 문이 열린다. <<HePost "은">> 안으로 들어와서 당신을 묶어두고 있던 케이블을 풀어준다.
 	<br><br>
@@ -708,7 +698,7 @@
 	<<towelup>>
 	<br><br>
 
-	"요즘 애들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> 머리를 내저으며 말한다. "조심해서 가렴."
+	"요즘 사람들이 얼마나 잔인해질 수 있는지 믿기지가 않네." <<hePost "은">> <<his_ yi>> 머리를 내저으며 말한다. "조심해서 가렴."
 	<br><br>
 
 	<<endevent>>
@@ -736,7 +726,7 @@ A jet-black tint covers the cabinet. You can tell the cabinet isn't new, but it 
 
 <<link [[Play?|Arcade Tenyclus Play]]>><</link>>
 <br>
-<<link [[Leave|Arcade Tenyclus Leave]]>><</link>>
+<<link [[떠난다|Arcade Tenyclus Leave]]>><</link>>
 <br><br>
 
 :: Arcade Tenyclus Leave
@@ -744,13 +734,13 @@ A jet-black tint covers the cabinet. You can tell the cabinet isn't new, but it 
 <<if $tenyclusPlayCount is 0>>
 	You get an odd feeling about the machine that you can't quite describe, so you decide to leave it alone and look for something else to play. It remains sat in the corner, untouched by anyone else.
 	<br><br>
-	<<link [[Next|Arcade]]>><<set $eventskip to 1>><</link>>
+	<<link [[다음|Arcade]]>><<set $eventskip to 1>><</link>>
 <<else>>
 	<<if $willpowerSuccess>>
 		<span class = "green">You manage to pull yourself away from the strange cabinet.</span> Upon looking back, the machine remains still. It's as lifeless as when you found it.
 		<br><br>
 
-		<<link [[Next|Arcade]]>><<endevent>><<set $tenyclusPlayed to 1>><<set $eventskip to 1>><</link>>
+		<<link [[Next|Arcade]]>><<endevent>><<set $daily.tenyclusPlayed to 1>><<set $eventskip to 1>><</link>>
 		<br>
 	<<else>>
 		<span class = "red">You can't pull yourself away from the machine. You're having too much fun!</span>
@@ -767,7 +757,7 @@ A jet-black tint covers the cabinet. You can tell the cabinet isn't new, but it 
 	With a coin in your hand, you look for a slot, but you can't seem to find one.
 	<br><br>
 
-	The screen suddenly flashes to life, almost blinding you with its incandescent glow. In the center of the screen, you see the word <span class = "purple">"Tenyclus"</span> bolded with a unique font. A copyright in smaller text is seen below.
+	The screen suddenly flashes to life, almost blinding you with its incandescent glow. In the centre of the screen, you see the word <span class = "purple">"Tenyclus"</span> bolded with a unique font. A copyright in smaller text is seen below.
 	<br><br>
 
 	<span class = "purple">"1982, Lüsterngrad"</span>
@@ -782,7 +772,7 @@ A jet-black tint covers the cabinet. You can tell the cabinet isn't new, but it 
 	The graphics are so primitive, you're not really sure who or what you're playing as. All you can make out is that it looks like you're fighting off something. Your best guess is aliens, but it could really be anything.
 	<br><br>
 
-	<<link [[Next|Arcade Tenyclus]]>><</link>>
+	<<link [[다음|Arcade Tenyclus]]>><</link>>
 <<else>>
 	You spot the strange cabinet. It's hidden away in the corner, just like last time. As you move closer the screen flashes on, illuminating you in its almost blinding glow once more.
 	<br><br>
@@ -794,7 +784,7 @@ A jet-black tint covers the cabinet. You can tell the cabinet isn't new, but it 
 	<br><br>
 	<<link [[Play?|Arcade Tenyclus]]>><</link>>
 	<br>
-	<<link [[Leave|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<<link [[떠난다|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br><br>
 <</if>>
 
@@ -805,7 +795,7 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 
 <<tenyclusPlay>>
 <<if $tenyclusRounds gt 0 and $tenyclusLives gt 0>>
-	<<link [[Next|Arcade Tenyclus]]>><</link>>
+	<<link [[다음|Arcade Tenyclus]]>><</link>>
 	<br>
 	<<link [[Stop playing|Arcade Tenyclus Leave]]>><<willpowerdifficulty 1 $willpowermax>><</link>>
 <<else>>
@@ -815,7 +805,7 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 		You wipe out the last alien on screen. You've won! <<control 25>><<gcontrol>>
 	<</if>>
 	<br><br>
-	<<unset $tenyclusRounds>><<unset $tenyclusLives>><<set $tenyclusPlayed to 1>>
+	<<unset $tenyclusRounds>><<unset $tenyclusLives>><<set $daily.tenyclusPlayed to 1>>
 	<<set $tenyclusPlayCount += 1>>
 	<<if $tenyclusPlayCount is 6 and $tentacledisable isnot "f">>
 		<<set $tenyclusPlayCount += 1>>
@@ -830,7 +820,7 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 			<span class = "red">You feel the urge to play again tomorrow.</span>
 			<br><br>
 
-			<<link [[Next|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
 		<<case 2>>
 			That was fun! You managed to score pretty high, leaving you with a sense of accomplishment. <<trauma -6>><<ltrauma>>
@@ -842,7 +832,7 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 			<span class = "red">You feel the urge to play again tomorrow.</span>
 			<br><br>
 
-			<<link [[Next|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
 		<<case 3>>
 			You feel more confident. Voices inspire you, motivating you to reach higher and higher scores. <<stress -6>><<control 10>><<lstress>><<gcontrol>>
@@ -854,16 +844,16 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 			<span class = "red">You feel the urge to play again tomorrow.</span>
 			<br><br>
 
-			<<link [[Next|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
 		<<case 4>>
 			Voices encourage you to keep going. You begin to lose track of time, and before you know it, the screen turns black and you're plunged into darkness.
 			<br><br>
 
 			Your eyes take a minute to adjust, but you notice
-			<<if $hour gte 21>>
+			<<if Time.hour gte 21>>
 				you seem to be alone in the arcade. You wonder how security didn't notice you.
-			<<elseif $hour gte 17>>
+			<<elseif Time.hour gte 17>>
 				that it's much darker than when you started.
 			<<else>>
 				that some time has clearly passed.
@@ -874,26 +864,26 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 			<span class = "red">You feel the urge to play again tomorrow.</span>
 			<br><br>
 
-			<<link [[Next|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
 		<<case 5>>
 			You smell something strange, but you choose to ignore it and continue playing. You feel as if the game is sucking you in, and just before you're about to reach a new high score, <span class = "red">a splash of water hits you in the face.</span>
 			<br><br>
 
-			You look around for the culprit, but notice you're standing in neck deep water on the beach. Your head feels fuzzy. <<set $hallucinogen += 20>><<set $drugged += 20>>
+			You look around for the culprit, but notice you're standing in neck deep water on the beach. Your head feels fuzzy. <<hallucinogen 20>><<drugs 20>>
 			<br><br>
 			<<water>><<effects>>
 
-			<<link [[Next|Sea Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Sea Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
 		<<case 6>>
-			A strange smell covers the air, just like last time. You look down and a swerve of sweet pink mist emerges from the machine. <<set $hallucinogen += 180>><<set $drugged += 180>><<garousal>><<arousal 200>>
+			A strange smell covers the air, just like last time. You look down and a swerve of sweet pink mist emerges from the machine. <<hallucinogen 180>><<drugs 180>><<garousal>><<arousal 200>>
 			<br><br>
 
 			It creeps up to your face, and you feel yourself heating up with arousal. While you're distracted, a mass of writhing tentacles reach out from the screen. They coil around your arms, trapping them.
 			<br><br>
 
-			<<link [[Next|Arcade Tentacle Rape]]>><<set $molestationstart to 1>><</link>>
+			<<link [[다음|Arcade Tentacle Rape]]>><<set $molestationstart to 1>><</link>>
 			<br>
 		<<case 7>>
 			You demolish the high score. The numbers keep rising until they no longer look like numbers.
@@ -902,7 +892,7 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 			You find that you can't move your body, and the edges of your vision grow dim. You hear a pair of footsteps behind you, followed by an unfamiliar sound, and everything fades to black.
 			<br><br>
 
-			<<link [[Next|Arcade Tenyclus Kidnapped]]>><<endevent>><</link>>
+			<<link [[다음|Arcade Tenyclus Kidnapped]]>><<endevent>><</link>>
 		<<default>>
 			You managed to play the game without really playing it. This is a bug, please inform Vrelnir. <<control -100>><<lllcontrol>>
 			<br><br>
@@ -910,7 +900,7 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 			<span class = "red">You feel the urge to play again tomorrow.</span>
 			<br><br>
 
-			<<link [[Next|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
 	<</switch>>
 
@@ -924,8 +914,8 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 	<<controlloss>>
 	<<molested>>
 	<<tentaclestart 8 15>>
-	<<leftarmtentacledisable>><<set $tentacles[0].shaft to "leftarm">><<set $leftarm to "grappled">><<set $leftarmstate to 0>>
-	<<rightarmtentacledisable>><<set $tentacles[1].shaft to "rightarm">><<set $rightarm to "grappled">><<set $rightarmstate to 0>>
+	<<leftarmtentacledisable>><<set $tentacles[0].shaft to "leftarm">><<set $leftarm to "tentgrappled">><<set $leftarmstate to 0>><<set $lefttarget to "tentacles">>
+	<<rightarmtentacledisable>><<set $tentacles[1].shaft to "rightarm">><<set $rightarm to "tentgrappled">><<set $rightarmstate to 0>><<set $righttarget to "tentacles">>
 <</if>>
 <<effects>>
 <<effectstentacles>>
@@ -934,19 +924,20 @@ You are playing Tenyclus. You find your emotions and responses much more intense
 <<actionstentacles>>
 
 <<if $tentacles.active lte ($tentacles.max / 2)>>
-	<span id="next"><<link [[Next|Arcade Tentacle Rape Finish]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Arcade Tentacle Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Arcade Tentacle Rape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Arcade Tentacle Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Arcade Tentacle Rape Finish
 <<effects>>
 You emerge victorious. The tentacles recoil back into the screen. A new high score appears just before the screen turns off, leaving you alone and wary. <<tearful>> you see the rest of the arcade slowly come back into focus. No one gives you a second glance.
+<br><br>
 
 <<clotheson>>
 <<endcombat>>
-<br><br>
-<<link [[Next|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
+
+<<link [[다음|Arcade]]>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Arcade Tenyclus Kidnapped
@@ -955,11 +946,11 @@ You emerge victorious. The tentacles recoil back into the screen. A new high sco
 You wake up to the sound of a running car engine. You're in what looks to be the back of a van. You see the Tenyclus cabinet on its side against the wall.
 <br><br>
 
-Your arms and legs are bound. Before you're able to do anything, the van backdoors open. A <<person1>><<person>> and a <<person2>><<person>> enter the back of the van, dressed all in black.
+Your arms and legs are bound. Before you're able to do anything, the van backdoors open. A <<fullGroup>> enter the back of the van, dressed all in black.
 They begin to remove your clothes, before grabbing you by the shoulder and pulling you closer.
 <br><br>
 
-<<link [[Next|Arcade Tenyclus Kidnapped Rape]]>><<set $molestationstart to 1>><</link>>
+<<link [[다음|Arcade Tenyclus Kidnapped Rape]]>><<set $molestationstart to 1>><</link>>
 <br>
 
 :: Arcade Tenyclus Kidnapped Rape
@@ -971,20 +962,19 @@ They begin to remove your clothes, before grabbing you by the shoulder and pulli
 	<<molested>>
 	<<maninit>>
 <</if>>
+
 <<effects>>
-<<effectsman>><<man>>
-<<if $enemyhealth gt 0>><<npcdamage>><</if>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Arcade Tenyclus Kidnapped Rape Finish]]>><</link>></span>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Arcade Tenyclus Kidnapped Rape Finish]]>><</link>></span>
-<<elseif $alarm is 1 and $rescue is 1>>
-	<span id="next"><<link [[Next|Arcade Tenyclus Kidnapped Rape Finish]]>><</link>></span>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Arcade Tenyclus Kidnapped Rape Finish]]>><</link>></span>
 <<else>>
-	<span id="next"><<link [[Next|Arcade Tenyclus Kidnapped Rape]]>><</link>></span>
+	<span id="next"><<link [[다음|Arcade Tenyclus Kidnapped Rape]]>><</link>></span>
 <</if>>
 
 :: Arcade Tenyclus Kidnapped Rape Finish
@@ -1007,14 +997,14 @@ They begin to remove your clothes, before grabbing you by the shoulder and pulli
 	<<endcombat>>
 <</if>>
 <br><br>
-<<link [[Next|Arcade Tenyclus Final]]>><<unbind>><</link>>
+<<link [[다음|Arcade Tenyclus Final]]>><<unbind>><</link>>
 
 :: Arcade Tenyclus Final
 <<effects>><<set $outside to 0>><<set $location to "home">><<pass 4 hours>>
 When you open your eyes, you're back in your room at the orphanage. Your head is still spinning. How did you get here?
 <br><br>
 
-You vaguely remember a large building that resembles a factory, and the color pink. So much pink. Your thoughts begin to drift, and soon enough, the memory is gone. Something else is gone, too. <<awareness -200>><<lllawareness>>
+You vaguely remember a large building that resembles a factory, and the colour pink. So much pink. Your thoughts begin to drift, and soon enough, the memory is gone. Something else is gone, too. <<awareness -200>><<lllawareness>>
 <br><br>
 
-<<link[[Next|Bedroom]]>><<endevent>><<set $eventskip to 1>><</link>>
+<<link [[다음|Bedroom]]>><<endevent>><<set $eventskip to 1>><</link>>

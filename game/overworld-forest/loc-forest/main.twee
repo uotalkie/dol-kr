@@ -1,30 +1,35 @@
 :: Forest
 
-<<set $outside to 1>><<set $location to "forest">><<effects>>
-<<if $foresthunt gte 1 and $edenforesthunt is 1>>
-	<<set $rng to random(1, 60)>>
-	<<if $rng lte 20>>
-	<span class="red">You are being hunted. You see spent bullet casings lying on the ground.</span>
-	<br><br>
-	<<elseif $rng lte 40>>
-	<span class="red">You are being hunted. You see boot prints on the ground.</span>
-	<br><br>
+<<location "forest">><<effects>><<wPersist "forest">><<getTarget true>>
+<<if $foresthunt gte 1>>
+	<<if $edenforesthunt is 1>>
+		<<print either(
+			`<span class="red">당신은 쫓기고 있다. 쓰고 남은 탄피들이 바닥에 떨어져 있는 것이 보인다.</span>`,
+			`<span class="red">당신은 쫓기고 있다. 땅바닥에 부츠자국이 보인다.</span>`,
+			`<span class="red">당신은 쫓기고 있다. 멀리서 총소리가 들린다.</span>`
+		)>>
+	<<elseif $blackwolfhunt is 1>>
+		<<print either(
+			`<span class="red">당신은 쫓기고 있다. 나무에 늑대 털이 엉켜 있는 것이 보인다.</span>`,
+			`<span class="red">당신은 쫓기고 있다. 땅바닥에 늑대의 발자국이 보인다.</span>`,
+			`<span class="red">당신은 쫓기고 있다. 멀리서 으르렁거리는 소리가 들린다.</span>`
+		)>>
+	<<elseif $wraith.hunt>>
+		<<if $moonstate is "morning" and Time.hour gte 6>>
+			태양이 떠오르자, 당신은 안도감을 느낀다. 공포가 사라진다. <span class="blue"><i>당신은 다음 붉은 달이 뜨기까지는 안전하다.</i></span>
+			<<clearWraith>>
+		<<else>>
+			<<print either(
+				`<span class="red">당신은 쫓기고 있다. 붉은 달빛이 사방에 무서운 그림자를 드리우고 있다.</span><<stress 6>><<gstress>>`,
+				`<span class="red">당신은 쫓기고 있다. 멀리서 웃음소리가 들린다.</span> <<trauma 6>><<gtrauma>>`,
+				`<span class="red">당신은 쫓기고 있다. 숨쉬기가 점점 힘들어지고 있다.</span> <<stress 6>><<gstress>><<trauma 6>><<gtrauma>>`
+			)>>
+		<</if>>
 	<<else>>
-	<span class="red"> You are being hunted. You hear a gun firing from afar.</span>
-	<br><br>
+		<!-- generic text for when a hunt is happening but we haven't written a more specific version of the text. -->
+		<span class="red">당신은 쫓기고 있다.</span>
 	<</if>>
-<<elseif $foresthunt gte 1 and $blackwolfhunt is 1>>
-	<<set $rng to random(1, 60)>>
-	<<if $rng lte 20>>
-	<span class="red">You are being hunted. You see wolf fur tangled in the trees.</span>
 	<br><br>
-	<<elseif $rng lte 40>>
-	<span class="red">You are being hunted. You see wolf prints on the ground.</span>
-	<br><br>
-	<<else>>
-	<span class="red">You are being hunted. You hear a growl in the distance.</span>
-	<br><br>
-	<</if>>
 <</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmforest>>
@@ -32,15 +37,14 @@
 <<if $forest lte 0>>
 	<<set $forest to 0>>
 	<<forestmove>>
-	<br><br>
-	<<if $stress gte $stressmax>>
+	<<if $stress gte $stressmax and !$possessed>>
 		<<passoutforest>>
 	<<elseif $foresthunt gte 10>>
 		<<foresthunt>>
 	<<else>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<if $eventskip is 0>>
-			<<set $rng to random(1, 100)>>
+			<<rng>>
 			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
 				<<eventforestitem>>
 			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
@@ -48,6 +52,26 @@
 			<<else>>
 				<<eventforestsafe>>
 			<</if>>
+		<<elseif $town_projects.road is 1>>
+			<<set $town_projects.road to 2>>
+			당신은 숲 외곽에 있다. 나무 사이로 마을이 보인다.
+			<br><br>
+			당신은 오래된 벽돌에 걸려 넘어질 뻔 한다. 그 벽돌로 인해 당신은 그것과 같은 다른 벽돌들에 관심을 가진다. 예전에는 이곳에 도로가 있어서, 마을과 호수를 연결하고 있었다. <span class="teal">좋은 생각이 떠오른다.</span> 만약 도로가 복원된다면, 당신과 다른 학생들이 안전하게 다닐 수 있게 될 것이다.
+			<br><br>
+			<i>시청에서 도로에 대해 건의할 수 있다.</i>
+			<br><br>
+
+			<<link [[다음|Forest]]>><<set $eventskip to 1>><</link>>
+			<br>
+		<<elseif $town_projects.road is 3>>
+			<<set $town_projects.road to 4>>
+			당신은 숲 외곽에 있다. 나무 사이로 마을이 보인다.
+			<br><br>
+			시장실은 재빨리 행동에 나섰다. 도로가 시야 저 멀리로 방향을 틀어, 숲 속까지 뻗게 되었다. <span class="green">이제 호수를 오가는 것이 훨씬 더 쉬워질 것이다.</span>
+			<br><br>
+			<<earnFeat "Safe Trail">>
+			<<link [[다음|Forest]]>><<set $eventskip to 1>><</link>>
+			<br>
 		<<elseif $eventskip gte 1>>
 			당신은 숲 외곽에 있다. 나무 사이로 마을이 보인다.
 			<br><br>
@@ -66,34 +90,40 @@
 			<br><br>
 			숲을 떠난다.
 			<br>
-			<<danubeicon>><<link [[Danube Street (0:10)|Danube Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+			<<danubeicon>><<link [[다뉴브 가 (0:10)|Danube Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
 			<br>
-			<<wolficon>><<link [[Wolf Street (0:10)|Wolf Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+			<<wolficon>><<link [[울프 가 (0:10)|Wolf Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
 			<br>
-			<<nightingaleicon>><<link [[Nightingale Street (0:10)|Nightingale Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+			<<nightingaleicon>><<link [[나이팅게일 가 (0:10)|Nightingale Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
 			<br>
 			<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>
-				<<wolficon>><<link [[Temple (0:10)|Temple Garden]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+				<<wolficon>><<link [[사원 (0:10)|Temple Garden]]>><<pass 10>><<set $foresthunt to 0>><</link>>
 				<br>
 			<</if>>
 			<br><br>
+			<<if $historytrait gte 2 and $thicket_tunnel_intro is 1>>
+				<<link [[비밀 터널로 거주 지구 골목길로 간다 (0:05)|Residential Thicket]]>><</link>>
+				<br>
+			<</if>>
 			<<if $historytrait gte 3>>
-				<<link [[비밀의 길을 통해 숲속 깊이 들어간다 (0:10)|Forest]]>><<set $forestmod to 1.5>><<set $forest += 50>><<set $forestmove to "secretin">><<pass 10>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><</link>>
+				<<link [[비밀의 길을 통해 숲 속 깊이 들어간다 (0:10)|Forest]]>>
+					<<set $forestmod to 1.5>><<set $forest += 50>><<set $forestmove to "secretin">><<pass 10>>
+					<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
+				<</link>>
 				<br>
 			<</if>>
 		<</if>>
 	<</if>>
 <<elseif $forest lte 20>>
 	<<forestmove>>
-	<br><br>
-	<<if $stress gte $stressmax>>
+	<<if $stress gte $stressmax and !$possessed>>
 		<<passoutforest>>
 	<<elseif $foresthunt gte 10>>
 		<<foresthunt>>
 	<<else>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<if $eventskip is 0>>
-			<<set $rng to random(1, 100)>>
+			<<rng>>
 			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
 				<<eventforestitem>>
 			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
@@ -102,15 +132,18 @@
 				<<eventforestsafe>>
 			<</if>>
 		<<elseif $eventskip gte 1>>
-			당신은 숲에 있습니다. 나무들이 많이 있진 않다. 마을에서 너무 멀리 떨어지지는 않았다.
+			당신은 숲에 있다. 나무들이 많이 있진 않다. 마을에서 너무 멀리 떨어지지는 않았다.
 			<br><br>
-
-			<<if $smuggler_location is "forest" and $smuggler_timer is 0 and $daystate is "night" and $hour gte 18>>
+			<<if $forest gte 10 and $forest lte 14>>
+				<<ind>><<link [[옛 교회 묘지|Churchyard]]>><</link>>
+				<br><br>
+			<</if>>
+			<<if $smuggler_location is "forest" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
 				<span class="gold">당신은 나무 사이로 무언가 깜박 거리는 것을 본다. 불꽃 같다.</span>
 				<br><br>
 			<</if>>
-			<<if $smuggler_location is "forest" and $smuggler_timer is 0 and $daystate is "night" and $hour gte 18>>
-				<<link [[불꽃에 접근|Smuggler Forest]]>><</link>>
+			<<if $smuggler_location is "forest" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
+				<<link [[불꽃에 가까이 간다|Smuggler Forest]]>><</link>>
 				<br><br>
 			<</if>>
 			<<forestdeeper>>
@@ -123,15 +156,14 @@
 	<</if>>
 <<elseif $forest lte 50>>
 	<<forestmove>>
-	<br><br>
-	<<if $stress gte $stressmax>>
+	<<if $stress gte $stressmax and !$possessed>>
 		<<passoutforest>>
 	<<elseif $foresthunt gte 10>>
 		<<foresthunt>>
 	<<else>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<if $eventskip is 0>>
-			<<set $rng to random(1, 100)>>
+			<<rng>>
 			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
 				<<eventforestitem>>
 			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
@@ -143,13 +175,21 @@
 			당신은 숲 안에서 자연에 둘러싸여 있다.
 			<br><br>
 			<<if $forest lte 30>>
-				<<lakeicon>><<link [[호수 (0:10)|Lake Shore]]>><<pass 10>><</link>>
+				<<if $nextPassageCheck is "Lake Shore">>
+					<span class="nextLink"><<lakeicon>><<link [[호수.|Lake Shore]]>><<pass 10>><</link>></span>
+				<<else>>
+					<<lakeicon>><<link [[호수 (0:10)|Lake Shore]]>><<pass 10>><</link>>
+				<</if>>
 				<br>
 			<<elseif $forest lte 40>>
 				<<lakeicon>><<link [[호수 (0:10)|Lake Waterfall]]>><<pass 10>><</link>>
 				<br>
 			<<else>>
-				<<lakeicon>><<link [[호수 (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
+				<<if $nextPassageCheck is "Lake Fishing Rock">>
+					<span class="nextLink"><<lakeicon>><<link [[호수.|Lake Fishing Rock]]>><<pass 10>><</link>></span>
+				<<else>>
+					<<lakeicon>><<link [[호수 (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
+				<</if>>
 				<br>
 			<</if>>
 			<br>
@@ -160,22 +200,24 @@
 			<<forestlessdeep>>
 			<br><br>
 			<<if $historytrait gte 3>>
-				<<link [[비밀의 길을 통해 숲에서 나온다 (0:10)|Forest]]>><<set $forestmod to 1.5>><<set $forest -= 50>><<set $forestmove to "secretout">><<pass 10>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><</link>>
+				<<link [[비밀의 길을 통해 숲을 빠져나간다 (0:10)|Forest]]>>
+					<<set $forestmod to 1.5>><<set $forest -= 50>><<set $forestmove to "secretout">><<pass 10>>
+					<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
+				<</link>>
 				<br>
 			<</if>>
 		<</if>>
 	<</if>>
 <<elseif $forest lte 99>>
 	<<forestmove>>
-	<br><br>
-	<<if $stress gte $stressmax>>
+	<<if $stress gte $stressmax and !$possessed>>
 		<<passoutforest>>
 	<<elseif $foresthunt gte 10>>
 		<<foresthunt>>
 	<<else>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<if $eventskip is 0>>
-			<<set $rng to random(1, 100)>>
+			<<rng>>
 			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
 				<<eventforestitem>>
 			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
@@ -185,14 +227,14 @@
 			<</if>>
 		<<elseif $eventskip gte 1>>
 
-			당신은 깊은 숲속 안에 들어와 있다. 나무들은 크고 어두운 색을 띄고 있다. 나무의 가지들은 지붕의 형태를 형성하며 꼬여 있다.
+			당신은 깊은 숲 속에 들어와 있다. 나무들은 크고 어두운 색을 띄고 있다. 나무의 가지들은 지붕의 형태를 형성하며 꼬여 있다.
 			<br><br>
 
 			<<if $edenfreedom gte 1>>
-				<<link [[Eden의 오두막 (0:10)|Eden Clearing]]>><<pass 10>><</link>>
+				<<link [[에덴의 오두막 (0:10)|Eden Clearing]]>><<pass 10>><</link>>
 				<br>
 			<<elseif $syndromeeden gte 1>>
-				<<link [[Eden의 오두막 (0:10)|Eden Clearing]]>><<pass 10>><</link>>
+				<<link [[에덴의 오두막 (0:10)|Eden Clearing]]>><<pass 10>><</link>>
 				<br>
 			<</if>>
 			<<if $syndromewolves gte 1>>
@@ -200,19 +242,19 @@
 				<br>
 			<</if>>
 			<<if $pubtask is "forest" and $pubtask2 isnot 1>>
-				<<set $rng to random(1, 100)>>
+				<<rng>>
 				<!-- Modified for Monster People -->
-				<<if $pubtasksetting is "bear">>
-					<<link [[Landry의 블랙박스 수색|Forest Bear Box]]>><</link>>
+				<<if $pubtasksetting is "bear" and $bestialitydisable is "f">>
+					<<link [[랜드리의 블랙박스 수색|Forest Bear Box]]>><</link>>
 					<br>
 				<<elseif $pubtasksetting is "pair">>
-					<<link [[Landry의 블랙박스 수색|Forest Box]]>><</link>>
+					<<link [[랜드리의 블랙박스 수색|Forest Box]]>><</link>>
 					<br>
-				<<elseif $rng gte 51>>
-					<<link [[Landry의 블랙박스 수색|Forest Bear Box]]>><</link>>
+				<<elseif $rng gte 51 and $bestialitydisable is "f">>
+					<<link [[랜드리의 블랙박스 수색|Forest Bear Box]]>><</link>>
 					<br>
 				<<else>>
-					<<link [[Landry의 블랙박스 수색|Forest Box]]>><</link>>
+					<<link [[랜드리의 블랙박스 수색|Forest Box]]>><</link>>
 					<br>
 				<</if>>
 			<</if>>
@@ -226,35 +268,34 @@
 		<</if>>
 	<</if>>
 <<elseif $forest gte 100>>
-<<set $forest to 100>>
-<<forestmove>>
-<br><br>
+	<<set $forest to 100>>
+	<<forestmove>>
 
-	<<if $stress gte $stressmax>>
-	<<passoutforest>>
+	<<if $stress gte $stressmax and !$possessed>>
+		<<passoutforest>>
 	<<elseif $foresthunt gte 10>>
-	<<foresthunt>>
+		<<foresthunt>>
 	<<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<if $eventskip is 0>>
-			<<set $rng to random(1, 100)>>
+			<<rng>>
 			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
 				<<eventforestitem>>
 			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-			<<eventforestdeep>>
+				<<eventforestdeep>>
 			<<else>>
-			<<eventforestsafe>>
+				<<eventforestsafe>>
 			<</if>>
 		<<elseif $eventskip gte 1>>
 
-당신은 깊은 숲속 안에 있다. 당신은 나무를 통해 정신병원의 위치를 확인한다. 
-<br><br>
+			당신은 깊은 숲 속에 있다. 당신은 나무를 통해 정신병원의 위치를 확인한다. 
+			<br><br>
 
-<<forestsearch>>
-<br><br>
+			<<forestsearch>>
+			<br><br>
 
-<<forestlessdeep>>
-<br><br>
+			<<forestlessdeep>>
+			<br><br>
 
 		<</if>>
 	<</if>>
@@ -264,76 +305,84 @@
 <<set $eventskip to 0>>
 
 :: Forest Bear Box
-<<set $outside to 1>><<set $location to "forest">><<effects>>
+<<location "forest">><<effects>>
 
 <<if $pubtasksetting is "bear">>
 
-당신은 랜드리의 블랙박스를 찾을 수 있는 동굴로 돌아온다. 내부에서 무언가의 큰 숨소리가 들립니다.
-<br><br>
+	당신은 랜드리의 블랙박스를 찾을 수 있는 동굴로 돌아온다. 내부에서 무언가의 큰 숨소리가 들린다.
+	<br><br>
 
-<<link [[들어간다|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[떠난다|Forest]]>><</link>>
-<br>
+	<<link [[들어간다|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
+	<br>
+	<<link [[떠난다|Forest]]>><</link>>
+	<br>
 
 <<else>>
-<<set $pubtasksetting to "bear">>
+	<<set $pubtasksetting to "bear">>
 
-당신은 동굴로 들어온다. 이 장소는 랜드리가 블랙박스를 찾을 수 있다고 말한 곳이다. 아마 안에 있을 것이다.
-<br><br>
+	당신은 동굴로 들어온다. 이 장소는 랜드리가 블랙박스를 찾을 수 있다고 말한 곳이다. 아마 안에 있을 것이다.
+	<br><br>
 
-낮은 으르렁 소리를 들은 당신은 겨우 두 발자국 앞으로 나아긴다. 저 안에 뭔가 큰 게 있다.
-<br><br>
+	낮은 으르렁 소리를 들은 당신은 겨우 두 발자국 앞으로 나아긴다. 저 안에 뭔가 큰 게 있다.
+	<br><br>
 
-<<link [[들어간다|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<link [[떠난다|Forest]]>><</link>>
-<br>
+	<<link [[들어간다|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
+	<br>
+	<<link [[떠난다|Forest]]>><</link>>
+	<br>
 
 <</if>>
 
 :: Forest Box
-<<set $outside to 1>><<set $location to "forest">><<effects>>
+<<location "forest">><<effects>>
 
 <<if $pubtasksetting is "pair">>
 
-<<generate1>><<generate2>>당신은 허름한 오두막이 있는 빈터로 되돌아온다. <<person1>><<personPost "과">> <<person2>><<personPost "은">> 아직도 그곳에 있다. "마음이 바꼈어?" <<person1>><<personPost "은">> "네가 우리를 따라오면 블랙박스를 너한테 줄게." 라고 말한다. 
-<br><br>
+	<<generate1>><<generate2>>
+	당신은 낡은 오두막이 있는 공터로 돌아간다. <<fullGroupPost "은">> 여전히 그곳에 있다.
+	"생각이 바뀌었나?" 라고 <<person1>><<person_ i>> 말한다. "널 우리 마음대로 하게 해주면 블랙박스를 줄께."
+	<br><br>
 
 <<else>>
-<<set $pubtasksetting to "pair">>
+	<<set $pubtasksetting to "pair">>
 
-<<generate1>><<generate2>>당신은 블랙박스가 있을 것 같은 공터에 도착한다. 다 허름한 오두막이 중앙에 있다. <<person1>><<personPost "과">> <<person2>><<personPost "은">> 외곽 모닥불에 앉아 있다. 그들은 당신이 다가올 때에야 당신을 올려다 본다. "이건 예상치 못한 건데." <<person1>><<personPost "이">> 말한다. "무슨 일로 여기까지 왔나?"
-<br><br>
-당신은 작은 블랙박스를 찾고 있다고 말합니다. "오." <<hePost "이">> 말한다. "이걸 말하는 거야?" <<HePost "은">> 선 체로 주머니에서 블랙박스를 꺼낸다. "우리가 너한테 이걸 넘길 수도 있는데, 대가를 지불해야 하지 않겠어?" <<HePost "이">> 당신에게 가까이 다가온다. "너는 작고 귀여워. 랜드리는 확실히 사람을 고를 줄 알아. 우리가 널 따먹게 해주면 상자를 넘길게." <<person2>><<personPost "이">> 웃는다.
-<br><br>
+	<<generate1>><<generate2>>
+	당신은 블랙박스가 있을 것으로 추정되는 공터에 왔다. 한가운데에 나무로 지어진 낡은 오두막이 있다.
+	<<fullGroupPost "이">> 불 옆에 앉아 있다. 당신이 다가가자 그들은 고개를 들었다.
+	"뜻밖의 일이군," 이라고 <<person1>><<person_ i>> 말한다. "무슨 일로 여기까지 왔지?"
+	<br><br>
+	당신은 그들에게 작은 블랙 박스를 찾고 있다고 말한다. "오," <<he_ ga>> 말한다. "이거 말이야?" <<He_ nun>> 일어서서 <<his_ yi>> 주머니에서 블랙박스를 꺼낸다.
+	"우리가 설득 당해서 이걸 넘겨줄 수도 있겠지. 하지만 우리는 댓가로 뭔가를 좀 받고 싶은데." <<He_ nun>> 당신에게 더 가까이 다가온다.
+	"넌 참 귀엽네, 랜드리는 확실히 어떻게 사람을 고를지 알고 있는 모양이야. 네가 섹스하게 해주면 상자를 줄게." <<person2>><<person_ un>> 싱긋 웃는다.
+	<br><br>
 
 <</if>>
 
 <<if $promiscuity gte 15>>
-<<link [[수락한다|Forest Box Molestation]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
-<br>
+	<<link [[수락한다|Forest Box Molestation]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+	<br>
 <</if>>
 <<if $submissive lte 500>>
-<<link [[그들을 공격한다|Forest Box Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
-<br>
+	<<link [[그들을 공격한다|Forest Box Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+	<br>
 <</if>>
 <<link [[거절한다|Forest Box Refuse]]>><</link>>
 <br>
 
 :: Forest Bear Box Molestation
 <<if $molestationstart is 1>>
-<<set $molestationstart to 0>>
-<<controlloss>>
-<<violence 1>>
-<<neutral 1>>
-<<molested>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
 
-<<beastNEWinit 1 bear>>
+	<<beastNEWinit 1 bear>>
 	<<beastCombatInit>><<set $enemytrust -= 40>><<set $enemyanger += 40>><<set $enemyhealthmax to 400>><<set $enemyhealth to 400>>
-당신은 동굴로 기어들어 간다. 어둠 속에서 손을 더듬거리다 보니 당신은 빛이 무언가를 비추고 있는 걸 발견한다. 블랙박스다. 박스를 손에 쥐고, 당신은 동굴을 떠나려 하지만 어떤 것이 어둠 속에서 모습을 드러냅니다.
-<<set $pubtask2 to 1>>
-<br><br>
+	당신은 동굴로 살금살금 들어간다. 어둠 속에서 좀 더듬거린 후에 당신은 무언가 반짝이는 것을 발견한다. 블랙박스다.
+	당신은 상자를 손에 들고, 동굴을 떠나려고 몸을 돌리지만, 어둠 속에서 뭔가가 나타난다. 당신이 돌아선 순간, <<bhe_ ga>> 당신을 덮친다.
+	<<set $pubtask2 to 1>>
+	<br><br>
 <</if>>
 
 <<effects>>
@@ -341,108 +390,101 @@
 <br>
 <<beast $enemyno>>
 <br><br>
-
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[다음|Forest Bear Box Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
+<<if _combatend>>
 	<span id="next"><<link [[다음|Forest Bear Box Molestation Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Forest Bear Box Molestation]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Forest Bear Box Molestation Finish
-<<set $outside to 1>><<set $location to "forest">><<effects>>
+<<location "forest">><<effects>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 
-<<beastejaculation>>
+	<<beastejaculation>>
 
-만족한 곰은 은신처로 돌아간다.
-<<if $monster is 1>>
-<<bHe>> yawns, giving <<bhis>> hairy chest one last scratch before returning to <<bhis>> slumber.
-<</if>>
-<br><br>
+	만족한 곰은 은신처로 돌아간다.
+	<<if $monster is 1>>
+		<<bHe_ nun>> 하품을 하면서 <<bhis_ yi>> 털이 무성한 가슴을 마지막으로 한 번 긁은 다음 <<bhis_ yi>> 잠자리로 돌아간다.
+	<</if>>
+	<br><br>
 
-<<tearful>> 당신은 동굴을 떠난다. 
-<br><br>
+	<<tearful>> 당신은 동굴을 떠난다. 
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[다음|Forest]]>><</link>>
-<br>
+	<<link [[다음|Forest]]>><</link>>
+	<br>
 <<elseif $enemyhealth lte 0>>
 
-<<if $monster is 1>>
-	The <<beasttype>> recoils in pain, turning away from you. <<bHe>> covers <<bhis>> wrist with <<bhis>> hand, before fleeing deeper into <<bhis>> abode.
-<<else>>
-	<<beasttypePost "은">> 당신에게서 떨어져 은신처로 도망친다.
-<</if>>
-<br><br>
+	<<if $monster is 1>>
+		<<beasttypePost "은">> 고통에 몸을 움츠리고, 당신에게서 등을 돌린다. <<bHe_ nun>> 손으로 <<bhis_ yi>> 손목을 가리고, 더 깊은 곳에 있는 <<bhis_ yi>> 은신처로 도망친다.
+	<<else>>
+		<<beasttypePost "은">> 당신에게서 떨어져 은신처로 도망친다.
+	<</if>>
+	<br><br>
 
-<<tearful>> 당신은 동굴을 떠난다. 
-<br><br>
+	<<tearful>> 당신은 동굴을 떠난다. 
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[다음|Forest]]>><</link>>
-<br>
+	<<link [[다음|Forest]]>><</link>>
+	<br>
 <</if>>
 
 :: Forest Box Molestation
 <<if $molestationstart is 1>>
-<<set $molestationstart to 0>>
-<<controlloss>>
-<<violence 1>>
-<<neutral 1>>
-<<molested>>
-
-<<maninit>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
 
 	<<if $phase is 1>>
-<<set $enemytrust -= 40>>
+		<<set $enemytrust -= 40>>
 	<<elseif $phase is 2>>
-<<set $enemyanger += 40>><<set $enemytrust -= 100>><<set $enemyhealth -= 100>>
-	당신은 가만히 서서, 그들이 당신을 가깝게 끌어당길 때까지 기다립니다. 그리고 그들이 방심할 때, 당신은 <<person2>><<persons>>의 발을 밟고, <<hisPost "의">> 얼굴을 후려치며, <<him>> 휘청거리게 합니다. <<person1>><<personPost "은">> 기분을 잡친 듯 하다. "멍청한 걸레야, 대가를 치뤄야 할 거다."
-	<br><br>
+		<<set $enemyanger += 40>><<set $enemytrust -= 100>><<set $enemyhealth -= 100>>
+		당신은 가만히 서서 그들이 가까이 올 때까지 기다린다.
+		그들이 방심한 틈을 타, 당신은 <<person2>><<persons_ yi>> 발을 밟고 <<his_ yi>> 얼굴을 때려서, <<him_ ul>> 휘청거리게 한다.
+		<<person1>><<person_ un>> 즐겁지 않다. "멍청한 쌍년이. 대가를 치르게 해주지."
+		<br><br>
 	<</if>>
 
 <<elseif $sexstart is 1>>
-<<set $sexstart to 0>>
-<<set $consensual to 1>>
-<<neutral 1>>
-
-<<maninit>>
-<<set $enemytrust += 40>>
-<<promiscuity2>>
+	<<set $sexstart to 0>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 40>>
+	<<promiscuity2>>
 <</if>>
 
 <<effects>>
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[다음|Forest Box Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[다음|Forest Box Molestation Finish]]>><</link>></span><<nexttext>>
-<<elseif $finish is 1>>
+<<if _combatend>>
 	<span id="next"><<link [[다음|Forest Box Molestation Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[다음|Forest Box Molestation]]>><</link>></span><<nexttext>>
 <</if>>
 
 :: Forest Box Refuse
-<<set $outside to 1>><<set $location to "forest">><<effects>>
+<<location "forest">><<effects>>
 
-"니가 처한 상황을 잘 이해하지 못하나 본데." <<person1>><<personPost "이">> 말합니다. 그들이 가까이 다가온다. "우리는 원하는 걸 얻을 거거든."
+"네가 처한 상황을 잘 이해하지 못하나 본데." <<person1>><<personPost "이">> 말하며, 그들이 가까이 다가온다. "우리는 원하는 걸 얻을 거거든."
 <br><br>
 
 <<link [[다음|Forest Box Molestation]]>><<set $phase to 1>><<set $molestationstart to 1>><</link>>
@@ -453,64 +495,64 @@
 
 <<if $finish is 1>>
 
-"그렇게 쉽게 도망가지 못할거야." <<person1>><<personPost "이">> 말합니다.
-<br><br>
+	"그렇게 쉽게 도망가지 못할거야." <<person1>><<personPost "이">> 말합니다.
+	<br><br>
 
-<<controlloss>><<set $consensual to 0>><<molested>><<set $finish to 0>>
+	<<controlloss>><<set $consensual to 0>><<molested>><<set $finish to 0>>
 
-<<link [[다음|Forest Box Molestation]]>><</link>>
+	<<link [[다음|Forest Box Molestation]]>><</link>>
 
 <<elseif $enemyarousal gte $enemyarousalmax>>
 
-<<ejaculation>>
+	<<ejaculation>>
 
-"여기 있어." 한 <<person1>><<personPost "이">> 당신 옆에 상자를 떯어뜨리며 말한다 "랜드리에게 안부 전해줘." <<tearful>> 당신은 박스를 주워 공터를 떠난다.
-<<set $pubtask2 to 1>>
-<br><br>
+	"여기 있어." 한 <<person1>><<personPost "이">> 당신 옆에 상자를 떨어뜨리며 말한다 "랜드리에게 안부 전해줘." <<tearful>> 당신은 박스를 주워 공터를 떠난다.
+	<<set $pubtask2 to 1>>
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[다음|Forest]]>><</link>>
+	<<link [[다음|Forest]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
 
-두 명은 고통에 몸부림치며 풀위에 박스를 떨어뜨린다. <<tearful>> 당신은 박스를 붙잡고 공터에서 도망친다. 성난 고함이 뒤에서 쫓아온다.
-<<set $pubtask2 to 1>>
-<br><br>
+	두 명은 고통에 몸부림치며 풀 위에 박스를 떨어뜨린다. <<tearful>> 당신은 박스를 붙잡고 공터에서 도망친다. 성난 고함이 뒤에서 쫓아온다.
+	<<set $pubtask2 to 1>>
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[다음|Forest]]>><</link>>
+	<<link [[다음|Forest]]>><</link>>
 
 <</if>>
 
 :: Forest Science Shroom
-<<set $outside to 1>><<set $location to "forest">><<effects>>
+<<location "forest">><<effects>>
 
 <<if $scienceshroomknown isnot 1>>
-<<set $scienceshroomknown to 1>>
-<span class="gold">새로운 과학 프로젝트를 발견했다.</span>
-<br><br>
+	<<set $scienceshroomknown to 1>>
+	<span class="gold">새로운 과학 프로젝트를 발견했다.</span>
+	<br><br>
 <</if>>
 
 <<if $phase is 0>>
-<<set $scienceshroomheart += 1>>
-당신은 무릎을 꿇고 버섯을 모은다. 신선한 냄새가 난다.
-<<ltiredness>><<tiredness -6>>
-<br><br>
+	<<set $scienceshroomheart += 1>>
+	당신은 무릎을 꿇고 버섯을 모은다. 신선한 냄새가 난다.
+	<<ltiredness>><<tiredness -6>>
+	<br><br>
 
-<span class="gold">당신은 방이나 학교 도서관에서 과학 프로젝트에 버섯을 추가할 수 있습니다.</span>
-<br><br>
+	<span class="gold">당신은 방이나 학교 도서관에서 과학 프로젝트에 버섯을 추가할 수 있습니다.</span>
+	<br><br>
 <<else>>
-<<set $scienceshroomwolf += 1>>
-당신은 무릎을 꿇고 버섯을 모은다. 달콤한 냄새가 납니다.
-<<garousal>><<arousal 600>>
-<br><br>
+	<<set $scienceshroomwolf += 1>>
+	당신은 무릎을 꿇고 버섯을 모은다. 달콤한 냄새가 난다.
+	<<garousal>><<arousal 600>>
+	<br><br>
 
-<span class="gold">당신은 방이나 학교 도서관에서 과학 프로젝트에 버섯을 추가할 수 있습니다.</span>
-<br><br>
+	<span class="gold">당신은 방이나 학교 도서관에서 과학 프로젝트에 버섯을 추가할 수 있습니다.</span>
+	<br><br>
 <</if>>
 
 <<link [[다음|Forest]]>><<set $eventskip to 1>><</link>>

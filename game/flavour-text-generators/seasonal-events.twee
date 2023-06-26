@@ -1,6 +1,6 @@
 :: Ambient Weather And Seasonal Event Widgets [widget]
 /* Bite-sized events based on the current season and weather. Made to be easily expandable, and using the new event pool system.
- * These are all treated as their own event passages, except for the lake, where they happen in addition to any other event. Other locations can be made to follow this behavior in the future.
+ * These are all treated as their own event passages, except for the lake, where they happen in addition to any other event. Other locations can be made to follow this behaviour in the future.
  * Exit passage depends on location. Town uses destinationeventend, forest uses the normal forest passage, etc. Called separately from the eventAmbient widget. Further control may be needed in the future, should any of these scenes expand into player choices.
  * Winter events and Snow events are not mutually exclusive. Rain, however, overrides other seasonal event pools. In the future, every season and weather combination could have a unique pool.
  * Future-proofed for snow outside of the Winter season.
@@ -8,38 +8,314 @@
  */
 
 <<widget "eventAmbient">>
-<<cleareventpool>>
-<<switch ($season + $weather)>>
-	<<case "wintersnow" "winterrain" "winterovercast" "winterclear" "autumnsnow" "summersnow" "springsnow">>
-		<<if $season is "winter">>
-			<<addinlineevent "winter_anywhere_1">>
-				A brutally cold wind surges. You hug yourself for warmth until it dies down. <<stress 3>><<gstress>>
+	<<cleareventpool>>
+	<<switch (Time.season + $weather)>>
+		<<case "wintersnow" "winterrain" "winterovercast" "winterclear" "autumnsnow" "summersnow" "springsnow">>
+			<<if Time.season is "winter">>
+				<<addinlineevent "winter_anywhere_1">>
+					잔혹하게 차가운 바람이 밀려온다. 당신은 그 바람이 잦을 때 까지 따뜻함을 유지하려 당신 자신을 감싸안는다. <<stress 3>><<gstress>>
+				<</addinlineevent>>
+				<<addinlineevent "winter_anywhere_2" 0.5>>
+					<<dancedifficulty 1 1000 true>>
+					당신은 눈 속으로 발을 디뎠지만 그 눈은 당신 생각보다 깊었다.
+					<<if $danceSuccess>>
+						<span class="green">하지만 당신은 어떻게든 미끄러지지 않을 수 있었다.</span>
+					<<else>>
+						<span class="red">그리고 당신은 미끄러졌다.</span>
+						<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+							부드럽고, 차가운 눈이 당신의 엉덩이가 땅에 부딪힐 때의 충격을 흡수했다. 당신은 두 발로 일어서며, 눈이 당신의 <<bellyDescription_ ul "pc">> 다치지 않게 쿠션 역할을 해 준 것에 대해 감사한다.
+						<<else>>
+							당신은 다시 두 발로 일어설 때 까지 차가운 눈 속에 당신의 엉덩이를 처박고 있어야만 했다.
+						<</if>>
+						<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<lowerwet 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>><<underlowerwet 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
+						<br><br>
+						<<covered>>
+					<</if>>
+				<</addinlineevent>>
+				<<if Time.hour gte 6 and Time.hour lt 21>>
+					<<addinlineevent "winter_anywhere_3">>
+						당신은 짧은 햇빛을 받고 따뜻함을 느낀다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+				<</if>>
+				<<if ["town", "park"].includes($location) and Time.hour gte 7 and Time.hour lt 21 and playerIsPregnant() and playerAwareTheyArePregnant()>>
+					<<addinlineevent "winter_pregnant_watch">>
+						당신은 한 무리의 아이들이 놀고 있는 것을 본다. 그들은 눈으로 요새를 지어놓고 눈덩이를 서로에게 던져대고 있다.
+						당신은 <<bellyDescription_ ul "pc">> 문지르며 당신의 <<pregnancyBabyText_ ga "pc">> 그들처럼 활기 넘치게 될 지 궁금해한다. <<stress -3>><<lstress>>
+					<</addinlineevent>>					
+				<</if>>
+				<<switch $location>>
+					<<case "town">>
+						<<addinlineevent "winter_anystreet_1" 0.5>>
+							<<athleticsdifficulty 0 800 true>>
+							자동차 한 대가 옆으로 질주하며, 진창이 된 눈을 보도 위로 흩뿌린다.
+							<<if $athleticsSuccess>>
+								<span class="green">당신은 어떻게든 타이밍 맞춰 펄쩍 뛰어 피할 수 있었다.</span>
+							<<else>>
+								<span class="red">그것은 당신이 반응하기 전에 당신을 완전히 흠뻑 적셔, 당신을 추위에 떨게 한다.</span>
+								<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
+									<<set $upperwet to 200>>
+								<</if>>
+								<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
+									<<set $underupperwet to 200>>
+								<</if>>
+								<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
+									<<set $lowerwet to 200>>
+								<</if>>
+								<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>>
+									<<set $underlowerwet to 200>>
+								<</if>>
+								<<effectswater>>
+								<<covered>>
+							<</if>>
+						<</addinlineevent>>
+						<<addinlineevent "winter_anystreet_2">>
+							<<beastNEWinit 1 dog>>
+							<<beasttypePost>> 한 마리가 눈 위에서 흥분해서 앞뒤로 펄쩍펄쩍 뛰며, 눈을 굴복시키려고 하는 듯 허우적거리고 있다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<if Time.hour gte 6 and Time.hour lt 21>>
+							<<addinlineevent "winter_anystreet_3">>
+								제설차가 우르릉거리면서 지나가며 운전자가 빵빵대고 당신에게 손을 흔들어준다. <<stress -3>><<lstress>>
+							<</addinlineevent>>
+						<</if>>
+					<<case "alley">>
+						<<addinlineevent "winter_anyalley_1">>
+							당신은 버려진 쓰레기통 난로에 불이 아직 타오르고 있는 것을 보았다. 당신은 잠시 동안 거기서 불을 쬔다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+						<<addinlineevent "winter_anyalley_2">>
+							<<beastNEWinit 3 cat>>
+							당신은 몇 마리의 길<<beastsplural_ i>> 눈에서 놀고 있는 옆을 지나간다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<addinlineevent "winter_anyalley_3" 0.5>>
+							<<athleticsdifficulty 0 1000 true>>
+							당신이 골목길을 지나가며, 당신은 위에서 날카로운 쩌억 소리를 듣는다. 위의 창틀에서 눈덩이가 떨어져 내려온다.
+							<<if $athleticsSuccess>>
+								<span class="green">하지만 당신은 어떻게든 타이밍 맞춰 펄쩍 뛰어 피할 수 있었다.</span>
+							<<else>>
+								<span class="red">그리고 그것은 당신의 머리에 맞고 부서진다.</span> <<upperwet 75>><<stress 6>><<pain 4>><<gstress>><<gpain>>
+								<br><br>
+								<<covered>>
+							<</if>>
+						<</addinlineevent>>
+					<<case "park">>
+						<<addinlineevent "winter_park_1">>
+							<<if Time.hour gte 6 and Time.hour lt 21>>
+								당신은 사람들이 눈 위에서 눈천사를 만드는 옆을 지나간다. 그들은 근심걱정 없어 보인다. <<stress -3>><<lstress>>
+							<<else>>
+								당신은 눈천사 옆을 지난다.
+								<<if $angel gte 6>>
+									당신은 당신의 날개를 비비며 싱긋 웃는다.
+								<<elseif $fallenangel gte 2>>
+									당신은 아픈 기억을 억누르며, 화난 발길질로 그 위의 눈을 찬다.
+								<<elseif $demon gte 6>>
+									당신은 발로 거기에 뿔과 꼬리를 만들며, 당신 자신을 비웃는다.
+								<</if>>
+								<<stress -3>><<lstress>>
+							<</if>>
+						<</addinlineevent>>
+						<<if Time.hour gte 6 and Time.hour lt 21>>
+							<<addinlineevent "winter_park_2">>
+								당신은 몇몇 고아들이 협력하여 눈사람을 만들며 웃는 것을 본다. <<stress -3>><<lstress>>
+							<</addinlineevent>>
+							<<addinlineevent "winter_park_3" 0.33>>
+								당신은 갑자기 축축한 눈뭉치로 공격을 받는다. 당신은 돌아서서
+								<<if isInPark("whitney")>>
+									휘트니가, 빠르게 <<nnpc_his_ yi "Whitney">> 양손에서 눈을 털어내는 것을 본다. <<if isLoveInterest("Whitney")>><<stress -3>><<lstress>><<else>><<stress 12>><<ggstress>><</if>>
+								<<else>>
+									몇몇 비행 청소년들이 당신을 보며 웃어대는 것을 본다. <<stress 12>><<ggstress>>
+								<</if>>
+							<</addinlineevent>>
+						<</if>>
+					<<case "forest">>
+						<<addinlineevent "winter_forest_1" 0.33>>
+							당신은 천둥치는 듯한 쩌억 소리가 근처에서 나는 것을 듣는다. 당신은 재빨리 뒤로 돌았고, 조각들이 만든 큰 원 안으로 나무의 잔해가 땅에 쓰러지는 것을 본다. <<stress 12>><<ggstress>>
+						<</addinlineevent>>
+						<<addinlineevent "winter_forest_2">>
+							당신은 눈 위의 늑대 발자국을 찾는다. <<if $wolfgirl gte 3>><<garousal>><<arousal 600>><<else>><<gstress>><<stress 1>><</if>>
+						<</addinlineevent>>
+						<<addinlineevent "winter_forest_3">>
+							당신은 잘 만들어진 눈사람이 나무에 기대고 있는 것을 찾는다. 그 자세를 만든 작업은 인상적이다. 누군가가 이것을 만드느라 엄청난 시간을 보낸 것이 틀림없다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+						<<if $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+							<<addinlineevent "winter_forest_4" 0.5>>
+								<<generatePlant1>><<person1>>
+								당신은 한 <<personsimple_ i>> 눈 사이로 걸어가는 것을 본다. <<He_ nun>> 당신에게 몸을 돌려 손을 흔들다가, <<he_ ga>> 알아채지 못한 나무에 부딪힌다. <<Plant_details_ ga>> <<his_ yi>> 머리에서 떨어져 내리고, <<he_ nun>> 입술을 불룩 내민다. <<stress -3>><<lstress>>
+								<<endevent>>
+							<</addinlineevent>>
+						<</if>>
+					<<case "moor">>
+						<<addinlineevent "winter_moor_1" 0.33>>
+							당신은 흉측한 눈사람이 얼음 기둥으로 만들어진 원 안에 서 있는 것을 찾는다. <<if $hallucinations gte 2>>갑자기 당신의 뒤에서 커다란 딱 소리가 나서 당신은 뒤돌아 봤다. 당신은 다시 뒤를 보았고, 그것은 사라졌다. <<stress 24>><<gggstress>><<else>><<stress 6>><<gstress>><</if>>
+						<</addinlineevent>>
+						<<addinlineevent "winter_moor_2" 0.5>>
+							당신은 얼어붙은 웅덩이를 가로질러 가며, 당신의 반사된 모습을 내려다본다.
+							<<if $hallucinations gte 2>>
+								<span class="red">무언가 인간이 아닌 것이 그 아래에서 얼음을 긁어대고 있다.</span> 당신은 거의 미끄러지며, 재빨리 도망간다. <<stress 24>><<gggstress>>
+							<<elseif $hallucinations gte 1>>
+								그 표면은 마치 얼지 않은 것처럼 뒤틀리며 휘어졌고, 당신은 그 반사된 모습이 당신의 것이 아니었다고 거의 확신한다. <<stress 12>><<ggstress>>
+							<<elseif $hallucinogen gt 0>>
+								그 표면은 당신이 다가가자 파문이 일었고, 어쩐지 친숙한 <<girl_ i>> 얼음을 통해 마주본다. 당신이 눈을 돌리기로 결정하기까지의 잠시 동안, 당신은 숨 쉬는 것도 잊고 있었다. <<stress 12>><<ggstress>>
+							<<elseif $trauma gte $traumamax>>
+								멍한 눈의 <<girl_ i>> 마주본다.
+							<<elseif $pain gte 100>>
+								울고 있는 <<girl_ i>> 마주본다.
+							<<elseif $pain gte 40>>
+								눈물 어린 <<girl_ i>> 마주본다.
+							<<elseif $pain gte 1>>
+								찡그린 얼굴의 <<girl_ i>> 마주본다.
+							<<else>>
+								쾌활한 얼굴의 <<girl_ i>> 마주본다. <<stress -3>><<lstress>>
+							<</if>>
+						<</addinlineevent>>
+						<<if Time.hour gte 6 and Time.hour lt 21>>
+							<<addinlineevent "winter_moor_3">>
+								당신은 늦은 철새가 겨울을 대비해 남쪽으로 날아가는 것을 본다. <<stress -3>><<lstress>>
+							<</addinlineevent>>
+						<</if>>
+					<<default>>
+				<</switch>>
+			<</if>>
+			<<if $weather is "snow">>
+				<<addinlineevent "snow_anywhere_1">>
+					눈송이 하나가 당신의 코 끝에 살짝 내려앉는다. 당신은 잠시 동안 멈춰서 경이로운 눈빛으로 그것을 쳐다본다. <<stress -1>><<lstress>>
+				<</addinlineevent>>
+				<<addinlineevent "snow_anywhere_2">>
+					바람이 한바탕 불어와 당신의 얼굴로 눈보라를 날려보낸다. <<stress 3>><<gstress>>
+				<</addinlineevent>>
+				<<addinlineevent "snow_anywhere_3">>
+					바람이 갑자기 밀려들어 눈송이가 당신 주위에 원을 그리며 소용돌이친다. 바람이 다시 잦아들기 전에 당신은 그 소용돌이의 눈 안에 서서 평온함을 느낀다. <<stress -6>><<lstress>>
+				<</addinlineevent>>
+				<<switch $location>>
+					<<case "town">>
+						<<addinlineevent "snow_anystreet_1">>
+							<<beastNEWinit 1 dog>>
+							<<beasttypePost>> 한 마리가 떨어지는 눈송이를 보며 짖는다. <<bHe_ nun>> 눈송이가 <<bhis_ yi>> 코에 내려앉자 재채기를 한다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<addinlineevent "snow_anystreet_2">>
+							<<generate1>><<person1>>우산을 든 한 <<person_ i>> 한동안 <<him_ gwa>> 우산을 같이 쓰고 가도록 해 준다. <<He_ nun>> 같이 걸으며 당신과 잡담을 한다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<if ($bus is "domus" or $bus is "danube" or $bus is "barb") and Time.hour gte 6 and Time.hour lt 21>>
+							<<addinlineevent "snow_residentialstreet_1">>
+								당신은 고아원의 누군가가 떨어지는 눈 가운데에서 즐겁게 노는 것을 알아챈다. <<stress -3>><<lstress>>
+							<</addinlineevent>>
+						<</if>>
+					<<case "alley">>
+						<<addinlineevent "snow_anyalley_1">>
+							<<beastNEWinit 1 cat>>
+							한 길<<beasttype_ i>> 골목길을 가로질러 떨어지는 눈송이를 뒤쫓는다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<addinlineevent "snow_anyalley_2">>
+							<<beastNEWinit 1 dog>>
+							<<generate2>><<person2>>
+							한 노숙자 <<personsimple_ i>> 눈을 피할 곳을 찾아, 지저분한 <<person1>><<beasttype_ gwa>> 골판지 상자 안에서 같이 웅크리고 앉아있다. <<person2>><<He_ nun>> 당신이 지나가자 따뜻한 미소를 짓는다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<addinlineevent "snow_anyalley_3">>
+							당신이 골목길을 지나가자, 갑자기 바람이 엄청난 양의 떨어지는 눈을 잡아 당신 방향으로 쏟아붓는다. 차갑고 축축한 눈송이에 공격당하며 당신은 당신 자신을 가린다. 드디어 바람이 잦아들었을 때, 당신은 축축해진 옷을 입은 채 얼어붙고 있다.
+							<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
+								<<upperwet 75>>
+							<</if>>
+							<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
+								<<underupperwet 75>>
+							<</if>>
+							<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
+								<<lowerwet 75>>
+							<</if>>
+							<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>>
+								<<underlowerwet 75>>
+							<</if>>
+						<</addinlineevent>>
+					<<case "park">>
+						<<addinlineevent "snow_park_1" 0.5>>
+							<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+								당신은 블랙 아이스 한 조각 위에서 미끄러진다. 당신의 양 손은 본능적으로 당신의 <<bellyDescription_ ul "pc">> 감싸 당신이 넘어지며 엉덩이를 바닥에 부딪힐 때 다치지 않게 보호한다. 당신은 근처의 벤치를 사용해 안전하게 당신 자신을 끌어올려 일어나면서, 다시 미끄러지지 않게 조심한다. 당신의 엉덩이가 축축하고 차갑다.
+							<<else>>
+								당신은 블랙 아이스 한 조각 위에서 미끄러져, 발을 헛디디고 넘어진다. 당신은 땅바닥을 가로질러 미끄러지며, 당신의 옷을 적시고 엉덩이에서 한기를 느낀다.
+							<</if>>
+							<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<lowerwet 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>><<underlowerwet 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
+						<</addinlineevent>>
+						<<if Time.hour gte 6 and Time.hour lt 21>>
+							<<addinlineevent "snow_park_2">>
+								아이들이 공원에서 놀면서 떨어지는 눈에 환호성을 울리며 축하하고 있다. <<stress -3>><<lstress>>
+							<</addinlineevent>>
+							<<addinlineevent "snow_park_3">>
+								근처에서 놀고 있는 몇몇 사람들이 눈뭉치를 만들어 서로에게 던져대기 위해 눈을 모으고 있다. <<stress -3>><<lstress>>
+							<</addinlineevent>>
+						<</if>>
+					<<case "forest">>
+						<<addinlineevent "snow_forest_1">>
+							당신은 사슴 한 마리가 좀 떨어진 곳에서 새끼들과 옹기종기 가까이 모여, 몸을 따뜻하게 하면서 눈을 피하고 있는 것을 알아채고 멈춘다. 당신은 그들을 방해하지 않도록, 약간 돌아서 가기로 결정한다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+						<<addinlineevent "snow_forest_2">>
+							나무의 가지들이 떨어지는 눈을 어느 정도 막아주고 있다. <<stress -1>><<lstress>>
+						<</addinlineevent>>
+						<<addinlineevent "snow_forest_wolfmeet">>
+							<<beastNEWinit 1 wolf>>
+							<<if $syndromewolves is 1>>
+								당신은 방심하다가 당신 앞의 눈더미에서 <<beasttypePost>> 하나가 튀어나와 놀란다. 당신은 녀석이 당신의 무리 중 하나인 것을 보고 안심한다.
+								<<if $monster is 1>>
+									"항상 경계를 풀지 말게나, <<ppackbrother_ yo>>," <<bhe_ nun>> 눈을 흔들어 털며 말한다. "집에 빨리. 추운 날은 무리와 함께이면 더 따뜻하다네." <<bHe_ nun>> 늑대 동굴 쪽으로 달려가 버린다.
+								<<else>>
+									<<bHe_ nun>> <<bhis_ yi>> 모피에서 눈을 흔들어 털기 전에 당신에게 다가와 코를 비비고 늑대 동굴 쪽으로 달려가 버린다.
+								<</if>>
+							<<stress -6>><<llstress>>
+							<<else>>
+								당신은 <<beasttypePost>> 하나가 당신 앞의 눈더미에서, 당신을 응시하는 것을 보고 몸이 굳는다.
+								<<if $monster is 1>>
+									<<bHe_ nun>> 당신을 진지한 눈으로 보면서, 천천히 몸을 드러낸다.
+									<br><br>
+									"추운 날, 인간에게는 힘들어. 집으로 달려가," <<bhe_ nun>> 눈을 흔들어 털며 말한다. <<bHe_ nun>> 장난스럽게 <<bhis_ yi>> 송곳니를 드러내더니, 나무들 사이로 달려가 버린다.
+								<<else>>
+									<<bHe_ nun>> <<bhis_ yi>> 모피에서 눈을 흔들어 털기 전에 멈춰 당신을 응시하다가 나무들 사이로 달려가 버린다.
+								<</if>>
+							<<stress -3>><<lstress>>
+							<</if>>
+							<<endevent>>
+						<</addinlineevent>>
+					<<case "moor">>
+						<<addinlineevent "snow_moor_1">>
+							떨어지는 눈송이들이 당신의 시야를 가리자, 당신은 이상한 소리를 듣는다. <<stress 3>><<gstress>>
+						<</addinlineevent>>
+						<<addinlineevent "snow_moor_2">>
+							잠시 동안, 눈이 가라앉고 당신은 따뜻한 햇빛을 받는다. 그것은 오래 가지 않았지만, 당신은 기분이 약간 좋아지는 것을 느낀다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+						<<addinlineevent "snow_moor_3">>
+							<<if Time.hour gte 6 and Time.hour lt 21>>
+								눈은 평소에도 위험한 황무지 지역을 더욱 위험하게 한다. 당신은 안정적인 발디딤을 찾으려 몸부림치면서 자주 미끄러지기도 하며 나아간다.
+							<<else>>
+								눈이 내려 황무지의 어두운 밤을 더욱 어둡게 하고 있다. 당신은 당신이 어디로 나아가는지 가까스로 볼 수가 있었다. <<stress 6>><<gstress>>
+							<</if>>
+						<</addinlineevent>>
+					<<default>>
+				<</switch>>
+			<</if>>
+		<<case "autumnrain" "summerrain" "springrain">>
+			<<addinlineevent "rain_anywhere_1">>
+				멀리서 천둥이 우르릉거린다. <<stress 1>><<gstress>>
 			<</addinlineevent>>
-			<<addinlineevent "winter_anywhere_2" 0.5>>
-				<<dancedifficulty 1 1000 true>>
-				You step into some snow that was deeper than you first thought,
-				<<if $danceSuccess>>
-					<span class="green">but you manage to keep your footing.</span>
+			<<addinlineevent "rain_anywhere_2">>
+				<<if $trauma gte ($traumamax / 5) * 4>>
+					양보없는 비의 맹폭이 당신을 괴롭히며 조롱한다. <<stress 6>><<gstress>>
 				<<else>>
-					<span class="red">and you lose your footing.</span> You land on your butt in the cold snow before climbing to your feet. <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<set $lowerwet += 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>><<set $underlowerwet += 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
-					<br><br>
-					<<covered>>
+					부드러운 빗소리가 당신을 진정시킨다. <<stress -3>><<lstress>>
 				<</if>>
 			<</addinlineevent>>
-			<<if $hour gte 6 and $hour lt 21>>
-				<<addinlineevent "winter_anywhere_3">>
-					You catch a brief ray of sunshine and warmth. <<stress -3>><<lstress>>
-				<</addinlineevent>>
-			<</if>>
+			<<addinlineevent "rain_anywhere_3" 0.33>>
+				그 비는 잠시 동안 우박에 그 자리를 내준다. 당신은 한동안 가차없이 그것에 공격당한다. <<pain 4>><<stress 6>><<gpain>><<gstress>>
+			<</addinlineevent>>			
 			<<switch $location>>
 				<<case "town">>
-					<<addinlineevent "winter_anystreet_1" 0.5>>
-						<<athleticsdifficulty 0 1000 true>>
-						A car rushes by, sending a spray of slush onto the pavement.
+					<<addinlineevent "rain_anystreet_1" 0.33>>
+						<<athleticsdifficulty 0 500 true>>
+						자동차 한 대가 옆으로 질주하며, 빗물을 보도 위로 흩뿌린다.
 						<<if $athleticsSuccess>>
-							<span class="green">You manage to jump out of the way just in time.</span>
+							<span class="green">당신은 어떻게든 타이밍 맞춰 물러날 수 있었다.</span>
 						<<else>>
-							<span class="red">It completely drenches you before you can react, leaving you freezing.</span>
+							<span class="red">그것은 당신이 반응하기 전에 당신을 완전히 흠뻑 적신다.</span>
 							<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
 								<<set $upperwet to 200>>
 							<</if>>
@@ -49,611 +325,443 @@
 							<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
 								<<set $lowerwet to 200>>
 							<</if>>
-							<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>>
+							<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>>
 								<<set $underlowerwet to 200>>
 							<</if>>
 							<<effectswater>>
 							<<covered>>
 						<</if>>
 					<</addinlineevent>>
-					<<addinlineevent "winter_anystreet_2">>
-						<<beastNEWinit 1 dog>>
-						A <<beasttype>> jumps excitedly back and forth in the snow, trying to wrestle it into submission. <<stress -3>><<lstress>>
-						<<endevent>>
-					<</addinlineevent>>
-					<<if $hour gte 6 and $hour lt 21>>
-						<<addinlineevent "winter_anystreet_3">>
-							A snowplow rumbles past and the driver honks and waves at you. <<stress -3>><<lstress>>
-						<</addinlineevent>>
-					<</if>>
-				<<case "alley">>
-					<<addinlineevent "winter_anyalley_1">>
-						You find an abandoned trash can fire, still lit. You take a moment to warm yourself. <<stress -3>><<lstress>>
-					<</addinlineevent>>
-					<<addinlineevent "winter_anyalley_2">>
-						<<beastNEWinit 3 cat>>
-						You pass by some stray <<beastsplural>> playing in the snow. <<stress -3>><<lstress>>
-						<<endevent>>
-					<</addinlineevent>>
-					<<addinlineevent "winter_anyalley_3" 0.5>>
-						<<athleticsdifficulty 0 1000 true>>
-						As you pass through the alleyway, you hear a sharp crack from above. Some snow falls loose from a window ledge above,
-						<<if $athleticsSuccess>>
-							<span class="green">but you manage to jump out of the way just in time.</span>
+					<<addinlineevent "rain_anystreet_2" 0.33>>
+					<<dancedifficulty 1 500 true>>
+						비로 미끄러워진 보도 위에서 당신은 미끄러진다.
+						<<if $danceSuccess>>
+							<span class="green">하지만 당신은 어떻게든 스스로를 바로잡고 발을 디딜 수 있었다.</span>
 						<<else>>
-							<span class="red">crashing down on top of you.</span> <<set $upperwet += 75>><<stress 6>><<pain 4>><<gstress>><<gpain>>
+							<span class="red">그리고 당신은 미끄러졌다.</span> 당신은 큰 물웅덩이에 정확히 엉덩이를 처박는다. <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<set $lowerwet to 200>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>><<set $underlowerwet to 200>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
 							<br><br>
 							<<covered>>
 						<</if>>
 					<</addinlineevent>>
-				<<case "park">>
-					<<addinlineevent "winter_park_1">>
-						<<if $hour gte 6 and $hour lt 21>>
-							You pass by people making angels in the snow. They look carefree. <<stress -3>><<lstress>>
-						<<else>>
-							You pass by a snow angel.
-							<<if $angel gte 6>>
-								You rub your wings and smile.
-							<<elseif $fallenangel gte 2>>
-								You angrily kick snow over it, suppressing a painful memory.
-							<<elseif $demon gte 6>>
-								You use your foot to give it horns and a tail, giggling to yourself.
-							<</if>>
-							<<stress -3>><<lstress>>
+					<<addinlineevent "rain_anystreet_3">>
+						<<generate1>><<person1>>우산을 든 한 <<person_ i>> 한동안 <<him_ gwa>> 우산을 같이 쓰고 가도록 해 준다. <<He_ nun>> 같이 걸으며 당신과 잡담을 한다. <<stress -3>><<lstress>>
+						<<endevent>>
+					<</addinlineevent>>
+					<<if Time.hour gte 7 and Time.hour lt 21 and playerIsPregnant() and playerAwareTheyArePregnant()>>
+						<<addinlineevent "rain_pregnant_talk" 0.8>>
+							<<generate1>><<person1>>
+							비가 폭우로 바뀌고, 당신은 근처의 차양 아래에서 비를 피한다. 유모차를 끌고 있는 <<personsimple_ i>> 이미 그곳에서, <<his_ yi>> 칭얼거리는 갓난아기를 달래려고 속삭이고 있다. <<He_ ga>> 미소지으며 당신의 <<bellyDescription_ ul "pc">> 보며 끄덕인다. "예정일이 언제에요?" <<he_ ga>> 묻는다. 당신 둘은 폭우가 뜸해지는 것을 기다리며 한가로이 수다를 떤다.
+							<br><br>
+
+							비가 드디어 뜸해지자, 그 <<father_ ga>> 자신이 <<print either("도무스 가", "다뉴브 가")>>에 살고 있다고 언급하며 당신에게 아기를 낳으면 한번 놀이 약속을 잡자고 제안한다. <<he_ ga>> 당신에게 어디에 사느냐고 묻자, 당신은 고아원에서 살고 있다고 고백한다. 그 <<persons_ yi>> 얼굴은 연민과 불쾌감이 섞여 일그러지고, <<he_ nun>> 서둘러 작별인사를 중얼거리더니 다시 한번 빗속으로 걸어나간다. 당신은 유모차가 멀리 사라지는 것을 보면서, 이상한 상실감을 느낀다. <<trauma 6>><<gtrauma>>
+							<<endevent>>
+						<</addinlineevent>>					
+					<</if>>
+				<<case "alley">>
+					<<addinlineevent "rain_anyalley_1">>
+						<<beastNEWinit 1 dog>>
+						<<beasttypePost>> 한 마리가 쓰레기통 옆에서 옹송거리며 앉아 폭우를 피하고 있다. 당신은 녀석을 측은히 여긴다. <<stress -3>><<lstress>>
+						<<endevent>>
+					<</addinlineevent>>
+					<<addinlineevent "rain_anyalley_2" 0.33>>
+						당신이 홈통 아래를 걷고 있을 때 배수관에서 갑자기 물이 쏟아진다. 빗물의 급류가 당신을 흠뻑 적신다.
+						<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
+							<<upperwet 75>>
+						<</if>>
+						<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
+							<<underupperwet 75>>
+						<</if>>
+						<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
+							<<lowerwet 75>>
+						<</if>>
+						<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>>
+							<<underlowerwet 75>>
 						<</if>>
 					<</addinlineevent>>
-					<<if $hour gte 6 and $hour lt 21>>
-						<<addinlineevent "winter_park_2">>
-							You see some orphans laughing as they collaborate to build a snowman. <<stress -3>><<lstress>>
-						<</addinlineevent>>
-						<<addinlineevent "winter_park_3" 0.33>>
-							You're suddenly pelted with a slushy snowball. You turn to see
-							<<if $NPCName[$NPCNameList.indexOf("Whitney")].state is "active" and $NPCName[$NPCNameList.indexOf("Whitney")].init is 1 and ($weather is "rain" or $weather is "snow") and $daystate is "day" and ($schoolday isnot 1 or $hour lte 8 or $hour gte 15) and $whitney_park is undefined>>
-								Whitney, quickly wiping snow from <<nnpc_his "Whitney">> hands. <<if $loveInterest.primary is "Whitney" or $loveInterest.secondary is "Whitney">><<stress -3>><<lstress>><<else>><<stress 12>><<ggstress>><</if>>
-							<<else>>
-								several delinquents laughing at you. <<stress 12>><<ggstress>>
+					<<addinlineevent "rain_anyalley_3">>
+						아이들 한 무리가 골목길에서 놀고 있다. 그들은 펄쩍 뛰어, 물웅덩이에 철벅 떨어지며 킥킥거린다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+				<<case "park">>
+					<<addinlineevent "rain_park_1">>
+						<<beastNEWinit 1 dog>>
+						<<generate2>><<person2>>한 <<person_ i>> 공원을 가로질러 도망친 <<beasttype_ ul>> 쫓아가며, 빗물이 <<him_ ul>> 적시자 계속 악담을 퍼붓는다. 당신은 나오려는 웃음을 참는다. <<stress -3>><<lstress>>
+						<<endevent>>
+					<</addinlineevent>>
+					<<addinlineevent "rain_park_2">>
+						당신은 한 커플이 빗속에서 키스하는 장면을 흘끗 본다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<addinlineevent "rain_park_3" 0.5>>
+							당신은 미끄러져 젖은 잔디 위로 넘어진다.
+							<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+								당신의 양 손은 본능적으로 당신의 <<bellyDescription_ ul "pc">> 감싸 당신이 넘어지며 엉덩이를 바닥에 부딪힐 때 다치지 않게 보호한다. 당신은 근처의 벤치를 사용해 안전하게 당신 자신을 끌어올려 일어나면서, 다시 미끄러지지 않게 조심한다.
 							<</if>>
-						<</addinlineevent>>
-					<</if>>
+							당신의 엉덩이가 축축하고 쓰라린다. <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<lowerwet 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>><<underlowerwet 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
+					<</addinlineevent>>
 				<<case "forest">>
-					<<addinlineevent "winter_forest_1" 0.33>>
-						You hear a thunderous crack nearby. You turn around just in time to see the remains of a tree fall to the ground, surrounded by a great circle of splinters. <<stress 12>><<ggstress>>
+					<<addinlineevent "rain_forest_1">>
+						비가 나무들 사이로 쏟아져 내려와, 숲을 평온한 냄새와 소리로 채우고 있다. <<stress -3>><<lstress>>
 					<</addinlineevent>>
-					<<addinlineevent "winter_forest_2">>
-						You find wolf tracks in the snow. <<if $wolfgirl gte 3>><<garousal>><<arousal 600>><<else>><<gstress>><<stress 1>><</if>>
+					<<addinlineevent "rain_forest_2" 0.33>>
+						벼락이 근처의 나무를 때려, 조각들을 모든 방향으로 날린다. 그 나무는 땅으로 쓰러진다. 그 그을린 나무는 비에 의해 빠르게 젖어들지만, 그 사건으로 당신은 아직 신경이 곤두서 있다. <<stress 24>><<gggstress>>
 					<</addinlineevent>>
-					<<addinlineevent "winter_forest_3">>
-						You find a well-built snowman leaning against a tree. The pose work is impressive. Someone spent a lot of time on this. <<stress -3>><<lstress>>
+					<<addinlineevent "rain_forest_3">>
+						당신은 사슴 한 마리가 새끼들을 비에서 보호해 주는 것을 본다. <<stress -3>><<lstress>>
 					<</addinlineevent>>
 				<<case "moor">>
-					<<addinlineevent "winter_moor_1" 0.33>>
-						You find a hideous snowman standing in a circle of pillars made of ice. <<if $hallucinations gte 2>>You turn away, only to hear a loud snap behind you. You look back, and it's gone. <<stress 24>><<gggstress>><<else>><<stress 6>><<gstress>><</if>>
+					<<addinlineevent "rain_moor_1">>
+						빗줄기가 당신의 시야를 가리자, 당신은 이상한 소리를 듣는다. <<stress 3>><<gstress>>
 					<</addinlineevent>>
-					<<addinlineevent "winter_moor_2" 0.5>>
-						You come across a frozen pond, and look down at your reflection.
-						<<if $hallucinations gte 2>>
-							<span class="red">Something inhuman scrapes at the ice from below.</span> You scramble away, nearly slipping. <<stress 24>><<gggstress>>
-						<<elseif $hallucinations gte 1>>
-							The surface churns and warps as if it weren't frozen, and you're almost certain that the reflection isn't yours. <<stress 12>><<ggstress>>
-						<<elseif $hallucinogen gt 0>>
-							The surface ripples at your presence, and a vaguely familiar <<girl>> stares back through the ice. Your breath catches in your throat for a moment, before you decide to look away. <<stress 12>><<ggstress>>
-						<<elseif $trauma gte $traumamax>>
-							A <<girl>> with glazed eyes stares back.
-						<<elseif $pain gte 100>>
-							A crying <<girl>> stares back.
-						<<elseif $pain gte 40>>
-							A tearful <<girl>> stares back.
-						<<elseif $pain gte 1>>
-							A frowning <<girl>> stares back.
-						<<else>>
-							A cheerful <<girl>> stares back. <<stress -3>><<lstress>>
-						<</if>>
+					<<addinlineevent "rain_moor_2">>
+						번개의 번쩍임이 멀리서 움직이는 어두운 형체를 비춘다. <<stress 3>><<gstress>>
 					<</addinlineevent>>
-					<<if $hour gte 6 and $hour lt 21>>
-						<<addinlineevent "winter_moor_3">>
-							You see some late birds flying south for the winter. <<stress -3>><<lstress>>
+					<<addinlineevent "rain_moor_3">>
+						당신은 근처의 잔디에서 무슨 소리가 들려와 몸이 굳는다. 당신은 젖은 토끼가 비에서 더 좋은 피난처를 찾기 위해 덤불에서 깡충 튀어나오는 것을 보고, 안도감에 한숨을 쉰다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<if $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+						<<addinlineevent "rain_moor_4" 0.5>>
+							<<generatePlant1>><<person1>>
+							당신은 <<personsimplePost>> 하나가 빗속에서 빙그르르 돌면서, <<his_ yi>> 팔을 내밀고 있는 것을 본다. <<He_ nun>> 거의 미끄러질 뻔 하면서 <<his_ yi>> 중심을 몇 번 잃지만, <<he_ nun>> 미소 짓는 것을 멈추지 않는다. <<stress -3>><<lstress>>
+							<<endevent>>
 						<</addinlineevent>>
 					<</if>>
 				<<default>>
 			<</switch>>
-		<</if>>
-		<<if $weather is "snow">>
-			<<addinlineevent "snow_anywhere_1">>
-				A single snowflake lands softly on the tip of your nose. You stop to regard it with wonder for a few moments. <<stress -1>><<lstress>>
+		<<case "autumnclear" "autumnovercast">>
+			<<addinlineevent "autumn_anywhere_1">>
+				바람이 갑자기 밀려들어 당신 주위에 원을 그리며 소용돌이친다. 바람이 다시 잦아들기 전에 당신은 그 소용돌이의 눈 안에 서서 평온함을 느낀다. <<stress -3>><<lstress>>
 			<</addinlineevent>>
-			<<addinlineevent "snow_anywhere_2">>
-				A burst of wind sends a flurry of snow right into your face. <<stress 3>><<gstress>>
+			<<addinlineevent "autumn_anywhere_2">>
+				바람이 낙엽을 당신 얼굴로 날려보<<if !$worn.face.type.includes("covered")>>내, 당신은 푸푸 하며 침을 뱉는다<<else>>낸다<</if>>. <<stress 1>><<gstress>>
 			<</addinlineevent>>
-			<<addinlineevent "snow_anywhere_3">>
-				A surge of wind sends snow swirling in a circle around you. You feel a sense of calm as you stand in the eye of the storm before the wind dies down again. <<stress -6>><<lstress>>
+			<<addinlineevent "autumn_anywhere_3" 0.33>>
+				<<dancedifficulty 1 500 true>>
+				당신은 떨어진 나뭇가지를 밟고 발을 헛디딘다.
+				<<if $danceSuccess>>
+					<span class="green">하지만 당신은 어떻게든 발을 잘 디딜 수 있었다.</span>
+					<br><br>
+					<<covered>>				
+				<<else>>
+					<span class="red">그리고 당신은 축축한 낙엽 더미 위로 넘어진다.</span>
+					<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+						당신의 손은 자동적으로 당신의 <<bellyDescription_ ul "pc">> 감싼다. 당신은 그 낙엽들이 당신이 넘어질 때 쿠션 역할을 해 준 것에 감사한다. 당신은 재빠르게 일어나, 낙엽을 털어내고 당신의 이제 축축하고 쓰라린 엉덩이를 비빈다.
+					<<else>>
+						당신은 재빠르게 일어나, 낙엽을 털어내고 당신의 이제 축축하고 쓰라린 엉덩이를 비빈다.
+					<</if>>
+					<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<lowerwet 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>><<underlowerwet 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
+					<br><br>
+					<<covered>>
+				<</if>>
 			<</addinlineevent>>
+			<<if ["town", "park"].includes($location) and Time.hour gte 7 and Time.hour lt 21 and playerIsPregnant() and playerAwareTheyArePregnant()>>
+				<<addinlineevent "autumn_pregnant_watch">>
+					<<generatey1>><<person1>>
+					당신은 한 무리의 아이들이 놀고 있는 것을 본다. 어떤 어린 <<persony_ ga>> 낙엽 더미 뒤에 숨어 있다가 갑자기 튀어나와 <<his_ yi>> 친구를 놀래킨다. 그 다른 아이는 곧바로 울음보가 터진다.
+					당신은 <<bellyDescription_ ul "pc">> 문지르며 당신의 <<pregnancyBabyText_ ga "pc">> 그들처럼 골칫덩이가 될 지 궁금해한다. <<stress -3>><<lstress>>
+					<<endevent>>
+				<</addinlineevent>>					
+			<</if>>
 			<<switch $location>>
 				<<case "town">>
-					<<addinlineevent "snow_anystreet_1">>
+					<<addinlineevent "autumn_anystreet_1">>
 						<<beastNEWinit 1 dog>>
-						A <<beasttype>> barks at the falling snow. <<bHe>> sneezes as a snowflake lands on <<bhis>> nose. <<stress -3>><<lstress>>
+						바람이 낙엽을 이쪽저쪽으로 날리자 <<beasttypePost>> 한 마리가 달려가 그것을 덥석 문다. <<stress -3>><<lstress>>
 						<<endevent>>
 					<</addinlineevent>>
-					<<addinlineevent "snow_anystreet_2">>
-						<<generate1>><<person1>>A <<person>> with an umbrella lets you walk alongside <<him>> for awhile. <<He>> chats with you as you walk together. <<stress -3>><<lstress>>
-						<<endevent>>
-					<</addinlineevent>>
-					<<if ($bus is "domus" or $bus is "danube" or $bus is "barb") and $hour gte 6 and $hour lt 21>>
-						<<addinlineevent "snow_residentialstreet_1">>
-							You spot someone from the orphanage playing joyfully amidst the falling snow. <<stress -3>><<lstress>>
+					<<if Time.hour gte 6 and Time.hour lte 21>>
+						<<addinlineevent "autumn_anystreet_2">>
+							<<generate1>><<person1>>한 <<person_ i>> 보도의 낙엽들을 갈퀴로 더미에 긁어모은다. <<he_ ga>> 끝마치자마자, 바람이 그것들을 또 다시 보도에 흩어뜨려, <<him_ i>> 큰 소리로 욕을 한다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<addinlineevent "autumn_anystreet_3">>
+							<<generate1>><<person1>>한 <<person_ i>> 보도 위에 서서 나뭇잎 날리는 기계로 보도를 청소하고 있다. 당신이 <<himPost>> 근처에 가자, <<he_ ga>> 갑자기 돌아섰고, 기계에서 나오는 강력한 바람이 당신의 옷을 난잡하게 날려, 근처의 모든 사람들에게 구경거리를 선사한다. 그 <<person_ un>> 당신이 옷을 다시 원래대로 돌려놓으려 끙끙대며 지나가자 웃어댄다. <<stress 3>><<arousal 10>><<gstress>><<garousal>>
+							<<endevent>>
 						<</addinlineevent>>
 					<</if>>
 				<<case "alley">>
-					<<addinlineevent "snow_anyalley_1">>
+					<<addinlineevent "autumn_anyalley_1">>
 						<<beastNEWinit 1 cat>>
-						A stray <<beasttype>> pursues the descending flakes of snow throughout the alleyway. <<stress -3>><<lstress>>
+							들<<beasttypePost>> 한 마리가 골목길을 가로질러 낙엽을 뒤쫓는다. 당신은 잠시 동안 멈춰 그것을 바라본다.<<stress -3>><<lstress>>
 						<<endevent>>
 					<</addinlineevent>>
-					<<addinlineevent "snow_anyalley_2">>
-						<<beastNEWinit 1 dog>>
-						<<generate2>><<person2>>
-						A homeless <<personsimple>> huddles together with a mangy <<person1>><<beasttype>> inside of a cardboard box, seeking shelter from the snow. <<person2>><<He>> gives you a warm smile as you pass. <<stress -3>><<lstress>>
-						<<endevent>>
+					<<addinlineevent "autumn_anyalley_2">>
+						당신이 골목길을 지나가자, 갑자기 바람이 근처의 낙엽들을 잡아 당신 방향으로 쏟아붓는다. 당신은 가능한 한 당신 자신을 가렸고, 젖고 지저분한 낙엽이 곧 당신을 지나쳐간다. <<stress 1>><<gstress>>
 					<</addinlineevent>>
-					<<addinlineevent "snow_anyalley_3">>
-						As you pass through the alley, the wind suddenly picks up and funnels a huge swathe of falling snow in your direction. You shield yourself as you're assailed by wet and cold snowflakes. When the wind finally dies down, you're left freezing with damp clothes.
-						<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
-							<<set $upperwet += 75>>
-						<</if>>
-						<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
-							<<set $underupperwet += 75>>
-						<</if>>
-						<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
-							<<set $lowerwet += 75>>
-						<</if>>
-						<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>>
-							<<set $underlowerwet += 75>>
-						<</if>>
-					<</addinlineevent>>
-				<<case "park">>
-					<<addinlineevent "snow_park_1" 0.5>>
-						You slip on a patch of black ice, tripping and falling. You slide across the ground, dampening your clothes and leaving your bottom chilly. <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<set $lowerwet += 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>><<set $underlowerwet += 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
-					<</addinlineevent>>
-					<<if $hour gte 6 and $hour lt 21>>
-						<<addinlineevent "snow_park_2">>
-							Youths cheer and celebrate the falling snow as they play in the park. <<stress -3>><<lstress>>
+					<<if Time.hour gte 21 or Time.hour lt 6>>
+						<<addinlineevent "autumn_anyalley_3" 0.33>>
+							여러 큰 낙엽더미들이 골목길에 버려져 있다. 미국너구리들이 더미들 사이에서 뛰어놀고 있다. <<if currentSkillValue('science') gte 500>>미국너구리들은 확실이 토종이 아닐 테니, 당신은 왜 여기에 녀석들이 있는지 궁금해한다.<</if>> <<stress -3>><<lstress>>
 						<</addinlineevent>>
-						<<addinlineevent "snow_park_3">>
-							Some people playing nearby are cobbling what snow they can to form snowballs and lob them at one another. <<stress -3>><<stress>>
+					<</if>>
+				<<case "park">>
+					<<addinlineevent "autumn_park_1">>
+						당신은 공원을 둘러보고 가을이 펼치는 형형색색에 경이로워한다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<if Time.hour gte 6 and Time.hour lt 21>>
+						<<addinlineevent "autumn_park_2">>
+							당신은 한 커플이 교대로 낙엽 더미에 뛰어드는 것을 쳐다본다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+						<<addinlineevent "autumn_park_3">>
+							<<generate1>><<person1>>
+							당신은 실수로 낙엽 더미를 통해 지나간다. 근처에서 낙엽을 긁어모으던 <<person_ i>> 쳐다보고 당신에서 소리지른다. 당신은 서둘러 지나간다. <<stress 3>><<gstress>>
+							<<endevent>>
 						<</addinlineevent>>
 					<</if>>
 				<<case "forest">>
-					<<addinlineevent "snow_forest_1">>
-						You stop when you notice a deer huddled close to its young offspring some distance ahead, keeping it warm and sheltered from the snow. You decide to take a sight detour, as to not disturb them. <<stress -3>><<lstress>>
+					<<addinlineevent "autumn_forest_1">>
+						다람쥐 한 마리가 겨울을 대비해 저장하려는 나무열매를 들고, 당신을 지나쳐 달려간다. <<stress -3>><<lstress>>
 					<</addinlineevent>>
-					<<addinlineevent "snow_forest_2">>
-						The branches of the trees offer some protection from the falling snow. <<stress -1>><<lstress>>
+					<<addinlineevent "autumn_forest_2">>
+						당신은 숲속을 지나가며 숲으로 만들어진 천장을 뚫고 내려오는 주황색, 갈색, 그리고 노란색에 감탄하지 않을 수가 없다. <<stress -3>><<lstress>>
 					<</addinlineevent>>
-					<<addinlineevent "snow_forest_wolfmeet">>
-						<<beastNEWinit 1 wolf>>
-						<<if $syndromewolves is 1>>
-                            You're caught off guard as a <<beasttype>> bounds out from a snow bank in front of you. You relax once you see it's a member of your pack.
-                            <<if $monster is 1>>
-                                "Always keep guard up, <<ppackbrother>>," <<bhe>> says as <<bhe>> shakes off the snow. "Home soon. Cold days are warmer with pack." <<bHe>> bounds off towards the wolf cave.
-                            <<else>>
-                                <<bHe>> approaches and nuzzles you before shaking the snow from <<bhis>> furry coat and bounding off towards the wolf cave.
-                            <</if>>
-                        <<stress -6>><<llstress>>
-						<<else>>
-                            You freeze when you see a <<beasttype>> in front of you, peering from a snow bank.
-                            <<if $monster is 1>>
-                                <<bHe>> slowly emerges, regarding you with serious eyes.
-                                <br><br>
-                                "Cold days, not for humans. Run home," <<bhe>> says as <<bhe>> shakes off the snow. <<bHe>> bares <<bhis>> fangs at you playfully, before bounding off into the trees.
-                            <<else>>
-                                <<bHe>> stops and regards you before shaking the snow from <<bhis>> furry coat and bounding off into the trees.
-                            <</if>>
-                        <<stress -3>><<lstress>>
-						<</if>>
-						<<endevent>>
+					<<addinlineevent "autumn_forest_3" 0.33>>
+						당신은 위험한 으르렁거리는 소리를 듣고 가던 길을 멈춘다. 아래를 쳐다보고, 당신은 오소리 한 마리가 근처 나무 발치에 있는 것을 발견한다. 그것은 흩뿌려져 있는 흙에 둘러싸여 있다. 당신이 녀석이 겨울 잠자리를 파고 있는 것을 방해한 듯 하다. 당신은 녀석이 다시 땅을 파기 시작할 때까지 천천히 뒤로 물러선다. <<stress 3>><<gstress>>
 					<</addinlineevent>>
+					<<if $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+						<<addinlineevent "autumn_forest_4" 0.5>>
+							<<generatePlant1>><<person1>>
+							<<personsimplePost>> 하나가 <<his_ yi>> 손가락으로 머리를 빗질한다. <<He_ nun>> 죽은 이파리들을 떼어내, 버리기 전에 <<his_ yi>> 손으로 으스러뜨린다.
+							<<endevent>>
+						<</addinlineevent>>
+					<</if>>
 				<<case "moor">>
-                    <<addinlineevent "snow_moor_1">>
-                        The falling snowflakes obscure your vision, as you hear strange sounds all about. <<stress 3>><<gstress>>
-                    <</addinlineevent>>
-                    <<addinlineevent "snow_moor_2">>
-                        For the briefest of moments, the snow subsides and you catch a warming ray of sunshine. It doesn't last long, but you feel a little better. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                    <<addinlineevent "snow_moor_3">>
-                        <<if $hour gte 6 and $hour lt 21>>
-                            The snow makes the normally treacherous terrain of the moor even more dangerous. You struggle to find stable footing and occasionally slip as you go.
-                        <<else>>
-                            The snowfall makes the dark night of the moor even darker. You can barely see where you're going. <<stress 6>><<gstress>>
-                        <</if>>
-                    <</addinlineevent>>
+					<<addinlineevent "autumn_moor_1">>
+						T썩어가는 식물의 냄새가 황무지를 매캐한 악취로 채우고 있다. <<stress 3>><<gstress>>
+					<</addinlineevent>>
+					<<addinlineevent "autumn_moor_2">>
+						당신은 철새 떼가 겨울을 나기 위해 당신의 머리 위를 자나 남쪽으로 날아가는 것을 본다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<addinlineevent "autumn_moor_3" 0.33>>
+						당신은 이상한 공터에서 멈춘다. 당신은 무언가 잔가지로 만든 인형 같은 것을 알아챈다. 당신은 그것을 쳐다보며, 이 장면이 점점 더 잘못되어 있다는 것을 깨닫는다. 그것의 눈은 다 탄 양초로 채워져 있다. 그것 주위의 바위 배치는 자연적이지 않고, 어떤 종류의 돌무덤이 확실하다. 어두운 뿌리들이 땅에서 솟아나와 그 인형을 꽉 잡고 있다. 당신은 부자연스러운 안개처럼 느껴지는 것에서 재빨리 빠져나와, 그곳을 가능한 빨리 벗어나려고 노력한다. <<stress 12>><<ggstress>>
+					<</addinlineevent>>
 				<<default>>
 			<</switch>>
-		<</if>>
-	<<case "autumnrain" "summerrain" "springrain">>
-        <<addinlineevent "rain_anywhere_1">>
-            Thunder rumbles in the distance. <<stress 1>><<gstress>>
-        <</addinlineevent>>
-        <<addinlineevent "rain_anywhere_2">>
-            <<if $trauma gte ($traumamax / 5) * 4>>
-                The unyielding onslaught of the rain torments and mocks you. <<stress 6>><<gstress>>
-            <<else>>
-                The gentle sound of the rain soothes you. <<stress -3>><<lstress>>
-            <</if>>
-        <</addinlineevent>>
-        <<addinlineevent "rain_anywhere_3" 0.33>>
-            The rain briefly gives way to hail. You're relentlessly pelted for a few moments. <<pain 4>><<stress 6>><<gpain>><<gstress>>
-        <</addinlineevent>>
-        <<switch $location>>
-            <<case "town">>
-                <<addinlineevent "rain_anystreet_1" 0.33>>
-                	<<athleticsdifficulty 0 500 true>>
-					A vehicle races by, sending water spraying across the pavement.
-					<<if $athleticsSuccess>>
-						<span class="green">You manage to step out of the way just in time.</span>
-					<<else>>
-						<span class="red">It completely drenches you before you can react.</span>
-						<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
-							<<set $upperwet to 200>>
-						<</if>>
-						<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
-							<<set $underupperwet to 200>>
-						<</if>>
-						<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
-							<<set $lowerwet to 200>>
-						<</if>>
-						<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>>
-							<<set $underlowerwet to 200>>
-						<</if>>
-						<<effectswater>>
-						<<covered>>
-					<</if>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_anystreet_2" 0.33>>
-                <<dancedifficulty 1 500 true>>
-                    The rain-slicked pavement causes you to slip,
-                    <<if $danceSuccess>>
-                        <span class="green">but you manage to right yourself and keep your footing.</span>
-                    <<else>>
-                        <span class="red">and you lose your footing.</span> You land on your butt, right in a large puddle. <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<set $lowerwet to 200>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>><<set $underlowerwet to 200>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
-                        <br><br>
-                        <<covered>>
-                    <</if>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_anystreet_3">>
-					<<generate1>><<person1>>A <<person>> with an umbrella lets you walk alongside <<him>> for awhile. <<He>> chats with you as you walk together. <<stress -3>><<lstress>>
-					<<endevent>>
-                <</addinlineevent>>
-            <<case "alley">>
-                <<addinlineevent "rain_anyalley_1">>
-                    <<beastNEWinit 1 dog>>
-                    A <<beasttype>> huddles by some trash cans to escape the downpour. You can sympathize. <<stress -3>><<lstress>>
-                    <<endevent>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_anyalley_2" 0.33>>
-				    You walk beneath a gutter drain just as it comes unclogged. A torrent of rain water drenches you.
-					<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
-						<<set $upperwet += 75>>
-					<</if>>
-					<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
-						<<set $underupperwet += 75>>
-					<</if>>
-					<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
-						<<set $lowerwet += 75>>
-					<</if>>
-					<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>>
-						<<set $underlowerwet += 75>>
-					<</if>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_anyalley_3">>
-                    A group of youths are playing in the alley. They jump about, splashing in puddles and giggling. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-            <<case "park">>
-                <<addinlineevent "rain_park_1">>
-                    <<beastNEWinit 1 dog>>
-                    <<generate2>><<person2>>A <<person>> chases an escaped <<beasttype>> across the park, cursing all the while as the rain soaks <<him>>. You hold back a giggle. <<stress -3>><<lstress>>
-                    <<endevent>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_park_2">>
-                    You catch sight of a couple kissing in the rain. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_park_3" 0.5>>
-						You slip and fall onto a patch of wet grass. Your bottom is left sore and damp. <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<set $lowerwet += 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>><<set $underlowerwet += 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
-                <</addinlineevent>>
-            <<case "forest">>
-                <<addinlineevent "rain_forest_1">>
-                    Rain pours down through the trees, filling the forest with calming scents and sounds. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_forest_2" 0.33>>
-                    Lightning strikes a tree nearby, sending splinters flying in all directions. The tree hurdles to the ground. The smoldering wood is doused quickly by the rain, but the event still leaves you on edge. <<stress 24>><<gggstress>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_forest_3">>
-                    You spot a deer sheltering its child from the rain. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-            <<case "moor">>
-                <<addinlineevent "rain_moor_1">>
-                    The rain obscures your vision as you hear strange sounds all about. <<stress 3>><<gstress>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_moor_2">>
-                    A flash of lightning illuminates dark shapes moving in the distance. <<stress 3>><<gstress>>
-                <</addinlineevent>>
-                <<addinlineevent "rain_moor_3">>
-                    You freeze as you hear a noise in the nearby grass. You sigh in relief as a wet rabbit hops from the brush, seeking better shelter from the rain. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-            <<default>>
-        <</switch>>
-	<<case "autumnclear" "autumnovercast">>
-        <<addinlineevent "autumn_anywhere_1">>
-            A surge of wind sends leaves swirling in a circle around you. You feel a sense of calm as you stand in the eye of the storm, before the wind dies down again. <<stress -3>><<lstress>>
-        <</addinlineevent>>
-        <<addinlineevent "autumn_anywhere_2">>
-            The wind kicks up some leaves in your face, leaving you sputtering. <<stress 1>><<gstress>>
-        <</addinlineevent>>
-        <<addinlineevent "autumn_anywhere_3" 0.33>>
-            <<dancedifficulty 1 500 true>>
-			You trip up on a fallen branch,
-			<<if $danceSuccess>>
-				<span class="green">but you manage to keep your footing.</span>
-			<<else>>
-				<span class="red">and land in a pile of damp leaves.</span> You quickly stand, brushing off leaves and rubbing your now sore and wet bottom. <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>><<set $lowerwet += 75>><<elseif $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>><<set $underlowerwet += 75>><</if>><<stress 6>><<pain 4>><<gstress>><<gpain>>
-				<br><br>
-				<<covered>>
+		<<case "summerclear" "summerovercast">>
+			<<addinlineevent "summer_anywhere_1">>
+				<<if Time.hour gte 6 and Time.hour lt 21>>
+					잔혹한 여름 더위가 당신을 짓누른다. <<stress 3>><<gstress>>
+				<<else>>
+					시원한 밤 공기가 지독히 더운 낮의 고통을 경감시켜 준다. <<stress -3>><<lstress>>
+				<</if>>
+			<</addinlineevent>>
+			<<addinlineevent "summer_anywhere_2">>
+				시원한 산들바람이 불어와 당신에게 새로운 활력을 준다. <<stress -1>><<lstress>>
+			<</addinlineevent>>
+			<<addinlineevent "summer_anywhere_3" 0.5>>
+				잔혹한 더위의 파도가 당신에게 밀려온다. 당신은 잠시 머리에서 땀을 닦아낸다. <<stress 1>><<gstress>>
+			<</addinlineevent>>
+			<<if ["town", "park"].includes($location) and Time.hour gte 7 and Time.hour lt 21 and playerIsPregnant() and playerAwareTheyArePregnant()>>
+				<<addinlineevent "summer_pregnant_watch">>
+					당신은 한 무리의 아이들이 놀고 있는 것을 본다. 대부분은 서로에게 물총을 쏴대면서 달리며 꺄악대고 있지만, 몇몇은 잔디 위에 느긋하게 앉아 있다. 가끔, 그들의 친구가 그들에게 물총을 쏴 그들을 식혀주고, 그들을 킥킥대게 한다.
+					당신은 <<bellyDescription_ ul "pc">> 문지르며 당신의 <<pregnancyBabyText_ ga "pc">> 그들처럼 태평스럽게 될 지 궁금해한다. <<stress -3>><<lstress>>
+				<</addinlineevent>>					
 			<</if>>
-        <</addinlineevent>>
-        <<switch $location>>
-            <<case "town">>
-                <<addinlineevent "autumn_anystreet_1">>
-                    <<beastNEWinit 1 dog>>
-                    A <<beasttype>> snaps at leaves as the wind sweeps them this way and that. <<stress -3>><<lstress>>
-                    <<endevent>>
-                <</addinlineevent>>
-                <<if $hour gte 6 and $hour lte 21>>
-                    <<addinlineevent "autumn_anystreet_2">>
-                        <<generate1>><<person1>>A <<person>> rakes leaves off the pavement and into a pile. Just as <<he>> finishes, the wind scatters them across the sidewalk yet again, causing <<him>> to curse loudly. <<stress -3>><<lstress>>
-                        <<endevent>>
-                    <</addinlineevent>>
-                    <<addinlineevent "autumn_anystreet_3">>
-                        <<generate1>><<person1>>A <<person>> stands on the sidewalk using a leaf blower to clear the sidewalks. As you near <<him>>, <<he>> turns suddenly, and the powerful blast of air from the blower sends your clothes into various states of disarray, giving anyone nearby a show. The <<person>> laughs as you walk past, wrangling your clothes back in order. <<stress 3>><<arousal 10>><<gstress>><<garousal>>
-                        <<endevent>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "alley">>
-                <<addinlineevent "autumn_anyalley_1">>
-                    <<beastNEWinit 1 cat>>
-                        A stray <<beasttype>> chases a leaf across the alley. You stop to watch for a little while.<<stress -3>><<lstress>>
-                    <<endevent>>
-                <</addinlineevent>>
-                <<addinlineevent "autumn_anyalley_2">>
-                    As you pass through the alley, the wind picks up and funnels nearby leaves nearby in your direction. You shield yourself as best you can, and the wet and dirty leaves pass after a moment. <<stress 1>><<gstress>>
-                <</addinlineevent>>
-                <<if $hour gte 21 or $hour lt 6>>
-                    <<addinlineevent "autumn_anyalley_3" 0.33>>
-                        Several large piles of leaves litter the alley. Raccoons run and play between the piles. <<if $science gte 500>>You wonder why there are raccoons here, they certainly aren't native.<</if>> <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "park">>
-                <<addinlineevent "autumn_park_1">>
-                    You look out over the park and marvel at the various colors of autumn. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<if $hour gte 6 and $hour lt 21>>
-                    <<addinlineevent "autumn_park_2">>
-                        You watch as a couple takes turns leaping into a pile of leaves. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                    <<addinlineevent "autumn_park_3">>
-                        <<generate1>><<person1>>
-                        You accidentally walk through a pile of leaves. A nearby <<person>> raking leaves looks over and yells at you. You hurry on. <<stress 3>><<gstress>>
-                        <<endevent>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "forest">>
-                <<addinlineevent "autumn_forest_1">>
-                    A squirrel runs past, carrying nuts it intends to store for winter. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "autumn_forest_2">>
-                    You walk through the forest and can't help but admire the various oranges, browns and yellows breaking through the canopy. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "autumn_forest_3" 0.33>>
-                    You stop in your tracks as you hear a feral growl. Looking down, you see a badger at the foot of a nearby tree. It's surrounded by scattered dirt. You seem have interrupted it digging its winter den. You back away slowly until it returns to its digging. <<stress 3>><<gstress>>
-                <</addinlineevent>>
-            <<case "moor">>
-                <<addinlineevent "autumn_moor_1">>
-                    The scent of decaying plant life fills the moor with an acrid stench. <<stress 3>><<gstress>>
-                <</addinlineevent>>
-                <<addinlineevent "autumn_moor_2">>
-                    You see flocks of birds pass overhead as they migrate south for the winter. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "autumn_moor_3" 0.33>>
-                    You stop at a strange clearing. You notice what looks like some kind of effigy made of twigs. As you stare, you notice more and more wrong with the scene. Its eyes are filled with burnt out candles. The rock formations around it aren't natural, and are clearly some kind of cairn. Dark roots stretch up from the ground to grasp the effigy. You snap out of what feels like an unnatural haze, and make an effort to leave as quickly as you can. <<stress 12>><<ggstress>>
-                <</addinlineevent>>
-            <<default>>
-        <</switch>>
-	<<case "summerclear" "summerovercast">>
-        <<addinlineevent "summer_anywhere_1">>
-            <<if $hour gte 6 and $hour lt 21>>
-                The brutal summer heat weighs down on you. <<stress 3>><<gstress>>
-            <<else>>
-                The cool night air makes for a nice reprieve from the blistering days. <<stress -3>><<lstress>>
-            <</if>>
-        <</addinlineevent>>
-        <<addinlineevent "summer_anywhere_2">>
-            A cool breeze blows by and revitalizes you. <<stress -1>><<lstress>>
-        <</addinlineevent>>
-        <<addinlineevent "summer_anywhere_3" 0.5>>
-            A brutal wave of heat washes over you. You take a moment to wipe the sweat from your head. <<stress 1>><<gstress>>
-        <</addinlineevent>>
-        <<switch $location>>
-            <<case "town">>
-                <<if $hour gte 6 and $hour lt 21>>
-                    <<addinlineevent "summer_anystreet_1" 0.5>>
-                        <<generate1>><<person1>>
-                        You see a <<person>> fanning <<himself>> with <<his>> top to cope with the heat. <<He>> suddenly flashes you by lifting it up completely. <<arousal 5>><<garousal>>
-                        <<endevent>>
-                    <</addinlineevent>>
-                    <<addinlineevent "summer_anystreet_2" 0.5>>
-                        An ice cream truck drives by, with a group of orphans chasing after it. The tune it plays is upbeat and catchy. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                        <<if ($bus is "domus" or $bus is "danube" or $bus is "barb")>>
-                            <<addinlineevent "summer_residentialstreet_1" 0.5>>
-                                <<generate1>><<person1>>
-                                As you pass by a <<person>> watering <<his>> lawn, <<he>> accidentally sprays you with the hose. The cold water is refreshing, but dampens your clothes.
-                                <<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
-                                    <<set $upperwet += 75>>
-                                <</if>>
-                                <<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
-                                    <<set $underupperwet += 75>>
-                                <</if>>
-                                <<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
-                                    <<set $lowerwet += 75>>
-                                <</if>>
-                                <<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity")>>
-                                    <<set $underlowerwet += 75>>
-                                <</if>>
-                                <<stress -6>><<arousal 5>><<lstress>><<garousal>>
-                                <<endevent>>
-                            <</addinlineevent>>
-                        <</if>>
-                    <</if>>
-            <<case "alley">>
-                <<if $hour gte 6 and $hour lt 21>>
-                    <<addinlineevent "summer_anyalley_1">>
-                        Two teens with water guns race through the alley firing at each other. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                    <<addinlineevent "summer_anyalley_2">>
-                        <<beastNEWinit 1 dog>>
-                            As you pass through the alley, you see a <<beasttype>> sprawled out inside a cardboard box in an attempt to escape the heat. You can't help but sympathize. <<stress -3>><<lstress>>
-                        <<endevent>>
-                    <</addinlineevent>>
-                <<else>>
-                    <<addinlineevent "summer_anyalley_3">>
-                        <<generate1>><<person1>>
-                        A <<person>> sits on their back porch, smoking a cigarette and enjoying the coolness of the summer night air. <<He>> waves as <<he>> notices you. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "park">>
-                <<addinlineevent "summer_park_1">>
-                    You notice several youths nearby tossing water balloons at one another. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "summer_park_2">>
-                    Despite the heat, you notice many people playing and relaxing here. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "summer_park_3">>
-                    As you walk through the park, you're narrowly missed by several water balloons. Hearing laughter, you turn to see several delinquents running away. <<stress 3>><<gstress>>
-                <</addinlineevent>>
-            <<case "forest">>
-                <<addinlineevent "summer_forest_1">>
-                    The heat of the forest is sweltering, the breeze blocked by the trees. <<stress 3>><<gstress>>
-                <</addinlineevent>>
-                <<addinlineevent "summer_forest_2">>
-                    As you move through the forest, you notice a family unpacking camping supplies. They notice you and wave. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<if $hour lt 6 or $hour gte 21>>
-                    <<addinlineevent "summer_forest_3">>
-                        You begin to hear crickets chirping nearby, and soon enough a whole orchestra of insects fill the night air around you. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "moor">>
-                <<if $hour gte 6 and $hour lt 21>>
-                    <<addinlineevent "summer_moor_1">>
-                        The sweltering heat creates undefinable shapes on the horizon. <<stress 3>><<gstress>>
-                    <</addinlineevent>>
-                <<else>>
-                    <<addinlineevent "summer_moor_2">>
-                        You feel something scurry across your foot. Who knows what manner of creatures wander the moor with the heat of the sun gone? You quicken your pace. <<stress 3>><<gstress>>
-                    <</addinlineevent>>
-                    <<addinlineevent "summer_moor_3" 0.33>>
-                        You stop suddenly as you see a light flicker into being ahead. An effigy constructed of twigs, candles burning in its eye sockets, stands amidst a circle of stone cairns. Disturbed, you begin to walk away.
-                        <br><br>
-                        Until you notice the effigy turns to watch you as you go past. You break into a sprint without another thought. <<stress 24>><<awareness 10>><<gggstress>><<gawareness>>
-                    <</addinlineevent>>
-                <</if>>
-            <<default>>
-        <</switch>>
-	<<case "springclear" "springovercast">>
-        <<addinlineevent "spring_anywhere_1">>
-            A gentle spring breeze caresses your face. <<stress -3>><<lstress>>
-        <</addinlineevent>>
-        <<addinlineevent "spring_anywhere_2">>
-            A <<if $daystate is "day" or $daystate is "dawn">>butterfly<<else>>moth<</if>> lands on your nose and pauses to rub its antennae before taking flight again. <<stress -3>><<lstress>>
-        <</addinlineevent>>
-        <<if $hour gte 6 and $hour lt 21>>
-            <<addinlineevent "spring_anywhere_3">>
-                Birds chirp overhead as they return from their winter migration. <<stress -3>><<lstress>>
-            <</addinlineevent>>
-        <</if>>
-        <<switch $location>>
-            <<case "town">>
-                <<addinlineevent "spring_anystreet_1">>
-                    A street peddler selling flowers hands you a free flower as you pass by. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<if ($bus is "domus" or $bus is "danube" or $bus is "barb") and $hour gte 6 and $hour lt 21>>
-                    <<addinlineevent "spring_residentialstreet_1">>
-                        <<generate1>><<person1>>
-                        You see a <<person>> on <<his>> knees tending to <<his>> garden. As you walk past, <<he>> backs into you, grinding <<his>> rear into your leg before glancing over <<his>> shoulder. "Sorry," <<he>> calls out as you walk away flustered. <<stress 1>><<arousal 5>><<gstress>><<garousal>>
-                        <<endevent>>
-                    <</addinlineevent>>
-                <</if>>
-                <<if ($bus is "connudatus" or $bus is "cliff" or $bus is "wolf" or $bus is "high")>>
-                    <<addinlineevent "spring_commercialstreet_1">>
-                        There's a small flower market set up here. You stop to smell the flowers before continuing. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "alley">>
-                <<addinlineevent "spring_anyalley_1">>
-                    You notice that someone has built a garden beneath one of the windows here, where flowers have begun to sprout despite the filth. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<if $hour lt 6 or $hour gte 21>>
-                    <<addinlineevent "spring_anyalley_2">>
-                        <<beastNEWinit 3 cat>>
-                            You hear <<beastsplural>> yowling and hissing as they contend for a mate. <<if $cat gte 6>><<arousal 10>><<garousal>><</if>>
-                        <<endevent>>
-                    <</addinlineevent>>
-                    <<if $hallucinogen gt 0>>
-                        <<addinlineevent "spring_anyalley_3" 0.1>>
-                        <<beastNEWinit 2 dog>>
-                        You see a pair of <<if $monster is 1>>dogpeople<<else>>dogs<</if>> eating a pile of spaghetti together next to a trash can. Romantic Italian music plays from a nearby building. You shake your head and leave. <<stress -24>><<lllstress>>
-                        <<endevent>>
-                        <</addinlineevent>>
-                    <</if>>
-                <</if>>
-            <<case "park">>
-                <<addinlineevent "spring_park_1">>
-                    You notice the flowers in the park have started to bloom once more. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<if $hour gte 6 and $hour lt 21>>
-                    <<addinlineevent "spring_park_2">>
-                        A hummingbird zips by and lands on a flower to drink nectar before flying off. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                    <<addinlineevent "spring_park_3" 0.5>>
-                        <<generate1>><<generatep2>><<person1>>
-                        You see a <<person>> snatch a freshly bloomed flower and give it to a <<person2>><<person>> before they embrace and kiss. <<stress -3>><<lstress>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "forest">>
-                <<addinlineevent "spring_forest_1" 0.5>>
-                    You hear a thunderous crack above. A large branch tumbles from a large tree, landing only inches away. <<stress 12>><<ggstress>>
-                <</addinlineevent>>
-                <<addinlineevent "spring_forest_2">>
-                    You see a pair of rabbits chasing and tumbling over each other. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<if $hour gte 6 and $hour lt 21>>
-                    <<addinlineevent "spring_forest_3">>
-                        Birds sing to one another as they build nests and seek mates. <<if $syndromebird is 1>>You find yourself longing for your own mate, back in the moor.<</if>> <<stress -6>><<lstress>>
-                    <</addinlineevent>>
-                <</if>>
-            <<case "moor">>
-                <<addinlineevent "spring_moor_1">>
-                    You stop to take a look around. Even the moor looks vibrant this time of year. <<stress -3>><<lstress>>
-                <</addinlineevent>>
-                <<addinlineevent "spring_moor_2">>
-                    You come across a pond where dark water conceals darker shapes swimming within. <<stress 6>><<gstress>>
-                <</addinlineevent>>
-                <<addinlineevent "spring_moor_3">>
-                    You come to a strangely clear patch of ground that contains a circle of stone and a scorch mark in its center. You suddenly feel watched, and leave without hesitation. <<stress 12>><<ggstress>>
-                <</addinlineevent>>
-            <<default>>
-        <</switch>>
-	<<default>>
-        <span class="red">ERROR: You have somehow managed to pass beyond the concepts of time and weather. Please inform Vrelnir unless you just used a cheat.</span>
-<</switch>>
-<<runeventpool>>
-<br><br>
+			<<switch $location>>
+				<<case "town">>
+					<<if Time.hour gte 6 and Time.hour lt 21>>
+						<<addinlineevent "summer_anystreet_1" 0.5>>
+							<<generate1>><<person1>>
+							당신은 한 <<person_ i>> 더위에 대처하고자 <<his_ yi>> 웃도리로 <<himselfPost>>에게 부채질한다. <<He_ nun>> 갑자기 그것을 위로 완전히 들어올려 당신에게 몸을 휙 내보인다. <<arousal 5>><<garousal>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<addinlineevent "summer_anystreet_2" 0.5>>
+							아이스크림 트럭이 옆을 지나가며, 고아들 한 무리가 그 뒤를 쫒는다. 그것이 틀어주는 음악은 즐겁고 귀에 쏙쏙 들어온다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+							<<if ($bus is "domus" or $bus is "danube" or $bus is "barb")>>
+								<<addinlineevent "summer_residentialstreet_1" 0.5>>
+									<<generate1>><<person1>>
+									당신이 한 <<person_ i>> <<his_ yi>> 잔디밭에 물을 주는 옆으로 지나가자, <<he_ ga>> 실수로 당신에게 호스를 향해 물을 흩뿌린다. 차가운 물은 상쾌했지만, 당신의 옷을 축축하게 한다.
+									<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
+										<<upperwet 75>>
+									<</if>>
+									<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked") and !$worn.under_upper.type.includes("chastity")>>
+										<<underupperwet 75>>
+									<</if>>
+									<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
+										<<lowerwet 75>>
+									<</if>>
+									<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked") and !playerChastity()>>
+										<<underlowerwet 75>>
+									<</if>>
+									<<stress -6>><<arousal 5>><<lstress>><<garousal>>
+									<<endevent>>
+								<</addinlineevent>>
+							<</if>>
+						<</if>>
+				<<case "alley">>
+					<<if Time.hour gte 6 and Time.hour lt 21>>
+						<<addinlineevent "summer_anyalley_1">>
+							물총을 든 두 학생들이 골목길을 통해 달려가며 서로에게 물총을 쏘아대고 있다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+						<<addinlineevent "summer_anyalley_2">>
+							<<beastNEWinit 1 dog>>
+								골목길을 지나가며, 당신은 <<beasttypePost>> 한 마리가 더위를 식히려고 노력하며 골판지 상자 안에서 팔다리를 쭉 펴고 드러누워 있는 것을 본다. 당신은 동정심을 금할 수가 없었다. <<stress -3>><<lstress>>
+							<<endevent>>
+						<</addinlineevent>>
+					<<else>>
+						<<addinlineevent "summer_anyalley_3">>
+							<<generate1>><<person1>>
+							한 <<person_ i>> 뒷문 현관에 앉아, 담배를 피우며 여름 밤 공기의 시원함을 즐기고 있다. <<He_ nun>> 당신을 알아채고 손을 흔든다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+					<</if>>
+				<<case "park">>
+					<<addinlineevent "summer_park_1">>
+						당신은 근처의 몇몇 아이들이 서로에게 물풍선을 던져대는 것을 알아챈다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<addinlineevent "summer_park_2">>
+						더위에도 불구하고, 당신은 많은 사람들이 여기에서 놀거나 쉬고 있는 것을 알아챈다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<addinlineevent "summer_park_3">>
+						공원을 걸어 지나가며, 당신은 몇 개의 물풍선을 간신히 피한다. 웃음소리를 듣고, 당신은 뒤로 돌아 몇몇 비행 청소년들이 도망가는 것을 본다. <<stress 3>><<gstress>>
+					<</addinlineevent>>
+					<<if $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+						<<addinlineevent "summer_park_4" 0.5>>
+							<<generatePlant1>><<person1>>
+							<<plant_details_ ga "forest">> <<his_ yi>> 머리에 있는 <<personsimple_ i "normal">> 덤불 밖을 엿본다. <<He_ nun>> 불안해 보인다. <<he_ ga>> 당신을 알아채자, <<he_ nun>> 덤불 안으로 황급히 뛰어든다.
+							<<endevent>>
+						<</addinlineevent>>
+					<</if>>
+				<<case "forest">>
+					<<addinlineevent "summer_forest_1">>
+						숲은 숨이 막히게 덥고, 산들바람은 나무들에 가로막힌다. <<stress 3>><<gstress>>
+					<</addinlineevent>>
+					<<addinlineevent "summer_forest_2">>
+						당신은 숲을 지나가며, 한 가족이 캠핑 장비를 풀어놓는 것을 알아챈다. 그들은 당신을 알아채고 손을 흔든다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<if Time.hour lt 6 or Time.hour gte 21>>
+						<<addinlineevent "summer_forest_3">>
+							당신은 근처에서 귀뚜라미가 울어대는 것을 듣기 시작했고, 곧 벌레들의 오케스트라 연주가 당신 주위의 밤공기를 채운다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+					<</if>>
+					<<if $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+						<<addinlineevent "summer_forest_4" 0.5>>
+							<<generatePlant1>><<person1>>
+							<<personsimplePost>> 하나가 나뭇가지들을 움직이지 않고, 완전히 가만히 서 있다. <<He_ nun>> 나무인 척 하고 있지만, <<he_ nun>> 다른 사람을 속일 만큼 <<his_ yi>> 균형을 잘 잡지 못한다.
+							<<endevent>>
+						<</addinlineevent>>
+					<</if>>
+				<<case "moor">>
+					<<if Time.hour gte 6 and Time.hour lt 21>>
+						<<addinlineevent "summer_moor_1">>
+							찌는듯 한 더위가 지평선에 무언지 모를 모습을 만들어낸다. <<stress 3>><<gstress>>
+						<</addinlineevent>>
+					<<else>>
+						<<addinlineevent "summer_moor_2">>
+							당신은 무언가가 당신의 발을 가로질러 가는 것을 느낀다. 어떤 종류의 생물체가 해가 떨어진 뒤의 뜨거운 황무지를 돌아다니는지 누가 알겠는가? 당신은 발걸음을 서두른다. <<stress 3>><<gstress>>
+						<</addinlineevent>>
+						<<addinlineevent "summer_moor_3" 0.33>>
+							당신은 불빛이 앞쪽에서 깜박이는 것을 보고 갑자기 멈춘다. 잔가지로 만든 인형이, 눈이 있어야 할 곳에 양초가 타고 있는 채로, 돌무덤으로 만든 원 안에 서 있다. 불안해하며, 당신은 그곳을 벗어나기 시작한다.
+							<br><br>
+							당신이 그 인형의 곁을 지나치자 그것이 당신을 보려고 몸을 돌리는 것을 느끼고, 당신은 다른 생각 없이 전력질주를 하기 시작한다. <<stress 24>><<awareness 10>><<gggstress>><<gawareness>>
+						<</addinlineevent>>
+					<</if>>
+				<<default>>
+			<</switch>>
+		<<case "springclear" "springovercast">>
+			<<addinlineevent "spring_anywhere_1">>
+				부드러운 봄바람이 당신의 얼굴을 어루만진다. <<stress -3>><<lstress>>
+			<</addinlineevent>>
+			<<addinlineevent "spring_anywhere_2">>
+				A <<if Time.dayState is "day" or Time.dayState is "dawn">>나비<<else>>나방<</if>> 한 마리가 당신의 코에 앉아 더듬이를 비벼대며 잠시 멈춰있다가 다시 날아간다. <<stress -3>><<lstress>>
+			<</addinlineevent>>
+			<<if Time.hour gte 6 and Time.hour lt 21>>
+				<<addinlineevent "spring_anywhere_3">>
+					철새들이 겨울을 나고 돌아오며 머리 위에서 짹짹거린다. <<stress -3>><<lstress>>
+				<</addinlineevent>>
+			<</if>>
+			<<if ["town", "park"].includes($location) and Time.hour gte 7 and Time.hour lt 21 and playerIsPregnant() and playerAwareTheyArePregnant()>>
+				<<addinlineevent "spring_pregnant_watch">>
+					<<generatey1>><<person1>>
+					당신은 한 무리의 아이들이 놀고 있는 것을 본다. 한 <<persony_ ga>> 그들과 멀리 떨어져 앉아, 데이지로 화관을 만들고 있다. 다른 아이들이 <<himPost>>에게 진흙으로 케이크클 만드는 것을 도와달라고 하지만, <<he_ nun>> 조용히 <<his_ yi>> 머리를 좌우로 흔든다. 
+					당신은 <<bellyDescription_ ul "pc">> 문지르며 당신의 <<pregnancyBabyText_ ga "pc">> <<hePost>>처럼 내성적이 될 지 궁금해한다. <<stress -3>><<lstress>>
+					<<endevent>>
+				<</addinlineevent>>					
+			<</if>>
+			<<switch $location>>
+				<<case "town">>
+					<<addinlineevent "spring_anystreet_1">>
+						당신이 지나가자 꽃을 파는 한 노점상이 무료 꽃을 하나 당신에게 쥐어준다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<if ($bus is "domus" or $bus is "danube" or $bus is "barb") and Time.hour gte 6 and Time.hour lt 21>>
+						<<addinlineevent "spring_residentialstreet_1">>
+							<<generate1>><<person1>>
+							당신은 한 <<person_ i>> <<his_ yi>> 무릎을 꿇고 <<his_ yi>> 정원을 손질하는 것을 본다. 당신이 지나가자, <<he_ ga>> 당신에게 뒷걸음쳐, <<his_ yi>> 어깨 너머로 당신을 돌아보기 전에 <<his_ yi>> 엉덩이를 당신의 다리에 대고 문질러댄다. "미안," 당신이 허둥지둥 걸어가자 <<he_ ga>> 당신에게 말한다. <<stress 1>><<arousal 5>><<gstress>><<garousal>>
+							<<endevent>>
+						<</addinlineevent>>
+					<</if>>
+					<<if ($bus is "connudatus" or $bus is "cliff" or $bus is "wolf" or $bus is "high")>>
+						<<addinlineevent "spring_commercialstreet_1">>
+							여기에는 한 작은 꽃 노점상이 판을 벌려놓았다. 당신은 계속 가기 전에 잠시 멈춰 꽃들의 향기를 맡는다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+					<</if>>
+				<<case "alley">>
+					<<addinlineevent "spring_anyalley_1">>
+						당신은 누군가가 이곳의 창문들중 하나 아래에 정원을 만들어 놓아, 쓰레기들에도 불구하고 꽃들이 싹이 나기 시작했다는 것을 알아챈다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<if Time.hour lt 6 or Time.hour gte 21>>
+						<<addinlineevent "spring_anyalley_2">>
+							<<beastNEWinit 3 cat>>
+								당신은 <<beastsplural_ i>> 교미하려고 울어대며 쉬익 하는 소리를 내는 것을 듣는다. <<if $cat gte 6>><<arousal 10>><<garousal>><</if>>
+							<<endevent>>
+						<</addinlineevent>>
+						<<if $hallucinogen gt 0>>
+							<<addinlineevent "spring_anyalley_3" 0.1>>
+							<<beastNEWinit 2 dog>>
+							당신은 <<if $monster is 1>>개 인간 둘이<<else>>개 두 마리가<</if>> 쓰레기통 옆에서 같이 스파게티 한 무더기를 먹고 있는 것을 본다. 로맨틱한 이탈리아 음악이 근처 빌딩에서 들려온다. 당신은 머리를 가로젓고 그곳을 떠난다. <<stress -24>><<lllstress>>
+							<<endevent>>
+							<</addinlineevent>>
+						<</if>>
+					<</if>>
+				<<case "park">>
+					<<addinlineevent "spring_park_1">>
+						당신은 공원의 꽃들이 다시 한 번 꽃을 피우기 시작했다는 것을 알아챈다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<if Time.hour gte 6 and Time.hour lt 21>>
+						<<addinlineevent "spring_park_2">>
+							벌새 한 마리가 핑 하고 지나가 꽃에 앉아 다시 날아가기 전에 꿀을 빨아 마신다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+						<<addinlineevent "spring_park_3" 0.5>>
+							<<generate1>><<generatep2>><<person1>>
+							당신은 한 <<person_ i>> 새로 핀 꽃을 하나 꺾어 다른 <<person2>><<personPost>>에게 주더니 그들은 포옹하며 키스한다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+					<</if>>
+				<<case "forest">>
+					<<addinlineevent "spring_forest_1" 0.5>>
+						당신은 천둥같은 쩌억 소리가 위에서 나는 것을 듣는다. 커다란 나뭇가지 하나가 커다란 나무에서 굴러, 단 몇 센티미터 옆에 떨어진다. <<stress 12>><<ggstress>>
+					<</addinlineevent>>
+					<<addinlineevent "spring_forest_2">>
+						당신은 토끼 두 마리가 서로를 쫓아가며 뒹구는 것을 본다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<if Time.hour gte 6 and Time.hour lt 21>>
+						<<addinlineevent "spring_forest_3">>
+							새들이 서로에게 노래하며 둥지를 짓고 짝을 찾는다. <<if $syndromebird is 1>>당신은 황무지에 있는 자신의 짝을 갈망하는 당신 스스로를 느낀다.<</if>> <<stress -6>><<lstress>>
+						<</addinlineevent>>
+					<</if>>
+				<<case "moor">>
+					<<addinlineevent "spring_moor_1">>
+						당신은 멈춰 주위를 둘러본다. 황무지마저도 일년 중 이 시기에는 활기찬 것 처럼 보인다. <<stress -3>><<lstress>>
+					<</addinlineevent>>
+					<<addinlineevent "spring_moor_2">>
+						당신은 어두운 물이 더 어두운 형체가 안에서 수영하는 것을 감추고 있는 연못을 우연히 마주친다. <<stress 6>><<gstress>>
+					<</addinlineevent>>
+					<<addinlineevent "spring_moor_3">>
+						당신은 돌이 원을 그리고 그 한 가운데에 그을린 자국이 있는 이상하게 깨끗한 공터를 우연히 마주친다. 당신은 갑자기 누군가 보고 있는 듯한 느낌을 받고, 망설임 없이 그곳을 떠난다. <<stress 12>><<ggstress>>
+					<</addinlineevent>>
+					<<if $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+						<<addinlineevent "spring_moor_4" 0.5>>
+							<<generatePlant1>><<person1>>
+							<<personsimplePost>> 하나가 벌새 한 마리가 내려앉도록 덩굴손을 움직이지 않고 있다.
+							<<if $rng gte 51>>
+								그것은 <<his_ yi>> 덩굴손 주위를 스쳐 지나가다가, 내려앉는다. 그 <<personsimple_ un>> 기뻐서 헉 하는 소리를 낸다. <<stress -3>><<lstress>>
+							<<else>>
+								그것은 <<his_ yi>> 덩굴손 주위를 잠시 맴돌다가, 휘익 날아가 버린다. 그 <<personsimple_ un>> 한숨을 쉰다.
+							<</if>>
+							<<endevent>>
+						<</addinlineevent>>
+					<</if>>
+				<<default>>
+			<</switch>>
+		<<default>>
+			<span class="red">ERROR: You have somehow managed to pass beyond the concepts of time and weather. Please inform Vrelnir unless you just used a cheat.</span>
+	<</switch>>
+	<<runeventpool>>
+	<br><br>
 <</widget>>

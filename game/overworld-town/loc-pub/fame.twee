@@ -1,0 +1,1285 @@
+:: Widgets Pub Fame [widget]
+
+<<widget "pubfameChange">>
+	<<set $_goal to _args[0]>>
+	<<set $_fame to _args[1]>>
+	<!-- Formula: a random number between 80 and 150, plus a second number between 5 and 50.
+	This second number is higher if fame is low and it's being raised, OR if fame is high and it's being lowered.
+	The number is negative if fame is being lowered.
+	Finally, the number is 20% higher if the change is temporary. -->
+	<<set $_fameChange to random(80,150)>>
+	<<if $_goal.includes("Lower")>>
+		<<set $_fameChange += (Math.round(Math.sqrt($fame[$_fame])) + 5)>>
+		<<set $_fameChange *= -1>>
+	<<else>>
+		<<set $_fameChange += (Math.round(Math.sqrt($fame[$_fame]) - 50) * -1)>>
+	<</if>>
+	<<if $_goal.includes("temp")>>
+		<<set $_fameChange to Math.round($_fameChange * 1.2)>>
+	<</if>>
+
+	<<if $fame[$_fame] + $_fameChange gt 2000>>
+		<<set $_fameChange to 2000 - $fame[$_fame]>>
+	<<elseif $fame[$_fame] + $_fameChange lt 0>>
+		<<set $_fameChange to $fame[$_fame] * -1>>
+	<</if>>
+
+	<<set $fame[$_fame] += $_fameChange>>
+
+	<<if $_goal.includes("temp")>>
+		<<set $fameDecay[$_fame] to $_fameChange / 14>>
+		<<set $fameDecayTimer[$_fame] to 14>>
+	<<else>>
+		<<set $fameDecayTimer[$_fame] to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "pubfameComplete">>
+	<<set $_task to _args[0]>>
+	<<if _args[1]>>
+		<<set $_modifier to _args[1]>>
+	<</if>>
+
+	<<if isPubfameTaskAccepted($_task)>>
+		<<set $pubfame.status to "done">>
+		<span class="gold"><<switch $pubfame.task>>
+			<<case "river">>
+				River seems to be doing alright.
+			<<case "gwylan">>
+				You have the snow globe.
+			<<case "temple">>
+				You have the book with the password.
+			<<case "office">>
+				You delivered the letter to the office building.
+			<<case "wren">>
+				You gave Wren the letter.
+			<<case "hospital">>
+				<<if $_modifier is "asylum">>
+					<<set $_report to true>><<set $pubfame.detail to "asylum">>
+					This isn't the keycard 'Mickey' asked for, but you think they'll still like it. You can report back to them that their favour is complete once you get out of here.
+				<<elseif $_modifier is "asylumEarly">>
+					<<set $_report to true>><<set $pubfame.detail to "asylum">>
+					You still have the keycard from the asylum. It's not the keycard Mickey asked for, but you think they'll still like it. You can report back to them that their favour is complete right now.
+				<<else>>
+					You <<if $_modifier is "steal">>steal a<<else>>have the<</if>> keycard.
+				<</if>>
+			<<case "niki">>
+				<<run delete $photo.pubfame>>
+				The contact's photo has been obtained.
+			<<case "morgan">>
+				<<if $_modifier is "steal">>
+					You steal a strange flash drive. This must be the USB stick you were looking for.
+				<<else>>
+					You have the USB.
+				<</if>>
+			<<case "bailey">>
+				<<set $_report to true>>
+				<<if $_modifier is "list">>
+					You removed 'Mickey' from the list. You can report back to them that their favour is done.
+				<<elseif $_modifier is "clear">>
+					You deleted the list, which included 'Mickey'. You can report back to them that their favour is done, <span class="purple">but you worry about what Bailey might do in retaliation.</span>
+				<<else>>
+					'Mickey' was nowhere on Bailey's computer. You can report back to them that their favour is done.
+				<</if>>
+			<<case "briar">>
+				<<if $_modifier is "failure">>
+					<<set $_report to true>>
+					You hacked Briar's computer for 'Mickey,' <span class="red">but it's hard to feel relieved.</span>
+				<<elseif $_modifier is "punish">>
+					<<set $_report to true>>
+					You hacked Briar's computer for 'Mickey,' <span class="purple">but you don't think Briar will be happy to see you at the brothel anytime soon.</span>
+				<<else>>
+					You hacked Briar's computer.
+				<</if>>
+			<<case "remy">>
+				<<set $_report to true>>
+				<<if $_modifier is "betray">>
+					The contact didn't give you a package. You should still report back to 'Mickey' that their favour is done, <span class="purple">but that's not your main concern right now.</span>
+				<<else>>
+					You have the package. You can report back to 'Mickey' that their favour is done.
+				<</if>>
+			<<case "compound">>
+				All four cameras have been set.
+			<<default>>
+				<<set $_report to true>>
+				You feel accomplished, though you don't know why. You can report back to 'Mickey' that their favour is done, you guess. <span class="black"><i>(This is a bug that happened on "<<print $passage>>" with task "<<print $pubfame.task>>", please inform Vrelnir.)</i></span>
+		<</switch>>
+		<<if !$_report>>
+			You can report back to 'Mickey' that their favour is done.
+		<</if>></span>
+		<<if !$combat and !_args[2]>>
+			<br><br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "pubfameOptions">>
+	<<set $pubfame.tasklist to []>>
+	<<set $pubfameTemp to $pubfameTemp isnot undefined ? $pubfameTemp : true>>
+	<<set $pubfameLower to $pubfameLower isnot undefined ? $pubfameLower : true>>
+	<<set _pubfameOptions to {
+		"Sex fame": "sex",
+		"Prostitution fame": "prostitution",
+		"Rape fame": "rape",
+		"Bestiality fame": "bestiality",
+		"Exhibitionism fame": "exhibitionism",
+		"Combat fame": "scrap",
+		"Kindness fame": "good",
+		"Business fame": "business",
+		"Socialite fame": "social"
+		/* "Pimp fame": "pimp" */
+	}>>
+	<<if $photo_known gte 2>>
+		<<set _pubfameOptions["Modelling fame"] to "model">>
+	<</if>>
+	<<if playerNormalPregnancyTotal() gt 0>>
+		<<set _pubfameOptions["Pregnancy fame"] to "pregnancy">>
+	<</if>>
+
+	<label><<radiobutton "$pubfameTemp" true autocheck>> Temporary</label> |
+	<label><<radiobutton "$pubfameTemp" false autocheck>> Permanent</label>
+	<br><br>
+
+	<label><<radiobutton "$pubfameLower" true autocheck>> Lower</label> |
+	<label><<radiobutton "$pubfameLower" false autocheck>> Raise</label>
+	<br><br>
+
+	<<listbox "$pubfameTarget" autoselect>>
+		<<optionsfrom _pubfameOptions>>
+	<</listbox>>
+	<br><br>
+
+	<<link [[Confirm|Pub Fame Favour]]>>
+		<<set $pubfame.goal to $pubfameTemp is true ? "temp" : "perm">>
+		<<set $pubfame.goal += $pubfameLower is true ? "Lower" : "Raise">>
+		<<set $pubfame.target to $pubfameTarget>>
+	<</link>>
+<</widget>>
+
+<<widget "pubfameDifficulty">>
+	<<if ($pubfame.goal.includes("Raise") and ["sex","prostitution","rape","bestiality","exhibitionism","pregnancy"].includes($pubfame.target))
+	or ($pubfame.goal.includes("Lower") and ["scrap","good","business","social","model","pimp"].includes($pubfame.target))>>
+		<<set _difficulty to 0>>
+
+	<<elseif ($pubfame.goal is "permRaise" and $pubfame.target is "scrap")
+	or ($pubfame.goal is "permLower" and $pubfame.target is "exhibitionism")>>
+		<<set _difficulty to 3>>
+
+	<<elseif ($pubfame.goal is "permLower" and ["sex","prostitution","rape","bestiality","pregnancy"].includes($pubfame.target))
+	or ($pubfame.goal is "permRaise" and ["good","business","social","model","pimp"].includes($pubfame.target))
+	or ($pubfame.goal is "tempRaise" and $pubfame.target is "scrap")
+	or ($pubfame.goal is "tempLower" and $pubfame.target is "exhibitionism")>>
+		<<set _difficulty to 2>>
+
+	<<else>>
+		<<set _difficulty to 1>>
+	<</if>>
+
+	<<if _difficulty is 0 or _difficulty is 1>>
+		<<set $pubfame.tasklist.pushUnique(
+			"river",
+			"gwylan",
+			"temple",
+			"office"
+		)>>
+	<</if>>
+	<<if _difficulty is 1 or _difficulty is 2>>
+		<<set $pubfame.tasklist.pushUnique(
+			"wren",
+			"hospital",
+			"morgan"
+		)>>
+		<<if $photo_known gte 2>>
+			<<set $pubfame.tasklist.pushUnique("niki")>>
+		<</if>>
+	<</if>>
+	<<if _difficulty is 2 or _difficulty is 3>>
+		<<set $pubfame.tasklist.pushUnique(
+			"bailey",
+			"briar",
+			"remy",
+			"compound"
+		)>>
+	<</if>>
+
+	<<if $pubfame.tasklist.includes($pubfame.history)>>
+		<<set $pubfame.tasklist.delete($pubfame.history)>>
+	<</if>>
+
+	<<set $pubfame.task to $pubfame.tasklist[random(1,$pubfame.tasklist.length)-1]>>
+<</widget>>
+
+<<widget "generateMickey">>
+	<<if _args[0] is undefined>>
+		<<set _m to 1>>
+	<<else>>
+		<<set _m to _args[0]>>
+	<</if>>
+	<<set _n to (_m - 1)>>
+	<<if !$per_npc or !$per_npc.hacker>>
+		<<set _strapIgnore to true>>
+		<<generateNPC _m t>>
+		<<set $NPCList[_n].role to "hacker">>
+		<<set $NPCList[_n].fullDescription to `'Mickey'`>>
+		<<set $NPCList[_n].insecurity to "skill">>
+		<<set $NPCList[_n].lactation to 0>>
+		/* unused for now, reserved in case there will be content involving their "true" identity */
+		<<set $mickeyPronoun to $NPCList[_n].pronoun>><<set $NPCList[_n].pronoun to "t">>
+		<<set $mickeyName to $NPCList[_n].name>><<set $NPCList[_n].name to `'Mickey'`>>
+		<<generatePronouns $NPCList[_n]>>
+		<<set $NPCList[_n].traits to ["brooding", "watchful", "skulduggerous"]>>
+		<<set $NPCList[_n].skills to {security:980,athletics:150}>>
+		<<saveNPC _n "hacker">>
+	<<else>>
+		<<loadNPC _n "hacker">>
+	<</if>>
+	<!-- <<npcClothesType $NPCList[_n] "coldHoodie">> -->
+<</widget>>
+
+<<widget "pubfameRemyPassword">><<silently>>
+	<!-- almost: two of the words will be correct; one will be wrong -->
+	<!-- wrong: at least one of the words will be wrong; the others may or may not be correct -->
+	<!-- default: all three words are correct -->
+
+	<<if $pubfame and $pubfame.task is "remy">>
+		<<set _text_output to "in the ">>
+		<<set $_wrong to random(0,2)>>
+		<<set $_possible to [
+			["field","forest","park","yard","moor","garden"],
+			["at","for","under","before","past","during"],
+			["sunset","sunrise","daybreak","midnight","high noon","afternoon"]
+		]>>
+
+		<<switch _args[0]>>
+			<<case "almost">>
+				<<if $pubfame.remy.password[2] is "the blood moon">>
+					<<set $_possible[0].delete($pubfame.remy.password[0])>>
+					<<set $_result to [
+						$_possible[0][random(4)],
+						$pubfame.remy.password[1],
+						$pubfame.remy.password[2]
+					]>>
+				<<else>>
+					<<set $_result to clone($pubfame.remy.password)>>
+				<</if>>
+			<<case "wrong">>
+				<<set $_result to [
+					$_possible[0][random(5)],
+					$_possible[1][random(5)],
+					$_possible[2][random(5)]
+				]>>
+			<<default>>
+				<<set $_result to clone($pubfame.remy.password)>>
+				<<set $_correct to true>>
+		<</switch>>
+
+		<<if !$_correct and $_result[0] is $pubfame.remy.password[0] and $_result[1] is $pubfame.remy.password[1] and $_result[2] is $pubfame.remy.password[2]>>
+			<!-- I don't know why, but just checking if the arrays themselves are the same doesn't work. -->
+			<<set $_possible[$_wrong].delete($_result[$_wrong])>>
+			<<set $_result[$_wrong] to $_possible[$_wrong][random(4)]>>
+		<</if>>
+
+		<<set _text_output += $_result[0] + ", " + $_result[1] + " " + $_result[2]>>
+		<<if _args[1] is "cap">><<capitalise>><</if>>
+	<<else>>
+		<<set _text_output to "<span class='black'><i>pubfameRemyPassword widget was called on passage $passage when Remy task is not active. Please inform Vrelnir.</i></span>">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "pubfameReset">>
+	<<run delete $pubfame[$pubfame.task]>>
+	<<run delete $pubfame.target>>
+	<<run delete $pubfame.goal>>
+	<<run delete $pubfame.task>>
+	<<run delete $pubfame.detail>>
+	<<set $pubfame.status to "finished">>
+<</widget>>
+
+:: Pub Fame Intro
+<<effects>>
+
+"Am I interrupting?" You hear a <<nnpc_gender "Landry">>'s voice, and the <<persons>> grip loosens. You turn to the voice. It's Landry.
+<<stress -3>><<lstress>>
+<br><br>
+
+"Yeah, you are," the <<person>> grunts. "Piss off."
+<br><br>
+
+Landry looks over the <<persons>> face for a moment. "I recognise you," <<nnpc_he "Landry">> says.
+<br>
+
+"You should. I come here more often than I-"
+<br>
+
+Landry cuts <<him>> off. "March 3rd, 2009. Nightingale Street." All the colour fades from the <<persons>> face. "So you know what I'm talking about. I wasn't there myself, but I've heard the stories. You were the talk of the town.<<if Time.month is 3 and Time.day is 3>> Happy anniversary, by the way.<</if>>"
+<br><br>
+
+"I-I..." The <<person>> jabs a finger at Landry. "You're not with the fuzz. You won't turn me in."
+<br>
+
+"You don't know that." Landry smiles. It isn't a nice smile. "And either way, we both know you're not hiding from the police. So how about you let <<pher>> go, and I won't tip off the Elk about your latest haunt." You're suddenly very thankful Landry is on your side.
+<br><br>
+
+The <<person>> looks between you and Landry. You. Landry. You again. Landry tilts <<nnpc_his "Landry">> head in your direction. Finally <span class="green"><<he>> releases you</span>. "Fine. Shit, fine. You <<pher>> lover? You picked a damn slutty one."
+<br><br>
+
+Landry waits until <<hes>> stomped back to the bar, before glancing around. A few people are staring at the commotion. "Come with me," <<nnpc_he "Landry">> says. "I want to talk in private." <<nnpc_He "Landry">> sets off to your usual table, and you follow.
+<br><br>
+
+<<link [[Next|Pub Fame Intro 2]]>><</link>>
+
+:: Pub Fame Intro 2
+<<effects>>
+
+"Reputation isn't always a good thing," Landry says as you sit down. "Word's spread about you. You're notorious. That's why that drunkard went for you. You remember what <<he>> said, right?"
+<<endevent>><<npc Landry>><<person1>>
+<br><br>
+
+<<if $submissive gte 1150>>
+	"I-I didn't mean to become notorious," you say, looking down at the table. "It just sort of... happened."
+	<br><br>
+
+	"I can't imagine you'd want a reputation like that," <<he>> says. "Luckily, on the subject of reputation,
+<<elseif $submissive lte 850>>
+	"It's not like I wanted this," you grumble. "People keep flapping their lips."
+	<br><br>
+
+	"Rumours spread far too quickly," <<he>> agrees. "Luckily, on the subject of rumours,
+<<else>>
+	"I didn't try to become famous," you say. "Things just keep happening to me."
+	<br><br>
+
+	"That tends to happen in this town," <<he>> says. "The sorts of things that make people famous are all too common. Luckily, on the subject of fame,
+<</if>>
+I think I can help you." <<He>> pauses.
+<<if $mickeyPub gte 2>>
+	"Well, not me directly. A friend of ours. They mentioned paying you back." <<He>> checks to make sure nobody's nearby, then jerks a thumb toward a door behind the table. "Why not say hello?"
+	<br><br>
+
+	You make your way to the door. You try to twist the handle, but it's locked, so you settle for knocking. A few seconds pass. "Landry?" a voice on the other side says.
+	<br><br>
+
+	"No," you say. "But <<he>> sent me here."
+	<br><br>
+
+	The voice gasps. "You!" You hear a complex set of locks unlocking, before the door opens an inch. <span class="teal">It's 'Mickey,' the hacker from the orphanage.</span>
+	<br><br>
+
+	<<link [[Next|Pub Fame Intro 3]]>><</link>>
+<<else>>
+	<<set $mickeyPub to 1>><<set $pubfame.intro to 1>>
+	<<if $pub_hack_job gte 1>>
+		"Well, not me directly. Remember Mickey? The hacker I pointed you to for the police password. They should be able to get things done."
+	<<else>>
+		"Well, not me. But I think I know someone. <span class="teal">This orphan at the home on Domus Street.</span> A computer whiz. Mickey, or Mckay, something like that."
+		<br><br>
+
+		You know who Landry's referring to, but you've never spoken. They keep to themselves.
+		<br><br>
+
+		"Best hope," Landry continues. "Is to find this orphan. If you can get them to come work with me, they'll be able to hook you up. There'll be some money in it for you, too. Just don't step on Bailey's toes." <<He>> smiles. "But you knew that."
+		<br><br>
+	<</if>>
+
+	<<landryoptions>>
+	<<link [[Leave|Pub]]>><<endevent>><</link>>
+<</if>>
+
+:: Pub Fame Return
+<<effects>><<run delete $pubfame.intro>><<set $mickeyPub to 2>><<set $money += 50000>>
+"I had a feeling you'd be back," Landry says. "Mickey's got themselves set up. Strange one. They said you'd have a bag of SD cards?"
+<br><br>
+
+<<He>> accepts the bag of SD cards and trades you a handful of bills. "By the way, here's a £500 thank you for bringing me some talent." <<He>> checks to make sure nobody's nearby, then jerks a thumb toward a door behind the table. "I won't take up your time. I know you didn't come here for me. Why not say hello?"
+<br><br>
+
+You make your way to the door. You try to twist the handle, but it's locked, so you settle for knocking. A few seconds pass. "Landry?" a voice on the other side says.
+<br><br>
+
+"No," you say. "But <<he>> sent me here."
+<br><br>
+
+The voice gasps. "You!" You hear a complex set of locks unlocking, before the door opens an inch. <span class="teal">It's 'Mickey,' the hacker from the orphanage.</span>
+<br><br>
+
+<<link [[Next|Pub Fame Intro 3]]>><<set $phase to 1>><</link>>
+
+:: Pub Fame Intro 3
+<<effects>><<generateMickey 2>>
+<<set $pubfame.status to "ready">>
+
+<<if $phase is 1>>
+	"Here I am," 'Mickey' says.
+<<else>>
+	"Been a while," 'Mickey' says.
+<</if>>
+"Good to see you again. Landry told you?"
+<br><br>
+
+<<if $submissive gte 1150>>
+	"I think so," you reply. "Something about you wanting to talk?
+<<elseif $submissive lte 850>>
+	"<<He>> said you had something to say," you reply. "What's the deal?
+<<else>>
+	"About you wanting to talk? Yeah," you say. "What is it?
+<</if>>
+<<if $exhibitionism lte 34>>
+	You're not going to make me strip again, are you?"
+	<br><br>
+
+	"Don't worry," they say. "Nothing important to me this time. Not worried about bugs."
+<<else>>
+	Do you want me to strip again?"
+	<br>
+
+	"No need," they say. "Nothing important to me this time. Not worried about bugs. Are you? You can if you want. I have a Faraday cage still. Just inside."
+	<br>
+
+	"I'll pass," you say.
+	<br><br>
+
+	"Good-good."
+<</if>>
+Mickey sizes you up. "Now, the meat of the matter. You have a reputation. People know you. Know the bad things about you.
+<<if $fame.sex gte 400 or $fame.rape gte 400 or $fame.prostitution gte 400 or $fame.bestiality gte 400>>
+	You know what people call you in the underworld? <span class="pink"><<underworld_nickname "cap">>.</span>" Mickey shakes their head.
+	<<if $fame.scrap gte 400>>
+		"Good name. But it has bad implications. Implications you really don't want. Not in this town."
+		<br><br>
+
+		You frown. "I see.
+	<<else>>
+		"Bad name to have. Especially in this town. They look at you, and see an easy target."
+		<br><br>
+
+		You grimace. "That's not good.
+	<</if>>
+<<else>>
+	You know what people call you around town? <span class="pink"><<overworld_nickname "cap">>.</span>" Mickey shakes their head. "That has implications. Implications you don't want. Not in this town."
+	<br><br>
+
+	You frown. "I see.
+<</if>>
+What does that have to do with you?"
+<br>
+
+"Simple. I can help you. I still owe you, after all."
+<br>
+
+"But you got me the password to the police database. Isn't that enough?"
+<br><br>
+
+Mickey opens the door just a little more, just enough to pat you on the shoulder. "You got me away from Bailey," they say. "Before <<nnpc_he "Bailey">> figured out what I was up to. I don't think I can ever pay you back for that." They retreat back behind the door. "Besides, it won't be for free."
+<br><br>
+
+<<link [[Next|Pub Fame Intro 4]]>><</link>>
+
+:: Pub Fame Intro 4
+<<effects>>
+
+"So, you want to be less well known. I can help. Take down info of you on the net. Stories, articles. Purge pictures of your face, alter search results." Mickey frowns. "It's not perfect. Physical copies exist, and people gossip offline too. But it will help.
+<br><br>
+
+"People don't forget things very easily. They'll remember after a while. If I do all I can, they might actually forget. Focus on someone else instead. But I'll need more in return." They rub their chin. "I could make you more famous, too. Improve your social standing in the business world, or your reputation as a fighter. Or other things."
+<br><br>
+
+You hear Landry's chair creak loudly as <<he>> leans back, and Mickey's eyes widen. They shut the door, making barely a sound. You turn around in confusion to see a <<generate3>><<person3>><<person>> approaching. <<He>> looks around, confused, before seemingly deciding <<hes>> better off elsewhere and leaving.
+<br><br>
+
+Landry coughs once the <<person>> is gone, and Mickey opens the door again. "Come to me if you want my help. Well, go to Landry. <<person1>><<He>>'ll send you to me." Just like that, they close the door again.
+<br>
+
+You walk back to Landry's table. "The offer's out now," <<he>> says. "I did my part."
+<br><br>
+
+<span class="gold">Mickey can help lower or raise your fame in exchange for favours. Temporarily changing your fame results in easier favours, but your fame will slowly return to its original value. Permanent changes require harder favours.</span>
+<br><br>
+
+<<endevent>><<npc Landry>><<person1>>
+<<landryoptions>>
+<<link [[Leave|Pub]]>><<endevent>><</link>>
+
+:: Pub Fame
+<<effects>>
+
+<<if $phase isnot 1>>
+	<<generateMickey 2>>
+	Landry glances around, before tilting <<his>> head to a door near the back. You knock. "It's me."
+	<br><br>
+
+	'Mickey' inches the door open.
+<</if>>
+<<if $pubfame.status is "done">>
+	<<if $pubfame.detail is "briarWindow">>
+		<<set $pubfame.detail to 0>>
+		"Did you jump out the fucking window?"
+	<<elseif $pubfame.detail is "hiding">>
+		<<set $pubfame.detail to 0>>
+		"Oh. You." They stare at you for a few seconds. "I'm not mad. About you telling them about me." You feel like they're lying. "Anyway. You did what I asked?"
+	<<else>>
+		<<if $phase is 1>>
+			"Anything else?"
+		<<else>>
+			"You did what I asked?"
+		<</if>>
+	<</if>>
+	<br><br>
+
+	<<link [[Tell Mickey it's done|Pub Fame Done]]>><<set $pub_task_stat++>><</link>>
+<<elseif $pubfame.status is "accepted">>
+	<<if $pubfame.detail is "hiding">>
+		<<set $pubfame.detail to 0>>
+		"Oh. You." They stare at you for a few seconds. "I'm not mad. About you telling them about me." You feel like they're lying. "Anyway. You did what I asked?"
+	<<else>>
+		"You did what I asked?"
+	<</if>>
+	<br><br>
+
+	<<link [[Ask for a reminder|Pub Fame Remind]]>><</link>>
+	<br>
+	<<link [[Drop the job|Pub Fame Decline]]>><<set $phase to 1>><</link>>
+<<else>>
+	<<if $pubfame.detail is "hiding">>
+		"Oh. You." They stare at you for a few seconds. "I'm not mad. About you telling them about me." You feel like they're lying. "Anyway. What do you want?"
+	<<else>>
+		<<set _hello to [
+			"Pick your poison.",
+			"What can I do for you?",
+			"What are you here for, then?",
+			"Pick carefully, I don't have all day.",
+			"The usual? Sorry. I've always wanted to say that.",
+			"Landry, I ordered twelve whole minutes- oh, you.\" They rub the back of their head. \"Didn't hear you."
+		]>>
+		<<if $phase isnot 1>>
+			<<set _hello.pushUnique(
+				"Hey.",
+				"Good to see you again.",
+				"I missed you.\" They pause. \"Forget I said that."
+			)>>
+		<</if>>
+		<<silently>>
+			<<overworld_nickname>><<if !_text_output.includes("some orphan")>><<set _hello.pushUnique("Hello again, <span class='teal'><<overworld_nickname>></span>.")>><</if>>
+			<<if $fame.scrap gte 400>><<set _hello.pushUnique("Hello again, <span class='pink'><<underworld_nickname>></span>.")>><</if>>
+		<</silently>>
+		"<<print _hello.random()>>"
+	<</if>>
+	<br><br>
+	<<pubfameOptions>>
+<</if>>
+<br><br>
+
+<<link [[Back to Landry|Pub Landry]]>><<unset $pubfameTemp>><<unset $pubfameLower>><<unset $pubfameTarget>><<set $phase to 1>><</link>>
+
+:: Pub Fame Favour
+<<effects>>
+
+<<if $pubfame.goal.includes("Raise") and ($fame[$pubfame.target] gte 2000 or $pubfame.target is "pregnancy" and $fame.pregnancy gte playerNormalPregnancyTotal() *100)>>
+	<<set _failed to 1>>
+	Mickey shakes their head. "<span class="teal">That wouldn't do you any good.</span> You're already about as well known as you can be in the <<fameProse $pubfame.target>> department. Trying to boost that wouldn't do anything. Pick again."
+
+<<elseif $pubfame.goal.includes("Lower") and $fame[$pubfame.target] lte 0>>
+	<<set _failed to 1>>
+	Mickey shakes their head. "<span class="teal">That wouldn't do you any good.</span> You're already about as unknown as you can be in the <<fameProse $pubfame.target>> department. Trying to lower that wouldn't do anything. Pick again."
+
+<<elseif $pubfame.goal.includes("Raise") and $fame[$pubfame.target] lt 30>>
+	<<set _failed to 1>>
+	Mickey shakes their head. "<span class="red">Sorry.</span> You need to get your name out more for me to do that. I just don't have enough to work with right now." They shrug. "If you're at least <span class="teal">obscure</span>, I can help you out. Pick again."
+
+<<elseif $pubfame.goal.includes("temp") and $fameDecayTimer[$pubfame.target] gte 1>>
+	<<set _failed to 1>>
+	Mickey shakes their head. "<span class="red">Sorry.</span> I changed your <<fameProse $pubfame.target>> reputation too recently. Messing with the rumour mill any more would backfire. Can't help you there." They shrug. "You can permanently <<if $pubfame.goal.includes("Lower")>>lower<<else>>boost<</if>> it now, if you want. But nothing temporary. Not yet. Pick again."
+	<br><br>
+
+	<span class="gold">You can temporarily change your <<fameProse $pubfame.target>> fame again
+	<<if $fameDecayTimer[$pubfame.goal] gt 1>>in <<number $fameDecayTimer[$pubfame.goal]>> days<<else>>tomorrow<</if>>.</span>
+
+<<elseif $pubfame.goal.includes("Raise") and ["sex","rape","bestiality","exhibitionism"].includes($pubfame.target)>>
+	Mickey blinks. "You want me to boost your <<fameProse $pubfame.target>> fame? That can only hurt you." They shrug. "If you say so. Should be easy, so <span class="green">I have an easy favour for you.</span>"
+
+<<elseif $pubfame.goal.includes("Lower") and ["scrap","good","business","social","pimp"].includes($pubfame.target)>>
+	Mickey blinks. "You want me to lower your <<fameProse $pubfame.target>> fame? That can only hurt you." They shrug. "If you say so. Should be easy, so <span class="green">I have an easy favour for you.</span>"
+
+<<elseif $pubfame.goal.includes("Raise") and $pubfame.target is "prostitution">>
+	Mickey raises an eyebrow. "You want me to boost your <<fameProse $pubfame.target>> fame? What, you want to raise your prices?" They shrug. "If you say so. Should be easy, so <span class="green">I have an easy favour for you.</span>"
+
+<<elseif $pubfame.goal.includes("Raise") and ["pregnancy", "impreg"].includes($pubfame.target)>>
+	Mickey raises an eyebrow. "You want me to boost your <<fameProse $pubfame.target>> fame? You're that desperate for a family?" They wince. "Sorry. That was insensitive. Should be easy, so <span class="green">I have an easy favour for you.</span>"
+
+<<elseif $pubfame.goal.includes("Lower") and $pubfame.target is "model">>
+	Mickey raises an eyebrow. "You want me to lower your <<fameProse $pubfame.target>> fame? Stardom getting to you?" They shrug. "If you say so. Should be easy, so <span class="green">I have an easy favour for you.</span>"
+
+<<elseif $pubfame.goal is "permRaise" and $pubfame.target is "scrap">>
+	Mickey sucks in a breath through their teeth. "Permanently raising your <<fameProse $pubfame.target>> fame. That'll be hard. <span class="pink">I'll need a big favour in return.</span> Don't feel pressured to accept."
+
+<<elseif $pubfame.goal is "permLower" and $pubfame.target is "exhibitionism">>
+	Mickey sucks in a breath through their teeth. "Permanently dropping your <<fameProse $pubfame.target>> fame. That'll be hard. <span class="pink">I'll need a big favour in return.</span> Don't feel pressured to accept."
+
+<<elseif $pubfame.goal is "permLower" and ["sex","prostitution","rape","bestiality"].includes($pubfame.target)>>
+	"Permanently lower your <<fameProse $pubfame.target>> fame, got it." Mickey looks you in the eye. "This will be tricky, so <span class="purple">I have a tougher favour for you.</span> Hope you don't mind."
+
+<<elseif $pubfame.goal is "permRaise" and ["good","business","social","model","pimp"].includes($pubfame.target)>>
+	"Permanently boost your <<fameProse $pubfame.target>> fame, got it." Mickey looks you in the eye. "This will be tricky, so <span class="purple">I have a tougher favour for you.</span> Hope you don't mind."
+
+<<elseif $pubfame.goal is "tempRaise" and $pubfame.target is "scrap">>
+	"Temporarily boost your <<fameProse $pubfame.target>> fame, got it." Mickey looks you in the eye. "This will be tricky, so <span class="purple">I have a tougher favour for you.</span> Hope you don't mind."
+
+<<elseif $pubfame.goal is "tempLower" and $pubfame.target is "exhibitionism">>
+	"Temporarily lower your <<fameProse $pubfame.target>> fame, got it." Mickey looks you in the eye. "This will be tricky, so <span class="purple">I have a tougher favour for you.</span> Hope you don't mind."
+
+<<elseif $pubfame.goal.includes("Raise")>>
+	"Temporarily boost your <<fameProse $pubfame.target>> fame, got it." Mickey nods. "<span class="blue">I have an idea for what I want you to do.</span>"
+
+<<elseif $pubfame.goal.includes("Lower")>>
+	"Temporarily lower your <<fameProse $pubfame.target>> fame, got it." Mickey nods. "<span class="blue">I have an idea for what I want you to do.</span>"
+
+<<else>> <!-- all conditions should be met in the above if statements -->
+	<<set _failed to 1>>
+	"Uh..." Mickey frowns. "Sorry, not sure what you mean. Can't help you. Pick again." <span class="black"><i>(This is a bug that happened with goal "<<print $pubfame.goal>>" and target "<<print $pubfame.target>>", please inform Vrelnir.)</i></span>
+<</if>>
+<br><br>
+
+<<if _failed isnot 1>>
+	<<unset $pubfameTemp>><<unset $pubfameLower>><<unset $pubfameTarget>>
+	<<pubfameDifficulty>>
+	<<set $pubfame[$pubfame.task] to {}>>
+	<<switch $pubfame.task>>
+		<<case "river">>
+			"You know River? The maths teacher at the school. Check on <<nnpc_him "River">>, make sure <<nnpc_hes "River">> doing okay. Don't tell <<nnpc_him "River">> about me, just tell me how <<nnpc_he "River">> is." Mickey rubs their arm. "<<nnpc_He "River">> helped me once. I care about <<nnpc_him "River">>."
+			<<if $soup_kitchen_known isnot 1 and !Time.schoolTerm>>
+				<<set $soup_kitchen_known to 1>>
+				<br><br>
+
+				"You can find <<nnpc_him "River">> at the soup kitchen by the temple," Mickey adds. "If school is out, you can go there. Between <span class="gold"><<ampm 18 00>> and <<ampm 21 00>></span>."
+				<br><br>
+
+				<span class="gold">You've discovered the soup kitchen on Wolf Street.</span>
+			<</if>>
+
+		<<case "gwylan">>
+			"There's a snow globe with an important code on the bottom." Mickey crosses their arms. "Yes, I'm serious. The contact didn't have anything else to write on. And they were in a hurry. Find the snow globe and bring it to me. <span @class="$forest_shop_intro isnot 1 ? 'gold' : ''">There's a shop by the outskirts of the forest,</span> it probably ended up there. That place collects anything."
+
+		<<case "temple">>
+			"I'm looking for a password to crack an abandoned account," Mickey says. "At least 64 characters long, randomised. They were paranoid. Brute force won't cut it. I think they left the password in a book. In the temple on Wolf Street. I can't go myself, but you can. Understand? Good. I think the book had to do with architecture."
+			<<if $temple_rank is undefined or $temple_rank is "prospective">>
+				<br><br>
+
+				"<span class="gold">Ask the head <<nnpc_title "Jordan">> for help if you're not part of the temple,</span>" they add. "Jordan, <<nnpc_his "Jordan">> name is. <<nnpc_Hes "Jordan">> helpful."
+			<</if>>
+
+		<<case "office">>
+			Mickey disappears behind the door for a moment. They return with an envelope the size of your hand. "I need you to deliver this somewhere," they say. "The office building in High Street. Fifteen stories tall. That one. Give this to the manager, don't say who it's from. Tell them to bring it to the basement. They'll understand."
+			<<if $officejobintro isnot 1>>
+				<br><br>
+				"If you're not a worker there," they add. "Just bring it to the kiosk. Or anywhere. It'll get where it needs to be."
+			<</if>>
+
+		<<case "wren">>
+			"You heard of Wren the smuggler? <<nnpc_Hes "Wren">> who I need you to talk to. Need you to deliver a message." Mickey hands you a Manila envelope. "Give <<nnpc_him "Wren">> this, say it was from the old man. Landry knows Wren, but I can't ask Landry. Don't want Wren knowing Landry and I are connected."
+
+			<<if !$pubfame.seen.includes("oldman")>>
+				<<set $pubfame.seen.pushUnique("oldman")>>
+				<br><br>
+
+				"Who's the old man?" you ask.
+				<br><br>
+
+				"Fake identity. Don't want <<nnpc_him "Wren">> knowing anything about me. Simple as that."
+			<</if>>
+
+			<<if $wren_intro is undefined>>
+				<br><br>
+				"<span class="gold"><<nnpc_He "Wren">> hangs out at Remy's estate,</span>" Mickey adds. "In the moor just out of town. You should be able to get in without meeting Remy <<nnpc_himself "Remy">>. Hopefully. Remy's bad news.
+				<<if $catsuit_found isnot true>>Might also be able to find Wren at the docks, late at night.<</if>>
+				Don't know more than that."
+			<</if>>
+
+		<<case "hospital">>
+			"I need a keycard for the hospital," Mickey says. "Not for me. For Landry. I owe <<him>> a favour myself. <<He>> helped me out. This'll help me repay it."
+			<br><br>
+
+			<<if $rng % 3 is 0>>
+				"I bought them fish and chips when they asked for it," Landry calls from <<his>> table. "That's all they owe me for."
+				<br><br>
+
+				Mickey flushes bright red, and clears their throat. "Hospital keycard. Get in, steal it, get out." They regain their composure. "Snag one off a receptionist, if you can.
+			<<else>>
+				Mickey gives you a look. "Get in, steal a card, get out. Snag one off a receptionist, if you can.
+			<</if>>
+			<span @class="$hospitalintro isnot 1 ? 'gold' : ''">The doc, Harper, <<nnpc_he "Harper">> has problems.</span> But you shouldn't need to see <<nnpc_him "Harper">>. Thankfully."
+
+		<<case "morgan">>
+			"I'm sorry for this one," Mickey says. "There's a USB drive I need. It's in the sewer system. I'm sorry." They shake their head. "Don't bother searching for it. <span @class="$sewersintro isnot 1 ? 'gold' : ''">There's someone down there.</span> <<nnpc_Hes "Morgan">> probably found it already. Try to get <<nnpc_him "Morgan">> to give it to you. Or take it from <<nnpc_him "Morgan">>. Either one works. I'm so sorry."
+			<<if $sewersintro isnot 1>>
+				<br><br>
+
+				Mickey examines your expression for a moment. "I don't mean the normal sewers," they clarify. "There's an older system down below. You should be able to access it from the main sewers network."
+			<</if>>
+
+		<<case "niki">>
+			<<generatev3>><<person3>><<set _modelHair to ["black","black","brown","brown","red","blue","purple"]>>
+			<<if $pronoun is "f">>
+				<<set _modelHair.push("blonde","blonde")>>
+			<<else>>
+				<<set _modelHair.push("blond","blond","no")>>
+			<</if>>
+			<<set $pubfame.niki.hair to _modelHair.pluck()>>
+			"Saw you enter Niki's studio," Mickey says. "Niki has photos I want destroyed. Not of me. An associate. Needed some cash, regrets it now. <span class="gold">A <<person>>, with $pubfame.niki.hair hair.</span> Find them, destroy them. Doesn't matter how." They pause. "Destroy the photos. Not the <<personsimple>>."
+			<<saveNPC 2 "pubfame_model">><<clearsinglenpc 2>>
+
+		<<case "bailey">>
+			Mickey sighs. "Sorry to dump this on you. But I need you to hack Bailey's computer again. Need to make sure <<nnpc_he "Bailey">> didn't remember me and add me to a list of some kind." They give you a USB drive. "Same as last time. Wait until <<nnpc_hes "Bailey">> using it, distract <<nnpc_him "Bailey">>, plug this in. You know how dangerous Bailey can be. Don't get caught." They pause. "Please don't get caught."
+
+		<<case "briar">>
+			"Briar," Mickey says. "Nasty piece of work. But <<nnpc_he "Briar">> knows things. Important things." They give you a USB drive. "Go to the brothel. Hack <<nnpc_his "Briar">> computer with this while it's logged on. There's something I'm looking for. Plug it in, wait, take it out and leave. Don't get caught. <<nnpc_Hes "Briar">> ruthless."
+			<br><br>
+
+			They think for a moment. "You'll want a distraction. Or a clean getaway. Preferably both."
+			<<if $brothelknown isnot 1>>
+				<<set $brothelknown to 1>>
+				<br><br>
+
+				Mickey examines your expression for a moment. "You don't know who Briar is, do you. <<nnpc_He "Briar">> runs the brothel just down the road. Be careful around <<nnpc_him "Briar">>. Not as bad as Bailey. But still very bad." They tap their chin. "<<nnpc_He "Briar">> could get you a fake id, though. Since Bailey's holding your papers. Might come in handy for you. Think about it."
+				<br><br>
+
+				<span class="gold">You can now access the brothel on Harvest Street.</span>
+			<</if>>
+
+		<<case "remy">>
+			<<set $pubfame.remy.password to [
+				["field","forest","park","yard","moor","garden"][random(5)],
+				["at","for","under","before","past","during"][random(5)],
+				["sunset","sunrise","daybreak","midnight","high noon","afternoon"][random(5)]
+			]>>
+			<<if $rng is 1>>
+				<<set $pubfame.remy.password[1] to "under">><<set $pubfame.remy.password[2] to "the blood moon">>
+			<</if>>
+			<<set $pubfame.remy.attempts to 0>>
+			"You know Remy?" Mickey asks. "<span @class="$ridingschoolintro is undefined ? 'gold' : ''"><<nnpc_He "Remy">> has a riding school in the countryside</span>. One of Landry's contacts will be there. Ask them where the flowers bloom. They'll say <span class="gold"><<pubfameRemyPassword>></span>. Got that?"
+			<br><br>
+
+			At your nod, they continue. "Meet up with them, tell them the old man sent you. Take the package, bring it back to me. If they don't give you a package, tell me. Don't just not go and say you didn't get a package. I'll know."
+			<br><br>
+
+			<<if !$pubfame.seen.includes("oldman")>>
+				<<set $pubfame.seen.pushUnique("oldman")>>
+				"Who's the old man?" you ask.
+				<br><br>
+
+				"Fake identity. Don't want them knowing anything about me. Simple as that."
+				<br><br>
+			<</if>>
+
+			Mickey gives you a stern look. "Be careful. If they're with Remy, they could be dangerous. Remy's bad news. Don't let them trick you. <span class="gold"><<pubfameRemyPassword 0 "cap">></span>."
+
+		<<case "compound">>
+			<<set $pubfame.compound.cameras to []>>
+			Mickey disappears behind the door for a moment. They emerge with what looks like four rocks. "These are cameras," they explain. They tap a discolouration on one side, and you see it's actually a very well-hidden lens. "Highly compressed. Cutting edge. Scatter them in the compound. The one on Elk, just down the road. One in each building. One in the courtyard."
+			<br><br>
+
+			They give the disguised cameras to you. Despite looking and feeling like rocks, they're surprisingly light. "Not all at once," they say. "Well, maybe. But it doesn't need to be all at once. If they're onto you, run. Save it for another day."
+
+			<<if $compoundcard isnot 2>>
+				<br><br>
+				<<set $compoundcard to 1>>
+				They duck behind the door again, before handing you an odd card. "To get in," they say. "You'll need this to be granted access." They look you over. "Don't get caught. Their interrogations are brutal."
+			<</if>>
+	<</switch>>
+	<br><br>
+
+	<<link [[Accept|Pub Fame Accept]]>><<set $pubfame.status to "accepted">><</link>>
+	<br>
+	<<link [[Decline|Pub Fame Decline]]>><<set $pubfame.status to "finished">><<set $phase to 0>><</link>>
+
+<<else>>
+	<<pubfameOptions>>
+	<br><br>
+
+	<<link [[Back to Landry|Pub Landry]]>><<set $phase to 1>><</link>>
+<</if>>
+
+:: Pub Fame Accept
+<<effects>>
+
+<<if $rng gte 81>>
+	"Good-good," Mickey says. "Come back when you finish it. I'll-"
+	<br><br>
+
+	Landry leans back in <<his>> chair, making a loud creak. Mickey cuts themselves off and closes the door right as a <<generate3>><<person3>><<person>> walks into the area.
+	<br><br>
+
+	You walk back to Landry's table, just in time to catch Landry shooing <<him>> away. <<He "Landry">> turns back to you. "What's your plan now?" <<he>> asks.
+<<else>>
+	"Good-good," Mickey says. "Come back when you finish it. I'll <<if $pubfame.goal.includes("Raise")>>boost<<else>>lower<</if>> your reputation then." They close the door.
+	<br><br>
+
+	You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+<</if>>
+<br><br>
+
+<<if $asylumkeycard is 1>>
+	<<pubfameComplete "hospital" "asylumEarly">>
+<</if>>
+
+<<endevent>><<npc Landry>><<person1>>
+<<landryoptions>>
+<<link [[Leave|Pub]]>><<endevent>><</link>>
+
+:: Pub Fame Decline
+<<effects>>
+<<if $pubfame.task is "niki">><<run delete $photo.pubfame>><<clearNPC "pubfame_model">><</if>>
+<<if $pubfame.task is "briar" and $per_npc.pubfame_distract>><<clearNPC "pubfame_distract">><</if>>
+<<pubfameReset>><<set $pubfame.timer to 1>>
+
+<<if $phase is 1>>
+	You tell Mickey you're dropping your current favour.
+<</if>>
+"Shame," Mickey says. "If that's all, I have things to do."
+<br><br>
+
+<<if !$pubfame.declined and $phase is 0>>
+	<<set $pubfame.declined to true>>
+	They start to close the door. "Wait," you say. "Can I accept a different favour?"
+	<br><br>
+
+	Mickey sighs. "Fine. But just this once. After this, if you refuse my offer, that's it."
+	<br><br>
+
+	<<link [[Next|Pub Fame]]>><<run delete $pubfame.timer>><<set $pubfame.status to "ready">><<set $phase to 1>><</link>>
+<<else>>
+	They close the door. You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+	<br><br>
+
+	<<endevent>><<npc Landry>><<person1>>
+	<<landryoptions>>
+	<<link [[Leave|Pub]]>><<endevent>><</link>>
+<</if>>
+
+:: Pub Fame Remind
+<<effects>>
+Mickey sighs. "Fine. But listen carefully. I won't tell you again." They pause. "Well, I would. Because I need you to help me. But I don't want to tell you again."
+<br><br>
+
+<<switch $pubfame.task>>
+	<<case "river">>
+		"You know River? The maths teacher at the school. Check on <<nnpc_him "River">>, make sure <<nnpc_hes "River">> doing okay. Don't tell <<nnpc_him "River">> about me, just tell me how <<nnpc_he "River">> is." Mickey rubs their arm. "<<nnpc_He "River">> helped me once. I care about <<nnpc_him "River">>."
+
+	<<case "gwylan">>
+		"There's a snow globe with an important code on the bottom." Mickey crosses their arms. "Yes, I'm serious. The contact didn't have anything else to write on. And they were in a hurry. Find the snow globe and bring it to me. <span @class="$forest_shop_intro isnot 1 ? 'gold' : ''">There's a shop by the outskirts of the forest,</span> it probably ended up there. That place collects anything."
+
+	<<case "temple">>
+		"I'm looking for a password to crack an abandoned account," Mickey says. "At least 64 characters long, randomised. They were paranoid. Brute force won't cut it. I think they left the password in a book. In the temple on Wolf Street. I can't go myself, but you can. Understand? Good. I think the book had to do with architecture."
+		<<if $temple_rank is undefined or $temple_rank is "prospective">>
+			<br><br>
+
+			"<span class="gold">Ask the head <<nnpc_title "Jordan">> for help if you're not part of the temple,</span>" they add. "Jordan, <<nnpc_his "Jordan">> name is. <<nnpc_Hes "Jordan">> helpful."
+		<</if>>
+
+	<<case "office">>
+		"The envelope I gave you. I need you to deliver it to somewhere," they say. "The office building in High Street. Fifteen stories tall. That one. Give this to the manager, don't say who it's from. Tell them to bring it to the basement. They'll understand."
+		<<if $officejobintro isnot 1>>
+			<br><br>
+			"If you're not a worker there," they add. "Just bring it to the kiosk. Or anywhere. It'll get where it needs to be."
+		<</if>>
+
+	<<case "wren">>
+		"Wren the smuggler. <<nnpc_Hes "Wren">> who I need you to talk to. Need you to deliver a message. You still have the envelope? Give it to <<nnpc_him "Wren">>, say it was from the old man. Landry knows Wren, but I can't ask Landry. Don't want Wren knowing Landry and I are connected."
+
+	<<case "hospital">>
+		"I need a keycard for the hospital," Mickey says. "Not for me. For Landry. I owe <<him>> a favour myself. <<He>> helped me out. This'll help me repay it."
+		<br><br>
+
+		Mickey gives you a look. "Get in, steal a card, get out. Snag one off a receptionist, if you can.
+		<span @class="$hospitalintro isnot 1 ? 'gold' : ''">The doc, Harper, <<nnpc_he "Harper">> has problems.</span> But you shouldn't need to see <<nnpc_him "Harper">>. Thankfully."
+
+	<<case "morgan">>
+		"I'm sorry for this one," Mickey says. "There's a USB drive I need. It's in the sewer system. I'm sorry." They shake their head. "Don't bother searching for it. <span @class="$sewersintro isnot 1 ? 'gold' : ''">There's someone down there.</span> <<nnpc_Hes "Morgan">> probably found it already. Try to get <<nnpc_him "Morgan">> to give it to you. Or take it from <<nnpc_him "Morgan">>. Either one works. I'm so sorry."
+		<<if $sewersintro isnot 1>>
+			<br><br>
+
+			Mickey examines your expression for a moment. "I don't mean the normal sewers," they clarify. "There's an older system. Down below. You should be able to access it from the main sewers network."
+		<</if>>
+
+	<<case "niki">>
+		<<loadNPC 2 "pubfame_model">><<person3>>
+		"Niki has photos I want destroyed," Mickey says. "Not of me. An associate. Needed some cash, regrets it now. <span class="gold">A <<person>>, with $pubfame.niki.hair hair.</span> Find them, destroy them. Doesn't matter how." They pause. "Destroy the photos. Not the <<personsimple>>."
+		<<clearsinglenpc 2>>
+
+	<<case "bailey">>
+		Mickey sighs. "Sorry to dump this on you. But I need you to hack Bailey's computer again. Need to make sure <<nnpc_he "Bailey">> didn't remember me and add me to a list of some kind." They give you a USB drive. "Same as last time. Wait until <<nnpc_hes "Bailey">> using it, distract <<nnpc_him "Bailey">>, plug this in. You know how dangerous Bailey can be. Don't get caught." They pause. "Please don't get caught."
+
+	<<case "briar">>
+		"Briar," Mickey says. "Nasty piece of work. But <<nnpc_he "Briar">> knows things. Important things." They give you a USB drive. "Go to the brothel. Hack <<nnpc_his "Briar">> computer with this while it's logged on. There's something I'm looking for. Plug it in, wait, take it out and leave. Don't get caught. <<nnpc_Hes "Briar">> ruthless."
+		<br><br>
+
+		They think for a moment. "You'll want a distraction. Or a clean getaway. Preferably both."
+
+	<<case "remy">>
+		"You know Remy?" Mickey asks. "<span @class="$ridingschoolintro is undefined ? 'gold' : ''"><<nnpc_He "Remy">> has a riding school in the countryside</span>. One of Landry's contacts will be there. Ask them where the flowers bloom. They'll say <span class="gold"><<pubfameRemyPassword>></span>. Got that?"
+		<br><br>
+
+		At your nod, they continue. "Meet up with them, tell them the old man sent you. Take the package, bring it back to me. If they don't give you a package, tell me. Don't just not go and say you didn't get a package. I'll know."
+		<br><br>
+
+		Mickey gives you a stern look. "Be careful. If they're with Remy, they could be dangerous. Remy's bad news. Don't let them trick you. <span class="gold"><<pubfameRemyPassword 0 "cap">></span>."
+
+	<<case "compound">>
+		"The compound," Mickey says. "The one on Elk. I gave you the cameras. The ones that look like rocks? Hide them around. One in each building. One in the courtyard. Not all at once. Well, maybe. But it doesn't need to be all at once. If they're onto you, run. Save it for another day."
+		<br><br>
+
+	<<default>> <!-- all conditions should be met in the above cases -->
+		Mickey frowns. "What did I ask you to do again?" They shake their head. "Never mind. Consider it done, I guess." <span class="black"><i>(This is a bug that happened with task "<<print $pubfame.task>>", please inform Vrelnir.)</i></span>
+<</switch>>
+<br><br>
+
+<<link [[Next|Pub Fame]]>><<set $phase to 1>><</link>>
+
+:: Pub Fame Done
+<<effects>>
+<<set $pubfame.history to $pubfame.task>>
+
+<<switch $pubfame.task>>
+	<<case "river">>
+		"How was River?" Mickey asks. "Doing alright?"
+		<br><br>
+
+		<<if $submissive gte 1150>>
+			"<<nnpc_He "River">> seemed to be doing fine," you say.
+			<br><br>
+
+			Mickey nods. "Good-good. Glad to hear."
+		<<elseif $submissive lte 850>>
+			You grin. "<<nnpc_He "River">> was doing good-good."
+			<br><br>
+
+			"Good-goo-" Mickey cuts themselves off halfway through and pouts at you. They shake their head after a few seconds. "Glad to hear."
+		<<else>>
+			"<<nnpc_He "River">> was doing fine," you say.
+			<br><br>
+
+			Mickey nods. "Good-good. Glad to hear."
+		<</if>>
+
+	<<case "gwylan">>
+		"You got the snow globe?" Mickey asks. You nod and hand the snow globe over. Mickey inspects the bottom, and types something into a computer just behind the door. "Good-good. One less loose end."
+		<br><br>
+
+		"What's the code for?" you ask, curious.
+		<br><br>
+
+		<<if $rng gte 51>>
+			"Updated link to a webpage on the dark web," they answer. "Thought it went down for the longest time. Turns out I was using the wrong URL."
+		<<else>>
+			"Sorry," they say. "Top secret. Knowing would put you in danger anyway."
+		<</if>>
+
+	<<case "temple">>
+		"You got the book? The right one?" Mickey asks. You nod and hand the book over.
+		<<if $pubfame.detail is "templeBack">>
+			They open to the front cover and scowl. "You said this was the right one."
+			<br><br>
+
+			"Other cover," you say.
+			<br><br>
+
+			They pause, flip to the back cover and sigh. "Sorry. Should've checked." They nod and set the book on a desk just inside the room.
+		<<else>>
+			They open to the front cover, nod, and set the book on a desk just inside the room.
+		<</if>>
+		"Good-good. I can get in now."
+
+	<<case "office">>
+		"You gave the letter to the office?" Mickey asks. You nod. "Good-good. I'd rather not show my face there. Not because it's dangerous. It's just too crowded."
+
+	<<case "wren">>
+		"You gave <<nnpc_him "Wren">> my message?" Mickey asks. You nod. "Thank you. Now <<nnpc_he "Wren">> knows."
+		<<if $pubfame.detail is "wrenOldman">>
+			<br><br>
+
+			<<if $submissive gte 1150>>
+				"W-Wren also knows the other thing," you say. "<<nnpc_He "Wren">> knows that you're the old man."
+			<<elseif $submissive lte 850>>
+				"You can drop the old man thing, by the way," you say. "<<nnpc_He "Wren">> figured it out."
+			<<else>>
+				"Also, <<nnpc_he "Wren">> figured out you're the old man," you say.
+			<</if>>
+			<br><br>
+
+			Mickey mutters something under their breath. "Not good-good. Well, nothing for it. Hope <<nnpc_he "Wren">> doesn't spill."
+		<<elseif $pubfame.detail is "wrenLandry">>
+			<br><br>
+
+			<<if $submissive gte 1150>>
+				"W-Wren also knows you're with Landry," you say.
+			<<elseif $submissive lte 850>>
+				"<<nnpc_He "Wren">> knows your other secret too," you say. "Your connection to Landry."
+			<<else>>
+				"Also, <<nnpc_he "Wren">> figured out you're connected to Landry," you say.
+			<</if>>
+			<br><br>
+
+			Mickey swears under their breath and hits the wall with their fist. "Is there anything <<nnpc_he "Wren">> doesn't know about me? This is bad."
+			<br><br>
+
+			"I think you can trust <<nnpc_him "Wren">>," you say. "<<nnpc_He "Wren">> went out of <<nnpc_his "Wren">> way to keep it a secret from <<nnpc_his "Wren">> friends."
+			<br><br>
+
+			"Hope you're right," Mickey says, not looking hopeful.
+		<</if>>
+
+	<<case "hospital">>
+		"You got the keycard?" Mickey asks.
+		<<if $pubfame.detail is "asylum">>
+			<<set $asylumkeycard to 0>>
+			You produce the asylum keycard and show it to them. Their eyes widen. "Wait, that's- how did you get that?"
+			<br><br>
+
+			They snatch it from your hand and examine it from all angles. "This is amazing. This is better than the hospital one. It's not what I asked for. But I'll gladly take it. Thank you." They creep out of the door and pull you into an awkward, one-armed hug.
+			<<trauma -12>><<lltrauma>>
+			<br><br>
+
+			"You still owe me the normal card," Landry calls from <<his>> table.
+			<br><br>
+
+			"Quiet," Mickey says, barely looking at <<him>>. You can hear Landry chuckling.
+		<<else>>
+			You produce the keycard and show it to them. "Good-good. Give it to Landry on your way out."
+			<br><br>
+
+			"Why couldn't <<pshe>> give it to me on <<pher>> way to you?" Landry calls from <<his>> table. "Why'd you need <<pher>> to go to you first?"
+			<br><br>
+
+			Mickey blushes again. "Just- here, I'll take it." They snatch it out of your hand. "<<He>>'ll get it when I decide <<he>> does." You can hear Landry chuckling.
+		<</if>>
+
+	<<case "morgan">>
+		Mickey looks at you. "Did you...?" You produce the USB, and they sigh. "Sorry to make you go through that." They place it on a desk just inside the room. "Glad I got hold of this."
+		<br><br>
+
+		"What's in it?" you ask, curious.
+		<br><br>
+
+		<<if $rng is 100>>
+			"Cat<<girl>> hentai," they say without a hint of shame. You hear Landry spit <<his>> drink over the table.
+		<<elseif $rng gte 51>>
+			"Project of mine," they say. "Program to make my IP more secure. Multiple layers of proxies. Had to throw it away to stop it from being found. That's where it ended up."
+		<<else>>
+			"Sorry," they say. "Top secret. Knowing would put you in danger anyway."
+		<</if>>
+
+	<<case "niki">>
+		"You got the pictures?" Mickey asks. You hand the photo over, and Mickey squints. "No way to know if that's the only one. I'll trust you. But if there's more out there, it's my neck. Not yours."
+		<<clearNPC "pubfame_model">>
+
+	<<case "bailey">>
+		"You got into <<nnpc_his "Bailey">> computer?" Mickey asks. You nod and give Mickey the USB back. "Was I on it?"
+		<br><br>
+
+		<<if $pubfame.detail is "baileyWiped">>
+			You tell Mickey that Bailey had them on a list of missing orphans, and was planning to send people out to search the town for them. You wiped the entire list for good measure. Bailey knew the list was wiped, but couldn't remember who all was on it.
+			<br><br>
+
+			Mickey looks at you with something approaching admiration. "You just saved a lot of people like me. Thank you." They creep out of the door and pull you into an awkward, one-armed hug.
+			<<trauma -12>><<lltrauma>>
+			<<if $pain gte 40>><<pain -20>><<lpain>><</if>>
+		<<elseif $pubfame.detail is "baileyList">>
+			You tell Mickey that Bailey had them on a list of missing orphans, and was planning to send people out to search the town for them. Mickey was removed from it. "Good thing you caught that when you did," they mutter. "Hope <<nnpc_he "Bailey">> relies on the list and not <<nnpc_his "Bailey">> memory."
+			<br><br>
+
+			"I'll keep an eye out for <<nnpc_his "Bailey">> people," Landry calls from <<his>> table. "Advance warning, if nothing else."
+		<<else>>
+			You tell Mickey there was no mention of them anywhere in Bailey's files. "Good-good," they say. "Better to make sure."
+		<</if>>
+
+	<<case "briar">>
+		"You got into <<nnpc_his "Briar">> computer?" Mickey asks. You nod and give them the USB back. "Good-good. I'll pour over this for a few days. See what I can uncover."
+		<<if !$pubfame.seen.includes("questionBriar")>>
+			<<set $pubfame.seen.pushUnique("questionBriar")>>
+			<br><br>
+
+			"What's on-"
+			<br><br>
+
+			"Don't finish that question," they say, looking at you. "That information's too dangerous. I'm not telling you. For your own sake."
+		<</if>>
+
+	<<case "remy">>
+		"You got the package?" Mickey asks.
+		<<if $pubfame.detail is "remyBetray">>
+			<br><br>
+
+			"Landry's contact betrayed me," you say. "There was no package."
+			<br><br>
+
+			Mickey winces. "Sorry," they say. "But good to know. That person can't be trusted. That info is as useful as the package would've been. I'll tell Landry later."
+		<<else>>
+			You hand over the box to Mickey, and they inspect it from all angles. They hold it to their ear, shake it, and smile. "Good-good. I can use this."
+			<<if !$pubfame.seen.includes("questionRemy")>>
+				<<set $pubfame.seen.pushUnique("questionRemy")>>
+				<br><br>
+
+				"What's in-"
+				<br><br>
+
+				"Don't finish that question," they say, looking at you. "That information's too dangerous. I'm not telling you. For your own sake."
+			<</if>>
+		<</if>>
+
+	<<case "compound">>
+		Mickey checks the computer by the door. "Camera one online. Camera two online. Three and four, online. Good job."
+
+	<<default>> <!-- all conditions should be met in the above cases -->
+		Mickey frowns. "What did I ask you to do again?" They shake their head. "Never mind. Consider it done, I guess." <span class="black"><i>(This is a bug that happened with task "<<print $pubfame.task>>", please inform Vrelnir.)</i></span>
+<</switch>>
+<br><br>
+
+Mickey types something into a computer near the door. "You wanted me to
+<<if $pubfame.goal.includes("temp")>>temporarily<<else>>permanently<</if>>
+<<if $pubfame.goal.includes("Lower")>>lower<<else>>boost<</if>>
+your <<fameProse $pubfame.target>> fame?" You nod in confirmation, and they type some more. "I'll get on it. Thanks for your work. I could use your help again in a few days. If you need mine."
+<br><br>
+
+<<pubfameChange $pubfame.goal $pubfame.target>>
+<<set $pubfame.timer to $pubfame.goal.includes("temp") ? 1 : 3>>
+<<set $pubfame.tasksDone.pushUnique($pubfame.task)>>
+<<pubfameReset>>
+
+<<if $pub_task_stat % 3 is 0>>
+	<<set _qList to ["name","gender","hacker","good","leighton"]>><<set _qOptions to []>>
+	<<set _qOptions.pushUnique(_qList.pluck(),_qList.pluck())>>
+	Mickey starts to close the door, but opens it again. "You look like you have a question. What is it?"
+	<br><br>
+
+	<<if _qOptions.includes("name")>>
+		<<link [[''Is Mickey your real name?''|Pub Fame Question]]>><<set $phase to random(2,3)>><</link>>
+		<br>
+	<</if>>
+	<<if _qOptions.includes("gender")>>
+		<<link [[''Are you a boy or a girl?''|Pub Fame Question]]>><<set $phase to random(2,3)>><</link>>
+		<br>
+	<</if>>
+	<<if _qOptions.includes("hacker")>>
+		<<link [[''Can you teach me to be a hacker?''|Pub Fame Question]]>><<set $phase to random(2,3)>><</link>>
+		<br>
+	<</if>>
+	<<if _qOptions.includes("good")>>
+		<<link [[''Why do you say 'good-good' so much?''|Pub Fame Question]]>><<set $phase to random(3,4)>><</link>>
+		<br>
+	<</if>>
+	<<if _qOptions.includes("leighton")>>
+		<<link [[''What did Leighton do to you?''|Pub Fame Question]]>><<set $phase to 5>><</link>>
+		<br>
+	<</if>>
+	<<if $promiscuity gte 15>>
+		<<link [[Seduce|Pub Fame Question]]>><<set $phase to 1>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+	<<link [[Nothing to ask|Pub Fame Question]]>><<set $phase to 0>><</link>>
+
+<<else>>
+	<<endevent>><<npc Landry>><<person1>>
+
+	You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+	<br><br>
+
+	<<landryoptions>>
+	<<link [[Leave|Pub]]>><<endevent>><</link>>
+<</if>>
+
+:: Pub Fame Question
+<<effects>>
+
+<<switch $phase>>
+	<<case 0>>
+		You shake your head, and Mickey blinks in surprise. "Oh. I thought you wanted to..." They remain silent for a moment, before giving you a grateful smile and closing the door.
+		<br><br>
+
+		<<endevent>><<npc Landry>><<person1>>
+		You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+
+	<<case 1>>
+		You lean against the wall and gently brush Mickey's arm with your hand. "Your room seems pretty private," you say, licking your lips. "I bet we could get up to all kinds of trouble together."
+		<<if $control lt $controlmax>>
+			<<if $promiscuity lte 39>>
+				<<set $promiscuity += 2>>
+				Performing such a lewd act excites you and <span class="green">restores your sense of</span>-
+				<<control 25>><<arousal 200>><<set $stress -= 600>><<combattrauma -60>>
+			<<elseif $promiscuity gte 40>>
+				Performing such a lewd act excites you, but does nothing to lift the cloud hanging over you. <span class="pink">You need to do something more</span>-
+				<<arousal 200>>
+			<</if>>
+		<<else>>
+			<<if $promiscuity lte 39>>
+				<<set $promiscuity += 1>>
+				You already feel in control, but performing such a lewd act <span class="green">soothes</span> and excites-
+				<<control 25>><<arousal 200>><<set $stress -= 600>><<combattrauma -60>>
+			<<elseif $promiscuity gte 40>>
+				You already feel in control and the act is <span class="pink">too tame to soothe</span>, but it does-
+				<<arousal 200>>
+			<</if>>
+		<</if>>
+		<br><br>
+
+		"No," they flatly answer. They close the door, and you hear the sound of a complex lock setting into place. Well, at least you tried.
+		<br><br>
+
+		<<endevent>><<npc Landry>><<person1>>
+		You walk back to Landry's table. "Swing and a miss," <<he>> chuckles. "So, what's your plan now?"
+
+	<<case 2>>
+		"No," they flatly answer. They close the door, and you hear the sound of a complex lock setting into place. That's all you'll get out of them.
+		<br><br>
+
+		<<endevent>><<npc Landry>><<person1>>
+		You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+
+	<<case 3>>
+		"Good question," Mickey says. They stare at you for a moment, before closing the door.
+		<br><br>
+
+		"So... what is it?" you awkwardly ask the door.
+		<br><br>
+
+		Mickey's voice comes through. "I said you could ask a question. Never said I would answer." You hear the sound of a complex lock setting into place. That's all you'll get out of them.
+		<br><br>
+
+		<<endevent>><<npc Landry>><<person1>>
+		You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+
+	<<case 4>>
+		"Extra good," they say, as if that answers anything. Without expanding on that, they close the door. You hear the sound of a complex lock setting into place. That's all you'll get out of them.
+		<br><br>
+
+		<<endevent>><<npc Landry>><<person1>>
+		You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+
+	<<case 5>>
+		They smile bitterly.
+		<<if $schoolfameblackmail isnot undefined>>
+			"Same thing <<nnpc_hes "Leighton">> doing to you."
+		<<else>>
+			"<<nnpc_Hes "Leighton">> ruthless. I hope you never find out."
+		<</if>>
+		They shake their head. "I'm done talking about this." They shut the door with more force than necessary, and you hear the sound of a complex lock setting into place. That's all you'll get out of them.
+		<br><br>
+
+		<<endevent>><<npc Landry>><<person1>>
+		You walk back to Landry's table. "What's your plan now?" <<he>> asks.
+<</switch>>
+<br><br>
+<<landryoptions>>
+<<link [[Leave|Pub]]>><<endevent>><</link>>
+
+:: Pub Fame Hiding
+<<effects>>
+<<set $pubfame.status to "hidingKnown">>
+
+Landry clicks <<his>> tongue. "Sorry, <span class="red">our friend is out of commission for the moment</span>. Needs to lie low, keep some nasty folk off their trail. Someone spilt important information about them."
+<<stress 12>><<ggstress>>
+<br><br>
+
+<<He>> shakes <<his>> head before you can say anything. "Don't apologise. I've let worse secrets out in the past. They should be free to help <span class="gold"><<if $pubfame.timer gt 1>>in <<number $pubfame.timer>> days<<else>>tomorrow<</if>></span>."
+<br><br>
+
+<<landryoptions>>
+<<link [[Leave|Pub]]>><<endevent>><</link>>
+<br>

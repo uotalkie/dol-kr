@@ -1,10 +1,12 @@
 :: Widgets Wolf Cave [widget]
 
 <<widget "wolfcaveevent">>
-<<beastNEWinit 1 wolf>>
-	<<set $rng to random(1, 100)>>
+	<<beastNEWinit 1 wolf>>
+	<<rng>>
+	<<cleareventpool>>
 	<<if $wolfstate isnot "cave">>
-		<<if $rng gte 81>>
+		<<childrenEvents "wolf_cave" $passage>>
+		<<addinlineevent "wolf cave play fight">>
 			어린 <<beastspluralPost>>중 하나가 당신에게 다가온다. 그것은 싸움을 하고 싶어하는 것 같다.
 			<br><br>
 			<<link [[논다 (0:20)|Wolf Cave Play Fight]]>><<pass 20>><<stress -4>><</link>><<lstress>>
@@ -20,28 +22,35 @@
 				<<link [[무시한다|Wolf Cave Clearing]]>><<endevent>><</link>>
 				<br>
 			<</if>>
-		<<elseif $rng gte 41>>
-			어린 <<wolf_cave_plural_un>> 무리가 무사히 돌아올까 걱정하며 나무를 바라본다
+		<</addinlineevent>>
+		<<addinlineevent "anxious younger wolves" 2>>
+			어린 <<wolf_cave_plural_ un>> 무리가 무사히 돌아올까 걱정하며 나무를 바라본다
 			<br><br>
 			<<endevent>>
 			<<destinationwolfcave>>
-		<<else>>
+		<</addinlineevent>>
+		<<addinlineevent "younger wolf rub" 2>>
 			어린 <<beastspluralPost>>중 한마리가 지나갈 때 다리에 머리를 문지른다.
 			<<ltrauma>><<lstress>><<trauma -6>><<stress -12>>
 			<<endevent>>
 			<br><br>
 			<<destinationwolfcave>>
-		<</if>>
+		<</addinlineevent>>
 	<<else>>
+		<<childrenEvents "wolf_cave" $passage>>
+		<<if npcIsPregnant("Black Wolf") and npcPregnancyBellyVisible("Black Wolf") and !knowsAboutPregnancy("Black Wolf","pc")>>
+			<<addevent "blackWolfPresentsPregnancyToPlayer" 5000>>
+		<</if>>
 		<<if $wolfpackferocity + random(1, 20) gte $wolfpackharmony + random(1, 20)>>
-			<<if $rng gte 81>>
+			<<addinlineevent "wolf cave fight">>
 				<<beastspluralPost>>중 한마리가 당신에게 으르렁거리며 걸어온다
 				<br><br>
 				<<link [[싸운다|Wolf Cave Fight]]>><<set $molestationstart to 1>><</link>>
 				<br>
 				<<link [[도움을 요청한다|Wolf Cave Help]]>><</link>>
 				<br>
-			<<elseif $rng gte 41>>
+			<</addinlineevent>>
+			<<addinlineevent "wolf cave play fight" 2>>
 				피가 흐를 때까지 싸움이 점차 커져간다.
 				<br><br>
 				<<link [[개입한다|Wolf Cave Intervene]]>><<set $phase to 0>><</link>>
@@ -50,7 +59,8 @@
 				<br>
 				<<link [[무시한다|Wolf Cave Intervene]]>><<set $phase to 2>><</link>>
 				<br>
-			<<else>>
+			<</addinlineevent>>
+			<<addinlineevent "wolf cave blackwolf agitated" 2>>
 				<<endevent>><<npc "Black Wolf">>/*<<beastNNPCinit>>*/
 				<<if $wolfpackleader is 1>>
 					검은 늑대가 동요한다. <<bHePost "은">> 다른 녀석들을 물고 으르렁거리며 차례로 그들을 자극한다.
@@ -73,18 +83,19 @@
 					<<link [[도전한다|Wolf Cave Calm]]>><<set $phase to 2>><</link>>
 					<br>
 				<</if>>
-			<</if>>
+			<</addinlineevent>>
 		<<else>>
-			<<if $rng gte 61>>
+			<<addinlineevent "wolf face lick" 2>>
 				<<beasttypePost "이">> 당신에게 달려온다. <<bHePost "이">> 몸을 일으켜 기댄 채로 당신을 거의 넘어뜨린다. <<bHePost "이">> 당신의 얼굴을 핥는다..
 				<<ltrauma>><<lstress>><<trauma -6>><<stress -12>>
 				<br><br>
 
 				<<destinationwolfcave>>
-
-			<<elseif $rng gte 41>>
+			<</addinlineevent>>
+			<<addinlineevent "wolve mating rank">>
+				<<endevent>>
 				<<beastNEWinit 2 wolf>>
-				낮은 서열의 <<print $combatTrain.beastTypes[0]>> 가 짝짓기를 원하듯 접근한다. 더 높은 서열의 <<print $combatTrain.beastTypes[1]>> 은 당신을 빼앗으려고 한다.
+				낮은 서열의 <<beasttype_ i 0>> 짝짓기를 원하듯 접근한다. 더 높은 서열의 <<beasttype_ un 1>> 당신의 주의를 빼앗으려고 한다.
 				<br><br>
 				<<saveNPC 0 wolf_rank_1>>
 				<<saveNPC 1 wolf_rank_2>>
@@ -98,232 +109,340 @@
 				<</if>>
 				<<link [[둘 다 무시한다|Wolf Cave Rank]]>><<set $phase to 3>><</link>>
 				<br>
-			<<else>>
+			<</addinlineevent>>
+			<<addinlineevent "young wolf rock climb" 2>>
 				어린 <<beasttypePost "이">> 바위를 오르려고 한다. <<bHisPost "의">> 발이 미끄러져 <<bhePost "은">> 땅을 뒹군다. <<bHePost "은">> 일어서지만, 낑깅거린다.
 				<br><br>
 				<<link [[괜찮은지 확인한다 (0:05)|Wolf Cave Young]]>><<set $phase to 0>><<pass 5>><</link>>
 				<br>
 				<<link [[무시한다|Wolf Cave Young]]>><<set $phase to 1>><</link>>
 				<br>
+			<</addinlineevent>>
+			<<addinlineevent "wolf cave howl chorus">>
+				<<endevent>><<npc "Black Wolf">>
+				당신은 검은 늑대가 무리의 한가운데에 있는, 큰 바위 위에 서서 많은 <<wolf_cave_plural_ yi>> 사이에 둘러 싸여 있는 것을 발견한다. <<bHe_ nun>> 갑자기 <<bhis_ yi>> 머리를 들어 올리고, 크고 아름다운 소리로 울부짖기 시작한다. 다른 <<wolf_cave_plural_ i>> 신호를 듣고 <<bhis_ yi>> 무리와 함께 울부짖으며 끈끈한 유대감을 나눈다.
+				<br><br>
+				잠시 후, 몇몇 그룹이 선두를 따라 큰 소리로 조화롭게 울부짖기 시작한다.
+				<br><br>
+				<<link [[지켜본다|Wolf Cave Howl]]>><<set $phase to 0>><</link>>
+				<br>
+				<<link [[함께한다|Wolf Cave Howl]]>><<set $phase to 1>><</link>>
+				<br>
+			<</addinlineevent>>
+			<<if $pound and $pound.progress is 6>>
+				<<addinlineevent "wolf cave black dog" 0.5>>
+					<<endevent>><<npc "Black Wolf">><<person1>>
+					검은 늑대가 큰 바위 위에 앉아, 숲의 주변을 바라본다. 당신은 한 쌍의 눈이 그 뒤를 응시하는 것을 발견한다. 검은 개다.
+					<br><br>
+					<<link [[만남을 유도한다|Wolf Cave Dog Meet]]>><</link>>
+					<br>
+					<<link [[내버려둔다|Wolf Cave Dog Stare]]>><</link>>
+					<br>
+				<</addinlineevent>>
 			<</if>>
 		<</if>>
 	<</if>>
+	<<runeventpool>>
 <</widget>>
+
 <<widget "wolfcavestate">>
-<<if $wolfpackferocity gte 20 and $wolfpackharmony gte 20>>
-<span class="green">그들은 파괴적인 목적으로 통합된다.</span>
-<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 10>>
-<span class="purple"><<wolf_cave_plural_un>> 사냥을 갈망하며 서로 으르렁댄다.</span>
-<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 1>>
-<span class="pink"><<wolf_cave_plural_un>> 서열에서 자신의 자리를 잃을까 두려워하며 동요한다.</span>
-<<elseif $wolfpackferocity gte 20>>
-<span class="red"><<wolf_cave_plural_un>> 그들 사이에 큰 간격을 두고 있다. 모든 무단 침입자들은 그들의 갈고닦인 이빨을 만나게 될 것이다.</span>
-<<elseif $wolfpackharmony gte 20 and $wolfpackferocity gte 10>>
-<span class="teal">놀이 싸움이 자주 발생한다.</span>
-<<elseif $wolfpackharmony gte 20 and $wolfpackferocity gte 1>>
-<span class="lblue"><<wolf_cave_plural_un>> 드러누워, 서로의 털을 골라준다.</span>
-<<elseif $wolfpackharmony gte 20>>
-<span class="blue"><<wolf_cave_plural_un>> 한데 귀엽게 모여 함께 누워있다.</span>
-<<elseif $wolfpackferocity gte 10 and $wolfpackharmony gte 10>>
-<span class="lblue">몇몇 <<wolf_cave_plural_i>> 드러누워 서로의 털을 골라주는 동안, 다른 녀석들은 나무를 바라본다.</span>
-<<elseif $wolfpackferocity gte 10 and $wolfpackharmony gte 1>>
-<span class="purple"><<wolf_cave_plural_un>> 가장자리에서 으르렁대며 서로 이빨을 드러내고 있다.</span>
-<<elseif $wolfpackferocity gte 10>>
-<span class="pink"><<wolf_cave_plural_un>> 조심스럽게 서로를 주시한다.</span>
-<<elseif $wolfpackharmony gte 10 and $wolfpackferocity gte 1>>
-<span class="blue">대부분의 <<wolf_cave_plural_un>> 눈을 감고 드러누워, 서로의 털을 골라준다.</span>
-<<elseif $wolfpackharmony gte 10>>
-<span class="purple"><<wolf_cave_plural_un>> 스스로의 털을 고르고, 몇몇은 서로의 털을 골라준다.</span>
-<<elseif $wolfpackferocity gte 1 and $wolfpackharmony gte 1>>
-<span class="purple"><<wolf_cave_plural_un>> 스스로의 털을 고르고 서로 무시하고 있다.</span>
-<<elseif $wolfpackferocity gte 1>>
-<span class="pink">무리는 서로를 향해 으르렁 댈 기운을 간신히 끌어내며 이리저리 뛰어다닌다.</span>
-<<elseif $wolfpackharmony gte 1>>
-<span class="pink">무리는 힘을 낼 수 없을 정도로 느슨해져 있다.</span>
-<<else>>
-<span class="red">우울한 불만감이 무리를 뒤덮고 있다.</span>
-<</if>>
+	<<if $wolfpackferocity gte 20 and $wolfpackharmony gte 20>>
+		<span class="green">그들은 파괴적인 목적으로 통합된다.</span>
+	<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 10>>
+		<span class="purple"><<wolf_cave_plural_ un>> 사냥을 갈망하며 서로 으르렁댄다.</span>
+	<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 1>>
+		<span class="pink"><<wolf_cave_plural_ un>> 서열에서 자신의 자리를 잃을까 두려워하며 동요한다.</span>
+	<<elseif $wolfpackferocity gte 20>>
+		<span class="red"><<wolf_cave_plural_ un>> 그들 사이에 큰 간격을 두고 있다. 모든 무단 침입자들은 그들의 갈고닦인 이빨을 만나게 될 것이다.</span>
+	<<elseif $wolfpackharmony gte 20 and $wolfpackferocity gte 10>>
+		<span class="teal">놀이 싸움이 자주 발생한다.</span>
+	<<elseif $wolfpackharmony gte 20 and $wolfpackferocity gte 1>>
+		<span class="lblue"><<wolf_cave_plural_ un>> 드러누워, 서로의 털을 골라준다.</span>
+	<<elseif $wolfpackharmony gte 20>>
+		<span class="blue"><<wolf_cave_plural_ un>> 한데 귀엽게 모여 함께 누워있다.</span>
+	<<elseif $wolfpackferocity gte 10 and $wolfpackharmony gte 10>>
+		<span class="lblue">몇몇 <<wolf_cave_plural_ i>> 드러누워 서로의 털을 골라주는 동안, 다른 녀석들은 나무를 바라본다.</span>
+	<<elseif $wolfpackferocity gte 10 and $wolfpackharmony gte 1>>
+		<span class="purple"><<wolf_cave_plural_ un>> 가장자리에서 으르렁대며 서로 이빨을 드러내고 있다.</span>
+	<<elseif $wolfpackferocity gte 10>>
+		<span class="pink"><<wolf_cave_plural_ un>> 조심스럽게 서로를 주시한다.</span>
+	<<elseif $wolfpackharmony gte 10 and $wolfpackferocity gte 1>>
+		<span class="blue">대부분의 <<wolf_cave_plural_ un>> 눈을 감고 드러누워, 서로의 털을 골라준다.</span>
+	<<elseif $wolfpackharmony gte 10>>
+		<span class="purple"><<wolf_cave_plural_ un>> 스스로의 털을 고르고, 몇몇은 서로의 털을 골라준다.</span>
+	<<elseif $wolfpackferocity gte 1 and $wolfpackharmony gte 1>>
+		<span class="purple"><<wolf_cave_plural_ un>> 스스로의 털을 고르고 서로 무시하고 있다.</span>
+	<<elseif $wolfpackferocity gte 1>>
+		<span class="pink">무리는 서로를 향해 으르렁 댈 기운을 간신히 끌어내며 이리저리 뛰어다닌다.</span>
+	<<elseif $wolfpackharmony gte 1>>
+		<span class="pink">무리는 힘을 낼 수 없을 정도로 느슨해져 있다.</span>
+	<<else>>
+		<span class="red">우울한 불만감이 무리를 뒤덮고 있다.</span>
+	<</if>>
 <</widget>>
+
 <<widget "wolfcaveselect">>
-<<if $daystate is "day" or $daystate is "dawn">>
-<<set $huntstate to "failed">>
-<</if>>
-	<<if $wolfstate is "hunt" and $daystate is "dawn" or $wolfstate is "hunt" and $daystate is "day">>
-	<<set $wolfstate to "cave">>
-		<<if $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
-		무리가 사냥에서 돌아온다. 몇몇 늑대들이 어린 <<wolf_cave_plural_ul>> 위해서 고기조각을 나른다. 그 사냥은 성공적이었을 것이다.
-		<<gharmony>><<lferocity>>
-		<br><br>
+	<<if $huntstate is "ongoing" and ["dawn", "day"].includes(Time.dayState)>>
+		<<if $wolfstate is "hunt">>
+			<<set $wolfstate to "cave">>
+			<<if $blackWolfPregnancyHunt and playerIsPregnant()>>
+				무리가 사냥에서 돌아온다. 많은 이들이 동굴에 남아있던 어린 <<wolf_cave_plural_ ul>> 위한 고기 조각을 나른다. 검은 늑대가 몇 덩이를 당신 곁에 떨어뜨린 후 자리를 떠난다. 사냥은 성공적이었다.
+				<<gharmony>><<gferocity>>
+				<br><br>
+			<<elseif $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
+				무리가 사냥에서 돌아온다. 몇몇 늑대들이 어린 <<wolf_cave_plural_ ul>> 위해서 고기조각을 나른다. 그 사냥은 성공적이었을 것이다.
+				<<gharmony>><<lferocity>>
+				<br><br>
+			<<else>>
+				무리가 사냥에서 돌아온다. 그들은 아무것도 잡지 못했다.
+				<<gferocity>><<lharmony>>
+				<br><br>
+				<<if $blackWolfPregnancyHunt and playerIsPregnant()>>
+					<<npc "Black Wolf">><<person1>>
+					검은 늑대가 당신에게 다가온다.
+					<<if $monster is 1>>
+						<<bHe_ ga>> 가까워지자 당신은 <<bhis_ yi>> 손에 있는 무언가가 시선에 들어온다.
+						<br><br>
+
+						"<<pPackbrother_ ga>> 식물을 먹을 수 있어 다행이야." 검은 늑대가 몇 개의 배를 건네준다.
+						<br><br>
+
+						<<bHe_ ga>> 당신의 임신한 배를 내려다본다. "다음 사냥에선 고기를 먹여야겠어. 새끼에게 좋겠군."
+						<br><br>
+					<<else>>
+						몇 개의 배가 <<bhis_ yi>> 입에 물려있다. <<bHe_ nun>> 당신의 앞에 배를 떨어뜨리고는 고개를 젓는다. <<bHe_ nun>> 그 맛을 즐기지 않는 것 같다.
+						<br><br>
+
+						<<bHe_ ga>> 당신의 임신한 배를 킁킁거리며 냄새 맡다가 다시 숲 쪽을 바라본다. <<bHe_ nun>> <<bhimselfPost>>에게 실망한 것처럼 보인다.
+						<br><br>
+					<</if>>
+					<<endevent>>
+				<</if>>
+			<</if>>
 		<<else>>
-		무리가 사냥에서 돌아온다. 그들은 아무것도 잡지 못했다.
+			<<if $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
+				무리가 사냥에서 돌아온다. 몇몇은 동굴에 남아있던 어린 <<wolf_cave_plural_ ul>> 위한 고깃 덩이를 나른다.
+				<<if npcIsPregnant("Black Wolf")>>
+					그 중 일부는 검은 늑대에게 가져간다. <<nnpc_He_ nun "Black Wolf">> 재빨리 먹어치운다.
+				<</if>>
+				사냥은 성공적이었다.
+				<<gharmony>><<lferocity>>
+				<br><br>
+			<<else>>
+				무리가 사냥에서 돌아온다. 그들은 아무것도 잡지 못했다.
+				<<gferocity>><<lharmony>>
+				<br><br>
+
+				<<if npcIsPregnant("Black Wolf") and npcPregnancyBellyVisible("Black Wolf") and knowsAboutPregnancy("Black Wolf","pc")>>
+					<<npc "Black Wolf">><<person1>>
+					<<if $monster is 1>>
+						당신은 꼬르륵거리는 소리를 듣는다. 검은 늑대의 배에서 나는 것 같다.
+						<br><br>
+						"먹이가 더 필요해." <<bHe_ ga>> 아쉬운 듯이 숲속을 바라본다.
+						<br><br>
+					<<else>>
+						당신은 꼬르륵거리는 소리를 듣는다. 검은 늑대의 임신한 배에서 나는 것 같다.
+						<br><br>
+						<<bHePost>>에게서, 이번에는 <<bhis_ yi>> 목구멍에서 또 다른 툴툴거리는 소리가 들린다. 검은 늑대는 평소에 배고프다고 불평하지 않는다. <<bHe_ ga>> 배고있는 새끼들을 걱정하고 있는 것임이 틀림없다.
+						<br><br>
+					<</if>>
+					<<endevent>>
+				<</if>>
+			<</if>>
+		<</if>>
+		<<unset $blackWolfNotHunting>>
+		<<unset $blackWolfPregnancyHunt>>
+		<<destinationwolfcave>>
+	<<elseif $wolfstate is "cave" and !["finished","ongoing"].includes($huntstate) and ["dusk", "night"].includes(Time.dayState)>>
+		<<set $huntstate to "ongoing">><<set $wolfpackpoisoned to 0>>
+		<<npc "Black Wolf">>
+		<<if npcBellySize("Black Wolf") lte 15>>
+			<<set $wolfstate to "hunt">>
+			검은 늑대가 울부짖고 다른 녀석들이 합류한다.
+			<<if $monster is 1>>
+				"곧 사냥을 간다. 준비해라."
+			<<else>>
+				그들은 사냥을 하러 간다.
+			<</if>>
+		<<else>>
+			<<set $blackWolfNotHunting to true>>
+			무리가 울부짖고 으르렁거리며 나무 사이를 뛰어다니기 시작한다. 평소의 한 마리가 사라졌다. 돌아보니, 검은 늑대가 <<bhis_ yi>> 늘 앉는 바위에 앉아, 임신한 배를 쓰다듬고 있다.
+			<<if $monster is 1>>
+				<br><br>
+				<<bHe_ nun>> 한숨을 내쉬며, 누워서 무리를 바라본다.
+			<</if>>
+		<</if>>
+		<<endevent>>
+		<br><br>
+
+		<<link [[그들과 함께 간다|Wolf Cave Hunt]]>><</link>>
+		<br>
+		<<link [[그들이 떠나는 것을 바라본다|Wolf Cave Hunt Leave]]>><</link>>
+		<br>
+
+	<<elseif $wolfstate is "cave" and $wolfpackleader is 1 and $wolfpackharmony lte random(0,10) and $wolfpackferocity gte random(11,20) and $wolfchallengetimer lte 0>>
+		<<set $wolfchallengetimer to 14>><<npc "Black Wolf">>
+		당신의 뒤에서 짖는 소리가 크게 들린다. 당신은 굳게 서서 당신에게 <<bhis_ yi>> 이빨을 드러내는 검은 늑대를 향해 몸을 돌린다.
+		<<if $monster is 1>>
+			"우두머리 약하다!" <<bhe_ nun>> 으르렁거린다. "무리는 힘과, 용기가 필요하다. 무리는 오늘 새로운 우두머리를 갖게 될 것이다. <<pPackbrother_ yi>> 우두머리로서의 시간이 끝날 때가 왔다!"
+		<<else>>
+			<<bHis_ yi>> 털은 곤두서고, <<bhis_ yi>> 꼬리는 공중에 똑바로 세워져 있다. <<bHe_ nun>> 무리의 우두머리 역할을 위해 당신에게 도전하려 한다.
+		<</if>>
+		<br><br>
+		작은 그룹이 당신 주위에 모인다.
+		<br><br>
+
+		<<link [[싸운다|Wolf Challenge Accept]]>><</link>>
+		<br>
+		<<link [[항복한다|Wolf Challenge Surrender]]>><</link>>
+		<br>
+		<<if $wolfgirl gte 6>>
+			<<link [[설득한다|Wolf Challenge Reason]]>><</link>><<wolfgirl>>
+			<br>
+		<</if>>
+	<<else>>
+		<<wolfcaveevent>>
+	<</if>>
+
+	<<if Time.dayState is "day" or Time.dayState is "dawn">>
+		<<set $huntstate to "notStarted">>
+	<</if>>
+<</widget>>
+
+<<widget "destinationwolfcave">>
+	<<if $bus is "wolfcave">>
+		<<link [[다음|Wolf Cave]]>><<endevent>><</link>>
+		<br>
+	<<else>>
+		<<link [[다음|Wolf Cave Clearing]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "wolfhuntevents">>
+	<<if $huntstate is "success">>
+		<<set $huntstate to "finished">>
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+		만족하여, 무리는 동굴로 돌아간다. 일부는 <<if $blackWolfNotHunting>>검은 늑대와 어린 <<wolf_cave_plural_ ul>> 위해서 음식을 나른다. <<nnpc_He_ nun "Black Wolf">> 재빨리 음식을 먹는다.<</if>>어린 <<wolf_cave_plural_ ul>> 위해서 음식을 나른다.
+		<<lferocity>><<gharmony>>
+		<br><br>
+
+		<<link [[다음|Wolf Cave]]>><<unset $blackWolfNotHunting>><</link>>
+		<br>
+	<<elseif $huntstate is "ongoing" and (Time.dayState is "dawn" or Time.dayState is "day")>>
+		<<set $huntstate to "finished">>
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+		지평선에 떠오르는 태양과 함께 무리는 동굴로 돌아간다. 사냥의 실패가 무리를 짓밟는다.
 		<<gferocity>><<lharmony>>
 		<br><br>
 
-		<</if>>
-	<<destinationwolfcave>>
-	<<elseif $wolfstate is "cave" and $huntstate isnot "finished" and $daystate is "dusk" or $wolfstate is "cave" and $huntstate isnot "finished" and $daystate is "night">>
-	<<set $wolfstate to "hunt">><<set $huntstate to "failed">><<set $wolfpackpoisoned to 0>>
-	검은 늑대가 울부짖고 다른 녀석들이 합류한다.
-	<<npc "Black Wolf">>
-	<<if $monster is 1>>
-		"곧 사냥을 간다. 준비해라."
+		<<link [[다음|Wolf Cave]]>><<unset $blackWolfNotHunting>><</link>>
+		<br>
+	<<elseif $huntstate is "failure">>
+		<<set $huntstate to "finished">>
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>		
+		<<gferocity>><<lharmony>>
+		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+		<br><br>
+		<<link [[Next|Wolf Cave]]>><<unset $blackWolfNotHunting>><</link>>
+		<br>
 	<<else>>
-		그들은 사냥을 하러 간다.
-	<</if>>
-	<<endevent>>
-	<br><br>
+		<<rng>>
+		<<if $bus is "wolfpackriver">>
+			당신은 두 개의 길이 있는 곳으로 왔다. 하나는 사슴 발자국이 지문처럼 남아있다. 다른 한 쪽은 몇 켤레의 신발이 놓여있다.
+			<br><br>
 
-	<<link [[그들과 함께 간다|Wolf Cave Hunt]]>><</link>>
-	<br>
-	<<link [[그들이 떠나는 것을 바라본다|Wolf Cave Hunt Leave]]>><</link>>
-	<br>
+			<<if $wolfpackleader is 1>>
+				무리는 당신의 결정을 기다린다.
+				<br><br>
 
-	<<else>>
-	<<wolfcaveevent>>
-	<</if>>
-
-<</widget>>
-<<widget "destinationwolfcave">>
-<<if $bus is "wolfcave">>
-<<link [[다음|Wolf Cave]]>><<endevent>><</link>>
-<br>
-<<else>>
-<<link [[다음|Wolf Cave Clearing]]>><<endevent>><</link>>
-<br>
-<</if>>
-<</widget>>
-<<widget "wolfhuntevents">>
-
-<<if $huntstate is "success">>
-<<set $huntstate to "finished">>
-<<set $wolfstate to "cave">>
-포만감을 느낀 무리는 동굴로 돌아간다. 일부는 어린 <<wolf_cave_plural_ul>> 위해서 음식을 나른다.
-<<lferocity>><<gharmony>>
-<br><br>
-
-<<link [[다음|Wolf Cave]]>><</link>>
-<br>
-
-<<elseif $daystate is "dawn" or $daystate is "day">>
-<<set $huntstate to "finished">>
-지평선에 떠오르는 태양과 함께 무리는 동굴로 돌아간다. 사냥의 실패가 무리를 짓밟는다.
-<<gferocity>><<lharmony>>
-<br><br>
-
-<<link [[다음|Wolf Cave]]>><</link>>
-<br>
-
-<<else>>
-<<set $rng to random(1, 100)>>
-	<<if $bus is "wolfpackriver">>
-
-	당신은 두 개의 길이 있는 곳으로 왔다. 하나는 사슴 발자국이 지문처럼 남아있다. 다른 한 쪽은 몇 켤레의 신발이 놓여있다.
-	<br><br>
-
-		<<if $wolfpackleader is 1>>
-		무리는 당신의 결정을 기다린다.
-		<br><br>
-
-		<<link [[사슴 발자국을 따라간다 (1:00)|Wolf Deer]]>><<pass 1 hour>><<set $bus to "wolfpackdeer">><<tiredness 12>><</link>><<athleticsdifficulty>><<gtiredness>>
-		<br>
-		<<link [[신발의 흔적을 따라간다 (1:00)|Wolf Hunters]]>><<pass 1 hour>><<set $bus to "wolfpackhunters">><<tiredness 12>><</link>><<gtiredness>>
-		<br>
-		<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Deer]]>><<pass 1 hour>><<set $bus to "wolfpackdeer">><<tiredness 12>><</link>><<gtiredness>>
-		<br>
-
-		<<else>>
-
-		검은 늑대는 두 번 생각할 것 없이 사슴 발자국을 따라간다.
-		<br><br>
-
-			<<link [[다음 (1:00)|Wolf Deer]]>><<pass 1 hour>><<set $bus to "wolfpackdeer">><<tiredness 12>><</link>><<athleticsdifficulty>><<gtiredness>>
-			<br>
-
-		<</if>>
-
-	<<elseif $bus is "wolfpackcliff">>
-		당신은 두 개의 길이 있는 곳으로 왔다. 하나는 사슴 발자국이 있지만, 계단의 상태가 좋지 않다. 다른 하나는 발톱자국이 땅을 파고들어있는 커다란 발자국이다.
-
-		<<if $wolfpackleader is 1>>
-		무리는 당신의 결정을 기다린다.
-		<br><br>
-
-		<<link [[사슴 발자국을 따라간다 (1:00)|Wolf Carrion]]>><<pass 1 hour>><<set $bus to "wolfpackcarrion">><<tiredness 12>><</link>><<gtiredness>>
-		<br>
-		<<link [[큰 발자국을 따라간다 (1:00)|Wolf Bear]]>><<pass 1 hour>><<set $bus to "wolfpackbear">><<tiredness 12>><</link>><<gtiredness>>
-		<br>
-			<<if $rng gte 51>>
-			<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Carrion]]>><<pass 1 hour>><<set $bus to "wolfpackcarrion">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
+				<<link [[사슴 발자국을 따라간다 (1:00)|Wolf Deer]]>><<pass 1 hour>><<set $bus to "wolfpackdeer">><<tiredness 12>><</link>><<athleticsdifficulty>><<gtiredness>>
+				<br>
+				<<link [[신발의 흔적을 따라간다 (1:00)|Wolf Hunters]]>><<pass 1 hour>><<set $bus to "wolfpackhunters">><<tiredness 12>><</link>><<gtiredness>>
+				<br>
+				<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Deer]]>><<pass 1 hour>><<set $bus to "wolfpackdeer">><<tiredness 12>><</link>><<gtiredness>>
+				<br>
 			<<else>>
-			<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Bear]]>><<pass 1 hour>><<set $bus to "wolfpackbear">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
+				검은 늑대는 두 번 생각할 것 없이 사슴 발자국을 따라간다.
+				<br><br>
+
+				<<link [[다음 (1:00)|Wolf Deer]]>><<pass 1 hour>><<set $bus to "wolfpackdeer">><<tiredness 12>><</link>><<athleticsdifficulty>><<gtiredness>>
+				<br>
 			<</if>>
+		<<elseif $bus is "wolfpackcliff">>
+			당신은 두 개의 길이 있는 곳으로 왔다. 하나는 사슴 발자국이 있지만, 계단의 상태가 좋지 않다. 다른 하나는 발톱자국이 땅을 파고들어있는 커다란 발자국이다.
 
-		<<else>>
-			<<if $rng gte 51>>
-			검은 늑대가 코를 킁킁대며, 사슴 발자국을 따라간다.
-			<br><br>
+			<<if $wolfpackleader is 1>>
+				무리는 당신의 결정을 기다린다.
+				<br><br>
 
-			<<link [[다음 (1:00)|Wolf Carrion]]>><<pass 1 hour>><<set $bus to "wolfpackcarrion">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
-
+				<<link [[사슴 발자국을 따라간다 (1:00)|Wolf Carrion]]>><<pass 1 hour>><<set $bus to "wolfpackcarrion">><<tiredness 12>><</link>><<gtiredness>>
+				<br>
+				<<link [[큰 발자국을 따라간다 (1:00)|Wolf Bear]]>><<pass 1 hour>><<set $bus to "wolfpackbear">><<tiredness 12>><</link>><<gtiredness>>
+				<br>
+				<<if $rng gte 51>>
+					<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Carrion]]>><<pass 1 hour>><<set $bus to "wolfpackcarrion">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<<else>>
+					<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Bear]]>><<pass 1 hour>><<set $bus to "wolfpackbear">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<</if>>
 			<<else>>
-			검은 늑대가 코를 킁킁대며, 커다란 발자국을 따라간다.
-			<br><br>
+				<<if $rng gte 51>>
+					검은 늑대가 코를 킁킁대며, 사슴 발자국을 따라간다.
+					<br><br>
 
-			<<link [[다음 (1:00)|Wolf Bear]]>><<pass 1 hour>><<set $bus to "wolfpackbear">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
+					<<link [[다음 (1:00)|Wolf Carrion]]>><<pass 1 hour>><<set $bus to "wolfpackcarrion">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<<else>>
+					검은 늑대가 코를 킁킁대며, 커다란 발자국을 따라간다.
+					<br><br>
+
+					<<link [[다음 (1:00)|Wolf Bear]]>><<pass 1 hour>><<set $bus to "wolfpackbear">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<</if>>
+			<</if>>
+		<<elseif $bus is "wolfpackbear">>
+		<<elseif $bus is "wolfpackhunters">>
+		<<elseif $bus is "wolfpackdeer">>
+		<<elseif $bus is "wolfpackcarrion">>
+		<<else>>
+			당신은 절벽 밑바닥에서 솟아나오는 강에 다다른다.
+
+			<<if $wolfpackleader is 1>>
+				늑대 무리는 당신의 결정을 기다리고 있다.
+				<br><br>
+
+				<<link [[강을 따라간다 (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<gtiredness>>
+				<br>
+				<<link [[절벽을 따라간다 (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<gtiredness>>
+				<br>
+				<<if $rng gte 51>>
+					<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<<else>>
+					<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<</if>>
+			<<else>>
+				<<if $rng gte 51>>
+					검은 늑대가 코를 킁킁대며, 강을 따라 달려간다.
+					<br><br>
+
+					<<link [[다음 (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<<else>>
+					검은 늑대가 코를 킁킁대며, 절벽을 따라 달려간다.
+					<br><br>
+
+					<<link [[다음 (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<gtiredness>>
+					<br>
+				<</if>>
 			<</if>>
 		<</if>>
-
-	<<elseif $bus is "wolfpackbear">>
-
-	<<elseif $bus is "wolfpackhunters">>
-
-	<<elseif $bus is "wolfpackdeer">>
-
-	<<elseif $bus is "wolfpackcarrion">>
-
-	<<else>>
-	당신은 절벽 밑바닥에서 솟아나오는 강에 다다른다.
-
-		<<if $wolfpackleader is 1>>
-		The pack waits for your decision.
-		<br><br>
-
-		<<link [[강을 따라간다 (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<gtiredness>>
-		<br>
-		<<link [[절벽을 따라간다 (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<gtiredness>>
-		<br>
-			<<if $rng gte 51>>
-			<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
-			<<else>>
-			<<link [[검은 늑대가 결정하게 한다 (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
-			<</if>>
-
-		<<else>>
-			<<if $rng gte 51>>
-			검은 늑대가 코를 킁킁대며, 강을 따라 달려간다.
-			<br><br>
-
-			<<link [[다음 (1:00)|Wolf River]]>><<pass 1 hour>><<set $bus to "wolfpackriver">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
-
-			<<else>>
-			검은 늑대가 코를 킁킁대며, 절벽을 따라 달려간다.
-			<br><br>
-
-			<<link [[다음 (1:00)|Wolf Cliff]]>><<pass 1 hour>><<set $bus to "wolfpackcliff">><<tiredness 12>><</link>><<gtiredness>>
-			<br>
-			<</if>>
-		<</if>>
-
 	<</if>>
-<</if>>
 <</widget>>
+
 <<widget "blackwolfhealth">>
 	<<if $wolfpackpoisoned is 1>>
 		<<set $enemyhealth to 200>><<set $enemyhealthmax to 200>>
@@ -334,13 +453,13 @@
 
 <<widget "wolfpackhuntoptions">>
 	<<if $wolfpackshroom is "red">>
-		<<link [[검은 늑대의 음식에 빨간색 버섯을 넣는다|Wolf Deer2]]>><<set $phase to 0>><<tiredness -12>><<pass 1 hour>><<pass 1 hour>><<pass 1 hour>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
+		<<link [[검은 늑대의 음식에 빨간색 버섯을 넣는다 (3:00)|Wolf Deer2]]>><<set $phase to 0>><<tiredness -12>><<pass 3 hours>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
 		<br>
 	<<elseif $wolfpackshroom is "pink">>
-		<<link [[검은 늑대의 음식에 분홍색 버섯을 넣는다|Wolf Deer2]]>><<set $phase to 1>><<tiredness -12>><<pass 1 hour>><<pass 1 hour>><<pass 1 hour>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
+		<<link [[검은 늑대의 음식에 분홍색 버섯을 넣는다 (3:00)|Wolf Deer2]]>><<set $phase to 1>><<tiredness -12>><<pass 3 hour>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
 		<br>
 	<</if>>
-	<<link [[휴식을 취한다 (3:00)|Wolf Deer2]]>><<set $phase to 2>><<tiredness -12>><<pass 1 hour>><<pass 1 hour>><<pass 1 hour>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
+	<<link [[휴식을 취한다 (3:00)|Wolf Deer2]]>><<set $phase to 2>><<tiredness -12>><<pass 3 hour>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
 	<br>
 <</widget>>
 
@@ -357,29 +476,43 @@
 <</widget>>
 
 <<widget "ppackbrother">><<silently>>
-<<if $wolfpackleader gte 1>>
-	<<set _text_output to "pack leader">>
-<<elseif $player.gender_appearance is "m">>
-	<<set _text_output to "pack brother">>
-<<elseif $player.gender_appearance is "f">>
-	<<set _text_output to "pack sister">>
-<</if>>
+	<<if $wolfpackleader gte 1>>
+		<<set _text_output to "pack leader">>
+	<<elseif $player.gender_appearance is "m">>
+		<<set _text_output to "pack brother">>
+	<<elseif $player.gender_appearance is "f">>
+		<<set _text_output to "pack sister">>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "pPackbrother">><<silently>>
-<<ppackbrother>><<set _text_output to _text_output.toLocaleUpperFirst()>>
+	<<ppackbrother>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "ppackbrothers">><<silently>>
+	<<if $wolfpackleader gte 1>>
+		<<set _text_output to "pack leader's">>
+	<<elseif $player.gender_appearance is "m">>
+		<<set _text_output to "pack brother's">>
+	<<elseif $player.gender_appearance is "f">>
+		<<set _text_output to "pack sister's">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "pPackbrothers">><<silently>>
+	<<ppackbrothers>><<capitalise>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "pheat">><<silently>>
-<<if $player.gender_appearance is "m">>
-	<<set _text_output to "rut">>
-<<elseif $player.gender_appearance is "f">>
-	<<set _text_output to "heat">>
-<</if>>
+	<<if $player.gender_appearance is "m">>
+		<<set _text_output to "rut">>
+	<<elseif $player.gender_appearance is "f">>
+		<<set _text_output to "heat">>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "wolf_cave_update">>
-<<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
+	<<if ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f")) or ($bestialitydisable is "t")>>
 		<<set $wolfcave_monster_roll to true>>
 	<<else>>
 		<<set $wolfcave_monster_roll to false>>
@@ -387,22 +520,137 @@
 <</widget>>
 
 <<widget "wolf_cave_plural">><<silently>>
-<<if $beastmalechance gte 100>>
-	<<set _wolves_plural to "m">>
-<<elseif $beastmalechance gte 1>>
-	<<set _wolves_plural to "b">>
-<<else>>
-	<<set _wolves_plural to "f">>
-<</if>>
-<<if $bestialitydisable is "t" or $wolfcave_monster_roll is true or ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f"))>>
-	<<if _wolves_plural is "m">>
-		<<set _text_output to "wolfboys">>
-	<<elseif _wolves_plural is "f">>
-		<<set _text_output to "wolfgirls">>
+	<<if $beastmalechance gte 100>>
+		<<set _wolves_plural to "m">>
+	<<elseif $beastmalechance gte 1>>
+		<<set _wolves_plural to "b">>
 	<<else>>
-		<<set _text_output to "wolfgirls and wolfboys">>
+		<<set _wolves_plural to "f">>
 	<</if>>
-<<else>>
-	<<set _text_output to "wolves">>
-<</if>>
+	<<if $bestialitydisable is "t" or $wolfcave_monster_roll is true or ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f"))>>
+		<<if _wolves_plural is "m">>
+			<<set _text_output to "wolfboys">>
+		<<elseif _wolves_plural is "f">>
+			<<set _text_output to "wolfgirls">>
+		<<else>>
+			<<set _text_output to "wolfgirls and wolfboys">>
+		<</if>>
+	<<else>>
+		<<set _text_output to "wolves">>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
+
+<<widget "wolf_cave_singular">><<silently>>
+	<<if _args[0]>>
+		<<set _wolves_singular to _args[0]>>
+	<<elseif $beastmalechance gte 100 or ($beastmalechance gte 1 and $beastmalechance gte random(0,100))>>
+		<<set _wolves_singular to "m">>
+	<<else>>
+		<<set _wolves_singular to "f">>
+	<</if>>
+	<<if $bestialitydisable is "t" or $wolfcave_monster_roll is true or ($monsterchance gte random(1, 100) and ($hallucinations gte 1 or $monsterhallucinations is "f"))>>
+		<<if _wolves_singular is "m">>
+			<<set _text_output to "wolfboy">>
+		<<else>>
+			<<set _text_output to "wolfgirl">>
+		<</if>>
+	<<else>>
+		<<set _text_output to "wolf">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "bwpcinteraction">>
+	<<set _pregnancy to C.npc["Black Wolf"].pregnancy>>
+	<<set _pregnancyProgress to Math.clamp(_pregnancy.timer / _pregnancy.timerEnd, 0, 1)>>
+
+	<<if playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc","Black Wolf")>>
+
+		<<if $body_temperature is "chilly" or $body_temperature is "cold">>
+			<<if $monster is 1>>
+				검은 늑대가 옆에 앉아있는 당신에게 가까이 다가온다.
+				<br><br>
+
+				"<<pPackbrother_ un>> 따뜻함을 유지해야 한다. 그래야 새끼들이 더 잘 자란다." 당신은 온기에 감사하며, <<bhimPost>>에게 기대어 있는다.
+			<<else>>
+
+				검은 늑대가 옆에 앉아 있는 당신에게 가까이 몸을 붙인다. <<bHe_ nun>> 당신을 따뜻하게 해 주려는 것 같다.
+				<br><br>
+
+				<<bHe_ nun>> 당신의 임신한 배를 주둥이로 슬쩍 건드렸다가 다시 무덤덤한 태도로 돌아간다.
+			<</if>>
+		<<else>>
+			<<if $monster is 1>>
+				검은 늑대가 당신의 배를 킁킁거리며, 냄새 맡는다.
+				<br><br>
+
+				"<<pPackbrother_ nun>> 잘 먹고 있는 건가? 사냥해서 고기를 좀 먹여야 겠군. 새끼들에게 좋아."
+				<br><br>
+
+				날고기를 먹는 상상만 해도 몸서리가 쳐진다.
+			<<else>>
+
+				검은 늑대가 당신의 임신한 배를 킁킁거리며 냄새 맡는다.
+				<br><br>
+
+				<<bHe_ nun>> 무언가를 들으려는 듯, <<bhis_ yi>> 귀를 당신의 배에 가까이 댄다. 배가 꿀렁이자, <<bHe_ ga>> 걱정스러운 얼굴로 고개를 든다.
+				<br><br>
+
+				"뭐든 먹을테니, 걱정 마." 당신의 말에 검은 늑대는 진정한 듯 보인다.
+			<</if>>
+		<</if>>
+
+	<<else>>
+
+        <<if between(_pregnancyProgress, 0.7, 1)>>
+			<<if $monster is 1>>
+				검은 늑대가 <<bhis_ yi>> 임신한 배를 내려다보며, 몸을 뒤척인다. 당신은 작은 <<if _pregnancy.fetus[0].monster>>발이<<else>>앞발이<</if>> <<bhis_ yi>> 배를 차고 있는 것을 알아챈다.
+				<br><br>
+
+				"강한 새끼들이야." 당신은 <<bhis_ yi>> 목소리에서 자부심을 느낀다.
+
+			<<else>>
+				검은 늑대가 <<bhis_ yi>> 임신한 배를 내려다보며, 몸을 뒤척인다. 당신은 작은 앞발이 <<bhis_ yi>> 배를 차고 있는 것을 알아챈다.
+				<br><br>
+
+				당신은 새끼가 발로 찬 자리를 핥는 <<bhis_ yi>> 모습을 지켜보다가, 작은 앞발이 물러나자 웃음을 참는다.
+
+			<</if>>
+
+		<<elseif Time.hour gte 18 and Time.hour lte 6>>
+
+			<<if $monster is 1>>
+
+				"이제 곧 사냥은 무리겠군." 검은 늑대가 커져가는 <<bhis_ yi>> 배를 내려다보며 푸념한다. "새끼들에게 위험하겠어."
+
+			<<else>>
+
+				검은 늑대는 그리움을 담은 눈으로 무리를 지켜본다. <<bhis_ yi>> 임신한 배는, 날이 갈수록 점점 커지고 있다. <<bHe_ nun>> 곧 사냥을 나갈 수 없게 될 것이다.
+
+			<</if>>
+
+		<<elseif npcPregnancyBellyVisible("Black Wolf")>>
+
+			<<if $monster is 1>>
+
+				검은 늑대가 잠깐 코를 골더니 고개를 흔든다. <<bHe_ ga>> 시선을 돌린다.
+				<br><br>
+				
+				"새끼들을 배고있는 건 힘든 일이야," <<bhe_ nun>> 숨죽여 푸념한다.
+				<br><br>
+
+				자주 살펴보는 것으로 봐서, <<bHe_ ga>> 계속 수마와 싸우고 있음을 알 수 있다.
+
+			<<else>>
+
+				검은 늑대가 <<bhis_ yi>> 임신한 배를 내려다보며 몸을 뒤척인다.  당신은 작은 앞발이 <<bhis_ yi>> 배를 차고 있는 것을 발견한다.
+				<br><br>
+
+				당신은 새끼가 발로 찬 자리를 핥는 <<bhis_ yi>> 모습을 지켜보다가, 작은 앞발이 물러나자 웃음을 참는다.
+
+			<</if>>
+
+		<</if>>
+
+	<</if>>
+
+<</widget>>

@@ -1,59 +1,80 @@
 :: Widgets Bird [widget]
 <<widget "bird_init">>
-<<set $bird to {}>>
-<<set $bird.lock to 1>>
-<<set $bird.rope to 0>>
-<<set $bird.fabric to 0>>
-<<set $bird.loot to {}>>
-<<set $bird.loot.lurker to 100>>
-<<set $bird.loot.trash to 0>>
-<<set $bird.loot.valuables to 0>>
-<<set $bird.loot.food to 0>>
-<<set $bird.loot.clothes to 0>>
-<<set $bird.state to "hunting">>
-<<set $bird.timer to 20>>
-<<set $bird.syndrome to 0>>
+	<<set $bird to {}>>
+	<<set $bird.lock to 1>>
+	<<set $bird.rope to 0>>
+	<<set $bird.fabric to 0>>
+	<<set $bird.loot to {}>>
+	<<set $bird.loot.lurker to 100>>
+	<<set $bird.loot.trash to 0>>
+	<<set $bird.loot.valuables to 0>>
+	<<set $bird.loot.food to 0>>
+	<<set $bird.loot.clothes to 0>>
+	<<set $bird.state to "hunting">>
+	<<set $bird.timer to 20>>
+	<<set $bird.syndrome to 0>>
 <</widget>>
 
 <<widget "bird_loot">>
-<<set $bird.loot[$args[0]] += $args[1]>>
-<<set $bird.loot[$args[0]] to Math.clamp($bird.loot[$args[0]], 90, 2)>>
-<<set _bird_keys to Object.keys($bird.loot)>>
-<<for _s to 0; _s lt _bird_keys.length; _s++>>
-	<<if _bird_keys[_s] isnot $args[0]>>
-		<<set $bird.loot[_bird_keys[_s]] -= ($args[1] / 4)>>
-		<<if $bird.loot[_bird_keys[_s]] lt 0>>
-			<<set $bird.loot[_bird_keys[_s]] to Math.clamp($bird.loot[_bird_keys[_s]], 90, 2.5)>>
+	<<set $bird.loot[_args[0]] += _args[1]>>
+	<<set $bird.loot[_args[0]] to Math.clamp($bird.loot[_args[0]], 90, 2)>>
+	<<set _bird_keys to Object.keys($bird.loot)>>
+	<<for _s to 0; _s lt _bird_keys.length; _s++>>
+		<<if _bird_keys[_s] isnot _args[0]>>
+			<<set $bird.loot[_bird_keys[_s]] -= (_args[1] / 4)>>
+			<<if $bird.loot[_bird_keys[_s]] lt 0>>
+				<<set $bird.loot[_bird_keys[_s]] to Math.clamp($bird.loot[_bird_keys[_s]], 90, 2.5)>>
+			<</if>>
 		<</if>>
-	<</if>>
-<</for>>
+	<</for>>
 <</widget>>
 
 <<widget "bird_pass">>
-<<if $args[0]>>
-	<<pass $args[0]>>
-	<<if $bird.timer>>
-		<<set $bird.timer -= $args[0]>>
-		<<if $syndromebird isnot 1>>
-			<<hunger $args[0]>>
-			<<if $hunger gte 2000>>
-				<<trauma `$args[0] / 4`>>
-				<<physique_loss `$args[0] / 10`>>
-				<<willpower `$args[0] / 10`>>
+	<<if _args[0]>>
+		<<pass _args[0]>>
+		<<if $bird.timer>>
+			<<set $bird.timer -= _args[0]>>
+			<<if $syndromebird isnot 1>>
+				<<hunger _args[0]>>
+				<<if $hunger gte 2000>>
+					<<trauma `_args[0] / 4`>>
+					<<physique_loss `_args[0] / 10`>>
+					<<willpower `_args[0] / 10`>>
+				<</if>>
 			<</if>>
 		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "bird_loot_select">>
-<<set $rng to random(1, 100)>>
-<<set _bird_loot_selector to 0>>
-<<set _bird_keys to Object.keys($bird.loot)>>
-<<for _s to 0; _s lt _bird_keys.length; _s++>>
-	<<set _bird_loot_selector += $bird.loot[_bird_keys[_s]]>>
-	<<if _bird_loot_selector gte $rng>>
-		<<switch _s>>
+	<<rng>>
+	<<set _bird_loot_selector to 0>>
+	<<set _bird_keys to Object.keys($bird.loot)>>
+	<<for _s to 0; _s lt _bird_keys.length; _s++>>
+		<<set _bird_loot_selector += $bird.loot[_bird_keys[_s]]>>
+		<<if _bird_loot_selector gte $rng>>
+			<<switch _s>>
+			<<case 0>>
+				<<set _bird_loot_select to "lurker">>
+			<<case 1>>
+				<<set _bird_loot_select to "trash">>
+			<<case 2>>
+				<<set _bird_loot_select to "valuables">>
+			<<case 3>>
+				<<set _bird_loot_select to "food">>
+			<<case 4>>
+				<<set _bird_loot_select to "clothes">>
+			<<default>>
+				<<bird_loot_random>>
+			<</switch>>
+			<<break>>
+		<</if>>
+	<</for>>
+<</widget>>
+
+<<widget "bird_loot_random">>
+	<<set _rng to random(1, 5)>>
+	<<switch _rng>>
 		<<case 0>>
 			<<set _bird_loot_select to "lurker">>
 		<<case 1>>
@@ -62,513 +83,490 @@
 			<<set _bird_loot_select to "valuables">>
 		<<case 3>>
 			<<set _bird_loot_select to "food">>
-		<<case 4>>
-			<<set _bird_loot_select to "clothes">>
 		<<default>>
-			<<bird_loot_random>>
-		<</switch>>
-		<<break>>
-	<</if>>
-<</for>>
-
-<</widget>>
-
-<<widget "bird_loot_random">>
-<<set _rng to random(1, 5)>>
-<<switch _rng>>
-<<case 0>>
-	<<set _bird_loot_select to "lurker">>
-<<case 1>>
-	<<set _bird_loot_select to "trash">>
-<<case 2>>
-	<<set _bird_loot_select to "valuables">>
-<<case 3>>
-	<<set _bird_loot_select to "food">>
-<<default>>
-	<<set _bird_loot_select to "clothes">>
-<</switch>>
+			<<set _bird_loot_select to "clothes">>
+	<</switch>>
 <</widget>>
 
 <<widget "select_random_clothes">>/*Selects random clothes from shops. Sets _random_clothes to the item name, and _random_index to its index. Ignores forest shop, and secondary parts of outfits. _random_clothes outputs "piece of fabric" when clothes are ignored this way.*/
-<<set _random_slot to either("upper", "lower", "under_upper", "under_lower", "head", "face", "neck", "hands", "legs", "feet")>>
-<<set _random_index to random(0, (setup.clothes[_random_slot].length - 1))>>
-<<if !setup.clothes[_random_slot][_random_index].shop.includes("forest") and !setup.clothes[_random_slot][_random_index].outfitSecondary and setup.clothes[_random_slot][_random_index].cursed isnot 1 and !setup.clothes[_random_slot][_random_index].type.includes("eerie") and !setup.clothes[_random_slot][_random_index].type.includes("naked")>>
-	<<set _random_clothes to setup.clothes[_random_slot][_random_index].name>>
-<<else>>
-	<<set _random_clothes to "piece of fabric">>
-<</if>>
+	<<set _random_slot to either(setup.clothingLayer.body)>>
+	<<set _random_index to random(0, (setup.clothes[_random_slot].length - 1))>>
+	<<if !setup.clothes[_random_slot][_random_index].shop.includes("forest") and setup.clothes[_random_slot][_random_index].shop.length gt 0 and !setup.clothes[_random_slot][_random_index].outfitSecondary and setup.clothes[_random_slot][_random_index].cursed isnot 1 and !setup.clothes[_random_slot][_random_index].type.includes("eerie") and !setup.clothes[_random_slot][_random_index].type.includes("naked")>>
+		<<set _random_clothes to setup.clothes[_random_slot][_random_index].name>>
+	<<else>>
+		<<set _random_clothes to "piece of fabric">>
+	<</if>>
 <</widget>>
 
 <<widget "bird_hunt_return">>
-<<bird_loot_select>>
+	<<bird_loot_select>>
 	<<set $bird.timer to random(30, 90)>>
 	<<set $bird.state to "home">>
 	<<switch _bird_loot_select>>
 	<<case "lurker">>
-		<<bHe>> carries a strange, leathery and many-limbed creature in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>. <<bHe>> dumps it at your feet, then tears out a chunk of flesh.
+		<<bHe_ ga>> 기이하고, 가죽 같고, 많은 팔다리가 달린 생물을 <<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 물어 가져온다. <<bHe_ nun>> 당신의 발치에 그걸 내려놓고, 살점 덩어리를 떼어낸다.
 		<<if $monster is 1>>
-			<<bHe>> hungrily rips into the meat with <<bhis>> teeth.
+			<<bHe_ nun>> 배고프다는 듯 <<bhis_ yi>> 이빨로 고기를 찢어발긴다.
 			"<<print either(
-			"Common prey here. Their meat is sweet.",
-			"It won't bite. Promise.",
-			"You can eat by yourself, yes? I don't need to feed you like baby bird?",
-			"Nasty creatures, but nourishing.",
-			"Keep your strength up.",
-			"They're egg eaters, don't feel bad for them.",
-			"Food for you.",
-			"Great Hawk hunts well.",
-			"Fresh kill. Should go down easy."
+			"여기선 흔한 사냥감이다. 고기가 달다.",
+			"물진 않을거다. 약속한다.",
+			"혼자서도 먹을 수 있나? 아기새처럼 먹여줘야 하는 건 아니겠지?",
+			"끔찍한 놈들이지만, 영양가는 풍부하다.",
+			"체력을 보충해 둬라.",
+			"알을 훔쳐먹는 놈들이니, 죄책감 느끼진 마라.",
+			"널 위해 음식을 가져왔다.",
+			"거대한 매는 사냥을 잘 한다.",
+			"갓 잡은 거다. 쉽게 넘어갈 거다."
 			)>>"
 		<<else>>
-			<<bHe>> holds <<bhis>> head back as <<bhe>> swallows the meat whole.
+			<<bHe_ ga>> <<bhis_ yi>> 고개를 뒤로 젖히고는 고기를 통째로 삼킨다.
 		<</if>>
-		<<bHe>> looks at you, waiting for a response.
+		<<bHe_ ga>> 당신을 쳐다보며 반응을 기다린다.
 		<br><br>
 
 		<<if $syndromebird is 1>>
-			<<link [[Eat|Bird Tower Lurker]]>><<hunger -2000>><<bird_loot lurker 5>><<trauma -6>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>><<ltrauma>><<lllhunger>>
+			<<link [[먹는다|Bird Tower Lurker]]>><<hunger -2000>><<bird_loot lurker 5>><<trauma -6>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>><<ltrauma>><<lllhunger>>
 			<br>
 		<<else>>
-			<<link [[Eat|Bird Tower Lurker]]>><<set $hunger to 1>><<bird_loot lurker 5>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>><<lllhunger>>
+			<<link [[먹는다|Bird Tower Lurker]]>><<set $hunger to 1>><<bird_loot lurker 5>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>><<lllhunger>>
 			<br>
 		<</if>>
-		<<link [[Scold|Bird Tower Lurker Scold]]>><<bird_loot lurker -20>><<transform bird 1>><<npcincr "Great Hawk" dom -1>><<def 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
+		<<link [[꾸짖는다|Bird Tower Lurker Scold]]>><<bird_loot lurker -20>><<transform bird 1>><<npcincr "Great Hawk" dom -1>><<def 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
 		<br>
-		<<link [[Do nothing|Bird Tower Lurker Nothing]]>><<bird_loot lurker -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
+		<<link [[아무것도 하지 않는다|Bird Tower Lurker Nothing]]>><<bird_loot lurker -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
 		<br>
 	<<case "trash">>
-		<<bHe>> carries
-		<<set $rng to random(1, 10)>>
+		<<bHe_ ga>>
+		<<rng 10>>
 		<<switch $rng>>
 		<<case 1>>
-			an empty crisp packet
+			빈 감자칩 봉지를
 		<<case 2>>
-			an empty drink can
+			빈 음료수 캔을
 		<<case 3>>
-			an empty tin can
+			빈 통조림 캔을
 		<<case 4>>
-			an empty chocolate wrapper
+			빈 초콜릿 포장지를
 		<<case 5>>
-			a plastic bag
+			비닐 봉투를
 		<<case 6>>
-			half a plastic bottle
+			플라스틱 병을
 		<<case 7>>
-			a bottle cap
+			병뚜껑을
 		<<case 8>>
-			a plastic straw
+			플라스틱 빨대를
 		<<case 9>>
-			a plastic lid
+			플라스틱 덮개를
 		<<default>>
-			a ruined shoe
+			해진 신발을
 		<</switch>>
-		in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>.
+		<<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 물어 가져온다.
 		<<if $monster is 1>>
 			"<<print either(
-			"Things from humans.",
-			"Wingless ones, so wasteful.",
-			"Do landbound ones value these?",
-			"Trinkets? I enjoy collecting things like this.",
-			"Not my best hunt."
+			"인간에게서 가져온 것들이다.",
+			"날개 없는 것들, 낭비 심하다.",
+			"땅에서는 이게 가치가 있는가?",
+			"장신구일까? 난 이런 것들을 모으는 게 좋다.",
+			"최고로 잘한 사냥은 아니다."
 			)>>"
 		<</if>>
-			<<bHe>> drops it at your feet, then looks at you, awaiting your response.
+			<<bHe_ nun>> 그걸 당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 		<br><br>
 
-		<<link [[Thank|Bird Tower Trash]]>><<bird_loot trash 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+		<<link [[감사를 표한다|Bird Tower Trash]]>><<bird_loot trash 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
 		<br>
-		<<link [[Scold|Bird Tower Trash Scold]]>><<bird_loot trash -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<def 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
+		<<link [[꾸짖는다|Bird Tower Trash Scold]]>><<bird_loot trash -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<def 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
 		<br>
-		<<link [[Do nothing|Bird Tower Trash Nothing]]>><<bird_loot trash -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
+		<<link [[아무것도 하지 않는다|Bird Tower Trash Nothing]]>><<bird_loot trash -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
 		<br>
 	<<case "valuables">>
 		<<if $monster is 1>>
 			"<<print either(
-			"I found shiny things.",
-			"Treasures from the landbound.",
-			"Couldn't help it, too shiny.",
-			"For you?",
-			"Snatched from wingless ones.",
-			"Looks valuable. Made me think of you.",
-			"Treasures for you."
+			"반짝이는 걸 찾았다.",
+			"땅에 사는 이들에게서 가져온 보물이다.",
+			"너무 반짝여서 참을 수 없었다.",
+			"널 위한 물건?",
+			"날개 없는 것에게서 낚아챘다.",
+			"귀중해 보인다. 널 떠올리게 해.",
+			"널 위한 보물이다."
 			)>>"
 		<</if>>
-		<<bHe>> carries
-		<<set $rng to random(1, 5)>>
+		<<bHe_ ga>>
+		<<rng 5>>
 		<<switch $rng>>
 		<<case 1>>
-			a watch in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>. It's probably stolen. <<bHe>> drops it at your feet, then looks at you, awaiting your response.
+			시계를 <<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 물어 가져온다. 아마도 훔쳤을 것이다. <<bHe_ nun>> 그걸 당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 			<br><br>
-			<<link [[Take it|Bird Tower Watch]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+			<<link [[챙긴다|Bird Tower Watch]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
 			<br>
 		<<case 2>>
-			a necklace in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>. It's probably stolen. <<bHe>> drops it at your feet, then looks at you, awaiting your response.
+			목걸이를 <<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 가져온다. 아마도 훔쳤을 것이다. <<bHe_ nun>> 그걸 당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 			<br><br>
-			<<link [[Take it|Bird Tower Necklace]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+			<<link [[챙긴다|Bird Tower Necklace]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
 			<br>
 		<<case 3>>
-			a wedding ring in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>. It's probably stolen. <<bHe>> drops it at your feet, then looks at you, awaiting your response.
+			결혼 반지를 <<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 가져온다. 아마도 훔쳤을 것이다. <<bHe_ nun>> 그걸 당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 			<br><br>
-			<<link [[Take it|Bird Tower Ring]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+			<<link [[챙긴다|Bird Tower Ring]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
 			<br>
 		<<case 4>>
-			a wallet in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>. It's probably stolen, but there might be money or other valuables inside. <<bHe>> drops it at your feet, then looks at you, awaiting your response.
+			지갑을 <<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 가져온다. 아마도 훔친 물건이겠지만, 안에 돈이나 귀중품이 들어 있을지도 모른다. <<bHe_ nun>> 그걸 당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 			<br><br>
-			<<link [[Take it|Bird Tower Wallet]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+			<<link [[챙긴다|Bird Tower Wallet]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
 			<br>
 		<<default>>
-			a purse in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>. It's probably stolen, but there might be money or other valuables inside. <<bHe>> drops it at your feet, then looks at you, awaiting your response.
+			작은 손가방을 <<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 가져온다. 아마도 훔친 물건이겠지만, 안에 돈이나 귀중품이 들어 있을지도 모른다. <<bHe_ nun>> 그걸 당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 			<br><br>
-			<<link [[Take it|Bird Tower Wallet]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+			<<link [[챙긴다|Bird Tower Wallet]]>><<bird_loot valuables 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
 			<br>
 		<</switch>>
-		<<link [[Scold|Bird Tower Valuables Scold]]>><<bird_loot valuables -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
+		<<link [[꾸짖는다|Bird Tower Valuables Scold]]>><<bird_loot valuables -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
 		<br>
-		<<link [[Do nothing|Bird Tower Valuables Nothing]]>><<bird_loot valuables -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
+		<<link [[아무것도 하지 않는다|Bird Tower Valuables Nothing]]>><<bird_loot valuables -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
 		<br>
 	<<case "food">>
-		<<bHe>> carries
-		<<set $rng to random(1, 10)>>
+		<<bHe_ ga>>
+		<<rng 10>>
 		<<switch $rng>>
 		<<case 1>>
-			a half-eaten pasty<<set $bird_food to "pasty">>
+			반쯤 먹힌 빵을<<set $bird_food to "pasty">>
 		<<case 2>>
-			a donut<<set $bird_food to "donut">>
+			도넛을<<set $bird_food to "donut">>
 		<<case 3>>
-			a bag of nuts<<set $bird_food to "nuts">>
+			견과류가 든 봉투를<<set $bird_food to "nuts">>
 		<<case 4>>
-			a bag of crisps<<set $bird_food to "crisps">>
+			감자칩 봉지를<<set $bird_food to "crisps">>
 		<<case 5>>
-			a large chocolate bar<<set $bird_food to "chocolate">>
+			커다란 초콜릿 바를<<set $bird_food to "chocolate">>
 		<<case 6>>
-			an apple<<set $bird_food to "apple">>
+			사과 한 알을<<set $bird_food to "apple">>
 		<<case 7>>
-			a carrot<<set $bird_food to "carrot">>
+			당근 한 개를<<set $bird_food to "carrot">>
 		<<case 8>>
-			a tin of baked beans<<set $bird_food to "beans">>
+			베이크드빈 통조림을<<set $bird_food to "beans">>
 		<<case 9>>
-			a tin of tuna<<set $bird_food to "tuna">>
+			참치 통조림을<<set $bird_food to "tuna">>
 		<<default>>
-			a tin of custard<<set $bird_food to "custard">>
+			커스타드 한 캔을<<set $bird_food to "custard">>
 		<</switch>>
-		in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>.
+		<<bhis_ yi>> <<if $monster is 1>>부리로<<else>>입으로<</if>> 물어 가져온다.
 		<<if $monster is 1>>
 			"<<print either(
-			"Saw wingless ones eating these.",
-			"Maybe more your taste?",
-			"Food for you.",
-			"Don't understand landbound tastes, but for you...",
-			"Wingless ones left their food unguarded. Poor move.",
-			"Smelled from far away. Easy to take.",
-			"Scavenged from landbound ones. No prey today."
+			"날개 없는 것이 이런 걸 먹는 걸 봤다.",
+			"이쪽이 네 입맛에 더 맞을까?",
+			"널 위한 음식이다.",
+			"땅에 사는 이들의 입맛은 이해하지 못하지만, 널 위해서라면...",
+			"날개 없는 것들이 음식을 그냥 놔두었다. 형편없는 행동이다.",
+			"멀리서부터 냄새가 났다. 가져오기 쉬웠다.",
+			"땅에 사는 이들로부터 가져왔다. 오늘 사냥은 없었다."
 			)>>"
 		<</if>>
-		<<bHe>> drops it at your feet, then looks at you, awaiting your response.
+		<<bHe_ nun>> 그걸 당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 		<br><br>
 
-		<<link [[Eat|Bird Tower Food]]>><<bird_loot food 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>><<lhunger>>
+		<<link [[먹는다|Bird Tower Food]]>><<bird_loot food 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>><<lhunger>>
 		<br>
-		<<link [[Scold|Bird Tower Food Scold]]>><<bird_loot food -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<def 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
+		<<link [[꾸짖는다|Bird Tower Food Scold]]>><<bird_loot food -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<def 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>>
 		<br>
-		<<link [[Do nothing|Bird Tower Food Nothing]]>><<bird_loot food -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
+		<<link [[아무것도 하지 않는다|Bird Tower Food Nothing]]>><<bird_loot food -10>><<npcincr "Great Hawk" love -1>><</link>><<llove>>
 		<br>
 	<<default>>
-		<<bHe>> carries
+		<<bHe_ ga>>
 		<<select_random_clothes>>
 		<<if setup.clothes[_random_slot][_random_index].plural isnot 1>>
-			a
+			
 		<</if>>
-		_random_clothes in <<bhis>> <<if $monster is 1>>talons<<else>>beak<</if>>.
+		<<trClothes _random_slot _random_clothes "name" "을">>_trResult <<bhis_ yi>> <<if $monster is 1>>발톱으로<<else>>부리로<</if>> 쥐어 가져온다.
 		<<if $monster is 1>>
 			"<<print either(
-			"You looked cold.",
-			"I don't understand how you wear these, but... here.",
-			"This is how wingless attract mates, yes?",
-			"Colors caught my eye from far.",
-			"Your plumage is pleasing, I thought this would help.",
-			"Landbound left this out of sight. Yelled at me as I flew off with it.",
-			"I like how this feels. Do you?",
-			"Hope this helps keep you warm when I'm away. These... do help you stay warm, right?"
+			"너 추워 보인다.",
+			"어떻게 입는지는 이해하지 못하지만, 아무튼... 여기.",
+			"날개 없는 것들은 이렇게 짝을 유혹하지. 맞나?",
+			"멀리서도 색깔이 내 시선을 끌었다.",
+			"네 깃털은 보기 좋다. 이게 있으면 더 좋을 것 같다고 생각했다.",
+			"땅에 사는 이들이 이걸 자기들 눈에 안 닿는 곳에 두고 갔다. 내가 가져가니 소리를 지르더군.",
+			"이 감촉을 좋아한다. 너도 그런가?",
+			"내가 멀리 있을 때 이게 널 따뜻하게 해 주기를 바란다. 이게.. 널 따뜻하게 해 주는 게 맞겠지?"
 			)>>"
 		<</if>>
-		<<bHe>> drops
+		<<bHe_ ga>>
 		<<if setup.clothes[_random_slot][_random_index].plural isnot 1>>
-			it
+			그걸
 		<<else>>
-			them
+			그것들을
 		<</if>>
-		at your feet, then looks at you, awaiting your response.
+		당신의 발치에 내려놓고, 당신을 쳐다보며 반응을 기다린다.
 		<br><br>
 
 		<<if $worn[_random_slot].name isnot "naked" and _random_clothes isnot "piece of fabric">>
-			<<link [[Wear|Bird Tower Clothes]]>><<generalWear _random_slot _random_index>><<bird_loot clothes 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<set $bird.fabric += 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
-			<span class="blue">Your $worn[_random_slot].name will be replaced.</span> | <span class="green">+ Fabric</span>
+			<<link [[입는다|Bird Tower Clothes]]>><<generalWear _random_slot _random_index>><<bird_loot clothes 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<set $bird.fabric += 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+			<span class="blue">당신의 <<trClothes _random_slot $worn[_random_slot].name "name" "이">>_trResult 교체됩니다.</span><<gfabric>>
 		<<elseif _random_clothes isnot "piece of fabric">>
-			<<link [[Wear|Bird Tower Clothes]]>><<generalWear _random_slot _random_index>><<bird_loot clothes 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
+			<<link [[입는다|Bird Tower Clothes]]>><<generalWear _random_slot _random_index>><<bird_loot clothes 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>>
 		<</if>>
 		<br>
-		<<link [[Thank|Bird Tower Fabric]]>><<bird_loot clothes 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<set $bird.fabric += 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>> | <span class="green">+ Fabric</span>
+		<<link [[감사를 표한다|Bird Tower Fabric]]>><<bird_loot clothes 20>><<npcincr "Great Hawk" love 1>><<transform bird 1>><<set $bird.fabric += 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<glove>><<gfabric>>
 		<br>
-		<<link [[Scold|Bird Tower Clothes Scold]]>><<bird_loot clothes -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<def 1>><<set $bird.fabric += 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>> | <span class="green">+ Fabric</span>
+		<<link [[꾸짖는다|Bird Tower Clothes Scold]]>><<bird_loot clothes -20>><<npcincr "Great Hawk" dom -1>><<transform bird 1>><<def 1>><<set $bird.fabric += 1>><<bird_stockholm 1>><</link>><<gbirdstockholm>><<ldom>><<gfabric>>
 		<br>
-		<<link [[Do nothing|Bird Tower Clothes Nothing]]>><<bird_loot clothes -10>><<npcincr "Great Hawk" love -1>><<set $bird.fabric += 1>><</link>><<llove>> | <span class="green">+ Fabric</span>
+		<<link [[아무것도 하지 않는다|Bird Tower Clothes Nothing]]>><<bird_loot clothes -10>><<npcincr "Great Hawk" love -1>><<set $bird.fabric += 1>><</link>><<llove>><<gfabric>>
 		<br>
 	<</switch>>
 <</widget>>
 
 <<widget "bird_stockholm">>
-<<if $args[0] and $bird.syndrome isnot undefined>>
-	<<set $bird.syndrome += $args[0]>>
-<</if>>
+	<<if _args[0] and $bird.syndrome isnot undefined>>
+		<<set $bird.syndrome += _args[0]>>
+	<</if>>
 <</widget>>
 
 <<widget "gbirdstockholm">>
-<<if $syndromebird isnot 1>>
-	<<gstockholm>>
-<</if>>
+	<<if $syndromebird isnot 1>>
+		<<gstockholm>>
+	<</if>>
 <</widget>>
 
 <<widget "bird_schedule">>
-<<if $hour gte 21 or $hour lte 5>>
-	<<set $bird.activity to "sleep">>
-<<elseif $hour lte 9>>
-	<<set $bird.activity to "sing">>
-<<elseif $hour lte 12>>
-	<<set $bird.activity to "bathe">>
-<<elseif $hour lte 15>>
-	<<set $bird.activity to "build">>
-<<elseif $hour lte 17>>
-	<<set $bird.activity to "groom">>
-<<else>>
-	<<set $bird.activity to "sing">>
-<</if>>
+	<<if Time.hour gte 21 or Time.hour lte 5>>
+		<<set $bird.activity to "sleep">>
+	<<elseif Time.hour lte 9>>
+		<<set $bird.activity to "sing">>
+	<<elseif Time.hour lte 12>>
+		<<set $bird.activity to "bathe">>
+	<<elseif Time.hour lte 15>>
+		<<set $bird.activity to "build">>
+	<<elseif Time.hour lte 17>>
+		<<set $bird.activity to "groom">>
+	<<else>>
+		<<set $bird.activity to "sing">>
+	<</if>>
 <</widget>>
 
 <<widget "bird_perch_options">>
-<<if $bird.state is "hunting" and $bird.timer lte 0>>
-	<<endevent>>
-	<<npc "Great Hawk">>
-	You hear the flap of wings as the <<beasttype>> returns.
+	<<if $bird.state is "hunting" and $bird.timer lte 0>>
+		<<endevent>>
+		<<npc "Great Hawk">>
+		<<beasttype_ i>> 돌아오며 날개가 펄럭이는 소리가 들린다.
 
-	<<bHe>> lands and <<if $monster is 1>>walks<<else>>hops<</if>> over to you.
-	<<bird_hunt_return>>
-<<elseif $bird.state is "home" and $bird.activity isnot "sleep" and $bird.activity isnot "sing" and $bird.activity isnot "groom" and $bird.timer lte 0>>
-	<<endevent>>
-	<<npc "Great Hawk">>
-	<<if $monster is 1>>
-		The <<beasttype>><<if $birdBask is 1>> gingerly helps you stand, and<</if>> steps to the edge of the perch.
-		"<<print either(
-			"I crave a hunt.",
-			"The wild beckons me.",
-			"My talons itch for prey.",
-			"The winds call me.",
-			"I must stretch my wings."
-		)>> I will return with a gift." <<bHe>> spreads <<bhis>> wings, and launches from the tower.
-	<<else>>
-		The <<beasttype>> rises from <<bhis>> nest, spreads <<bhis>> wings, and launches from the tower.
-	<</if>>
-	<br><br>
-	<<set $bird.timer to random(30, 60)>>
-	<<set $bird.state to "hunting">>
-	<<unset $birdPerch>><<unset $birdBask>>
-	<<if $birdSingIntro is 1>>
-		<<link [[Sing (0:30)|Bird Tower Sing]]>><<set $birdSingAbsent to 1>><<bird_pass 30>><<endevent>><</link>><br>
-	<</if>>
-	<<link [[Go back inside|Bird Tower]]>><<unset $birdPerch>><<endevent>><</link>><br>
-	<br>
-<<elseif $bird.activity is "sleep" and $birdSleep is undefined and $bird.state is "home">>
-	<<set $birdSleep to 1>><<unset $birdPerch>><<unset $birdBask>>
-	<<endevent>>
-	<<npc "Great Hawk">>
-	<<if $monster gte 1>>
-		The <<beasttype>> scoops you in <<bhis>> arms. "Night has come," <<bhe>> says. "Let me take you to bed."
+		<<bHe_ ga>> 땅에 내려앉아 당신에게 <<if $monster is 1>>걸어온다.<<else>>폴짝여 온다.<</if>>
+		<<bird_hunt_return>>
+	<<elseif $bird.state is "home" and $bird.activity isnot "sleep" and $bird.activity isnot "sing" and $bird.activity isnot "groom" and $bird.timer lte 0>>
+		<<endevent>>
+		<<npc "Great Hawk">>
+		<<if $monster is 1>>
+			<<beasttype_ i>><<if $birdBask is 1>> 조심스럽게 당신이 일어나는 걸 도와주고,<</if>> 횃대 가장자리로 걸음을 옮긴다.
+			"<<print either(
+				"사냥하고 싶은 마음이 간절하다.",
+				"야생이 내게 손짓한다.",
+				"발톱이 사냥감에 굶주렸다.",
+				"바람이 나를 부른다.",
+				"날개를 펼쳐야만 한다."
+			)>> 선물을 갖고 돌아오겠다." <<bHe_ ga>> 날개를 펼치고, 탑에서 날아오른다.
+		<<else>>
+			<<beasttype_ i>> 둥지에서 날아올라, 날개를 펼치고 탑에서 떠난다.
+		<</if>>
 		<br><br>
-	<<else>>
-		The <<beasttype>> hops from the perch, towards the nest. <<bHe>> glances at you.
-		<br><br>
-	<</if>>
+		<<set $bird.timer to random(30, 60)>>
+		<<set $bird.state to "hunting">>
+		<<unset $birdPerch>><<unset $birdBask>>
+		<<if $birdSingIntro is 1>>
+			<<link [[노래한다 (0:30)|Bird Tower Sing]]>><<set $birdSingAbsent to 1>><<bird_pass 30>><<endevent>><</link>><br>
+		<</if>>
+		<<link [[안으로 돌아간다|Bird Tower]]>><<unset $birdPerch>><<endevent>><</link>><br>
+		<br>
+	<<elseif $bird.activity is "sleep" and $birdSleep is undefined and $bird.state is "home">>
+		<<set $birdSleep to 1>><<unset $birdPerch>><<unset $birdBask>>
+		<<endevent>>
+		<<npc "Great Hawk">>
+		<<if $monster gte 1>>
+			<<beasttype_ i>> 팔로 당신을 끌어안는다. "밤이 왔다." <<bhe_ ga>> 말한다. "침대에 데려가게 해 줘."
+			<br><br>
+		<<else>>
+			<<beasttype_ i>> 횃대에서 뛰어내려, 둥지로 향한다. <<bHe_ ga>> 당신을 쳐다본다.
+			<br><br>
+		<</if>>
 
-	<<link [[Nest|Bird Tower Perch Nest]]>><</link>>
-	<br>
-	<<link [[Stay up|Bird Tower]]>><<endevent>><</link>>
-	<br>
-<<elseif $syndromebird is 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $birdBask is undefined and $bird.state is "home">>
-	<<link [[Bask (0:30)|Bird Tower Bask]]>><<bird_pass 30>><<stress -12>><<endevent>><</link>><<llstress>><br>
-	<<link [[Sing (0:30)|Bird Tower Sing]]>><<transform bird 1>><<bird_pass 30>><<trauma -3>><<endevent>><</link>><<ltrauma>><br>
-	<<link [[Go back inside|Bird Tower]]>><<unset $birdPerch>><<endevent>><</link>><br>
-	<br>
-	<<bird_fly_options>>
-<<elseif $birdBask is 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $bird.state is "home">>
-	<<link [[Continue to bask (0:30)|Bird Tower Bask]]>><<bird_pass 30>><<stress -12>><<endevent>><</link>><<llstress>><br>
-	<<link [[Sing (0:30)|Bird Tower Sing]]>><<transform bird 1>><<bird_pass 30>><<trauma -3>><<endevent>><</link>><<ltrauma>><br>
-	<<link [[Get up|Bird Tower Perch]]>><<set $birdBask to 0>><<endevent>><</link>><br>
-	<<link [[Leave|Bird Tower Bask Leave]]>><<unset $birdBask>><<unset $birdPerch>><<endevent>><</link>><br>
-<<else>>
-	<<if $birdSingIntro is 1>>
-		<<link [[Sing (0:30)|Bird Tower Sing]]>><<set $birdSingAbsent to 1>><<bird_pass 30>><<trauma -3>><<endevent>><</link>><<ltrauma>><br>
+		<<link [[둥지|Bird Tower Perch Nest]]>><</link>>
+		<br>
+		<<link [[깨어 있는다|Bird Tower]]>><<endevent>><</link>>
+		<br>
+	<<elseif $syndromebird is 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $birdBask is undefined and $bird.state is "home">>
+		<<link [[햇볕을 쬔다 (0:30)|Bird Tower Bask]]>><<bird_pass 30>><<stress -12>><<endevent>><</link>><<llstress>><br>
+		<<link [[노래한다 (0:30)|Bird Tower Sing]]>><<transform bird 1>><<bird_pass 30>><<trauma -3>><<endevent>><</link>><<ltrauma>><br>
+		<<link [[안으로 돌아간다|Bird Tower]]>><<unset $birdPerch>><<endevent>><</link>><br>
+		<br>
+		<<bird_fly_options>>
+	<<elseif $birdBask is 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $bird.state is "home">>
+		<<link [[계속 햇볕을 쬔다 (0:30)|Bird Tower Bask]]>><<bird_pass 30>><<stress -12>><<endevent>><</link>><<llstress>><br>
+		<<link [[노래한다 (0:30)|Bird Tower Sing]]>><<transform bird 1>><<bird_pass 30>><<trauma -3>><<endevent>><</link>><<ltrauma>><br>
+		<<link [[일어난다|Bird Tower Perch]]>><<set $birdBask to 0>><<endevent>><</link>><br>
+		<<link [[떠난다|Bird Tower Bask Leave]]>><<unset $birdBask>><<unset $birdPerch>><<endevent>><</link>><br>
+	<<else>>
+		<<if $birdSingIntro is 1>>
+			<<link [[노래한다 (0:30)|Bird Tower Sing]]>><<set $birdSingAbsent to 1>><<bird_pass 30>><<trauma -3>><<endevent>><</link>><<ltrauma>><br>
+		<</if>>
+		<<link [[안으로 돌아간다|Bird Tower]]>><<unset $birdPerch>><<endevent>><</link>><br>
+		<br>
+		<<bird_fly_options>>
 	<</if>>
-	<<link [[Go back inside|Bird Tower]]>><<unset $birdPerch>><<endevent>><</link>><br>
-	<br>
-	<<bird_fly_options>>
-<</if>>
-<<unset $birdSingAbsent>>
+	<<unset $birdSingAbsent>>
 <</widget>>
 
 <<widget "bird_fly_options">>
-<<if $harpy gte 6>>
-	The wind could carry you a long way<<if $birdFly isnot 1>>, <span class="red">but you don't know how to fly.</span> Your wings should at least carry you down safely<</if>>.
-	<<if $syndromebird isnot 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $bird.state is "home">>
-		<span class="red">However, you won't be getting far with the Great Hawk watching you.</span>
-		<br><br>
-	<<else>>
-		<br><br>
-		<<link [[Glide to the base of the tower (0:01)|Bird Tower Glide 2]]>><<unset $birdPerch>><<bird_pass 1>><<endevent>><</link>><<flight_text>><br>
-	<</if>>
-	<<if $birdFly isnot 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $bird.state is "home">>
-		<<link [[Ask the Great Hawk to teach you to fly|Bird Tower Fly Intro]]>><</link>><<flight_text>><br>
-	<<elseif $birdFly is 1>>
-		<br>
-		<<flight_time_check 60>>
-		<<if $exposed gte 2 and $exhibitionism lt 55>>
-			<span class="red">You aren't lewd enough to fly exposed towards the town or farmlands.</span>
-			<br>
-		<<else>>
-			<<print '<<link [[Fly to the farmlands ('+_hoursPassed+':'+ (_minutesPassed lt 10 ? "0" : "") + _minutesPassed + ')|Bird Tower Farmlands]]>><<set $fatigueMod to _fatigueMod>><<set $flightTime to _flightTime>><<unset $birdPerch>><<bird_pass _flightTime>><<endevent>><</link>>'>><<flight_text>><<print _fatigueText>><<if $exposed gte 2>><<exhibitionist4>><</if>>
-			<br>
-			<<print '<<link [[Fly to town ('+_hoursPassedLong+':'+ (_minutesPassedLong lt 10 ? "0" : "") + _minutesPassedLong + ')|Bird Tower Town]]>><<set $fatigueMod to (_fatigueMod + 1)>><<set $flightTime to _flightTimeLong>><<unset $birdPerch>><<bird_pass _flightTimeLong>><<endevent>><</link>>'>><<flight_text>><<print _fatigueText>><<if $exposed gte 2>><<exhibitionist4>><</if>>
-			<br>
-		<</if>>
-		<<print '<<link [[Fly to the forest ('+_hoursPassed+':'+ (_minutesPassed lt 10 ? "0" : "") + _minutesPassed + ')|Bird Tower Forest]]>><<set $fatigueMod to _fatigueMod>><<set $flightTime to _flightTime>><<unset $birdPerch>><<bird_pass 30>><<endevent>><</link>>'>><<flight_text>><<print _fatigueText>>
-		<br>
-	<</if>>
-<<elseif $angel gte 6 or $demon gte 6 or $fallenangel gte 2>>
-	<<if $pain gte 20>>
-		Your wings should carry you down, <span class="purple">but you're too injured for such a risky jump right now.</span>
-		<br><br>
-	<<else>>
-		Your wings should carry you down.
+	<<if $harpy gte 6>>
+		바람은 당신을 멀리 데려다 줄 수도 있지만, <<if $birdFly isnot 1>>, <span class="red">당신은 나는 법을 모른다.</span> 당신의 날개는 적어도 안전하게 당신을 아래로 데려다줄 수는 있을 것이다.<</if>>.
 		<<if $syndromebird isnot 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $bird.state is "home">>
-			<span class="red">However, you won't be getting far with the Great Hawk watching you.</span>
+			<span class="red">하지만 거대한 매가 당신을 지켜보는 중에는 멀리 나갈 수 없을 것이다.</span>
 			<br><br>
-		<<elseif $birdFly is 1 or $birdGlide is 1>>
-			<br><br>
-			<<link [[Glide down (0:02)|Bird Tower Glide]]>><<unset $birdPerch>><<bird_pass 2>><<endevent>><</link>><<flight_text>>
-		<<elseif $willpower lt 250>>
-			<span class="red">But you don't have the will or courage to attempt it.</span>
-		<<elseif $glideScared>>
-			<span class="red">You're too scared to try again right now.</span>
 		<<else>>
 			<br><br>
-			<<link [[Attempt to glide down (0:02)|Bird Tower Glide Attempt]]>><<unset $birdPerch>><<bird_pass 2>><<endevent>><</link>><<flight_text>><<willpowerdifficulty 250 1100>>
+			<<link [[탑 입구로 활공한다 (0:01)|Bird Tower Glide 2]]>><<unset $birdPerch>><<bird_pass 1>><<endevent>><</link>><<flight_text>><br>
+		<</if>>
+		<<if $birdFly isnot 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $bird.state is "home">>
+			<<link [[거대한 매에게 나는 법을 가르쳐달라고 한다|Bird Tower Fly Intro]]>><</link>><<flight_text>><br>
+		<<elseif $birdFly is 1>>
+			<br>
+			<<flight_time_check 60>>
+			<<if $exposed gte 2 and $exhibitionism lt 55>>
+				<span class="red">당신은 마을이나 농장으로 날아가기엔 충분히 음란하지 않다.</span>
+				<br>
+			<<else>>
+				<<print '<<link [[농장으로 날아간다 ('+_hoursPassed+':'+ (_minutesPassed lt 10 ? "0" : "") + _minutesPassed + ')|Bird Tower Farmlands]]>><<set $fatigueMod to _fatigueMod>><<set $flightTime to _flightTime>><<unset $birdPerch>><<bird_pass _flightTime>><<endevent>><</link>>'>><<flight_text>><<print _fatigueText>><<if $exposed gte 2>><<exhibitionist4>><</if>>
+				<br>
+				<<print '<<link [[마을로 날아간다 ('+_hoursPassedLong+':'+ (_minutesPassedLong lt 10 ? "0" : "") + _minutesPassedLong + ')|Bird Tower Town]]>><<set $fatigueMod to (_fatigueMod + 1)>><<set $flightTime to _flightTimeLong>><<unset $birdPerch>><<bird_pass _flightTimeLong>><<endevent>><</link>>'>><<flight_text>><<print _fatigueText>><<if $exposed gte 2>><<exhibitionist4>><</if>>
+				<br>
+			<</if>>
+			<<print '<<link [[숲으로 날아간다 ('+_hoursPassed+':'+ (_minutesPassed lt 10 ? "0" : "") + _minutesPassed + ')|Bird Tower Forest]]>><<set $fatigueMod to _fatigueMod>><<set $flightTime to _flightTime>><<unset $birdPerch>><<bird_pass 30>><<endevent>><</link>>'>><<flight_text>><<print _fatigueText>>
+			<br>
+		<</if>>
+	<<elseif $angel gte 6 or $demon gte 6 or $fallenangel gte 2>>
+		<<if $pain gte 20>>
+			당신의 두 날개는 당신을 아래로 데려다 줄 수 있다. <span class="purple">그런 위험한 시도를 하기엔 너무 상처를 입은 상태다.</span>
+			<br><br>
+		<<else>>
+			당신의 두 날개는 당신을 아래로 데려다 줄 수 있다.
+			<<if $syndromebird isnot 1 and ($bird.activity is "sing" or $bird.activity is "groom") and $bird.state is "home">>
+				<span class="red">하지만 거대한 매가 당신을 지켜보는 중에는 멀리 나갈 수 없을 것이다.</span>
+				<br><br>
+			<<elseif $birdFly is 1 or $birdGlide is 1>>
+				<br><br>
+				<<link [[활공해 내려간다 (0:02)|Bird Tower Glide]]>><<unset $birdPerch>><<bird_pass 2>><<endevent>><</link>><<flight_text>>
+			<<elseif currentSkillValue('willpower') lt 250>>
+				<span class="red">하지만 당신은 그걸 시도해볼 의지력이나 용기가 없다.</span>
+			<<elseif $daily.glideScared>>
+				<span class="red">당신은 당장 다시 시도해 보기엔 너무 두렵다.</span>
+			<<else>>
+				<br><br>
+				<<link [[활공해 내려가려 시도한다 (0:02)|Bird Tower Glide Attempt]]>><<unset $birdPerch>><<bird_pass 2>><<endevent>><</link>><<flight_text>><<willpowerdifficulty 250 1100>>
+			<</if>>
 		<</if>>
 	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "bird_greeting">>
-<<if $birdDailyGreeting isnot 1>>
-	<<set $birdDailyGreeting to 1>>
-	<<if $monster is 1>>
-		<<if $hour lte 3 or $hour gte 18>>
-			"Good evening,
-		<<elseif $hour lte 12>>
-			"Good morning,
+	<<if $daily.birdGreeting isnot 1>>
+		<<set $daily.birdGreeting to 1>>
+		<<if $monster is 1>>
+			<<if Time.hour lte 3 or Time.hour gte 18>>
+				"좋은 저녁,
+			<<elseif Time.hour lte 12>>
+				"좋은 아침,
+			<<else>>
+				"좋은 오후,
+			<</if>>
+			<<wife_ yo>>."
 		<<else>>
-			"Good afternoon,
+			<<bHe_ ga>> 낮게 몇 번 지저귀며 당신에게 인사한다.
 		<</if>>
-		<<wife>>."
-	<<else>>
-		<<bHe>> greets you with a few low chirps.
 	<</if>>
-<</if>>
 <</widget>>
 
 <<widget "flight_time_check">>
-<<if $args[0]>>
-	<<set _flightTimeBase to $args[0]>>
-<<else>>
-	<<set _flightTimeBase to 60>>
-<</if>>
-<<set _flightTime to _flightTimeBase>>
-<<switch $weather>>
-	<<case "overcast">>
-		<<set _flightTime -= Math.floor(_flightTimeBase / 3)>>
-		<<set _fatigueText to "<<gtiredness>>">>
-		<<set _fatigueMod to 0.5>>
-		<span class="gold">The strong winds will make flight easy and fast.</span>
-	<<case "rain">>
-		<<set _flightTime += 1>>
-		<<for _e to 0; _e lt $clothing_number; _e++>>
-			<<activeclothes>>
-			<<if !$worn[_active_clothes].type.includes("naked") and !$worn[_active_clothes].type.includes("swim")>>
-				<<switch _active_clothes>>
-					<<case "over_upper" "over_lower">>
-						<<set _flightTime += Math.floor(_flightTimeBase / 6)>>
-					<<case "upper" "lower">>
-						<<set _flightTime += Math.floor(_flightTimeBase / 9)>>
-					<<case "under_upper" "under_lower" "feet">>
-						<<set _flightTime += Math.floor(_flightTimeBase / 18)>>
-					<<default>>
-				<</switch>>
+	<<if _args[0]>>
+		<<set _flightTimeBase to _args[0]>>
+	<<else>>
+		<<set _flightTimeBase to 60>>
+	<</if>>
+	<<set _flightTime to _flightTimeBase>>
+	<<switch $weather>>
+		<<case "overcast">>
+			<<set _flightTime -= Math.floor(_flightTimeBase / 3)>>
+			<<set _fatigueText to "<<gtiredness>>">>
+			<<set _fatigueMod to 0.5>>
+			<span class="gold">강한 바람이 더 쉽고 빠르게 날 수 있게 해 줄 것이다.</span>
+		<<case "rain">>
+			<<set _flightTime += 1>>
+			<<for _active_clothes range Object.keys($worn)>>
+				<<if !$worn[_active_clothes].type.includes("naked") and !$worn[_active_clothes].type.includes("swim")>>
+					<<switch _active_clothes>>
+						<<case "over_upper" "over_lower">>
+							<<set _flightTime += Math.floor(_flightTimeBase / 6)>>
+						<<case "upper" "lower">>
+							<<set _flightTime += Math.floor(_flightTimeBase / 9)>>
+						<<case "under_upper" "under_lower" "feet">>
+							<<set _flightTime += Math.floor(_flightTimeBase / 18)>>
+						<<default>>
+					<</switch>>
+				<</if>>
+			<</for>>
+			<<if _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.5))>>
+				<<set _fatigueText to "<<gggtiredness>>">>
+				<<set _fatigueMod to 3>>
+				<span class="red">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 심하게 늦추고 맨살을 드러내게 할 것이다.</span>
+			<<elseif _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.25))>>
+				<<set _fatigueText to "<<gggtiredness>>">>
+				<<set _fatigueMod to 3>>
+				<span class="pink">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 늦추고 맨살을 드러내게 할 것이다.</span>
+			<<elseif _flightTime gt _flightTimeBase>>
+				<<set _fatigueText to "<<ggtiredness>>">>
+				<<set _fatigueMod to 2>>
+				<span class="blue">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 살짝 늦추고 맨살을 드러내게 할 것이다.</span>
+			<<else>>
+				<<set _fatigueText to "<<ggtiredness>>">>
+				<<set _fatigueMod to 2>>
+				<span class="green">지금 입고 있는 옷으로도 빗속에서 날아다니는 게 전혀 어렵지 않다.</span>
 			<</if>>
-		<</for>>
-		<<if _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.5))>>
-			<<set _fatigueText to "<<gggtiredness>>">>
-			<<set _fatigueMod to 3>>
-			<span class="red">Flying in the rain will soak your clothes, heavily slowing you down and exposing you.</span>
-		<<elseif _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.25))>>
-			<<set _fatigueText to "<<gggtiredness>>">>
-			<<set _fatigueMod to 3>>
-			<span class="pink">Flying in the rain will soak your clothes, slowing you down and exposing you.</span>
-		<<elseif _flightTime gt _flightTimeBase>>
-			<<set _fatigueText to "<<ggtiredness>>">>
-			<<set _fatigueMod to 2>>
-			<span class="blue">Flying in the rain will soak your clothes, slightly slowing you down and exposing you.</span>
-		<<else>>
-			<<set _fatigueText to "<<ggtiredness>>">>
-			<<set _fatigueMod to 2>>
-			<span class="green">Flying in the rain won't slow you down at all in your current state of dress.</span>
-		<</if>>
-	<<default>>
-		<<set _fatigueText to "<<gtiredness>>">>
-		<<set _fatigueMod to 1>>
-		<span class="green">The weather shouldn't affect your flight.</span>
-<</switch>>
-<br>
-<<if $athletics gt 0>>
-	<<set _flightTime -= Math.floor((_flightTime / 20) * ($athletics / 100))>>
-<</if>>
-<<if _flightTime lte 0>>
-	<<set _flightTime to 1>>
-<</if>>
-<<set _hoursPassed to Math.floor(_flightTime / 60)>>
-<<set _minutesPassed to _flightTime % 60>>
+		<<default>>
+			<<set _fatigueText to "<<gtiredness>>">>
+			<<set _fatigueMod to 1>>
+			<span class="green">당신이 비행하는 데 날씨는 상관없다.</span>
+	<</switch>>
+	<br>
+	<<if currentSkillValue('athletics') gt 0>>
+		<<set _flightTime -= Math.floor((_flightTime / 20) * (currentSkillValue('athletics') / 100))>>
+	<</if>>
+	<<if _flightTime lte 0>>
+		<<set _flightTime to 1>>
+	<</if>>
+	<<set _hoursPassed to Math.floor(_flightTime / 60)>>
+	<<set _minutesPassed to _flightTime % 60>>
 
-<<set _flightTimeLong to Math.floor(_flightTime + 15)>>
-<<set _hoursPassedLong to Math.floor(_flightTimeLong / 60)>>
-<<set _minutesPassedLong to _flightTimeLong % 60>>
+	<<set _flightTimeLong to Math.floor(_flightTime + 15)>>
+	<<set _hoursPassedLong to Math.floor(_flightTimeLong / 60)>>
+	<<set _minutesPassedLong to _flightTimeLong % 60>>
 
-<<set _flightTimeSearch to Math.floor(_flightTime + 3)>>
-<<set _hoursPassedSearch to Math.floor(_flightTimeSearch / 60)>>
-<<set _minutesPassedSearch to _flightTimeSearch % 60>>
+	<<set _flightTimeSearch to Math.floor(_flightTime + 3)>>
+	<<set _hoursPassedSearch to Math.floor(_flightTimeSearch / 60)>>
+	<<set _minutesPassedSearch to _flightTimeSearch % 60>>
 <</widget>>
 
 <<widget "flight_effects">>
-<<if $weather is "rain">>
-	<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
-		<<set $upperwet to Math.floor($flightTime * 4)>>
+	<<if $weather is "rain">>
+		<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
+			<<set $upperwet to Math.floor($flightTime * 4)>>
+		<</if>>
+		<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
+			<<set $lowerwet to Math.floor($flightTime * 4)>>
+		<</if>>
+		<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked")>>
+			<<set $underlowerwet to Math.floor($flightTime * 4)>>
+		<</if>>
+		<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked")>>
+			<<set $underupperwet to Math.floor($flightTime * 4)>>
+		<</if>>
 	<</if>>
-	<<if !$worn.lower.type.includes("swim") and !$worn.lower.type.includes("naked")>>
-		<<set $lowerwet to Math.floor($flightTime * 4)>>
-	<</if>>
-	<<if !$worn.under_lower.type.includes("swim") and !$worn.under_lower.type.includes("naked")>>
-		<<set $underlowerwet to Math.floor($flightTime * 4)>>
-	<</if>>
-	<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked")>>
-		<<set $underupperwet to Math.floor($flightTime * 4)>>
-	<</if>>
-<</if>>
-<<set _tempTired to (Math.floor($flightTime / 4) + 1)>>
-<<tiredness _tempTired>>
-<<unset $flightTime>>
-<<unset $fatigueMod>>
+	<<set _tempTired to (Math.floor($flightTime / 4) + 1)>>
+	<<tiredness _tempTired>>
+	<<unset $flightTime>>
+	<<unset $fatigueMod>>
 <</widget>>

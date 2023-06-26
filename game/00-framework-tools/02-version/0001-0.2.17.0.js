@@ -1,10 +1,10 @@
 /**
- * By convention, we list the migrations in a version file where the migration was introduced
+ * By convention, we list the migrations in a version file where the migration was introduced.
  *
- * This convention is a 0 padded migration number (in this case 0001), followed by the game version
+ * This convention is a 0 padded migration number (in this case 0001), followed by the game version.
  *
  * Note that this convention is loosely enforced -- we'll throw an error if you attempt to save a
- * migration from an earlier version
+ * migration from an earlier version.
  */
 Versions.register(1, (originalVersion, state) => {
 	// IMPORTANT: WHEN WE DO MIGRATION, DO NOT USE SUGARCUBE
@@ -22,8 +22,10 @@ Versions.register(1, (originalVersion, state) => {
 	// This migration is a good template. It serves as a marker for the baseline
 	// version. It will (most likely) never be executed, as the baseline migration
 	// will happen in sugarcube (unlike the other migrations)
-	return Versions.stepper(originalVersion, 1)
-		.step(() => {
+	return Versions.stepper(originalVersion, 1).step(
+		() => {
 			// this is a no-op step
-		}, { name: 'placeholder'}).shouldContinue;
-})
+		},
+		{ name: "placeholder" }
+	).shouldContinue;
+});

@@ -67,7 +67,19 @@ declare interface ClothesItem {
 	 * * "secondary" - use secondary/accessory colour
 	 */
 	back_img_colour?: ""|"no"|"primary"|"secondary";
+	/**
+	 * (For upper, over_upper, under_upper slots)
+	 * 1 if has sleeve images, named (left|right)[_cover].png".
+	 * Colouring depends on sleeve_colour property.
+	 */
 	sleeve_img: number;
+	/**
+	 * (For upper, over_upper, under_upper slots)
+	 * 1 if has sleeve accessory images, named (left|right)[_cover]_acc.png".
+	 * These images are not colored.
+	 * Requires sleeve_img: 1.
+	 */
+	sleeve_acc_img: number;
 	/**
 	 * (For upper, over_upper, under_upper slots)
 	 * Recolouring of sleeves images:

@@ -1,9 +1,7 @@
 :: Widgets custom sleep [widget nobr]
 <<widget "customsleep">>
-	<<customsleephour>>
-<</widget>>
+	/*<<customsleephour>> customsleep 과 customsleephour 가 떨어져 있어야 할 이유가 없는 듯 하여 합침 */
 
-<<widget "customsleephour">>
 	<<set $sleepHoursTotal to 0>>
 	<<for $sleephour gte 1>><<set $sleephour -= 1>>
 		<<effectstime>>
@@ -31,20 +29,28 @@
 <</widget>>
 
 <<widget "customlistsleepoutfits">>
-<<if $alwaysSleepNaked isnot true>>
-	<<for _i to 0; _i lt $outfit.length; _i++>>
-		<<if $outfit[_i].type.includes("sleep")>>
-            <<switch $custom.location>>
-                <<case "cliff">>
-                    <<print '<<link [[$outfit[_i].name+($outfit[_i].colors is false? "" : " [C]") + " 입고 침대에 들어간다"|custom home cliff bed]]>><<set $wear_outfit to ' + _i + '>><</link>>'>>
-                <<default>>
-                    <<print 'custom location selection err'>>
-            <</switch>>
-            <br>
+	<<set _passage to "custom home cliff bed">>
+	<<set $wardrobe_location to "wardrobe">>
+	<<set $storeLocation to "bed">>
+	<<wardrobeSelection true>>
+	<<if $alwaysSleepNaked isnot true>>
+		<<for _index, $_outfit range $outfit>>
+			<<if $_outfit.type.includes("sleep")>>
+				<<furnitureicon _bed.iconFile>>
+				<<capture _index>>
+					<<set _outfitname to $_outfit.name + ($_outfit.colors is false ? "" : " [C]")>>
+					<<link [[_outfitname+" 입고 침대에 들어간다"|_passage]]>><<set $wear_outfit to _index>><<saveTempHairStyle>><</link>>
+				<</capture>>
+				<br>
+			<</if>>
+		<</for>>
+	<<else>>
+		<<if $possessed>>
+			<span class="red">당신 머리의 슬라임은 조용하다.</span>
+			<br>
+		<<else>>
+			<span class="red">슬라임이 당신이 옷을 입고 자는 것을 허락하지 않는다.</span>
+			<br>
 		<</if>>
-	<</for>>
-<<else>>
-	<span class="red">슬라임이 당신이 옷을 입고 자는 것을 허락하지 않는다.</span>
-	<br>
-<</if>>
+	<</if>>
 <</widget>>
