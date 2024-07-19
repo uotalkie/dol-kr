@@ -376,19 +376,19 @@ statDisplay.create("gggtanned", () => statDisplay.statChange("선탠", 3, "green
 // Conditions that modify variables like this should preferably not be in the same widget as text output
 statDisplay.create("lcorruption", threat => {
 	if (V.earSlime.startedThreats && !threat) V.earSlime.startedThreats = true;
-	return statDisplay.statChange("타락도", -1, "teal", () => V.earSlime.corruption > V.earSlime.growth / 2);
+	return statDisplay.statChange("오염도", -1, "teal", () => V.earSlime.corruption > V.earSlime.growth / 2);
 });
 statDisplay.create("llcorruption", threat => {
 	if (V.earSlime.startedThreats && !threat) V.earSlime.startedThreats = true;
-	return statDisplay.statChange("타락도", -2, "teal", () => V.earSlime.corruption > V.earSlime.growth / 2);
+	return statDisplay.statChange("오염도", -2, "teal", () => V.earSlime.corruption > V.earSlime.growth / 2);
 });
 statDisplay.create("lllcorruption", threat => {
 	if (V.earSlime.startedThreats && !threat) V.earSlime.startedThreats = true;
-	return statDisplay.statChange("타락도", -3, "teal", () => V.earSlime.corruption > V.earSlime.growth / 2);
+	return statDisplay.statChange("오염도", -3, "teal", () => V.earSlime.corruption > V.earSlime.growth / 2);
 });
-statDisplay.create("gcorruption", () => statDisplay.statChange("타락도", 1, "pink", () => V.earSlime.corruption < 100));
-statDisplay.create("ggcorruption", () => statDisplay.statChange("타락도", 2, "pink", () => V.earSlime.corruption < 100));
-statDisplay.create("gggcorruption", () => statDisplay.statChange("타락도", 3, "pink", () => V.earSlime.corruption < 100));
+statDisplay.create("gcorruption", () => statDisplay.statChange("오염도", 1, "pink", () => V.earSlime.corruption < 100));
+statDisplay.create("ggcorruption", () => statDisplay.statChange("오염도", 2, "pink", () => V.earSlime.corruption < 100));
+statDisplay.create("gggcorruption", () => statDisplay.statChange("오염도", 3, "pink", () => V.earSlime.corruption < 100));
 
 statDisplay.create("lawareness", () => {
 	if (V.innocencestate === 1) {
