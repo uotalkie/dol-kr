@@ -1,6 +1,6 @@
 # Degrees of Lewdity 한국어 번역판에 대하여
 
-이 번역본은 Vrelnir의 Degrees of Lewdity (https://vrelnir.blogspot.com/) 게임 원본을 원본의 CC-BY-NC-SA 라이센스에 의거 동일조건으로 아카라이브 텍스트게임 채널 (https://arca.live/b/textgame) 에서 번역중인 번역본입니다.
+이 번역본은 Vrelnir의 Degrees of Lewdity (https://vrelnir.blogspot.com/) 게임 원본을 원본의 CC-BY-NC-SA 라이센스에 의거 동일조건으로 아카라이브 DOL 채널 (https://arca.live/b/dolgame)에서 번역중인 번역본입니다.
 
 이 번역본을 기반으로 하는 2차저작물은 CC-BY-NC-SA 라이센스를 따르는 이상 자유롭게 공유(배포 등) 및 변경하실 수 있습니다.
 
