@@ -63,7 +63,7 @@ function masturbationSlimeControl() {
 		V.mouthaction = "slime";
 	} else if (V.mouthaction === "mpenispullback") {
 		fragment.append(
-			Wikifier.wikifyEval('<span class="red">슬라임이 지금 하는 것처럼 당신의 <<penisPost>>를 깊이 집어넣고 빨고 있는 중에 당신이 머리를 뒤로 빼내지 못하게 한다.</span>')
+			Wikifier.wikifyEval('<span class="red">슬라임이 지금 하는 것처럼 당신의 <<penis_ rul>> 깊이 집어넣고 빨고 있는 중에 당신이 머리를 뒤로 빼내지 못하게 한다.</span>')
 		);
 		V.mouthaction = "slime";
 	} else if (V.mouthaction === "mvaginastop") {

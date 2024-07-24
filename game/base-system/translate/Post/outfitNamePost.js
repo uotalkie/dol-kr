@@ -9,6 +9,9 @@ function outfitNamePost(part, outfit, post, sep)
 	let result = null;
 	if (part && outfit)
 	{
+		if (outfit == T.bottom && T.outfit)
+			part = "top";
+		
 		let layers;
 		if (part == "top")
 			layers = [V.worn.over_upper, V.worn.upper, V.worn.under_upper];

@@ -9,12 +9,15 @@
 
 <<widget "eventAmbient">>
 	<<cleareventpool>>
-	<<switch (Time.season + $weather)>>
-		<<case "wintersnow" "winterrain" "winterovercast" "winterclear" "autumnsnow" "summersnow" "springsnow">>
+	<<set $_weatherFlag to Weather.isSnow && Time.season === "winter" || Weather.precipitation is "snow" ? "snow" : Weather.precipitation === "rain" ? "rain" : Time.season>>
+	<<switch ($_weatherFlag)>>
+		<<case "snow">>
 			<<if Time.season is "winter">>
+				<<if Weather.isFreezing>>
 				<<addinlineevent "winter_anywhere_1">>
 					잔혹하게 차가운 바람이 밀려온다. 당신은 그 바람이 잦을 때 까지 따뜻함을 유지하려 당신 자신을 감싸안는다. <<stress 3>><<gstress>>
 				<</addinlineevent>>
+				<</if>>
 				<<addinlineevent "winter_anywhere_2" 0.5>>
 					<<dancedifficulty 1 1000 true>>
 					당신은 눈 속으로 발을 디뎠지만 그 눈은 당신 생각보다 깊었다.
@@ -80,6 +83,7 @@
 						<</if>>
 					<<case "alley">>
 						<<addinlineevent "winter_anyalley_1">>
+							<<set Weather.Temperature.override.increase.outside(5, "근처의 불이 당신을 조금 따뜻하게 해 준다.")>>
 							당신은 버려진 쓰레기통 난로에 불이 아직 타오르고 있는 것을 보았다. 당신은 잠시 동안 거기서 불을 쬔다. <<stress -3>><<lstress>>
 						<</addinlineevent>>
 						<<addinlineevent "winter_anyalley_2">>
@@ -189,7 +193,7 @@
 					<<default>>
 				<</switch>>
 			<</if>>
-			<<if $weather is "snow">>
+			<<if Weather.precipitation is "snow">>
 				<<addinlineevent "snow_anywhere_1">>
 					눈송이 하나가 당신의 코 끝에 살짝 내려앉는다. 당신은 잠시 동안 멈춰서 경이로운 눈빛으로 그것을 쳐다본다. <<stress -1>><<lstress>>
 				<</addinlineevent>>
@@ -316,6 +320,7 @@
 							떨어지는 눈송이들이 당신의 시야를 가리자, 당신은 이상한 소리를 듣는다. <<stress 3>><<gstress>>
 						<</addinlineevent>>
 						<<addinlineevent "snow_moor_2">>
+							<<set Weather.Temperature.override.increase.outside(2, "햇빛이 당신의 피부를 따뜻하게 해 준다.")>>
 							잠시 동안, 눈이 가라앉고 당신은 따뜻한 햇빛을 받는다. 그것은 오래 가지 않았지만, 당신은 기분이 약간 좋아지는 것을 느낀다. <<stress -3>><<lstress>>
 						<</addinlineevent>>
 						<<addinlineevent "snow_moor_3">>
@@ -328,7 +333,7 @@
 					<<default>>
 				<</switch>>
 			<</if>>
-		<<case "autumnrain" "summerrain" "springrain">>
+		<<case "rain">>
 			<<addinlineevent "rain_anywhere_1">>
 				멀리서 천둥이 우르릉거린다. <<stress 1>><<gstress>>
 			<</addinlineevent>>
@@ -382,7 +387,7 @@
 						<<generate1>><<person1>>우산을 든 한 <<person_ i>> 한동안 <<him_ gwa>> 우산을 같이 쓰고 가도록 해 준다. <<He_ nun>> 같이 걸으며 당신과 잡담을 한다. <<stress -3>><<lstress>>
 						<<endevent>>
 					<</addinlineevent>>
-					<<if Time.hour gte 7 and Time.hour lt 21 and playerIsPregnant() and playerAwareTheyArePregnant()>>
+					<<if Time.hour gte 7 and Time.hour lt 21 and playerIsPregnant() and playerAwareTheyArePregnant() and playerBellyVisible()>>
 						<<addinlineevent "rain_pregnant_talk" 0.8>>
 							<<generate1>><<person1>>
 							비가 폭우로 바뀌고, 당신은 근처의 차양 아래에서 비를 피한다. 유모차를 끌고 있는 <<personsimple_ i>> 이미 그곳에서, <<his_ yi>> 칭얼거리는 갓난아기를 달래려고 속삭이고 있다. <<He_ ga>> 미소지으며 당신의 <<bellyDescription_ ul "pc">> 보며 끄덕인다. "예정일이 언제에요?" <<he_ ga>> 묻는다. 당신 둘은 폭우가 뜸해지는 것을 기다리며 한가로이 수다를 떤다.
@@ -486,7 +491,7 @@
 					<</if>>
 				<<default>>
 			<</switch>>
-		<<case "autumnclear" "autumnovercast">>
+		<<case "autumn" "winter">>
 			<<addinlineevent "autumn_anywhere_1">>
 				바람이 갑자기 밀려들어 당신 주위에 원을 그리며 소용돌이친다. 바람이 다시 잦아들기 전에 당신은 그 소용돌이의 눈 안에 서서 평온함을 느낀다. <<stress -3>><<lstress>>
 			<</addinlineevent>>
@@ -550,9 +555,11 @@
 						<</addinlineevent>>
 					<</if>>
 				<<case "park">>
-					<<addinlineevent "autumn_park_1">>
-						당신은 공원을 둘러보고 가을이 펼치는 형형색색에 경이로워한다. <<stress -3>><<lstress>>
-					<</addinlineevent>>
+					<<if Time.season is "autumn">>
+						<<addinlineevent "autumn_park_1">>
+							당신은 공원을 둘러보고 가을이 펼치는 형형색색에 경이로워한다. <<stress -3>><<lstress>>
+						<</addinlineevent>>
+					<</if>>
 					<<if Time.hour gte 6 and Time.hour lt 21>>
 						<<addinlineevent "autumn_park_2">>
 							당신은 한 커플이 교대로 낙엽 더미에 뛰어드는 것을 쳐다본다. <<stress -3>><<lstress>>
@@ -602,7 +609,7 @@
 					<</addinlineevent>>
 				<<default>>
 			<</switch>>
-		<<case "summerclear" "summerovercast">>
+		<<case "summer">>
 			<<addinlineevent "summer_anywhere_1">>
 				<<if Time.hour gte 6 and Time.hour lt 21>>
 					잔혹한 여름 더위가 당신을 짓누른다. <<stress 3>><<gstress>>
@@ -739,7 +746,7 @@
 					<</if>>
 				<<default>>
 			<</switch>>
-		<<case "springclear" "springovercast">>
+		<<case "spring">>
 			<<addinlineevent "spring_anywhere_1">>
 				부드러운 봄바람이 당신의 얼굴을 어루만진다. <<stress -3>><<lstress>>
 			<</addinlineevent>>

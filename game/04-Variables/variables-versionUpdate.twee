@@ -468,24 +468,24 @@
 	<</if>>
 
 	<<if $beastgenderoverride is undefined>>
-	<<set $beastgenderoverride to 0>>
+		<<set $beastgenderoverride to 0>>
 	<</if>>
 
 	<<if $speechcycle is undefined>>
-	<<set $speechcycle to 0>>
+		<<set $speechcycle to 0>>
 	<</if>>
 
 	<<if $npcspeechcycle is undefined>>
-	<<set $npcspeechcycle to 0>>
+		<<set $npcspeechcycle to 0>>
 	<</if>>
 
 	<<if $breastfeedingdisable is undefined>>
-	<<set $breastfeedingdisable to "f">>
+		<<set $breastfeedingdisable to "f">>
 	<</if>>
 
 	<<if $real_gender isnot undefined>>
-	<<set $player.gender to $real_gender>>
-	<<unset $real_gender>>
+		<<set $player.gender to $real_gender>>
+		<<unset $real_gender>>
 	<</if>>
 
 	<<if $physiquesize is undefined>>
@@ -497,17 +497,17 @@
 	<</if>>
 
 	<<if $fringelength is undefined>>
-	<<set $fringelength to 200>>
-	<<set $hairtype to "default">>
-	<<set $fringetype to "default">>
+		<<set $fringelength to 200>>
+		<<set $hairtype to "default">>
+		<<set $fringetype to "default">>
 	<</if>>
 
 	<<if $famescrap is undefined>>
-	<<set $famescrap to 0>>
+		<<set $famescrap to 0>>
 	<</if>>
 
 	<<if $famepimp is undefined>>
-	<<set $famepimp to 0>>
+		<<set $famepimp to 0>>
 	<</if>>
 
 	<<if $spray is undefined>>
@@ -1863,46 +1863,6 @@
 		<</if>>
 	<</if>>
 
-	/*
-	<<if $weather is undefined or $weather.current is undefined>>
-		<<set $weather to {
-			current: either("clear", "clear", "clear", "clear", "overcast", "overcast", "overcast", "overcast", "rain", "rain"),
-			sevendayforcast:[],
-			chance: [],
-			rainydays: [],
-			rainstreak: false,
-			weekdaylist: [],
-			raindaystart: 0,
-			lastrainmax: 0
-		}>>
-		<<weatherinit>>
-	<</if>>
-	*/
-
-
-	<<if $clothing_number isnot 13>>
-		<<set $clothing_number to 13>>
-	<</if>>
-
-	<<if $warmth is undefined>>
-		<<set $warmth to 0>>
-		<<set $chill_day to 0>>
-		<<switch $season>>
-		<<case "spring">>
-			<<set $chill_day += 70>>
-		<<case "summer">>
-
-		<<case "autumn">>
-			<<set $chill_day += 80>>
-		<<case "winter">>
-			<<set $chill_day += 150>>
-		<</switch>>
-		<<if $weather is "snow">>
-			<<set $chill_day += 50>>
-		<</if>>
-		<<set $chill to $chill_day>>
-	<</if>>
-
 	<<farm_update>>
 
 	<<if $prepareSaveDetails is undefined>>
@@ -3006,11 +2966,6 @@
 		<</if>>
 	<</if>>
 
-	<!-- 0.3.8.2: starting season backwards compatibility check -->
-	<<if $startingseason is undefined>>
-		<<set $startingseason to "autumn">>
-	<</if>>
-
 	<!-- v0.3.8.6: Fixing mismatched specialtransform after losing your virginity -->
 	<<if $demon gte 1 or $angel gte 1 or $fallenangel gte 2>>
 		<<set $specialTransform to 1>>
@@ -3574,7 +3529,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 50 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 56 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3585,9 +3540,15 @@
 			<!--Should'nt need to re-run that often-->
 			<<run clothesDataTrimmerLoop()>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 50>>
+		
 		<!--If you have added any `colour_combat` or `accessory_colour_combat` to clothes that need their `colour` or `accessory_colour`, this will clear them.
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
+		
+		<!-- integrity_max was zero for a piece of clothing [Skimpy Leotard], this caused an infinity money bug at tailor, update people's clothing here -->
+		<<if $objectVersion.updateClothes lt 56>>
+			<<run fixIntegrityUpdater()>>
+		<</if>>
+		<<set $objectVersion.updateClothes to 56>>
 	<</if>>
 
 	<<if $objectVersion.specialClothes lt 15 or $objectVersion.specialClothes is undefined>>
@@ -3596,9 +3557,9 @@
 		<<set $objectVersion.specialClothes to 15>>
 	<</if>>
 
-	<<if $objectVersion.wardrobes lt 9 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 12 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 9>>
+		<<set $objectVersion.wardrobes to 12>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -4053,7 +4014,7 @@
 		<<set $options.combatAnimations to false>>
 	<</if>>
 
-	<<if $debugdisable is undefined>>
+	<<if $debugdisable isnot undefined>>
 		<<set $options.debugdisable to $debugdisable>>
 		<<unset $debugdisable>>
 	<</if>>
@@ -4123,7 +4084,10 @@
 		<<unset $swimmingattended>>
 	<</if>>
 	<<if $weekly is undefined>>
-		<<set $weekly to { theft: {}, sewers: {} }>>
+		<<set $weekly to {
+		theft: {},
+		sewers: {}
+	}>>
 	<</if>>
 	<<if $robinBrothelWeekly isnot undefined>>
 		<<set $weekly.robinBrothel to $robinBrothelWeekly>>
@@ -4881,7 +4845,7 @@
 			}
 
 			const realVarsToCopy = [
-				'weather', 'moonstate', 'haircolour', 'hairlength', 'goooutsidecount', 'semenoutsidecount', 'pain', 'arousal', 'tiredness', 'stress', 'trauma', 'control', 'angel', 'fallenangel', 'angelbuild', 'demon', 'wolfgirl', 'cat', 'cow', 'harpy', 'fox', 'sexStats', 'skulduggery', 'purity', 'spray', 'skin', 'parasite', 'hairfringecolour', 'hairColourStyle', 'hairColourGradient', 'hairFringeColourStyle', 'hairFringeColourGradient', 'timeStamp',
+				'moonstate', 'haircolour', 'hairlength', 'goooutsidecount', 'semenoutsidecount', 'pain', 'arousal', 'tiredness', 'stress', 'trauma', 'control', 'angel', 'fallenangel', 'angelbuild', 'demon', 'wolfgirl', 'cat', 'cow', 'harpy', 'fox', 'sexStats', 'skulduggery', 'purity', 'spray', 'skin', 'parasite', 'hairfringecolour', 'hairColourStyle', 'hairColourGradient', 'hairFringeColourStyle', 'hairFringeColourGradient', 'timeStamp',
 				/* only overwrite the frozen values with variables from the current scene, to avoid restoring outdated values */
 				...(event === 'wraith' ? [
 					'spraymax', 'hairtype', 'fringelength', 'fringetype', 'fringelengthstage', 'submissive', 'awareness', 'awarelevel', 'skinColor', 'condoms',
@@ -4998,14 +4962,14 @@
 					overwriteObjProp('penissize', V.real_penissize, V.frozenValues.player);
 				} else {
 					/* do not copy other variables, even if they exist */
-					migrateRealVars(['weather', 'moonstate', 'timeStamp']);
+					migrateRealVars(['moonstate', 'timeStamp']);
 				}
 			} else if (event === 'nightmare') {
 				Object.assign(V.frozenValues.player.bodyliquid, V.real_bodyliquid);
 				overwriteObjProp('virginity', V.real_virginity, V.frozenValues.player);
 				overwriteObjProp('clothingrebuy', V.real_rebuy);
 
-				migrateRealVars(['weather', 'moonstate', 'timeStamp', 'location', 'parasite', 'pain', 'arousal', 'tiredness', 'trauma', 'control', 'angel', 'angelbuild', 'fallenangel', 'transformationParts', 'purity', 'parasitepregdisable', 'worn', 'skin']);
+				migrateRealVars(['moonstate', 'timeStamp', 'location', 'parasite', 'pain', 'arousal', 'tiredness', 'trauma', 'control', 'angel', 'angelbuild', 'fallenangel', 'transformationParts', 'purity', 'parasitepregdisable', 'worn', 'skin']);
 			} else if (event === 'prayerroom') {
 				/* DO NOT MODIFY FURTHER, SEE 'Fix to freezePlayerStats being used in the Corrupt Temple scene' */
 				overwriteObjProp('virginity', V.real_virginity, V.frozenValues.player);
@@ -5019,13 +4983,11 @@
 		delete V.saveTransformtaions;
 		delete V.penisusue;
 		/* clean up $real_ variables */
-		const tmpWeather = V.real_weather;
 		Object.keys(V).forEach(k => {
 			if (k.startsWith('real_')) {
 				delete V[k];
 			}
 		});
-		if (tmpWeather && !event) V.real_weather = tmpWeather;
 		V.objectVersion.realVarsFix = 1;
 	<</script>><</if>>
 
@@ -5097,6 +5059,7 @@
 		<<unset $statFreeze>>
 		<<set $objectVersion.defileSacredGroundStore to 1>>
 	<</if>>
+
 	/* Fix to statFreeze being left from the previous fix, be aware of this fix when using statFreeze outside of freezePlayerStats */
 	<<if (!$objectVersion.defileSacredGroundStore or $objectVersion.defileSacredGroundStore lt 2) and !$replayScene and $statFreeze and !$frozenValues>>
 		<<unset $statFreeze>>
@@ -5125,7 +5088,168 @@
 		<<unset $pplace_number>><<unset $pplaces>>
 	<</if>>
 
+	<!--V0.5 Great Hawk expansion -->
+	<<if $playerPregnancyEggLayingDisable is undefined>>
+		<<set $playerPregnancyEggLayingDisable to $playerPregnancyBeastDisable>>
+	<</if>>
+	<<if $bird and $bird.state and !$bird.hunts>>
+		<<set $bird.injured to 0>>
+		<<set $bird.clean to 0>>
+		<<set $bird.lurkersEaten to 0>>
+		<<set $bird.firepit to Cooker.create({cookTime: {lurker: 1440 * 60}})>>
+		<<set $bird.hunts to {
+			unlocked: false,
+			lurkers: false,
+			materials: false,
+			valuables: false,
+			estate: false
+		}>>
+		<<set $bird.materials to {
+			wood: 0,
+			fabric: 0,
+			sticks: 0,
+			leaves: 0,
+			junk: 0,
+			lurkers: 0,
+			leather: 0,
+			feathers: 0,
+			valuables: {}
+		}>>
+		<<set $bird.upgrades to {
+			mirror: 0,
+			tools: 0,
+			tarp: 0,
+			telescope: 0,
+			shelter: 1,
+			nest: 0,
+			firepit: 0,
+			pot: 0,
+			rack: 0,
+			snare: 0,
+			decor: 0,
+			wardrobe: 0
+		}>>
+		<<if $bird.mirror is 1>>
+			<<run delete $bird.mirror>>
+			<<set $bird.upgrades.mirror to 1>>
+		<</if>>
+		<<if $bird.fabric>>
+			<<set $bird.materials.fabric += $bird.fabric>>
+			<<run delete $bird.fabric>>
+		<</if>>
+	<</if>>
+	<<if $dateCount.GreatHawkCasual is undefined>>
+		<<set $dateCount.GreatHawkCasual to 0>>
+	<</if>>
 
+	<!--Skin colours for nonhuman children -->
+    <<if !$objectVersion.missingChildSkinColors>>
+        <<run Object.values($children).forEach(child => {
+            if (!child.features.skinColour) child.features.skinColour = V.skinColor.natural;
+        })>>
+        <<set $objectVersion.missingChildSkinColors to 1>>
+    <</if>>
+
+	<!-- Pillory time fixes -->
+	<<if $pillory_tenant.starthour isnot undefined or $pillory_tenant.startday isnot undefined>>
+		<!-- The start day / hour are broken anyways - so resetting the starttime to current time -->
+		<<set $_newTime to new DateTime(Time.date)>>
+		<<set $_endTime to new DateTime($_newTime.timeStamp).addHours($pillory_tenant.duration)>>
+		<<set $pillory_tenant.startTime to $_newTime.timeStamp>>
+		<<set $pillory_tenant.endTime to $_endTime.timeStamp>>
+		<<set $pillory_tenant.lastViewed to $_newTime.timeStamp>>
+
+		<<unset $pillory_tenant.starthour>>
+		<<unset $pillory_tenant.startday>>
+		<<unset $pillory_tenant.endDate>>
+		<<unset $pillory_tenant.endhour>>
+		<<unset $pillory_tenant.duration>>
+	<</if>>
+
+	<!-- 0.5 Weather update -->
+	<<if Time.year is 361 and $location is "temple">>
+		<<set $location to "old_temple">>
+	<</if>>
+
+	<<if $weatherObj is undefined>>
+		<<switch $weather>>
+			<<case "rain" "snow">>
+				<<set _weather to "heavyPrecipitation">>
+			<<case "overcast">>
+				<<set _weather to "heavyClouds">>
+			<<default>>
+				<<set _weather to "lightClouds">>
+		<</switch>>
+		<<set $weatherObj to {
+			name: _weather,
+			snow: 0,
+			ice: {},
+			fog: 0,
+			overcast: 0,
+			targetOvercast: 0,
+			monthlyTemperatures: [],
+			keypointsArr: []
+		}>>
+		<<set $player.bodyTemperature to 37>>
+		<<set $options.weatherUpdate to true>>
+		<<set $options.reflections to true>>
+		<<set $options.fahrenheit to false>>
+		<<unset $weather>>
+		<<unset $nextWeather>>
+		<<unset $warmth>>
+		<<unset $chill>>
+		<<unset $chill_day>>
+		<<unset $body_temperature>>
+		<<unset $body_temperature_outside>>
+		<<unset $skyHidden>>
+
+		<!-- Also reset the frozenValues (statFreeze) -->
+		<<if $statFreeze>>
+			<<unset $frozenValues.weather>>
+			<<unset $frozenValues.nextWeather>>
+			<<unset $frozenValues.warmth>>
+			<<unset $frozenValues.chill>>
+			<<unset $frozenValues.chill_day>>
+			<<unset $frozenValues.body_temperature>>
+			<<unset $frozenValues.body_temperature_outside>>
+			<<unset $frozenValues.skyHidden>>
+		<</if>>
+
+		<!-- Failsafe if changing options immediately after load -->
+		<<run Weather.WeatherGeneration.generate(Time.date)>>
+		<<run Engine.play($passage)>>
+	<</if>>
+
+	<<if $options.clothingCaption is undefined>>
+		<<set $options.clothingCaption to true>>
+	<</if>>
+
+	<<if $frozenKeys isnot undefined>>
+		<<unset $frozenKeys>>
+	<</if>>
+
+	<<if $startingseason isnot undefined>>
+		<<unset $startingseason>>
+	<</if>>
+
+	<<if $clothing_number isnot undefined>>
+		<<unset $clothing_number>>
+	<</if>>
+
+	<!-- Remove old character renderer remnants -->
+	<<if $options.sidebarRenderer isnot undefined>>
+		<<unset $options.sidebarRenderer>>
+	<</if>>
+
+	<!-- 5.0.3 -->
+	<<if $yearly is undefined>>
+		<<set $yearly = {}>>
+	<</if>>
+	<<if !($popcorn gte 0)>>
+		<<set $popcorn to 0>>
+	<</if>>
+
+	<<if !Number.isFinite($money)>>
+		<<set $money to 0>>
+	<</if>>
 <<init_customSetting>><</widget>>
-
-

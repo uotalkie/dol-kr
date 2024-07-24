@@ -94,14 +94,12 @@ window.getTimeNumber = getTimeNumber;
 
 function extendStats() {
 	V.extendedStats = !V.extendedStats;
-	const captionDiv = document.getElementById("storyCaptionDiv");
-	if (captionDiv === null) return;
-	if (V.extendedStats === true) {
-		captionDiv.classList.add("statsExtended");
-	} else {
-		captionDiv.classList.remove("statsExtended");
-	}
+	const $captionDiv = $("#storyCaptionDiv");
+	if ($captionDiv.length === 0) return;
+
+	$captionDiv.toggleClass("statsExtended", V.extendedStats);
 	Wikifier.wikifyEval("<<replace #stats>><<statsCaption>><</replace>>");
+	initializeTooltips();
 }
 window.extendStats = extendStats;
 
@@ -683,6 +681,7 @@ function updateOptions() {
 		if (T.key !== "options") {
 			T.buttons.setActive(T.buttons.activeTab);
 		}
+		Weather.Observables.checkForUpdate();
 	}
 }
 window.updateOptions = updateOptions;
@@ -726,6 +725,77 @@ window.loadCharacterViewerDate = () => {
 		textArea.value = "Invalid Import";
 	}
 };
+
+function updateCaptionTooltip() {
+	const elementId = "#characterTooltip";
+	const element = $(elementId);
+	const content = $("<div>");
+	const canvas = $("#img canvas");
+	const fragment = document.createDocumentFragment();
+	const updateTooltip = () => {
+		if (V.intro) return;
+		fragment.append(wikifier("clothingCaptionText"));
+		content.append(fragment);
+		element.tooltip({
+			message: content,
+			delay: 200,
+			position: "cursor",
+		});
+	};
+
+	let isMouseOverElement = false;
+
+	// Workaround for trickle-through on the canvas
+	// So that the contextmenu works while having tooltips in an element below it (to define the area where tooltip shows up)
+	const checkMousePosition = e => {
+		if (!e || typeof e.clientX !== "number" || typeof e.clientY !== "number") {
+			return;
+		}
+		const isCurrentlyOverElement = $(document.elementsFromPoint(e.clientX, e.clientY)).is("#characterTooltip");
+
+		// Only trigger events if the status has changed
+		if (isCurrentlyOverElement && !isMouseOverElement) {
+			element.trigger("mouseenter");
+			canvas.css("cursor", "help");
+			isMouseOverElement = true;
+		} else if (!isCurrentlyOverElement && isMouseOverElement) {
+			element.trigger("mouseleave");
+			$(".tooltip-popup").remove();
+			canvas.css("cursor", "");
+			isMouseOverElement = false;
+		}
+
+		// If the mouse is currently over the element, trigger mousemove as well
+		if (isCurrentlyOverElement) {
+			element.trigger({
+				type: "mousemove",
+				pageX: e.pageX,
+				pageY: e.pageY,
+			});
+		}
+	};
+
+	updateTooltip();
+	$(document).off(":passageend", updateCaptionTooltip);
+	$(document).on(":passageend", updateCaptionTooltip);
+	// Add event listeners only when the mouse is over the canvas
+	canvas.on("mouseenter", () => {
+		$(document).on("mousemove", checkMousePosition);
+	});
+
+	canvas.on("mouseleave", () => {
+		$(document).off("mousemove", checkMousePosition);
+		if (isMouseOverElement) {
+			// Cleanup if mouse leaves the canvas while over the tooltip element
+			element.trigger("mouseleave");
+			$(".tooltip-popup").remove();
+			canvas.css("cursor", "");
+			isMouseOverElement = false;
+		}
+	});
+}
+$(() => updateCaptionTooltip());
+window.updateCaptionTooltip = updateCaptionTooltip;
 
 function returnTimeFormat() {
 	if (!V || !V.options) return "en-GB";

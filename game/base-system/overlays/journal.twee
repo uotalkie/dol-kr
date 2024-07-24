@@ -15,14 +15,14 @@
 			<li>당신은 하드모드에서 <span class="gold">$hardmodedays</span>일 동안 생존했다.</li>
 			<br>
 		<</if>>
-		<li>게임은 <<trSeason $startingseason>>_trResult에 시작했다.</li>
+		<li>이 게임은 <<trSeason `Time.getSeason(new DateTime($startDate))`>>_trResult에 시작했다.</li>
 		<li>지금은 <<trSeason `Time.season` "이다">>_trResult.</li>
 		<li><<schoolterm>></li>
 	<</if>>
 	</ul>
 
 	<<if $options.images is 1>>
-		<<if Time.season is "winter">>
+		<<if Weather.isSnow>>
 			<img id="world_map" src="img/misc/world_map_winter.png">
 		<<else>>
 			<img id="world_map" src="img/misc/world_map.png">
@@ -30,7 +30,7 @@
 		<br>
 	<</if>>
 
-	<<if $rentday isnot undefined || $rentmoney isnot undefined>>
+	<<if !$statFreeze && ($rentday isnot undefined || $rentmoney isnot undefined)>>
 		<hr>
 		<span class="gold bold">시간 약속</span>
 		<ul style="margin-top:10px;margin-left:-5px;">
@@ -158,7 +158,7 @@
 		</ul>
 	<</if>>
 
-	<<if ($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented isnot "none") || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined)>>
+	<<if !$statFreeze and (($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented isnot "none") || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined))>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
 		<span class="gold bold">기억해야 할 것</span>
@@ -602,7 +602,7 @@
 				<span class='fa-icon fa-unselected'></span><span class="black"> 호수 유적에서 보라색 이끼를 조사하라.</span>
 				<br>
 			<</if>>
-			현 상황에서는, 이 프로젝트는 전람회에서 <span @class="($sciencechance.length is 0 ? 'red' : $sciencechance.length is 1 ? 'pink' : $sciencechance.length is 2 ? 'purple' : $sciencechance.length is 3 ? 'teal' : $sciencechance.length is 4 ? 'green' : '')"><<print ($sciencelichenparkready * 25 + $sciencelichenlakeready * 25 + $sciencelichendrainready * 25 + $sciencelichentempleready * 25)>>%</span> 확률로 우승할 것이다. 이 프로젝트로 우승한다면 트라우마가 큰 폭으로 하락하며 선생님들에게 사랑받을 수 있을 것이다.
+			현 상황에서는, 이 프로젝트는 전람회에서 <span @class="($sciencechance.length is 0 ? 'red' : $sciencechance.length is 1 ? 'pink' : $sciencechance.length is 2 ? 'purple' : $sciencechance.length is 3 ? 'teal' : $sciencechance.length is 4 ? 'green' : '')"><<print ($sciencelichenparkready * 25 + $sciencelichenlakeready * 25 + $sciencelichendrainready * 25 + $sciencelichentempleready * 25)>>%</span> 확률로 우승할 것이다. 이 프로젝트로 우승한다면 트라우마가 큰 폭으로 하락하며 선생님들에게 귀여움 받을 수 있을 것이다.
 			<br><br>
 		<<else>>
 			<span class="black">????????????</span>
@@ -708,7 +708,7 @@
 			당신은 <<trNamedNPC $englishPlayRoles.Player "name">>_trResult 역을 맡았다. 당신은 고아원에서 혼자 예행연습을 할 수 있다.
 			<<if $englishPlayRoles.Kylar isnot "none" and $englishPlayRoles.KylarKnown>>
 				<br>
-				카일라는 <<trNamedNPC $englishPlayRoles.Kylar "name" "을">>_trResult 연기한다. 당신은 방과 후에 <<nnpc_him_ gwa "Kylar">> <<if $weather is "rain" or $weather is "snow">>학교 도서실<<else>>학교 뒷마당<</if>>에서 예행연습을 할 수 있다.
+				카일라는 <<trNamedNPC $englishPlayRoles.Kylar "name" "을">>_trResult 연기한다. 당신은 방과 후에 <<nnpc_him_ gwa "Kylar">> <<if Weather.precipitation !== "none">>학교 도서실<<else>>학교 뒷마당<</if>>에서 예행연습을 할 수 있다.
 			<<elseif $englishPlayKylarReplace>>
 				<br>
 				연극에서 카일라의 배역은 다른 학생에게로 넘어갔다.
@@ -852,9 +852,8 @@
 	<</if>>
 	<<if !_currentPage>><<set _currentPage to "default">><</if>>
 	<<set _listPageName to _currentPage>>
-	<details>
-		<summary style="display:list-item;">제어판</summary>
-		<br>
+	<<foldout false "_journalFoldout">>
+		<span>추가 기능</span>
 		페이지:
 		<<listbox "_listPageName" autoselect>>
 			<<optionsfrom Object.keys($journalNotes)>>
@@ -892,7 +891,7 @@
 			페이지 이름에는 A-Z, 숫자, 밑줄, 대시와 빈칸만 사용가능합니다.
 		</span></mouse>
 		<div id="journalNotesMessage"></div>
-	</details>
+	<</foldout>>
 	<br>
 	<div id="journalNotesTextarea"><<journalNotesTextarea>></div>
 <</widget>>

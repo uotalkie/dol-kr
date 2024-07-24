@@ -362,12 +362,22 @@ function trinit_plants()
 					unit_ko: "병",
 					unit_post:0,
 				},
+
 				{
 					name: "plumeria",
 					plural: "plumerias",
 					name_ko: "플루메리아",
 					post:1,
 					unit_ko: "송이",
+					unit_post:1,
+				},
+
+				{
+					name: "oyster_pearl",
+					plural: "oyster pearls",
+					name_ko: "진주",
+					post:1,
+					unit_ko: "개",
 					unit_post:1,
 				},
 		];

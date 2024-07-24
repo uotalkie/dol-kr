@@ -127,11 +127,12 @@
 		<<set _pills to $sexStats.pills>>
 		<<switch _menstruation.currentState>>
 			<<case "normal">>
-				<<if $harpy gte 6 and $harpyEggs and $sexStats[$_pregLocation].sperm.find(source => sorce.type is "hawk")>>
+				<<if $harpy gte 4 and $harpyEggs and $sexStats[$_pregLocation].sperm.find(source => source.type is "hawk")>>
 					<<playerPregnancyHawkAttempt $_pregLocation>>
 					<<if $_pregnancy.type is "hawk">><<exit>><</if>>
 				<</if>>
 				<<if $cycledisable is "t">>
+					<<if _menstruation.nonCycleRng[0] is 0>><<giveHarpyEggs>><</if>>
 					<<playerPregnancyAttempt `Math.pow(4,_menstruation.nonCycleRng[0])` $_pregLocation>>
 				<<elseif _menstruation.currentDay lt _menstruation.currentDaysMax>>
 					/*Continue the cycle again*/
@@ -170,6 +171,7 @@
 						<<set _menstruation.currentDay += 0.5>>
 						<<set _menstruation.lastDaysMax to _menstruation.currentDaysMax>>
 
+						<<giveHarpyEggs>>
 						/*Check for pregnancy*/
 						<<playerPregnancyAttempt 3 $_pregLocation>>
 					<<else>>
@@ -325,14 +327,14 @@
 		<div id="birthUi">
 			<<for _i to 0; _i lt _pregnancyBirth.fetus.length; _i++>>
 				<<capture _i>>
-					<div @id="'child-' + _i" class="childUi">
-						<<birthChildElement _args[0] _i>>
+					<div @id="'child-' + _pregnancyBirth.fetus[_i].childId" class="childUi">
+						<<birthChildElement _pregnancyBirth.fetus[_i]>>
 					</div>
 				<</capture>>
 			<</for>>
 		</div>
 		<br>
-		<<if _args[3]>>
+		<<if _args[4]>>
 			<<set _hours to Math.floor(_args[4] / 60)>>
 			<<set _minutes to _args[4] % 60>>
 			<<set _timeString to " (" + (_hours lt 10 ? "0": "") +_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")">>
@@ -344,85 +346,90 @@
 			<<elseif $NPCNameList.includes(_args[0])>>
 				<<endNpcPregnancy _args[0] _args[1] _args[2]>>
 			<</if>>
+			<<pass _args[4]>>
 		<</link>>
 	<<else>>
-		Error Pregnancy Object not found in the passage '<<print $passage>>'.
+		Error Pregnancy Object not found in the passage '<<print $passage>>'. Please report the error with your save.
 	<</if>>
 <</widget>>
 
-<<widget "pregnancyFeats">>
-	<<if _args[0] is "pc">>
-		<<earnFeat "Miracle of Life">>
-		<<if _pregnancyBirth.potentialFathers.filter(npc => npc.type === T.pregnancyBirth.type).length gte 5>>
-			<<earnFeat "Bicycle Mother">>
+/*args[0] - hatch location, _args[1] - next passage, _args[2] - time passage*/
+<<widget "hatchUi">>
+	<<if Object.values($children).find(child => child.location is _args[0] and Time.date.timeStamp gte child.eggTimer)>>
+		<<set _childrenId to Object.keys($children).filter(id => $children[id].location is _args[0] and Time.date.timeStamp gte $children[id].eggTimer)>>
+		<<set $_date to { day: Time.monthDay, month: Time.monthName, year: Time.year }>>
+		<div id="birthUi">
+			<<for _childId range _childrenId>>
+				<<set $children[_childId].born to clone($_date)>>
+				<<set $children[_childId].birthLocation to $location>>
+				<<capture _childId>>
+					<div @id="'child-' + _childId" class="childUi">
+						<<birthChildElement $children[_childId]>>
+					</div>
+				<</capture>>
+			<</for>>
+		</div>
+		<br>
+		<<if _args[2]>>
+			<<set _hours to Math.floor(_args[2] / 60)>>
+			<<set _minutes to _args[2] % 60>>
+			<<set _timeString to " (" + (_hours lt 10 ? "0": "") +_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")">>
 		<</if>>
-		<<if _pregnancyBirth.type is "human" and _pregnancyBirth.fetus.length is 3>>
-			<<earnFeat "Life Comes in Threes">>
-		<</if>>
-		<<if ($player.virginity.anal is true && !$player.vaginaExist) || ($player.virginity.vaginal is true && $player.vaginaExist)>>
-			<<earnFeat "Hail Mary">>
-		<</if>>
-		<<if !$player.vaginaExist>>
-			<<earnFeat "Life begins when you least expect">>
-		<</if>>
-	<</if>>
-	<<if _args[0] isnot "pc">>
-		<<if _pregnancyBirth.fetus[0].mother isnot "pc" && _pregnancyBirth.fetus[0].father is "pc">>
-			<<earnFeat "First Fatherhood">>
-		<</if>>
+		<<link [["Next" + (_args[2] ? _timeString : "")|_args[1]]]>>
+			<<run Object.values($children).forEach(child => {
+				if (child.location is _args[0] and Time.date.timeStamp gte child.eggTimer) {
+					if (!child.name) child.name = generateBabyName(undefined, child.gender);
+					delete child.eggTimer;
+				}
+			})>>
+			<<pass _args[2]>>
+		<</link>>
+	<<else>>
+		Error Children Objects not found in the passage '<<print $passage>>'. Please report the error with your save.
 	<</if>>
 <</widget>>
 
 <<widget "birthChildElement">>
-	<<if _pregnancyBirth>>
+	<<if _args[0]?.childId>>
 		<<capture _args>>
-			<<if _pregnancyBirth.fetus[_args[1]].type isnot "human">>
-				종류: <<trBeasttypeFun _pregnancyBirth.fetus[_args[1]].type>><<print _trResult>> |
+			<<if _args[0].type isnot "human">>
+				<<childTypeDisplay _args[0]>>
 			<</if>>
 			성별:
-			<<switch _pregnancyBirth.fetus[_args[1]].gender>>
-				<<case "m">><<print (_pregnancyBirth.fetus[_args[1]].type isnot "human" ? "수컷":"남성")>>
-				<<case "f">><<print (_pregnancyBirth.fetus[_args[1]].type isnot "human" ? "암컷":"여성")>>
+			<<switch _args[0].gender>>
+				<<case "m">><<print (_args[0].type isnot "human" ? "수컷":"남성")>>
+				<<case "f">><<print (_args[0].type isnot "human" ? "암컷":"여성")>>
 				<<case "h">>후타나리
 			<</switch>>
 			<br>
 			어머니:
-			<<if _pregnancyBirth.fetus[_args[1]].motherKnown>>
-				<<print pregnancyNameCorrection(_pregnancyBirth.fetus[_args[1]].mother, true)>>
+			<<if _args[0].motherKnown>>
+				<<print pregnancyNameCorrection(_args[0].mother, true)>>
 			<<else>>
 				????
 			<</if>>
 			| 아버지:
-			<<if _pregnancyBirth.fetus[_args[1]].fatherKnown>>
-				<<print pregnancyNameCorrection(_pregnancyBirth.fetus[_args[1]].father, true)>>
+			<<if _args[0].fatherKnown>>
+				<<print pregnancyNameCorrection(_args[0].father, true)>>
 			<<else>>
 				????
 			<</if>>
 			<br>
-			몸집: <<trBodysize _pregnancyBirth.fetus[_args[1]].features.size>><<print _trResult>> | 머리색: <<hairmapcolourtext _pregnancyBirth.fetus[_args[1]].features.hairColour>>
-			<<if _pregnancyBirth.fetus[_args[1]].features.skinColour>>
-				| 피부색: <<skinColourName _pregnancyBirth.fetus[_args[1]].features.skinColour>>
+			몸집: <<trBodysize _args[0].features.size>><<print _trResult>> | 머리색: <<hairmapcolourtext _args[0].features.hairColour>>
+			<<if _args[0].features.skinColour>>
+				| 피부색: <<skinColourName _args[0].features.skinColour>>
 			<</if>>
 			<br>
-			<<if _pregnancyBirth.fetus[_args[1]].features.identical>>
-				일란성 쌍둥이: <<print (_pregnancyBirth.fetus[_args[1]].features.identical ? "네" : "아니오")>>
+			<<if _args[0].features.identical>>
+				일란성 쌍둥이: <<print (_args[0].features.identical ? "네" : "아니오")>>
 				<br>
 			<</if>>
-			<label><<print '<<textbox "_pregnancyBirth.fetus['+_args[1]+'].name" `_pregnancyBirth.fetus['+_args[1]+'].name or ""`>>'>></label>
+			<label><<print '<<textbox "_args[0].name" `_args[0].name or ""`>>'>></label>
 			<br>
 			<span class="no-numberify">
 				<<link "무작위 이름">>
-					<<if _args[0] is "pc">>
-						<<if $player.vaginaExist>>
-							<<set _pregnancyNaming to $sexStats.vagina.pregnancy>>
-						<<else>>
-							<<set _pregnancyNaming to $sexStats.anus.pregnancy>>
-						<</if>>
-					<<elseif C.npc[_args[0]] and C.npc[_args[0]].pregnancy>>
-						<<set _pregnancyNaming to C.npc[_args[0]].pregnancy>>
-					<</if>>
-					<<set _pregnancyNaming.fetus[_args[1]].name to generateBabyName(undefined, _pregnancyNaming.fetus[_args[1]].gender, _expectedChildId)>>
-					<<replace `"#child-" + _args[1]`>><<birthChildElement _args[0] _args[1]>><</replace>>
+					<<set _args[0].name to generateBabyName(undefined, _args[0].gender)>>
+					<<replace `"#child-" + _args[0].childId`>><<birthChildElement _args[0]>><</replace>>
 				<</link>>
 			</span>
 			<small class="right">
@@ -433,7 +440,32 @@
 			</small>
 		<</capture>>
 	<<else>>
+		Error Children Object not found in the passage '<<print $passage>>'. Please report the error with your save.
+	<</if>>
+<</widget>>
 
+<<widget "pregnancyFeats">>
+	<<if _args[0] is "pc">>
+		<<set $_pregnancy to getPregnancyObject()>>
+		<<earnFeat "Miracle of Life">>
+		<<if $_pregnancy.potentialFathers.filter(npc => npc.type === $_pregnancy.type).length gte 5>>
+			<<earnFeat "Bicycle Mother">>
+		<</if>>
+		<<if $_pregnancy.type is "human" and $_pregnancy.fetus.length is 3>>
+			<<earnFeat "Life Comes in Threes">>
+		<</if>>
+		<<if ($player.virginity.anal is true && !$player.vaginaExist) || ($player.virginity.vaginal is true && $player.vaginaExist)>>
+			<<earnFeat "Hail Mary">>
+		<</if>>
+		<<if !$player.vaginaExist>>
+			<<earnFeat "Life begins when you least expect">>
+		<</if>>
+	<</if>>
+	<<if _args[0] isnot "pc">>
+		<<set $_pregnancy to getPregnancyObject(_args[0])>>
+		<<if $_pregnancy.fetus[0].mother isnot "pc" && $_pregnancy.fetus[0].father is "pc">>
+			<<earnFeat "First Fatherhood">>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -541,6 +573,12 @@
 					<<set $_text_output += `당신의 커져가는 배에 의해 느슨해져서, 당신의 황금 정조대는 당신이 힘을 좀 주자마자 바닥에 덜그럭거리며 떨어진다. <span class="blue">수집가가 이것에 관심이 있을 지도 모른다.</span> `>>
 				<</if>>
 				<<set $_text_output += `<br><span class="red">당신의 임신한 몸으로는 더 이상 이런 옷은 입을 수 없다.</span> <<pain 2>><<gpain>>`>>
+			<<case "eggLaying">>
+				<<set $_text_output to `<<playerEggLayEvent>>`>>
+			<<case "nothing">>
+				<<unset _wakingEffect>>
+			<<default>>
+				<<unset _wakingEffect>> <!-- Error Case -->
 		<</switch>>
 	<</if>>
 	<</silently>><<if $_text_output>><<print $_text_output>><</if>>
@@ -600,7 +638,7 @@
 <</widget>>
 
 /*ToDo: Pregnancy Story Content: Lacks content, small unique events for when the player's stress passes out due to their pregnancy*/
-<<widget "pregnancyWatersBrokenPassout">>
+<<widget "pregnancyPassout">>
 	<<set $_pregnancy to getPregnancyObject()>>
 	<<if $_pregnancy.fetus>>
 		<<set $_pregnancy.waterBreaking to false>>
@@ -642,7 +680,7 @@
 				"You should have really gone to the toilet," A fellow patient sneers at you as <<he>> passes. Confused, <<if $worn.lower.type.includes("naked")>>you look down to see wetness drip down your thigh<<else>>you look down to find a wet patch forming on your $worn.lower.name<</if>>.
 				<br><br>
 
-				"The baby is coming," you gasp. The sharp pain is unexpected as you clutch your stomach.
+				"The <<babyIs>> coming," you gasp. The sharp pain is unexpected as you clutch your stomach.
 				<br><br>
 
 				The passing patient halts, <<his>> eyes growing wide as <<he>> turns back. "Wait here, I'll find someone!"
@@ -675,7 +713,7 @@
 				<br><br>
 
 				A <<person>> notices your wet fingers. <<He>> jumps forward, pulling the book away from you. "Don't damage the books!"<br>
-				"I wasn't. My- my baby is coming," you stutter, taking a deep breath to calm down.
+				"I wasn't. My- my <<babyIs>> coming," you stutter, taking a deep breath to calm down.
 				<br><br>
 
 				The <<person>> doesn't seem to believe you. <<He>> continues to berate you until an orderly approaches to settle the dispute.
@@ -730,10 +768,22 @@
 
 				The sky flickers. As you let out a pained scream, it fades away.
 			<<case "farmroad">>
-				<<if $location is "farm" and $_pregnancy.potentialFathers.find(father => father.source === "Alex")>>
-					/*Alex can help here*/
+				Your body feels tired, and your legs give out underneath you. The road is only a few centimetres away from you. You attempt to stand, but your body won't move. Fluid drips down your leg. You're going into labour.
+				<br><br>
+				Managing to roll yourself over, you wave your hands in the air, hoping to flag down a car passing by. No one spares you a look, asides from an occasional honk. One comes so close that you have to roll back over to avoid getting hit.
+				<br><br>
+				Tears prick at your eyes. You fear having to deliver your baby in such a horrible place, and as time ticks by, that fear becomes more and more real.
+				<br><br>
+				<<if $location is "farm" and $_pregnancy.potentialFathers.find(father => father.source === "Alex") and talkedAboutPregnancy("pc","Alex")>>
+					<<npc Alex>><<person1>>
+					Your body starts to give into fatigue. You barely realise that someone has picked you up. They're yelling at you, but you can't make out the words. Your head spins.
+					<br><br>
+					It takes a moment for you to focus long enough to realise who it is. <span class="green">It's Alex</span>. Despite your blurry vision, you're able to make out the fear on <<his>> face. With you and your baby in good hands, you let go and fall unconscious.
 				<<else>>
-
+					<<generate1>><<person1>>
+					Your body borders on unconsciousness, but you hear the sounds of a car rolling up beside you and its door opening. A set of hands grabs at your face.
+					<br><br>
+					The stranger yells to <<his>> companion in the passenger's seat. <<His>> face is kind and soft, and your body finally gives way. Your vision fades, and you pass out.
 				<</if>>
 			<<case "remy">>
 				<<if $outside is 1>>
@@ -749,7 +799,7 @@
 
 					Gasping, you slowly sit down. More <<livestock_cows>> gather, curious to the commotion.
 					<<if $monster is 1>>
-						One yells. "Baby! <<pHer>> baby is coming!"
+						One yells. "Baby! <<pHer>> <<babyIs>> coming!"
 					<<else>>
 						"What the hell are they doing?" A farmhand calls out from the other side of the field.
 					<</if>>
@@ -781,6 +831,23 @@
 			<<case "remyHarperExam">>
 			<<case "remyNiki">>
 			<<case "moor">>
+				<<generate1>><<generate2>>
+				Your thighs feel wet. A strong pain lurches in your stomach, making your legs weak. You're going into labour.
+				<br><br>
+
+				With a gasp, you sink to your knees, the heather cushioning your fall. You have no choice but to lay down on the ground. "Help!" you cry out. Your voice echoes across the plains.
+				<br><br>
+
+				Your surroundings become a blur as the pain overwhelms you. You hear vague voices and footsteps approach.
+				<br><br>
+
+				"It's gotta be that damned quicksand, getting someone again," a <<person1>><<person>> says.
+				<br><br>
+
+				"No, it's not. Look! <<pHer>> water's broken. <<pShes>> going to give birth out here if we don't do something!" the other <<person2>><<person>> points out, sounding somewhat panicked.
+				<br><br>
+
+				You feel hands lift you from the ground as the world fades to black.
 			<<case "castle">>
 				<<npc "Great Hawk">>
 				You double over in pain, and see a clear liquid dripping down your leg. You're going into labour. You look around in desperation and let out a pained yell, before stumbling to your side.
@@ -809,34 +876,280 @@
 
 				You feel cold. Then warm again. Then there's nothing. Until you open your eyes, and see the hospital before you. The pain returns. A pale face meets yours. "<span class="wraith">Beautiful. Keep them safe.</span>"
 			<<case "dungeon">>
-				/* Needs to account for Robin also being in the dungeon */
 				<<endevent>>
-				<<generate1>><<person1>>
+				<<generate1>><<npc Robin 2>>
 				<<dungeonescape>>
 				Shifting on the floor, you wince when you feel a wetness gather below you. It seems to be coming from you. You're going into labour.
 				<br><br>
 
-				Panicked, you look around the barren room for an escape. With no other option, you bang on the door. "H-help please! My baby is coming!" You yell out as you pound on the door. You aren't sure if anyone will hear you.
-				<br><br>
+				Panicked, you look around the barren room for an escape.
+				<<if $undergroundbrothel.robin>>
+					A particularly strong contraction hits, and you groan in pain as you crouch down on the cold floor.
+					<br><br>
 
-				You keep calling out, not sure how long it takes before you hear the lock turn. A disgruntled <<person>> walks through, ready to yell before <<he>> sees your predicament.
-				<br><br>
+					You hear Robin's voice from the other side of the wall. "Are you okay? What's happening?" <<person2>><<he>> asks nervously.
+					<br><br>
 
-				"Wait," <<he>> snarls, leaving you alone once more. The pain gets too much and you crawl to the dirty mattress to lay down.
-				<br><br>
+					<<if $speech_attitude is "meek">>
+						"I-I'm going into labour. What should I do?" you cry out.
+					<<elseif $speech_attitude is "bratty">>
+						"It's happening," you reply through gritted teeth. "I'm having my <<pregnancyBabyText "pc">>."
+					<<else>>
+						"Help me! My <<babyIs>> coming!" you cry out.
+					<</if>>
+					<br><br>
 
-				Your vision fades as the door screeches open once more.
+					There's a moment's silence as Robin processes this, then <<he>> yelps, "You're in labour?! I-it's okay, stay calm, I'll get help!" You hear <<him>> stumble to <<his>> feet and rush to the door. <<He>> pounds on it, shouting for somebody to help.
+					<br><br>
+
+					You stagger toward the wall separating the two of you, faintly calling Robin's name. You stick your finger through the hole connecting your cells, reaching for <<him>> as best you can.
+					<br><br>
+
+					You hear footsteps and grumbling from the corridor outside. The last thing you feel before your consciousness slips away is Robin's finger desperately pressing against yours.
+
+				<<else>>
+					With no other option, you bang on the door. "H-help, please! My <<babyIs>> coming!" you yell out as you pound on the door. You aren't sure if anyone will hear you.
+					<br><br>
+
+					You keep calling out. You're not sure how long it takes before you hear the lock turn. A disgruntled <<person1>><<person>> walks through, ready to yell before <<he>> sees your predicament.
+					<br><br>
+
+					"Wait," <<he>> snarls, leaving you alone once more. The pain gets to be too much, and you crawl to the dirty mattress to lay down.
+				<</if>>
+				<br><br>
+				Your vision fades as the door screeches open <<= $undergroundbrothel.robin ? "at last" : "once more">>.
 			<<case "alley">>
+				<<generate1>><<person1>>
+				<<if $bus is "residential" and $town_projects.thicket gte 4 and random(1,2) is 1>>
+					You fall to your knees onto the grass, clutching your stomach.
+				<<elseif random(1,2) is 1>>
+					You stumble into the alleyway, stabilising yourself with a nearby ladder.
+				<<else>>
+					You collapse on the concrete of the alleyway, cradling your stomach.
+				<</if>>
+				A small puddle begins forming between your legs. You're going into labour.
+				<br><br>
+				<<if random(1,2) is 1>>
+					<<if $bus is "residential">>
+						<<if $town_projects.thicket gte 4 >>
+							A <<personsimple>> eating on a bench near the thicket stumbles to <<his>> feet, rushing over to you and dropping <<his>> sandwich in the process.
+							<br><br>
+							You can hear <<him>> dial something into a phone before you go unconscious.
+						<<else>>
+							Blurry figures walk past the alleyway, but some are drawn by your pained screams and rush down the alley to you.
+							<br><br>
+							The last thing you see are faces crowding above you as you fall into unconsciousness.
+						<</if>>
+					<<elseif $bus is "industrial">>
+						"Oi, ya can't be back here!" a <<person>> yells, quickly stomping towards you.
+						<br><br>
+						The <<personsimple>> gasps upon reaching your crumpled body. <<He>> swears for a minute before dialling something into a phone.
+						<br><br>
+						You can't make out <<his>> words, but you feel somewhat safe as you fall into unconsciousness.
+					<<else>>
+						"H-Help! Anyone?!" you cry out as you fall to your knees in pain.
+						<br><br>
+						Drawn by your cries, a few people rush over to help, looking shocked and panicked at your current state.
+						<br><br>
+						The last thing you see are hands reaching towards you as everything fades to black.
+					<</if>>
+				<<else>>
+					<<if $bus is "residential">>
+						"Aren't you a cute thing?" a voice whistles. "Don't mind if I- oh shit."
+						<br><br>
+						You can hear shouting, followed by more footsteps rushing towards you. They crowd over your body, pointing and looking frantic.
+						<br><br>
+						The last thing you feel are hands wrapping around your waist and legs as you go unconscious.
+					<<elseif $bus is "industrial">>
+						You scream out in pain, but the loud thrum of machinery overpowers your cries. Panicking, you begin to fear that no one will hear you in this alleyway.
+						<br><br>
+						Eventually your screaming pays off. Two people approach your crumpled body and quickly attend to you.
+						<br><br>
+						The last thing you feel is a hand grasping yours before you drift off into unconsciousness.
+					<<else>>
+						From behind you hear a door crash open, and a <<person>> yells, "Hey, you can't loiter back here, this isn't a-"
+						<br><br>
+						The <<personsimple>> gasps and rushes over to your crumpled body. <<He>> quickly dials something into a phone before turning back to you.
+						<br><br>
+						You can't make out <<his>> words, but you feel some comfort as everything fades to black.
+					<</if>>
+				<</if>>
 			<<case "arcade">>
+				You collapse on the dirty arcade floor, grabbing your stomach in pain. A small puddle begins seeping into the carpet. You're going into labour.
+				<br><br>
+				<<if Time.dayState is "night" or Time.dayState is "dawn">>
+					<<generateRole 0 0 "repairman/repairwoman">><<person1>>
+					"Hey!" someone shouts. "You're not supposed to be in here." You glance up at a <<person>>, apparently here to fix the machines before the arcade opens in the morning.
+				<<else>>
+					<<generateRole 0 0 "employee">><<person1>>
+					"Excuse me, are you alright?" A <<person>> approaches you, looking concerned.
+				<</if>>
+				<br><br>
+
+				You groan, feeling a sharp pain in your stomach, "M-My <<babyIs>> coming."
+				<br><br>
+
+				The <<personsimple>> looks horrified by your words and <<= Time.dayState is "night" or Time.dayState is "dawn" ? "quickly pulls out <<his>> phone" : "yells to someone at the counter">>.
+				<br><br>
+
+				You feel <<him>> grab your hands, but <<his>> words grow hazy as your vision slowly fades to black.
 			<<case "beach">>
+				<<generate1>><<person1>>
+				You stumble, suddenly feeling unsteady on the sand. You feel a strong pain in your stomach that makes it difficult to stand. You're going into labour. You look around for anybody to help you, but a contraction makes you cry out.
+				<br><br>
+
+				Just as you're about to fall over, a pair of hands grab you under your arms. Looking up, you can just barely make out the face of a <<person>>. "What's wrong, <<girl>>?" <<he>> asks.
+				<br><br>
+
+				"My b-baby," you manage to gasp.
+				<br><br>
+
+				The <<personsimple>>'s brow furrows with worry. "I'm gonna lay you down and call you an ambulance," <<he>> promises. <<He>> drags you to a beach towel, shaded by an umbrella. As soon as <<he>> puts you down, your consciousness fades.
 			<<case "bus">>
 			<<case "docksSneak">>
 			<<case "docks">>
 			<<case "home">>
 			<<case "hospital">>
 			<<case "trash">>
+				You stumble in the trash, your legs suddenly too weak to carry on. You lean against a pile of rubbish and sink to the ground. Something warm and wet trickles down your leg. You're going into labour!
+				<br><br>
+
+				You look around the area, trying to keep your breathing even. The smell makes it hard. You can't give birth <i>here</i>!
+				<br><br>
+				<<if $speech_attitude is "meek">>
+					"H-help..." you whimper. There's no response. You take a shaky breath and raise your voice. "Help!!"
+				<<elseif $speech_attitude is "bratty">>
+					"Can... can anybody hear me!?" You curse and grit your teeth, trying and failing to keep your voice steady. "I need some help!"
+				<<else>>
+					"Hello...?" Your voice is faint, and there's no response. You take a deep breath and try again. "Hello!?"
+				<</if>>
+				<br><br>
+
+				You groan and curl up as
+				<<if $rng gte 86 and $hallucinations gte 2>>
+					the pile you were leaning against gives a shudder. You raise your head only to see a single eye staring at you. <<ghallucinogens>><<set $hallucinogen += 90>>
+					<br><br>
+
+					It looks your body over, and its dangerous look seems to soften some. The eye looks you in the face once more, and your mind feels numb and fuzzy at the sharpness of its gaze. Your worries melt away, and somehow you feel certain that you'll make it to safety as you black out amongst the rubbish.
+
+				<<elseif $rng gte 71 and Time.dayState is "night">>
+					<<if $tower_creature_intro gte 1>>
+						<<loadNPC 0 tower_creature>>
+					<<else>>
+						<<set $tower_creature_intro to 1>>
+						<<set _tower_creature to true>>
+						<<beastNEWinit 1 creature>>
+						<<if $NPCList[0].monster is "monster">>
+							<<set $NPCList[0].fullDescription to "horned " + ($NPCList[0].gender is "m" ? "boy" : "girl")>>
+							<<set $NPCList[0].type to "horned " + ($NPCList[0].gender is "m" ? "boy" : "girl")>>
+						<</if>>
+						<<saveNPC 0 tower_creature>>
+					<</if>>
+					the ground shakes from something heavy landing nearby. You shield your belly instinctively. <<gstress>><<stress 6>>
+					<br><br>
+
+					You feel and hear the massive thing sniffing your face, then your belly. You clutch your stomach tighter. When it pulls away, you glance up and are greeted by a great, scaly head topped with a pair of horns.
+					<<if $NPCList[0].monster is "monster">>
+						"With child," the <<tower_creature_text>> growls softly. "This place... bad for child."
+					<</if>>
+					Eyeing your pregnant belly, <<bhe>> <<= $NPCList[0].monster is "monster" ? "wraps" : "growls softly before wrapping">> a foreleg around you with surprising care.
+					<br><br>
+
+					<<bHe>> lifts you up, and you feel sick and dizzy as <<bhe>> leaps through the landfill towards Nightingale Street. You open your eyes as <<bhe>> gingerly places you down in front of the hospital. The <<tower_creature_text>>
+					<<if $beauty gte 6000 or if $tower_creature_intro gte 2>>
+						places a large, clawed hand on your <<= $NPCList[0].monster is "monster" ? "belly. \"Next time, mine.\"" : "belly and rumbles softly.">> You shudder and back away from <<bhim>> towards the hospital, and <<bhe>>
+					<</if>>
+					watches you waddle inside. You barely make it through the front door before you feel your consciousness slip, and you stumble to the floor. The last thing you see is a pair of glowing yellow eyes staring at you from the shadows.
+
+				<<else>>
+					<<generatey1>><<generatey2>><<generatey3>><<generatey4>><<generatey5>><<generatey6>>
+					a group of <<group>> approaches you.<<if $trauma gte ($traumamax / 5) * 2>> You hope they're not here to take advantage of you.<</if>>
+					<br><br>
+
+					"I told you I heard someone over here!" a <<person1>><<person>> says. "Hey, <<girl>>! Are you alright!?"
+					<br>
+					<<if $watersportsdisable is "f">>
+						One of <<his>> friends, a <<person2>><<person>>, laughs. "Did <<pshe>> fuckin' piss <<pherself>>?"
+					<<else>>
+						"Why's <<pshe>> all wet?" a <<person2>><<person>> asks.
+					<</if>>
+					<br>
+					<<if $speech_attitude is "bratty">>
+						"I'm going into labour, you idiot!" you snap. "So can you <i>please</i> help me out of here!?"
+						<br>
+						"Oh." The <<person2>><<person>> blinks. "Oh! Yeah, of course!" <<He>> turns to <<his>> friends. "I'll grab <<pher>> shoulders, you get <<pher>> feet." A <<person3>><<person>> and <<person4>><<person>> nod and move into place.
+					<<else>>
+						A <<person3>><<person>> rolls <<his>> eyes. "<<pShes>> pregnant, you moron!"
+						<br>
+						"Oh." The <<person2>><<person>> blinks. "Oh! We've gotta do something! Let's get <<phim>> out of here!"
+					<</if>>
+					<br><br>
+
+					You try and groan out a thanks to your helpers, but their group effort to lift you sends pain shooting through your body. You vaguely hear them coordinating an effort to the closest exit as you pass out.
+					<<famepregnancy 3>>
+				<</if>>
 			<<case "sea">>
+				As you're swimming, a contraction seizes you. You thrash around in the water, shouting for help. The pain worsens, and you struggle to stay afloat.
+				<<if $rng gte 71>>
+					<<generatedolphin1>>
+					You're on the verge of losing consciousness when something bumps into you, and you quickly glance down.
+					<br><br>
+
+					Your vision blurs, but you can make out the figure of a <<beasttype>>. <<bHes>> steadily pushing you to shore. You desperately clutch <<bhis>> fin.
+					<br><br>
+
+					The <<beasttype>> tows you to the shallows, depositing you on the sand. <<bHe>> clicks worriedly. You dimly hear shouts from a nearby beachgoer, and the <<beasttype>> quickly dives back into the water. You murmur your thanks as someone splashes into the surf after you. Your vision grows dark, and you pass out.
+				<<else>>
+					You hear the horn of a boat, and you spot a trawler edging closer. There's a commotion of voices on the dock, and a fishing net envelops you, hoisting you onto the deck. "You looked like you needed help," a <<generate1>><<person1>><<person>> says. "No one rides free, but- oh. <i>Oh!</i> You're pregnant!"
+					<br><br>
+
+					<<if $speech_attitude is "meek">>
+						"I'm in labour," you whimper, curling up and cradling your stomach. "P-please help me..."
+					<<elseif $speech_attitude is "bratty">>
+						"Not just pregnant. I'm-" A particularly strong contraction hits, and you grimace. "I'm in labour. Are you going to help me or what?"
+					<<else>>
+						"I'm in labour," you manage, curling up on the dock. "Help me, please!"
+					<</if>>
+					<br><br>
+
+					"We'll get you to shore, we promise," the <<person>> says, glancing worriedly at <<his>> crewmates. "Hold on, okay?" One of the fishers holds your hand as your vision grows dark, and you pass out.
+				<</if>>
 			<<case "shop">>
+				<<generate1>><<person1>>
+				You fall to your knees in the middle of the shopping centre, clutching your stomach. Liquid begins to run down your thighs. You're going into labour.
+				<br><br>
+				<<if Time.dayState isnot "night">>
+					People skirt around you, keeping their heads down and shooting you odd looks. The pain soon becomes unbearable, and you begin to scream.
+				<<else>>
+					No one is around at this time of night, but you scream desperately, hoping to attract the attention of a security guard.
+				<</if>>
+				"P-Please help! I need an ambulance!" you cry.
+				<br><br>
+
+				<<if Time.dayState is "night">>
+					"Hey!" someone shouts. "You're not supposed to be- oh. Oh, shit!" <<He>> kneels down next to you and grabs your hand.
+				<<else>>
+					An employee from one of the nearby stores rushes over to you and kneels down, grabbing your hand.
+				<</if>>
+				<br><br>
+
+				<<He>> pulls out a <<= Time.dayState is "night" ? "two-way radio" : "phone">> and speaks into it, but the pain is too much. You can't make out what <<hes>> saying.
+				<br><br>
+
+				<<He>> squeezes your hand, and you feel safe as you fade into unconsciousness.
+			<<case "roof">>
+				<<generate1>><<person1>>
+				You collapse on the rooftop. Warm liquid runs down your legs. You're going into labour.
+				<br><br>
+
+				You scream loudly, hoping to attract someone's attention. The door to the roof is shut, and you fear no one will hear you.
+				<br><br>
+
+				Painful contractions wrack your body, and you shriek even louder. Finally the door bursts open, and a disgruntled <<personsimple>> in a uniform emerges. "What the fuck are you- oh <i>shit</i>." <<He>> quickly rushes over to you.
+				<br><br>
+
+				You watch as <<he>> takes out a phone and starts calling someone. You feel some relief as everything fades to black.
+
 			<<case "monsterTower">>
 			<<case "street">>
 			<<case "compound">>
@@ -858,6 +1171,19 @@
 
 				You feel yourself being lifted.
 			<<case "cave">>
+			<<case "photo">>
+				<<npc Niki>><<person1>>
+				You stumble, groping for a chair to stabilise yourself. A stream of liquid runs down your legs. You're going into labour.
+				<br><br>
+
+				Niki doesn't bat an eye. You shout for help as you stumble to your knees, and <<he>> finally glances up from the computer. <<His>> eyes widen slightly, and <<he>> quickly rushes to your side. <<He>> guides you to your feet and sits you down in the chair.
+				<br><br>
+
+				"Don't worry, you're going to be alright," <<he>> reassures you, already taking a phone from <<his>> pocket.
+				<br><br>
+
+				The last thing you can make out is Niki asking for an ambulance before everything fades to black.
+
 			<<case "prison">>
 				You stumble to your knees. There's no mistaking it; you're going into labour. You scream as the first contraction hits.
 				<br><br>
@@ -898,7 +1224,7 @@
 					<br><br>
 
 					<<generate_veteran_guard 0>><<person1>>
-					<<veteran_guard 0 cap>> appears after a moment, banging on each cell door as <<he>> makes his way down. "Lights out! That means shut it!"
+					<<veteran_guard 0 cap>> appears after a moment, banging on each cell door as <<he>> makes <<his>> way down. "Lights out! That means shut it!"
 					<br><br>
 
 					<<He>> eventually stops in front of your cell and scowls at you.
@@ -955,12 +1281,13 @@
 
 					"The kid's a bit too young to start doing time, eh? C'mon. Specs will have my head if you pop the little squirt out in here." You can barely hear <<his>> voice. Pain makes your head throb and you struggle to keep upright. Everything fades away.
 				<<else>>
+					<<generate_relaxed_guard 0>><<person1>>
 					You look down. There's clear liquid running down your thighs. Pain lurches in your stomach. You're in labour.
 					<br><br>
 
-					"Someone?" You call out as you struggle to get to the door. "I n-need help!" You lean against the door frame.
+					"Someone?" you call out as you struggle to get to the door. "I n-need help!" You lean against the door frame.
 					<br><br>
-					<<generate_relaxed_guard 0>><<person1>>
+
 					"Work hours are over." <<relaxed_guard 0 cap>> walks over, still playing with <<his>> dice. "Not gonna turn on the machines unless you're prepared to entertain me-"
 					<br><br>
 
@@ -970,12 +1297,49 @@
 					"Shit." <<relaxed_guard 0 cap>> looks around before putting an arm around your waist. "C'mon, we're not popping out Prisoner 144 junior out here."
 					<br><br>
 
-					You struggle not to black out, the pain in your stomach getting worse. <<relaxed_guard 0 cap>> says something to you but you're already too pained to hear it. The world fades away, and you're barely able to hear someone start to panic.
+					You struggle not to black out, the pain in your stomach getting worse. <<relaxed_guard 0 cap>> says something to you but you're in too much pain to process it. The world fades away, and the last thing you hear is a panicked shout.
 				<</if>>
 			<<case "prisonCanteen">>
+				<<if ["wake", "lunch", "dinner"].includes($prison.schedule)>>
+					<<generate1>><<generate_methodical_guard 1>>
+					You stumble over to one of the tables, barely making it to an open seat. A couple prisoners leer at you. A small puddle begins to form between your legs and drips down the bench. You're going into labour.
+					<br><br>
+
+					A prisoner laughs as you hunch over, clutching your belly. "Someone must be starving." <<He>> grabs <<his>> crotch, grinning lasciviously. "I've got a meal right here for-"
+					<br><br>
+
+					You scream loudly in pain, and <<he>> flinches away from you.
+					<br><br>
+
+					Your screams alert <<person2>><<methodical_guard 1>>, who marches over. <<His>> face turns serious when <<he>> sees the liquid between your legs.
+					<br><br>
+
+					<<methodical_guard 1 cap>> helps you stand. You can hear <<him>> speak, but are unable to make out <<his>> words as everything fades to black.
+				<<elseif $prison.schedule is "lockdown">>
+					<<generate_anxious_guard 0>><<person1>>
+					You stumble over to one of the tables, collapsing onto a bench. "H-help me!" you cry out, your voice echoing through the empty canteen. There's no response. You hunch over and clutch your belly, screaming until you finally hear a pair of footsteps. Someone shines a torch on you, and you look up.
+					<br><br>
+
+					It's <<anxious_guard 0>>. <<He>> frowns down at you.
+					<br><br>
+
+					"You're not supposed to be out of your cell." <<He>> looks around nervously. "Let's just get you back with no fuss, alright?" <<He>> waits for you to get up, but the pain is far too much. It takes a moment for <<him>> to realise. "Oh no. Not here. Ah, right, you were shouting for help..." <<He>> looks around again, as if praying for someone to swoop in and save <<him>>. "Look... D-Don't move! Stay right there!"
+					<br><br>
+
+					<<He>> hurries off, leaving you alone in the dark and empty canteen. You struggle to pull yourself upright, your vision swimming from the amount of pain coursing through your abdomen. The world fades away just as you hear someone else yell.
+				<<else>>
+					<<generate1>><<person1>>
+					You stumble over to one of the tables, collapsing onto a bench. Liquid begins to drip down your legs. You're going into labour.
+					<br><br>
+
+					You scream, attracting the attention of a prisoner outside the canteen. <<He>> laughs as you hunch over and clutch your belly. "Didn't get enough to eat, eh?" <<He>> grabs <<his>> crotch, grinning lasciviously. "I'll give you something to-"
+					<br><br>
+
+					You scream even louder, and <<he>> flinches away from you. You slip off the bench and curl up on the ground.Others filter into the canteen, voices echoing around you. Everything grows dark and quiet as you fade into unconsciousness.
+				<</if>>
 			<<case "prisonMedical">>
 				<<generate_methodical_guard 0>><<person1>>
-				Pain begins to shoot through your stomach, and you grunt in pain. You're going into labour. It alerts <<methodical_guard 0>> <<he>> rushes over.
+				Pain begins to shoot through your stomach, and you grunt in pain. You're going into labour. It alerts <<methodical_guard 0>>, and <<he>> rushes over.
 				<br><br>
 
 				<<He>> wastes no time. <<methodical_guard 0 cap>> grips your bicep tightly and steers you towards one of the beds.
@@ -987,8 +1351,91 @@
 
 				You start feeling dizzy from the pain. You're gently lowered back into a laying position as your consciousness slips.
 			<<case "prisonYard">>
+				<<if $prison.schedule is "yard">>
+					<<generate_veteran_guard 0>><<person1>>
+					You collapse in the middle of the yard, clutching your stomach. Laughter echoes all around you as prisoners point and jeer.	Liquid runs down your legs and onto the ground. You're going into labour.
+					<br><br>
+
+					"Quit causing a scene," <<veteran_guard 0>> yells, approaching you. <<He>> halts in <<his>> tracks when you scream out in pain. A few prisoners try to get closer to the two of you.
+					<br><br>
+
+					Another wave of pain hits you, and you can barely make out <<veteran_guard 0>> shouting before the world goes dark.
+				<<elseif $prison.schedule is "lockdown">>
+					<<generate_anxious_guard 0>><<person1>>
+					You collapse in the middle of the yard. "H-help me!" you cry out, not caring who hears. There's no response. You hunch over and clutch your belly, screaming until you finally hear a pair of footsteps. Someone shines a torch on you, and you look up.
+					<br><br>
+
+					It's <<anxious_guard 0>>. <<He>> frowns down at you.
+					<br><br>
+
+					"You're not supposed to be out of your cell." <<He>> looks around nervously. "Let's just get you back with no fuss, alright?" <<He>> waits for you to get up, but the pain is far too much. It takes a moment for <<him>> to realise. "Oh no. Not here. Ah, right, you were shouting for help..." <<He>> looks around again, as if praying for someone to swoop in and save <<him>>. "Look... D-Don't move! Stay right there!"
+					<br><br>
+
+					<<He>> hurries off, leaving you alone in the yard. You struggle to pull yourself upright, your vision swimming from the amount of pain coursing through your abdomen. The world fades away just as you hear someone else yell.
+				<<else>>
+					<<generate1>><<person1>>
+					You collapse in the middle of the yard, attracting the attention of some lingering prisoners. Liquid runs down your legs and onto the ground. You're going into labour.
+					<br><br>
+
+					"Did someone fall down?" a prisoner coos mockingly. "Looks like this bitch needs-"
+					<br><br>
+
+					You shriek and clutch your stomach, and the prisoner backs away. <<His>> friend points out the puddle forming beneath you, and <<his>> face grows pale. <<He>> almost sounds guilty as <<he>> says, "Someone pick <<phim>> up. We gotta get <<phim>> to the guards."
+					<br><br>
+
+					Their voices grow faint as darkness clouds the edges of your vision. The last thing you feel is your body being lifted into the air, then you slip into unconsciousness.
+				<</if>>
 			<<case "prisonBeach">>
+				You stumble and collapse onto the beach. Liquid runs down your legs, dampening the sand below. You're going into labour.
+				<br><br>
+
+				<<if (Time.hour is 12 or Time.hour is 14) and !$prison_wren_intro and Time.weekDay is 6>>
+					<<npc Wren>><<person1>>
+					Wren calls out to you from <<his>> boat. "Not very graceful, are we?" <<He>> laughs. "I didn't think the sand was that- oh, no."
+					<br><br>
+
+					You hear something heavy fall, then Wren crouches above you. <<He>> grabs your wrist and says something, but you're unable to make out <<his>> words.
+					<br><br>
+
+					You feel yourself being lifted up before everything goes dark.
+				<<else>>
+					You wonder if anyone will find you out here, and if it will be too late. Pain wracks your body as you bite back a scream.
+					<br><br>
+
+					The pain soon becomes unbearable, and you begin screaming loudly. Tears roll down your eyes and sink into the sand.
+					<br><br>
+
+					Faint shapes move in the water, and you try to focus on them instead of your pain. The shapes become blurry with time as your vision starts to go dark.
+					<br><br>
+
+					You shut your eyes and let yourself succumb to nothingness.
+				<</if>>
 			<<case "prisonShowers">>
+				<<if $prison.schedule is "wake">>
+					<<generate_veteran_guard 0>><<person1>>
+					You stumble past the other prisoners and lean against a wall for support. A distinct, warm fluid begins to run down your legs. You're going into labour.
+					<br><br>
+
+					"Oi, watch out, you dumb <<bitch>>!" a prisoner barks, shoving you to your knees.
+					<br><br>
+
+					You scream in pain, clutching your stomach as your contractions begin. The prisoner scoffs. "Stop being so dramatic over a little fall. Whiny little shit."
+					<br><br>
+
+					"Enough," <<veteran_guard 0>> says, approaching the two of you. "And you, get off the damn-" <<He>> pauses, then says something else. You can't process <<his>> words through the pain that overwhelms you.
+					<br><br>
+
+					You start to feel nauseated and disoriented as water pelts your skin. A hand grasps your shoulder and hauls you up just as you fade into unconsciousness.
+				<<else>>
+					<<generate_veteran_guard 0>><<person1>>
+					You stumble and collapse onto the tiled floor. Warm fluid runs down your thighs. You're going into labour. You scream loudly as your contractions begin, clutching your stomach in pain.
+					<br><br>
+
+					"Showers are over," <<veteran_guard 0>> says, stepping into the room "Go do something productive before-" Heavy footsteps march over to your crumpled body, and you look up to see <<veteran_guard 0>> looking down at you.	<<His>> mouth moves, but you're in too much pain to make out the words.
+					<br><br>
+
+					A firm hand grabs your shoulder as your vision begins to blur, and you fade into unconsciousness.
+				<</if>>
 			<<case "pound">>
 				<<run delete $pound.door>>
 				<<endevent>>
@@ -1169,17 +1616,16 @@
 			<<case "remy" "remyAbduction" "remyHarperExam" "remyNiki">>
 				<<link [[다음|Pregnancy Birth Livestock]]>><<set $stress -= 5000>><<endevent>><</link>>
 			<<case "farmroad">>
-				<<if $location is "farm" and $_pregnancy.potentialFathers.find(father => father.source === "Alex")>>
-					/*Alternative place to give birth?*/
-					<<link [[다음|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
+				<<if $location is "farm" and $_pregnancy.potentialFathers.find(father => father.source === "Alex") and talkedAboutPregnancy("pc","Alex")>>
+					<<link [[다음|Pregnancy Birth Hospital Rescue]]>><<set $stress -= 5000>><<endevent>><<set $alexRescued to 1>><</link>>
 				<<else>>
-					<<link [[다음|Pregnancy Birth Hospital Passout]]>><<set $stress -= 5000>><<endevent>><</link>>
+					<<link [[다음|Pregnancy Birth Hospital Rescue]]>><<set $stress -= 5000>><<endevent>><</link>>
 				<</if>>
 			<<case "bog">>
 				<<link [[다음|Pregnancy Birth Hospital Rescue]]>><<set $stress -= 5000>><<endevent>><</link>>
-			<<case "dungeon" "pound" "temple">>
+			<<case "dungeon" "pound" "temple" "sea" "alley" "arcade" "photo" "roof" "shop">>
 				<<link [[다음|Pregnancy Birth Hospital Rescue]]>><<set $stress -= 5000>><<endevent>><</link>>
-			<<case "hospital">>
+			<<case "hospital" "trash">>
 				<<link [[다음|Pregnancy Birth Hospital]]>><<set $stress -= 5000>><<endevent>><</link>>
 			<<case "island">>
 				<<link [[다음|Pregnancy Island]]>><<set $stress -= 5000>><<endevent>><</link>>
@@ -1366,6 +1812,17 @@
 	<</if>>
 <</silently>><<print $_text_output>><</widget>>
 
+<<widget "babyIs">>
+	<<silently>>
+		<<set $_spawn to `<<pregnancyBabyText ${_args[0] || "pc"}>>`>>
+		<<switch $_spawn>>
+			<<case "triplets" "twins" "pups" "babies" "chicks">><<set $_spawn += " are">>
+			<<default>><<set $_spawn += " is">>
+		<</switch>>
+	<</silently>>
+	<<print $_spawn>>
+<</widget>>
+
 <<widget "npcPregnancyUpdater">>
 	<<for $_i to 0; $_i lt $NPCNameList.length; $_i++>>
 		<<set $_name to $NPCNameList[$_i]>>
@@ -1374,7 +1831,7 @@
 		<</if>>
 		<<set $_pregnancy to C.npc[$_name].pregnancy>>
 		<<if !setup.pregnancy.infertile.includes($_name) and setup.pregnancy.typesEnabled.includes(C.npc[$_name].type) and
-		(($incompletePregnancyDisable is "f" and C.npc[$_name].pregnancy.enabled is undefined and !setup.pregnancy.ignoresIncompeteCheck.includes($_name)) or
+		(($incompletePregnancyDisable is "f" and C.npc[$_name].pregnancy.enabled is undefined and !setup.pregnancy.ignoresIncompleteCheck.includes($_name)) or
 		(setup.pregnancy.canBePregnant.includes($_name) and C.npc[$_name].pregnancy.enabled is undefined))>>
 			<<set $_pregnancy.fetus to []>>
 			<<set $_pregnancy.givenBirth to 0>>
@@ -1477,5 +1934,17 @@
 				<<unset _npcIsNowPregnant>>
 			<</if>>
 		</div>
+	<</if>>
+<</widget>>
+
+<<widget "giveHarpyEggs">>
+	<<if !playerIsPregnant() and $harpy gte 4 and !$harpyEggs and !$harpyEggsPrevent>>
+		/* daysTillLaying only applies to unfertilised eggs */
+		<<set $harpyEggs to {
+			count: weightedRandom([1, 1], [2, 4], [3, 4], [4, 1]),
+			daysTillLaying: random(2, 3),
+		}>>
+		/* Minimum time to prevents eggs from being set */
+		<<set $harpyEggsPrevent to 14>>
 	<</if>>
 <</widget>>

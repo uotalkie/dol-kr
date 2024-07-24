@@ -575,6 +575,15 @@ function init_trHead()
             post: 1,
             description: "머리카락을 뒤로 모아준다."
         },
+
+        {
+            index: 64,
+            name: "gold hairpin",
+            name_ko: "금 머리핀",
+            variable: "goldhairpin",
+            post: 0,
+            description: "귀중한 누군가에게 받은 선물."
+        },
 	];
 }
 window.init_trHead = init_trHead;

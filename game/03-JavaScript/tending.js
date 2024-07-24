@@ -3,7 +3,7 @@ window.plantSeedsInPlot = function (plot, plantType) {
 	plot.stage = 1;
 	plot.days = 0;
 	V.tendingvars.plot_planted = 1;
-	if (V.weather === "rain") plot.water = 1;
+	if (Weather.precipitation === "rain") plot.water = 1;
 	else if (T.irrigation > 0) {
 		plot.water = 1;
 		T.irrigation--;

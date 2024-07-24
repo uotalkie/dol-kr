@@ -147,10 +147,18 @@ const EasyPostMacroList = [
 	{ name: "childHim_", orig_name: "childHePost", is_print: 0},
 	{ name: "childhim_", orig_name: "childHePost", is_print: 0},
 
+	{ name: "childhimself_", orig_name: "childhimselfPost", is_print: 0},
+
 	{ name: "childHers_", orig_name: "childHersPost", is_print: 0},
 	{ name: "childhers_", orig_name: "childHersPost", is_print: 0},
 
 	{ name: "childherself_", orig_name: "childherselfPost", is_print: 0},
+
+	{ name: "childsibling_", orig_name: "childsiblingPost", is_print: 0},
+	{ name: "childsiblings_", orig_name: "childsiblingsPost", is_print: 0},
+
+	{ name: "childson_", orig_name: "childsonPost", is_print: 0},
+	{ name: "childsons_", orig_name: "childsonsPost", is_print: 0},
 
 	{ name: "childhand_", orig_name: "childhandPost", is_print: 0},
 	

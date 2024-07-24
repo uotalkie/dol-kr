@@ -33,7 +33,7 @@ function skipToOrgasm(modifiers = "") {
 			if (modifiers.includes("edenPush") && masturbationEdenPush()) break;
 			if (modifiers.includes("whitneySeat")) wikifier("npcincr", "Whitney", "lust", 1);
 			if (modifiers.includes("robinSeat")) wikifier("npcincr", "Robin", "lust", 1);
-			if (modifiers.includes("kylarSeat") && V.orgasmdown >= 1) wikifier("npcincr", "Robin", "lust", 5);
+			if (modifiers.includes("kylarSeat") && V.orgasmdown >= 1) wikifier("npcincr", "Kylar", "lust", 5);
 			if (modifiers.includes("officePhase")) V.masturbationPhase++;
 			if (modifiers.includes("detentionPaddle")) masturbationDetentionPaddle();
 			if (modifiers.includes("privateShow")) masturbationPrivateShow();

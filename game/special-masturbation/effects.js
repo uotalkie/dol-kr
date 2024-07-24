@@ -2749,7 +2749,7 @@ function masturbationEffectsMouth({
 				}
 				if (genitalsExposed()) {
 					wikifier("arousal", 100, "masturbationGenital");
-					sWikifier(`<span class="blue">당신은 당신의 기생충 정조대 자지에 닿을 정도로 충분히 몸을 굽혀 당신의 혀로 그 끝을 핥는다.</span>`);
+					sWikifier(`<span class="blue">당신은 당신의 기생충 정조대 자지에 닿을 정도로 충분히 몸을 굽혀 당신의 혀로 그것을 핥는다.</span>`);
 				} else {
 					sWikifier(
 						`<span class="blue">당신은 혀를 당신의 기생충 정조대 자지 위로 움직${
@@ -3311,7 +3311,7 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			clearAction("vagina");
 			V.vaginause = "mpenisflowerrub";
 			V.moorPhallusPlant = 2;
-			if (genitalsExposed()) {
+			if (!genitalsExposed()) {
 				wikifier("arousal", 100, "anal");
 				fragment.append(span("당신의 옷이 그 사이에 있기는 하지만, 당신은 사타구니를 그 식물에 비벼댄다."));
 			} else {
@@ -3408,7 +3408,7 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			clearAction("anus");
 			V.anususe = "mpenisflowerrub";
 			V.moorPhallusPlant = 2;
-			if (genitalsExposed()) {
+			if (!genitalsExposed()) {
 				wikifier("arousal", 100, "anal");
 				fragment.append(span("당신의 옷이 그 사이에 있기는 하지만, 당신은 엉덩이를 그 식물에 비벼댄다."));
 			} else {

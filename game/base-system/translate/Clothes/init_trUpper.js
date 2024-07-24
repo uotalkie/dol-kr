@@ -1413,6 +1413,15 @@ function init_trUpper()
             description: "트렌디하고 복고풍이다.",
             post: 1
         },
+		
+        {
+           index: 156,
+           name: "ragged dress",
+           name_ko: "누더기 드레스",
+           variable: "drowneddress",
+           description: "당신의 시대보다 조금 이전 스타일이다.",
+           post: 1
+        },
 	];
 }
 window.init_trUpper = init_trUpper;

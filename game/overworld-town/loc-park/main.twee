@@ -392,26 +392,23 @@
 :: Park Streak
 <<effects>>
 화장실 문 뒤에서 벌거벗은 몸을 숨긴 채로, 당신은 공원을 살짝 둘러본다.
-<<switch $weather>>
-	<<case "clear">>
+<<switch Weather.name>>
+	<<case "clear" "lightClouds">>
 		공원은 좋은 날씨를 즐기는 사람들로 가득하다. 사람들은 조깅하거나, 개와 산책하거나, 피크닉을 즐기거나, 아이스크림을 사거나, 벤치에 앉아 있다.
 		<br>
 		당신은 아주 많은 사람들에게 보여질 것이다.
 		<<fameexhibitionism 15>>
-	<<case "overcast">>
+	<<case "heavyClouds">>
 		흐린 날임에도 불구하고, 공원은 사람들로 붐빈다. 몇몇 사람들은 조깅하거나, 벤치에서 책을 읽거나, 그냥 지나가고 있다.
 		<br>
 		당신은 많은 사람들에게 보여질 것이다.
 		<<fameexhibitionism 10>>
-	<<case "rain">>
-		폭우에도 불구하고, 공원은 비어있지 않다. 적은 수의 사람들이 우산을 쓰고 공원을 지나가거나, 개와 산책 하거나, 어떤 한 사람은 담배를 피고 있기도 한다.
-		<br>
-		당신은 몇몇 사람들에게 보여질 것이다.
-		<<fameexhibitionism 5>>
-	<<case "snow">>
-		<<generate1>><<person1>>
-		공원은 눈을 즐기는 사람들로 가득하다. 당신은 눈싸움을 하거나, 눈사람을 만드는 사람들, 개를 산책시키는 사람들, 심지어 한 <<people_ un>> 조깅을 하고 있기도 한다.
-		<<endevent>>
+	<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+		<<if Weather.precipitation is "rain">>
+			폭우에도 불구하고, 공원은 비어있지 않다. 적은 수의 사람들이 우산을 쓰고 공원을 지나가거나, 개와 산책 하거나, 어떤 한 사람은 담배를 피고 있기도 한다.
+		<<else>>
+			공원은 눈을 즐기는 사람들로 가득하다. 당신은 눈싸움을 하거나, 눈사람을 만드는 사람들, 개를 산책시키는 사람들, 심지어 한 <<people_ un>> 조깅을 하고 있기도 한다.
+		<</if>>
 		<br>
 		당신은 몇몇 사람들에게 보여질 것이다.
 		<<fameexhibitionism 5>>
@@ -429,18 +426,18 @@
 	당신은 로빈의 핫초코 가판대를 발견한다.
 <</if>>
 <br><br>
-<<link [[다음|Park Streak 2]]>><<pass 10>><</link>>
+<<link [[다음|Park Streak 2]]>><</link>>
 
 :: Park Streak 2
 <<effects>>
 <<generate1>><<generate2>>
 당신은 심호흡을 한 후, 당신은 화장실에서 뛰어나와 가능한 빨리 달리기 시작한다.
 <br><br>
-<<switch $weather>>
-	<<case "clear" "overcast">>
-		<<if Time.season is "winter">>
+<<switch Weather.precipitation>>
+	<<case "none">>
+		<<if Weather.isSnow>>
 			너무 추워서 거의 감각이 없다. 눈이 밟혀 뽀득뽀득 소리를 낸다.
-		<<elseif $weather is "clear">>
+		<<elseif Weather.temperature >= 20>>
 			따뜻한 공기에도 불구하고, 벌거벗은 몸 위로 바람이 불며 한기를 느낀다. 당신은 노출되었다는 느낌에 소름이 돋는다.
 		<<else>>
 			달리다 보니 산들바람이 두 배로 세게 불어, 당신의 소중한 부분까지 바람이 들어온다. 당신은 온 몸 구석구석까지 시원한 바람을 느낀다.
@@ -474,13 +471,14 @@
 		<<person1>><<person_ gwa>> <<person2>><<person_ i>> 눈사람을 만들고 있다. 당신은 그들 주위를 빙글빙글 돈다. <<person1>><<person_ i>> 놀라서 눈사람 머리를 넘어뜨린다. 당신은 멈춰서서 당신의 차가운, 벗은 엉덩이를 흔들고 나선 다시 달려간다. 한 <<person3>><<person_ nun>> 벤치에 앉아 추위속에 뛰는 당신을 핸드폰으로 찍는다.
 <</switch>>
 <<endevent>>
-<<athletics 3>><<tiredness 3>><<physique 3>>
+<<athletics 1>><<tiredness 1>>
+<<pass 10>>
 <br><br>
 
 <<cleareventpool>>
 <<addevent "eventParkStreak1">>
 <<addevent "eventParkStreak2">>
-<<if ($weather is "rain" or $weather is "snow") and isInPark("whitney")>>
+<<if Weather.precipitation isnot "none" and isInPark("whitney")>>
 	<<addevent "eventParkStreak3" 2>>
 <</if>>
 <<if isInPark("robin") && Time.season is "winter">>
@@ -522,8 +520,8 @@
 <br><br>
 두 손이 뒤로 묶여, 당신은 벌거벗은 몸을 감추기 위해 할 수 있는 일이 아무것도 없다. 경찰들은 필요 이상으로 일부러 천천히 걷고 있는 것 같다. 비록 당신이 벌거벗은 채로 공원을 뛰어다녔지만, 등 뒤에 수갑이 채워진 채 천천히 나체 퍼레이드를 하는 것은 뭔가 다르다.
 <br><br>
-<<switch $weather>>
-	<<case "clear" "overcast">>
+<<switch Weather.precipitation>>
+	<<case "none">>
 		공원을 찾은 많은 사람들이 당신이 체포된 것을 보고는 더 가까이 다가와 지켜본다. 많은 사람들이 당신의 나체를 핸드폰으로 찍는다. 당신의 얼굴이 붉어진다.
 	<<case "rain">>
 		날씨 때문에 공원에는 당신의 나체 퍼레이드를 볼 사람이 거의 없다.
@@ -583,9 +581,9 @@
 <br><br>
 "뭐가 문젠데?" <<he_ ga>> 말한다, "몇 분 전까지만 해도 다른 사람들이 너를 봐도 아무 문제가 없었잖아."
 <br><br>
-다른 한 명의 경찰이 운전석 문을 열고 무전기를 꺼내는 동안 <<He_ nun>> 차에 기대어 당신을 지켜본다. 경찰들은 당신이 팔을 등 뒤로 묶이고 벌거벗은 채로 하이 가에 서 있도록 둔다. 많은 구경꾼들이 모여들고, 많은 사람들이 당신을 완전히 보기 위해 걸음을 늦추거나 멈춘다. 당신은 당신의 완전히 노출된 <<breasts_ na>>, 벌거벗은 성기, 심지어 당신의 맨 엉덩이를 숨기기 위해 아무것도 할 수 없다. 그리고 수많은 사람들이 당신을 찍는 것 또한 막을 수 없다. 무전기를 든 경찰관은 무전을 보내는 데 시간을 보내고, 다른 경찰관은 그저 보고만 있다.
+다른 한 명의 경찰이 운전석 문을 열고 무전기를 꺼내는 동안 <<He_ nun>> 차에 기대어 당신을 지켜본다. 경찰들은 당신이 팔을 등 뒤로 묶이고 벌거벗은 채로 하이 가에 서 있도록 둔다. 구경꾼들이 빠르게 모여들고, 많은 사람들이 단지 당신을 완전히 보기 위해 걸음을 늦추거나 멈춘다. 당신은 당신의 완전히 노출된 <<breasts_ na>>, 벌거벗은 성기, 심지어 당신의 맨 엉덩이를 숨기기 위해 아무것도 할 수 없다. 그리고 당신은 수많은 사람들이 당신을 찍는 것 또한 막을 수 없다. 무전기를 든 경찰관은 무전을 보내는 데 시간을 보내고, 다른 경찰관은 그저 보고만 있다.
 <br><br>
-마침내, 경찰관이 무전을 끝내고 당신을 경찰차 뒷자리로 밀어넣는다.
+마침내, 다른 경찰관이 무전을 끝내고 당신을 경찰차 뒷자리로 밀어넣는다.
 <br><br>
 <<link [[다음|Hospital Arrest Sit]]>><<pass 5>><</link>>
 
@@ -832,7 +830,7 @@
 	<</switch>>
 	당신은 <<he_ ga>> 시키는 대로 하기로 결정한다. 천천히, 갑작스러운 움직임 없이, 당신은 카일라가 준 옷을 입는다.
 	<br><br>
-	당신이 옷을 다 입자마자 카일라의 태도가 바뀐다. <<He_ ga>> 눈에서 흐르는 눈물을 닦고 나이프를 내린 다음, 당신을 끌어안는다.
+	당신이 옷을 다 입자마자 카일라의 태도가 바뀐다. <<He_ ga>> 눈에서 흐르는 눈물을 닦고 나이프를 내린 다음, 당신을 잡아당겨 끌어안는다.
 	<br><br>
 	"넌 전부 내 거야, 그걸 기억해" <<he_ nun>> 당신을 꽉 쥐며 말한다. "누구에게도 그런 모습을 보여주면 안돼. 넌 전부 내 거야."
 	<<npcincr Kylar love 5>><<gglove>>

@@ -143,6 +143,7 @@ function trinit_creatureVore()
             {name:"snake",koName:"뱀",post:0,plural:"snakes"},
             {name:"frog",koName:"개구리",post:1,plural:"frogs"},
             {name:"slug",koName:"민달팽이",post:1,plural:"slugs"},
+            {name:"oyster",koName:"진주조개",post:1,plural:"oysters"},
 
             {name:"giant",koName:"거대",post:1,plural:"giant"},
             {name:"lurker",koName:"럴커",post:1,plural:"lurkers"},

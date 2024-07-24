@@ -138,7 +138,7 @@
 	<<else>>
 		<<switch random(1, 6)>>
 			<<case 1>>
-				<<if $wraith.state is "haunt" or isBloodmoon()>>
+				<<if $wraith.state is "haunt" or Time.isBloodMoon()>>
 					<<initWraith "abomination">>
 				<<else>>
 					<<initWraith "man">>
@@ -233,10 +233,6 @@
 	<<unset $wraithCount>>
 	<<unset $wraithMax>>
 	<<set $wraith.revealed to false>>
-	<<if $real_weather>>
-		<<set $weather to $real_weather>>
-		<<unset $real_weather>>
-	<</if>>
 	<<if $controlSaved>>
 		<<set $control to $controlSaved>>
 		<<unset $controlSaved>>
@@ -260,17 +256,11 @@
 <</widget>>
 
 <<widget "rainWraith">>
-	<<if $weather isnot "rain" and $weather isnot "snow">>
-		<<set $real_weather to $weather>>
-		<<if Time.season is "winter">>
-			<<set $weather to "snow">>
-		<<else>>
-			<<set $weather to "rain">>
-		<</if>>
-
+	<<if Weather.precipitation is "none">>
+		<<set Weather.set("heavyPrecipitation", true, 20)>>
 		<<if _args[0]>>
 			<<if $outside is 1>>
-				<<if $weather is "snow">>
+				<<if Weather.precipitation is "snow">>
 					<<print either(
 						"당신은 언제부터 눈이 내리기 시작했는지 기억하지 못한다. 벌써 앞이 잘 보이지 않는다.",
 						"바람이 거세지고, 눈보라가 몰아치면서 시야가 좁아진다.",
@@ -295,32 +285,28 @@
 <</widget>>
 
 <<widget "endRainWraith">>
-	<<if $real_weather>>
-		<<if _args[0]>>
-			<<if $outside is 1>>
-				<<if $weather is "rain">>
-					<<print either(
-						"하늘이 맑아지기 시작한다.",
-						"비가 갑자기 그친다.",
-						"비가 잦아든다."
-					)>>
-				<<else>>
-					<<print either(
-						"하늘이 맑아지기 시작한다.",
-						"눈이 갑자기 그친다.",
-						"눈이 잦아든다."
-					)>>
-				<</if>>
+	<<if _args[0]>>
+		<<if $outside is 1>>
+			<<if Weather.precipitation is "rain">>
+				<<print either(
+					"하늘이 맑아지지 않는다.",
+					"비가 멈추지 않는다.",
+					"비가 수그러들기를 거부한다."
+				)>>
 			<<else>>
 				<<print either(
-					"주변이 맑아지기 시작한다.",
-					"안개가 갑자기 걷힌다.",
-					"안개가 걷힌다."
+					"하늘이 맑아지지 않는다.",
+					"눈이 멈추지 않는다.",
+					"비가 수그러들기를 거부한다."
 				)>>
 			<</if>>
+		<<else>>
+			<<print either(
+				"주변이 맑아지기 시작한다.",
+				"안개가 갑자기 걷힌다.",
+				"안개가 걷힌다."
+			)>>
 		<</if>>
-		<<set $weather to $real_weather>>
-		<<unset $real_weather>>
 	<</if>>
 <</widget>>
 
@@ -381,10 +367,6 @@
 			<<unset $possessed>><<canvas-model-override "clear">>
 		<</if>>
 		<<set $wraith.revealed to false>>
-		<<if $real_weather>>
-			<<set $weather to $real_weather>>
-			<<unset $real_weather>>
-		<</if>>
 		<<unset $wraithWillMessage>>
 		<<unset $nextPassage>>
 		<<unset $nextPassageIntended>>
@@ -402,9 +384,9 @@
 
 <<widget "wraithShamble">><<silently>>
 	<<if $compoundWraith>>
-		<<set _text_output to ($compoundWraith is "willing" ? "걷는다" : "비틀거린다")>>
+		<<set _text_output to ($compoundWraith is "willing" ? "걷는다" : "비틀거리며 간다")>>
 	<<else>>
-		<<set _text_output to "비틀거린다">>
+		<<set _text_output to "비틀거리며 간다">>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
@@ -820,8 +802,7 @@
 				"네 이름을 새겨. 내가 그것을 씻어 낼게.",
 				"내가 직접 널 거기로 끌고 가더라도.",
 				"넌 충분하게 가지고 있지 않아. 넌 절대 그랬던 적이 없었지.",
-				"네가 꼭두각시가 되는 걸 얼마나 좋아하는지 보자, 응?",
-				"너의 그 성가신 허물을 벗는 게 어때?"
+				"네가 꼭두각시가 되는 걸 얼마나 좋아하는지 볼까, 응?"
 			)>>
 		<</if>>
 		<<if $templePromised is "Sydney">>
@@ -1354,7 +1335,7 @@
 				<<if $location is "lake_ruin">>
 					<<destinationlakeruin>>
 				<<else>>
-					<<if Time.season is "winter" and ($bus is "lakeshallows" or $bus is "lakedepths")>>
+					<<if Weather.isSnow and ($bus is "lakeshallows" or $bus is "lakedepths")>>
 						<<destination_lake_ice>>
 					<<else>>
 						<<destinationlake>>
@@ -1406,7 +1387,7 @@
 <</widget>>
 
 <<widget "wTimerProgress">>
-	<<if $wraith.state and $wraith.hunt is 0 and isBloodmoon()>>
+	<<if $wraith.state and $wraith.hunt is 0 and Time.isBloodMoon()>>
 		<<set $wraith.timer++>>
 		<<set $wraith.timer += Math.floor(C.npc["Ivory Wraith"].lust / 10)>>
 		<<if $rng gte 60 and numberOfEarSlime()>>
@@ -1447,7 +1428,7 @@
 			<<destinationlakeruin>>
 			<<endevent>><<set $eventskip to 1>>
 		<<case "lake">>
-			<<if Time.season is "winter" and ($bus is "lakedepths" or $bus is "lakeshallows")>>
+			<<if Weather.isSnow and ($bus is "lakedepths" or $bus is "lakeshallows")>>
 				<<destination_lake_ice>>
 			<<else>>
 				<<destinationlake>>
@@ -1485,7 +1466,7 @@
 
 <<widget "rngWraith">>
 	<<if $wraith.state>>
-		<<if _args[1] is "night" and Time.dayState isnot "night" or _args[1] is "noBlood" and isBloodmoon()>>
+		<<if _args[1] is "night" and Time.dayState isnot "night" or _args[1] is "noBlood" and Time.isBloodMoon()>>
 			<<set _wraithEvent to false>>
 		<<else>>
 			<<set _rngWraith to 2 + (Math.floor(C.npc["Ivory Wraith"].lust / 10))>>
@@ -1493,7 +1474,7 @@
 				<<set _rngWraith += 2>>
 			<</if>>
 			<<set _wraithHallucinations to (_args[0] is 1 or _args[0] is 2 ? _args[0] : 0)>>
-			<<if ($hallucinations gte _wraithHallucinations and _rngWraith gte random(1,100)) or isBloodmoon()>>
+			<<if ($hallucinations gte _wraithHallucinations and _rngWraith gte random(1,100)) or Time.isBloodMoon()>>
 				<<set _wraithEvent to true>>
 			<</if>>
 		<</if>>
@@ -1509,13 +1490,13 @@
 		<<if Time.dayState is "night">>
 			<<set _rngWraithSocial += 2>>
 		<</if>>
-		<<if ($hallucinations gte 1 and _rngWraithSocial gte Math.ceil(Math.random() * 100)) or isBloodmoon()>>
+		<<if ($hallucinations gte 1 and _rngWraithSocial gte Math.ceil(Math.random() * 100)) or Time.isBloodMoon()>>
 			<<set _wraithEventSocial to true>>
 		<</if>>
 		<<if $wraith.mimic isnot "" and $wraith.revealed>>
 			<<set _wraithTitle to "pretender">>
 		<<else>>
-			<<switch $wraith.type>>
+			<<switch $wraith.gen>>
 				<<case "tentacles">><<set _wraithTitle to "writhing">>
 				<<case "abomination">><<set _wraithTitle to "profane">>
 				<<case "arms">><<set _wraithTitle to "vain">>
@@ -1542,7 +1523,7 @@
 				<<addinlineevent "wraithClose1" 0.1>>
 				당신이 걸을수록, 당신의 발소리가 가벼워진다. 숨쉬기가 점점 힘들어<<if $exposed lte 0>>지고, 옷이 무겁게 느껴<</if>>진다. <<rainWraith true>>
 				<br><br>
-				당신의 귀가 울리기 시작하고, 당신은 <<weather_ $weather>>속에서 무언가 형체를 갖추는 것을 보게 된다.
+				당신의 귀가 울리기 시작하고, 당신은 <<weather_ `Weather.precipitation`>> 속에서 무언가 형체를 갖추는 것을 본다.
 				아름다운 창백한 형체가, 바람에 나부끼는 반투명한 흰 예복을 입고 바닥 위에서 떠다닌다. 당신을 보자 두 눈이 <<wraithEyes>>색으로 밝게 빛난다. 당신은 공중에서 춤추는 형체와 그 너머의 눈을 보자 마음이 뿌옇게 흐려지는 것을 느낀다.
 				<br><br>
 				당신이 눈을 돌리기도 전에, 그것은 손으로 최면을 거는 동작을 한다.
@@ -1813,13 +1794,13 @@
 	<br><br>
 	<<if $location is "forest" or $location is "lake">>
 		당신은 나무에 기대어, 숨을 헐떡인다. 주위를 둘러보고, 당신은 모든 것이 조용해진 것을 알아차린다.
-		<<switch $weather>>
+		<<switch Weather.precipitation>>
 			<<case "snow">>
 				찬바람이 강설을 동반한다. 뒤를 돌아보니, 발자국이 이미 눈에 가려졌다. 당신은 방향감각을 완전히 잃었다.
 			<<case "rain">>
 				빗소리만이 정적을 깨뜨리고 있다.
 			<<default>>
-				<<if Time.season is "winter">>
+				<<if Weather.isSnow>>
 					눈이 조용히 내린다. 하지만, 언제부터 눈이 내리기 시작했는지 알 수 없다. <<rainWraith>>
 				<<else>>
 					오직 비만이 정적을 깨뜨리고 있다. 하지만, 언제부터 비가 내리기 시작했는지 알 수 없다. <<rainWraith>>
@@ -1827,23 +1808,23 @@
 		<</switch>>
 		당신의 귀가 울리기 시작한다.
 		<br><br>
-		사람의 형상이 <<trWeather $weather>>_trResult속에서 형성되기 시작하자, 당신의 맥박이 빨라진다.
+		사람의 형상이 <<trWeather `Weather.precipitation`>>_trResult속에서 형성되기 시작하자, 당신의 맥박이 빨라진다.
 	<<elseif $location is "sewers">>
 		<<rainWraith>>
-		주위의 공기가 차가워진다. 당신은 살갗에 <<weather_ ga $weather>> 내리는 것을 느끼고 있다고 맹세할 수 있지만, 하수구에는 <<weather_ ga $weather>> 없다. 오직 빠르게 팽창하는 안개 뿐이다.
+		주위의 공기가 차가워진다. 당신은 살갗에 <<weather_ ga `Weather.precipitation`>> 내리는 것을 느끼고 있다고 맹세할 수 있지만, 하수구에는 <<weather_ ga `Weather.precipitation`>> 없다. 오직 빠르게 팽창하는 안개 뿐이다.
 		<br><br>
 		당신의 귀가 울리기 시작한다. 당신은 안갯속에서 형체가 형성되기 시작하자, 당신의 맥박이 빨라진다.
 	<<else>>
 		당신은 주위를 둘러본다. 이 근방에는 사람이 전혀 없다. 당신은 잠시 안정을 취한다. 예복을 입은 형체의 형상이 머리에서 서서히 희미해진다. <<rainWraith true>>
 		<br><br>
-		당신의 귀가 울리기 시작한다. <<trWeather $weather>>_trResult속에서 형체가 형성되기 시작하자, 당신의 맥박이 빨라진다.
+		당신의 귀가 울리기 시작한다. <<trWeather `Weather.precipitation`>>_trResult 속에서 형체가 형성되기 시작하자, 당신의 맥박이 빨라진다.
 	<</if>>
 	당신은 뒤돌아 도망치려 하지만, 당신의 다리는 움직이지 않고, 당신은 쳐다보는 것을 막을 수가 없다.
 	아름다운 창백한 형체가, 바람에 나부끼는 반투명한 흰 예복을 입고 바닥 위에서 떠다닌다. 당신을 보자 두 눈이 <<wraithEyes>>색으로 밝게 빛난다.
 	<<if $wraith.state is "haunt">>
 		그것은 흉터가 있는 자신의 목에 손을 올리고, 그곳에 존재하지 않는 무언가를 잡으려고 한다.
 		<br><br>
-		"<span class="wraith">도둑. 그것을 돌려줘, 그렇지 않으면 <<if $weather is "snow">>이 눈보라가 널 얼어붙게 할 것이다<<else>>이 폭우가 널 익사시킬 것이다<</if>>.</span>"
+		"<span class="wraith">도둑. 그것을 돌려줘, 그렇지 않으면 <<if Weather.precipitation is "snow">>이 눈보라가 널 얼어붙게 할 것이다<<else>>이 폭우가 널 익사시킬 것이다<</if>>.</span>"
 		<br><br>
 		<<if numberOfEarSlime()>>
 			<span class="lewd">머릿속의 슬라임이 당신에게 </span> <span class="red">그것을 돌려주라고 명령한다.</span>
@@ -1921,7 +1902,7 @@
 	<<elseif $location is "lake_ruin" or $bus is "lakedepths" or $bus is "lakeshallows">>
 		<<if $bus is "lakeshallows" or $bus is "lakedepths">>
 			<<set $location to "lake_ruin">>
-			<<if Time.season is "winter">>
+			<<if Weather.isSnow>>
 				당신은 앞으로 비틀거리고, 발이 차가운 얼음 물에 닿는 것을 느낀다. 얼음이 깨지는 소리는 듣지 못했다.
 				<br><br>
 				뒤를 돌아보니, 깨진 곳도 없는데 얼음 밖으로 창백한 손이 튀어나와 있다. <span class="red">손이 당신을 당기자, 당신은 얼음을 통과하기 시작한다.</span> 당신은 아무것도 붙잡을 수 없이, 속수무책으로 끌려간다.

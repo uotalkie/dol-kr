@@ -19,6 +19,7 @@ function ampm(hour, minute) {
 	}
 	return !ampm ? ("0" + getTimeString(hour, minute)).slice(-5) :  ampm + getTimeString(hour, minute);
 }
+window.ampm = ampm;
 DefineMacroS("ampm", ampm);
 
 function advanceToHour() {
@@ -120,5 +121,4 @@ function schoolTerm() {
 	const date = Time.nextSchoolTermStartDate; trMonth(date.monthName); const month = T.trResult; trDaysOfWeek(date.weekDayName); const weekDayName = T.trResult;
 	return "학기는 " + month + " " + date.day +"일 " + weekDayName + "에  시작한다.";
 }
-
 DefineMacroS("schoolterm", schoolTerm);

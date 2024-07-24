@@ -72,7 +72,7 @@ const ZIndices = {
 
 	over_lower: 103.3,
 	over_upper: 103.6,
-	over_upper_arm: 103.9,
+	over_upper_arms: 103.9,
 
 	handheld: 104,
 	arms_cover: 105,

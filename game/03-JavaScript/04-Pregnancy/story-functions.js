@@ -46,7 +46,7 @@ function playerBellySize(pregnancyOnly = false) {
 				if (!vpregnancy.gaveBirth) maxSize += 20 + Math.clamp(vpregnancy.fetus.length / 2, 1, 4);
 				break;
 			case "hawk":
-				if (!vpregnancy.gaveBirth) maxSize += 7 + Math.clamp(vpregnancy.fetus.length, 1, 3);
+				if (!vpregnancy.gaveBirth) maxSize += 17 + Math.clamp(vpregnancy.fetus.length, 1, 4);
 				break;
 		}
 		switch (apregnancy.type) {
@@ -60,7 +60,7 @@ function playerBellySize(pregnancyOnly = false) {
 				if (!apregnancy.gaveBirth) maxSize += 20 + Math.clamp(apregnancy.fetus.length / 2, 1, 4);
 				break;
 			case "hawk":
-				if (!apregnancy.gaveBirth) maxSize += 7 + Math.clamp(apregnancy.fetus.length, 1, 3);
+				if (!apregnancy.gaveBirth) maxSize += 17 + Math.clamp(apregnancy.fetus.length, 1, 4);
 				break;
 		}
 		// The '+ 5' inflates the pregnancy belly size, meaning that the early stages of pregnancy will have no belly size increase due to it being reduced by the '- 5'
@@ -98,7 +98,7 @@ function npcBellySize(npc) {
 				maxSize += 20 + Math.clamp(pregnancy.fetus.length / 2, 1, 4);
 				break;
 			case "hawk":
-				maxSize += 8 + Math.clamp(pregnancy.fetus.length, 1, 3);
+				maxSize += 19 + Math.clamp(pregnancy.fetus.length, 1, 5);
 				break;
 		}
 		// The '+ 5' inflates the pregnancy belly size, meaning that the early stages of pregnancy will have no belly size increase due to it being reduced by the '- 5'
@@ -126,6 +126,20 @@ function npcPregnancyEnding(npc) {
 	return C.npc[npc] && C.npc[npc].pregnancy && C.npc[npc].pregnancy.waterBreaking;
 }
 window.npcPregnancyEnding = npcPregnancyEnding;
+
+function birdEggsReady(npc) {
+	if (V.playerPregnancyEggLayingDisable === "t" || !C.npc[npc] || C.npc[npc].vagina === "none") return undefined;
+	const pregnancy = C.npc[npc].pregnancy;
+	if (npcPregnancyEnding(npc) || pregnancy.timer > pregnancy.timerEnd) return "fertilised";
+	if (npc === "Great Hawk" && V.daily.hawkUnfertilisedEggs) return undefined;
+	if (
+		!npcIsPregnant(npc) &&
+		((V.cycledisable === "f" && pregnancy.cycleDay === pregnancy.cycleDangerousDay + 2) ||
+			(V.cycledisable !== "f" && pregnancy.nonCycleRng[0] >= 1 && pregnancy.nonCycleRngHasEggs))
+	)
+		return "unfertilised";
+}
+window.birdEggsReady = birdEggsReady;
 
 function playerIsPregnant() {
 	return (
@@ -179,6 +193,7 @@ function wakingPregnancyEvent() {
 	const menstruation = V.sexStats.vagina.menstruation;
 	const pills = V.sexStats.pills;
 	const pregnancyStage = pregnancy.timerEnd ? Math.clamp(pregnancy.timer / pregnancy.timerEnd, 0, 1) : false;
+	const normalPregnancyEvents = ![null, "hawk"].includes(pregnancy.type);
 	let wakingEffects;
 
 	if (playerBellySize(true) >= 8 && !pregnancy.awareOf) {
@@ -198,19 +213,21 @@ function wakingPregnancyEvent() {
 		["genitals", "under_upper", "upper", "under_lower", "lower"].find(slot => V.worn[slot].type.includes("constricting"))
 	) {
 		return "clothesRemoval";
-	} else if (between(pregnancyStage, 0.9, 1)) {
+	} else if (V.playerPregnancyEggLayingDisable === "f" && ((pregnancy.type === "hawk" && pregnancyStage >= 1) || V.harpyEggs?.daysTillLaying <= 0)) {
+		return "eggLaying";
+	} else if (normalPregnancyEvents && between(pregnancyStage, 0.9, 1)) {
 		wakingEffects = "nearBirthEvent";
-	} else if (between(pregnancyStage, 0.7, 0.9)) {
+	} else if (normalPregnancyEvents && between(pregnancyStage, 0.7, 0.9)) {
 		wakingEffects = "nearBirth";
-	} else if (between(pregnancyStage, 0.4, 0.7) && rng > 50) {
+	} else if (normalPregnancyEvents && between(pregnancyStage, 0.4, 0.7) && rng > 50) {
 		wakingEffects = "midPregnancy";
-	} else if (V.pregnancyStats.morningSicknessWaking >= 2) {
+	} else if (normalPregnancyEvents && V.pregnancyStats.morningSicknessWaking >= 2) {
 		wakingEffects = "morningSicknessOnly";
 		V.pregnancyStats.morningSicknessWaking = 0;
-	} else if (V.pregnancyStats.morningSicknessWaking >= 1 && rng >= 50) {
+	} else if (normalPregnancyEvents && V.pregnancyStats.morningSicknessWaking >= 1 && rng >= 50) {
 		wakingEffects = "morningSicknessPills";
 		V.pregnancyStats.morningSicknessWaking = 0;
-	} else if ((pills.pills.contraceptive.doseTaken >= 2 || pills.pills["fertility booster"].doseTaken >= 2) && rng >= 50) {
+	} else if (normalPregnancyEvents && (pills.pills.contraceptive.doseTaken >= 2 || pills.pills["fertility booster"].doseTaken >= 2) && rng >= 50) {
 		wakingEffects = "morningSicknessPills";
 	} else if ((pills.pills.contraceptive.doseTaken >= 1 || pills.pills["fertility booster"].doseTaken >= 1) && rng >= 75) {
 		wakingEffects = "mildIssues";
@@ -270,23 +287,24 @@ function dailyPregnancyEvent() {
 	const menstruation = V.sexStats.vagina.menstruation;
 	const pills = V.sexStats.pills;
 	const pregnancyStage = pregnancy.timerEnd ? Math.clamp(pregnancy.timer / pregnancy.timerEnd, 0, 1) : false;
+	const normalPregnancyEvents = ![null, "hawk"].includes(pregnancy.type);
 	let dailyEffects;
 
 	if (pregnancy.gaveBirth) {
 		/* Show no events right after giving birth */
-	} else if ((between(pregnancyStage, 0.9, 0.95) && rng > 80) || (between(pregnancyStage, 0.95, 1) && rng >= 75)) {
+	} else if (normalPregnancyEvents && ((between(pregnancyStage, 0.9, 0.95) && rng > 80) || (between(pregnancyStage, 0.95, 1) && rng >= 75))) {
 		dailyEffects = "nearBirthEvent";
-	} else if ((between(pregnancyStage, 0.7, 0.8) && rng > 85) || (between(pregnancyStage, 0.8, 0.9) && rng >= 80)) {
+	} else if (normalPregnancyEvents && ((between(pregnancyStage, 0.7, 0.8) && rng > 85) || (between(pregnancyStage, 0.8, 0.9) && rng >= 80))) {
 		dailyEffects = "nearBirth";
-	} else if ((between(pregnancyStage, 0.4, 0.5) && rng > 90) || (between(pregnancyStage, 0.5, 0.7) && rng >= 85)) {
+	} else if (normalPregnancyEvents && ((between(pregnancyStage, 0.4, 0.5) && rng > 90) || (between(pregnancyStage, 0.5, 0.7) && rng >= 85))) {
 		dailyEffects = "midPregnancy";
-	} else if (V.pregnancyStats.morningSicknessGeneral >= 2 && rng >= 85) {
+	} else if (normalPregnancyEvents && V.pregnancyStats.morningSicknessGeneral >= 2 && rng >= 85) {
 		dailyEffects = "morningSicknessOnly";
 		V.pregnancyStats.morningSicknessGeneral--;
-	} else if (V.pregnancyStats.morningSicknessGeneral >= 1 && rng >= 90) {
+	} else if (normalPregnancyEvents && V.pregnancyStats.morningSicknessGeneral >= 1 && rng >= 90) {
 		dailyEffects = "morningSicknessPills";
 		V.pregnancyStats.morningSicknessGeneral--;
-	} else if ((pills.pills.contraceptive.doseTaken >= 2 || pills.pills["fertility booster"].doseTaken >= 2) && rng >= 90) {
+	} else if (normalPregnancyEvents && (pills.pills.contraceptive.doseTaken >= 2 || pills.pills["fertility booster"].doseTaken >= 2) && rng >= 90) {
 		dailyEffects = "morningSicknessPills";
 	} else if ((pills.pills.contraceptive.doseTaken >= 1 || pills.pills["fertility booster"].doseTaken >= 1) && rng >= 95) {
 		dailyEffects = "mildIssues";
@@ -828,7 +846,6 @@ function talkedAboutPregnancy(mother, whoToCheck, existingId) {
 	} else if (C.npc[mother] && npcIsPregnant(mother)) {
 		birthId = mother + getPregnancyObject(mother).fetus[0].birthId;
 	}
-
 	if (birthId && talkedAbout[birthId] && talkedAbout[birthId][whoToCheckConverted]) return talkedAbout[birthId][whoToCheckConverted];
 
 	return 0;

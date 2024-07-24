@@ -1269,6 +1269,15 @@ function init_trLower()
            description: "트렌디하고 복고풍이다.",
            post: 1
         },
+		
+        {
+           index: 141,
+           name: "ragged dress skirt",
+           name_ko: "누더기 드레스 스커트",
+           variable: "drowneddress",
+           description: "당신의 시대보다 조금 이전 스타일이다.",
+           post: 1
+        },
 	];
 }
 window.init_trLower = init_trLower;

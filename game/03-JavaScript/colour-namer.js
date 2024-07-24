@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 function clamp255(val) {
 	return val > 255 ? 255 : val < 0 ? 0 : val;
 }
@@ -92,7 +93,7 @@ window.rgbToHsv = function (colour) {
 	const v = Math.max(rabs, gabs, babs);
 	const diff = v - Math.min(rabs, gabs, babs);
 	const diffc = c => (v - c) / 6 / diff + 1 / 2;
-	const percentRoundFn = num => Math.round(num * 100) / 100;
+	const percentRoundFn = num => round(num, 2);
 	if (diff === 0) {
 		h = s = 0;
 	} else {

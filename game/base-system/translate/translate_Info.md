@@ -624,6 +624,12 @@
     ```
 
    ```
+    <<childhimselfPost>>
+        <<childhimself>>의 대체 위젯.
+        + <<childnamePost>>와 용도 및 방식 같음. 생략
+    ```
+
+   ```
     <<childHersPost>>
         <<childHers>>의 대체 위젯. <<childhersPost>>로도 쓸 수 있다.
         + <<childnamePost>>와 용도 및 방식 같음. 생략
@@ -633,6 +639,44 @@
     <<childherselfPost>>
         <<childherself>>의 대체 위젯.
         + <<childnamePost>>와 용도 및 방식 같음. 생략
+    ```
+
+   ```
+    <<childsiblingPost>>
+        <<childsibling>>의 대체 위젯.
+        + <<childnamePost>>와 용도 및 방식 같음. 생략
+    ```
+
+   ```
+    <<childsiblingsPost>>
+        <<childsiblingsPost (*childIds|*childId [childId...]) post "sep">>
+
+        <<childsiblings>>의 대체 위젯. 조사를 붙일 수 있다.
+
+        필수사항
+		- *childIds: 아이 이름 배열. 원본 매크로에 사용되는 인수값. 혹은
+		- *childId: 아이의 id. 원본 매크로에 사용되는 인수값. 여러 개가 올 수 있다.
+
+
+        선택사항
+        - post: 번역결과의 뒤에 조사를 붙인다.
+        - sep: 조사를 분리하여 저장한다.
+
+        e.g.
+        <<childsiblingsPost $childIds "을">>
+		<<childsiblingsPost _child1 _child2 "을">>
+    ```
+
+   ```
+    <<childsonPost>>
+        <<childson>>의 대체 위젯.
+        + <<childnamePost>>와 용도 및 방식 같음. 생략
+    ```
+
+   ```
+    <<childsonsPost>>
+        <<childsons>>의 대체 위젯.
+        + <<childsiblingsPost>>와 용도 및 방식 같음. 생략
     ```
 
    ```
@@ -3084,8 +3128,9 @@
 		```
 	- childPost 계열
 		```
-		<<childname_ (조사)>>, <<childrenNames_ (조사)>>, <<childHe_ (조사)>>, <<childhe_ (조사)>>, <<childHis_ (조사)>>, <<childhis_ (조사)>>, <<childHim_ (조사)>>, <<childhim_ (조사)>>,
-		<<childHers_ (조사)>>, <<childhers_ (조사)>>, <<childherself_ (조사)>>, <<childhand_ (조사)>>, <<childhands_ (조사)>>, <<childhair_ (조사)>>, <<childtype_ (조사)>>, <<childtoy_ (조사)>>,
+		<<childname_ (조사)>>, <<childrenNames_ (조사)>>, <<childHe_ (조사)>>, <<childhe_ (조사)>>, <<childHis_ (조사)>>, <<childhis_ (조사)>>, <<childHim_ (조사)>>, <<childhim_ (조사)>>, <<childhimself_ (조사)>>,
+		<<childHers_ (조사)>>, <<childhers_ (조사)>>, <<childherself_ (조사)>>, <<childsibling_ (조사)>>, <<childsiblings_ (조사)>>, <<childson_ (조사)>>, <<childsons_ (조사)>>,
+		<<childhand_ (조사)>>, <<childhands_ (조사)>>, <<childhair_ (조사)>>, <<childtype_ (조사)>>, <<childtoy_ (조사)>>,
 		<<pregnancyBabyText_ (조사)>>
 		```
 	- clothesPost 계열

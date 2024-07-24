@@ -8,6 +8,7 @@ IMPORTANT:
 <<widget "setupOptions">>
 	<<if ndef _optionsRefresh>><<set _optionsRefresh to false>><</if>> /* numberify_enabled workaround */ 
 	<<script>>
+		initializeTooltips();
 		settingsDisableElement();
 		window.Theme.initControl();
 		onInputChanged(() => {
@@ -45,8 +46,8 @@ IMPORTANT:
 		<div class="settingsToggle">
 			<label data-disabledif="!StartConfig.enableLinkNumberify">
 				<<checkbox "$options.numberify_enabled" 0 1 autocheck>> 숫자 링크 이동 활성화
-				<mouse class="tooltip linkBlue">(?)<span>키보드로 이동을 가능하게 합니다</span></mouse>
 			</label>
+			<span class="tooltip-anchor linkBlue" tooltip="키보드로 이동을 가능하게 합니다">(?)</span>
 		</div>
 		<div style="clear:both;">/*Keep at end of toggles*/</div>
 	</div>
@@ -82,29 +83,12 @@ IMPORTANT:
 		<div class="settingsToggle">
 			<label><<checkbox "$options.showCaptionText" false true autocheck>> 사이드바에서 캡션 텍스트 보기</label>
 		</div>
-		<!-- Old renderer should stop being supported very soon.
-		사이드바 캐릭터 렌더러:
-		<label><<radiovar "$options.sidebarRenderer" "img">><<updatesidebarimg>><</radiovar>> 구버전</label> |
-		<label><<radiovar "$options.sidebarRenderer" "canvas">><<updatesidebarimg>><</radiovar>> 신버전</label> |
-		<label><<radiovar "$options.sidebarRenderer" "both">><<updatesidebarimg>><</radiovar>> 둘 다</label>
-		<br>
-		-->
 		<div class="settingsToggle">
 			콘돔 표시:
 			<label><<radiovar "$options.condomsDisplay" "standard">><<updatesidebarimg>><</radiovar>> 일반</label> |
 			<label><<radiovar "$options.condomsDisplay" "none">><<updatesidebarimg>><</radiovar>> 숨김</label>
 		</div>
 		<div class="settingsToggle">
-			후추 스프레이 표시:
-			<<listbox "$options.pepperSprayDisplay" autoselect>>
-				<<option "스프레이" "sprays">>
-				<<option "작게 (점으로)" "compact">>
-				<<option "표시하지 않음" "none">>
-			<</listbox>>
-		</div>
-		<div class="settingsToggle">
-			플레이어 이미지 오버라이드: <mouse class="tooltip linkBlue">(?)<span>게임 내 효과는 없음.</span></mouse>
-			<br>
 			<<if !$options.genderBody>><<set $options.genderBody to "default">><</if>>
 			<label><<radiobutton "$options.genderBody" "default" autocheck>> 기본</label> |
 			<label><<radiobutton "$options.genderBody" "m" autocheck>> 남성적</label> |
@@ -116,6 +100,17 @@ IMPORTANT:
 		</div>
 		<div class="settingsToggle">
 			<label><<checkbox "$options.debugdisable" "t" "f" autocheck>> 추가 에러 메세지 활성화</label>
+		</div>
+		<div class="settingsToggle">
+			<label><<checkbox "$options.clothingCaption" false true autocheck>> 사이드바에 복장 설명을 표시 <span class="tooltip-anchor linkBlue" tooltip="비활성화되어 있더라도 캐릭터 위로 마우스를 올리면 복장 설명이 툴팁으로 표시됩니다.">(?)</span></label>
+		</div>
+		<div class="settingsToggle">
+			후추 스프레이 표시:
+			<<listbox "$options.pepperSprayDisplay" autoselect>>
+				<<option "스프레이" "sprays">>
+				<<option "작게 (점으로)" "compact">>
+				<<option "표시하지 않음" "none">>
+			<</listbox>>
 		</div>
 		<div style="clear:both;">/*Keep at end of toggles*/</div>
 	</div>
@@ -246,13 +241,24 @@ IMPORTANT:
 	<label><input type="radio" name="theme" value="zen" /> 젠번(Zenburn)</label> |
 	<label><input type="radio" name="theme" value="monokai" /> 모노카이(Monokai)</label> |
 	<label><input type="radio" name="theme" value="storm" /> 스톰(Storm)</label> |
+	<label><input type="radio" name="theme" value="latte" /> 캣푸친 라떼(Catppuccin Latte)</label> |
+	<label><input type="radio" name="theme" value="frappe" /> 캣푸친 프라페(Catppuccin Frappé)</label> |
+	<label><input type="radio" name="theme" value="macchiato" /> 캣푸친 마키아토(Catppuccin Macchiato)</label> |
+	<label><input type="radio" name="theme" value="mocha" /> 캣푸친 모카(Catppuccin Mocha)</label> |
 	<br><br>
 
 	<span class="gold">날짜 형식</span><<optionsThemeDefault "dateFormat">>
 	<br>
-	<label><<radiobutton "$options.dateFormat" "en-GB" autocheck>> dd/mm/yyyy</label>
-	<label><<radiobutton "$options.dateFormat" "en-US" autocheck>> mm/dd/yyyy</label>
+	<label><<radiobutton "$options.dateFormat" "en-GB" autocheck>> dd/mm/yyyy</label> |
+	<label><<radiobutton "$options.dateFormat" "en-US" autocheck>> mm/dd/yyyy</label> |
 	<label><<radiobutton "$options.dateFormat" "zh-CN" autocheck>> yyyy/mm/dd</label>
+	<br><br>
+
+	<span class="gold">온도 형식</span><<optionsThemeDefault "dateFormat">>
+	<br>
+	<div class="settingsToggle">
+		<<checkbox "$options.fahrenheit" false true autocheck>> 온도 표시에 화씨를 사용
+	</div>
 	<br><br>
 
 	<<if $debug is 1>>
@@ -397,9 +403,9 @@ IMPORTANT:
 
 <<widget "optionsperformance">>
 	<<setupOptions>>
-	<span class="gold">이미지</span>
-	<br>
 	<<if StartConfig.enableImages is true>>
+		<span class="gold">이미지</span>
+		<br>
 		<div>
 			<div class="settingsToggle">
 				<label><<checkbox "$options.images" 0 1 autocheck>> 이미지 활성화</label>
@@ -433,10 +439,26 @@ IMPORTANT:
 			<div style="clear:both;">/*Keep at end of toggles*/</div>
 		</div>
 		<br>
+		<span class="gold">렌더링</span>
+		<br>
+		<div class="description">변경을 적용하려면 옵션 메뉴를 닫으세요.</div>
+		<div>
+			<div class="settingsToggle">
+				<label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.weatherUpdate" false true autocheck>> 사이드바에 새로운 날씨 렌더러를 사용</label>
+			</div>
+		</div>
+		<div>
+			<div class="settingsToggle">
+				<label data-target='["options.images", "weatherupdate"]' data-disabledif="V.options.images===0||V.options.weatherUpdate===false"><<checkbox "$options.reflections" false true autocheck>> 물의 반영을 렌더링
+					<span class="linkBlue" tooltip="구형 기기에서는 성능 문제를 일으킬 수 있습니다.">(?)</span>
+				</label>
+			</div>
+		</div>
+		<br><br><br>
 		<span class="gold">애니메이션</span>
 		<div>
 			<div class="settingsToggle">
-				<label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.sidebarAnimations" false true autocheck>> 사이드바 애니메이션</label>
+				<label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.sidebarAnimations" false true autocheck>> 사이드바 캐릭터 애니메이션</label>
 			</div>
 			<div class="settingsToggle">
 				<label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false"><<checkbox "$options.blinkingEnabled" false true autocheck>> 눈 깜박임 애니메이션</label>
@@ -581,6 +603,30 @@ IMPORTANT:
 	<<numberslider "$options.zoom" $options.zoom 50 200 1>>
 	<input type="button" value="설정" onclick='zoom()'/>
 	<input type="button" value="초기화" onclick='zoom(100)'/>
+<</widget>>
+
+<<widget "optionsinformation">>
+	<div class="p-2 text-align-center">
+		<h3>주요 인물</h3>
+
+		<div class="m-2">
+			<span class="gold">제작자: </span><span>Vrelnir</span>
+		</div>
+		<div class="m-2">
+			<span class="gold">개발자: </span><span>PurityGuy</span>
+		</div>
+	</div>
+
+	<div class="p-2 text-align-center">
+		<h3>유용한 정보</h3>
+
+		<<linkinformation>><<koTransLinkinfo>>
+
+		<div class="m-2">
+			<p class="gold m-0">비공식 위키</p>
+			[[degreesoflewdity.miraheze.org|"https://degreesoflewdity.miraheze.org/wiki/Main_Page"]]
+		</div>
+	</div>
 <</widget>>
 
 <<widget "setFont">>

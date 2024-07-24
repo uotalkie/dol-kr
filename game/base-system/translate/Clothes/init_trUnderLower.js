@@ -506,6 +506,15 @@ function init_trUnderLower()
             description: "수영복",
             post: 1
         },
+
+        {
+            index: -9,
+            name: "leggings",
+            name_ko: "레깅스",
+            variable: "leggings",
+            description: "레깅스",
+            post: 1
+        },
 	];
 }
 window.init_trUnderLower = init_trUnderLower;

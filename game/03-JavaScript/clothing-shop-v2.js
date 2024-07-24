@@ -21,11 +21,9 @@ function getRevealInfo(reveal) {
 window.getRevealInfo = getRevealInfo;
 
 function getWarmthInfo(warmth) {
-	if (warmth >= 75) return [5, "warm-4"];
-	if (warmth >= 50) return [4, "warm-3"];
-	if (warmth >= 25) return [3, "warm-2"];
-	if (warmth >= 10) return [2, "warm-1"];
-	return [1, "warm-0"];
+	// Factor is 1-10. warmth of 7-9 will all have 7 dots, but different colours
+	const factor = (warmth - 5.5) / 4.5;
+	return "background-color:" + ColourUtils.interpolateTripleColor("#62c6ff", "#ffee3b", "#ff481b", factor);
 }
 window.getWarmthInfo = getWarmthInfo;
 
@@ -383,64 +381,6 @@ function applyClothingShopFilters(items) {
 }
 window.applyClothingShopFilters = applyClothingShopFilters;
 
-function getWarmthScaleData(newWarmth) {
-	let maxWarmth = Math.max(260, V.warmth * 1.04);
-	if (newWarmth) maxWarmth = Math.max(maxWarmth, newWarmth * 1.04);
-	const chill = V.chill;
-	const cold = chill - 90;
-	const warm = chill * 1.3 + 70;
-	const hot = chill * 1.3 + 150;
-	const minW = Math.min(V.warmth, newWarmth);
-	const maxW = Math.max(V.warmth, newWarmth);
-
-	return {
-		cold: (cold / maxWarmth) * 100 + "%",
-		chill: ((chill - Math.max(cold, 0)) / maxWarmth) * 100 + "%",
-		ok: ((Math.min(warm, maxWarmth) - chill) / maxWarmth) * 100 + "%",
-		warm: ((Math.min(hot, maxWarmth) - Math.min(warm, maxWarmth)) / maxWarmth) * 100 + "%",
-		hot: ((maxWarmth - hot) / maxWarmth) * 100 + "%",
-		nowarm: warm > maxWarmth ? "nowarm" : "",
-		nohot: hot > maxWarmth ? "nohot" : "",
-		nocold: cold < 0 ? "nocold" : "",
-		player: (V.warmth / maxWarmth) * 100 + "%",
-		playerNew: ((V.warmth > newWarmth ? minW : maxW) / maxWarmth) * 100 + "%",
-		diffUpDown: V.warmth > newWarmth ? "down" : "up",
-		diffStart: (minW / maxWarmth) * 100 + "%",
-		diffWidth: ((maxW - minW) / maxWarmth) * 100 + "%",
-	};
-}
-window.getWarmthScaleData = getWarmthScaleData;
-
-function getWarmthWithOtherClothing(slot, clothingId) {
-	const newClothing = setup.clothes[slot][clothingId];
-	const worn = V.worn;
-
-	let newWarmth = V.warmth + getTrueWarmth(newClothing);
-
-	// subtract warmth of all clothes that would be taken off
-	if (newClothing.outfitPrimary) {
-		// newWarmth -= Object.keys(newClothing.outfitPrimary).reduce((sum, x) => sum + (worn[x].warmth || 0), 0);
-
-		// compile a list of all primary clothes to be removed. It implies that item may have only one primary piece
-		const clothesToRemove = [slot, ...Object.keys(newClothing.outfitPrimary)].map(x =>
-			worn[x].outfitSecondary && worn[x].outfitSecondary[1] !== "broken" && worn[x].outfitSecondary[1] !== "split"
-				? setup.clothes[worn[x].outfitSecondary[0]].find(z => z.name === worn[x].outfitSecondary[1])
-				: worn[x]
-		);
-		const removedClothes = new Set();
-
-		clothesToRemove.forEach(x => {
-			if (!removedClothes.has(x.name)) {
-				newWarmth -= getTrueWarmth(x);
-				removedClothes.add(x.name);
-			}
-		});
-	} else newWarmth -= worn[slot].warmth;
-
-	return newWarmth;
-}
-window.getWarmthWithOtherClothing = getWarmthWithOtherClothing;
-
 function allClothesSetup() {
 	let clothes = [];
 	Object.keys(setup.clothes).forEach(slot => {
@@ -621,3 +561,62 @@ function filterShopGroup(clothingItems) {
 	});
 }
 window.filterShopGroup = filterShopGroup;
+
+function clothingWarmthScale(element, value) {
+	$(() => {
+		const minValue = 34;
+		const maxValue = 40;
+
+		const positionPercent = normalise(value, maxValue, minValue) * 100;
+		element.css("left", `${positionPercent}%`);
+	});
+}
+
+function getTargetWarmth(targetTemperature) {
+	let low = 0;
+	let high = 60;
+	let bestWarmth = null;
+
+	while (low <= high) {
+		const mid = Math.floor((low + high) / 2);
+		const temp = Weather.BodyTemperature.getRestingPoint(8, mid, 37, true);
+
+		if (temp > targetTemperature) {
+			bestWarmth = mid;
+			high = mid - 1;
+		} else {
+			low = mid + 1;
+		}
+	}
+
+	return bestWarmth;
+}
+window.getTargetWarmth = getTargetWarmth;
+
+DefineMacro("updatewarmthscale", () => {
+	$(() => {
+		const indicator = $("#warmthIndicator");
+		const indicatorNew = $("#warmthIndicatorNew");
+		const currentWarmth = Weather.BodyTemperature.getWarmth();
+		clothingWarmthScale(indicator, Weather.BodyTemperature.getRestingPoint(8, currentWarmth, 37, true));
+		indicator.tooltip({
+			message: "따뜻함: " + currentWarmth,
+			delay: 200,
+			position: "cursor",
+		});
+		if (V.clothes_choice && T.realSlot && T.realIndex) {
+			const newWarmth = currentWarmth - V.worn[T.realSlot].warmth + setup.clothes[T.realSlot][T.realIndex].warmth;
+			if (newWarmth !== currentWarmth) {
+				indicatorNew.show();
+				clothingWarmthScale(indicatorNew, Weather.BodyTemperature.getRestingPoint(8, newWarmth, 37, true));
+				indicator.tooltip({
+					message: "새로운 따뜻함: " + newWarmth,
+					delay: 200,
+					position: "cursor",
+				});
+				return;
+			}
+		}
+		indicatorNew.hide();
+	});
+});

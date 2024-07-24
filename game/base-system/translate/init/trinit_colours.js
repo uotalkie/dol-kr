@@ -7,7 +7,7 @@ function trinit_colorList()
 			"twotoned" : "투톤 색조",
 			"ghost" : "유령같은 반투명색",
 			"no" : "빡빡",
-		
+
 			/* setup.colours.hair (04-Variables/colours.js) */
 			"random" : "랜덤",
 			"red" : "빨간색",

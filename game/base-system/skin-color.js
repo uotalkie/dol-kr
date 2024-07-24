@@ -159,18 +159,16 @@ function tannedCoverage() {
 }
 
 function tanned(amount, flag) {
-	if (V.options.tanningEnabled === true) {
+	if (amount === 0) return;
+	if (V.options.tanningEnabled) {
 		T.coverage = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 		if (flag === "ignoreCoverage") {
 			T.coverage = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 		} else if (flag === "tanLines") {
 			tannedCoverage();
 		}
-		if (V.skinColor.sunBlock === true && amount > 0) {
-			T.tanChange = 0;
-		} else {
-			T.tanChange = amount / 24;
-		}
+
+		T.tanChange = amount / 24;
 
 		for (let i = 0; i < setup.skinColor.tanLoc.length; i++) {
 			if (T.coverage[i] === 0) {
@@ -206,3 +204,37 @@ function tanned(amount, flag) {
 }
 DefineMacro("tanned", tanned);
 window.tanned = tanned;
+
+function tanningGainOutput(modifier, minutes) {
+	if (V.statdisable !== "f") return "";
+	const factor = modifier * minutes;
+	if (factor === 0) {
+		return "";
+	}
+	return statDisplay.statChange("Tan", factor >= 50 ? 3 : factor >= 20 ? 2 : 1, "green");
+}
+window.tanningGainOutput = tanningGainOutput;
+DefineMacro("tanningGainOutput", function () {
+	this.output.append(tanningGainOutput(...this.args));
+});
+
+function tanningPenaltiesOutput(modifiers) {
+	const reasons = [];
+
+	if (V.outside) {
+		const month = modifiers.month <= 0.6;
+		const dayState = Weather.sky.dayFactor <= 0.6;
+		const output = month ? Time.monthName : dayState ? "Sun is low" : "weather";
+		if (modifiers.sun <= 0.3) reasons.push(`Low sun intensity (${output})`);
+		else if (modifiers.sun <= 0.7) reasons.push(`Reduced sun intensity (${output})`);
+
+		if (modifiers.weather < 1) reasons.push("Light clouds");
+	}
+	if (modifiers.clothing < 1) reasons.push("Shaded by clothing");
+	if (modifiers.sunBlock < 1) reasons.push("Use of sunblock");
+
+	if (reasons.length === 0) return "";
+	return `<span class="teal">Your tanning gain was reduced due to:</span><br><span class="orange">${reasons.join("<br>")}</span><br>`;
+}
+DefineMacroS("tanningPenaltiesOutput", tanningPenaltiesOutput);
+window.tanningPenaltiesOutput = tanningPenaltiesOutput;

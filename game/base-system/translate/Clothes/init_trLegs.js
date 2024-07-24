@@ -315,6 +315,15 @@ function init_trLegs()
             post: 1,
             description: "이국적이다."
         },
+
+        {
+            index: 35,
+            name: "gold shackles",
+            name_ko: "금 족쇄",
+            variable: "goldshackles",
+            post: 1,
+            description: "세계의 무게로 묶여 있다."
+        },
     ];
 }
 window.init_trLegs = init_trLegs;

@@ -51,6 +51,9 @@ function updateChildActivity(childId) {
 			case "wolfgirl":
 				wolfChildActivity(childId);
 				break;
+			case "hawk":
+				hawkChildActivity(childId);
+				break;
 			default:
 				return null;
 		}
@@ -59,6 +62,29 @@ function updateChildActivity(childId) {
 	}
 }
 DefineMacro("updateChildActivity", updateChildActivity);
+
+function getChildDays(childId) {
+	const child = V.children[childId];
+	if (!child) return null;
+
+	const date1 = child.born.day + " " + child.born.month + " " + child.born.year;
+	const date2 = Time.monthDay + " " + Time.monthName + " " + Time.year;
+	const calc = Math.abs(Date.parse(date2) - Date.parse(date1));
+	let childTotalDaysCap = 0;
+	switch (child.type) {
+		case "human":
+		case "wolf":
+		case "hawk":
+			childTotalDaysCap = 200;
+			break;
+		default:
+			childTotalDaysCap = 0;
+			break;
+	}
+	const childTotalDays = Math.clamp(Math.ceil(calc / (1000 * 60 * 60 * 24)), 0, childTotalDaysCap);
+	return childTotalDays;
+}
+window.getChildDays = getChildDays;
 
 function humanChildActivity(childId) {
 	const child = V.children[childId];
@@ -192,7 +218,7 @@ function wolfChildActivity(childId) {
 				"watchingCurious",
 				"watchingLonging",
 				"staringOutside",
-				"hungeryWolf",
+				"hungryWolf",
 				"grumpyWolf",
 				"gnawing",
 			]);
@@ -213,11 +239,51 @@ function wolfChildActivity(childId) {
 				"playFighting",
 				"staringOutside",
 				"staringOutside",
-				"hungeryWolf",
+				"hungryWolf",
 				"grumpyWolf",
 				"gnawing",
 			]);
 		}
+	}
+
+	if (activity.length) {
+		child.localVariables.activity = activity[random(0, activity.length - 1)];
+		child.localVariables.event = true;
+	} else {
+		child.localVariables.activity = "noEvent";
+		child.localVariables.event = true;
+	}
+}
+
+function hawkChildActivity(childId) {
+	const child = V.children[childId];
+	if (!child) return null;
+
+	const toySets = [];
+	const toyNames = [];
+	if (V.storedChildrenToys && V.storedChildrenToys[V.location]) {
+		V.storedChildrenToys[V.location].forEach(toy => {
+			toySets.pushUnique(toy.set);
+			toyNames.pushUnique(toy.name);
+		});
+	}
+	let activity = [];
+
+	if (between(T.childTotalDays, 0, 100)) {
+		if (Time.dayState === "night" && V.bird.state === "home" && ["sleep", "rest", "brood"].includes(V.bird.activity)) {
+			activity = activity.concat(["sleepingWithGreatHawk", "sleepingWithGreatHawk", "sleepingWithGreatHawk", "sleeping"]);
+		} else {
+			activity = activity.concat(["sleeping", "sleeping", "sleeping", "crying", "reaching", "flap", "flap", "perch", "bathe"]);
+		}
+	} else if (between(T.childTotalDays, 100, 200)) {
+		if (Time.dayState === "night" && V.bird.state === "home" && ["sleep", "rest", "brood"].includes(V.bird.activity)) {
+			activity = activity.concat(["sleepingWithGreatHawk", "sleepingWithGreatHawk", "sleepingWithGreatHawk", "sleeping"]);
+		} else {
+			activity = activity.concat(["sleeping", "sleeping", "crying", "reaching", "flap", "perch", "batheSelf"]);
+		}
+	}
+	if (T.childTotalDays >= 14) {
+		activity.push("preen");
 	}
 
 	if (activity.length) {

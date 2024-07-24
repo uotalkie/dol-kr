@@ -1,3 +1,4 @@
+/* global weightedRandom */
 function maxParasites(genital = "anus") {
 	switch (V.sexStats[genital].pregnancy.motherStatus) {
 		case 1:
@@ -470,6 +471,7 @@ window.pregnancyGenerator = {
 					size: bodySizeCalc(V.bodysize),
 					eyeColour: [eyeColourCalc(motherObject.name), eyeColourCalc(fatherObject.name)][random(0, 1)],
 					hairColour: furColour[random(0, furColour.length - 1)],
+					skinColour: [skinColourCalc(motherObject.skinColour), skinColourCalc(fatherObject.skinColour)][random(0, 1)],
 				});
 				result.fetus.push(baby);
 				parentFunction.increaseKids(motherObject.parentId.id, 0, fatherObject.parentId.id);
@@ -574,18 +576,21 @@ window.pregnancyGenerator = {
 		if (typeof pregnancy === "string" || pregnancy instanceof String) return pregnancy;
 
 		if (pregnancy) {
-			const result = { fetus: [], type: "hawk", timer: 0, timerEnd: random(3, 6) };
-
+			const result = { fetus: [], type: "hawk", timer: 0, timerEnd: random(14, 28) };
+			const eggBoost = 20 * fertility + 20 * magicTattoo;
 			let count;
+
 			if (mother === "pc") {
-				count = Math.clamp(V.harpyEggs, 0, 3);
+				count = Math.clamp(V.harpyEggs?.count || weightedRandom([1, 1], [2, 2], [3, 1]), 0, 4);
 			} else {
-				count = random(1, 3);
+				count = weightedRandom([1, 1], [2, 4], [3, 4], [4, 1]);
 			}
 			if (!count) return false;
-			if (fertility || magicTattoo) count++;
+			if (random(0, 100) > 94 - eggBoost) count++;
 
 			const featherColour = ["white", "brown"];
+
+			const eggTimer = new DateTime(Time.date).addDays(random(23, 30)).timeStamp;
 
 			for (let i = 0; i < count; i++) {
 				// Hard coded limit
@@ -608,9 +613,10 @@ window.pregnancyGenerator = {
 					size: bodySizeCalc(V.bodysize),
 					eyeColour: [eyeColourCalc(motherObject.name), eyeColourCalc(fatherObject.name)][random(0, 1)],
 					hairColour: featherColour[random(0, featherColour.length - 1)],
+					skinColour: [skinColourCalc(motherObject.skinColour), skinColourCalc(fatherObject.skinColour)][random(0, 1)],
 				});
 				// Hours
-				baby.eggTimer = new DateTime(Time.date).addHours(random(24 * 26, 24 * 32)).timeStamp;
+				baby.eggTimer = eggTimer;
 				result.fetus.push(baby);
 				parentFunction.increaseKids(motherObject.parentId.id, 0, fatherObject.parentId.id);
 			}

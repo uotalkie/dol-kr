@@ -1289,9 +1289,9 @@ function trinit_roleList()
 			"pirate":{ko : "해적", post : 0}, 
 			
 			/* island */
-			"islander":{ko : "섬사람", post : 1}, 
-			"old islander":{ko : "늙은 섬사람", post : 1}, 
-			"sleeper":{ko : "잠이 든 사람", post : 1}, 
+			"islander":{ko : "섬사람", post : 0}, 
+			"old islander":{ko : "늙은 섬사람", post : 0}, 
+			"sleeper":{ko : "잠이 든 사람", post : 0}, 
 		};
 	}
 }
@@ -1410,6 +1410,8 @@ function trinit_hairtype()
 			"half-up": "반묶음",
 			"heart braid": "하트모양 땋은머리",
 			"heart braids": "하트모양 땋은머리",
+			"jellyfish ponytail": "해파리 포니테일",
+			"jellyfish twintails": "해파리 트윈테일",
 			"layered bob": "레이어드 단발머리",
 			"left fishtail": "왼쪽 피쉬테일",
 			"loop braid": "도넛모양 땋은머리",
@@ -1429,6 +1431,7 @@ function trinit_hairtype()
 			"scorpion tails": "전갈머리",
 			"short": "짧은",
 			"short spiky": "짧은 뾰족머리",
+			"straight bob": "스트레이트 단발머리",
 			"sidecut": "사이드컷",
 			"side tail left": "왼쪽 사이드테일",
 			"sidetail left": "왼쪽 사이드테일",
@@ -1468,6 +1471,8 @@ function trinit_hairtype()
 			"hime": "히메",
 			/*"loose": "루즈",	중복*/
 			/*"messy": "지저분한",	중복*/
+			"messy curls": "지저분한 컬",
+			"middle part": "중간 가르마",
 			"mohawk": "모히칸",
 			"overgrown": "너무 자란",
 			"parted": "가르마",
@@ -1487,6 +1492,7 @@ function trinit_hairtype()
 			/*"straight": "스트레이트",	중복*/
 			"straight curl": "스트레이트 컬",
 			"straight curls": "스트레이트 컬",
+			"straight tails": "스트레이트 테일",	
 			"swept back": "뒤로 쓸어넘긴",
 			"swept left": "왼쪽으로 쓸어넘긴",
 			"thin flaps": "얇게 휘날리는",

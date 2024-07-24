@@ -62,7 +62,7 @@
 <br><br>
 바닥이 당신을 향해 돌진한다. 그러나 당신은 절대 부딪히지 않는다.
 <br><br>
-부딪히기 직전, 당신은 공중에서 속도를 늦추고 몸을 바로 세운다. 어떠한 흔들림도 소음도 없이 발끝이 지면에 부드럽게 닿는다. 피부에 닿는 <<weather_ ga $weather>> 느껴지지 않는다.
+부딪히기 직전, 당신은 공중에서 속도를 늦추고 몸을 바로 세운다. 어떠한 흔들림도 소음도 없이 발끝이 지면에 부드럽게 닿는다. 피부에 닿는 <<weather_ ga `Weather.precipitation`>> 느껴지지 않는다.
 <br><br>
 길고 반투명한 팔이 고아원 벽을 슬금슬금 기어올라 창문을 닫는다.
 <br><br>
@@ -95,7 +95,7 @@
 
 :: Wraith Snatched Cabin Leave
 <<effects>><<getTarget>><<rainWraith>>
-당신의 시선이 마지막으로 에덴에게 향한다. 당신은 문을 열고, <<trWeather $weather>>_trResult 속으로 걸어 들어가 숲으로 달아난다.
+당신의 시선이 마지막으로 에덴에게 향한다. 당신은 문을 열고, <<trWeather `Weather.precipitation`>>_trResult 속으로 걸어 들어가 숲으로 달아난다.
 <br><br>
 <span class="nextLink"><<link [[걸어라.|Forest]]>><<endevent>><<set $location to "forest">><<set $wraith.exit to "forest">><<set $forest to 90>><<set $phase2 to 1>><<set $phaseWraith to 0>><</link>></span>
 
@@ -151,7 +151,7 @@
 <br>
 
 :: Wraith Snatched Far Mirror 3
-<<effects>><<set $location to "tentworld">>
+<<effects>><<set $location to "tentworld">><<set $outside to 0>>
 당신은 발을 앞으로 내딛는다. 발이 그대로 통과한다. 나머지 손도 넣는다.
 <br><br>
 당신이 앞으로 넘어지자, 모든 것이 화려한 보라색으로 변한다. 하늘을 뒤덮고 있는 꿈틀대는 덩어리들과 끝없이 늘어선 촉수가 보인다. 오래 지속되지는 않는다.
@@ -198,7 +198,7 @@ You drop the bottle to your feet, shattering it. Your head quickly tilts to the 
 You grip the railing and look down. The waves, reflecting a red light, churn beneath you.
 <br><br>
 
-You stare at the water below. Slowly, the area directly below you begins to calm, until a perfect circle of still water floats amidst the waves, undisturbed even by the $weather.
+You stare at the water below. Slowly, the area directly below you begins to calm, until a perfect circle of still water floats amidst the waves, undisturbed even by the <<print Weather.precipitation>>.
 <br><br>
 
 You reach down toward the circle, and it flashes purple, the water beginning to swirl. You grip the railing, preparing to heft yourself over the side.
@@ -262,7 +262,6 @@ Zephyr frowns. On a whim, <<he>> takes <<his>> spyglass from <<his>> side and pe
 :: Wraith Snatched Pirate Fight Finish
 <<effects>><<getTarget true>>
 <<if $control gte $controlmax>>
-	<<set _weather to $weather>>
 	<<wraithExorcise true true>><<clearWraith>><<endWraith>>
 	<span class="gold">You stop.</span> You can feel it pushing you to keep going, to keep fighting, but you dig your heels in and focus. You have your body back, and you don't plan on giving it up.
 	<br><br>
@@ -274,10 +273,10 @@ Zephyr frowns. On a whim, <<he>> takes <<his>> spyglass from <<his>> side and pe
 	<br><br>
 
 	<<npc "Zephyr">><<person1>>
-	<<if _weather is $weather>>
+	<<if Weather.precipitation isnot "none">>
 		Zephyr scowls as the figure disappears.
 	<<else>>
-		Zephyr scowls as the _weather begins to clear up.
+		Zephyr scowls as the <<print Weather.precipitation>> begins to clear up.
 	<</if>>
 	"And stay gone, dredgie." <<He>> looks you over. "I don't know what ye did to earn that thing's ire. You'd best keep its business out of me ship." <<He>> slaps you in the face twice, shocking you out of your stupor, before trudging back to <<his>> cabin.
 	<<pain 2>><<gpain>>
@@ -435,7 +434,7 @@ Zephyr frowns. On a whim, <<he>> takes <<his>> spyglass from <<his>> side and pe
 <<if $location is "park">>
 	당신은 비틀거리며 분수대에 다가가,
 <<elseif $location is "forest" or $location is "moor">>
-	당신은 비틀거리며 <<if Time.season is "winter">>얼어붙은 <</if>>물웅덩이에 다가가,
+	당신은 비틀거리며 <<if Weather.isSnow>>얼어붙은 <</if>>물웅덩이에 다가가,
 <<elseif $bus is "lakeshore">>
 	당신은 비틀거리며 호숫가에 다가가,
 <<elseif $location is "lake_ruin">>
@@ -881,6 +880,11 @@ DEBUG PASSAGE. Should be unreachable.
 							<<set $phaseWraith to 5>>
 						<<else>>
 							<<set $forestmod to 1.5>><<set $forest += 5>>
+							<<if $forest is 25>>
+								<<set $nextPassageCheck to "Lake Shore">>
+								<<set $nextPassage to "Lake Shore">>
+								<<set $wraith.exit to "lake">>
+							<</if>>
 						<</if>>
 					<<elseif $forest gt 40 and $forest lte 50>>
 						<<set $nextPassageCheck to "Lake Fishing Rock">>
@@ -952,7 +956,7 @@ DEBUG PASSAGE. Should be unreachable.
 						<<set $nextPassage to "Lake Waterfall">>
 						<<set $phaseWraith to 2>>
 					<<else>>
-						<<if Time.season is "winter">>
+						<<if Weather.isFrozen("lake")>>
 							<<set $nextPassageCheck to "Lake Shallows Ice">>
 							<<set $nextPassage to "Lake Shallows Ice">>
 						<<else>>

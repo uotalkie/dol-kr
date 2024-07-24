@@ -178,7 +178,7 @@ function sexToysInventoryOnWearClick(index, category) {
 	toy.worn = !toy.worn;
 	if (setupCategory !== "strap-on") {
 		V.worn[setupCategory] = toy;
-		V.worn[setupCategory].state = "착용중";
+		V.worn[setupCategory].state = "worn";
 	}
 	toy.carried = true; // also carry the item if not done alreadys
 	document.getElementById("stiWearButton").textContent = toy.worn ? "벗는다" : "착용한다"; // update button text value

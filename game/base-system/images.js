@@ -1,5 +1,5 @@
 function gainSchoolStar(variable) {
-    if (V.statdisable === "t") return document.createDocumentFragment();
+	if (V.statdisable === "t") return document.createDocumentFragment();
 	const createElement = (type, clas, content) => {
 		const element = document.createElement(type);
 		element.classList.add(clas);

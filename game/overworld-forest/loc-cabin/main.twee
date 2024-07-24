@@ -1,5 +1,5 @@
 :: Eden Cabin
-<<set $outside to 0>><<set $location to "cabin">><<effects>><<set $bus to "edencabin">><<getTarget true>>
+<<set $outside to 0>><<set $location to "cabin">><<effects>><<set $bus to "edencabin">><<getTarget true>><<edenFluidsCheck>>
 /* make sure that all links that lead here have <<endevent>> */  /* 파일 2번 날라가서 3번 번역하는 바보 병신 나 */
 <<npc Eden>><<person1>>
 
@@ -25,8 +25,12 @@
 	<</if>>
 <</if>>
 
+창문 밖에 온도계가 걸려 있다. 그것은 <span class="teal"><<print Weather.toSelectedString(Weather.temperature, 0)>></span>를 가리키고 있다.
+<<print setup.WeatherDescriptions.extremeTemperature()>>
+<br><br>
+
 <<if isPlayerNonparasitePregnancyEnding() and !$possessed>>
-	<<pregnancyWatersBrokenPassout "edencabin">>
+	<<pregnancyPassout "edencabin">>
 <<elseif $stress gte $stressmax and !$possessed>>
 	<br><br>
 
@@ -113,25 +117,15 @@
 
 	<<if Time.dayState is "night">>
 		난로에서 불씨가 타오른다.
-	<<elseif Time.dayState is "dawn">>
-
-	<<elseif Time.dayState is "dusk">>
-
-	<<else>>
-
 	<</if>>
 
-	<<if $weather is "clear">>
-
-	<<elseif $weather is "overcast">>
-
-	<<elseif $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		<<if $edenroof gte 5>>
 			빗방울이 오두막 천장에 쏟아지며 마음을 진정시키는 소리를 낸다.
 		<<else>>
 			빗방울이 나무 천장에 스며들어 땅바닥을 툭툭 친다.
 		<</if>>
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		창틀에 눈이 소복히 쌓였다.
 	<</if>>
 
@@ -323,7 +317,7 @@
 
 			<<noClothingCheck>>
 			<<if _nude is false>>
-				<<link [[옷을 벗고 들어간다 (0:30)|Eden Bath]]>><<pass 30>><<npcincr Eden dom 1>><<npcincr Eden love 1>><<set $phase to 0>><<strip>><<set $edenClothes to true>><</link>><<gdom>><<glove>>
+				<<link [[옷을 벗고 들어간다 (0:30)|Eden Bath]]>><<pass 30>><<npcincr Eden dom 1>><<npcincr Eden love 1>><<set $phase to 0>><<strip>><<set $edenClothes to true>><<set $edenFluidsCheck to "clean">><</link>><<gdom>><<glove>>
 			<<else>>
 				<<link [[들어간다 (0:30)|Eden Bath]]>><<pass 30>><<npcincr Eden dom 1>><<npcincr Eden love 1>><<set $phase to 0>><<strip>><</link>><<gdom>><<glove>>
 			<</if>>
@@ -423,21 +417,21 @@
 <<effects>>
 <<if Time.hour lte 20>>/* if hour >= 21 and it's the last day of october, passing 3h will make it november, which unsets the variables, making nans */
 	<<if $edenwall lt 5>>
-		<<edenicon "fix">><<link [[벽의 금 간 곳들을 고친다 (3:00)|Eden Wall]]>><<pass 3 hours>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
+		<<edenicon "fix">><<link [[벽의 금 간 곳들을 고친다 (3:00)|Eden Wall]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
 	<<else>>
 		<span class="green">벽은 완전히 고쳐져 있다.</span>
 	<</if>>
 	<br>
 
 	<<if $edenchimney lt 5>>
-		<<edenicon "broom">><<link [[굴뚝을 청소한다 (3:00)|Eden Chimney]]>><<pass 3 hours>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
+		<<edenicon "broom">><<link [[굴뚝을 청소한다 (3:00)|Eden Chimney]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
 	<<else>>
 		<span class="green">굴뚝은 깨끗하다.</span>
 	<</if>>
 	<br>
 
 	<<if $edenroof lt 5>>
-		<<edenicon "fix">><<link [[옥상을 고친다 (3:00)|Eden Roof]]>><<pass 3 hours>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
+		<<edenicon "fix">><<link [[옥상을 고친다 (3:00)|Eden Roof]]>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<housekeeping 1 1000>><</link>><<glove>><<gdom "Eden">><<ghousekeeping 1000>>
 	<<else>>
 		<span class="green">옥상은 고쳐져 있다.</span>
 	<</if>>
@@ -458,7 +452,7 @@
 <<effects>>
 에덴이 당신을 쳐다본다.
 <br><br>
-
+<<edenFluidsCheck>>
 <<if Time.hour gte 18 and Time.hour lte 23>>
 	<<if $edencushions is 2 and $edenloveseat is 9>>
 		<<couchicon>><<link [[안락의자 위에서 껴안는다 (0:30)|Eden Cuddle]]>><<trauma -3>><<stress -3>><<pass 30>><<npcincr Eden love 1>><<npcincr Eden lust 1>><</link>><<glove>><<glust>><<ltrauma>><<lstress>>
@@ -549,7 +543,7 @@
 	<br>
 <</if>>
 
-<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound">>
+<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
 	<<undobindingsicon>><<link [[에덴에게 구속을 풀어달라고 한다 (0:01)|Eden Bindings]]>><<pass 1>><<unbind>><</link>>
 	<br>
 <</if>>
@@ -611,7 +605,7 @@
 	<i>당신은 쇼핑 센터에서 안락의자를 만드는 데 쓸 쿠션 재료를 구입할 수 있습니다</i>
 	<br>
 <</if>>
-<<if $edencushions is 2 and $edenloveseat is 9 and $edenblanket is 0>>
+<<if $edencushions is 2 and $edenloveseat is 9 and !$edenblanket>>
 	<<shopicon "tailor">><<link [[털 담요를 꿰맨다 (0:30)|Eden Blanket One]]>><<pass 30>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<set $edenblanket to 1>><</link>><<glove>><<gdom "Eden">>
 	<br>
 <</if>>
@@ -623,7 +617,7 @@
 	<<shopicon "tailor">><<link [[털 담요를 꿰맨다 (0:30)|Eden Blanket Three]]>><<pass 30>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<set $edenblanket to 3>><</link>><<glove>><<gdom "Eden">>
 	<br>
 <</if>>
-<<if $edenpillow is 2 and $edendesign lt 9>>
+<<if $edenpillow is 2 and ($edendesign lt 9 or !$edendesign)>>
 	<<if !$edendesign>><<set $edendesign to 0>><</if>>
 	<<shopicon "tailor">><<link [[베개에 자수를 놓는다 (0:30)|Eden Design]]>><<pass 30>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<set $edendesign += 1>><</link>><<glove>><<gdom "Eden">>
 	<br>
@@ -777,7 +771,7 @@
 <<sleep>>
 <<effects>>
 
-<<if $wraith.nightmare is 2 and isBloodmoon()>>
+<<if $wraith.nightmare is 2 and Time.isBloodMoon()>>
 	<<sleepeffects>>
 	당신은 흰 옷을 입은 아름다운 인물이 붉은 달 아래에 서 있는 꿈을 꾼다. 그것이 환영의 몸집으로 당신을 향해 팔을 벌리고 있다. 가까이 다가갈수록 그 시선이 당신의 마음을 꿰뚫는 것 처럼 느껴진다.
 	<br><br>
@@ -1105,6 +1099,9 @@
 	<br><br>
 	<<set $foresthunt to 0>>
 <</if>>
+<<if Time.hour gte 7>>
+	<<edenFluidsCheck>>
+<</if>>
 
 <<if $edenCagedEscape and Time.hour gte 7>>
 	에덴은 당신이 오두막에 다가가자 당신을 올려다본다. <<He_ nun>> 당신을 멍하니 쳐다보다가 갑자기 깜짝 놀란다. "거기 너!" <<he_ ga>> 소리치며, 빠르게 당신에게 다가온다. "너 엄청 큰 일 난 거야, 말 안 듣는 <<whorePost>> 같으니."
@@ -1175,7 +1172,7 @@
 
 <<elseif $stress gte $stressmax>>
 	<<if isPlayerNonparasitePregnancyEnding()>>
-		<<pregnancyWatersBrokenPassout "edencabin">>
+		<<pregnancyPassout "edencabin">>
 	<<else>>
 		<<link [[모든 게 깜깜해진다...|Eden Cabin Passout]]>><</link>>
 	<</if>>
@@ -1209,13 +1206,12 @@
 		<br><br>
 	<</if>>
 
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		빗방울이 위의 나뭇가지에서 뚝뚝 떨어진다.
-		<br><br>
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		눈송이가 나뭇가지 위에서부터 내려온다.
-		<br><br>
 	<</if>>
+	<br><br>
 
 	<<if ($edenfreedom is 2 and $edendays lt 8) or ($edenfreedom is 1 and $edendays lt 2)>>
 		<<set $edendays to 0>>
@@ -1502,7 +1498,7 @@
 당신은 개간지 가장자리로 걸어가 숲의 어둠을 바라보고 있다. 정말로 탈출하시겠습니까?
 <br><br>
 
-<<link [[예|Forest]]>><<endevent>><</link>>
+<<link [[예|Forest]]>><<endevent>><<if $edenFluidsCheck is "clean">><<set $edenFluidsCheck to "cleanLeave">><</if>><</link>>
 <br>
 <<link [[아니요|Eden Clearing]]>><<endevent>><</link>>
 <br>
@@ -1754,27 +1750,28 @@
 당신은 몇몇 동물가죽을 잡고 바느질을 시작한다. 작업은 느리지만, 이불을 어느 정도 만들 수 있을 것 같다. 
 <br><br>
 
-<<link [[다음|Cabin House Actions]]>><<endevent>><</link>>
+<<link [[다음|Cabin House Actions]]>><</link>>
 
 :: Eden Blanket Two
 <<effects>>
 당신은 가죽을 더 집어 꿰맨다. 이불이 점점 넓어지고 있다.
 <br><br>
 
-<<link [[다음|Cabin House Actions]]>><<endevent>><</link>>
+<<link [[다음|Cabin House Actions]]>><</link>>
 
 :: Eden Blanket Three
 <<effects>>
 /* eden is already generated
 <<npc Eden>><<person1>>*/
 남은 가죽을 꿰메고 당신의 작업물을 살펴본다. 부드러운 모피 위에 손을 대고, 어디에 둘지 생각한다.
-당신은 오두막을 둘러보다, 안락의자에 시선이 멈춘다. 당신은 거기에 이불을 덮고, 뒤로 물러나 고개를 끄덕인다. 에덴이 이것을 보면 기뻐할 것이다.
+당신은 오두막을 둘러보다, 안락의자에 시선이 멈춘다. 당신은 거기에 이불을 덮고, 뒤로 물러나 당신이 한 일에 대한 만족감으로 고개를 끄덕인다. 에덴이 이것을 보면 기뻐할 것이다.
 <br><br>
 
-<<link [[다음|Cabin House Actions]]>><<endevent>><</link>>
+<<link [[다음|Cabin House Actions]]>><</link>>
 
 :: Eden Design
 <<effects>>
+<<endevent>><<npc "Eden">><<person1>>
 <<switch $edendesign>>
 	<<case 1>>
 		당신은 베개 하나를 집어서 천에 무늬를 꿰매기 시작한다.

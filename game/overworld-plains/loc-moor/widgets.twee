@@ -1,6 +1,9 @@
 :: Moor Widgets [widget]
 <<widget "eventsmoorlow">>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<if $moorLessDangerAll>>
+		<<set $danger -= $moorLessDangerAll>>
+	<</if>>
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 3>>
 		<<if $rng is 3>>
@@ -200,7 +203,7 @@
 		<<rng 6>>
 		<<switch $rng>>
 		<<case 1>>
-			<<if $weather is "rain">>
+			<<if Weather.precipitation is "rain">>
 				산들바람이 당신에게 불어오자 헤더 꽃들이 당신에게 고개를 숙이며, 빗방울이 당신의 피부를 때린다.
 			<<else>>
 				산들바람이 당신의 피부를 어루만지며 당신을 향해 불어올 때, 헤더가 흔들린다.<<lstress>><<stress -6>>
@@ -257,6 +260,9 @@
 
 <<widget "eventsmoormid">>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<if $moorLessDangerAll>>
+		<<set $danger -= $moorLessDangerAll>>
+	<</if>>
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 2>>
 		<<if $rng is 2>>
@@ -290,7 +296,7 @@
 			<br>
 		<</if>>
 	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-		<<rng 10>>
+		<<rng 11>>
 		<<switch $rng>>
 		<<case 1>>
 			<<beastNEWinit 1 cat>>
@@ -416,9 +422,13 @@
 			<</if>>
 			<<link [[무시한다|Moor]]>><<set $eventskip to 1>><</link>>
 			<br>
-		<<case 9>>
-			<<moor_hunt_start>>
-		<<case 10>>
+		<<case 9 10>>
+			<<if $bird and $bird.injured gt 1>>
+				<<moor_fox>>
+			<<else>>
+				<<moor_hunt_start>>
+			<</if>>
+		<<case 11>>
 			<<moor_fox>>
 		<</switch>>
 	<<else>>
@@ -535,6 +545,9 @@
 
 <<widget "eventsmoorhigh">>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<if $moorLessDangerAll>>
+		<<set $danger -= $moorLessDangerAll>>
+	<</if>>
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 2>>
 		<<if $rng is 2>>
@@ -561,7 +574,7 @@
 			<br>
 		<</if>>
 	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-		<<rng 9>>
+		<<rng 10>>
 		<<switch $rng>>
 		<<case 1>>
 			땅이 흔들려서, 당신은 비틀거린다. 아래쪽에 균열이 생기며, 엄청난 속도로 넓어진다.
@@ -585,7 +598,7 @@
 			<</if>>
 		<<case 2>>
 			당신은 두 연못 사이의 오솔길을 따라간다.
-			<<if $weather is "clear">>
+			<<if !Weather.isOvercast>>
 				<<if Time.dayState is "night">>
 					그것들은 달빛을 반사하지 않는다.
 				<<else>>
@@ -660,7 +673,7 @@
 			<</if>>
 		<<case 7>>
 			<<set $plantMoney to 10*random(20,100)>>
-			<<if $weather is "clear">>
+			<<if !Weather.isOvercast>>
 				반짝이는 빛이
 			<<else>>
 				반짝이는 무언가가
@@ -684,9 +697,13 @@
 				<<set $money += $plantMoney>><<unset $plantMoney>>
 				<<link [[다음|Moor]]>><<set $eventskip to 1>><</link>>
 			<</if>>
-		<<case 8>>
-			<<moor_hunt_start>>
-		<<case 9>>
+		<<case 8 9>>
+			<<if $bird and $bird.injured gt 1>>
+				<<moor_fox>>
+			<<else>>
+				<<moor_hunt_start>>
+			<</if>>
+		<<case 10>>
 			<<moor_fox>>
 		<</switch>>
 	<<else>>
@@ -696,7 +713,7 @@
 			당신은 주변 웅덩이 위로 솟아 있는 맑은 샘을 발견한다. 물은 깨끗해 보인다.
 			<br><br>
 
-			<<ind>><<link [[씻는다 (0:20)|Moor Wash]]>><<pass 20>><<strip>><<stress -2>><<if $moor_hunt gte 1>><<set $moor_hunt += 1.5>><</if>><</link>><<lstress>>
+			<<skinicon "wash">><<link [[씻는다 (0:20)|Moor Wash]]>><<pass 20>><<strip>><<stress -2>><<if $moor_hunt gte 1>><<set $moor_hunt += 1.5>><</if>><</link>><<lstress>>
 			<br>
 			<<getouticon>><<link [[떠난다|Moor]]>><<set $eventskip to 1>><</link>>
 			<br>
@@ -794,6 +811,7 @@
 	<<unset $quicksand_depth>>
 	<<unset $quicksand_learn>>
 	<<unset $quicksandWraith>>
+	<<unset $quicksand_escape>>
 <</widget>>
 
 <<widget "quicksand_pull">>
@@ -846,7 +864,7 @@
 
 <<widget "passout_moor">>
 	<<if isPlayerNonparasitePregnancyEnding()>>
-		<<pregnancyWatersBrokenPassout "moor">>
+		<<pregnancyPassout "moor">>
 	<<else>>
 		<<passout>>
 		<<set $danger to random(1, 10000)>>
@@ -861,6 +879,9 @@
 		<<else>>
 			<<ambulance>>
 		<</if>>
+	<</if>>
+	<<if $bird.hunts>>
+		<<flight_hunt_end>>
 	<</if>>
 <</widget>>
 
@@ -923,10 +944,10 @@
 <</widget>>
 
 <<widget "moor_hunt_start">>
-	<<if $weather is "clear">>
+	<<if !Weather.isOvercast>>
 		그림자가 당신 위를 지나간다.
 	<<else>>
-		끔찍한 울음 소리가 들린다.
+		<<hawkScreechDesc "이">> 들린다.
 	<</if>>
 	<<if $syndromebird is 1>>
 		<<npc "Great Hawk">>
@@ -941,12 +962,20 @@
 		<<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
 		<br>
 	<<else>>
-		두려운 존재가 머리 위에서 빙글빙글 돌고 있다.
+		<<if $birdescaped gte 1>>
+			<<npc "Great Hawk">>
+			낯익은 <<beasttype_ i>> 머리 위에서 빙글빙글 돌고 있다.
+			<<endevent>>
+		<<else>>
+			두려운 존재가 머리 위에서 빙글빙글 돌고 있다.
+		<</if>>
 		<<if $moor_hunt is undefined>>
 			<span class="red">당신은 쫓기고 있다.</span><<ggstress>><<stress 12>>
 			<<set $moor_hunt to 1>>
+		<<else>>
+			<span class="red">당신을 추격하는 자가 빠르게 다가오고 있다.</span><<gstress>><<stress 6>>
+			<<set $moor_hunt += 3>>
 		<</if>>
-
 		<br><br>
 
 		<<link [[다음|Moor]]>><<set $eventskip to 1>><</link>>
@@ -956,15 +985,26 @@
 
 <<widget "moor_hunt">>
 	<<npc "Great Hawk">>
-	<span class="red">또 다른 울음 소리가 들린다.</span> 당신 뒤에서다. 가까이 있다.
-	<<if $monster is 1>>
-		당신은 고개를 돌려, 발 대신 발톱을 가진, 날개 달린 <<nnpc_gendery_ rul "Great Hawk">> 본다. <<bHe_ nun>> 발톱을 쭉 뻗은 채, 당신을 향해 달려든다.
+	<span class="red">또 다른 울음 소리가 들린다.</span> 이번에는 당신 뒤에서다. 가까이 있다. 당신이 뒤로 돌자,
+	<<if $birdescaped gte 1>>
+		그 <<beasttype_ i>>
+	<<elseif $monster is 1>>
+		깃털 날개가 달리고 발이 있을 자리에 발톱이 달린 <<nnpc_gendery_ ga "Great Hawk">> <<bhis_ yi>> 몸을 수그리고
 	<<else>>
-		당신은 고개를 돌려, 거대한 매가 발톱을 뻗고, 당신에게 달려드는 것을 본다.
+		거대한 <<beasttypePost>> 하나가
 	<</if>>
-	<<bHis_ yi>> 시선이 당신의 눈을 꿰뚫는다. 공포는 당신을 그 자리에 멈춰서게 만든다.
+	하늘에서 급강하해 당신에게 내려오며, 당신을 잡으려 발톱을 뻗는다.
+	<<if $birdescaped gte 1>>
+		당신의 눈이 <<bhis_ yi>> 눈과 마주치고, 공포가 당신의 팔다리를 붙잡는다.
+		<<if $monster is 1 or understandsBirdBehaviour()>>
+			<<bhis_ yi>> 강렬한 응시에도 불구하고, 당신은 그 아래에서 배려심을 볼 수 있다.
+		<</if>>
+	<<else>>
+		<<bHis_ yi>> 응시가 당신을 공포에 질려 그 자리에서 움직이지 못하게 한다.
+	<</if>>
 	<br><br>
-	<<link [[가만히 있는다|Moor Bird Still]]>><</link>>
+
+	<<link [[가만히 있는다|Moor Bird Still]]>><<sub 1>><<unset $phase>><</link>>
 	<br>
 	<<link [[저항한다|Moor Bird Resist]]>><</link>><<willpowerdifficulty 1 300>>
 	<br>

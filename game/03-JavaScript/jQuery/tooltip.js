@@ -87,7 +87,6 @@ function initializeTooltips() {
 				cursor: "help",
 				delay: 150,
 				width: null,
-				maxWidth: 450,
 			};
 
 			/*
@@ -126,9 +125,9 @@ $.fn.tooltip = function (options = {}) {
 			delay: 150,
 			position: "cursor",
 			cursor: "help",
+			style: null,
 			anchorStyle: null,
 			width: null,
-			maxWidth: null,
 		};
 		return $.extend({}, defaults, options);
 	};
@@ -155,10 +154,15 @@ $.fn.tooltip = function (options = {}) {
 			if (!$.contains(document, $this[0])) return;
 			tooltip = $("<div>").addClass("tooltip-popup");
 			const header = $("<div>").addClass("tooltip-header").html(settings.title);
-			const body = $("<div>").addClass("tooltip-body").html(settings.message);
+			const body = $("<div>").addClass("tooltip-body");
+			if (settings.message instanceof DocumentFragment) {
+				body.append(settings.message);
+			} else {
+				body.html(settings.message);
+			}
+			if (settings.style) body.addClass(settings.style);
 			tooltip.append(header, body);
 			if (settings.width) tooltip.css("width", settings.width);
-			if (settings.maxWidth) tooltip.css("maxWidth", settings.maxWidth);
 			$("body").append(tooltip);
 			$this.data("tooltip-instance", tooltip);
 			updatePosition.call($this, tooltip);
@@ -213,47 +217,68 @@ $.fn.tooltip = function (options = {}) {
 	const updatePosition = function (tooltipInstance) {
 		if (!tooltipInstance) return;
 
+		const windowWidth = $(window).width();
 		const distance = 3;
-		const offset = this.offset();
+		const { left: offsetLeft, top: offsetTop } = this.offset();
 		const { width, height } = this.get(0).getBoundingClientRect();
-		const cursorPosition = this.data("cursorPosition") || {};
+		const { x: cursorX, y: cursorY } = this.data("cursorPosition") || {};
 		const offsetX = 15;
 		const offsetY = 15;
-		const settings = $(this).data("tooltip-settings");
+		const position = (this.data("tooltip-settings") || {}).position?.toLowerCase() || "cursor";
 
-		const setPosition = (left, top) => {
-			tooltipInstance.css("transform", `translate(${left}px, ${top}px)`);
-		};
+		// Max width for mobile devices to not go off-screen
+		const maxWidth = Math.max(windowWidth - cursorX - offsetX - distance, 100);
+		tooltipInstance.css("max-width", `${maxWidth}px`);
 
-		switch (settings.position.toLowerCase()) {
-			case "cursor":
-				setPosition(cursorPosition.x + offsetX, cursorPosition.y + offsetY);
-				break;
-			case "top":
-				setPosition(offset.left + width / 2 - tooltipInstance.outerWidth() / 2, offset.top - tooltipInstance.outerHeight() - distance);
-				break;
-			case "bottom":
-				setPosition(offset.left + width / 2 - tooltipInstance.outerWidth() / 2, offset.top + height + distance);
-				break;
-			case "left":
-				setPosition(offset.left - tooltipInstance.outerWidth() - distance, offset.top + height / 2 - tooltipInstance.outerHeight() / 2);
-				break;
-			case "right":
-				setPosition(offset.left + width + distance, offset.top + height / 2 - tooltipInstance.outerHeight() / 2);
-				break;
-			case "bottomRight":
-				setPosition(offset.left + width + distance, offset.top + height + distance);
-				break;
-			case "bottomLeft":
-				setPosition(offset.left - tooltipInstance.outerWidth() - distance, offset.top + height + distance);
-				break;
-			case "topRight":
-				setPosition(offset.left + width + distance, offset.top - tooltipInstance.outerHeight() - distance);
-				break;
-			case "topLeft":
-				setPosition(offset.left - tooltipInstance.outerWidth() - distance, offset.top - tooltipInstance.outerHeight() - distance);
-				break;
+		let left = cursorX + offsetX;
+		let top = cursorY + offsetY;
+
+		if (position !== "cursor") {
+			const tooltipWidth = tooltipInstance.outerWidth();
+			const tooltipHeight = tooltipInstance.outerHeight();
+			const centerHorizontal = offsetLeft + width / 2 - tooltipWidth / 2;
+			const centerVertical = offsetTop + height / 2 - tooltipHeight / 2;
+
+			switch (position) {
+				case "top":
+					left = centerHorizontal;
+					top = offsetTop - tooltipHeight - distance;
+					break;
+				case "bottom":
+					left = centerHorizontal;
+					top = offsetTop + height + distance;
+					break;
+				case "left":
+					left = offsetLeft - tooltipWidth - distance;
+					top = centerVertical;
+					break;
+				case "right":
+					left = offsetLeft + width + distance;
+					top = centerVertical;
+					break;
+				case "bottomRight":
+					left = offsetLeft + width - tooltipWidth - distance;
+					top = offsetTop + height + distance;
+					break;
+				case "bottomLeft":
+					left = offsetLeft + distance;
+					top = offsetTop + height + distance;
+					break;
+				case "topRight":
+					left = offsetLeft + width - tooltipWidth - distance;
+					top = offsetTop - tooltipHeight - distance;
+					break;
+				case "topLeft":
+					left = offsetLeft + distance;
+					top = offsetTop - tooltipHeight - distance;
+					break;
+			}
 		}
+
+		// Adjust for window edges
+		left = Math.min(left, windowWidth - tooltipInstance.outerWidth() - offsetX - distance);
+		left = Math.max(left, distance);
+		tooltipInstance.css("transform", `translate(${left}px, ${top}px)`);
 	};
 
 	// Enable or Disable tooltip

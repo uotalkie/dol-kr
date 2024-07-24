@@ -1,4 +1,13 @@
-/* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
+/* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites.
+
+Warmth checklist:
+	Base: 0
+	Normal: 0
+	Thick: +1
+	Very thick: +2
+
+	Max warmth: 2
+*/
 function initNeck() {
 	setup.clothes.neck = [
 		{
@@ -107,7 +116,7 @@ function initNeck() {
 			colour_combat: "yellow",
 			type: ["holy"],
 			gender: "n",
-			warmth: 1,
+			warmth: 0,
 			cost: 1000,
 			description: "Heavy. So you don't forget you're wearing it.",
 			shop: ["forest"],
@@ -167,7 +176,7 @@ function initNeck() {
 			colour_combat: "black",
 			type: ["holy"],
 			gender: "n",
-			warmth: 1,
+			warmth: 0,
 			cost: 2000,
 			description: "An old holy symbol on a simple string.",
 			shop: ["forest"],
@@ -447,7 +456,7 @@ function initNeck() {
 			type: ["normal"],
 			gender: "m",
 			femininity: -100,
-			warmth: 1,
+			warmth: 0,
 			cost: 2000,
 			description: "They hold your pants.",
 			shop: ["clothing", "adult"],
@@ -462,6 +471,7 @@ function initNeck() {
 			iconFile: "suspenders.png",
 			accIcon: 0,
 			altposition: "none",
+			altdisabled: [],
 		},
 
 		{
@@ -530,7 +540,7 @@ function initNeck() {
 			type: ["normal"],
 			gender: "n",
 			femininity: 0,
-			warmth: 50,
+			warmth: 2,
 			cost: 1200,
 			description: "Snug.",
 			shop: ["clothing"],
@@ -622,7 +632,7 @@ function initNeck() {
 			type: ["holy"],
 			gender: "n",
 			femininity: 0,
-			warmth: 0,
+			warmth: 1,
 			cost: 10000,
 			description: "Ecclesiastical attire.",
 			shop: ["forest"],
@@ -914,7 +924,7 @@ function initNeck() {
 			colour_sidebar: 1,
 			type: ["normal"],
 			gender: "n",
-			warmth: 40,
+			warmth: 2,
 			cost: 3000,
 			description: "Soft and stylish.",
 			shop: ["clothing"],

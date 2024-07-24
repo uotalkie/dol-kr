@@ -478,7 +478,7 @@ Macro.add("canvasModelEditor", {
 		const options = model.options;
 
 		function redraw() {
-			let options = model.options;
+			const options = model.options;
 			model.reset();
 			model.options = options;
 			model.redraw();
@@ -823,9 +823,6 @@ Macro.add("canvasModelEditor", {
 						optionCategory("Misc"),
 						booleanOption("upper_tucked"),
 						booleanOption("hood_down"),
-						booleanOption("alt_position"),
-						booleanOption("alt_position_neck"),
-						booleanOption("alt_position_face"),
 						booleanOption("alt_sleeve"),
 						selectOption("facewear_layer", ["front", "back"]),
 					]),

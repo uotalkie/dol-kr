@@ -469,6 +469,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Feather Trick": {
+		title: "깃털 마법",
+		desc: "거대 매와 사냥할 때 한번의 하강으로 럴커 셋을 잡았다.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Wren the Sly": {
 		title: "밀수꾼 렌",
 		desc: "렌에게 순결을 바쳤다.",
@@ -872,6 +879,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Discoveries"],
 		hint: "Hint: 수렁에서 길을 잃는다.",
+	},
+	"Terror's Equal": {
+		title: "두려운 존재와 동급",
+		desc: "탑을 인상적인 사냥 전리품들로 채웠다.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: 하늘의 두려운 존재에 걸맞는 허영심을 부린다.",
+		softLockable: true,
+	},
+	"Birds of a Feather": {
+		title: "같은 깃털을 가진 새들은...",
+		desc: "...같은 곳에 모인다.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: 다른 종의 고아를 구출한다.",
 	},
 	"Head of the Pack": {
 		title: "무리의 우두머리",
@@ -2039,7 +2063,7 @@ function earnHourlyFeats() {
 	if (V.seductionskill >= 1000) earnFeat("Seductress");
 	if (V.tending >= 1000) earnFeat("Green Fingered");
 	if (V.housekeeping >= 1000) earnFeat("Majordomo");
-	if (V.baseAllure >= 7000 && V.outside === 1 && V.moonstate === 0) earnFeat("Alluring");
+	if (V.baseAllure >= 7000 && V.outside === 1 && !Time.isBloodMoon()) earnFeat("Alluring");
 	if (V.science >= 1000 && V.maths >= 1000 && V.english >= 1000 && V.history >= 1000) earnFeat("Perfect Record");
 	if (V.earSlime.corruption >= 100) earnFeat("Ear Slime Lover");
 	if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 200) earnFeat("Ear Slime Amalgam");

@@ -173,3 +173,68 @@ function round(number, decimals) {
 	return Math.round(number * multiplier) / multiplier;
 }
 window.round = round;
+
+/**
+ * Categorises a value into a specified number of categories based on its position within a given range.
+ * The function automatically handles both ascending (min < max) and descending (min > max) ranges.
+ *
+ * @param {number} value The value to be categorized.
+ * @param {number} min The start of the range.
+ * @param {number} max The end of the range.
+ * @param {number} parts The number of categories into which the range should be divided.
+ * @returns {number} Returns the category index, ranging from 0 to parts-1.
+ * Examples:
+ *  categorise(15, 10, 20, 4);
+ *  Result: 2
+ *  Divides the range 10-20 into 4 parts, and 15 falls into the third part. (First part is 0)
+ *
+ *  categorise(15, 20, 10, 4);
+ *  Result: 1
+ *  Divides the range 20-10 into 4 parts, and 15 falls into the second part.
+ *
+ *  categorise(5, 0, 10, 5);
+ *  Result: 0
+ *  Divides the range 0-10 into 5 parts, and 5 falls right on the border of the first and second part but is rounded down.
+ *
+ *  categorise(18, 20, 10, 5);
+ *  Result: 3
+ *  Divides the range 20-10 into 5 parts, and 18 falls into the fourth part.
+ */
+function categorise(value, min, max, parts) {
+	const normalised = normalise(value, Math.max(min, max), Math.min(min, max));
+	const category = Math.floor(normalised * parts);
+	return Math.clamp(min > max ? parts - 1 - category : category, 0, parts - 1);
+}
+window.categorise = categorise;
+
+/**
+ * Generates a random number within a specified range around a given base number.
+ *
+ * @param {number} num The base number.
+ * @param {number} min The minimum offset subtracted from the base number.
+ * @param {number} max The maximum offset added to the base number.
+ * @returns {number} A random number between `num - min` and `num + max`.
+ */
+function boundedRandom(num, min, max) {
+	const lowerBound = num - min;
+	const upperBound = num + (max ?? min);
+	return round(randomFloat(lowerBound, upperBound), 2);
+}
+window.boundedRandom = boundedRandom;
+
+/**
+ * Generates a random integer based on chance and max value
+ *
+ * @param {number} chance Value between 0 and 1
+ * @param {number} max Integer
+ */
+function calculateBinomial(chance, max) {
+	let result = 0;
+	for (let i = 0; i < max; i++) {
+		if (State.random() < chance) {
+			result++;
+		}
+	}
+	return result;
+}
+window.calculateBinomial = calculateBinomial;

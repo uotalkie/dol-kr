@@ -15,33 +15,33 @@
 <</if>>
 해변으로 향하는 길이 있다.
 <<if Time.dayState is "day">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		바다로부터 바람이 불어온다.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		바다로부터 바람이 불어온다.
 	<<else>>
 		바다로부터 산들바람이 가볍게 불어온다.
 	<</if>>
 <<elseif Time.dayState is "dawn">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		비가 바다에서부터 휘몰아친다.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		차가운 바람이 바다에서부터 윙윙거린다.
 	<<else>>
 		도로에 차가 아주 많다. 사람들이 직장으로 가고 있다.
 	<</if>>
 <<elseif Time.dayState is "dusk">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		비가 바다에서부터 휘몰아치며, 근무를 마치고 집으로 향하는 사람들을 흠뻑 적신다.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		차가운 바람이 바다에서부터 윙윙거리며, 근무를 마치고 집으로 향하는 사람들을 오싹하게 한다.
 	<<else>>
 		도로에 차가 아주 많다. 사람들이 직장에서 집으로 돌아가고 있다.
 	<</if>>
 <<elseif Time.dayState is "night">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		바다가 아래에서 으르렁거린다.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		바다가 아래에서 설렁거린다.
 	<<else>>
 		거리는 어둡고 조용하다. 오직 바닷소리만이 들려온다.
@@ -72,11 +72,14 @@
 	<</if>>
 <<else>>
 	<<if ndef $pillory_tenant>><<setup_pillory>><</if>>
+	<<set _endTime to new DateTime($pillory_tenant.endTime)>>
+	<<set _timeLeft to Time.date.compareWith(_endTime)>>
+
 	<<if $pillory_tenant.exists is 1>> /* If someone is in pillory... */
-		<<if $timeStamp gte $pillory_tenant.endDate>>/* If sentence finished before today. */
+		<<if _endTime.hours lt -2>> /* If sentence finished before today. */
 			<<clear_pillory>>
-		<<elseif ($pillory_tenant.endDate - $timeStamp) lte TimeConstants.secondsPerDay>>
-			<<if Time.hour is $pillory_tenant.endhour>> /* If ending now? */
+		<<elseif _timeLeft.days lt 1>>
+			<<if $pillory_tenant.endTime <= Time.date.timeStamp>> /* If ending now? */
 				<<end_npc_pillory>>
 			<<else>> /* Sentence ongoing. */
 				<<npc_pillory>>
@@ -84,7 +87,7 @@
 		<<else>> /* Sentence ongoing to tomorrow. */
 			<<npc_pillory>>
 		<</if>>
-	<<elseif $rng %10 is 0>> /* Pillory empty gives 10% chance of new person */
+	<<elseif $rng lte 100>> /* Pillory empty gives 10% chance of new person */
 		<<new_npc_pillory>>
 	<</if>>
 <</if>>
@@ -157,7 +160,8 @@
 			<</if>>
 			<br>
 		<<elseif $pillory_tenant.exists is 1 and $exposed lte 0>>
-			<<if Time.hour is ($pillory_tenant.endhour -1) and Time.minute gte 50>>
+			<<set _timeLeft to Time.date.compareWith($pillory_tenant.endTime)>>
+			<<if _timeLeft.hours eq 0 and _timeLeft.minutes lte 10>>
 				<span class="blue">경찰관 한 명이 군중들을 해산시키려 하고 있다.</span>
 				<br>
 				<<pilloryicon>><<link [[지켜본다 (0:10)|Cliff Street]]>><<pass 10>><</link>>
@@ -176,7 +180,7 @@
 		<</if>>
 		<<customHome "cliff">><br><<beachicon>><<link [[해변 (0:05)|Beach]]>><<pass 5>><</link>>
 		<br>
-		<<if $exhibitionismrun is "cliff" and $weather is "clear">>
+		<<if $exhibitionismrun is "cliff" and !Weather.isOvercast>>
 			<<ind>><<link [[탈의한다 (0:07)|Cliff Challenge]]>><</link>>
 			<br>
 		<</if>>
@@ -457,7 +461,7 @@ You shudder and pocket the money.
 	당신은 그걸 <<the_pillory_person>>에게
 	<<if $rng gte 75>>
 	<<set $pillory_tenant.fruit += 1>>
-		던지고, <span class="teal"><<him>>의 얼굴에 정확히 맞는다.</span> 그때의 반응은 정말로 우습다.
+		던지고, <span class="teal"><<him_ yi>> 얼굴에 정확히 맞는다.</span> 그때의 반응은 정말로 우습다.
 		<<if currentSkillValue('physique') gte ($physiquesize / 7) * 4>>You put a lot of strength behind it, it must have hurt.<</if>>
 		<<llstress>><<stress -12>>
 		<br>
@@ -968,11 +972,14 @@ or whatever and let you off with community service. But it's your call. What'll 
 <br>
 
 :: Cliff Street Prisoner Escape Fail 5
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">><<earnFeat "You're the Laughingstock">>
-<<set _sentence_days_left to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerDay)>>/* Calc hours remaining */
-<<set _hours to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerHour)>>/* hours to end hour */
-<<if _hours gte 27>><<set _hours to 27>><</if>>
-<<if _hours lt 2>><<set _hours to 2>><</if>> /* cap hours: high and low */
+<<set $outside to 1>>
+<<set $location to "town">><<set $bus to "cliff">>
+<<effects>>
+<<earnFeat "You're the Laughingstock">>
+
+<<set _endTime to new DateTime($pillory_tenant.endTime)>>
+<<set _timeLeft to Time.date.compareWith(_endTime, true)>>
+<<set _hours to Math.clamp(_timeLeft / TimeConstants.secondsPerHour, 2, 27)>>
 
 <<person2>>
 <<if $phase lte 1>>
@@ -1000,4 +1007,3 @@ The police officers walk away. The <<person4>><<person>> <<if $phase is 3>>who c
 <<endevent>>
 <br><br>
 <<link [[다음|Pillory]]>><</link>>
-<br>

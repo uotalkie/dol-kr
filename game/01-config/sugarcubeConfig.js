@@ -7,14 +7,17 @@ Config.history.maxStates = 5;
 /* debug will enable or disable the feature only for new games */
 /* sneaky will enable the Sneaky notice banner on the opening screen and save display */
 /* versionName will be displayed in the top right of the screen, leave as "" to not display anything */
-window.StartConfig = {
+const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.7.5",
-	versionName: "",
+	version: "0.5.0.6",
+	versionName: `"Head in the Clouds" edition`,
 	sneaky: false,
+	socialMediaEnabled: true,
+	sourceLinkEnabled: false,
 };
+window.StartConfig = StartConfig;
 
 State.prng.init();
 
@@ -45,6 +48,8 @@ idb.footerHTML = `
 	</div>`;
 
 function onLoad(save) {
+	$.event.trigger(":onloadsave", { save });
+
 	// some flags for version update. ideally, all updating should be done here in onLoad, but we don't live in an ideal world
 	pageLoading = true;
 	window.onLoadUpdateCheck = true;
@@ -127,6 +132,10 @@ function onSave(save, details) {
 		State.setSessionState(session);
 	}
 
+	// Save time and weather to localStorage
+	localStorage.setItem("weather", Packer.packWeatherData());
+	localStorage.setItem("time", Time.date.timeStamp.toString(36));
+
 	// * legacy code for old saves system * //
 	if (!(window.idb && window.idb.active)) {
 		// eslint-disable-next-line no-undef
@@ -167,20 +176,6 @@ l10nStrings.errorTitle = StartConfig.version + " Error";
 // delete parser that adds unneeded line breaks -ng
 Wikifier.Parser.delete("lineBreak");
 Wikifier.Parser.delete("emdash");
-
-/* ToDo: implement the dolls system, uncomment during and when its setup
-importScripts([
-	"img/dolls/NameValueMaps.js",
-	"img/dolls/dollUpdater.js",
-	"img/dolls/dollLoader.js",
-	"img/dolls/DollHouse.js",
-	"img/dolls/FDoll.js",
-]).then(function () {
-	console.log("Dolls scripts running");
-})
-.catch(function (err) {
-	console.log(err);
-}); */
 
 // Runs before a passage load, returning a string redirects to the new passage name.
 Config.navigation.override = function (dest) {

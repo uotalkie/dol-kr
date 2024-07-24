@@ -35,7 +35,7 @@ Macro.add(["button", "link"], {
 				passage = this.args[0].link;
 			} else {
 				// Argument was in wiki link syntax.
-				$link.append(document.createTextNode(this.args[0].text));
+				$link.append(document.createTextNode(Wikifier.wikifyEval(this.args[0].text).textContent));
 				passage = this.args[0].link;
 			}
 		} else {
@@ -124,7 +124,7 @@ Wikifier.Parser.add({
 
 		// text=(text), forceInternal=(~), link=link, setter=(setter)
 		const link = Wikifier.helpers.evalPassageId(markup.link);
-		const text = Object.hasOwn(markup, "text") ? Wikifier.helpers.evalText(markup.text) : link;
+		const text = Object.hasOwn(markup, "text") ? Wikifier.wikifyEval(markup.text).textContent : link;
 		const setFn = Object.hasOwn(markup, "setter") ? Wikifier.helpers.createShadowSetterCallback(Scripting.parse(markup.setter)) : null;
 
 		// Debug view setup.

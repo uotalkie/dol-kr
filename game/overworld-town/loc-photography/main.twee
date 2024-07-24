@@ -1,5 +1,5 @@
 :: Photo Entrance
-<<effects>>
+<<effects>><<set $location to "studio">>
 
 당신은 병원 맞은편에 있는, 높고 오래된 건물인 사진 스튜디오에 다가간다. 문으로 통하는 짧은 계단이 있다. "니키의 사진관. 모델 모집 중."
 <br><br>
@@ -10,7 +10,7 @@
 <br>
 
 :: Photo Intro
-<<effects>>
+<<effects>><<set $location to "studio">>
 <<set $photo_known to 2>>
 <<set $photo to {}>>
 <<set $photo.refused to 0>>
@@ -102,7 +102,7 @@
 <br>
 
 :: Photo
-<<set $outside to 0>><<effects>>
+<<set $outside to 0>><<set $location to "studio">><<effects>>
 
 <<if $photo.niki_event is undefined and C.npc.Niki.love gte 10 and $brothelintro gte 1>>
 	<<set $photo.niki_event to 1>>
@@ -143,15 +143,18 @@
 		<br>
 		<span class="lblue">You even see a good one of yours.</span>
 
-	<<elseif $fame.model gte 1000>>
+	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7) and $daily.photo is true>>
 		<br>
-		<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>
+		<span class="red">A full-size picture of you hangs front and centre. Empty eyes and a blank face stare back at you.</span>
+
+	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7)>>
+		<br>
+		<span class="red">A full-size picture of you hangs front and centre. Empty eyes and a blank face stare back at you.</span>
 		<<stress -3>><<lstress>>
-		<<trauma -3>><<ltrauma>>
 		<<if $daily.photo is undefined >>
 			<<set $daily.photo to true>>
 		<</if>>
-		
+
 	<<elseif $fame.model gte 1000 and $daily.photo is true >>
 		<<if $rng gte 21>>
 			<<rngWraith>>
@@ -160,61 +163,62 @@
 				<<trauma 6>><<gtrauma>>
 			<<else>>
 				<br>
-				<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>	
+				<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>
 			<</if>>
 		<<else>>
 			<br>
 			<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>
 		<</if>>
-		
-	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7)>>
+
+	<<elseif $fame.model gte 1000>>
 		<br>
-		<span class="red">A full-size picture of you hangs front and centre, empty eyes and a blank face stare back at you.</span>
+		<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>
 		<<stress -3>><<lstress>>
+		<<trauma -3>><<ltrauma>>
 		<<if $daily.photo is undefined >>
 			<<set $daily.photo to true>>
 		<</if>>
-
-	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7) and $daily.photo is true>>
-		<br>
-		<span class="red">A full-size picture of you hangs front and centre, empty eyes and a blank face stare back at you.</span>
 	<</if>>
 	<br><br>
 
-	<<if isPubfameTaskAccepted("niki")>>
-		<<if $pubfame.niki.examined>>
-			미키의 지인 사진이 벽에 붙어 있다.
-			<br>
-			<<ind>><<link [[훔친다|Photo Examine Steal]]>><<loadNPC 1 "pubfame_model">><</link>>
-			<br>
-			<<askicon>><<link [[가져갈 수 있는지 물어본다|Photo Examine Ask]]>><<loadNPC 1 "pubfame_model">><</link>>
-		<<else>>
-			미키의 지인 사진이 사진으로 가득한 벽 어디인가에 있을 것이다.
-			<br>
-			<<investigateicon>><<link [[조사한다 (0:05)|Photo Examine]]>><<pass 5>><<set $pubfame.niki.examined to true>><</link>>
-		<</if>>
-		<br><br>
-	<</if>>
-
-	<<if $photo.shoot is 1>>
-		<span class="blue">당신은 이미 이번 주에 모델로 일했다.</span>
-		<br>
+	<<if $stress gte $stressmax and isPlayerNonparasitePregnancyEnding()>>
+		<<pregnancyPassout "photo">>
 	<<else>>
-		<<ind>><<link [[모델 일을 한다 (최대 3:00)|Photo Model]]>><<set $photo.shoot to 1>><</link>><<exhibitionist1>>
-		<br>
-	<</if>>
-	/*
-	<<link [[다른 일이 없는지 묻는다|Photo Ask]]>><</link>>
-	<br>
-	<<if $photo.silly is "done">>
-		<<link [[가게 홍보를 하고 온 댓가를 받는다|Photo Street Paid]]>><<set $photo.silly to "paid">><</link>>
-		<br>
-	<</if>>
-	*/
-	<<nightingaleicon>><<link [[떠난다|Nightingale Street]]>><<endevent>><</link>>
-	<br>
+		<<if isPubfameTaskAccepted("niki")>>
+			<<if $pubfame.niki.examined>>
+				미키의 지인 사진이 벽에 붙어 있다.
+				<br>
+				<<ind>><<link [[훔친다|Photo Examine Steal]]>><<loadNPC 1 "pubfame_model">><</link>>
+				<br>
+				<<askicon>><<link [[가져갈 수 있는지 물어본다|Photo Examine Ask]]>><<loadNPC 1 "pubfame_model">><</link>>
+			<<else>>
+				미키의 지인 사진이 사진으로 가득한 벽 어디인가에 있을 것이다.
+				<br>
+				<<investigateicon>><<link [[조사한다 (0:05)|Photo Examine]]>><<pass 5>><<set $pubfame.niki.examined to true>><</link>>
+			<</if>>
+			<br><br>
+		<</if>>
 
-	<<set $niki_seen to "photo">>
+		<<if $photo.shoot is 1>>
+			<span class="blue">당신은 이미 이번 주에 모델로 일했다.</span>
+			<br>
+		<<else>>
+			<<ind>><<link [[모델 일을 한다 (최대 3:00)|Photo Model]]>><<set $photo.shoot to 1>><</link>><<exhibitionist1>>
+			<br>
+		<</if>>
+		/*
+		<<link [[다른 일이 없는지 묻는다|Photo Ask]]>><</link>>
+		<br>
+		<<if $photo.silly is "done">>
+			<<link [[가게 홍보를 하고 온 댓가를 받는다|Photo Street Paid]]>><<set $photo.silly to "paid">><</link>>
+			<br>
+		<</if>>
+		*/
+		<<nightingaleicon>><<link [[떠난다|Nightingale Street]]>><<endevent>><</link>>
+		<br>
+
+		<<set $niki_seen to "photo">>
+	<</if>>
 <</if>>
 
 :: Photo Ask

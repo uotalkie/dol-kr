@@ -108,6 +108,15 @@ function init_trHands()
             post: 1,
             description: "플레이보이 바니걸이 착용하면 충분히 섹시해 보이고, 집사가 착용하면 충분히 세련되어 보인다."
         },
+ 
+        {
+            index: 12,
+            name: "gold shackles",
+            name_ko: "금 수갑",
+            variable: "goldshackles",
+            post: 0,
+            description: "집념에 묶여 있다. 허영심에 묶여 있다."
+        },
      ];
 }
 window.init_trHands = init_trHands;

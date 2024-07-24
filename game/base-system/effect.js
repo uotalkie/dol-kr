@@ -246,16 +246,22 @@ function effects() {
 	sWikifier("<<autoTakePillCheck>>");
 	fragment.append(effectsWater());
 	fragment.append(effectsMakeup());
-	wikifier("temperature");
 
 	V.speechcycle++;
 	if (V.speechcycle >= 7) V.speechcycle = 0;
 
-	if (!V.inwater && V.squidcount) {
+	if (Weather.bodyTemperature < setup.WeatherTemperature.minTemperature + 1 && !Weather.BodyTemperature.isIncreasing()) {
+		element("span", `당신은 매우 춥고, 저체온증에 걸리려 하고 있다!`, "red");
+		br();
+	} else if (Weather.bodyTemperature > setup.WeatherTemperature.maxTemperature - 1 && !Weather.BodyTemperature.isDecreasing()) {
+		element("span", `당신은 극심하게 더우며, 열사병에 걸리려 하고 있다!`, "red");
+		br();
+	}
+
+	if (!T.inWater && V.squidcount) {
 		element("span", `오징어${V.squidcount > 1 ? "들이" : "가"} 물을 찾아, 당신에게서 떨어진다.`, "blue");
 		V.squidcount = 0;
 	}
-	V.inwater = 0;
 
 	if (V.scienceproject === "ongoing" && V.scienceprojectdays === 0 && !V.scienceprojectwarning) {
 		V.scienceprojectwarning = 1;
@@ -934,7 +940,7 @@ function effects() {
 						? `과 클리토리스 주위에 형성되었다. 그것은 이제 당신 자신의 자지가 된 것 같은 ${looks}`
 						: `새 기생충이 당신의 클리토리스 주위에 형성되었고, 자지와 비슷한 ${looks}`;
 				}
-				sWikifier(`<span class="blue">만족스러운 따뜻함이 당신을 채운다. ${parasiteMessage}</span>`);
+				sWikifier(`<span class="blue">만족스러운 따뜻함이 당신을 채운다. ${parasiteMessage}.</span>`);
 				element("span", `당신은 ${parasiteCount > 1 ? "그것들이" : "그것이"} 당신 귓속의 슬라임에서 온 것이라는 것을 알고 있다.`);
 				if (V.earSlimePenisParasite && V.earSlimePenisParasite !== 1) {
 					element("span", `이전 ${trParasite(V.earSlimePenisParasite, '은')} 그것이 다 자라자 곧 떨어져 버린다.`, "red");
@@ -951,7 +957,7 @@ function effects() {
 		if (V.penisslimebrokenchastitymessage) {
 			element(
 				"span",
-				`당신의 성기에 있던 기생충이 떨어${
+				`당신의 성기 밑둥에 있던 기생충이 ${trClothes("genitals", V.penisslimebrokenchastitymessage)}에서 떨어${
 					V.penisslimecagemessage === 1 ? "지고, 그리고 곧바로, 새 기생충 정조대가 당신의 자지 주위에 형성된다" : "진다"
 				}.`,
 				"purple"

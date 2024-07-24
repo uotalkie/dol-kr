@@ -948,25 +948,28 @@
 <</widget>>
 
 <<widget "athletics">>
-	<<if _args[0] and not $statFreeze>>
-		<<set _temp to _args[0] || 1>>
-		<<set _temp *= ($exposed gte 2 ? 1.2 : $exposed is 1 ? 1.1 : 1)>>
-
-		<<for _slot range ["upper", "lower", "feet", "legs"]>>
-			<<if $worn[_slot].type.includes("athletic")>>
-				<<set _temp *= 1.1>>
-			<</if>>
-		<</for>>
-
-		<<if $worn.under_upper.type.includes("athletic") and $player.breastsize gte 6>>
-			<<set _temp *= 1.1>>
-		<<elseif $player.breastsize gte 6>>
-			<<set _temp /= 1.1>>
-		<</if>>
-
-		<<set $athletics += Math.trunc(_temp * 1.3)>>
-		<<set $athletics to Math.clamp($athletics, 0, 1000)>>
+	<<if !_args[0] or $statFreeze is true>>
+		<<exit>>
 	<</if>>
+
+	<<set _temp to _args[0] || 1>>
+	<<set _temp *= ($exposed gte 2 ? 1.2 : $exposed is 1 ? 1.1 : 1)>>
+
+	<<for _slot range ["upper", "lower", "feet", "legs"]>>
+		<<if $worn[_slot].type.includes("athletic")>>
+			<<set _temp *= 1.1>>
+		<</if>>
+	<</for>>
+
+	<<if $worn.under_upper.type.includes("athletic") and $player.breastsize gte 6>>
+		<<set _temp *= 1.1>>
+	<<elseif $player.breastsize gte 6>>
+		<<set _temp /= 1.1>>
+	<</if>>
+
+	<<set $athletics += Math.trunc(_temp * 1.3)>>
+	<<set $athletics to Math.clamp($athletics, 0, 1000)>>
+	<<set Weather.BodyTemperature.addActivity("athletics")>>
 <</widget>>
 
 <<widget "tending">>
@@ -991,29 +994,32 @@
 <</widget>>
 
 <<widget "physique">>
-	<<if $statFreeze isnot true>>
-		<<if _args[0]>><<set _temp to _args[0]>><<set $workouts += _args[0]>><<else>><<set _temp to 1>><<set $workouts += 1>><</if>>
-		<<if $exposed gte 2>>
-			<<set _temp *= 1.2>>
-		<<elseif $exposed is 1>>
-			<<set _temp *= 1.1>>
-		<</if>>
-		<<set $physique += 10 * _temp>><<set $physiqueuse += _temp>>
-		<<if _args[1]>>
-			<<if _args[1] isnot "noMessage">>
-				<<if ($combat is 1 and _args[1] isnot "workout") or _args[1] is "invig">>
-					<span class="gold"> 기운이 넘친다.</span>
-				<<else>>
-					<span class="gold"> 좋은 운동이 되었다.</span>
-				<</if>>
-			<</if>>
-		<<elseif $combat is 1>>
-			<span class="gold"> 기운이 넘친다.</span>
-		<<else>>
-			<span class="gold"> 좋은 운동이 되었다.</span>
-		<</if>>
-		<<set $physique = Math.clamp($physique, 0, $physiquesize)>>
+	<<if $statFreeze is true>>
+		<<exit>>
 	<</if>>
+
+	<<if _args[0]>><<set _temp to _args[0]>><<set $workouts += _args[0]>><<else>><<set _temp to 1>><<set $workouts += 1>><</if>>
+	<<if $exposed gte 2>>
+		<<set _temp *= 1.2>>
+	<<elseif $exposed is 1>>
+		<<set _temp *= 1.1>>
+	<</if>>
+	<<set $physique += 10 * _temp>><<set $physiqueuse += _temp>>
+	<<if _args[1]>>
+		<<if _args[1] isnot "noMessage">>
+			<<if ($combat is 1 and _args[1] isnot "workout") or _args[1] is "invig">>
+				<span class="gold"> 기운이 넘친다.</span>
+			<<else>>
+				<span class="gold"> 좋은 운동이 되었다.</span>
+			<</if>>
+		<</if>>
+	<<elseif $combat is 1>>
+		<span class="gold"> 기운이 넘친다.</span>
+	<<else>>
+		<span class="gold"> 좋은 운동이 되었다.</span>
+	<</if>>
+	<<set $physique = Math.clamp($physique, 0, $physiquesize)>>
+	<<set Weather.BodyTemperature.addActivity("physique")>>
 <</widget>>
 
 <<widget "physique_loss">>
@@ -1825,7 +1831,7 @@
 	<<set _season to (Time.season == "winter" ? "_winter" : "")>>
 	<<set _weather_display to (Time.season == "winter" ? "winter" : "normal")>>
 	<<if $options.images is 1>>
-		<<if Time.dayState is "night" and (isBloodmoon() or $forcedBloodmoon)>>
+		<<if Time.dayState is "night" and (Time.isBloodMoon() or $forcedBloodmoon)>>
 			<<set _dayStateWithBloodMoon to "_bloodmoon">>
 		<<else>>
 			<<set _dayStateWithBloodMoon to "_"+Time.dayState>>
@@ -1833,12 +1839,10 @@
 		<<set _dayState to "_"+Time.dayState>>
 
 		<<set _imgLoc to 'img/misc/'>>
-		<<set _imgSky to 'img/misc/sky/'>>
+		<<set _imgSky to 'img/misc/old/'>>
 
 		/* sky (upmost part) */
-		<<if $skyHidden is true>>
-			<<set _skybox to "skybox_blank">>
-		<<elseif $location is "tentworld">>
+		<<if $location is "tentworld">>
 			<<set _skybox to "skybox" + _dayState + "_tentacle">>
 		<<else>>
 			<<set _skybox to "skybox" + _dayStateWithBloodMoon>>
@@ -1851,211 +1855,90 @@
 		</div>
 
 		/* weather (middle part) */
-		<<if $location is "tentworld" or $skyHidden is true>>
-		<<else>>
-			<<switch $weather>>
-				<<case "clear">>
-				<<case "overcast">> <img id="weather" @src="_imgSky + 'overcast' + _dayState + _season + '.png'">
-				<<case "rain">>		<img id="weather" @src="_imgSky + 'rain' + _dayState + '.gif'">
-				<<case "snow">>		<img id="weather" @src="_imgSky + 'snow' + _dayState + '.gif'">
-			<</switch>>
+		<<if $location isnot "tentworld">>
+			<<if Weather.precipitation is "rain">>
+				<img id="weather" @src="_imgSky + 'rain' + _dayState + '.gif'">
+			<<elseif Weather.precipitation is "snow">>
+				<img id="weather" @src="_imgSky + 'snow' + _dayState + '.gif'">
+			<<elseif Weather.isOvercast>>
+				<img id="weather" @src="_imgSky + 'overcast' + _dayState + _season + '.png'">
+			<</if>>
 		<</if>>
 
 		/* location (bottom part) */
-		<<switch $location>>
-			<<case "adult_shop">>
-				<<getadultshopstate>>
-				<<if Time.dayState is "day" and $adultshopstate isnot "closed">>
-					<img id="location" @src="_imgLoc + _weather_display + '/sex_shop'+_dayState+'_open.gif'">
-				<<elseif Time.dayState is "night" or Time.dayState is "dusk">>
-					<img id="location" @src="_imgLoc + _weather_display + '/sex_shop'+_dayState+'.gif'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/sex_shop'+_dayState+'.png'">
-				<</if>>
-			<<case "alex_cottage">>
-				<img id="location" @src="_imgLoc + _weather_display + '/alex_cottage'+_dayState+'.png'">
-			<<case "alex_farm">>
-				<<if $bus is "woodland">>
-					<img id="location" @src="_imgLoc + _weather_display + '/forest'+_dayStateWithBloodMoon+'.gif'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/alex_farm'+_dayState+'.png'">
-				<</if>>
-			<<case "alley">>
-				<<if $bus is "industrial">>
-					<img id="location" @src="_imgLoc + _weather_display + '/indust_alley'+_dayStateWithBloodMoon+'.gif'">
-				<<elseif $bus is "residential">>
-					<img id="location" @src="_imgLoc + _weather_display + '/resi_alley'+_dayStateWithBloodMoon+'.gif'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/alley'+_dayStateWithBloodMoon+'.gif'">
-				<</if>>
-			<<case "arcade">>
-				<img id="location" @src="_imgLoc + _weather_display + '/arcade'+_dayState+'.png'">
-			<<case "asylum">>
-				<<if $hallucinations gte 1>>
-					<img id="location" @src="_imgLoc + _weather_display + '/asylum'+_dayState+'vfast.gif'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/asylum'+_dayState+'slow.gif'">
-				<</if>>
-			<<case "beach" "chalets">>
-				<img id="location" @src="_imgLoc + _weather_display + '/beach'+_dayState+'.gif'">
-			<<case "bog">>
-				<img id="location" @src="_imgLoc + _weather_display + '/bog'+_dayStateWithBloodMoon+'.gif'">
-			<<case "brothel">>
-				<img id="location" @src="_imgLoc + _weather_display + '/brothel'+_dayState+'.png'">
-			<<case "cabin">>
-				<img id="location" @src="_imgLoc + _weather_display + '/cabin'+_dayState+'.png'">
-			<<case "cafe">>
-				<<if $chef_state gte 9>>
-					<img id="location" @src="_imgLoc + _weather_display + '/cafe_renovated'+_dayState+'.png'">
-				<<elseif $chef_state gte 7>>
-					<img id="location" @src="_imgLoc + _weather_display + '/cafe_construction'+_dayState+'.png'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/cafe'+_dayState+'.png'">
-				<</if>>
-			<<case "canal">>
-				<img id="location" @src="_imgLoc + _weather_display + '/canal'+_dayState+'.gif'">
-			<<case "churchyard">>
-				<img id="location" @src="_imgLoc + _weather_display + '/churchyard'+_dayState+'.png'">
-			<<case "compound">>
-				<img id="location" @src="_imgLoc + _weather_display + '/compound'+_dayState+'.gif'">
-			<<case "dance_studio">>
-				<img id="location" @src="_imgLoc + _weather_display + '/dance_studio'+_dayState+'.png'">
-			<<case "dilapidated_shop">>
-				<img id="location" @src="_imgLoc + _weather_display + '/dilapidated_shop'+_dayState+'.png'">
-			<<case "docks">>
-				<img id="location" @src="_imgLoc + _weather_display + '/docks'+_dayState+'.png'">
-			<<case "drain">>
-				<img id="location" @src="_imgLoc + _weather_display + '/drain.gif'">
-			<<case "estate">>
-				<img id="location" @src="_imgLoc + _weather_display + '/remy_farm'+_dayState+'.png'">
-			<<case "factory">>
-				<<if Time.dayState is "night">>
-					<img id="location" @src="_imgLoc + _weather_display + '/factory'+_dayState+'.png'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/factory'+_dayState+'.gif'">
-				<</if>>
-			<<case "farm">>
-				<img id="location" @src="_imgLoc + _weather_display + '/farm'+_dayState+'.png'">
-			<<case "flats">>
-				<img id="location" @src="_imgLoc + _weather_display + '/flats'+_dayState+'.png'">
-			<<case "forest">>
-				<img id="location" @src="_imgLoc + _weather_display + '/forest'+_dayStateWithBloodMoon+'.gif'">
-			<<case "forest_shop">>
-				<img id="location" @src="_imgLoc + _weather_display + '/forest_shop'+_dayState+'.png'">
-			<<case "home">>
-				<img id="location" @src="_imgLoc + _weather_display + '/home'+_dayStateWithBloodMoon+'.gif'">
-			<<case "hospital">>
-				<img id="location" @src="_imgLoc + _weather_display + '/hospital'+_dayState+'.png'">
-			<<case "island">>
-				<img id="location" @src="_imgLoc + _weather_display + '/island'+_dayState+'.gif'">
-			<<case "kylar_manor">>
-				<img id="location" @src="_imgLoc + _weather_display + '/kylar_manor'+_dayState+'.png'">
-			<<case "lake">>
-				<img id="location" @src="_imgLoc + _weather_display + '/lake'+_dayStateWithBloodMoon+'.gif'">
-			<<case "lake_ruin">>
-				<img id="location" @src="_imgLoc + _weather_display + '/ruins'+_dayStateWithBloodMoon+'.gif'">
-			<<case "landfill">>
-				<img id="location" @src="_imgLoc + _weather_display + '/landfill'+_dayState+'.png'">
-			<<case "meadow">>
-				<img id="location" @src="_imgLoc + _weather_display + '/meadow'+_dayState+'.gif'">
-			<<case "mines">>
-				<img id="location" @src="_imgLoc + _weather_display + '/underground'+_dayState+'.png'">
-			<<case "moor">>
-				<img id="location" @src="_imgLoc + _weather_display + '/moor'+_dayState+'.gif'">
-			<<case "museum">>
-				<img id="location" @src="_imgLoc + _weather_display + '/museum'+_dayState+'.png'">
-			<<case "night_monster_lair">>
-				<img id="location" @src="_imgLoc + _weather_display + '/night_monster_lair'+_dayState+'.gif'">
-			<<case "office_building">>
-				<img id="location" @src="_imgLoc + _weather_display + '/office'+_dayState+'.png'">
-			<<case "park">>
-				<<if Time.season is "winter">>
-					<img id="location" @src="_imgLoc + _weather_display + '/park'+_dayState+'.png'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/park'+_dayState+'.gif'">
-				<</if>>
-			<<case "police_station">>
-				<img id="location" @src="_imgLoc + _weather_display + '/police_station'+_dayState+'.png'">
-			<<case "pound">>
-				<img id="location" @src="_imgLoc + _weather_display + '/dog_pound'+_dayState+'.gif'">
-			<<case "pool">>
-				<img id="location" @src="_imgLoc + _weather_display + '/pool'+_dayState+'.gif'">
-			<<case "prison">>
-				<img id="location" @src="_imgLoc + _weather_display + '/prison'+_dayStateWithBloodMoon+'.gif'">
-			<<case "promenade">>
-				<img id="location" @src="_imgLoc + _weather_display + '/promenade_beach'+_dayState+'.gif'">
-			<<case "pub">>
-				<img id="location" @src="_imgLoc + _weather_display + '/pub'+_dayState+'.png'">
-			<<case "riding_school">>
-				<img id="location" @src="_imgLoc + _weather_display + '/riding_school'+_dayState+'.gif'">
-			<<case "school">>
-				<img id="location" @src="_imgLoc + _weather_display + '/school'+_dayState+'.png'">
-			<<case "sea">>
-				<img id="location" @src="_imgLoc + _weather_display + '/ocean'+_dayState+'.gif'">
-			<<case "seapirates">>
-				<img id="location" @src="_imgLoc + _weather_display + '/boat'+_dayState+'.gif'">
-			<<case "sepulchre">>
-				<img id="location" @src="_imgLoc + _weather_display + '/sepulchre'+_dayState+'.png'">
-			<<case "sewers">>
-				<img id="location" @src="_imgLoc + _weather_display + '/sewers'+_dayState+'.gif'">
-			<<case "shopping_centre">>
-				<img id="location" @src="_imgLoc + _weather_display + '/shopping_centre'+_dayState+'.png'">
-			<<case "spa">>
-				<img id="location" @src="_imgLoc + _weather_display + '/spa'+_dayState+'.gif'">
-			<<case "strip_club">>
-				<img id="location" @src="_imgLoc + _weather_display + '/strip_club'+_dayState+'.png'">
-			<<case "temple">>
-				<<if Time.year is 361>>
-					<img id="location" @src="_imgLoc + _weather_display + '/temple'+_dayState+'_old.png'">
-				<<else>>
-					<img id="location" @src="_imgLoc + _weather_display + '/temple'+_dayState+'.png'">
-				<</if>>
-			<<case "tentworld">>
-				<img id="location" @src="_imgLoc + _weather_display + '/tentacles'+_dayState+'.gif'">
-			<<case "tower" "castle">>
-				<img id="location" @src="_imgLoc + _weather_display + '/tower'+_dayStateWithBloodMoon+'.gif'">
-			<<case "town">>
-				<img id="location" @src="_imgLoc + _weather_display + '/town'+_dayState+'.gif'">
-			<<case "underground">>
-				<img id="location" @src="_imgLoc + _weather_display + '/underground'+_dayState+'.png'">
-			<<case "wolf_cave">>
-				<img id="location" @src="_imgLoc + _weather_display + '/wolf_cave'+_dayState+'.png'">
+		/* For backward compatibility during transition period */
+		<<script>>
+			const path = "img/misc/locations/";
+			const location = setup.Locations.get();
+			const loc = setup.LocationImages[location];
+			T.images = [];
 
-		<</switch>>
+			const imagesToCheck = loc.base ? Object.values(loc.base) : Object.entries(loc.reflective).filter(([key]) => key !== "mask").map(([key, value]) => value);
+			imagesToCheck.forEach(item => {
+				if (item.condition && !item.condition()) return;
+
+				const imagePath = typeof item === "string" ? item : item.image;
+				T.images.push(imagePath instanceof Image ? imagePath.src : `${path}${loc.folder}/${imagePath}`);
+			});
+		<</script>>
+
+		<div id="oldlocation">
+			<<for _img range _images>>
+				<img id="oldlocationimg" @src="_img">
+			<</for>>
+		</div>
+
 	<<else>>
 		<<switch Time.dayState>>
 			<<case "day">>
-				<<switch $weather>>
-					<<case "clear">>밝고 화창한 날이다.
-					<<case "rain">>비가 오는 날이다.
-					<<case "overcast">>구름이 태양을 가리고 있다.
-					<<case "snow">>눈이 오는 날이다.
+				<<switch Weather.name>>
+					<<case "clear" "lightClouds">>밝고 화창한 날이다.
+					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+						<<if Weather.precipitation is "rain">>
+							비가 오는 날이다.
+						<<else>>
+							눈이 오는 날이다.
+						<</if>>
+					<<case "heavyClouds">>구름이 태양을 가리고 있다.
 				<</switch>>
 			<<case "night">>
-				<<switch $weather>>
-					<<case "clear">>별들이 반짝인다.
-					<<case "rain">>비가 오는 밤이다.
-					<<case "overcast">>모든 별빛이 구름에 가려져 있다.
-					<<case "snow">>눈이 오는 밤이다.
+				<<switch Weather.name>>
+					<<case "clear" "lightClouds">>별들이 반짝이고 있다.
+					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+						<<if Weather.precipitation is "rain">>
+							비가 오는 밤이다.
+						<<else>>
+							눈이 오는 밤이다.
+						<</if>>
+					<<case "heavyClouds">>모든 별빛이 구름에 가려져 있다.
 				<</switch>>
 			<<case "dawn">>
-				<<switch $weather>>
-					<<case "clear">>태양이 떠오르고 있다.
-					<<case "rain">>비가 오는 아침이다.
-					<<case "overcast">>구름 낀 아침이다.
-					<<case "snow">>눈이 오는 아침이다.
+				<<switch Weather.name>>
+					<<case "clear" "lightClouds">>태양이 떠오르고 있다.
+					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						비가 오는 아침이다.
+					<<else>>
+						눈이 오는 아침이다.
+					<</if>>
+					<<case "heavyClouds">>구름 낀 아침이다.
 				<</switch>>
 			<<case "dusk">>
-				<<switch $weather>>
-					<<case "clear">>태양이 지고 있다.
-					<<case "rain">>비가 오는 저녁이다.
-					<<case "overcast">>구름 낀 저녁이다.
-					<<case "snow">>눈이 오는 저녁이다.
+				<<switch Weather.name>>
+					<<case "clear" "lightClouds">>태양이 지고 있다.
+					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						비가 오는 저녁이다.
+					<<else>>
+						눈이 오는 저녁이다.
+					<</if>>
+					<<case "heavyClouds">>구름 낀 저녁이다.
 				<</switch>>
 		<</switch>>
 		<br>
 	<</if>>
 <</widget>>
+
 
 <<widget "wearandtear">>
 	<<if _args[0] is "dance">>
@@ -2179,14 +2062,21 @@
 <</widget>>
 
 <<widget "exposure">>
-	<<if !["beach","pool","sea","lake","lake_ruin"].includes($location)>>
-		<<set $libertine to 0>>
+	<!-- In safe locations, while alone, the player won't cover up. Love interest check is likely not hitting everywhere it should be due to NPCs generating after this check. -->
+	<<if ["Bedroom", "Sleep", "Bird Tower", "Bird Hunt"].some(keyword => V.passage.includes(keyword)) and !($NPCList.some(obj => Object.hasOwn(obj, "type")) and !$NPCList.find(({fullDescription:fd}) => fd && Object.values($loveInterest).includes(fd)))>>
+		<<set $libertine to 2>>
 	<<else>>
-		<<set $libertine to 1>>
+		<<set $libertine to 0>>
+		<<if !["beach","pool","sea","lake","lake_ruin"].includes($location)>>
+			<<set $libertine to 0>>
+		<<else>>
+			<<set $libertine to 1>>
+		<</if>>
+		<<if $location is "dance_studio" and $worn.under_lower.type.includes("dance") and $worn.under_upper.type.includes("dance")>>
+			<<set $libertine to 1>>
+		<</if>>
 	<</if>>
-	<<if $location is "dance_studio" and $worn.under_lower.type.includes("dance") and $worn.under_upper.type.includes("dance")>>
-		<<set $libertine to 1>>
-	<</if>>
+
 
 	<<set $worn.over_upper.exposedcarry to $worn.over_upper.exposed>>
 	<<set $worn.over_lower.exposedcarry to $worn.over_lower.exposed>>
@@ -2238,7 +2128,7 @@
 
 	<<if $worn.lower.exposed gte 2 and $worn.over_lower.exposed gte 2>>
 		<<if $possessed>>
-		<<elseif $worn.under_lower.exposed gte 1 and !$worn.legs.type.includes("covered")>>
+		<<elseif $worn.under_lower.exposed gte 1>>
 			<<set $exposed to 2>>
 		<<elseif $libertine gte 1 or $worn.under_lower.type.includes("covered")>>
 		<<else>>
@@ -2464,6 +2354,10 @@
 <</widget>>
 
 <<widget "water">>
+	<<set _inWater to true>>
+	<<if !waterproofCheck($worn.over_upper) and !$worn.over_upper.type.includes("naked") and _args[0] isnot "waist">>
+		<<set $upperwet to 200>>
+	<</if>>
 	<<if !waterproofCheck($worn.upper) and !$worn.upper.type.includes("naked") and _args[0] isnot "waist">>
 		<<set $upperwet to 200>>
 	<</if>>
@@ -2478,18 +2372,6 @@
 	<</if>>
 
 	<<waterwash>>
-	<<set $inwater to 1>>
-	<<set _water_warmth to 0>>
-	<<if $location isnot "sea" and $outside is 1 and Time.season is "winter">>
-		<<if $worn.upper.type.includes("diving") or $worn.under_upper.type.includes("diving")>>
-			<<set _water_warmth += 1>>
-		<</if>>
-		<<if $worn.lower.type.includes("diving") or $worn.under_lower.type.includes("diving")>>
-			<<set _water_warmth += 1>>
-		<</if>>
-	<<else>>
-		<<set _water_warmth to 2>>
-	<</if>>
 <</widget>>
 
 <<widget "wet_all">>
@@ -2837,12 +2719,12 @@
 		<<removeparasite bottom>>
 	<</if>>
 
-<<for _active_bodypart range setup.bodyparts>>
-	<<if $skin[_active_bodypart].pen is "pen" or $skin[_active_bodypart].pen is "lipstick" or $skin[_active_bodypart].pen is "mud">>
-		<<bodywriting_clear _active_bodypart>>
-	<</if>>
-<</for>>
-<<washmakeup>>
+	<<for _active_bodypart range setup.bodyparts>>
+		<<if $skin[_active_bodypart].pen is "pen" or $skin[_active_bodypart].pen is "lipstick" or $skin[_active_bodypart].pen is "mud">>
+			<<bodywriting_clear _active_bodypart>>
+		<</if>>
+	<</for>>
+	<<washmakeup>>
 <</widget>>
 
 <<widget "wash_face">>
@@ -3560,14 +3442,14 @@
 				"purity" : {
 					name: "순결",
 					value: T.npcData.purity,
-					activeIcon: (T.npcData.virginity.vaginal == false || T.npcData.virginity.penile == false ? "img/ui/sym_fallen_purity.png" : "img/ui/sym_purity.png"),
+					activeIcon: (T.npcData.virginity.vaginal == false || T.npcData.virginity.penile == false ? "img/misc/icon/tf_fallen.png" : "img/misc/icon/tf_angel.png"),
 					color: 'white'
 				},
 				"corruption" : {
 					name: "타락",
 					value: T.npcData.corruption,
 					iconOrientation : 'horizontal-inverted',
-					activeIcon: "img/ui/sym_demon_purity.png",
+					activeIcon: "img/misc/icon/tf_demon.png",
 					color: 'purple'
 				},
 				"harmony" : {
@@ -4015,26 +3897,27 @@
 <</widget>>
 
 <<widget "setup_pillory">>
-	<<set $pillory_tenant to {person : clone($baseNPC), exists : 0, duration : 0, served : 0, startday: 0, starthour : 0, endDate : 0, endhour : 0,
-								crowd : 0, wet : 0, upperexposed : 0 , lowerexposed : 0, fruit : 0, fruitstock: 0, face : 0, ass : 0, genital : 0, broken : 0,
-								lastviewed : { day : 0, hour: 0}, special : {name : "", desc : ""}}>>
+	<<set $pillory_tenant to {person : clone($baseNPC), exists : 0, duration : 0, served : 0, startTime: 0, endTime : 0,
+		crowd : 0, wet : 0, upperexposed : 0 , lowerexposed : 0, fruit : 0, fruitstock: 0, face : 0, ass : 0, genital : 0, broken : 0,
+		lastviewed : 0, special : {name : "", desc : ""}}>>
 <</widget>>
 
 <<widget "new_npc_pillory">>
 	<<if not _args[0]>>
 		<<if $rng gte 20>><<generate1>><<else>><<generatey1>><</if>>
-		<<set _already_served to random(0,2)>>
+		<<set $_already_served to random(0,2)>>
 	<<else>>
-		<<set _already_served to 0>>
+		<<set $_already_served to 0>>
 	<</if>>
 	<<set $pillory_tenant.exists to 1>>
 	<<set $pillory_tenant.person to clone($NPCList[0])>>
 	<<set $pillory_tenant.duration to random(4,27)>>
-	<<set $pillory_tenant.startday to Time.days>>
-	<<set $pillory_tenant.starthour to (Time.hour - _already_served)>>
-	/*set $endDate to timestamp and compare to $timeStamp*/
-	<<set $pillory_tenant.endDate to ($pillory_tenant.startday * TimeConstants.secondsPerDay + ($pillory_tenant.starthour + $pillory_tenant.duration - 7) * TimeConstants.secondsPerHour)>>
-	<<set $pillory_tenant.endhour to (($pillory_tenant.endDate % TimeConstants.secondsPerDay) / TimeConstants.secondsPerHour)>>
+
+	<<set $_duration to random(4,27)>>
+	<<set $_endTime to new DateTime(Time.date).addHours($_duration)>>
+	<<set $pillory_tenant.startTime to Time.date.timeStamp>>
+	<<set $pillory_tenant.endTime to $_endTime.timeStamp>>
+
 	<<set $pillory_tenant.crowd to 1>>
 	<<set $pillory_tenant.wet to 0>>
 	<<set $pillory_tenant.upperexposed to 0>>
@@ -4046,12 +3929,11 @@
 	<<set $pillory_tenant.ass to 0>>
 	<<set $pillory_tenant.genital to 0>>
 	<<set $pillory_tenant.broken to 0>>
-	<<set $pillory_tenant.lastviewed.day to Time.days>>
-	<<set $pillory_tenant.lastviewed.hour to Time.hour>>
+	<<set $pillory_tenant.lastViewed to Time.date.timeStamp>>
 
 	<<person1>>
 	<<if $pillory_tenant.special.name is "">>
-		<<personPost "이">><<if _already_served is 0>> 현재 구속대에 갇혀있다.<<else>> 최근에 구속대에 갇혀있었다.<</if>>
+		한 <<personPost "이">> <<if $_already_served is 0>>현재 구속대에 갇혀있다.<<else>>최근에 구속대에 갇혀있었다.<</if>>
 		<<endevent>>
 		<<npc_pillory_release_schedule>>
 		<br><br>
@@ -4249,49 +4131,57 @@
 <</widget>>
 
 <<widget "update_npc_pillory_appearance">>
-	<<if ($pillory_tenant.lastviewed.day isnot Time.days) or (Time.hour gte $pillory_tenant.lastviewed.hour + 2)>>
+	<<set $_lastViewed to new DateTime($pillory_tenant.lastViewed)>>
+	<<set $_timeLeft to Time.date.compareWith($_lastViewed, true)>>
+	<<if $_timeLeft / TimeConstants.secondsPerHour lte -2>>
 		/* last viewed time tracked to avoid this firing on every viewing */
-		<<set $pillory_tenant.lastviewed.day to Time.days>>
-		<<set $pillory_tenant.lastviewed.hour to Time.hour>>
+		<<set $pillory_tenant.lastViewed to Time.date.timeStamp>>
 
 		/*Weather effects*/
-		<<if $weather is "rain">><<set $pillory_tenant.wet to 2>>
-		<<elseif $pillory_tenant.wet is 2>><<set $pillory_tenant.wet to 1>>
-		<<else>><<set $pillory_tenant.wet to 0>>
+		<<if Weather.precipitation is "rain">>
+			<<set $pillory_tenant.wet to 2>>
+		<<elseif $pillory_tenant.wet is 2>>
+			<<set $pillory_tenant.wet to 1>>
+		<<else>>
+			<<set $pillory_tenant.wet to 0>>
 		<</if>>
 
 		/*Chance of abuse based on crowd and time passed*/
-		<<if Time.days - $pillory_tenant.startday is 2>><<set _chance to 24>>
-		<<elseif Time.days - $pillory_tenant.startday is 1>><<set _chance to 12>>
-		<<else>><<set _chance to (Time.hour - $pillory_tenant.starthour)>>
-		<</if>>
-		<<set _chance *= $pillory_tenant.crowd>>
+		<<set _totalSeconds to Time.date.compareWith(new DateTime($pillory_tenant.startTime), true) / TimeConstants.secondsPerHour>>
+		<<set $_chance to Math.clamp(_totalSeconds / TimeConstants.secondsPerHour, 0, 24)>>
+		<<set $_chance *= $pillory_tenant.crowd>>
+
 		/*increased by spectacle*/
-		<<set _factor to ($pillory_tenant.upperexposed + $pillory_tenant.lowerexposed + $pillory_tenant.fruit
-							+ $pillory_tenant.spank + $pillory_tenant.face + $pillory_tenant.ass + $pillory_tenant.genital)>>
-		<<if Time.dayState is "night">><<set _factor += 3>><</if>>
-		<<if $pillory_tenant.wet is 2>><<set _factor += 4>><</if>>
-		<<set _prob to (_chance * _factor)>>
+		<<set $_factor to ($pillory_tenant.upperexposed + $pillory_tenant.lowerexposed + $pillory_tenant.fruit
+			+ $pillory_tenant.spank + $pillory_tenant.face + $pillory_tenant.ass + $pillory_tenant.genital)>>
+
+		<<if Time.dayState is "night">>
+			<<set $_factor += 3>>
+		<</if>>
+		<<if $pillory_tenant.wet is 2>>
+			<<set $_factor += 4>>
+		<</if>>
+		<<set $_prob to ($_chance * $_factor)>>
 
 		/*Out of sight changes to tenant */
 		<<rng>>
-		<<if $rng gte (40 - _prob)>><<set $pillory_tenant.fruit += 1>><</if>>
+		<<if $rng gte (40 - $_prob)>><<set $pillory_tenant.fruit += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (60 - _prob)>><<set $pillory_tenant.crowd += 2>><</if>>
+		<<if $rng gte (60 - $_prob)>><<set $pillory_tenant.crowd += 2>><</if>>
 		<<rng>>
-		<<if $rng gte (60 - _prob)>><<set $pillory_tenant.upperexposed += 1>><</if>>
+		<<if $rng gte (60 - $_prob)>><<set $pillory_tenant.upperexposed += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (80 - _prob)>><<set $pillory_tenant.lowerexposed += 1>><</if>>
+		<<if $rng gte (80 - $_prob)>><<set $pillory_tenant.lowerexposed += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - _prob)>><<set $pillory_tenant.crowd += 2>><</if>>
+		<<if $rng gte (100 - $_prob)>><<set $pillory_tenant.crowd += 2>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - _prob)>><<set $pillory_tenant.fruit += 2>><<set $pillory_tenant.face += 1>><</if>>
+		<<if $rng gte (100 - $_prob)>><<set $pillory_tenant.fruit += 2>><<set $pillory_tenant.face += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - _prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.spank += 2>><<else>><<set $pillory_tenant.spank += 1>><</if>>
+		<<if $rng gte (100 - $_prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.spank += 2>><<else>><<set $pillory_tenant.spank += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - _prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.genital += 1>><</if>>
+		<<if $rng gte (100 - $_prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.genital += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - _prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.ass += 1>><</if>>
+		<<if $rng gte (100 - $_prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.ass += 1>><</if>>
 
 		/*lock down exposure and replenish fruit */
 		<<if $pillory_tenant.upperexposed gte 3>><<if $pillory_tenant.person.gender is "f" or $pillory_tenant.person.pronoun is "f">><<set $pillory_tenant.upperexposed to 3>><<else>><<set $pillory_tenant.upperexposed to 2>><</if>><</if>>
@@ -4302,11 +4192,12 @@
 <</widget>>
 
 <<widget "npc_pillory_abuse">>
-	<br>
-	<<if ($pillory_tenant.lastviewed.day isnot Time.days) or (Time.hour gte $pillory_tenant.lastviewed.hour + 1)>>
-		<<set $pillory_tenant.lastviewed.hour to Time.hour>>
+	<<set $_lastViewed to new DateTime($pillory_tenant.lastViewed)>>
+	<<set $_timeLeft to Time.date.compareWith($_lastViewed, true)>>
+	<<if $_timeLeft / TimeConstants.secondsPerHour lte -2>>
+		<<set $pillory_tenant.lastViewed to Time.date.timeStamp>>
 		<<rng>><<generate2>><<person2>>
-		<<set _ly to either("난폭하게","대놓고","화난듯이","맹렬히","뻔뻔하게","계속해서","서투르게","거칠게","과장되게","예의 바르게","즐겁게","신난듯이","취한듯이","솜씨 없이")>>
+		<<set $_ly to either("난폭하게","대놓고","화난듯이","맹렬히","뻔뻔하게","계속해서","서투르게","거칠게","과장되게","예의 바르게","즐겁게","신난듯이","취한듯이","솜씨 없이")>>
 		<<if Time.dayState isnot "night">>
 			<<if $rng gte 56>> /* 45% chance of jeer and shout only, 55% chance of something active */
 				여러 사람들이 <<personPost "이">> 필두로 죄수를 조롱하며 욕설을 퍼붓는다.
@@ -4434,14 +4325,14 @@
 			<<elseif $rng gte 26>> /* 10% */
 				어떤 <<personPost "이">> <<pillory_type>>에게 과일을 던지나 완전히 빗나간다.
 			<<elseif $rng gte 16>> /* 10% */
-				어떤 <<personPost "이">> 구속대로 가더니 <<pillory_type>>의 <<if $pronoun is "f">>젖가슴<<else>>불알<</if>>을 _ly 애무한다.
+				어떤 <<personPost "이">> 구속대로 가더니 <<pillory_type>>의 <<if $pronoun is "f">>젖가슴<<else>>불알<</if>>을 $_ly 애무한다.
 			<<elseif $rng gte 11 and $pillory_tenant.upperexposed lt 3>>/* 5% */
 				어떤 <<personPost "이">> <<pillory_type>>에게로 다가가더니
 				<<if $pillory_tenant.upperexposed is 2>>
 					<<if $pronoun is "f">>
-					_ly 브라를 벗겨, 조롱하는 군중을 향해 <<his_ yi>> <<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult 노출시킨다.
+					$_ly 브라를 벗겨, 조롱하는 군중을 향해 <<his_ yi>> <<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult 노출시킨다.
 					<<else>>
-					_ly <<his_ yi>> 유두를 비튼다.
+					$_ly <<his_ yi>> 유두를 비튼다.
 					<<set $pillory_tenant.spank += 1>>
 					<</if>>
 				<<elseif $pillory_tenant.upperexposed is 1>>
@@ -4493,7 +4384,7 @@
 				<</if>>별 흥미를 보이지 않는다.
 			<<elseif $rng gte 58>> /* 8% */
 				<<set $pillory_tenant.spank += 1>>
-				어떤 <<personPost "이">> 구속대 뒤로 몰래 다가가서는 <<pillory_type>>의 노출된 <<if $pillory_tenant.person.gender is "f">>보지를<<else>>고환을<</if>> _ly 후려친다. <<hePost "이">> 고통에 울부짖는 동안 군중은 조롱하고 웃음을 터트린다.
+				어떤 <<personPost "이">> 구속대 뒤로 몰래 다가가서는 <<pillory_type>>의 노출된 <<if $pillory_tenant.person.gender is "f">>보지를<<else>>고환을<</if>> $_ly 후려친다. <<hePost "이">> 고통에 울부짖는 동안 군중은 조롱하고 웃음을 터트린다.
 			<<elseif $rng gte 51>> /* 7% */
 				<<set $pillory_tenant.spank += 2>><br>
 				당신이 학교 주위에서 본 적이 있지만 수업을 들어본 적은 없는 어떤 선생이, 술취한 발걸음으로 구속대 앞으로 걸어간다.
@@ -4512,16 +4403,16 @@
 				<<He_ nun>> <<pillory_type>>의 엉덩이를 <<person2>><<his_ yi>> 팔이 아플 때 까지 후려친다. 군중들은 <<person1>><<person_ i>> 아픔에 울부짖자  야유하며 웃는다.
 			<<elseif $rng gte 41>> /* 10% */
 				<<set $pillory_tenant.face += 1>>
-				어떤 <<personPost "이">> 구속대 앞으로 가서는 <<pillory_type>> 앞에서 _ly 자위하기 시작한다.
+				어떤 <<personPost "이">> 구속대 앞으로 가서는 <<pillory_type>> 앞에서 $_ly 자위하기 시작한다.
 				<<person2>><<if $pronoun is "m">>곧 <<the_pillory_person>>의 얼굴에 정액이 튄다.
 				<<else>><<HePost "은">> <<the_pillory_person>>의 얼굴에 <<person2>><<his_ yi>> 보지를 문지르며 가버린다.
 				<</if>> 군중은 조롱하며 웃음을 터트린다.
 			<<elseif $rng gte 31>> /* 10% */
 				<<set $pillory_tenant.ass += 1>>
-				어떤 <<personPost "이">> 구속대 뒤로 가서는 <<pillory_type>>의 항문을 _ly <<if $pronoun is "m">>강간한다<<else>>손가락으로 쑤신다<</if>>. 군중은 <<person2>><<himPost "을">> 응원한다.
+				어떤 <<personPost "이">> 구속대 뒤로 가서는 <<pillory_type>>의 항문을 $_ly <<if $pronoun is "m">>강간한다<<else>>손가락으로 쑤신다<</if>>. 군중은 <<person2>><<himPost "을">> 응원한다.
 			<<elseif $rng gte 21>> /* 10% */
 				<<set $pillory_tenant.genital += 1>>
-				어떤 <<personPost "이">> 구속대 뒤로 가서는 <<if $pronoun is "m">><<the_pillory_person "을">><<else>><<the_pillory_person "을">> 페니스 밴드로<</if>> _ly 강간한다. <<person2>>군중은 사진을 찍으며 <<HePost "을">> 응원한다.
+				어떤 <<personPost "이">> 구속대 뒤로 가서는 <<if $pronoun is "m">><<the_pillory_person "을">><<else>><<the_pillory_person "을">> 페니스 밴드로<</if>> $_ly 강간한다. <<person2>>군중은 사진을 찍으며 <<himPost "을">> 응원한다.
 			<<elseif $rng gte 11>> /* 10% */
 				<<set $pillory_tenant.genital += 1>><<set $pillory_tenant.ass += 1>>
 				들개가 _ly <<the_pillory_person "을">> 강간하는 동안 군중은 그걸 지켜보며 사진을 찍는다. 어떤 <<person2>><<personPost "이">> 보상으로 <<print either("개에게 비스킷을 준다.","개의 머리를 쓰다듬어준다.","개에게 단 것을 준다.","개에게 크림빵을 준다.")>>
@@ -4530,11 +4421,11 @@
 			<<elseif $rng gte 6 and maleChance() gt 0 and (maleChance() lt 100 or $pillory_tenant.person.gender isnot "m")>> /* 5% - with men allowed */
 				<<set $pillory_tenant.ass += 1>><<set $pillory_tenant.face += 1>>
 				<<if $rng % 3 is 0>>비번인 남자 경찰 두 명이 다가온다. 그들은 어떤 <<personPost>> 에게 동영상을 찍게 하고 그들은<<else>>두 남자가 다가온다. 그들은 함께<</if>>
-				<<if $pillory_tenant.person.gender is "m">>항문을 써서 <<else>>_ly <</if>>위와 아래로 <<the_pillory_person "을">> 범한다. 군중들은 이 구경거리를 즐긴다.
+				<<if $pillory_tenant.person.gender is "m">>항문을 써서 <<else>>$_ly <</if>>위와 아래로 <<the_pillory_person "을">> 범한다. 군중들은 이 구경거리를 즐긴다.
 			<<elseif $rng gte 6 and maleChance() lt 100 and (maleChance() gt 0 or $pillory_tenant.person.gender isnot "f")>> /* 5% - with women allowed */
 				<<set $pillory_tenant.ass += 1>><<set $pillory_tenant.face += 1>>
 				<<if $rng % 3 is 0>>비번인 여자 경찰 두 명이 다가온다. 그들은 어떤 <<personPost>> 에게 동영상을 찍게 하고 그들은<<else>>두 여자가 다가온다. 그들은 함께<</if>>
-				<<if $pillory_tenant.person.gender is "m">>항문을 써서 <<else>>_ly <</if>>위와 아래로 <<the_pillory_person "을">> 페니스 밴드를 찬 채로 범한다. 군중들은 이 구경거리를 즐긴다.
+				<<if $pillory_tenant.person.gender is "m">>항문을 써서 <<else>>$_ly <</if>>위와 아래로 <<the_pillory_person "을">> 페니스 밴드를 찬 채로 범한다. 군중들은 이 구경거리를 즐긴다.
 			<<else>> /* 5% */
 				<<set $pillory_tenant.spank += 1>>
 				어떤 <<personPost "이">> <<pillory_type>>에게 다가와서는 엉덩이를 세게 때린다. 철썩 하는 소리가 거리에 울려퍼진다.
@@ -4581,19 +4472,21 @@
 <<widget "npc_pillory_release_schedule">>
 	<<get_pillory_npc>>
 	<br>
-	<<if ($pillory_tenant.endDate - $timeStamp) lte TimeConstants.secondsPerDay>>
-	<<set _a_few to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerHour)>>
+	<<set $_endTime to new DateTime($pillory_tenant.endTime)>>
+	<<set $_timeLeft to Time.date.compareWith($_endTime)>>
+	<<if $_timeLeft.days lt 1>>
 		<<HePost "은">>
-		<<if _a_few gt 0>>_a_few 시간 뒤에 풀려날 예정이다.
-		<<else>>곧 풀려날 예정이다.
+		<<if $_timeLeft.hours gt 0>>
+			$_timeLeft.hours 시간 뒤에 풀려날 예정이다.
+		<<else>>
+			즉시 풀려날 예정이다.
 		<</if>>
 	<<else>>
-		<<set _days_left to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerDay)>>
-		<<HePost "은">> <<if _days_left is 1>>내일<<else>>이틀 뒤<</if>>
-		<<switch $pillory_tenant.endhour>>
+		<<He>> is scheduled for release <<if $_timeLeft.days is 1>>tomorrow<<else>>in two days<</if>> at
+		<<switch $_endTime.hour>>
 			<<case 0>>자정에 풀려날 예정이다.
 			<<case 12>>정오에 풀려날 예정이다.
-			<<default>><<ampm $pillory_tenant.endhour>>에 풀려날 예정이다.
+			<<default>><<ampm $_endTime.hour>>에 풀려날 예정이다.
 		<</switch>>
 	<</if>>
 	<<endevent>>
@@ -4603,15 +4496,17 @@
 	<<get_pillory_npc>>
 	<<if Time.minute lte 15>>
 		경찰관 한 사람이 <<print either("지금","바로","끙끙거리며","이제")>>
-		<<the_pillory_person "을">> 구속대에서 풀어준다. <<if $weather is "rain">><<His_ yi>> 옷은 비에 젖어 속이 비쳐보인다.<<elseif $weather is "snow">><<He_ nun>> 추위에 몸을 떤다.<</if>>
+		<<the_pillory_person "을">> 구속대에서 풀어준다. <<if Weather.precipitation is "rain">><<His_ yi>> 옷은 비에 젖어 속이 비쳐보인다.<<elseif Weather.isFreezing>><<He_ nun>> 추위에 몸을 떤다.<</if>>
 	<<elseif Time.minute lte 30>>
 		<<The_pillory_person "은">> <<print either("글썽이는","반항적인","트라우마의 징조가 보이는","격분한")>> 눈으로 비틀거리며 구속대에서 멀어져가고 있다.
-		<<if $weather is "rain">><<His_ yi>> 옷은 비에 젖어 속이 비쳐보인다.<</if>>
+		<<if Weather.precipitation is "rain">><<His_ yi>> 옷은 비에 젖어 속이 비쳐보인다.<</if>>
 	<<else>>
 		<<The_pillory_person "은">> 풀려나 돌아갔다. 몇몇 공무원들이 구속대를 청소하고 있다.
 	<</if>>
-	<<set $rng += $pillory_tenant.duration>>
-	<<if $rng gte 67 or $rng gte 33 and $weather is "rain">>많은 군중들이 야유하며 소리지르고 있다.<</if>>
+	<<set _totalSeconds to Time.date.compareWith(new DateTime($pillory_tenant.startTime), true) / TimeConstants.secondsPerHour>>
+	<<set $_hours to _totalSeconds / TimeConstants.secondsPerHour>>
+	<<set $rng += $_hours>>
+	<<if $rng gte 67 or $rng gte 33 and Weather.precipitation is "rain">>많은 군중들이 야유하며 소리지르고 있다.<</if>>
 	<br><br>
 	<<clear_pillory>>
 	<<endevent>>
@@ -5030,8 +4925,11 @@
 <</silently>><<printmoney _money_gain>><</widget>>
 
 <<widget "formatmoney">>
-	<<set _printargs to Math.floor(Math.abs(_args[0]/100)).toLocaleString("en-GB")>>
-	<<set _printargs to _printargs + (_args[0] % 100 ? "." + ("0" + Math.floor(Math.abs(_args[0] % 100))).slice(-2) : "")>>
+	<<set _integer to Math.floor(_args[0] / 100)>>
+	<<set _printargs to Math.abs(_integer).toLocaleString("en-GB")>>
+	<<if _integer <= 9999>>
+		<<set _printargs to _printargs + (_args[0] % 100 ? "." + ("0" + Math.floor(Math.abs(_args[0] % 100))).slice(-2) : "")>>
+	<</if>>
 	<<set _printmoney to (_args[0] gte 0 ? "" : "-") + "£" + _printargs>>
 <</widget>>
 
@@ -5216,12 +5114,20 @@
 
 	<<set $angel to 0>>
 	<<set $angelbuild to 0>>
+	<<set $fallenangel to 0>>
+	<<set $fallenbuild to 0>>
 	<<set $demon to 0>>
+	<<set $demonbuild to 0>>
 	<<set $wolfgirl to 0>>
+	<<set $wolfbuild to 0>>
 	<<set $cat to 0>>
+	<<set $catbuild to 0>>
 	<<set $cow to 0>>
+	<<set $cowbuild to 0>>
 	<<set $harpy to 0>>
+	<<set $birdbuild to 0>>
 	<<set $fox to 0>>
+	<<set $foxbuild to 0>>
 	<<run Object.keys(V.transformationParts).forEach((tf) => {
 		Object.entries(V.transformationParts[tf]).forEach(([part, value]) => {
 			if (value !== 'disabled' && value !== 'hidden') {

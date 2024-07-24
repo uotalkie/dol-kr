@@ -14,7 +14,7 @@ function getKylarLibraryState() {
 		return "english";
 	} else if (V.schoolstate === "lunch" && V.daily.school.lunchEaten === 1) {
 		// During lunch, Kylar currently will only be in the library when raining, or stalking.
-		const isRaining = V.weather === "rain" || V.weather === "snow";
+		const isRaining = Weather.precipitation !== "none";
 		if (isRaining) return "library";
 		const isStalking = V.daily.kylar.libraryStalk && C.npc.Sydney.active === "active";
 		if (isStalking) return "stalk";

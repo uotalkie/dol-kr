@@ -126,12 +126,23 @@
 	<<set $player.perceived_breastsize = $player.breastsize>>
 	<<set $player.perceived_bottomsize = $player.bottomsize>>
 
-	<<if $startingseason is "random">>
-		<<set $startingseason to ["autumn","winter","spring","summer"].random()>>
-	<</if>>
+	/* Do not use this object directly - use the Weather singleton instead */
+	<<set $weatherObj to {
+		name: "clear",
+		snow: 0,
+		ice: {},
+		fog: 0,
+		overcast: 0,
+		targetOvercast: 0,
+		monthlyTemperatures: [],
+		keypointsArr: []
+	}>>
 
 	/* Default start date: 6 sept (sunday), 2020, 07:00 */
 	/* Do not change start date during gameplay as time is relative to the start date */
+	<<if $startingseason is "random">>
+		<<set $startingseason to ["autumn","winter","spring","summer"].random()>>
+	<</if>>
 	<<switch $startingseason>>
 		<<case "winter">>
 			<<set Time.startDate to new DateTime(2022, 12, 4, 7)>>
@@ -142,7 +153,11 @@
 		<<default>>
 			<<set Time.startDate to new DateTime(2022, 9, 4, 7)>>
 	<</switch>>
+	<<unset $startingseason>>
+	<<set $timeStamp to 0>>
 	<<set Time.set()>>
+	<<run Weather.activeRenderer = Weather.sky>>
+	<<run Weather.sky.initialize()>>
 
 	<<if $background is "nerd">>
 		<<set $science += 100>><<set $maths += 100>><<set $english += 100>><<set $history += 100>><<set $school += 400>><<set $cool to 0>>
@@ -229,6 +244,7 @@
 			Avery: 0,
 			BlackWolfHunts: 0,
 			GreatHawkHunts: 0,
+			GreatHawkCasual: 0,
 			Alex: 0,
 			Sydney: 0
 		}>>
@@ -337,8 +353,6 @@
 	<<specialClothesSetup>>
 	<<pregnancyVar>>
 	<<specialClothesEffectsSetup>>
-	<<weather_select>>
-	<<set $warmth to 0>>
 	<<childrenSetup>>
 
 	<<setupTransformationPiecesObject>>
@@ -364,8 +378,27 @@
 
 	<<set $robinPunishments to []>>
 	<<set $robinTraumaMultiplier to 1>>
-	<<set $daily to clone(setup.dailyObject)>>
-	<<set $weekly to clone(setup.weeklyObject)>>
+	<<set $daily to {
+		school: {
+			attended: {}
+		},
+		whitney: {},
+		robin: {},
+		kylar: {},
+		morgan: {},
+		eden: {},
+		alex: {},
+		sydney: {},
+		ex: {},
+		pharm: {},
+		prison: {},
+		livestock: {}
+	}>>
+	<<set $weekly to {
+		theft: {},
+		sewers: {}
+	}>>
+	<<set $yearly to { }>>
 
 	<<if $feats.allSaves.points gt 0>>
 		<<applyFeatsBoost>>
@@ -381,5 +414,4 @@
 	<</if>>
 	<<run toggleConfirmDialogUponTabClose()>>
 	<<run Furniture.update()>>
-
 <</widget>>

@@ -196,6 +196,7 @@
 					당신은 <<his_ yi>> <<npcClothesText_ rul _robin "upper">> 알아차린다.
 				<</if>>
 			<</if>>
+			<br><br>
 
 		<<elseif $robinconsole is 0>>
 			당신은 문을 두드린다. <<robinOpen>> <<He_ nun>> 침대에 앉아 <<his_ yi>> 게임기가 있었던 자리를 빤히 쳐다본다.
@@ -365,6 +366,8 @@
 		로빈은 벽에 걸린 시계를 바라본다.
 		<<if $robin.timer.hurt gte 1>>
 			"<<print _robin.trauma lte 30 ? "잘 시간을 넘겼네," : "나-난 이제 자야하는 시간이야,">>" <<he_ ga>> 말한다. "<<print $robin.timer.hurt gte 1 ? "네가 괜찮다면, 난 오늘 혼자 잘래" : "너도 잠을 자는 게 좋을 거 같아">>."
+		<<elseif $robin.stayup is 1>>
+			"늦었네," <<he_ ga>> 말한다. <<He_ nun>> 당신을 안아준다. "너 좀 자는게 좋겠어." 마치 <<He_ ga>> 무언가 다른 할 것이 있는 것 처럼, <<he_ nun>> 약간 불안한 동작으로 문을 닫는다.
 		<<elseif _robin.trauma lte 30>>
 			"잘 시간을 넘겼네." <<he_ ga>> 말한다. <<He_ ga>> 당신을 안아준다. "잘 자."
 		<<elseif _robin.trauma lte 60>>
@@ -378,7 +381,7 @@
 		<br><br>
 		<<if _robinrequest is 1>>
 			<<bedroomicon>><<link [[로빈과 함께 있는다|Robin Room Bed Intro]]>><<npcincr Robin trauma -3>><<npcincr Robin love 1>><<handheldon 1>><</link>><<glove>><<lrtrauma>>
-		<<elseif $robin.timer.hurt is 0 and ($robinromance or _robin.trauma gt 30)>>
+		<<elseif $robin.timer.hurt is 0 and $robin.stayup isnot 1 and ($robinromance or _robin.trauma gt 30)>>
 			<<bedroomicon>><<link [[함께 있어달라고 부탁한다|Robin Room Bed Intro]]>><<handheldon 1>><</link>>
 		<</if>>
 		<br>
@@ -388,6 +391,17 @@
 			<<getouticon>><<link [[떠난다|Orphanage]]>><<set $fromRobinRoom to true>><<endevent>><</link>>
 		<</if>>
 		<br>
+	<<elseif Time.hour is 17 and C.npc.Robin.trauma lte 60 and $daily.robin.studycompany isnot 1 and $robin.stayup isnot 1>>
+		Robin looks at the clock on the wall.
+		<br><br>
+		"I should work on Winter's assignment now," <<he>> says. <<if C.npc.Robin.trauma gte 20>><<He>> looks weary at the idea. <</if>>"Would you like to join me?"
+		<br><br>
+		<<if C.npc.Robin.trauma gte 20>>
+			<<link[[Help Robin study|Robin Study]]>><<set $study_inside to 1>><<stress 3>><<npcincr Robin love 1>><<npcincr Robin trauma -3>><<npcincr Robin dom -1>><</link>><<gstress>><<glove>><<lrtrauma>><<ldom>><br>
+		<<else>>
+			<<link[[Agree|Robin Study]]>><<npcincr Robin love 1>><<set $study_inside to 1>><</link>><<glove>><br>
+		<</if>>
+		<<getouticon>><<link[[떠난다|Orphanage]]>><<endevent>><</link>>
 	<<elseif $englishPlay is "ongoing" and $englishPlayDays is 0 and ((Time.hour gte 16 and Time.minute gte 40) or Time.hour gte 17)>>
 		로빈이 벽에 걸린 시계를 바라본다.
 		"곧 학교 연극 시간이야," <<he_ ga>> 말한다. <<if $exposed lte 0>>"학교까지 같이 걸어갈래?"<</if>>
@@ -604,10 +618,10 @@
 		<</if>>
 		<<if _robin.trauma lt 80 and $harpy gte 6>>
 			<<if $halloween is 1>>
-				<<mooricon "sing">><<link [[로빈과 노래한다 (0:20)|Robin Harpy]]>><<pass 20>><<trauma -2>><<stress -2>><<npcincr Robin love 1>><<npcincr Robin dom -2>><<handheldon 1>><</link>><<harpy>><<ldom>><<glove>><<ltrauma>><<lstress>>
+				<<birdicon "sing">><<link [[로빈과 노래한다 (0:20)|Robin Harpy]]>><<pass 20>><<trauma -2>><<stress -2>><<npcincr Robin love 1>><<npcincr Robin dom -2>><<handheldon 1>><</link>><<harpy>><<ldom>><<glove>><<ltrauma>><<lstress>>
 				<br>
 			<<else>>
-				<<mooricon "sing">><<link [[로빈과 노래한다 (0:20)|Robin Harpy]]>><<pass 20>><<trauma -2>><<stress -2>><<npcincr Robin love 1>><<npcincr Robin dom 1>><<handheldon 1>><</link>><<harpy>><<gdom>><<glove>><<ltrauma>><<lstress>>
+				<<birdicon "sing">><<link [[로빈과 노래한다 (0:20)|Robin Harpy]]>><<pass 20>><<trauma -2>><<stress -2>><<npcincr Robin love 1>><<npcincr Robin dom 1>><<handheldon 1>><</link>><<harpy>><<gdom>><<glove>><<ltrauma>><<lstress>>
 				<br>
 			<</if>>
 		<</if>>
@@ -652,6 +666,7 @@
 <<widget "robinhug">>
 	<<if $robin.timer.hurt gte 1>>
 		Robin lets you hug <<him>> for a moment before gently untangling <<himself>> from you. "I'm sorry," <<he>> says. "I'm still a little upset with you. I need some space."
+		<br><br>
 	<<else>>
 		<<if $daily.robin.hugCry isnot 1 and $robinpaid isnot 1 and $trauma gte ($traumamax / 7) * 2>>
 			<<link [[운다 (0:05)|Robin Hug Cry]]>><<pass 5>><<set $daily.robin.hugCry to 1>><<stress -12>><<trauma -6>><<tearup>><<npcincr Robin love 1>><<npcincr Robin dom 1>><</link>><<lstress>><<ltrauma>><<glove>><<gdom>>

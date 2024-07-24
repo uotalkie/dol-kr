@@ -3,7 +3,9 @@
 <<widget "characteristics">>
 	<br>
 	당신은
-	<<if $wolfgirl gte 6 or $cat gte 6 or $cow gte 6 or $harpy gte 6 or $fox gte 6>>
+	<<if $wraithSkin>>
+		유령 같은
+	<<elseif $wolfgirl gte 6 or $cat gte 6 or $cow gte 6 or $harpy gte 6 or $fox gte 6>>
 		<<if $angel gte 6>>
 			천사 같은
 		<<elseif $fallenangel gte 2>>
@@ -85,18 +87,18 @@
 	당신은 <<bottom_ ul true>> 가지고 있다.
 	<<if $player.penisExist and $player.vaginaExist>>
 		<<silently>>
-		<<penis_ wa>><<set _penis to _trResult>>
-		<<pussy_ rul true true>><<set _pussy to _trResult>>
+			<<penisPost false true "과">><<set _penis to _trResult>>
+			<<pussyPost false true "을">><<set _pussy to _trResult>>
 		<</silently>>
 		당신은 <<print _penis>> <<print _pussy>> 가지고 있다.
 	<<else>>
 		당신은
 		<<if $player.penisExist>>
-			<<silently>><<penis_ rul>><<set _penis to _trResult>><</silently>>
+			<<silently>><<penisPost false true "을">><<set _penis to _trResult>><</silently>>
 			<<print _penis>> 가지고 있다.
 		<</if>>
 		<<if $player.vaginaExist>>
-			<<silently>><<pussy_ rul false true>><<set _pussy to _trResult>><</silently>>
+			<<silently>><<pussyPost false true "을">><<set _pussy to _trResult>><</silently>>
 			<<print _pussy>> 가지고 있다.
 		<</if>>
 	<</if>>
@@ -156,8 +158,19 @@
 					<</if>>
 				<<case "wolf">>
 					<<set _childType to ($_number is 1 || $_number is "more than one" ? "늑대 강아지를" : "늑대 강아지들을")>>
+				<<case "hawk">>
+					<<set _childType to ($_number is 1 || $_number is "more than one" ? "매의 알을" : "매의 알들을")>>
 			<</switch>>
-			당신은 <<trNumber $_number>> _childType 임신하고 있으며, 현재 임신 _trimester 이다.
+			<<if $_pregnancy.type is "hawk">>
+				당신은 <<trNumber $_number>> _childType 임신하고 있으며,
+				<<switch _trimester>>
+					<<case "first">>알을 낳기까지 시간이 꽤 걸릴 것이다.
+					<<case "second">>알을 낳기까지 아직 어느 정도 시간이 걸릴 것이다.
+					<<case "third">>곧 알을 낳을 수 있게 될 것이다.
+				<</switch>>
+			<<else>>
+				당신은 <<trNumber $_number>> _childType 임신하고 있으며, 현재 임신 _trimester 이다.
+			<</if>>
 		<<else>>
 			당신은 당신이 현재 임신 _trimester라는 것을 알고 있다.
 		<</if>>
@@ -327,11 +340,11 @@
 
 				<!--PURITY-->
 				<<if $demon gte 6>>
-					<<set _purityIcon='ui/sym_demon_purity'>>
+					<<set _purityIcon='misc/icon/tf_demon'>>
 				<<elseif $fallenangel gte 2>>
-					<<set _purityIcon='ui/sym_fallen_purity'>>
+					<<set _purityIcon='misc/icon/tf_fallen'>>
 				<<else>>
-					<<set _purityIcon='ui/sym_purity'>>
+					<<set _purityIcon='misc/icon/tf_angel'>>
 				<</if>>
 				<<set _purityConfig = { name : "순결성", icon : _purityIcon, displayType : "level", currentValue : $purity, modifier: 100, modTypes: { good: [], bad: [] },
 					states : [

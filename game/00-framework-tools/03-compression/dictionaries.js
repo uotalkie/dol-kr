@@ -1964,6 +1964,7 @@ const DoLCompressorDictionaries = (() => {
 
 	const dict_v0 = [...v0_mostCommonvalues, ...v0_variableNames];
 	const dict_v1 = [...dict_v0].splice(132, 0, "antiqueobsidiandisc", "antiquewoodenmask", "antiquetrilobitefossil", "antiqueislandarrow");
+	const dict_v2 = [...dict_v1].filter(d => !["clothing_number", "nextWeather", "sidebarRenderer", "startday", "starthour", "startingseason"].includes(d));
 
 	// template for next versions
 	// const dict_v1 = [
@@ -1974,6 +1975,7 @@ const DoLCompressorDictionaries = (() => {
 	return {
 		v0: dict_v0,
 		v1: dict_v1,
+		v2: dict_v2,
 	};
 })();
 for (const k in DoLCompressorDictionaries) {

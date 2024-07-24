@@ -281,6 +281,14 @@ function init_trHandheld()
 			post: 0,
 			description: "음란한 액체로 더럽혀지지 않았다. 아마도.",
 		},	
+		{
+			index: 35,
+			name: "ornate telescope",
+			name_ko: "화려하게 장식된 망원경",
+			variable: "ornatetelescope",
+			post: 0,
+			description: "놀랍게도 멋진 모습이다.",
+		},	
 	];
 }
 window.init_trHandheld = init_trHandheld;

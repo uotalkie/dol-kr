@@ -1,3 +1,5 @@
+// @ts-check
+
 /*  Jimmy: Blueprint for event structure, packaged for convenience.
  *  $event = {
  *      buffer = [] : EventNPC, refer to below
@@ -25,6 +27,12 @@ class EventData {
 		this.disable = false;
 	}
 
+	/**
+	 * @param {string} passage
+	 * @param {number} index
+	 * @param {number} time
+	 * @returns {void}
+	 */
 	push(passage, index, time) {
 		if (this.disable) return;
 		if (V.event == null) {
@@ -37,57 +45,95 @@ class EventData {
 		});
 	}
 
+	/**
+	 * @param {number} index
+	 * @returns {void}
+	 */
 	pop(index) {
 		if (this.disable) return;
-		if (V.event) {
-			V.event.buffer = V.event.buffer.filter(e => e.slot !== index); // TODO: Splice backwards instead.
-			if (V.event.buffer.length === 0) {
-				this.clear();
-			}
+		if (!V.event) return;
+
+		V.event.buffer = V.event.buffer.filter(e => e.slot !== index); // TODO: Splice backwards instead.
+		if (V.event.buffer.length === 0) {
+			this.clear();
 		}
 	}
 
+	/**
+	 * @param {number} index
+	 * @returns {EventNpc | undefined}
+	 */
 	get(index) {
-		return V.event ? V.event.buffer.find(e => e.slot === index) : -1;
+		return V.event?.buffer.find(e => e.slot === index);
 	}
 
+	/**
+	 * @param {number} index
+	 * @returns {boolean}
+	 */
 	has(index) {
-		return V.event ? V.event.buffer.some(e => e.slot === index) : false;
+		return V.event?.buffer.some(e => e.slot === index) || false;
 	}
 
+	/**
+	 * @param {number} index
+	 * @returns {EventNpc[]}
+	 */
 	getEvery(index) {
-		return V.event ? V.event.buffer.filter(e => e.slot === index) : [];
+		return V.event?.buffer.filter(e => e.slot === index) || [];
 	}
 
+	/**
+	 * @returns {number}
+	 */
 	count() {
-		return V.event ? V.event.buffer.length : 0;
+		return V.event?.buffer.length || 0;
 	}
 
+	/**
+	 * @returns {boolean}
+	 */
 	any() {
-		return V.event ? V.event.buffer.length > 0 : false;
+		return this.count() > 0;
 	}
 
+	/**
+	 * @returns {void}
+	 */
 	clear() {
 		if (this.disable) return;
 		delete V.event;
 	}
 
+	/**
+	 * @param {number} index
+	 * @returns {boolean}
+	 */
 	isSlotTaken(index) {
-		return V.event ? V.event.buffer.some(e => e.slot === index) : false;
+		return V.event?.buffer.some(e => e.slot === index) || false;
 	}
 
+	/**
+	 * @returns {boolean}
+	 */
 	get Disable() {
 		return this.disable;
 	}
 
+	/**
+	 * @param {boolean} value
+	 */
 	set Disable(value) {
-		if (typeof value === "boolean") {
-			this.disable = value;
-		} else {
+		if (typeof value !== "boolean") {
 			console.debug("EventData.disable set with unexpected data-type, requires boolean.");
+			return;
 		}
+		this.disable = value;
 	}
 
+	/**
+	 * @returns {boolean}
+	 */
 	validate() {
 		// Return false if an event is not in progress. True would be a problem in our stack system for NPCs. False indicates normal operation.
 		if (V.event == null) return true;
@@ -104,7 +150,7 @@ class EventData {
 		// We assume the first empty is a mistake, someone not following proper conduct in NPC gen.
 		let numOfNPCs = -1;
 		for (let i = npcList.length - 1; i >= 0; i--) {
-			if (Object.hasOwn(npcList[i], "type")) {
+			if ("type" in npcList[i]) {
 				numOfNPCs = i + 1;
 				break;
 			}
@@ -147,6 +193,9 @@ class EventData {
 		return true;
 	}
 
+	/**
+	 * @returns {void}
+	 */
 	update() {
 		if (V.event == null) {
 			return;
@@ -161,13 +210,16 @@ class EventData {
 		// .event ['Farm Work', 'Farm Work', 'Farm Work', 'Farm Work']
 		// .eventtime [497, 497, 497, 497]
 		// .eventslot [0, 1, 2, 3]
+		// @ts-ignore (Updater code)
 		const event = [...V.event];
 		V.event = {
 			buffer: [],
 			schema: 1,
 		};
 		for (let i = 0; i < event.length; i++) {
-			this.push(event[i], V.eventslot[i], V.eventtime[i]);
+			if (V.eventslot && V.eventtime) {
+				this.push(event[i], V.eventslot[i], V.eventtime[i]);
+			}
 		}
 		delete V.eventtime;
 		delete V.eventslot;

@@ -126,9 +126,10 @@
 	<<if !$_nosens>>
 		<<genitalsensitivity>><<set _trResult += _text_output>>
 	<</if>>
-	<<set _trResult += _genital_state_text + ["보지","보지","보지","보지"].pluck($_pluck)>><<set _postNum to 1>>/*<<set _trResult += _genital_state_text + ["보지","보지","보지","씹"].pluck($_pluck)>>*/
+	/*<<set _trResult += _genital_state_text + ["보지","보지","보지","보지"].pluck($_pluck)>><<set _postNum to 1>><<set _trResult += _genital_state_text + ["보지","보지","보지","씹"].pluck($_pluck)>>*/
+	<<set _trResult += _genital_state_text + pussyNames().pluck($_pluck)>>
     <<if $_post isnot undefined>>
-        /*<<getPostNum _trResult>>*/<<trPost _postNum $_post $_sep>>
+        <<getPostNum _trResult>><<trPost _postNum $_post $_sep>>
     <</if>>
 <</silently>><<print _trResult>><</widget>>
 
@@ -163,7 +164,7 @@
 			<<if $player.gender is "f" and $parasite.clit.name is "parasite" and _args[0] isnot 2>>
 				<<set _trResult += "기생충 ">>
 			<</if>>
-			<<set _trResult += $_virgin + "자지">><<set _postNum to 1>>
+			<<set _trResult += $_virgin + penisNames().pluck($_num)>>
 		<</if>>
 		<<if $player.vaginaExist>>
 			<<if $player.penisExist>>
@@ -181,10 +182,10 @@
 					<<set _trResult += "털이 무성한 ">>
 				<</if>>
 			<</if>>
-			<<set _trResult += $_virgin + ["보지","보지","보지","보지"].pluck($_pluck)>><<set _postNum to 1>>/*<<set _trResult += $_virgin + ["보지","보지","보지","씹"].pluck($_pluck)>>*/
+			<<set _trResult += $_virgin + pussyNames().pluck($_num)>>
 		<</if>>
 		<<if $_post isnot undefined>>
-			/*<<getPostNum _trResult>>*/<<trPost _postNum $_post $_sep>>
+			<<getPostNum _trResult>><<trPost _postNum $_post $_sep>>
 		<</if>>
 	<</if>>
 <</silently>><<print _trResult>><</widget>>
@@ -224,10 +225,16 @@
 
 
 <<widget "penisPost">><<silently>>
-	<<if _args[0] isnot undefined and typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>
-			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>
+			<<unset $_nosens>><<unset $_pluck>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<elseif _args[1] isnot undefined and typeof _args[1] is "string" and _args[1].substring(0,1).search("[가-힣]") gte 0>>
+			<<set $_nosens to _args[0]>><<unset $_pluck>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<<else>>
+			<<set $_nosens to _args[0]>><<set $_pluck to _args[1]>><<set $_post to _args[2]>><<set $_sep to _args[3]>>
+		<</if>>
 	<<else>>
-		<<set $_arg to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<<set $_nosens to _args[0]>><<set $_pluck to _args[1]>><<set $_post to _args[2]>><<set $_sep to _args[3]>>
 	<</if>>
 
     <<penissize>><<set _penissize_text to _text_output>>
@@ -236,14 +243,14 @@
     <</if>>
 	<<genitalstate "penis">><<set _genital_state_text to _text_output>>
 	<<set _trResult to "">>
-	<<if !$_arg>>
+	<<if !$_nosens>>
 		<<genitalsensitivity>><<set _trResult += _text_output>>
 	<</if>>
 
-    <<set _trResult += _penissize_text + _genital_state_text + "자지">>
+    <<set _trResult += _penissize_text + _genital_state_text + penisNames().pluck($_pluck)>>
 
 	<<if playerHasStrapon()>>
-		<<if $_arg isnot undefined and $_arg is "strap-on" and $player.penisExist>>
+		<<if $_nosens isnot undefined and $_nosens is "strap-on" and $player.penisExist>>
 			<!-- Do nothing. This is an override for wacky cases such as player masturbation -->
 		<<else>>
 			<<set _trResult to _penissize_text + "페니스 밴드 자지">>
@@ -251,7 +258,7 @@
 	<</if>>
 	
     <<if $_post isnot undefined>>
-        <<trPost 1 $_post $_sep>>
+        <<getPostNum _trResult>><<trPost _postNum $_post $_sep>>
     <</if>>
 <</silently>><<print _trResult>><</widget>>
 

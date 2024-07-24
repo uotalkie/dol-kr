@@ -73,6 +73,31 @@
 <<widget "childHimPost">><<childHePost _args[0] _args[1] _args[2]>><</widget>>
 <<widget "childhimPost">><<childHePost _args[0] _args[1] _args[2]>><</widget>>
 
+<<widget "childhimselfPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0 and $childSelected isnot undefined>>
+			<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_id to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<<elseif $childSelected isnot undefined>>
+		<<set $_id to $childSelected.childId>>
+		<<if _args[1] is undefined>>
+			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<</if>>
+	<<if $_id isnot undefined>>
+		<<switch $children[$_id].gender>>
+			<<case "m">><<set _trResult to "그 자신">>
+			<<case "f" "h">><<set _trResult to "그녀 자신">>
+			<<case "t">><<set _trResult to "그들 자신">>
+		<</switch>>
+	<</if>>
+	<<trPost 0 $_post $_sep>>
+<</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
+
 <<widget "childHersPost">><<silently>>
 	<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>
 		<<childHePost "의">><<set $_post to _args[0]>><<set $_sep to _args[1]>>
@@ -87,18 +112,150 @@
 
 <<widget "childhersPost">><<childHersPost _args[0] _args[1] _args[2]>><</widget>>
 
-<<widget "childherselfPost">><<silently>>
-	<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0>>
-		<<childHePost>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
-	<<else>>
-		<<childHePost _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+<<widget "childherselfPost">><<childhimselfPost _args[0] _args[1] _args[2]>><</widget>>
+
+/*args[0] - childId*/
+<<widget "childsiblingPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0 and $childSelected isnot undefined>>
+			<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_id to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<<elseif $childSelected isnot undefined>>
+		<<set $_id to $childSelected.childId>>
+		<<if _args[1] is undefined>>
+			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
 	<</if>>
 	
-	<<if _trResult>>
-		<<set _trResult += " 자신">><<trPost 0 $_post $_sep>>
+	<<if $_id isnot undefined>>
+		<<switch $children[$_id].gender>>
+			<<case "m">><<set _trResult to "형제">>
+			<<case "f">><<set _trResult to "자매">>
+			<<case "h">><<set _trResult to "형제자매">>
+		<</switch>>
+		<<trPost 1 $_post $_sep>>
 	<</if>>
 <</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
 
+/*args - childId for each argument, OR one array argument with childIds */
+<<widget "childsiblingsPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<set $_brothers to 0>><<set $_sisters to 0>>
+		<<if typeof _args[0] is "object">>	/* childIds array */
+			<<for $_i to 0; $_i lt _args[0].length; $_i++>>
+				<<switch $children[_args[0][$_i]].gender>>
+					<<case "m">><<set $_brothers++>>
+					<<case "f" "h">><<set $_sisters++>>
+				<</switch>>
+			<</for>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<<else>>
+			<<for $_i to 0; $_i lt _args.length; $_i++>>	/* childId, childId, childId... */
+				<<if typeof _args[$_i] is "string" and _args[$_i].substring(0,1).search("[가-힣]") gte 0>>
+					<<set $_post to _args[$_i]>><<set $_sep to _args[$_i+1]>>
+					<<break>>	/* no more childId */
+				<</if>>
+				<<switch $children[_args[$_i]].gender>>
+					<<case "m">><<set $_brothers++>>
+					<<case "f" "h">><<set $_sisters++>>
+				<</switch>>
+			<</for>>
+		<</if>>
+		
+		<<set _trResult to "">>
+		<<if $_brothers gte 1>>
+			<<set _trResult += "형제">><<set _postNum to 1>>
+			<<if $_brothers gte 2>>
+				<<set _trResult += "들">><<set _postNum to 2>>
+			<</if>>
+		<</if>>
+		<<if $_brothers gte 1 and $_sisters gte 1>>
+			<<set _trResult += (_postNum eq 1 ? "와 ":"과 ")>>
+		<</if>>
+		<<if $_sisters gte 1>>
+			<<set _trResult += "자매">><<set _postNum to 1>>
+			<<if $_sisters gte 2>>
+				<<set _trResult += "들">><<set _postNum to 2>>
+			<</if>>
+		<</if>>
+		<<trPost _postNum $_post $_sep>>
+	<</if>>
+<</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
+
+/*args[0] - childId*/
+<<widget "childsonPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0 and $childSelected isnot undefined>>
+			<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_id to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<<elseif $childSelected isnot undefined>>
+		<<set $_id to $childSelected.childId>>
+		<<if _args[1] is undefined>>
+			<<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<</if>>
+	<<if $_id isnot undefined>>
+		<<switch $children[$_id].gender>>
+			<<case "m">><<set _trResult to "아들">><<trPost 2 $_post $_sep>>
+			<<case "f">><<set _trResult to "딸">><<trPost 2 $_post $_sep>>
+			<<case "h">><<set _trResult to "아이">><<trPost 1 $_post $_sep>>
+		<</switch>>
+	<</if>>
+<</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
+
+/*args - childId for each argument, OR one array argument with childIds */
+<<widget "childsonsPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<set $_sons to 0>><<set $_daughters to 0>>
+		
+		<<if typeof _args[0] is "object">>	/* childIds array */
+			<<for $_i to 0; $_i lt _args[0].length; $_i++>>
+				<<switch $children[_args[0][$_i]].gender>>
+					<<case "m">><<set $_sons++>>
+					<<case "f" "h">><<set $_daughters++>>
+				<</switch>>
+			<</for>>
+			<<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<<else>>
+			<<for $_i to 0; $_i lt _args.length; $_i++>>	/* childId, childId, childId... */
+				<<if typeof _args[$_i] is "string" and _args[$_i].substring(0,1).search("[가-힣]") gte 0>>
+					<<set $_post to _args[$_i]>><<set $_sep to _args[$_i+1]>>
+					<<break>>	/* no more childId */
+				<</if>>
+				<<switch $children[_args[$_i]].gender>>
+					<<case "m">><<set $_sons++>>
+					<<case "f" "h">><<set $_daughters++>>
+				<</switch>>
+			<</for>>
+		<</if>>
+
+		<<set _trResult to "">>
+		<<if $_sons gte 1>>
+			<<set _trResult += "아들">>
+			<<if $_sons gte 2>>
+				<<set _trResult += "들">>
+			<</if>>
+		<</if>>
+		<<if $_sons gte 1 and $_daughters gte 1>>
+			<<set _trResult += "과 ">>
+		<</if>>
+		<<if $_daughters gte 1>>
+			<<set _trResult += "딸">>
+			<<if $_daughters gte 2>>
+				<<set _trResult += "들">>
+			<</if>>
+		<</if>>
+		<<trPost 2 $_post $_sep>>
+	<</if>>
+<</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
 
 <<widget "childhandPost">><<silently>>
 	<<if _args[0] isnot undefined>>
@@ -116,6 +273,90 @@
 		<<switch $children[$_id].type>>
 			<<case "human">><<set _trResult to "손">><<trPost 0 $_post $_sep>>
 			<<case "wolf" "wolfboy" "wolfgirl">><<set _trResult to "앞발">><<trPost 2 $_post $_sep>>
+			<<case "hawk">>
+				<<if $children[$_id].features.monster is "monster">>
+					<<set _trResult to "손">><<trPost 0 $_post $_sep>>
+				<<else>>
+					<<set _trResult to "날개">><<trPost 1 $_post $_sep>>
+				<</if>>
+		<</switch>>
+	<</if>>
+<</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
+
+<<widget "childfeetPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0 and $childSelected isnot undefined>>
+			<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_id to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<<elseif $childSelected isnot undefined>>
+		<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+	<</if>>
+
+	<<unset _trResult>>
+	<<if $_id isnot undefined>>
+		<<switch $children[$_id].type>>
+			<<case "human">><<set _trResult to "발">><<trPost 2 $_post $_sep>>
+			<<case "wolf" "wolfboy" "wolfgirl">><<set _trResult to "뒷발">><<trPost 2 $_post $_sep>>
+			<<case "hawk">>
+				<<if $children[$_id].features.monster is "monster">>
+					<<set _trResult to "발">><<trPost 2 $_post $_sep>>
+				<<else>>
+					<<set _trResult to "다리">><<trPost 1 $_post $_sep>>
+				<</if>>
+		<</switch>>
+	<</if>>
+<</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
+
+<<widget "childtoesPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0 and $childSelected isnot undefined>>
+			<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_id to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<<elseif $childSelected isnot undefined>>
+		<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+	<</if>>
+
+	<<unset _trResult>>
+	<<if $_id isnot undefined>>
+		<<switch $children[$_id].type>>
+			<<case "human">><<set _trResult to "발가락">><<trPost 0 $_post $_sep>>
+			<<case "wolf" "wolfboy" "wolfgirl">><<set _trResult to "발바닥">><<trPost 0 $_post $_sep>>
+			<<case "hawk">>
+				<<if $children[$_id].features.monster is "monster">>
+					<<set _trResult to "발가락">><<trPost 0 $_post $_sep>>
+				<<else>>
+					<<set _trResult to "발톱">><<trPost 0 $_post $_sep>>
+				<</if>>
+		<</switch>>
+	<</if>>
+<</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
+
+<<widget "childfingerPost">><<silently>>
+	<<if _args[0] isnot undefined>>
+		<<if typeof _args[0] is "string" and _args[0].substring(0,1).search("[가-힣]") gte 0 and $childSelected isnot undefined>>
+			<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+		<<else>>
+			<<set $_id to _args[0]>><<set $_post to _args[1]>><<set $_sep to _args[2]>>
+		<</if>>
+	<<elseif $childSelected isnot undefined>>
+		<<set $_id to $childSelected.childId>><<set $_post to _args[0]>><<set $_sep to _args[1]>>
+	<</if>>
+
+	<<unset _trResult>>
+	<<if $_id isnot undefined>>
+		<<switch $children[$_id].type>>
+			<<case "human">><<set _trResult to "손가락">><<trPost 0 $_post $_sep>>
+			<<case "wolf" "wolfboy" "wolfgirl">><<set _trResult to "발톱">><<trPost 0 $_post $_sep>>
+			<<case "hawk">>
+				<<if $children[$_id].features.monster is "monster">>
+					<<set _trResult to "손가락">><<trPost 0 $_post $_sep>>
+				<<else>>
+					<<set _trResult to "날개">><<trPost 1 $_post $_sep>>
+				<</if>>
 		<</switch>>
 	<</if>>
 <</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
@@ -154,6 +395,7 @@
 		<<switch $children[$_id].type>>
 			<<case "human">><<set _trResult to "머리카락">><<trPost 0 $_post $_sep>>
 			<<case "wolf" "wolfboy" "wolfgirl">><<set _trResult to "털">><<trPost 2 $_post $_sep>>
+			<<case "hawk">><<set _trResult to "깃털">><<trPost 2 $_post $_sep>>
 		<</switch>>
 	<</if>>
 <</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
@@ -174,6 +416,7 @@
 		<<switch $children[$_id].type>>
 			<<case "human">><<set _trResult to "아이">><<trPost 1 $_post $_sep>>
 			<<case "wolf" "wolfboy" "wolfgirl">><<set _trResult to "새끼 늑대">><<trPost 1 $_post $_sep>>
+			<<case "hawk">><<set _trResult to ($children[$_id].features.monster is "monster" ? "매 아이" : "새끼 새")>><<trPost 1 $_post $_sep>>
 		<</switch>>
 	<</if>>
 <</silently>><<if _trResult>><<print _trResult>><</if>><</widget>>
