@@ -89,7 +89,7 @@ function trinit_colorList()
 			"fleshy": "살색",
 			/*"grey" : "회색",*/
 			"sand" : "모래색",
-			"off-white": "어두운 흰색",
+			"offwhite": "어두운 흰색",
 			"navy" : "남색",
 			"navyblue" : "곤색",
 			"denim" : "데님 파란색",
