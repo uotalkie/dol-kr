@@ -1,3 +1,15 @@
+/*
+   trNPCdesc 구현이 너무 복잡해서 refactoring 이 필요할 듯 함
+   혹은 각각을 따로 처리하는 function 을 만들고 그것을 조합해서 번역하는 형식을 고민해봐야 할 듯
+   어쨌든 현재는 상당히 비효율적으로 보임
+   
+   올 수 있는 npcinfo:
+   - namedNPC (예: Whitney)
+   - NPCname (the NPCrole) (예: Robert the inmate)
+   - Beastdesc (예: large male wolf)
+   - Adj + Gender (예: cute boy, minor demon girl)
+   - Adj + Role (예: relaxed guard)
+*/
 function trNPCdesc(npcinfo, post, sep)
 {
 	if (!setup.trNamedNPCList)
@@ -13,6 +25,8 @@ function trNPCdesc(npcinfo, post, sep)
 		trinit_genderNoun();
 	if (!setup.trRoleList)
 		trinit_roleList();
+	if (!setup.trNPCnameList)
+		trinit_NPCname();
 
     delete T.trResult;
 	let name;
@@ -23,16 +37,20 @@ function trNPCdesc(npcinfo, post, sep)
 
 	if (name)
 	{
-		let tempArray;
+		let tempArray = name.split(' ');
 		/* namedNPC? */
 		trNamedNPCInner(name);
 		if (T.trResult && post)
 		{
 			trPost(T.postNum, post, sep);
 		}
+		else if (setup.trNPCnameList[tempArray[0]])
+		{
+			/* NPCName (the NPCRole) */
+			T.trResult = (tempArray[2]?trRole(tempArray[2]) + " ":"") + trNPCname(tempArray[0], post, sep);
+		}
 		else
 		{
-			tempArray = name.split(' ');
             for(let i = 0; i < tempArray.length; i++)
 			{
 				/* beast? */
@@ -119,7 +137,7 @@ function trNPCname(npcinfo, post, sep)
 			name = npcinfo[0];	// maybe array
 
 		if (!setup.trNPCnameList)
-			trinit_NPCname() // 대신 trNPCdesc에 맡겨버릴까?
+			trinit_NPCname(); // 대신 trNPCdesc에 맡겨버릴까?
 		
 		let found;
 		if (typeof(name) !== "string")
