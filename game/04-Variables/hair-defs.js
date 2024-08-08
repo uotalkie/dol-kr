@@ -70,7 +70,7 @@ setup.hair = {
 		},
 		{
 			name: "double braid",
-			list: ["bubble tails", "twin braids", "twin fishtails"],
+			list: ["bubble tails", "twin braids", "twin fishtails", "twin double braids"],
 			devolve: ["twin braids"],
 		},
 		{

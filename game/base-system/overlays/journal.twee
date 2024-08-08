@@ -1,8 +1,9 @@
 :: Widgets Journal [widget]
 <<widget "journal">>
+	<<run initializeTooltips()>>
 	<br>
 	<<trMonth `Time.monthName`>><<print "오늘은 " + Time.year + "년 " + _trResult + " " + Time.monthDay + "일 이다." >>
-	<ul style="margin-top:10px;margin-left:-5px;">
+	<ul class="journal">
 	<<if Time.days lt 0>>
 		<<if Time.days lt -365>>
 			<li>게임이 시작된 지 약 <span class="gold"><<print Math.floor(Time.startDate.year - Time.year)>></span>년이 지났다.</li>
@@ -22,18 +23,19 @@
 	</ul>
 
 	<<if $options.images is 1>>
-		<<if Weather.isSnow>>
-			<img id="world_map" src="img/misc/world_map_winter.png">
-		<<else>>
-			<img id="world_map" src="img/misc/world_map.png">
-		<</if>>
-		<br>
+		<div class="map">
+			<<if Weather.isSnow>>
+				<img id="world_map" src="img/misc/world_map_winter.png">
+			<<else>>
+				<img id="world_map" src="img/misc/world_map.png">
+			<</if>>
+		</div>
 	<</if>>
 
 	<<if !$statFreeze && ($rentday isnot undefined || $rentmoney isnot undefined)>>
 		<hr>
-		<span class="gold bold">시간 약속</span>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<h1 class="header gold bold">시간 약속</h1>
+		<ul class="journal">
 			<<if $rentday isnot undefined>>
 				<<if $renttime lte 0>>
 					<li>베일리가 당신을 찾고 있으며, <<printmoney $rentmoney>>를 원한다.<<babyRentDisplay " 그리고 당신이 아이를 돌보지 않았기 때문에 " "를 추가로 더 원한다." "gold">></li>
@@ -45,7 +47,7 @@
 			<</if>>
 
 			<<if $averydate is 1 and Time.hour lte 21 and $averydatedone isnot 1>>
-				<li>당신은 에이버리와 데이트 할 예정이다. <<nnpc_He_ nun "Avery">> 도무스 가에서 <span class="gold"><<ampm 20 00>></span>부터 <span class="gold"><<ampm 21 00>>까지</span> 당신을 기다릴 것이다.</li>
+				<li>당신은 에이버리와 <span class="pink">오늘 저녁에</span> 데이트 할 예정이다. <<nnpc_He_ nun "Avery">> 도무스 가에서 <span class="gold"><<ampm 20 00>></span>부터 <span class="gold"><<ampm 21 00>></span>사이에 당신을 기다릴 것이다.</li>
 			<</if>>
 
 			<<if $psych is 1>>
@@ -79,13 +81,13 @@
 					<<set _date to new DateTime($brothel_escortjob.date)>>
 					<li>당신은 파트너 일이 예정되어 있다. 창관에서 당신에게 창관 앞으로
 					<<if Time.monthDay is _date.day>>
-						<span class="gold">오늘</span> <span class="gold"><<ampm _date.hour>>까지 오라고 했다</span>.
+						<span class="pink">오늘</span> <span class="gold"><<ampm _date.hour>></span>까지 오라고 했다.
 					<<elseif Time.date.dayDifference(_date) is 1>>
 						<span class="gold">내일</span> 오라고 했다.
 					<<elseif Time.date.dayDifference(_date) gte 7>>
-						다음 <span class="gold"><<trDaysOfWeek _date.weekDayName>>_trResult</span> <span class="gold"><<ampm _date.hour>>까지 오라고 했다</span>.
+						다음 <span class="gold"><<trDaysOfWeek _date.weekDayName>>_trResult</span> <span class="gold"><<ampm _date.hour>></span>까지 오라고 했다.
 					<<else>>
-						<span class="gold"><<trDaysOfWeek _date.weekDayName>>_trResult</span> <span class="gold"><<ampm _date.hour>>까지 오라고 했다</span>.
+						<span class="gold"><<trDaysOfWeek _date.weekDayName>>_trResult</span> <span class="gold"><<ampm _date.hour>></span>까지 오라고 했다.
 					<</if>></li>
 				<</if>>
 			<</if>>
@@ -112,7 +114,7 @@
 			<<if $smuggler_known is 1 and $smuggler_timer gte 0>>
 				<li>밀수꾼들이 무언가 귀중한 물건을
 					<<if $smuggler_timer is 0>>
-						<span class="gold">오늘 밤</span>, 자정 이전에 들여올 것이다.
+						<span class="pink">오늘 밤</span>, 자정 이전에 들여올 것이다.
 					<<elseif $smuggler_timer is 1>>
 						<span class="gold">내일</span>, 자정 이전에 들여올 것이다.
 					<<else>>
@@ -133,13 +135,13 @@
 			<<if $farm_stage gte 7>>
 				<li>레미는 농장을
 					<<if $farm_attack_timer is 0>>
-						<span class="gold">오늘</span> 공격할 것이다.
+						<span class="pink">오늘 밤</span> 공격할 것이다.
 					<<elseif $farm_attack_timer is 1>>
 						<span class="gold">내일</span> 공격할 것이다.
 					<<else>>
 						<span class="gold">$farm_attack_timer</span>일 안에 공격할 것이다.
 					<</if>>
-					<<nnpc_He_ ga Remy>> <<ampm 21 00>>부터 자정까지 올 것이다.
+					<<nnpc_He_ ga Remy>> <span class="gold"><<ampm 21 00>></span>부터 <span class="gold">자정</span>사이에 올 것이다.
 				</li>
 			<</if>>
 
@@ -161,8 +163,8 @@
 	<<if !$statFreeze and (($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented isnot "none") || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined))>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
-		<span class="gold bold">기억해야 할 것</span>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<h1 class="header gold bold">기억해야 할 것</h1>
+		<ul class="journal">
 			<<if $temple_spear_mission is 1>>
 				<li>조던이 당신에게 고대의 창을 되찾으라는 임무를 주었다. 그것은 신비한 섬에 위치해 있다고 한다.
 					<<if $temple_spear_mission_winter is undefined>>
@@ -174,7 +176,7 @@
 			<</if>>
 			<<if $eden_asylum_window is 1 and $location is "asylum">>
 				<<if Time.hour lt 22>>
-					<li>에덴은 오늘밤 <<ampm 20 00>>에 정신병원을 관찰할 것이다.</li>
+					<li>에덴은 <span class="pink">오늘밤</span> <<ampm 20 00>>에 정신병원을 관찰할 것이다.</li>
 				<<else>>
 					<li>에덴은 정신병원을 관찰하며, 당신이 당신의 방을 표시해 주기를 기다리고 있다.</li>
 				<</if>>
@@ -182,16 +184,16 @@
 
 			<<if $daily.eden.distract gte 1 and $location is "asylum">>
 				<<if Time.hour lt 21>>
-					<li>에덴은 오늘밤 <<ampm 21 00>>에 소동을 일으킬 것이다.</li>
+					<li>에덴은 <span class="pink">오늘밤</span> <<ampm 21 00>>에 소동을 일으킬 것이다.</li>
 				<</if>>
 			<</if>>
 
 			<<if $dockwork gte 2>>
-				<li>학교 가는 날을 제외한 다른 날에는 <<ampm 7 00>> - <<ampm 8 00>> 사이에 부두에 가면 일할 수 있다.</li>
+				<li>당신은<<if !($idDocksReveal is 2)>> 학교를 가지 않는 날에는<</if>> 부두에서 <<ampm 7 00>> - <<ampm 8 00>> 사이에 일할 수 있다.</li>
 			<</if>>
 
 			<<if $brothelshowdata.intro and $brothelshowdata.type is "none" >>
-				<li>창관의 쇼에서 주연을 맡을 수 있다.</li>
+				<li>당신은 창관의 쇼에서 주연을 맡을 수 있다.</li>
 			<</if>>
 
 			<<if $pubtask2 is 1>>
@@ -427,7 +429,7 @@
 			<</if>>
 
 			<<if $adultshopgrandopening is true>>
-				<li>시리스의 성인용품점 개장식이 오늘 엘크 가에서 열린다.</li>
+				<li>시리스의 성인용품점 개장식이 <span class="pink">오늘</span> 엘크 가에서 열린다.</li>
 			<<elseif $adultshopintro is 1 and $adultshopunlocked is undefined>>
 				<<set $_theshop to "성인용품점">>
 				<li>
@@ -452,12 +454,12 @@
 		</ul>
 	<</if>>
 
-	<<if $valentines is 1 or $halloween is 1 or $christmas is 1>>
+	<<if ($valentines is 1 and $valentines_eden is 1) or $halloween is 1 or $christmas is 1>>
 		<hr>
-		<span class="gold bold">기념일</span>
+		<h1 class="header gold bold">기념일</h1>
 	<</if>>
 	<<if $valentines_eden is 1>>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<ul class="journal">
 			<li>발렌타인 데이는 2월 14일이다.</li>
 			<<if $valentines_eden is 1 and !$valentines_eden_bought>>
 				<li>당신은 기념하기 위해 에덴에게 무언가를 사 줄 수 있다.</li>
@@ -468,7 +470,7 @@
 	<</if>>
 
 	<<if $halloween is 1>>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<ul class="journal">
 			<li>할로윈은 10월 31이다.</li>
 			<<if $halloween_whitney is 1 and C.npc.Whitney.state isnot "dungeon">>
 				<li>휘트니는 <<ampm 19 00>>에 도무스 가에서 트릭-오어-트릿을 할 것이다.</li>
@@ -492,7 +494,7 @@
 	<</if>>
 
 	<<if $christmas is 1>>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<ul class="journal">
 			<li>
 				<<if Time.monthDay is 25 and Time.hour lte 20>>
 					고아들이 크리스마스를 기념하고 있다.
@@ -518,7 +520,7 @@
 			<<if $syndromeeden gte 1>>
 				<<if Time.monthDay is 25>>
 					<<if Time.hour lte 20>>
-						<li>당신은 오늘 에덴과 크리스마스를 기념할 수 있다.</li>
+						<li>당신은 <span class="pink">오늘</span> 에덴과 크리스마스를 기념할 수 있다.</li>
 					<</if>>
 				<<else>>
 					<li>크리스마스가 오고 있다. 당신은 에덴과 크리스마스를 기념할 수 있다.</li>
@@ -536,7 +538,7 @@
 	<<if $scienceproject is "ongoing">>
 		<hr>
 		<<if $scienceprojectdays is 0>>
-			과학 전람회가 클리프 가의 시청에서 오늘 <<ampm 9 00>>부터 <<ampm 18 00>>까지 열릴 예정이다.
+			과학 전람회가 클리프 가의 시청에서 <span class="pink">오늘</span> <<ampm 9 00>>부터 <<ampm 18 00>>까지 열릴 예정이다.
 			<br>
 		<<else>>
 			과학 전람회가 클리프 가의 시청에서 <span class="gold">$scienceprojectdays</span>일 뒤에 열릴 예정이다.
@@ -545,8 +547,7 @@
 		다음과 같은 과학 프로젝트를 진행하고 있다. 전람회에 출품할 주제를 하나 골라야 한다.
 		<br><br>
 		<<if $sciencelichenknown is 1>>
-			<span class="gold bold">지역 이끼</span>
-			<br>
+			<h1 class="header gold bold">지역 이끼</h1>
 			<<if $sciencechance is undefined>>
 				<<set $sciencechance to []>>
 			<</if>>
@@ -611,8 +612,7 @@
 			<br><br>
 		<</if>>
 		<<if $scienceshroomknown is 1>>
-			<span class="gold bold">지역 버섯</span>
-			<br>
+			<h1 class="header gold bold">지역 버섯</h1>
 			<span @class="($scienceshroomheart is 5 ? 'fa-icon fa-selected' : 'fa-icon fa-unselected')"></span><span @class="$scienceshroomheart is 0 and $scienceshroomheartready is 0 ? 'black' : ''"> $scienceshroomheart/5개의 심장버섯을 찾았다.</span>
 			<br>
 			<span @class="($scienceshroomheartready is 5 ? 'fa-icon fa-selected' : 'fa-icon fa-unselected')"></span><span @class="$scienceshroomheart is 0 and $scienceshroomheartready is 0 ? 'black' : ''"> $scienceshroomheartready/5개의 심장버섯을 프로젝트에 추가했다.</span>
@@ -637,7 +637,7 @@
 			<br><br>
 		<</if>>
 		<<if $sciencephallusknown is 1>>
-			<span class="gold bold">지역 남근</span>
+			<h1 class="header gold bold">지역 남근</h1>
 			<mouse class="tooltip gold">(?)<span>날씨가 좋을 때 해변에서 참가자를 찾자.</span></mouse>
 			<br>
 			<span @class="($sciencephallus is 10 ? 'fa-icon fa-selected' : 'fa-icon fa-unselected')"></span> $sciencephallus/10개의 남근을 측정했다.
@@ -660,9 +660,9 @@
 	<<if $mathsproject is "ongoing">>
 		<<set $mathschance = Math.clamp($mathschance, 0, 100)>>
 		<hr>
-		<span class="gold bold">수학 경시대회</span><br>
+		<h1 class="header gold bold">수학 경시대회</h1>
 		<<if $mathsprojectdays is 0>>
-			수학 경시대회가 클리프 가의 시청에서 오늘 <<ampm 9 00>>부터 <<ampm 18 00>>까지 열릴 예정이다.
+			수학 경시대회가 클리프 가의 시청에서 <span class="pink">오늘</span> <<ampm 9 00>>부터 <<ampm 18 00>>까지 열릴 예정이다.
 			<br>
 		<<else>>
 			수학 경시대회가 클리프 가의 시청에서 <span class="gold">$mathsprojectdays</span>일 뒤에 열릴 예정이다.
@@ -697,9 +697,9 @@
 
 	<<if $englishPlay is "ongoing">>
 		<hr>
-		<span class="gold bold">학교 연극</span><br>
+		<h1 class="header gold bold">학교 연극</h1>
 		<<if $englishPlayDays is 0>>
-			학교 연극이 클리프 가의 시청에서 오늘 밤 <<ampm 17 00>>부터 <<ampm 21 00>>까지 열릴 예정이다.
+			학교 연극이 클리프 가의 시청에서 <span class="pink">오늘밤</span> <span class="gold"><<ampm 17 00>></span>부터 <span class="gold"><<ampm 21 00>></span>까지 열릴 예정이다.
 		<<else>>
 			학교 연극이 클리프 가의 시청에서 <span class="gold">$englishPlayDays</span>일 뒤에 열릴 예정이다.
 		<</if>>
@@ -736,112 +736,189 @@
 		<</if>>
 	<</if>>
 
-	<<if $museumAntiqueJournalHints.length gte 1>>
-		<hr>
-		<span class="gold bold">박물관 물건</span>
-		<br>
-		<<museumAntiqueText>>
-		윈터가 박물관에 없는 물건들에 대해 언급했다.
-		<ul style="margin-top:10px;margin-left:-5px;">
-		<<set _hintslist to clone($museumAntiqueJournalHints).reverse()>>
-		<!-- most recent go on top -->
-		<<for _hint range _hintslist>>
-			<<if _museumAntiqueText[_hint]>>
-				<li><<print _museumAntiqueText[_hint].journal>></li>
-			<<else>>
-				<li><span class="red">경고: 골동품 "_hint"에 해당하는 힌트가 없습니다. 모드가 적용된 버전에서 가져온 세이브일지도 모릅니다.</span></li>
-				<<set $museumAntiqueJournalHints.delete(_hint)>>
-			<</if>>
-		<</for>>
+<<set _plant_keys to Object.keys($plants)>>
+<<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held].some(i => i >= 1)>>
+<<if _carrying or _plant_keys.length gt 0>>
+	<hr>
+		<h1 class="header gold bold">소지품</h1>
+	<</if>>
+	<<if $farm_key is true and $location is "farm" and !$bus.includes("farm")>>
+		당신이 보관하고 있는 물품:
+		<ul class="journal carry">
+			<li><<lakeicon "key">> 외양간 안의 <span class="green">열쇠 꾸러미</span>. 그것을 사용해 도망갈 수 있지만, 그것을 가지고 있다는 것이 들키지 않도록 주의해야만 한다.</li>
 		</ul>
-	<</if>>
-
-	<<if $antiquemoney gt 0 || $blackmoney gt 0 || $phials_held gte 1 || $lurkers_held gte 1 || $popcorn gte 1 || $milkshake gte 1 || $panties_held gte 1>>
-		<hr>
-		<span class="gold bold">소지품</span>
 		<br>
 	<</if>>
-	<ul style="margin-top:10px;margin-left:-5px;">
-	<<if $antiquemoney gt 0>>
-		<li>당신은 <span class="green">£<<print $antiquemoney>></span> 어치의 골동품들을 가지고 있다. 박물관에서 팔 수 있다.</li>
-	<</if>>
-	<<if $blackmoney gt 0>>
-		<li>당신은 <span class="green">£<<print $blackmoney>></span> 어치의 훔친 물건들을 가지고 있다. 암시장의 누군가에게 팔 수 있다.</li>
-	<</if>>
-	<<if $phials_held gte 2>>
-		<li>당신은 <span class="green">$phials_held</span>병의 미약을 가지고 있다. 엘크 가에서 팔 수 있다.</li>
-	<<elseif $phials_held gte 1>>
-		<li>당신은 한 병의 미약을 가지고 있다. 엘크 가에서 팔 수 있다.</li>
-	<</if>>
-	<<if $lurkers_held gte 2>>
-		<li>당신은 <span class="green">$lurkers_held</span>마리의 럴커를 가지고 있다.</li>
-	<<elseif $lurkers_held is 1>>
-		<li>당신은 한 마리의 럴커를 가지고 있다.</li>
-	<</if>>
-	<<if $location is "prison">>
-		<li>당신은 <span class="green"><<trNumber $prison.teeth>></span>개의 상어 이빨을 가지고 있다.
-		<<if $prison_wren_intro isnot 1>>
-			당신은 금요일 점심식사 후에 교도소 마당에서 렌을 찾을 수 있다.
-			<br>
+	당신이 소지하고 있는 물품:
+	<ul class="journal carry">
+		<<if $location is "prison" and $prison.teeth gte 1>>
+			<li><<icon "sharks_teeth.png">> <span class="green"><<trNumber $prison.teeth>></span> 개의 상어 이빨.
+			<<if $prison_wren_intro isnot 1>>
+				당신은 금요일 점심식사 후에 교도소 마당에서 렌을 찾을 수 있다.
+			<</if>>
+			</li>
 		<</if>>
-		</li>
-	<</if>>
-	<<if $milkshake gte 1>>
-		<li>당신은 밀크셰이크를 <span class="green">$milkshake</span>통 가지고 있다.</li>
-	<</if>>
-	<<if $popcorn gte 1>>
-		<li>당신은 팝콘을 <span class="green">$popcorn</span>봉지 가지고 있다.</li>
-	<</if>>
-	<<if $panties_held gte 1>>
-		<li>당신은 훔친 속옷을 <<print $panties_held is 1 ? "한 장" : "<span class='green'>$panties_held</span> 장">> 가지고 있다. 당신은 <<print $panties_held is 1 ? "그것을" : "그것들을">> 점심시간 동안 학교 뒷마당에서 팔 수 있다.</li>
-	<</if>>
-	<<if $farm_key is true>>
-		<li>당신은 열쇠 꾸러미를 챙겨두었다. 당신은 그것을 탈출할 때 사용할 수 있으며, 그들에게 잡히지 않도록 조심하도록 하자.</li>
-	<</if>>
+		<<if $antiquemoney gt 0>>
+			<li><<museumicon>><span class="green">£<<print $antiquemoney>></span> 어치의 골동품들. 박물관에서 팔 수 있다.</li>
+		<</if>>
+		<<if $blackmoney gt 0>>
+			<li><<highicon>><span class="green">£<<print $blackmoney>></span> 어치의 장물들. 암시장의 누군가에게 팔 수 있다.</li>
+		<</if>>
+		<<if $phials_held gt 0>>
+			<li><<icon "aphrodisiac.png">> <span class="green">$phials_held</span> 병의 미약. 엘크 가에서 팔 수 있다.</li>
+		<</if>>
+		<<if $lurkers_held gt 0>>
+			<li><<birdicon "lurkers">><span class="green">$lurkers_held</span> 마리의 <<= $lurkers_held is 1 ? "럴커" : "럴커들">>.</li>
+		<</if>>
+		<<if $milkshake gt 0>>
+			<li><<foodicon "milkshake">> <span class="green">$milkshake</span> 통의 밀크셰이크.</li>
+		<</if>>
+		<<if $popcorn gt 0>>
+			<li><<foodicon "popcorn">> <span class="green">$popcorn</span> 봉의 팝콘.</li>
+		<</if>>
+		<<if $panties_held gt 0>>
+			<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "한" : "<span class='green'>$panties_held</span>">> 장의 훔친 속옷. 점심시간 동안 학교 뒷마당에서 팔 수 있다.</li>
+		<</if>>
+		<<if _plant_keys.length gt 0>>
+			<li><<tendingicon>> <span class="green">생산물들</span>. 새벽에 콘누다투스 가에서 가판대를 빌려 팔 수 있다.</li>
+		<</if>>
 	</ul>
 
-	<<if $plants_known.length gt 0>>
-	<hr>
-		<span class="gold bold">씨앗</span>
+	<<if _plant_keys.length gt 0>>
 		<br>
-		키울 수 있는 씨앗:
-		<<set _plant_keys to Object.keys(setup.plants)>>
-		<<for _i to 0; _i lt _plant_keys.length; _i++>>
-			<<if setup.plants[_plant_keys[_i]].type is "flower" or setup.plants[_plant_keys[_i]].type is "vegetable">>
-				<<if $plants_known.includes( setup.plants[_plant_keys[_i]].name)>>
-					<<if $options.images is 1 and setup.plants[_plant_keys[_i]].icon>>
-						<img class="tending_icon" @src="`img/misc/icon/tending/` + setup.plants[_plant_keys[_i]].icon">
+		<details class="journal">
+			<summary class="journal">생산물</summary>
+			<div class="itemInventory">
+				<<for _t to 0; _t lt _plant_keys.length; _t++>>
+					<<set _item to $plants[_plant_keys[_t]]>>
+					<<set _produce to setup.plants[$plants[_plant_keys[_t]].name]>>
+					<<if _item.amount gte 1>>
+						<<set _plant_temp to 1>>
+						<<set _formatter = new Intl.NumberFormat('en-gb', { roundingMode: 'trunc', notation: 'compact' })>>
+						<<set _amount = _formatter.format(_item.amount)>>
+						<<if _item.amount === 1>>
+							<<trPlants _produce.name "name">><<set _itemName to _trResult>>
+						<<else>>
+							<<trPlants _produce.plural "plural">><<set _itemName to _trResult>>
+						<</if>>
+						<<trPlants _produce.name "unit" "의">><<set _tooltip to `<span class="green">${_item.amount}</span> ${_trResult} ${_itemName}`>>
+
+						<div class="item" @tooltip="_tooltip">
+							<<icon `"tending/" + setup.plants[_plant_keys[_t]].icon`>>
+							<hr>
+							<<= _amount>>
+						</div>
 					<</if>>
-					<<trPlants setup.plants[_plant_keys[_i]].name>><span class="green"><<print _trResult>></span> |
-				<<else>>
-					??? |
-				<</if>>
-			<</if>>
-		<</for>>
+				<</for>>
+			</div>
+		</details>
 	<</if>>
 
-	<<set _plant_keys to Object.keys($plants)>>
-	<<if _plant_keys.length gt 0>>
-	<hr>
-	<span class="gold bold">생산물</span>
-	<br>
-	You have:
-	<<for _t to 0; _t lt _plant_keys.length; _t++>>
-		<<if $plants[_plant_keys[_t]].amount gte 1>><<set _plant_temp to 1>>
-			<span class="green"><<print $plants[_plant_keys[_t]].amount>></span>
-			<<if $options.images is 1 and setup.plants[_plant_keys[_t]].icon>>
-				<img class="tending_icon" @src="`img/misc/icon/tending/` + setup.plants[_plant_keys[_t]].icon">
+	<<if $museumintro is 1 or $plants_known.length gte 0>>
+		<hr>
+		<h1 class="header gold bold">수집품</h1>
+		<<if $museumintro is 1>>
+			<<museumAntiqueText>>
+			<<if $museumAntiqueJournalHints.length gte 1>>
+				윈터가 박물관에 없는 물건들에 대해 언급했다.
+				<ul class="journal">
+				<<set _hintslist to clone($museumAntiqueJournalHints).reverse()>>
+				<!-- most recent go on top -->
+				<<for _hint range _hintslist>>
+					<<if _museumAntiqueText[_hint]>>
+						<li><<print _museumAntiqueText[_hint].journal>></li>
+					<<else>>
+						<li><span class="red">경고: 골동품 "_hint"에 해당하는 힌트가 없습니다. 모드가 적용된 버전에서 가져온 세이브일지도 모릅니다.</span></li>
+						<<set $museumAntiqueJournalHints.delete(_hint)>>
+					<</if>>
+				<</for>>
+				</ul>
+				<br>
 			<</if>>
-			<<if setup.plants[$plants[_plant_keys[_t]].name].singular and $plants[_plant_keys[_t]].amount === 1>>
-				<<trPlants setup.plants[$plants[_plant_keys[_t]].name].singular>><<print _trResult>> <<print _t lt (_plant_keys.length-1) ? "|" : "">>
+			<<set $_antiquesFound to Object.values($museumAntiques.antiques).filter(status => status !== "notFound").length>>
+			<<if $_antiquesFound is 0>>
+				당신은 박물관에 전시할 어떤 물건도 찾지 못했다. 세상을 더 탐험하여 골동품을 발견해 보세요.
+			<<elseif $_antiquesFound is $museumAntiques.maxCount>>
+				당신은 박물관에 전시할 물건을 <span class="green">모두</span> 찾았다.
 			<<else>>
-				<<trPlants $plants[_plant_keys[_t]].plural>><<print _trResult>> <<print _t lt (_plant_keys.length-1) ? "|" : "">>
+				당신은 박물관에 전시할 물건을 <span class="gold"><<= $_antiquesFound>></span> 개 찾았다. 당신은 아직 <span class="gold"><<= $museumAntiques.maxCount - $_antiquesFound>></span> 개의 골동품을 찾지 못했다.
 			<</if>>
+			<br><br>
+			<details class="journal">
+				<summary class="journal">골동품</summary>
+				<div class="itemCollectible">
+					<<for _labelM, _valueM range $museumAntiques.antiques>>
+						<<set _antique to $museumAntiqueJournalHints.includes(_labelM) ? _museumAntiqueText[_labelM]?.journalName || _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst() : _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst()>>
+						<<if $museumAntiqueJournalHints.includes(_labelM)>>
+							<div class="item unknown" @tooltip="_antique">
+								<<icon "museum_empty.png">>
+							</div>
+						<<else>>
+							<<switch _valueM>>
+								<<case "notFound">>
+									<div class="item unknown" tooltip="찾지 못한 골동품.">
+										<<askicon>>
+									</div>
+								<<default>>
+									<div class="item" @tooltip="_antique">
+										<<icon _museumAntiqueText[_labelM].icon>>
+									</div>
+							<</switch>>
+						<</if>>
+					<</for>>
+				</div>
+			</details>
+			<br>
 		<</if>>
-	<</for>>
-	<br><br>
+
+		<<if $plants_known.length gte 0>>
+			<<set _plant_keys to Object.keys(setup.plants)>>
+			<<set _collection to 0>>
+			<<for _i to 0; _i lt $plants_known.length; _i++>>
+				<<if Object.keys(setup.plants).includes($plants_known[_i])>>
+					<<set _collection += 1>>
+				<</if>>
+			<</for>>
+			<<set _total to 0>>
+			<<for _i to 0; _i lt _plant_keys.length; _i++>>
+				<<if setup.plants[_plant_keys[_i]].type === "flower" || setup.plants[_plant_keys[_i]].type === "vegetable">>
+					<<set _total += 1>>
+				<</if>>
+			<</for>>
+			<<if _collection is 0>>
+				당신은 어떤 식물도 기를 수 없다. 세상을 더 탐험하여 씨앗들을 발견해 보세요.
+			<<else>>
+				당신은 <span class="gold"><<= _collection>></span> 종류의 식물을 기를 수 있다.
+				<<if _collection is _total>>
+					당신은 <span class="green">모든</span> 종류의 씨앗들을 찾았다.
+				<<else>>
+					당신은 아직 <span class="gold"><<= _total - _collection>></span> 종류의 <<= _total - _collection is 1 ? "씨앗을" : "씨앗들을">> 찾지 못했다.
+				<</if>>
+			<</if>>
+			<br><br>
+			<details class="journal">
+				<summary class="journal">씨앗</summary>
+				<div class="itemCollectible">
+					<<for _i to 0; _i lt _plant_keys.length; _i++>>
+						<<trPlants setup.plants[_plant_keys[_i]].name>><<set _tooltip to _trResult>>
+						<<set _icon to setup.plants[_plant_keys[_i]].icon>>
+						<<if setup.plants[_plant_keys[_i]].type is "flower" or setup.plants[_plant_keys[_i]].type is "vegetable">>
+							<<if $plants_known.includes( setup.plants[_plant_keys[_i]].name)>>
+								<div class="item" @tooltip="_tooltip">
+									<<icon `"tending/" + _icon`>>
+								</div>
+							<<else>>
+								<div class="item unknown" tooltip="찾지 못한 씨앗.">
+									<<askicon>>
+								</div>
+							<</if>>
+						<</if>>
+					<</for>>
+				</div>
+			</details>
+		<</if>>
 	<</if>>
-	<<if _plant_temp is 1>>코누다투스 가에 가판대를 빌려서 새벽에 팔 수 있다.<</if>>
+	<br>
 <</widget>>
 
 <<widget "journalNotes">>

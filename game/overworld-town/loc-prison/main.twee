@@ -18,7 +18,7 @@
 	문은 잠겨있다.
 	<br><br>
 <</if>>
-<<if $stress gte $stressmax and isPlayerNonparasitePregnancyEnding()>>
+<<if $stress gte $stressmax and isPregnancyEnding()>>
 	<<pregnancyPassout "prisonCell">>
 <<elseif $prison.schedule is "hunt" and $prison.morning isnot 1>>
 	<<set $prison.schedule to "wake">>
@@ -904,7 +904,7 @@
 <<effects>><<effects_prison>><<set $bus to "shower">>
 
 당신은 교도소 욕실에 있다.
-<<if isPlayerNonparasitePregnancyEnding() and $prison.schedule isnot "lockdown">>
+<<if isPregnancyEnding() and $prison.schedule isnot "lockdown">>
 	<<pregnancyPassout "prisonShower">>
 <<elseif $prison.schedule is "wake">>
 	수감자들은 목욕을 하기 전 옷을 벗어 나무 벤치에 올려놓는다. 당신은 물이 흐르는 소리를 듣는다.
@@ -926,7 +926,7 @@
 		<<getouticon>><<link [[떠난다|Prison Block]]>><</link>>
 		<br>
 	<<else>>
-		<<if $exhibitionism gte 15>>
+		<<if hasSexStat("exhibitionism", 2)>>
 			<<skinicon "strip">><<link [[공개된 장소에서 옷을 벗는다 (0:10)|Prison Shower Open]]>><</link>>
 			<br>
 		<<else>>
@@ -1123,7 +1123,7 @@
 <</if>>
 
 
-<<if isPlayerNonparasitePregnancyEnding()>>
+<<if isPregnancyEnding()>>
 	<<pregnancyPassout "prisonLaundry">>
 <<elseif Time.hour is 20>>
 	당신은 벨소리를 듣는다. "폐쇄 시간이다." <<generate_relaxed_guard 0>><<relaxed_guard_ ga 0>> 소리친다. "감옥으로 돌아가."
@@ -1354,41 +1354,28 @@
 <<elseif $stress gte $stressmax>>
 	<<passout_prison>>
 <<elseif $prison_wren_intro is 1 and $prison.schedule is "yard">>
-	<<if $wren_seen is "cards">>
-		<<npc "Wren">><<person1>>
-		"당신을 여기서 보니 기분이 묘하네요." 젊고 <<if $pronoun is "m">>짧은 머리를 가진 남자가<<else>>어깨까지 오는 머리를 가진 여자가<</if>> 말한다. <span class="gold">렌이다.</span>
+	<<npc "Wren">><<person1>>
+	<<if $wren_seen>>
+		"당신을 여기서 보니 기분이 묘하네요." 젊고 <<if $pronoun is "m">>짧은 머리를 가진 남자가<<else>>어깨까지 오는 머리를 가진 여자가<</if>> 말한다. <span class="gold"><<= $wren_seen is "pregnancy" ? "당신이 부두 노동자로 일하고 있을 때 당신을 구해 준 사람이다" : "렌이다">>.</span>
 		<br><br>
 
-		"당신의 잠입이 잘 되지 않아 유감이에요. 그래도 우리가 서로를 도와줄 수 있을 것 같네요."
-		<br><br>
-		<<link [[다음|Prison Wren Intro Met]]>><<unset $prison_wren_intro>><<set $wren_seen to "prison">><</link>>
-		<br>
-	<<elseif $wren_seen is "catsuit">>
-		<<npc "Wren">><<person1>>
-		"당신을 여기서 보니 기분이 묘하네요." 젊고 <<if $pronoun is "m">>짧은 머리를 가진 남자가<<else>>어깨까지 오는 머리를 가진 여자가<</if>> 말한다. <span class="gold">렌이다.</span>
-		<br><br>
-
-		"당신이 몰래 숨어있던게 들켰다니 유감이에요. 그래도 우리가 서로를 도와줄 수 있을 것 같네요."
-		<br><br>
-
-		<<link [[다음|Prison Wren Intro Met]]>><<unset $prison_wren_intro>><<set $wren_seen to "prison">><</link>>
-		<br>
-	<<elseif $wren_seen is "winter">>
-		<<npc "Wren">><<person1>>
-		"당신을 여기서 보니 기분이 묘하네요." 젊고 <<if $pronoun is "m">>짧은 머리를 가진 남자가<<else>>어깨까지 오는 머리를 가진 여자가<</if>> 말한다. <span class="gold">렌이다.</span>
-		<br><br>
-
-		"늙은 윈터씨의 요청이 법의 테두리 밖으로 나갔었나 보죠? 그래도 우리가 서로를 도와줄 수 있을 것 같네요."
-		<br><br>
-
-		<<link [[다음|Prison Wren Intro Met]]>><<unset $prison_wren_intro>><<set $wren_seen to "prison">><</link>>
-		<br>
-	<<else>>
-		<<npc "Wren">><<person1>>
-		"신참인가?" 젊고 <<if $pronoun is "m">>짧은 머리를 가진 남자가<<else>>어깨까지 오는 머리를 가진 여자가<</if>> 물어본다. "그냥 내 취향이길래." <<He_ nun>> 죄수복을 입고 있지만 다른 수감자들보다 더 자유롭고 달라보인다.
+		<<if $wren_seen is "pregnancy">>
+			"위험한 곳을 들쑤시고 다니는 취미를 참지 못했나 보군요, 그렇죠? <<= playerBellyVisible() ? "거기다 또 임신한 것 같고요." : "최소한 이번에는 임신하지는 않은 것 같군요.">>
+			<<set $phase to "intro">>
+		<<elseif $wren_seen is "winter">>
+			"늙은 윈터씨의 요청이 법의 테두리 밖으로 나갔었나 보죠?
+		<<else>>
+			"당신이 <<= $wren_seen is "catsuit" ? "몰래 숨어다니던" : "잠입하던">> 게 잘 되지 않은 게 유감이네요.
+		<</if>>
+		그래도 우리가 서로를 도와줄 수 있을 것 같네요."
 		<br><br>
 
 		<<link [[다음|Prison Wren Intro]]>><<unset $prison_wren_intro>><<set $wren_seen to "prison">><</link>>
+	<<else>>
+		"신참인가?" 젊고 <<if $pronoun is "m">>짧은 머리를 가진 남자가<<else>>어깨까지 오는 머리를 가진 여자가<</if>> 물어본다. "그냥 내 취향이길래." <<He_ nun>> 죄수복을 입고 있지만 다른 수감자들보다 더 자유롭고 달라보인다.
+		<br><br>
+
+		<<link [[다음|Prison Wren Intro]]>><<set $phase to "intro">><<unset $prison_wren_intro>><<set $wren_seen to "prison">><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -1431,7 +1418,7 @@
 						<br>
 						<<link [[수감자들에게 귀엽게 추파를 날린다 (0:30)|Prison Yard Flirt]]>><<set $phase to 0>><<pass 30>><<prison_hope 1>><<endevent>><</link>><<promiscuous1>><<ghope>>
 						<br>
-						<<if $promiscuity gte 15>>
+						<<if hasSexStat("promiscuity", 2)>>
 							<<link [[수감자들에게 음탕하게 추파를 날린다 (0:30)|Prison Yard Flirt]]>><<set $phase to 1>><<pass 30>><<prison_reb 1>><<endevent>><</link>><<promiscuous2>><<greb>>
 							<br>
 						<</if>>
@@ -1958,8 +1945,11 @@
 <<pass 10>>
 <<He_ nun>> 앉아서 말을 할 수 있을 때까지 몇 분 쉰다. "고마워." <<he_ ga>> 말한다. "아무튼 난 <<anxious_guard_ iya 0>>. 우리의 이름을 말하면 안되지만 좆까라 해. 닌 그게 날 위한 거라 생각해."
 <br><br>
-
-<<prison_spire_options>>
+<<if $replayScene>>
+	<<link [[다음|Prison Spire]]>><<endevent>><</link>>
+<<else>>
+	<<prison_spire_options>>
+<</if>>
 
 :: Prison Spire Precipice Demand
 <<effects>>
@@ -1988,8 +1978,11 @@
 
 <<set $prison.yard_key to 1>>
 <br><br>
-
-<<prison_spire_options>>
+<<if $replayScene>>
+	<<link [[다음|Prison Spire]]>><<endevent>><</link>>
+<<else>>
+	<<prison_spire_options>>
+<</if>>
 
 :: Passout Prison
 <<effects>>
@@ -2036,7 +2029,7 @@
 <<elseif $speech_attitude is "bratty">>
 	"난 나한테 이래라 저래라 하는 개새끼들한테 질렸어." 당신이 소리친다. "그들을 조져버리자!"
 <<else>>
-	"이곳에 변화를 줄 시간이야." 당신이 말한다. "반란의 시간이다!"
+	"이곳에 변화를 줄 시간이야." 당신이 소리친다. "이제 우리가 여기를 지배한다!"
 <</if>>
 <br><br>
 <<generate1>><<person1>><<generate2>>

@@ -40,33 +40,18 @@ You have an opportunity to escape, but the <<person>> is aware of that, and keep
 
 <<set $outside to 1>><<set $location to "town">><<effects>>
 <<earnFeat "You're the Laughingstock">>
-<<if crimeSumCurrent() gte 4500>>
-	<<set $pillorytime to 27>>
-<<elseif crimeSumCurrent() gte 4000>>
-	<<set $pillorytime to 24>>
-<<elseif crimeSumCurrent() gte 3500>>
-	<<set $pillorytime to 21>>
-<<elseif crimeSumCurrent() gte 3000>>
-	<<set $pillorytime to 18>>
-<<elseif crimeSumCurrent() gte 2500>>
-	<<set $pillorytime to 15>>
-<<elseif crimeSumCurrent() gte 2000>>
-	<<set $pillorytime to 13>>
-<<elseif crimeSumCurrent() gte 1500>>
-	<<set $pillorytime to 11>>
-<<else>>
-	<<set $pillorytime to 9>>
-<</if>>
+<<set _hours to Math.round(Math.clamp(8, 30, ((crimeSumCurrent() - 500) / 250) * 2))>>
+<<set $pillory.time.end to new DateTime(Time.date).addHours(_hours).addMinutes(60 - Time.date.minute).timeStamp>>
 <<crimeDown 5000>>
 
-The <<person>> moves your arms and head into position before lifting the top into place, restraining you. <<He>> locks it shut and attaches the key to a chain on <<his>> belt. "Someone will be over to release you in $pillorytime hours." <<if $worn.handheld.name isnot "naked">><<He>> looks at your $worn.handheld.name. "You'll get that back when you're released.<</if>><<bindtemp>><<He>> leaves without looking back.
+The <<person>> moves your arms and head into position before lifting the top into place, restraining you. <<He>> locks it shut and attaches the key to a chain on <<his>> belt. "Someone will be over to release you in _hours hours." <<if $worn.handheld.name isnot "naked">><<He>> looks at your $worn.handheld.name. "You'll get that back when you're released.<</if>><<bindtemp>><<He>> leaves without looking back.
 <br><br>
 
 With <<him>> gone, some onlookers lose interest and return to their routines. Others still gawk however. If any tried to abuse you there'd be little you could do to stop them, but people seem hesitant to make the first move. You hope it stays that way.
 <br><br>
 <<endcombat>>
 
-<<link [[다음|Pillory]]>><<endevent>><<set $pilloryaudience to 1>><</link>>
+<<link [[다음|Pillory]]>><<endevent>><<set $pillory.audience to 1>><</link>>
 <br>
 
 :: Police Pillory Fight Finish
@@ -107,35 +92,38 @@ In too much pain to resist, you're helpless as the <<person>> continues <<his>> 
 :: Pillory
 <<set $outside to 1>><<set $location to "town">><<effects>>
 
-<<if $pilloryaudience lte 1>>
-<<set $pilloryaudience to 1>>
+<<if $pillory.audience lte 1>>
+<<set $pillory.audience to 1>>
 <</if>>
+
+<<set _endTime to new DateTime($pillory.time.end)>>
+<<set _timeLeft to Math.round(Time.date.compareWith(_endTime, true) / TimeConstants.secondsPerHour)>>
 
 You are stuck in a pillory on Cliff Street, in front of the town hall.
 
-<<if $pillorytime gte 1>>
-You have <<number $pillorytime>> hours left until release.
+<<if _timeLeft gte 1>>
+You have <<number _timeLeft>> hours left until release.
 <<else>>
 You should be released any moment from now.
 <</if>>
 
-<<if $pilloryaudience + $exposed is 1>>
+<<if $pillory.audience + $exposed is 1>>
 
 <span class="teal">A few people stop to look at you but most just glance then continue their business.</span>
 
-<<elseif $pilloryaudience + $exposed is 2>>
+<<elseif $pillory.audience + $exposed is 2>>
 
 <span class="lblue">You've attracted a small crowd of onlookers.</span>
 
-<<elseif $pilloryaudience + $exposed is 3>>
+<<elseif $pillory.audience + $exposed is 3>>
 
 <span class="blue">You've attracted a growing crowd of onlookers.</span>
 
-<<elseif $pilloryaudience + $exposed is 4>>
+<<elseif $pillory.audience + $exposed is 4>>
 
 <span class="purple">A large group has gathered around you, big enough that the crowd itself is attracting more people to see what the fuss is about.</span>
 
-<<elseif $pilloryaudience + $exposed is 5>>
+<<elseif $pillory.audience + $exposed is 5>>
 
 <span class="pink">A large crowd has gathered around you. People throw jeers and insults your way.</span>
 
@@ -151,38 +139,19 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 <<if $exposed gte 2>> <<trauma 1>><<gtrauma>><</if>>
 
 	<<if $exposed is 1>>
-		<<if $pilloryaudience is 1>>
-		<<fameexhibitionism 1>>
-		<<elseif $pilloryaudience is 2>>
-		<<fameexhibitionism 2>>
-		<<elseif $pilloryaudience is 3>>
-		<<fameexhibitionism 3>>
-		<<elseif $pilloryaudience is 4>>
-		<<fameexhibitionism 4>>
-		<<elseif $pilloryaudience is 5>>
-		<<fameexhibitionism 5>>
-		<<else>>
-		<<fameexhibitionism 10>>
+		<<if $pillory.audience gte 1>>
+			<<fameexhibitionism $pillory.audience>>
 		<</if>>
 	<</if>>
 	<<if $exposed is 2>>
-		<<if $pilloryaudience is 1>>
-		<<fameexhibitionism 3>>
-		<<elseif $pilloryaudience is 2>>
-		<<fameexhibitionism 6>>
-		<<elseif $pilloryaudience is 3>>
-		<<fameexhibitionism 9>>
-		<<elseif $pilloryaudience is 4>>
-		<<fameexhibitionism 12>>
-		<<elseif $pilloryaudience is 5>>
-		<<fameexhibitionism 15>>
-		<<else>>
-		<<fameexhibitionism 30>>
+		<<if $pillory.audience gte 1>>
+			<<set _audienceFactor to $pillory.audience * 2>>
+			<<fameexhibitionism _audienceFactor>>
 		<</if>>
 	<</if>>
 <</if>>
 
-<<if $exposed gte 1 and $pilloryaudience and random(0, 9) gte 7>>
+<<if $exposed gte 1 and $pillory.audience and random(0, 9) gte 7>>
 	A person pulls out their <<print ["camera", "phone"].pluck()>> and takes a photo.
 	"<<print [
 		"Now your <<undies>> can be exposed forever.",
@@ -207,17 +176,16 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 	<</if>>
 	<<fameexhibitionism 10 "pic">>
 <</if>>
-<<if $exposed gte 2 and $pilloryaudience and $player.penisExist and random(0, 9) gte 7>><<pillorypeniscomment>><</if>>
+<<if $exposed gte 2 and $pillory.audience and $player.penisExist and random(0, 9) gte 7>><<pillorypeniscomment>><</if>>
 
 <br><br>
 
-<<if $pillorytime lte 0>>
-
+<<if _endTime.timeStamp lte Time.date.timeStamp>>
 	A <<generatePolice 1>><<person1>><<person>> in a police uniform arrives. <<He>> removes your collar and unlocks the pillory, freeing you. The crowd boos its disappointment as the officer disperses them.
 	<br><br>
 	<<set $worn.neck.cursed to 0>><<neckruined>>
 	<<set $worn.neck.collaredpolice to 0>>
-	<<set $pilloryaudience to 0>>
+	<<set $pillory.audience to 0>>
 	<<unbindtemp>>
 	<<clotheson>>
 	<<set $stress -= 1000>>
@@ -225,9 +193,8 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 	<<cliffeventend>>
 	<br>
 <<else>>
-
 	<<rng 5>>
-	<<if $pilloryaudience + $exposed + $rng gte 10>>
+	<<if $pillory.audience + $exposed + $rng gte 10>>
 	<<rng>>
 		<<beastNEWinit 1 dog>>
 		<<if $rng gte 51 and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for Monster People -->
@@ -245,14 +212,14 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 			<br>
 		<</if>>
 
-	<<elseif $pilloryaudience + $exposed + $rng gte 6>>
+	<<elseif $pillory.audience + $exposed + $rng gte 6>>
 	<<rng>>
 		<<if $rng gte 85>>
 			<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1>>
 				A <<generate1>><<person1>><<person>> crouches beside you, and reaches for your <<breasts>>.
 				<br><br>
 
-				<<link [[Spit on them|Pillory Spit]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pilloryaudience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
+				<<link [[Spit on them|Pillory Spit]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pillory.audience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
 				<br>
 				<<link [[Stay still|Pillory Chest]]>><<trauma 6>><<stress 6>><<arousal 600 "breasts">><</link>><<gtrauma>><<gstress>><<garousal>>
 				<br>
@@ -262,7 +229,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 					A <<generate1>><<person1>><<person>> approaches, and grasps your $worn.under_upper.name.
 					<br><br>
 
-					<<link [[Spit on them|Pillory Spit]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pilloryaudience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
+					<<link [[Spit on them|Pillory Spit]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pillory.audience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
 					<br>
 					<<link [[가만히 있는다|Pillory Under Upper]]>><<trauma 6>><<stress 6>><<arousal 600>><</link>><<gtrauma>><<gstress>><<garousal>>
 					<br>
@@ -276,7 +243,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 						<<fameexhibitionism 1 "pic">>
 					<</if>>
 					<<endevent>>
-					<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+					<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 					<br>
 				<</if>>
 			<<elseif $worn.upper.exposed lte 1>>
@@ -284,7 +251,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 					A <<generate1>><<person1>><<person>> approaches, and grasps your $worn.upper.name.
 					<br><br>
 
-					<<link [[Spit on them|Pillory Spit]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pilloryaudience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
+					<<link [[Spit on them|Pillory Spit]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pillory.audience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
 					<br>
 					<<link [[Stay still|Pillory Upper]]>><<trauma 6>><<stress 6>><<arousal 600>><</link>><<gtrauma>><<gstress>><<garousal>>
 					<br>
@@ -298,7 +265,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 						<<fameexhibitionism 1 "pic">>
 					<</if>>
 					<<endevent>>
-					<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+					<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 					<br>
 				<</if>>
 			<<else>>
@@ -311,7 +278,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 					<<fameexhibitionism 1 "pic">>
 				<</if>>
 				<<endevent>>
-				<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+				<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 				<br>
 			<</if>>
 		<<elseif $rng gte 60>>
@@ -343,21 +310,21 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 				A <<generate1>><<person1>><<person>> walks behind you and grabs the hem of your $worn.lower.name.
 				<br><br>
 
-				<<link [[Kick them|Pillory Kick]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pilloryaudience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
+				<<link [[Kick them|Pillory Kick]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pillory.audience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
 				<br>
 				<<link [[가만히 있는다|Pillory Skirt]]>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
 				<br>
 			<<elseif $worn.lower.exposed lte 1 and $worn.lower.set isnot "upperset" and setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt isnot 1>>
 				A <<generate1>><<person1>><<person>> walks behind you and grabs the hem of your $worn.lower.name.
 				<br><br>
-				<<link [[Kick them|Pillory Kick]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pilloryaudience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
+				<<link [[Kick them|Pillory Kick]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pillory.audience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
 				<br>
 				<<link [[가만히 있는다|Pillory Lower]]>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
 				<br>
 			<<elseif $worn.lower.exposed gte 2 and $worn.under_lower.exposed is 0>>
 				A <<generate1>><<person1>><<person>> walks behind you and grabs the hem of your $worn.under_lower.name.
 				<br><br>
-				<<link [[Kick them|Pillory Kick]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pilloryaudience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
+				<<link [[Kick them|Pillory Kick]]>><<stress -12>><<trauma -6>><<attackstat>><<set $pillory.audience += 1>><</link>><<ltrauma>><<llstress>><<gattention>>
 				<br>
 				<<link [[가만히 있는다|Pillory Under]]>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
 				<br>
@@ -369,7 +336,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 				<br><br>
 
 				<<endevent>>
-				<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+				<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 				<br>
 
 			<</if>>
@@ -383,7 +350,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 			<br>
 			<<link [[Lick grudgingly|Pillory Analingus]]>><<trauma 6>><<set $phase to 1>><</link>><<gtrauma>>
 			<br>
-			<<if $promiscuity gte 35>>
+			<<if hasSexStat("promiscuity", 3)>>
 				<<link [[Lick willingly|Pillory Analingus]]>><<arousal 600>><<set $phase to 2>><</link>><<promiscuous3>><<garousal>>
 			<</if>>
 
@@ -397,10 +364,10 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 			A number of people disembark from a bus nearby. Some of them gather round to gawk. <span class="pink">The crowd becomes larger and bolder.</span>
 			<br><br>
 
-			<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+			<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 			<br>
 		<</if>>
-	<<elseif $pilloryaudience + $exposed + $rng gte 3 and $bodywritingLvl gte 2>>
+	<<elseif $pillory.audience + $exposed + $rng gte 3 and $bodywritingLvl gte 2>>
 		<<generate1>><<person1>>
 		<<if $rng gte 81>>
 			<<set $phase to 1>>
@@ -411,7 +378,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 			A <<person>> approaches you, and <span class="purple">pulls the lid off a pen.</span>
 			<br><br>
 		<</if>>
-		<<link [[Warn them off|Pillory Pen Warn]]>><<set $pilloryaudience += 1>><</link>><<gattention>>
+		<<link [[Warn them off|Pillory Pen Warn]]>><<set $pillory.audience += 1>><</link>><<gattention>>
 		<br>
 		<<link [[Brace|Pillory Pen]]>><</link>><<gbodywriting>>
 		<br>
@@ -424,13 +391,13 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 		Without warning, <<he>> begins to urinate on your face. The crowd watches in excitement.<<ggtrauma>><<trauma 12>><<gstress>><<stress 6>><<urinestat>>
 		<br><br>
 		<<endevent>>
-		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 		<br>
 		<<elseif $rng gte 65>>
 		<<generatey1>><<generatey2>>A <<person1>><<person>> whispers something to <<his>> friend, a <<person2>><<person>>, who laughs and produces a piece of fruit from <<his>> bag.
 		<br><br>
 
-		<<link [[Warn them off|Pillory Warn]]>><<set $pilloryaudience += 1>><</link>><<gattention>>
+		<<link [[Warn them off|Pillory Warn]]>><<set $pillory.audience += 1>><</link>><<gattention>>
 		<br>
 		<<link [[Brace yourself|Pillory Brace]]>><</link>>
 		<br>
@@ -438,13 +405,13 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 		<<generate1>><<person1>>A <<person>> takes a picture of you with <<his>> phone.
 		<br><br>
 		<<endevent>>
-		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 		<br>
 		<<else>>
 		A number of people disembark from a bus nearby. Some of them gather round to gawk. <span class="pink">The crowd becomes larger and bolder.</span>
 		<br><br>
 
-		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 		<br>
 		<</if>>
 	<</if>>
@@ -489,20 +456,10 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 
 The <<beasttype>> barks in satisfaction, and wanders into the crowd.
 <br><br>
-
-	<<if $pilloryaudience is 1>>
-	<<famebestiality 10>>
-	<<elseif $pilloryaudience is 2>>
-	<<famebestiality 20>>
-	<<elseif $pilloryaudience is 3>>
-	<<famebestiality 30>>
-	<<elseif $pilloryaudience is 4>>
-	<<famebestiality 40>>
-	<<elseif $pilloryaudience is 5>>
-	<<famebestiality 50>>
-	<<else>>
-	<<famebestiality 60>>
-	<</if>>
+<<if $pillory.audience gte 1>>
+	<<set _audienceFactor to $pillory.audience * 10>>
+	<<famebestiality _audienceFactor>>
+<</if>>
 
 "Serves you right, bitch," you hear someone shout.
 <br>
@@ -511,12 +468,12 @@ The <<beasttype>> barks in satisfaction, and wanders into the crowd.
 "Not even a punishment, I bet <<pshe>> enjoyed it, the filthy slut."
 <br>
 <span class="pink">The crowd becomes larger and bolder.</span>
-<<set $pilloryaudience += 1>>
+<<set $pillory.audience += 1>>
 <br>
 
 <<endcombat>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 <<elseif $enemyhealth lte 0>>
 
@@ -526,12 +483,12 @@ The <<beasttype>> gives up and flees into the crowd.
 "<<pShe>> beats innocent <<beastsplural>>. <<pShe>> belongs up there." You hear someone shout.
 <br>
 <span class="teal">The crowd becomes smaller and more cautious.</span>
-<<set $pilloryaudience -= 1>>
+<<set $pillory.audience -= 1>>
 <br>
 
 <<endcombat>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 <</if>>
 
@@ -572,20 +529,10 @@ The <<beasttype>> gives up and flees into the crowd.
 
 The <<person>> slaps your <<bottom>> then steps away from the pillory.
 <br><br>
-
-	<<if $pilloryaudience is 1>>
-	<<famerape 10>>
-	<<elseif $pilloryaudience is 2>>
-	<<famerape 20>>
-	<<elseif $pilloryaudience is 3>>
-	<<famerape 30>>
-	<<elseif $pilloryaudience is 4>>
-	<<famerape 40>>
-	<<elseif $pilloryaudience is 5>>
-	<<famerape 50>>
-	<<else>>
-	<<famerape 60>>
-	<</if>>
+<<if $pillory.audience gte 1>>
+	<<set _audienceFactor to $pillory.audience * 10>>
+	<<famerape _audienceFactor>>
+<</if>>
 
 "Serves you right, bitch," you hear someone shout.
 <br>
@@ -594,12 +541,12 @@ The <<person>> slaps your <<bottom>> then steps away from the pillory.
 "Not even a punishment, I bet <<pshe>> enjoyed it, the filthy slut."
 <br>
 <span class="pink">The crowd becomes larger and bolder.</span>
-<<set $pilloryaudience += 1>>
+<<set $pillory.audience += 1>>
 <br>
 
 <<endcombat>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 <<elseif $enemyhealth lte 0>>
 
@@ -609,12 +556,12 @@ The <<person>> steps away from the pillory.
 "So violent. <<pShe>> belongs up there." You hear someone shout.
 <br>
 <span class="teal">The crowd becomes smaller and more cautious.</span>
-<<set $pilloryaudience -= 1>>
+<<set $pillory.audience -= 1>>
 <br>
 
 <<endcombat>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 <</if>>
 
@@ -632,7 +579,7 @@ The <<person>> steps away from the pillory.
 		<br><br>
 
 		<<endevent>>
-		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+		<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 	<<else>>
 		<span class="red">You're unable to dodge <<his>> blows.</span> You try to stifle your cries as the lashes strike your <<bottom>>.
 		Behind you, the ringmaster draws in a sharp breath. Your clumsy movements seem to be making things worse than <<he>> intended.
@@ -676,7 +623,7 @@ The ringmaster bows in front of your exposed lower half, scoops up <<his>> earni
 
 <br><br>
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 :: Pillory Butt Plug
@@ -726,7 +673,7 @@ The ringmaster bows in front of your exposed lower half, scoops up <<his>> earni
 <br><br>
 
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 
@@ -736,7 +683,7 @@ The ringmaster bows in front of your exposed lower half, scoops up <<his>> earni
 You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> hobbles away from you.
 <br><br>
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 :: Pillory Skirt
@@ -752,7 +699,7 @@ You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> 
 
 <<set $worn.lower.skirt_down to 0>><<set $worn.lower.vagina_exposed to 1>><<set $worn.lower.anus_exposed to 1>><<set $worn.lower.exposed to 2>>
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 <<else>>
@@ -787,7 +734,7 @@ You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> 
 	<</if>>
 
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 <</if>>
@@ -809,7 +756,7 @@ You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> 
 
 <<set $worn.lower.vagina_exposed to 1>><<set $worn.lower.anus_exposed to 1>><<set $worn.lower.exposed to 2>><<set $worn.lower.state to "thighs">>
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 <<elseif $rng gte 1>>
@@ -837,7 +784,7 @@ You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> 
 <<He>> pulls up your $worn.lower.name before returning to the crowd.
 <br><br>
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 <</if>>
@@ -855,7 +802,7 @@ You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> 
 
 <<set $worn.under_lower.vagina_exposed to 1>><<set $worn.under_lower.anus_exposed to 1>><<set $worn.under_lower.exposed to 1>><<set $worn.under_lower.state to "thighs">>
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 <<elseif $rng gte 1>>
@@ -863,7 +810,7 @@ You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> 
 <<He>> pulls up your $worn.under_lower.name, stretching them taut and emphasising your <<bottom>> cheeks. <<He>> gives you a firm spank before returning to the crowd.
 <br><br>
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 <</if>>
@@ -890,7 +837,7 @@ You kick the <<person>> in the shin. "Ow!" <<he>> says. "Fucking bitch." <<He>> 
 
 <<endevent>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 :: Pillory Brace
@@ -913,7 +860,7 @@ You brace for the impact as the fruit comes flying towards you.
 
 <<endevent>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 :: Pillory Analingus
@@ -947,7 +894,7 @@ You brace for the impact as the fruit comes flying towards you.
 <br><br>
 
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 :: Pillory Oral
@@ -985,20 +932,10 @@ You brace for the impact as the fruit comes flying towards you.
 
 The <<person>> pats your head then steps away from the pillory.
 <br><br>
-
-	<<if $pilloryaudience is 1>>
-	<<famerape 10>>
-	<<elseif $pilloryaudience is 2>>
-	<<famerape 20>>
-	<<elseif $pilloryaudience is 3>>
-	<<famerape 30>>
-	<<elseif $pilloryaudience is 4>>
-	<<famerape 40>>
-	<<elseif $pilloryaudience is 5>>
-	<<famerape 50>>
-	<<else>>
-	<<famerape 60>>
-	<</if>>
+<<if $pillory.audience gte 1>>
+	<<set _audienceFactor to $pillory.audience * 10>>
+	<<famerape _audienceFactor>>
+<</if>>
 
 "Serves you right, bitch," you hear someone shout.
 <br>
@@ -1007,12 +944,12 @@ The <<person>> pats your head then steps away from the pillory.
 "Not even a punishment, I bet <<pshe>> enjoyed it, the filthy slut."
 <br>
 <span class="pink">The crowd becomes larger and bolder.</span>
-<<set $pilloryaudience += 1>>
+<<set $pillory.audience += 1>>
 <br>
 
 <<endcombat>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 <<elseif $enemyhealth lte 0>>
 
@@ -1022,12 +959,12 @@ Pride wounded, the <<person>> leaves the pillory.
 "So violent. <<pShe>> belongs up there." You hear someone shout.
 <br>
 <span class="teal">The crowd becomes smaller and more cautious.</span>
-<<set $pilloryaudience -= 1>>
+<<set $pillory.audience -= 1>>
 <br>
 
 <<endcombat>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 <</if>>
 
@@ -1044,7 +981,7 @@ Pride wounded, the <<person>> leaves the pillory.
 <</if>>
 <br><br>
 
-<<link [[다음 (1:00)|Pillory]]>><<endevent>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<endevent>><<pass 1 hour>><</link>>
 <br>
 
 
@@ -1142,7 +1079,7 @@ The <<person>> approaches you,
 <br><br>
 
 
-<<link [[다음 (1:00)|Pillory]]>><<endevent>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<endevent>><<pass 1 hour>><</link>>
 <br>
 
 :: Pillory Spit
@@ -1153,7 +1090,7 @@ You spit on the <<persons>> face. <<He>> flinches in surprise, and almost tumble
 
 <<endevent>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 
@@ -1191,12 +1128,12 @@ The <<person>> grasps your <<breasts>>, and squeezes. You endure <<his>> fondlin
 		It's too much. <<orgasm>>
 
 		The audience jeer and mock, attracting more attention. You feel humiliated. <span class="red">The crowd becomes much larger and bolder.</span>
-		<<set $pilloryaudience += 2>><<ggtrauma>><<trauma 12>>
+		<<set $pillory.audience += 2>><<ggtrauma>><<trauma 12>>
 		<br><br>
 	<<else>>
 
 		<span class="pink">The crowd becomes larger and bolder.</span>
-		<<set $pilloryaudience += 1>>
+		<<set $pillory.audience += 1>>
 		<br><br>
 	<</if>>
 
@@ -1223,13 +1160,13 @@ The <<person>> grasps your <<breasts>>, and squeezes. You endure <<his>> fondlin
 	<br><br>
 
 	You feel humiliated. <span class="pink">The crowd becomes larger and bolder.</span>
-	<<set $pilloryaudience += 1>><<ggtrauma>><<trauma 12>>
+	<<set $pillory.audience += 1>><<ggtrauma>><<trauma 12>>
 	<br><br>
 <</if>>
 
 <<endevent>>
 
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 
@@ -1258,7 +1195,7 @@ The <<person>> grasps your <<breasts>>, and squeezes. You endure <<his>> fondlin
 <</if>>
 
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>
 
 
@@ -1286,5 +1223,5 @@ The <<person>> grasps your <<breasts>>, and squeezes. You endure <<his>> fondlin
 <</if>>
 
 <<endevent>>
-<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><<set $pillorytime -= 1>><</link>>
+<<link [[다음 (1:00)|Pillory]]>><<pass 1 hour>><</link>>
 <br>

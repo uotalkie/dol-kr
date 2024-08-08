@@ -1861,6 +1861,12 @@
     ```
 
     ```
+    <<peopleyvPost>>
+         <<peopleyv>>의 대체 위젯.
+       + <<personPost>>와 용도 및 방식 같음. 생략
+    ```
+
+    ```
     <<personyPost>>
         <<persony>>의 대체 위젯.
         + <<personPost>>와 용도 및 방식 같음. 생략
@@ -3180,8 +3186,8 @@
 		
 	- personPost 계열
 		```
-		<<person_ (조사)>>, <<personsimple_ (조사)>>, <<personname_ (조사)>>, <<combatperson_ (조사)>>, <<combatPerson_ (조사)>>,<<people_ (조사)>>, <<peopley_ (조사)>>, <<persony_ (조사)>>, <<group_ (조사)>>,
-		<<fullGroup_ (조사)>>,<<enumeratedGroup_ (조사)>>,
+		<<person_ (조사)>>, <<personsimple_ (조사)>>, <<personname_ (조사)>>, <<combatperson_ (조사)>>, <<combatPerson_ (조사)>>,<<people_ (조사)>>, <<peopley_ (조사)>>, <<peopleyv_ (조사)>>, <<persony_ (조사)>>, 
+		<<group_ (조사)>>, <<fullGroup_ (조사)>>,<<enumeratedGroup_ (조사)>>,
 		<<persons_ (조사)>>, <<combatpersons_ (조사)>>, <<combatPersons_ (조사)>>
 		```
 	- putpost 계열

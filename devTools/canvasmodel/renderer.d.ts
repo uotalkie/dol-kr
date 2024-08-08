@@ -1,8 +1,6 @@
-/// <reference path="model.d.ts" />
-/// <reference types="tinycolor2" />
 declare namespace Renderer {
     export interface LayerImageLoader {
-        loadImage(src: string, layer: CompositeLayer, successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement) => any, errorCallback: (src: string, layer: CompositeLayer, error: any) => any): any;
+        loadImage(src: string, layer: CompositeLayer, successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement | HTMLCanvasElement) => any, errorCallback: (src: string, layer: CompositeLayer, error: any) => any): any;
     }
     export const DefaultImageLoader: LayerImageLoader;
     export let ImageLoader: LayerImageLoader;
@@ -52,7 +50,7 @@ declare namespace Renderer {
     /**
      * Creates a cutout of color in shape of sourceImage
      */
-    export function cutout(sourceImage: CanvasImageSource, color: string | CanvasGradient | CanvasPattern, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
+    export function cutout(sourceImage: CanvasImageSource, color: string, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
     /**
      * Cuts out from base a shape in form of stencil.
      * Modifies and returns base.
@@ -61,7 +59,7 @@ declare namespace Renderer {
     /**
      * Paints sourceImage over cutout of it filled with color.
      */
-    export function composeOverCutout(sourceImage: CanvasImageSource, color: string | CanvasGradient | CanvasPattern, blendMode?: GlobalCompositeOperation, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
+    export function composeOverCutout(sourceImage: CanvasImageSource, color: string, blendMode?: GlobalCompositeOperation, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
     /**
      * Repeatedly fill all sub-frames of canvas with same style.
      * (Makes sense with gradient and pattern fills, to keep consistents across all sub-frames)
@@ -216,6 +214,10 @@ declare namespace Renderer {
         start(): void;
         stop(): void;
     }
+    export function refresh(model: {
+        layerList: CompositeLayerSpec[];
+        redraw: () => void;
+    }): void;
     export function invalidateLayerCaches(layers: CompositeLayer[]): void;
     export function animateLayersAgain(): any;
     export let Animations: Dict<AnimationSpec>;

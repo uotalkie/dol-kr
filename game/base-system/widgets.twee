@@ -573,6 +573,13 @@
 				<<if $averyCrimeTracker neq null>>
 					<<set $averyCrimeTracker += $_crimemod>>
 				<</if>>
+				<<if $exposed gte 1 and _crimeType isnot "exposure">>
+					<<set C.crime.exposure += $_crimemod>>
+					<<set C.crime.exposureHistory += $_crimemod>>
+					<<set C.crime.exposureDaily += $_crimemod>>
+					<<set C.crime.exposureCount += 1>>
+					<<set C.crime.exposureCountHistory += 1>>					
+				<</if>>
 
 				<<if ["thievery", "petty"].includes(_crimeType) and
 				$foxbuild gte 1 and
@@ -3689,10 +3696,10 @@
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
 	<<set _i to $NPCNameList.indexOf("Wren")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
+	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
 	<<set _i to $NPCNameList.indexOf("Charlie")>>
-	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
+	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -50, 50)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
 	<<set _i to $NPCNameList.indexOf("Bailey")>>
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
@@ -3734,6 +3741,9 @@
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
 	<<set _i to $NPCNameList.indexOf("Zephyr")>>
+	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
+	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
+	<<set _i to $NPCNameList.indexOf("Sirris")>>
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, -100, 100)>>
 	<<set $NPCName[_i].dom = Math.clamp($NPCName[_i].dom, -50, 50)>>
 
@@ -3897,7 +3907,7 @@
 <</widget>>
 
 <<widget "setup_pillory">>
-	<<set $pillory_tenant to {person : clone($baseNPC), exists : 0, duration : 0, served : 0, startTime: 0, endTime : 0,
+	<<set $pillory.tenant to {person : clone($baseNPC), exists : 0, duration : 0, served : 0, startTime: 0, endTime : 0,
 		crowd : 0, wet : 0, upperexposed : 0 , lowerexposed : 0, fruit : 0, fruitstock: 0, face : 0, ass : 0, genital : 0, broken : 0,
 		lastviewed : 0, special : {name : "", desc : ""}}>>
 <</widget>>
@@ -3909,30 +3919,30 @@
 	<<else>>
 		<<set $_already_served to 0>>
 	<</if>>
-	<<set $pillory_tenant.exists to 1>>
-	<<set $pillory_tenant.person to clone($NPCList[0])>>
-	<<set $pillory_tenant.duration to random(4,27)>>
+	<<set $pillory.tenant.exists to 1>>
+	<<set $pillory.tenant.person to clone($NPCList[0])>>
+	<<set $pillory.tenant.duration to random(4,27)>>
 
 	<<set $_duration to random(4,27)>>
 	<<set $_endTime to new DateTime(Time.date).addHours($_duration)>>
-	<<set $pillory_tenant.startTime to Time.date.timeStamp>>
-	<<set $pillory_tenant.endTime to $_endTime.timeStamp>>
+	<<set $pillory.tenant.startTime to Time.date.timeStamp>>
+	<<set $pillory.tenant.endTime to $_endTime.timeStamp>>
 
-	<<set $pillory_tenant.crowd to 1>>
-	<<set $pillory_tenant.wet to 0>>
-	<<set $pillory_tenant.upperexposed to 0>>
-	<<set $pillory_tenant.lowerexposed to 0>>
-	<<set $pillory_tenant.fruit to 0>>
-	<<set $pillory_tenant.fruitstock to 3>>
-	<<set $pillory_tenant.spank to 0>>
-	<<set $pillory_tenant.face to 0>>
-	<<set $pillory_tenant.ass to 0>>
-	<<set $pillory_tenant.genital to 0>>
-	<<set $pillory_tenant.broken to 0>>
-	<<set $pillory_tenant.lastViewed to Time.date.timeStamp>>
+	<<set $pillory.tenant.crowd to 1>>
+	<<set $pillory.tenant.wet to 0>>
+	<<set $pillory.tenant.upperexposed to 0>>
+	<<set $pillory.tenant.lowerexposed to 0>>
+	<<set $pillory.tenant.fruit to 0>>
+	<<set $pillory.tenant.fruitstock to 3>>
+	<<set $pillory.tenant.spank to 0>>
+	<<set $pillory.tenant.face to 0>>
+	<<set $pillory.tenant.ass to 0>>
+	<<set $pillory.tenant.genital to 0>>
+	<<set $pillory.tenant.broken to 0>>
+	<<set $pillory.tenant.lastViewed to Time.date.timeStamp>>
 
 	<<person1>>
-	<<if $pillory_tenant.special.name is "">>
+	<<if $pillory.tenant.special.name is "">>
 		한 <<personPost "이">> <<if $_already_served is 0>>현재 구속대에 갇혀있다.<<else>>최근에 구속대에 갇혀있었다.<</if>>
 		<<endevent>>
 		<<npc_pillory_release_schedule>>
@@ -3948,8 +3958,8 @@
 	<<clear_pillory>>
 	<<npc Whitney>>
 	<<set C.npc.Whitney.state to "pillory">>
-	<<set $pillory_tenant.special.name to "Whitney">>
-	<<set $pillory_tenant.special.desc to C.npc.Whitney.title>>
+	<<set $pillory.tenant.special.name to "Whitney">>
+	<<set $pillory.tenant.special.desc to C.npc.Whitney.title>>
 	<<new_npc_pillory $NPCList[0]>>
 	<<endevent>>
 	<<set $framed to 0>>
@@ -3958,8 +3968,8 @@
 <<widget "imprison_leighton">>
 	<<clear_pillory>>
 	<<npc Leighton>>
-	<<set $pillory_tenant.special.name to "Leighton">>
-	<<set $pillory_tenant.special.desc to C.npc.Leighton.title>>
+	<<set $pillory.tenant.special.name to "Leighton">>
+	<<set $pillory.tenant.special.desc to C.npc.Leighton.title>>
 	<<new_npc_pillory $NPCList[0]>>
 	<<endevent>>
 	<<set $framed to 0>>
@@ -3973,23 +3983,23 @@
 		<<set _id to _args[0]>>
 	<</if>>
 	<<if _args[1]>>
-		<<set $pillory_tenant.special.desc to _args[1]>>
+		<<set $pillory.tenant.special.desc to _args[1]>>
 	<</if>>
 	<<new_npc_pillory $NPCList[_id]>>
 	<<endevent>>
 <</widget>>
 
 <<widget "get_pillory_npc">>
-	<<set $NPCList[0] to clone($pillory_tenant.person)>><<person1>>
+	<<set $NPCList[0] to clone($pillory.tenant.person)>><<person1>>
 <</widget>>
 
 <<widget "A_pillory_person">>  /* Can't simplify to <<pillory_person>> because: 'a thin man', but not 'a Whitney') */
 	<<silently>><<set _out to "">>
 	<<get_pillory_npc>>
-	<<if $pillory_tenant.special.name is "">>
+	<<if $pillory.tenant.special.name is "">>
 		<<personPost _args[0]>><<set _out += "어떤 " + _trResult>>
 	<<else>>
-		<<trNamedNPC $pillory_tenant.special.name "name" _args[0]>><<set _out += _trResult>>
+		<<trNamedNPC $pillory.tenant.special.name "name" _args[0]>><<set _out += _trResult>>
 	<</if>>
 	<</silently>><<print _out>>
 <</widget>>
@@ -3997,10 +4007,10 @@
 <<widget "The_pillory_person">>
 	<<silently>><<set _out to "">>
 	<<get_pillory_npc>>
-	<<if $pillory_tenant.special.name is "">>
+	<<if $pillory.tenant.special.name is "">>
 		<<personPost _args[0]>><<set _out += "그 " + _trResult>>
 	<<else>>
-		<<trNamedNPC $pillory_tenant.special.name "name" _args[0]>><<set _out += _trResult>>
+		<<trNamedNPC $pillory.tenant.special.name "name" _args[0]>><<set _out += _trResult>>
 	<</if>>
 	<</silently>><<print _out>>
 <</widget>>
@@ -4008,10 +4018,10 @@
 <<widget "a_pillory_person">>
 	<<silently>><<set _out to "">>
 	<<get_pillory_npc>>
-	<<if $pillory_tenant.special.name is "">>
+	<<if $pillory.tenant.special.name is "">>
 		<<personPost _args[0]>><<set _out += "어떤 " + _trResult>>
 	<<else>>
-		<<trNamedNPC $pillory_tenant.special.name "name" _args[0]>><<set _out += _trResult>>
+		<<trNamedNPC $pillory.tenant.special.name "name" _args[0]>><<set _out += _trResult>>
 	<</if>>
 	<</silently>><<print _out>>
 <</widget>>
@@ -4019,10 +4029,10 @@
 <<widget "the_pillory_person">>
 	<<silently>><<set _out to "">>
 	<<get_pillory_npc>>
-	<<if $pillory_tenant.special.name is "">>
+	<<if $pillory.tenant.special.name is "">>
 		<<personPost _args[0]>><<set _out += "그 " + _trResult>>
 	<<else>>
-		<<trNamedNPC $pillory_tenant.special.name "name" _args[0]>><<set _out += _trResult>>
+		<<trNamedNPC $pillory.tenant.special.name "name" _args[0]>><<set _out += _trResult>>
 	<</if>>
 	<</silently>><<print _out>>
 <</widget>>
@@ -4030,10 +4040,10 @@
 <<widget "pillory_type">>
 	<<silently>><<set _out to "">>
 	<<get_pillory_npc>>
-	<<if $pillory_tenant.special.name is "">>
+	<<if $pillory.tenant.special.name is "">>
 		<<personPost _args[0]>><<set _out += _trResult>>
 	<<else>>
-		<<trNamedNPC $pillory_tenant.special.desc 'title' _args[0]>><<set _out += _trResult>>
+		<<trNamedNPC $pillory.tenant.special.desc 'title' _args[0]>><<set _out += _trResult>>
 	<</if>>
 	<</silently>><<print _out>>
 <</widget>>
@@ -4059,143 +4069,143 @@
 	<<update_npc_pillory_appearance>>
 	/*Desc*/
 	<<if Time.dayState is "night">>
-		<<if $pillory_tenant.crowd gte 10>>술에 취한 엄청난 수의 군중들이,
-		<<elseif $pillory_tenant.crowd gte 6>>떠들석한 많은 수의 군중들이,
-		<<elseif $pillory_tenant.crowd gte 4>>불길한 느낌의 군중들이,
+		<<if $pillory.tenant.crowd gte 10>>술에 취한, 엄청난 수의 군중들이,
+		<<elseif $pillory.tenant.crowd gte 6>>떠들썩한, 많은 수의 군중들이,
+		<<elseif $pillory.tenant.crowd gte 4>>불길한 느낌의 군중들이,
 		<<else>>작긴 하지만 불길한 느낌의 군중들이,
 		<</if>>
 	<<else>>
-		<<if $pillory_tenant.crowd gte 10>>흥분하면서 야유하고 있는 군중들이
-		<<elseif $pillory_tenant.crowd gte 6>>많은 수의 군중들이
-		<<elseif $pillory_tenant.crowd gte 4>>호심에 주변을 돌아다니는 무리들이
-		<<else>>작은 무리가
+		<<if $pillory.tenant.crowd gte 10>>흥분해서, 야유하고 있는 군중들이,
+		<<elseif $pillory.tenant.crowd gte 6>>많은 수의 군중들이,
+		<<elseif $pillory.tenant.crowd gte 4>>주변을 돌아다니던 호기심에 찬 무리들이,
+		<<else>>작은 무리가,
 		<</if>>
 	<</if>>엎드린 상태로 구속대에 갇힌 <<pillory_type "을">> 둘러싸고 있다.
-	<<if $pillory_tenant.broken gte 32>><<HePost "은">> 엄청난 충격을 받은 것 같다. 어쩌면 겪은 학대로 영구히 망가졌을지도 모른다.
-	<<elseif $pillory_tenant.broken gte 16>><<HePost "은">> 겪은 학대로 인해 눈물을 흘리고 있다.
-	<<elseif $pillory_tenant.broken gte 8>><<HePost "은">> 학대로 인해 흐느끼고 있다.
-	<<elseif $pillory_tenant.broken gte 4>><<hePost "이">> 속상하다는 것은 눈에 보이지만, 어떻게든 숨기려고 하고 있다.
+	<<if $pillory.tenant.broken gte 32>><<HePost "은">> 엄청난 충격을 받은 것 같고, 어쩌면 <<hes_ ga>> 이미 겪은 학대로 영구히 망가졌을지도 모른다.
+	<<elseif $pillory.tenant.broken gte 16>><<HePost "은">> 이미 겪은 학대로 인해 눈물을 흘리고 있다.
+	<<elseif $pillory.tenant.broken gte 8>><<HePost "은">> 학대로 인해 흐느끼고 있다.
+	<<elseif $pillory.tenant.broken gte 4>><<hePost "이">> 속상하다는 것은 눈에 보이지만, 어떻게든 숨기려고 하고 있다.
 	<<else>><<HePost "은">> 반항적인 태도로, 태연한 척을 하고 있다.
 	<</if>>
 	<br>
 
 	/*describe exposure*/
-	<<if $pillory_tenant.upperexposed gte 3>>
-		<<His_ yi>> <<trBreastsdesc $pillory_tenant.person.breastsdesc "이">>_trResult 군중에게 완전히 노출되어있다.
-		<<if $pillory_tenant.spank gte 8>><<His_ yi>> 유두는 잔뜩 꼬집히고, 얻어맞고, 빨리고, 물리고 당겨진 탓에 붉게 부었다.
-		<<elseif $pillory_tenant.spank gte 4>><<His_ yi>> 유두는 학대당해 아파 보인다.
+	<<if $pillory.tenant.upperexposed gte 3>>
+		<<His_ yi>> <<trBreastsdesc $pillory.tenant.person.breastsdesc "이">>_trResult 군중에게 완전히 노출되어 있다.
+		<<if $pillory.tenant.spank gte 8>><<His_ yi>> 유두는 잔뜩 꼬집히고, 얻어맞고, 빨리고, 물리고 당겨진 탓에 붉게 부었다.
+		<<elseif $pillory.tenant.spank gte 4>><<His_ yi>> 유두는 학대당해 아파 보인다.
 		<</if>>
-	<<elseif $pillory_tenant.upperexposed gte 2>>
+	<<elseif $pillory.tenant.upperexposed gte 2>>
 		<<if $pronoun is "f">>
-			<<His_ yi>> 상의가 벗겨져, 오직 브라만이 군중으로부터 <<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult 가려주고 있다.
+			<<His_ yi>> 상의가 벗겨져, 오직 브라만이 군중으로부터 <<trBreastsdesc $pillory.tenant.person.breastsdesc "을">>_trResult 가려주고 있다.
 		<<else>>
-			<<His_ yi>> 상의가 벗겨져, 군중에게 <<trBreastsdesc $pillory_tenant.person.breastsdesc "이">>_trResult 완전히 노출되었다.
-			<<if $pillory_tenant.spank gte 8>><<His_ yi>> 유두는 잔뜩 꼬집히고, 얻어맞고, 물리고 당겨진 탓에 붉게 부었다.
-			<<elseif $pillory_tenant.spank gte 4>><<His_ yi>> 유두는 학대당해 아파 보인다.
+			<<His_ yi>> 상의가 벗겨져, 군중에게 <<trBreastsdesc $pillory.tenant.person.breastsdesc "이">>_trResult 완전히 노출되었다.
+			<<if $pillory.tenant.spank gte 8>><<His_ yi>> 유두는 잔뜩 꼬집히고, 얻어맞고, 물리고 당겨진 탓에 붉게 부었다.
+			<<elseif $pillory.tenant.spank gte 4>><<His_ yi>> 유두는 학대당해 아파 보인다.
 			<</if>>
 		<</if>>
-	<<elseif $pillory_tenant.upperexposed gte 1>><<His_ yi>> 상의가 찢어져, 군중에게 <<if $pronoun is "f">>브라가<<else>><<trBreastsdesc $pillory_tenant.person.breastsdesc "이">>_trResult<</if>> 부분적으로 노출되었다.
+	<<elseif $pillory.tenant.upperexposed gte 1>><<His_ yi>> 상의가 찢어져, 군중에게 <<if $pronoun is "f">>브라가<<else>><<trBreastsdesc $pillory.tenant.person.breastsdesc "이">>_trResult<</if>> 부분적으로 노출되어 있다.
 	<</if>>
-	<<if $pillory_tenant.lowerexposed gte 2>><<His_ yi>> <<if $pillory_tenant.upperexposed gte 1>>엉덩이 또한 <<else>>엉덩이가<</if>>노출되어,
-		<<if $pillory_tenant.person.gender is "f">><<his_ yi>> 보지가
-		<<else>><<his_ yi>> <<penisdesc_ ga $pillory_tenant.person.penisdesc>>
+	<<if $pillory.tenant.lowerexposed gte 2>><<His_ yi>> <<if $pillory.tenant.upperexposed gte 1>>엉덩이 또한 <<else>>엉덩이가<</if>>노출되어,
+		<<if $pillory.tenant.person.gender is "f">><<his_ yi>> 보지가
+		<<else>><<his_ yi>> <<penisdesc_ ga $pillory.tenant.person.penisdesc>>
 		<</if>>모두에게 보인다.
-		<<if $pillory_tenant.spank gte 5>><<His_ yi>> 엉덩이는 거칠게
-			<<if $pillory_tenant.fruit gte 5>>얻어맞은 것으로 보이고, <<his_ yi>> <<if $pillory_tenant.face gte 2>>정액<<if $pillory_tenant.face gte 4>> 범벅인 <<else>>이 묻은 <</if>><</if>>얼굴은 멍과 으깨진 과일로 엉망진창이다.
+		<<if $pillory.tenant.spank gte 5>><<His_ yi>> 엉덩이는 거칠게
+			<<if $pillory.tenant.fruit gte 5>>얻어맞은 것으로 보이고, <<his_ yi>> <<if $pillory.tenant.face gte 2>>정액<<if $pillory.tenant.face gte 4>> 범벅인<<else>>이 묻은<</if>><</if>> 얼굴은 멍과 으깨진 과일로 엉망진창이다.
 			<<else>>얻어맞은 것으로 보인다.
 			<</if>>
-		<<elseif $pillory_tenant.fruit gte 6>><<His_ yi>> <<if $pillory_tenant.face gte 2>>정액<<if $pillory_tenant.face gte 4>>범벅인 <<else>>이 묻은 <</if>><</if>>얼굴은 멍과 으깨진 과일로 엉망진창이다.
-		<<elseif $pillory_tenant.fruit gte 2>><<His_ yi>> <<if $pillory_tenant.face gte 2>>정액<<if $pillory_tenant.face gte 4>> 범벅인 <<else>>이 묻은 <</if>><</if>>얼굴은 멍과 으깨진 과일 때문에 바로 눈에 들어온다.
+		<<elseif $pillory.tenant.fruit gte 6>><<His_ yi>> <<if $pillory.tenant.face gte 2>>정액<<if $pillory.tenant.face gte 4>> 범벅인<<else>>이 묻은<</if>><</if>> 얼굴은 멍과 으깨진 과일로 엉망진창이다.
+		<<elseif $pillory.tenant.fruit gte 2>><<His_ yi>> <<if $pillory.tenant.face gte 2>>정액<<if $pillory.tenant.face gte 4>> 범벅인<<else>>이 묻은<</if>><</if>> 얼굴은 멍과 으깨진 과일 때문에 바로 눈에 들어온다.
 		<</if>>
-		<<if $pillory_tenant.ass gte 2>><<His_ yi>> 엉덩이는 여러 번
-			<<if $pillory_tenant.genital gte 2>>강간당했고,
-				<<if $pillory_tenant.person.gender is "m">><<print either("노출된","학대당한","비참한")>> 자지는 점액으로 뒤덮혀있다.
-				<<else>><<print either("노출된","붉어진","학대당한")>> 보지에서는 정액이 <<if $pillory_tenant.genital gte 4>>흘러나온다<<else>>방울방울 떨어진다<</if>>.
+		<<if $pillory.tenant.ass gte 2>><<His_ yi>> 엉덩이는 여러 번
+			<<if $pillory.tenant.genital gte 2>>강간당했고,
+				<<if $pillory.tenant.person.gender is "m">><<print either("노출된","학대당한","비참한")>> 자지는 점액으로 뒤덮혀 있다.
+				<<else>><<print either("노출된","붉어진","학대당한")>> 보지에서는 정액이 <<if $pillory.tenant.genital gte 4>>흘러나온다<<else>>방울방울 떨어진다<</if>>.
 				<</if>>
 			<<else>>한 번 강간당했다.
 			<</if>>
-		<<elseif $pillory_tenant.genital gte 5>><<His_ yi>> <<if $pillory_tenant.person.gender is "m">>자지<<else>>보지<</if>>는 생으로 강간당했다.
-		<<elseif $pillory_tenant.genital gte 2>><<HePost "은">> 여러 번 강간당했다.
+		<<elseif $pillory.tenant.genital gte 5>><<His_ yi>> <<if $pillory.tenant.person.gender is "m">>자지<<else>>보지<</if>>는 생으로 강간당했다.
+		<<elseif $pillory.tenant.genital gte 2>><<HePost "은">> 여러 번 강간당했다.
 		<</if>>
-	<<elseif $pillory_tenant.lowerexposed gte 1>>
+	<<elseif $pillory.tenant.lowerexposed gte 1>>
 		<<His_ yi>> <<if $pronoun is "f">>드레스는 허리 위로 들춰져,<<else>>바지는 내려져,<</if>>
 		군중에게 속옷을 노출하고 있다.
-	<<elseif $pillory_tenant.wet is 2>>비로 인해 <<his_ yi>> 옷은 속이 다 비친다.
-	<<elseif $pillory_tenant.wet is 1>><<His_ yi>> 옷은 축축해서 반투명해진 상태이나, 점차 말라가고 있다.
+	<<elseif $pillory.tenant.wet is 2>>비로 인해 <<his_ yi>> 옷은 속이 다 비친다.
+	<<elseif $pillory.tenant.wet is 1>><<His_ yi>> 옷은 축축해서 반투명해진 상태이나, 점차 말라가고 있다.
 	<</if>>
-	<<if $pillory_tenant.upperexposed is 0 and $pillory_tenant.lowerexposed is 0 and $pillory_tenant.face is 0 and $pillory_tenant.fruit gte 1>>
-		<<if $pillory_tenant.fruit gte 6>><<His_ yi>> 얼굴은 멍과 으깨진 과일로 엉망진창이다.
-		<<elseif $pillory_tenant.fruit gte 2>><<His_ yi>> 얼굴은 멍과 으깨진 과일 때문에 바로 눈에 들어온다.
+	<<if $pillory.tenant.upperexposed is 0 and $pillory.tenant.lowerexposed is 0 and $pillory.tenant.face is 0 and $pillory.tenant.fruit gte 1>>
+		<<if $pillory.tenant.fruit gte 6>><<His_ yi>> 얼굴은 멍과 으깨진 과일로 엉망진창이다.
+		<<elseif $pillory.tenant.fruit gte 2>><<His_ yi>> 얼굴은 멍과 으깨진 과일 때문에 바로 눈에 들어온다.
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "update_npc_pillory_appearance">>
-	<<set $_lastViewed to new DateTime($pillory_tenant.lastViewed)>>
+	<<set $_lastViewed to new DateTime($pillory.tenant.lastViewed)>>
 	<<set $_timeLeft to Time.date.compareWith($_lastViewed, true)>>
 	<<if $_timeLeft / TimeConstants.secondsPerHour lte -2>>
 		/* last viewed time tracked to avoid this firing on every viewing */
-		<<set $pillory_tenant.lastViewed to Time.date.timeStamp>>
+		<<set $pillory.tenant.lastViewed to Time.date.timeStamp>>
 
 		/*Weather effects*/
 		<<if Weather.precipitation is "rain">>
-			<<set $pillory_tenant.wet to 2>>
-		<<elseif $pillory_tenant.wet is 2>>
-			<<set $pillory_tenant.wet to 1>>
+			<<set $pillory.tenant.wet to 2>>
+		<<elseif $pillory.tenant.wet is 2>>
+			<<set $pillory.tenant.wet to 1>>
 		<<else>>
-			<<set $pillory_tenant.wet to 0>>
+			<<set $pillory.tenant.wet to 0>>
 		<</if>>
 
 		/*Chance of abuse based on crowd and time passed*/
-		<<set _totalSeconds to Time.date.compareWith(new DateTime($pillory_tenant.startTime), true) / TimeConstants.secondsPerHour>>
+		<<set _totalSeconds to Time.date.compareWith(new DateTime($pillory.tenant.startTime), true) / TimeConstants.secondsPerHour>>
 		<<set $_chance to Math.clamp(_totalSeconds / TimeConstants.secondsPerHour, 0, 24)>>
-		<<set $_chance *= $pillory_tenant.crowd>>
+		<<set $_chance *= $pillory.tenant.crowd>>
 
 		/*increased by spectacle*/
-		<<set $_factor to ($pillory_tenant.upperexposed + $pillory_tenant.lowerexposed + $pillory_tenant.fruit
-			+ $pillory_tenant.spank + $pillory_tenant.face + $pillory_tenant.ass + $pillory_tenant.genital)>>
+		<<set $_factor to ($pillory.tenant.upperexposed + $pillory.tenant.lowerexposed + $pillory.tenant.fruit
+			+ $pillory.tenant.spank + $pillory.tenant.face + $pillory.tenant.ass + $pillory.tenant.genital)>>
 
 		<<if Time.dayState is "night">>
 			<<set $_factor += 3>>
 		<</if>>
-		<<if $pillory_tenant.wet is 2>>
+		<<if $pillory.tenant.wet is 2>>
 			<<set $_factor += 4>>
 		<</if>>
 		<<set $_prob to ($_chance * $_factor)>>
 
 		/*Out of sight changes to tenant */
 		<<rng>>
-		<<if $rng gte (40 - $_prob)>><<set $pillory_tenant.fruit += 1>><</if>>
+		<<if $rng gte (40 - $_prob)>><<set $pillory.tenant.fruit += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (60 - $_prob)>><<set $pillory_tenant.crowd += 2>><</if>>
+		<<if $rng gte (60 - $_prob)>><<set $pillory.tenant.crowd += 2>><</if>>
 		<<rng>>
-		<<if $rng gte (60 - $_prob)>><<set $pillory_tenant.upperexposed += 1>><</if>>
+		<<if $rng gte (60 - $_prob)>><<set $pillory.tenant.upperexposed += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (80 - $_prob)>><<set $pillory_tenant.lowerexposed += 1>><</if>>
+		<<if $rng gte (80 - $_prob)>><<set $pillory.tenant.lowerexposed += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - $_prob)>><<set $pillory_tenant.crowd += 2>><</if>>
+		<<if $rng gte (100 - $_prob)>><<set $pillory.tenant.crowd += 2>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - $_prob)>><<set $pillory_tenant.fruit += 2>><<set $pillory_tenant.face += 1>><</if>>
+		<<if $rng gte (100 - $_prob)>><<set $pillory.tenant.fruit += 2>><<set $pillory.tenant.face += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - $_prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.spank += 2>><<else>><<set $pillory_tenant.spank += 1>><</if>>
+		<<if $rng gte (100 - $_prob) and $pillory.tenant.lowerexposed gte 2>><<set $pillory.tenant.spank += 2>><<else>><<set $pillory.tenant.spank += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - $_prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.genital += 1>><</if>>
+		<<if $rng gte (100 - $_prob) and $pillory.tenant.lowerexposed gte 2>><<set $pillory.tenant.genital += 1>><</if>>
 		<<rng>>
-		<<if $rng gte (100 - $_prob) and $pillory_tenant.lowerexposed gte 2>><<set $pillory_tenant.ass += 1>><</if>>
+		<<if $rng gte (100 - $_prob) and $pillory.tenant.lowerexposed gte 2>><<set $pillory.tenant.ass += 1>><</if>>
 
 		/*lock down exposure and replenish fruit */
-		<<if $pillory_tenant.upperexposed gte 3>><<if $pillory_tenant.person.gender is "f" or $pillory_tenant.person.pronoun is "f">><<set $pillory_tenant.upperexposed to 3>><<else>><<set $pillory_tenant.upperexposed to 2>><</if>><</if>>
-		<<if $pillory_tenant.lowerexposed gt 2>><<set $pillory_tenant.lowerexposed to 2>><</if>>
-		<<set $pillory_tenant.fruitstock to 3>>
-		<<set $pillory_tenant.broken += ($pillory_tenant.ass + $pillory_tenant.genital + $pillory_tenant.face + $pillory_tenant.fruit + $pillory_tenant.spank)>>
+		<<if $pillory.tenant.upperexposed gte 3>><<if $pillory.tenant.person.gender is "f" or $pillory.tenant.person.pronoun is "f">><<set $pillory.tenant.upperexposed to 3>><<else>><<set $pillory.tenant.upperexposed to 2>><</if>><</if>>
+		<<if $pillory.tenant.lowerexposed gt 2>><<set $pillory.tenant.lowerexposed to 2>><</if>>
+		<<set $pillory.tenant.fruitstock to 3>>
+		<<set $pillory.tenant.broken += ($pillory.tenant.ass + $pillory.tenant.genital + $pillory.tenant.face + $pillory.tenant.fruit + $pillory.tenant.spank)>>
 	<</if>>
 <</widget>>
 
 <<widget "npc_pillory_abuse">>
-	<<set $_lastViewed to new DateTime($pillory_tenant.lastViewed)>>
+	<<set $_lastViewed to new DateTime($pillory.tenant.lastViewed)>>
 	<<set $_timeLeft to Time.date.compareWith($_lastViewed, true)>>
 	<<if $_timeLeft / TimeConstants.secondsPerHour lte -2>>
-		<<set $pillory_tenant.lastViewed to Time.date.timeStamp>>
+		<<set $pillory.tenant.lastViewed to Time.date.timeStamp>>
 		<<rng>><<generate2>><<person2>>
 		<<set $_ly to either("난폭하게","대놓고","화난듯이","맹렬히","뻔뻔하게","계속해서","서투르게","거칠게","과장되게","예의 바르게","즐겁게","신난듯이","취한듯이","솜씨 없이")>>
 		<<if Time.dayState isnot "night">>
@@ -4203,49 +4213,49 @@
 				여러 사람들이 <<personPost "이">> 필두로 죄수를 조롱하며 욕설을 퍼붓는다.
 			<<elseif $rng gte 41>> /* 15% */
 				<<rng>>
-				<<if $pillory_tenant.person.pronoun is "f" and $rng gte 40>> /* 60% if upper-exposed F */
+				<<if $pillory.tenant.person.pronoun is "f" and $rng gte 40>> /* 60% if upper-exposed F */
 					거친 농부 복장을 한 <<personPost "이">> 양동이를 들고 구속대로 다가간다.
 					그러고는 <<pillory_type>>의 가슴 아래에 양동이를 놓더니, <<person2>><<hePost "은">>
-					<<if $pillory_tenant.upperexposed lte 1>>죄수의 상의를 벗기고는,<</if>>
-					<<if $pillory_tenant.upperexposed lte 2>><<set $pillory_tenant.upperexposed to 3>> 그녀의 브라를 풀고,<</if>>
-					<<pillory_type>>의 <<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult 잡고는 양동이에 우유를 짜는듯한 행동을 취한다.
+					<<if $pillory.tenant.upperexposed lte 1>>죄수의 상의를 벗기고는,<</if>>
+					<<if $pillory.tenant.upperexposed lte 2>><<set $pillory.tenant.upperexposed to 3>> 그녀의 브라를 풀고,<</if>>
+					<<pillory_type>>의 <<trBreastsdesc $pillory.tenant.person.breastsdesc "을">>_trResult 잡고는 양동이에 우유를 짜는듯한 행동을 취한다.
 					<br><br>
 					<<if $rng % 3 is 0>>
 						<<if $rng % 2>>
 							곧 가슴에서 모유가 터져나온다. 농부는 미소를 짓더니, 곧 일정한 박자를 타면서 능숙하게 두 가슴에서 모유를 짜낸다.
 							<br>
 							"착한 소로군." 농부는 <<the_pillory_person>>의 머리를 헝클어트리고는 거의 다 찬 양동이를 들고 떠난다.
-						<<else>><<set $pillory_tenant.spank += 1>>
+						<<else>><<set $pillory.tenant.spank += 1>>
 							곧 <<pillory_type>>의 가슴에서 모유가 똑똑 떨어진다. 집요하게 유두를 쥐어짜고 당기고 한 뒤에야 농부는 죄수로부터 상당한 양의 모유를 짜낼 수 있었다. 
-							그녀의 <<trBreastsdesc $pillory_tenant.person.breastsdesc "은">>_trResult 피부가 벗겨져 아파 보인다.
+							그녀의 <<trBreastsdesc $pillory.tenant.person.breastsdesc "은">>_trResult 피부가 벗겨져 아파 보인다.
 							<br>
 							농부는 죄수의 머리를 쓰다듬고는 반쯤 찬 양동이를 들고 떠난다.
 						<</if>>
-					<<else>><<set $pillory_tenant.spank += 1>>
+					<<else>><<set $pillory.tenant.spank += 1>>
 						점차 유두를 거칠게 꼬집고 당겨봐도, 모유는 나오지 않는다.
 						<<if $rng % 2>>
 							결국 포기한 채로, <<person2>><<personPost "은">> <<his_ yi>> 머리를 쓰다듬는다. "가엽기도 하지. 텅 비어버렸구나."
 							<br>
 							<<HePost "은">> <<pillory_type>>의 뒤로 걸어가서는
-							<<if $pillory_tenant.lowerexposed lte 1>><<his_ yi>> <<print either("실크 팬티를","평범한 팬티를","망가진 속옷을","보이쇼츠를")>> 벗기고는,
-							<<else>>엉덩이를 양 옆으로 벌린 뒤<</if>> 모두에게 <<if $pillory_tenant.person.gender is "f">><<his_ yi>> 보지를 <<else>><<his_ yi>> 엉덩이를 <</if>>보여준다.
+							<<if $pillory.tenant.lowerexposed lte 1>><<his_ yi>> <<print either("실크 팬티를","평범한 팬티를","망가진 속옷을","보이쇼츠를")>> 벗기고는,
+							<<else>>엉덩이를 양 옆으로 벌린 뒤<</if>> 모두에게 <<if $pillory.tenant.person.gender is "f">><<his_ yi>> 보지를 <<else>><<his_ yi>> 엉덩이를 <</if>>보여준다.
 							<br>
-							"이 소는 다 말랐어." <<person2>><<hePost "이">> 군중을 향해 외친다. <<if $pillory_tenant.person.gender is "f">>"누가 송아지 한 마리쯤 임신하게 해보지 그래."<<else>>"누가 속 좀 채워주지 그래."<</if>>
+							"이 소는 다 말랐어," <<person2>><<hePost "이">> 군중을 향해 외친다. <<if $pillory.tenant.person.gender is "f">>"누가 송아지 한 마리쯤 임신하게 해보지 그래."<<else>>"누가 속 좀 채워주지 그래."<</if>>
 							<br>
 							<<HePost "은">> 텅 빈 양동이를 들고 떠난다.
-							<<set $pillory_tenant.lowerexposed to 2>>
+							<<set $pillory.tenant.lowerexposed to 2>>
 						<<else>>
 							결국 포기한 채로, 농부는 텅 빈 양동이를 들고 떠난다.
 						<</if>>
 						<br>
 					<</if>>
-				<<elseif $pillory_tenant.person.gender is "m" and $rng gte 40>>
+				<<elseif $pillory.tenant.person.gender is "m" and $rng gte 40>>
 					거친 농부 복장을 한 <<personPost "이">> 투명한 잔을 들고 구속대로 다가간다.
 					<br>
 					그러고는 <<pillory_type>>의 가랑이 밑에 잔을 놓더니, <<person2>><<hePost "은">>
-					<<if $pillory_tenant.lowerexposed lte 0>><<if $pillory_tenant.person.pronoun is "m">>죄수의 바지를 내리고는,<<else>>죄수의 스커트를 끌어올리고는,<</if>><</if>>
-					<<if $pillory_tenant.lowerexposed lte 1>><<set $pillory_tenant.lowerexposed to 2>><<if $pillory_tenant.person.pronoun is "m">> 속바지도 벗긴 뒤, <<else>> 팬티도 내린 뒤, <</if>><</if>>
-					죄수의 <<trPenisdesc $pillory_tenant.person.penisdesc>>_trResult를 잡고는 문지르기 시작한다.
+					<<if $pillory.tenant.lowerexposed lte 0>><<if $pillory.tenant.person.pronoun is "m">>죄수의 바지를 내리고는,<<else>>죄수의 스커트를 끌어올리고는,<</if>><</if>>
+					<<if $pillory.tenant.lowerexposed lte 1>><<set $pillory.tenant.lowerexposed to 2>><<if $pillory.tenant.person.pronoun is "m">> 속바지도 벗긴 뒤, <<else>> 팬티도 내린 뒤, <</if>><</if>>
+					죄수의 <<trPenisdesc $pillory.tenant.person.penisdesc "을">>_trResult 잡고는 문지르기 시작한다.
 					죄수는 충격을 받은 듯한 얼굴을 하더니, 곧 분노에 찬 표정으로 바뀌고, 곧 갈등하는 듯한 표정을 짓더니, 곧 다시 충격받은 얼굴을 한 채로 조롱하는 군중 앞에서 잔에다가 사정을 한다.
 					<<person2>>
 					<<if $rng % 3>>
@@ -4254,7 +4264,7 @@
 						<br>
 						10분 뒤, 농부는 정액으로 가득 찬 잔을 들고 떠나고, <<the_pillory_person "은">>
 						충격, 수치심, 고통과 만족감이 뒤섞인 표정을 지은 채로 구속대에 매달려있다.
-					<<else>><<set $pillory_tenant.spank += 1>>
+					<<else>><<set $pillory.tenant.spank += 1>>
 						농부는 한 손으로는 <<his_ yi>> 핸드폰을 조작하고, 다른 한 손으로는 <<pillory_type "을">> 절정시키려 한다.
 						<br>
 						몇 분쯤 지난 뒤, 농부는 혼란스러운 듯한 표정을 짓더니, 곧 <<the_pillory_person "이">> 별다른 반응을 보이지 않는다는 것에 짜증을 낸다.
@@ -4269,12 +4279,12 @@
 						<<the_pillory_person "은">> 고통, 수치심과 기이한 만족감에 얼굴을 움찔거리며 축 처진 채로 구속대에 매달려있다.
 					<</if>>
 					<br>
-				<<elseif $pillory_tenant.person.gender is "f" and $rng gte 20>>
+				<<elseif $pillory.tenant.person.gender is "f" and $rng gte 20>>
 					거친 농부 복장을 한 <<personPost "이">> 유리 비커를 들고 구속대로 다가간다.
 					<br>
 					그러고는 <<pillory_type>>의 가랑이 밑에 비커를 놓더니, <<person2>><<hePost "은">>
-					<<if $pillory_tenant.lowerexposed lte 0>><<if $pillory_tenant.person.pronoun is "f">>죄수의 스커트를 끌어올리고는,<<else>>죄수의 바지를 내리고는,<</if>><</if>>
-					<<if $pillory_tenant.lowerexposed lte 1>><<set $pillory_tenant.lowerexposed to 2>><<if $pillory_tenant.person.pronoun is "f">> 팬티도 내린 뒤,<<else>> 속바지도 벗긴 뒤,<</if>><</if>>
+					<<if $pillory.tenant.lowerexposed lte 0>><<if $pillory.tenant.person.pronoun is "f">>죄수의 스커트를 끌어올리고는,<<else>>죄수의 바지를 내리고는,<</if>><</if>>
+					<<if $pillory.tenant.lowerexposed lte 1>><<set $pillory.tenant.lowerexposed to 2>><<if $pillory.tenant.person.pronoun is "f">> 팬티도 내린 뒤,<<else>> 속바지도 벗긴 뒤,<</if>><</if>>
 					죄수의 보지를 붙잡고는 문지르기 시작한다.
 					잠시 충격에 빠져있다가, <<the_pillory_person "은">> 입술을 비죽 내민 채로 이 수치스러운 상황을 받아들이기로 한다. 그 직후에 <<his_ yi>> 보지에 차가운 금속이 쑤셔박힌다.
 					곧 <<his_ yi>> 얼굴이 공포로 물들려는 순간 무언가 클리토리스를 꽉 물고, 곧바로 전기의 물결이 <<his_ yi>> 몸에 밀려든다.
@@ -4295,13 +4305,13 @@
 						<<elseif $rng % 3 is 1>>
 							군중은 조롱하며 웃음을 터트린다. 결국 _bug은 흥미를 잃고는 다른 곳으로 날아간다.
 						<<else>>
-							<<if $pillory_tenant.lowerexposed is 2 and $rng % 2>>
+							<<if $pillory.tenant.lowerexposed is 2 and $rng % 2>>
 								<<if $pronoun is "m">><<set _part to either("엉덩이","다리 위쪽","허벅지 안쪽","자지","불알","허리")>>
 								<<else>><<set _part to either("엉덩이","다리","허벅지 안쪽","보지","허리")>>
 								<</if>>
-							<<elseif $pillory_tenant.upperexposed gte 3 and $pronoun is "f">>
+							<<elseif $pillory.tenant.upperexposed gte 3 and $pronoun is "f">>
 								<<set _part to either("가슴","유두","겨드랑이","늑골","몸통","등")>>
-							<<elseif $pillory_tenant.upperexposed gte 2>>
+							<<elseif $pillory.tenant.upperexposed gte 2>>
 								<<set _part to either("가슴","겨드랑이","늑골","배꼽","등")>>
 							<<else>>
 								<<set _part to either("팔","어깨","볼","다리","허리","손목","팔꿈치")>>
@@ -4311,9 +4321,9 @@
 					<<else>>
 						화난 사원의 <<monk_ ga>> 도덕적으로 병든 이를 착취한다며 군중을 꾸짖는다.
 						많은 사람들이 부끄러워하고, 몇몇은 자리를 떠난다.
-						<<set $pillory_tenant.crowd -= 1>>
-						<<if $pillory_tenant.upperexposed + $pillory_tenant.lowerexposed gte 1>>
-							<<set $pillory_tenant.upperexposed to 0>><<set $pillory_tenant.lowerexposed to 0>>
+						<<set $pillory.tenant.crowd -= 1>>
+						<<if $pillory.tenant.upperexposed + $pillory.tenant.lowerexposed gte 1>>
+							<<set $pillory.tenant.upperexposed to 0>><<set $pillory.tenant.lowerexposed to 0>>
 							마침내 <<monk_ ga>> <<pillory_type>>의 옷을 다시 입혀주어 <<his_ yi>> 존엄성을 회복시켜준다.
 						<</if>>
 					<</if>>
@@ -4321,25 +4331,25 @@
 			<<elseif $rng gte 36>> /* 5% */
 				어떤 <<personPost "이">> <<pillory_type>>에게 과일을 던진다. 움직이거나 막을 방법이 없기에, 과일이 <<himPost>>의 얼굴에 정통으로 맞는다.
 				과일의 산성기를 눈에서 닦아낼 수가 없기에 더더욱 아파 보인다.
-				<<set $pillory_tenant.fruit += 1>>
+				<<set $pillory.tenant.fruit += 1>>
 			<<elseif $rng gte 26>> /* 10% */
 				어떤 <<personPost "이">> <<pillory_type>>에게 과일을 던지나 완전히 빗나간다.
 			<<elseif $rng gte 16>> /* 10% */
 				어떤 <<personPost "이">> 구속대로 가더니 <<pillory_type>>의 <<if $pronoun is "f">>젖가슴<<else>>불알<</if>>을 $_ly 애무한다.
-			<<elseif $rng gte 11 and $pillory_tenant.upperexposed lt 3>>/* 5% */
+			<<elseif $rng gte 11 and $pillory.tenant.upperexposed lt 3>>/* 5% */
 				어떤 <<personPost "이">> <<pillory_type>>에게로 다가가더니
-				<<if $pillory_tenant.upperexposed is 2>>
+				<<if $pillory.tenant.upperexposed is 2>>
 					<<if $pronoun is "f">>
-					$_ly 브라를 벗겨, 조롱하는 군중을 향해 <<his_ yi>> <<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult 노출시킨다.
+					$_ly 브라를 벗겨, 조롱하는 군중을 향해 <<his_ yi>> <<trBreastsdesc $pillory.tenant.person.breastsdesc "을">>_trResult 노출시킨다.
 					<<else>>
 					$_ly <<his_ yi>> 유두를 비튼다.
-					<<set $pillory_tenant.spank += 1>>
+					<<set $pillory.tenant.spank += 1>>
 					<</if>>
-				<<elseif $pillory_tenant.upperexposed is 1>>
+				<<elseif $pillory.tenant.upperexposed is 1>>
 					<<if $pronoun is "f">>
 					완전히 상의를 벗기고는, 조롱하는 군중을 향해 <<his_ yi>> 브라를 노출시킨다.
 					<<else>>
-					완전히 상의를 벗기고는, 조롱하는 군중을 향해 <<his_ yi>> <<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult 노출시킨다.
+					완전히 상의를 벗기고는, 조롱하는 군중을 향해 <<his_ yi>> <<trBreastsdesc $pillory.tenant.person.breastsdesc "을">>_trResult 노출시킨다.
 					<</if>>
 				<<else>>
 					<<if $pronoun is "f">>
@@ -4347,17 +4357,17 @@
 					<<else>>
 					상의를 들춰, 조롱하는 군중을 향해 <<his_ yi>> 가슴 대부분을 노출시킨다.
 					<</if>>
-				<</if>><<set $pillory_tenant.upperexposed += 1>>
-			<<elseif $rng gte 6 and $pillory_tenant.lowerexposed lt 2>>/* 5% */
+				<</if>><<set $pillory.tenant.upperexposed += 1>>
+			<<elseif $rng gte 6 and $pillory.tenant.lowerexposed lt 2>>/* 5% */
 				<<personPost "이">> <<the_pillory_person>>에게로 다가가더니
-				<<if $pillory_tenant.lowerexposed is 1>>
-					<<if $pillory_tenant.person.gender is "f">><<pillory_type>>의 속옷을 벗기고는, 조롱하는 군중을 향해 <<his_ yi>> 엉덩이와 보지를 완전히 노출시킨다.
-					<<else>><<pillory_type>>의 속옷을 완전히 벗기고는, 조롱하는 군중을 향해 <<his_ yi>> 엉덩이와 <<trPenisdesc $pillory_tenant.person.penisdesc>>_trResult를 노출시킨다.
+				<<if $pillory.tenant.lowerexposed is 1>>
+					<<if $pillory.tenant.person.gender is "f">><<pillory_type>>의 속옷을 벗기고는, 조롱하는 군중을 향해 <<his_ yi>> 엉덩이와 보지를 완전히 노출시킨다.
+					<<else>><<pillory_type>>의 속옷을 완전히 벗기고는, 조롱하는 군중을 향해 <<his_ yi>> 엉덩이와 <<trPenisdesc $pillory.tenant.person.penisdesc "을">>_trResult 노출시킨다.
 					<</if>>
 				<<else>>
 					<<if $pronoun is "f">><<pillory_type>>의 치마를 들추고는,<<else>>바지를 내리고는,<</if>> 조롱하는 군중을 향해 속옷을 노출시킨다.
-				<</if>><<set $pillory_tenant.lowerexposed += 1>>
-			<<else>><<set $pillory_tenant.spank += 1>>/* 5% */
+				<</if>><<set $pillory.tenant.lowerexposed += 1>>
+			<<else>><<set $pillory.tenant.spank += 1>>/* 5% */
 				어떤 <<personPost "이">> <<pillory_type>>에게로 다가가더니 <<his_ yi>> 엉덩이를 세게 때린다. 철썩 하는 소리가 거리에 울려퍼진다.
 			<</if>>
 		<<else>> /*night*/
@@ -4366,34 +4376,34 @@
 			<<elseif $rng gte 81>> /* 5% */
 				어떤 <<personPost "이">> <<pillory_type>>에게 과일을 던진다. 움직이거나 막을 방법이 없기에, 과일이 <<the_pillory_person>>의 얼굴에 정통으로 맞는다. 커다란 환호성이 울려퍼진다.
 				과일의 산성기를 눈에서 닦아낼 수가 없기에 더더욱 아파 보인다.
-				<<set $pillory_tenant.fruit += 1>>
+				<<set $pillory.tenant.fruit += 1>>
 			<<elseif $rng gte 76>> /* 5% */
 				어떤 <<personPost "이">> <<pillory_type>>에게 과일을 던지나 완전히 빗나간다.
-			<<elseif $pillory_tenant.person.pronoun is "f" and $pillory_tenant.upperexposed lt 3>>
-				<<set $pillory_tenant.upperexposed to 3>>
-				<<personPost "이">> 무력한 <<pillory_type>>에게로 다가가더니 상의를 전부 벗겨, <<his_ yi>> <<if $pronoun is "f">><<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult<<else>>가슴을<</if>> 군중에게 완전히 드러낸다.
-			<<elseif $pillory_tenant.person.pronoun is "m" and $pillory_tenant.upperexposed lt 2>>
-				<<set $pillory_tenant.upperexposed to 2>>
-				<<personPost "이">> 무력한 <<pillory_type>>에게로 다가가더니 상의를 전부 벗겨, <<his_ yi>> <<if $pronoun is "f">><<trBreastsdesc $pillory_tenant.person.breastsdesc "을">>_trResult<<else>>가슴을<</if>> 군중에게 완전히 드러낸다.
-			<<elseif $pillory_tenant.lowerexposed lt 2>>
-				<<set $pillory_tenant.lowerexposed to 2>>
-				<<personPost "이">> 무력한 <<pillory_type>>에게로 다가가더니 하의를 전부 벗겨, <<his_ yi>> <<if $pillory_tenant.person.gender is "f">>보지를<<else>><<penisdesc_ rul $pillory_tenant.person.penisdesc>><</if>> 군중에게 완전히 드러낸다. 커다란 환호성이 울려퍼진다.
+			<<elseif $pillory.tenant.person.pronoun is "f" and $pillory.tenant.upperexposed lt 3>>
+				<<set $pillory.tenant.upperexposed to 3>>
+				<<personPost "이">> 무력한 <<pillory_type>>에게로 다가가더니 상의를 전부 벗겨, <<his_ yi>> <<if $pronoun is "f">><<trBreastsdesc $pillory.tenant.person.breastsdesc "을">>_trResult<<else>>가슴을<</if>> 군중에게 완전히 드러낸다.
+			<<elseif $pillory.tenant.person.pronoun is "m" and $pillory.tenant.upperexposed lt 2>>
+				<<set $pillory.tenant.upperexposed to 2>>
+				<<personPost "이">> 무력한 <<pillory_type>>에게로 다가가더니 상의를 전부 벗겨, <<his_ yi>> <<if $pronoun is "f">><<trBreastsdesc $pillory.tenant.person.breastsdesc "을">>_trResult<<else>>가슴을<</if>> 군중에게 완전히 드러낸다.
+			<<elseif $pillory.tenant.lowerexposed lt 2>>
+				<<set $pillory.tenant.lowerexposed to 2>>
+				<<personPost "이">> 무력한 <<pillory_type>>에게로 다가가더니 하의를 전부 벗겨, <<his_ yi>> <<if $pillory.tenant.person.gender is "f">>보지를<<else>><<penisdesc_ rul $pillory.tenant.person.penisdesc>><</if>> 군중에게 완전히 드러낸다. 커다란 환호성이 울려퍼진다.
 			<<elseif $rng gte 66>> /* 10% */
 				<<personPost "이">> 근처에 돌아다니던 개로 하여금 죄수의 헐벗은 엉덩이에 올라타도록 유도한다. 녀석은
 				<<if $rng % 2>>머뭇거리며 <<the_pillory_person>>의 엉덩이를 몇 번 킁킁거리나,
 				<</if>>별 흥미를 보이지 않는다.
 			<<elseif $rng gte 58>> /* 8% */
-				<<set $pillory_tenant.spank += 1>>
-				어떤 <<personPost "이">> 구속대 뒤로 몰래 다가가서는 <<pillory_type>>의 노출된 <<if $pillory_tenant.person.gender is "f">>보지를<<else>>고환을<</if>> $_ly 후려친다. <<hePost "이">> 고통에 울부짖는 동안 군중은 조롱하고 웃음을 터트린다.
+				<<set $pillory.tenant.spank += 1>>
+				어떤 <<personPost "이">> 구속대 뒤로 몰래 다가가서는 <<pillory_type>>의 노출된 <<if $pillory.tenant.person.gender is "f">>보지를<<else>>고환을<</if>> $_ly 후려친다. <<hePost "이">> 고통에 울부짖는 동안 군중은 조롱하고 웃음을 터트린다.
 			<<elseif $rng gte 51>> /* 7% */
-				<<set $pillory_tenant.spank += 2>><br>
+				<<set $pillory.tenant.spank += 2>><br>
 				당신이 학교 주위에서 본 적이 있지만 수업을 들어본 적은 없는 어떤 선생이, 술취한 발걸음으로 구속대 앞으로 걸어간다.
-				<<if $pillory_tenant.special.name is "Whitney">>
-					<br><<set $pillory_tenant.spank += 1>>
+				<<if $pillory.tenant.special.name is "Whitney">>
+					<br><<set $pillory.tenant.spank += 1>>
 					"이런, 안녕, 휘트니! <<print either("여기서 보다니 반갑구나!","이게 누구야!","여기에서 움직일 수 없는 거니? 불행하게도!","이거 입장이 상당히 바뀐 것 같지 않니!?","너를 여기서 보다니 멋진 놀라움이구나!")>>" <<he_ ga>> 싱긋 웃으며, 혀 꼬부라진 소리로 말한다.
 					"<<print either("우리 둘 다 네가 이걸 벌어놨다는 것을 알고 있지.","우리 둘 다 네가 이걸 받기에 충분히 마땅하다는 것을 알고 있지.","그리고 오늘의 수업은 인과관계에 대한 것이란다.","네가 내게 지어준 못된 조그만 별명을 기억하니?","저번날에 네가 내 수업에서 무엇을 했는지 기억하니?")>>"
-				<<elseif $pillory_tenant.special.name is "Leighton">>
-					<br><<set $pillory_tenant.spank += 1>>
+				<<elseif $pillory.tenant.special.name is "Leighton">>
+					<br><<set $pillory.tenant.spank += 1>>
 					"이런, 안녕하세요. 당신이세요, 교장님?" <<he_ ga>> 구속대 뒤에서, 시야에 들어가지 않도록 서서 말한다.
 					"<<print either("제 생각에는 지금이 어떤 '익명 직원 평가' 시간인 것 같네요.","교장님이 '친절하기 위한 잔인함'에 대해 뭐라고 말씀하셨는지 기억하시죠?","그러니까 제가 추측하기에는 지금이 교장님에 대한 '솔직담백한 평가'를 할 차례 같은데요?","그래서 여기가 직원 불만사항을 발표할 '적절한 토론장'인 거죠?")>>"
 				<<else>><br>
@@ -4402,32 +4412,32 @@
 				<</if>><br>
 				<<He_ nun>> <<pillory_type>>의 엉덩이를 <<person2>><<his_ yi>> 팔이 아플 때 까지 후려친다. 군중들은 <<person1>><<person_ i>> 아픔에 울부짖자  야유하며 웃는다.
 			<<elseif $rng gte 41>> /* 10% */
-				<<set $pillory_tenant.face += 1>>
+				<<set $pillory.tenant.face += 1>>
 				어떤 <<personPost "이">> 구속대 앞으로 가서는 <<pillory_type>> 앞에서 $_ly 자위하기 시작한다.
 				<<person2>><<if $pronoun is "m">>곧 <<the_pillory_person>>의 얼굴에 정액이 튄다.
 				<<else>><<HePost "은">> <<the_pillory_person>>의 얼굴에 <<person2>><<his_ yi>> 보지를 문지르며 가버린다.
 				<</if>> 군중은 조롱하며 웃음을 터트린다.
 			<<elseif $rng gte 31>> /* 10% */
-				<<set $pillory_tenant.ass += 1>>
+				<<set $pillory.tenant.ass += 1>>
 				어떤 <<personPost "이">> 구속대 뒤로 가서는 <<pillory_type>>의 항문을 $_ly <<if $pronoun is "m">>강간한다<<else>>손가락으로 쑤신다<</if>>. 군중은 <<person2>><<himPost "을">> 응원한다.
 			<<elseif $rng gte 21>> /* 10% */
-				<<set $pillory_tenant.genital += 1>>
+				<<set $pillory.tenant.genital += 1>>
 				어떤 <<personPost "이">> 구속대 뒤로 가서는 <<if $pronoun is "m">><<the_pillory_person "을">><<else>><<the_pillory_person "을">> 페니스 밴드로<</if>> $_ly 강간한다. <<person2>>군중은 사진을 찍으며 <<himPost "을">> 응원한다.
 			<<elseif $rng gte 11>> /* 10% */
-				<<set $pillory_tenant.genital += 1>><<set $pillory_tenant.ass += 1>>
+				<<set $pillory.tenant.genital += 1>><<set $pillory.tenant.ass += 1>>
 				들개가 _ly <<the_pillory_person "을">> 강간하는 동안 군중은 그걸 지켜보며 사진을 찍는다. 어떤 <<person2>><<personPost "이">> 보상으로 <<print either("개에게 비스킷을 준다.","개의 머리를 쓰다듬어준다.","개에게 단 것을 준다.","개에게 크림빵을 준다.")>>
 				<br>
 				군중은 이 변태적인 구경거리를 즐긴다.
-			<<elseif $rng gte 6 and maleChance() gt 0 and (maleChance() lt 100 or $pillory_tenant.person.gender isnot "m")>> /* 5% - with men allowed */
-				<<set $pillory_tenant.ass += 1>><<set $pillory_tenant.face += 1>>
+			<<elseif $rng gte 6 and maleChance() gt 0 and (maleChance() lt 100 or $pillory.tenant.person.gender isnot "m")>> /* 5% - with men allowed */
+				<<set $pillory.tenant.ass += 1>><<set $pillory.tenant.face += 1>>
 				<<if $rng % 3 is 0>>비번인 남자 경찰 두 명이 다가온다. 그들은 어떤 <<personPost>> 에게 동영상을 찍게 하고 그들은<<else>>두 남자가 다가온다. 그들은 함께<</if>>
-				<<if $pillory_tenant.person.gender is "m">>항문을 써서 <<else>>$_ly <</if>>위와 아래로 <<the_pillory_person "을">> 범한다. 군중들은 이 구경거리를 즐긴다.
-			<<elseif $rng gte 6 and maleChance() lt 100 and (maleChance() gt 0 or $pillory_tenant.person.gender isnot "f")>> /* 5% - with women allowed */
-				<<set $pillory_tenant.ass += 1>><<set $pillory_tenant.face += 1>>
+				<<if $pillory.tenant.person.gender is "m">>항문을 써서 <<else>>$_ly <</if>>위와 아래로 <<the_pillory_person "을">> 범한다. 군중들은 이 구경거리를 즐긴다.
+			<<elseif $rng gte 6 and maleChance() lt 100 and (maleChance() gt 0 or $pillory.tenant.person.gender isnot "f")>> /* 5% - with women allowed */
+				<<set $pillory.tenant.ass += 1>><<set $pillory.tenant.face += 1>>
 				<<if $rng % 3 is 0>>비번인 여자 경찰 두 명이 다가온다. 그들은 어떤 <<personPost>> 에게 동영상을 찍게 하고 그들은<<else>>두 여자가 다가온다. 그들은 함께<</if>>
-				<<if $pillory_tenant.person.gender is "m">>항문을 써서 <<else>>$_ly <</if>>위와 아래로 <<the_pillory_person "을">> 페니스 밴드를 찬 채로 범한다. 군중들은 이 구경거리를 즐긴다.
+				<<if $pillory.tenant.person.gender is "m">>항문을 써서 <<else>>$_ly <</if>>위와 아래로 <<the_pillory_person "을">> 페니스 밴드를 찬 채로 범한다. 군중들은 이 구경거리를 즐긴다.
 			<<else>> /* 5% */
-				<<set $pillory_tenant.spank += 1>>
+				<<set $pillory.tenant.spank += 1>>
 				어떤 <<personPost "이">> <<pillory_type>>에게 다가와서는 엉덩이를 세게 때린다. 철썩 하는 소리가 거리에 울려퍼진다.
 			<</if>>
 		<</if>>
@@ -4435,10 +4445,10 @@
 		사람들이
 		<<if Time.schoolDay and ((Time.hour gte 7 and Time.hour lte 8) or Time.hour is 15) and $rng lte 34>>
 			<<pillory_type "을">> 둘러싸고는 <<print either("야유한다","웃는다","손가락질 한다","욕설을 내뱉는다","놀린다","조롱한다","흘겨본다")>>. 인근 학교의 학생 무리가 지나가며, 넋을 놓고
-			<<if $pillory_tenant.lowerexposed gte 2 or $pillory_tenant.upperexposed gte 3>>음란하게 노출한 죄수를 쳐다본다.
+			<<if $pillory.tenant.lowerexposed gte 2 or $pillory.tenant.upperexposed gte 3>>음란하게 노출하고 있는 죄수를 쳐다본다.
 				<<if $rng % 3 is 0>>
 				격분한 구경꾼이 구속대로 달려가서는 <<pillory_type>>의 옷을 다시 입혀준다.
-				<<set $pillory_tenant.lowerexposed to 0>><<set $pillory_tenant.upperexposed to 0>><</if>>
+				<<set $pillory.tenant.lowerexposed to 0>><<set $pillory.tenant.upperexposed to 0>><</if>>
 			<<else>>죄수를 쳐다본다.
 			<</if>>
 		<<elseif Time.dayState isnot "night">>
@@ -4446,33 +4456,33 @@
 				<<pillory_type "을">> 둘러싸고는 <<print either("야유하며","웃으며","손가락질 하며","욕설을 내뱉으며","놀리며","조롱하며","흘겨보며")>> <<print either("서로 뭔가를 중얼거린다.","사진을 찍는다.","흥겨워한다.")>>
 			<<elseif $rng lte 93>>
 				<<pillory_type "을">> 둘러싸고는 <<print either("야유한다","웃는다","손가락질 한다","욕설을 내뱉는다","놀린다","조롱한다","흘겨본다")>>. 몇몇은 질렸는지 떠나간다.
-				<<set $pillory_tenant.crowd -= 1>>
+				<<set $pillory.tenant.crowd -= 1>>
 			<<else>>
 				<<pillory_type "을">> 둘러싸고는 <<print either("야유한다","웃는다","손가락질 한다","욕설을 내뱉는다","놀린다","조롱한다","흘겨본다")>>. 버스 한 대가 근처에서 사람들을 내려준다. 몇몇이 구속대에 몰린 군중에 합류한다.
-				<<set $pillory_tenant.crowd += 1>>
+				<<set $pillory.tenant.crowd += 1>>
 			<</if>>
 		<<else>>
 			<<if $rng lte 67>>
-				<<if $pillory_tenant.lowerexposed gte 2 and $rng % 4 is 0>><<pillory_type "을">> 둘러싸고는 <<print either("야유하며","웃으며","손가락질 하며","욕설을 내뱉으며","놀리며","조롱하며","흘겨보며")>> <<his_ yi>> 노출된, 맨엉덩이 앞에서 포즈를 취하고는 셀카를 찍는다.
+				<<if $pillory.tenant.lowerexposed gte 2 and $rng % 4 is 0>><<pillory_type "을">> 둘러싸고는 <<print either("야유하며","웃으며","손가락질 하며","욕설을 내뱉으며","놀리며","조롱하며","흘겨보며")>> <<his_ yi>> 노출된, 맨엉덩이 앞에서 포즈를 취하고는 셀카를 찍는다.
 				<<else>><<pillory_type "을">> 둘러싸고는 <<print either("야유하며","웃으며","손가락질 하며","욕설을 내뱉으며","놀리며","조롱하며","흘겨보며")>> <<print either("험악한 말들을 중얼거린다.","술을 마신다.","빈 맥주 캔을 던진다.","험악한 위협을 가한다.","죄수와 함께 셀카를 찍는다.","지저분한 농담을 던진다.")>>
 				<</if>>
 			<<elseif $rng lte 85>>
 				<<pillory_type "을">> 둘러싸고는 <<print either("야유한다","웃는다","손가락질 한다","욕설을 내뱉는다","놀린다","조롱한다","흘겨본다")>>. 몇몇은 질렸는지 떠나간다.
-				<<set $pillory_tenant.crowd -= 1>>
+				<<set $pillory.tenant.crowd -= 1>>
 			<<else>>
 				<<pillory_type "을">> 둘러싸고는 <<print either("야유한다","웃는다","손가락질 한다","욕설을 내뱉는다","놀린다","조롱한다","흘겨본다")>>. 지나가던 몇 사람이 구속대에 몰린 군중에 합류한다.
-				<<set $pillory_tenant.crowd += 1>>
+				<<set $pillory.tenant.crowd += 1>>
 			<</if>>
 		<</if>>
 	<</if>>
-	<<if $pillory_tenant.upperexposed gte 3>><<if $pillory_tenant.person.gender is "f" or $pillory_tenant.person.pronoun is "f">><<set $pillory_tenant.upperexposed to 3>><<else>><<set $pillory_tenant.upperexposed to 2>><</if>><</if>>
-	<<if $pillory_tenant.lowerexposed gt 2>><<set $pillory_tenant.lowerexposed to 2>><</if>>
+	<<if $pillory.tenant.upperexposed gte 3>><<if $pillory.tenant.person.gender is "f" or $pillory.tenant.person.pronoun is "f">><<set $pillory.tenant.upperexposed to 3>><<else>><<set $pillory.tenant.upperexposed to 2>><</if>><</if>>
+	<<if $pillory.tenant.lowerexposed gt 2>><<set $pillory.tenant.lowerexposed to 2>><</if>>
 <</widget>>
 
 <<widget "npc_pillory_release_schedule">>
 	<<get_pillory_npc>>
 	<br>
-	<<set $_endTime to new DateTime($pillory_tenant.endTime)>>
+	<<set $_endTime to new DateTime($pillory.tenant.endTime)>>
 	<<set $_timeLeft to Time.date.compareWith($_endTime)>>
 	<<if $_timeLeft.days lt 1>>
 		<<HePost "은">>
@@ -4503,7 +4513,7 @@
 	<<else>>
 		<<The_pillory_person "은">> 풀려나 돌아갔다. 몇몇 공무원들이 구속대를 청소하고 있다.
 	<</if>>
-	<<set _totalSeconds to Time.date.compareWith(new DateTime($pillory_tenant.startTime), true) / TimeConstants.secondsPerHour>>
+	<<set _totalSeconds to Time.date.compareWith(new DateTime($pillory.tenant.startTime), true) / TimeConstants.secondsPerHour>>
 	<<set $_hours to _totalSeconds / TimeConstants.secondsPerHour>>
 	<<set $rng += $_hours>>
 	<<if $rng gte 67 or $rng gte 33 and Weather.precipitation is "rain">>많은 군중들이 야유하며 소리지르고 있다.<</if>>
@@ -4513,7 +4523,7 @@
 <</widget>>
 
 <<widget "clear_pillory">>
-	<<if $pillory_tenant and $pillory_tenant.special.name is "Whitney">>
+	<<if $pillory.tenant and $pillory.tenant.special.name is "Whitney">>
 		<<set C.npc.Whitney.state to "active">>
 	<</if>>
 	<<setup_pillory>>

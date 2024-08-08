@@ -586,7 +586,7 @@ setup.LocationImages = {
 				},
 			},
 			snow: {
-				condition: () => !Weather.bloodMoon && Weather.isSnow,
+				condition: () => Weather.isSnow,
 				image: "snow.png",
 			},
 		},

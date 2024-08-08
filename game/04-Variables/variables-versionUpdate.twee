@@ -961,7 +961,10 @@
 		<<set $chef_sus to 0>>
 	<</if>>
 
-	<<if ndef $pillory_tenant>> /* Pillory related */
+	<<if $pillory is undefined>>
+		<<set $pillory to {}>>
+	<</if>>
+	<<if $pillory.tenant is undefined>> /* Pillory related */
 		<<setup_pillory>>
 	<</if>>
 	<<if ndef $police_intro>>							/* Police hack related*/
@@ -1090,7 +1093,6 @@
 
 	<<if $lastWardrobeSlot is undefined>>
 		<<set $lastWardrobeSlot to "head">>
-		<<set $newWardrobeStyle to true>>
 	<</if>>
 
 	<<if $objectVersion.customColors lt 4 or $objectVersion.customColors is undefined>>
@@ -3260,7 +3262,6 @@
 			maxSessionStates: 1,
 			historyControls: false,
 			numpad: $numpad !== undefined ? $numpad : false,
-			newWardrobeStyle: $newWardrobeStyle !== undefined ? $newWardrobeStyle : true,
 			useNarrowMarket: $useNarrowMarket !== undefined ? $useNarrowMarket : false,
 			skipStatisticsConfirmation: $skipStatisticsConfirmation !== undefined ? $skipStatisticsConfirmation : false,
 			showDebugRenderer: $showDebugRenderer !== undefined ? $showDebugRenderer : !!StartConfig.debug,
@@ -3529,7 +3530,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 56 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 58 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3540,21 +3541,21 @@
 			<!--Should'nt need to re-run that often-->
 			<<run clothesDataTrimmerLoop()>>
 		<</if>>
-		
+
 		<!--If you have added any `colour_combat` or `accessory_colour_combat` to clothes that need their `colour` or `accessory_colour`, this will clear them.
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
-		
+
 		<!-- integrity_max was zero for a piece of clothing [Skimpy Leotard], this caused an infinity money bug at tailor, update people's clothing here -->
 		<<if $objectVersion.updateClothes lt 56>>
 			<<run fixIntegrityUpdater()>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 56>>
+		<<set $objectVersion.updateClothes to 58>>
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 15 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 16 or $objectVersion.specialClothes is undefined>>
 		<<specialClothesSetup>>
 		<<specialClothesUpdate>>
-		<<set $objectVersion.specialClothes to 15>>
+		<<set $objectVersion.specialClothes to 16>>
 	<</if>>
 
 	<<if $objectVersion.wardrobes lt 12 or $objectVersion.wardrobes is undefined>>
@@ -3871,7 +3872,6 @@
 	<</if>>
 
 	<<if $oldclock isnot undefined>>
-		<<set $options.oldclock to $oldclock>>
 		<<unset $oldclock>>
 	<</if>>
 
@@ -3959,7 +3959,7 @@
 		<<set $whitneyrescued to true>>
 		<<set C.npc.Whitney.state to "active">>
 	<</if>>
-	<<if $pillory_tenant.special.name is "Whitney" and C.npc.Whitney.state isnot "pillory">>
+	<<if $pillory_tenant isnot undefined and ($pillory_tenant.special.name is "Whitney" and C.npc.Whitney.state isnot "pillory")>>
 		<!-- Making "pillory" a state means that whitney's state shouldn't be anything but "pillory" when they're locked up -->
 		<<set C.npc.Whitney.state to "pillory">>
 	<</if>>
@@ -4676,7 +4676,7 @@
 	<</if>>
 
 	<!-- V.pillory_tenant.endDate update -->
-	<<if !$pillory_tenant.endDate and $pillory_tenant.endday>>
+	<<if $pillory_tenant isnot undefined and (!$pillory_tenant.endDate and $pillory_tenant.endday)>>
 		<<set $pillory_tenant.endDate to ($pillory_tenant.endday * TimeConstants.secondsPerDay + ($pillory_tenant.endhour - 7) * TimeConstants.secondsPerHour)>>
 		<<run delete $pillory_tenant.endday>>
 	<</if>>
@@ -5066,9 +5066,22 @@
 		<<set $objectVersion.defileSacredGroundStore to 2>>
 	<</if>>
 	/* Docks dog-related scenes refactor*/
-	<<if $dock_dog isnot undefined>>
-		<<beastNEWinit 1 dog>>
+	<<if $dock_dog isnot undefined and typeof $dock_dog is "string">>
+		<<set $_indexTmp to $index>>
+		<<set $_isOverwritingNPC to !!$NPCList[0].fullDescription>>
+		<<if $_isOverwritingNPC>>
+			<<saveNPC 0 "dockDogUpdate">>
+			<<clearsinglenpc 0>>
+		<</if>>
+		<<generateBEAST 1 "dog">>
 		<<set $dock_dog to clone($NPCList[0])>>
+		<<if $_isOverwritingNPC>>
+			<<loadNPC 0 "dockDogUpdate">>
+			<<clearNPC "dockDogUpdate">>
+		<</if>>
+		<<personselect $_indexTmp>>
+		<<unset $_indexTmp>>
+		<<unset $_isOverwritingNPC>>
 	<</if>>
 	/* Kill the leather leggings with fire */
 	/* Commenting out again due to continued issues
@@ -5151,7 +5164,7 @@
     <</if>>
 
 	<!-- Pillory time fixes -->
-	<<if $pillory_tenant.starthour isnot undefined or $pillory_tenant.startday isnot undefined>>
+	<<if $pillory_tenant isnot undefined and ($pillory_tenant.starthour isnot undefined or $pillory_tenant.startday isnot undefined)>>
 		<!-- The start day / hour are broken anyways - so resetting the starttime to current time -->
 		<<set $_newTime to new DateTime(Time.date)>>
 		<<set $_endTime to new DateTime($_newTime.timeStamp).addHours($pillory_tenant.duration)>>
@@ -5164,6 +5177,39 @@
 		<<unset $pillory_tenant.endDate>>
 		<<unset $pillory_tenant.endhour>>
 		<<unset $pillory_tenant.duration>>
+	<</if>>
+
+	<!-- 5.0.6 -->
+	<<if $pillory is undefined>>
+		<<set $pillory to {}>>
+	<</if>>
+	<<if $pillorytime isnot undefined>>
+		<<set _pilloryStartTime to new DateTime(Time.date)>>
+		<<set _pilloryEndTime to new DateTime(Time.date).addMinutes(60 - Time.date.minute)>>
+		<<if !isNaN($pillorytime) and $pillorytime gte 0>>
+			<<set _pilloryEndTime.addHours($pillortime)>>
+		<</if>>
+		<<set $pillory.time to {
+			start: _pilloryStartTime.timeStamp,
+			end: _pilloryEndTime.timeStamp,
+		}>>
+		<<unset $pillorytime>>
+	<</if>>
+	<<if $pilloryaudience isnot undefined>>
+		<<if !isNaN($pilloryaudience) and $pilloryaudience gte 0>>
+			<<set $pillory.audience to $pilloryaudience>>
+		<</if>>
+		<<unset $pilloryaudience>>
+	<</if>>
+	<<if $pillory_tenant isnot undefined>>
+		<<set $pillory.tenant to $pillory_tenant>>
+		<<unset $pillory_tenant>>
+	<</if>>
+	<<if $options.oldclock isnot undefined>>
+		<<run delete $options.oldclock>>
+	<</if>>
+	<<if $options.newWardrobeStyle isnot undefined>>
+		<<run delete $options.newWardrobeStyle>>
 	<</if>>
 
 	<!-- 0.5 Weather update -->
@@ -5251,5 +5297,46 @@
 
 	<<if !Number.isFinite($money)>>
 		<<set $money to 0>>
+	<</if>>
+
+	<!-- 5.0.6 -->
+	<<if $pillory is undefined>>
+		<<set $pillory to {}>>
+	<</if>>
+	<<if $pillorytime isnot undefined>>
+		<<set _pilloryStartTime to new DateTime(Time.date)>>
+		<<set _pilloryEndTime to new DateTime(Time.date).addMinutes(60 - Time.date.minute)>>
+		<<if !isNaN($pillorytime) and $pillorytime gte 0>>
+			<<set _pilloryEndTime.addHours($pillortime)>>
+		<</if>>
+		<<set $pillory.time to {
+			start: _pilloryStartTime.timeStamp,
+			end: _pilloryEndTime.timeStamp,
+		}>>
+		<<unset $pillorytime>>
+	<</if>>
+	<<if $pilloryaudience isnot undefined>>
+		<<if !isNaN($pilloryaudience) and $pilloryaudience gte 0>>
+			<<set $pillory.audience to $pilloryaudience>>
+		<</if>>
+		<<unset $pilloryaudience>>
+	<</if>>
+	<<if $pillory_tenant isnot undefined>>
+		<<set $pillory.tenant to $pillory_tenant>>
+		<<unset $pillory_tenant>>
+	<</if>>
+	<<if $options.oldclock isnot undefined>>
+		<<run delete $options.oldclock>>
+	<</if>>
+	<<if $options.newWardrobeStyle isnot undefined>>
+		<<run delete $options.newWardrobeStyle>>
+	<</if>>
+
+	<!-- Fix for not having an island home set, should only be run once -->
+	<<if !$objectVersion.islandHomeFix>>
+		<<if $passage.startsWith("Island") and $island and $island.home is undefined>>
+			<<set $island.home to "rocky_hillock">>
+		<</if>>
+		<<set $objectVersion.islandHomeFix to 1>>
 	<</if>>
 <<init_customSetting>><</widget>>

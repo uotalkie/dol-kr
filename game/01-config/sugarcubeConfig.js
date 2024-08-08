@@ -11,7 +11,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.0.6",
+	version: "0.5.1.3",
 	versionName: `"Head in the Clouds" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
@@ -31,21 +31,7 @@ Config.saves.isAllowed = () => {
 	return true;
 };
 
-idb.footerHTML = `
-	<div class="savesListRow">
-		<div class="saveGroup">
-			<span style="margin: 0;">
-				<a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Degrees of Lewdityë¥¼ ì§€ì§€</a>í•´ ì£¼ì‹œëŠ” ëª¨ë“  ë¶„ë“¤ê»˜ íŠ¹ë³„íˆ ê°ì‚¬ë“œë¦½ë‹ˆë‹¤
-			</span>
-			<div class="saveId"></div>
-			<div class="saveButton"></div>
-			<div class="saveName"></div>
-			<div class="saveDetails"></div>
-		</div>
-		<div class="saveButton">
-			<input type="button" class="saveMenuButton right" value="ì „ë¶€ ì‚­ì œ" onclick="idb.saveList('confirm clear')">
-		</div>
-	</div>`;
+idb.footerHTML = `<a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Degrees of Lewdity¸¦ ÁöÁö</a>ÇØ ÁÖ½Ã´Â ¸ğµç ºĞµé²² Æ¯º°È÷ °¨»çµå¸³´Ï´Ù`;
 
 function onLoad(save) {
 	$.event.trigger(":onloadsave", { save });
@@ -153,13 +139,6 @@ const tmpver = StartConfig.version.replace(/[^0-9.]+/g, "").split(".");
 window.StartConfig.version_numeric = tmpver[0] * 1000000 + tmpver[1] * 10000 + tmpver[2] * 100 + tmpver[3] * 1;
 
 Config.saves.autosave = "autosave";
-
-Config.saves.isAllowed = function () {
-	if (tags().includes("nosave")) {
-		return false;
-	}
-	return true;
-};
 
 importStyles("style.css")
 	.then(function () {
@@ -601,6 +580,54 @@ Config.navigation.override = function (dest) {
 			case "Beach Cave Rope Over Top":
 				return "Beach Cave Rope Top";
 
+			case "Prison Wren Intro Met":
+				return "Prison Wren Intro";
+
+			case "Museum Box":
+				return "Museum Waterlogged Ivory Box";
+			case "Museum Silver Ring":
+				return "Museum Worn Silver Ring";
+			case "Museum Gold Necklace":
+				return "Museum Ornate Gold Necklace";
+			case "Museum Gold Chastity Belt":
+				return "Museum Golden Chastity Belt";
+			case "Museum Ivory Necklace":
+				return "Museum Immaculate Ivory Necklace";
+			case "Museum Crystal":
+				return "Museum Arousing Crystal";
+			case "Museum Horn":
+				return "Museum Hunting Horn";
+			case "Museum Watch":
+				return "Museum Old Watch";
+			case "Museum Dildo":
+				return "Museum Odd Medical Aid";
+			case "Museum Candlestick":
+				return "Museum Noble Candle Stick";
+			case "Museum Arrow":
+				return "Museum Mossy Forest Arrow";
+			case "Museum Dagger":
+				return "Museum Rusted Forest Dagger";
+			case "Museum Gem":
+				return "Museum Pulsing Forest Gem";
+			case "Museum Hourglass":
+				return "Museum Inscribed Hourglass";
+			case "Museum Cup":
+				return "Museum Discarded Cup";
+			case "Museum Burner":
+				return "Museum Incense Burner";
+			case "Museum Brass Statuette":
+				return "Museum Forgotten Brass Statuette";
+			case "Museum Grenade":
+				return "Museum Old Grenade";
+			case "Museum Bell":
+				return "Museum Sonorous Bell";
+			case "Museum Shell":
+				return "Museum Artillery Shell";
+			case "Museum Mine Sign":
+				return "Museum Bailey Sign";
+			case "Museum Island Arrow":
+				return "Museum Islander Arrow";
+
 			default:
 				return false;
 		}
@@ -612,6 +639,20 @@ Config.navigation.override = function (dest) {
 	if (passageArgs.name !== dest) {
 		/* Return new passage dest. Will divert the processed passage to this. */
 		return passageArgs.name;
+	}
+
+	// Scene viewer redirect
+	if (V.replayScene) {
+		if (passageArgs.name === V.replayScene.startPassage) {
+			return false;
+		}
+		if (passageArgs.name === "Scene Viewer End") {
+			delete V.replayScene.startPassage;
+			return false;
+		}
+		if (!V.replayScene.passages.includes(passageArgs.name)) {
+			return "Scene Viewer End";
+		}
 	}
 
 	if (pageLoading) {

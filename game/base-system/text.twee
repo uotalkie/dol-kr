@@ -869,6 +869,16 @@
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
+<<widget "peopleyv">><<silently>>
+	<<if $malevictimchance is 100>>
+		<<set _text_output to "boys">>
+	<<elseif $malevictimchance is 0>>
+		<<set _text_output to "girls">>
+	<<else>>
+		<<set _text_output to "boys and girls">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
 <<widget "persony">><<silently>>
 	<<rng>>
 	<<set _text_output to ($rng lte maleChance()? "boy" : "girl")>>
@@ -1061,6 +1071,7 @@
 	<<else>>
 		<<set _text_output2 to "">>
 	<</if>>
+	<<set _mouthSensitivityDescribed to true>>
 <</silently>><<print _text_output2>><</widget>>
 
 <<widget "breastsensitivity">><<silently>>
@@ -1073,6 +1084,7 @@
 	<<else>>
 		<<set _text_output2 to "">>
 	<</if>>
+	<<set _breastSensitivityDescribed to true>>
 <</silently>><<print _text_output2>><</widget>>
 
 <<widget "bottomsensitivity">><<silently>>
@@ -1085,10 +1097,11 @@
 	<<else>>
 		<<set _text_output2 to "">>
 	<</if>>
+	<<set _bottomSensitivityDescribed to true>>
 <</silently>><<print _text_output2>><</widget>>
 
 <<widget "nipple">>
-	<<breastsensitivity>><<print "nipple">>
+	<<if !_breastSensitivityDescribed>><<breastsensitivity>><</if>><<print "nipple">>
 <</widget>>
 
 <<widget "nipples">>
@@ -1114,7 +1127,7 @@
 	<<elseif $options.debugdisable is "f">>
 		<<set _text_output to "ERROR - $$player.breastsize is not a number: $player.breastsize">>
 	<</if>>
-<</silently>><<breastsensitivity>><<print _text_output>><</widget>>
+<</silently>><<if !_breastSensitivityDescribed>><<breastsensitivity>><</if>><<print _text_output>><</widget>>
 
 <<widget "breastssimple">><<silently>>
 	<<if Number.isInteger($player.breastsize)>>
@@ -1154,7 +1167,7 @@
 
 <<widget "mouth">><<silently>>
 	<<set _text_output to "lips">>
-<</silently>><<mouthsensitivity>><<print _text_output>><</widget>>
+<</silently>><<if !_mouthSensitivityDescribed>><<mouthsensitivity>><</if>><<print _text_output>><</widget>>
 
 <<widget "undertop">><<silently>>
 	<<if $worn.under_upper.exposed lte 0>>
@@ -1213,13 +1226,18 @@
 			/* ^^^ placeholders for later if people want to fill them out */
 		<</if>>
 	<</if>>
+	<<if _args[0] is "penis">>
+		<<set _penisStateDescribed to true>>
+	<<elseif _args[0] is "pussy">>
+		<<set _pussyStateDescribed to true>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "bottom">><<silently>>
 	<<set _text_output to ["slender", "slim", "modest", "cushioned", "soft", "round", "plump", "large", "huge"][Math.clamp(0, 8, $player.bottomsize)]>>
 	/* _args[0] is a flag to prevent .pluck() from altering state random when calling from overlays */
 	<<set _text_output to _text_output + [" ass", " bum", " butt"].pluck(_args[0])>>
-<</silently>><<bottomsensitivity>><<print _text_output>><</widget>>
+<</silently>><<if !_bottomSensitivityDescribed>><<bottomsensitivity>><</if>><<print _text_output>><</widget>>
 
 <!-- Too small and too big outputs are intended as error messages
 	so that it's more obvious what's wrong when people report bugs -->
@@ -1235,13 +1253,16 @@
 		<<case 4>><<set _text_output to "거대한">>
 		<<default>><<set _text_output to "[Widget 'penissize' - Invalid Penis Value of - " + $_size + ($playerHasStraponOverride ? " - $playerHasStraponOverride is set" : "") + "]">>
 	<</switch>>
+	<<set _penisSizeDescribed to true>>
 <</silently>><<print _text_output>><</widget>>
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
 <<widget "pussy">><<silently>>
-	<<genitalstate "pussy">><<set _genital_state_text to _text_output>>
+	<<if !_pussyStateDescribed>>
+		<<genitalstate "pussy">><<set _genital_state_text to _text_output>>
+	<</if>>
 	<<set _text_output to "">>
-	<<if !_args[0]>>
+	<<if !_args[0] and !_genitalSensitivityDescribed>>
 		<<genitalsensitivity>>
 	<</if>>
 	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
@@ -1254,7 +1275,7 @@
 		<<penis>>
 	<<else>>
 		<<set _text_output to "">>
-		<<if !_args[0]>>
+		<<if !_args[0] and !_genitalSensitivityDescribed>>
 			<<genitalsensitivity>>
 		<</if>>
 		<<set _text_output += "clit">>
@@ -1263,13 +1284,24 @@
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
 <<widget "penis">><<silently>>
-	<<penissize>><<set _penissize_text to _text_output>>
-	<<if _penissize_text isnot "">>
-		<<set _penissize_text to _penissize_text + " ">>
+	<!-- Size, skip if mentioned this passage already -->
+	<<if _penisSizeDescribed>>
+		<<set _penissize_text to "">>
+	<<else>>
+		<<penissize>><<set _penissize_text to _text_output>>
+		<<if _penissize_text isnot "">>
+			<<set _penissize_text to _penissize_text + " ">>
+		<</if>>
 	<</if>>
-	<<genitalstate "penis">><<set _genital_state_text to _text_output>>
+	<!-- State, skip if mentioned this passage already -->
+	<<if _penisStateDescribed>>
+		<<set _genital_state_text to "">>
+	<<else>>
+		<<genitalstate "penis">><<set _genital_state_text to _text_output>>
+	<</if>>
 	<<set _text_output to "">>
-	<<if !_args[0]>>
+	<!-- Sensitivity, skip if mentioned this passage already -->
+	<<if !_args[0] and !_genitalSensitivityDescribed>>
 		<<genitalsensitivity>>
 	<</if>>
 	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
@@ -1682,6 +1714,7 @@
 	<<else>>
 		<<set _text_output to "">>
 	<</if>>
+	<<set _genitalSensitivityDescribed to true>>
 <</silently>><<print _text_output>><</widget>>
 
 <!--
@@ -2289,7 +2322,7 @@
  -->
 <<widget "undies">><<silently>>
 	<<outfitChecks>>
-	<<if !$worn.under_lower.type.includes("naked") and _bottom isnot $worn.under_lower>>
+	<<if !$worn.under_lower.type.includes("naked")>>
 		<<if _args[0] and _args[0] gte 1>>
 			<<set _text_output to $worn.under_lower.name_simple>>
 		<<else>>
@@ -2347,6 +2380,7 @@
 <</widget>>
 
 <<widget "allTopsUnderwear">><<silently>>
+	<<outfitChecks>>
 	<<set _tops to []>>
 	<<if $worn.over_upper.name isnot "naked">>
 		<<set _tops.push($worn.over_upper.name)>>
@@ -2357,12 +2391,14 @@
 	<<if $worn.under_upper.name isnot "naked">>
 		<<set _tops.push($worn.under_upper.name)>>
 	<</if>>
+	<<if _tops.length is 0 and _top>><<set _tops.push(_top.name)>><</if>>
 	<<if _tops.length is 1>><<set _text_output to _tops[0]>><</if>>
 	<<if _tops.length is 2>><<set _text_output to _tops[0] + " and " + _tops[1]>><</if>>
 	<<if _tops.length is 3>><<set _text_output to _tops[0] + ", " + _tops[1] + " and " + _tops[2]>><</if>>
 <</silently>>_text_output<</widget>>
 
 <<widget "allBottomsUnderwear">><<silently>>
+	<<outfitChecks>>
 	<<set _bottoms to []>>
 	<<if $worn.over_lower.name isnot "naked">>
 		<<set _bottoms.push($worn.over_lower.name)>>
@@ -2373,6 +2409,7 @@
 	<<if $worn.under_lower.name isnot "naked">>
 		<<set _bottoms.push($worn.under_lower.name)>>
 	<</if>>
+	<<if _bottoms.length is 0 and _bottom>><<set _bottoms.push(_bottom.name)>><</if>>
 	<<if _bottoms.length is 1>><<set _text_output to _bottoms[0]>><</if>>
 	<<if _bottoms.length is 2>><<set _text_output to _bottoms[0] + " and " + _bottoms[1]>><</if>>
 	<<if _bottoms.length is 3>><<set _text_output to _bottoms[0] + ", " + _bottoms[1] + " and " + _bottoms[2]>><</if>>
@@ -2995,9 +3032,9 @@
 
 		<<if $leftarm is "bound" and $rightarm is "bound" and $exposed gte 1>>
 			양손이 묶여있기에, 누군가의 시선으로부터 당신의 <<lewdnessPost "을">> 가릴 방법은 없다.
-			<<if !$uncomfortable.nude and $exposed gte 2 and $exhibitionism gte 95>>
+			<<if !$uncomfortable.nude and $exposed gte 2 and hasSexStat("exhibitionism", 6)>>
 				당신은 흥분에 몸을 떤다.
-			<<elseif !$uncomfortable.nude and $exposed is 1 and $exhibitionism gte 55>>
+			<<elseif !$uncomfortable.nude and $exposed is 1 and hasSexStat("exhibitionism", 4)>>
 				당신은 흥분에 몸을 떤다.
 			<</if>>
 		<<elseif ($exposed gte 2 and ($exhibitionism lt 95 or $uncomfortable.nude))

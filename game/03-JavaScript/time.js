@@ -855,6 +855,9 @@ function dayPassed() {
 		if (V.harpyEggsPrevent <= 0) delete V.harpyEggsPrevent;
 	}
 
+	// Activate the robin pillory
+	if (V.robinPillory && V.robinPillory.danger !== undefined && (V.robindebtevent <= 1 || !V.baileySold)) V.robinPillory.active = true;
+
 	V.daily.clearProperties();
 
 	return fragment;
@@ -909,8 +912,8 @@ function hourPassed(hours) {
 	if (V.wolfpatrolsent >= 24) delete V.wolfpatrolsent;
 	else if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
 
-	if (V.robinPillory && V.robinPillory.danger !== undefined) fragment.append(wikifier("robinPilloryHour"));
-	if (V.pillory_tenant.exists && V.pillory_tenant.endTime < V.timeStamp) fragment.append(wikifier("clear_pillory"));
+	if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) fragment.append(wikifier("robinPilloryHour"));
+	if (V.pillory.tenant.exists && V.pillory.tenant.endTime < V.timeStamp) fragment.append(wikifier("clear_pillory"));
 
 	if (C.npc.Sydney.init === 1) {
 		fragment.append(wikifier("sydneySchedule"));
@@ -945,7 +948,8 @@ function minutePassed(minutes) {
 
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
-	if (isPlayerNonparasitePregnancyEnding()) {
+	// eslint-disable-next-line no-undef
+	if (isPregnancyEnding()) {
 		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		V.stress += Math.floor(minutes * 40);
@@ -1036,6 +1040,8 @@ function dawnCheck() {
 	delete V.alexwake;
 	delete V.alex_bed;
 	delete V.alex_bed_spurned;
+	delete V.alexSomno;
+	delete V.alexSomnoAngry;
 	delete V.connudatus_stripped;
 	delete V.robin_kicked_out;
 

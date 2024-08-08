@@ -1656,7 +1656,7 @@ function masturbationEffectsArms(
 			} else {
 				altText.toys = `당신은 <<breastsPost>>에 있는 ${toyDisplay(altText.selectedToy, '을')} 사용`;
 			}
-			if (V.lactating === 1 && V.breastfeedingdisable === "f") {
+			if (V.lactating === 1) {
 				if (V.milk_amount >= 1 && V.earSlime.focus === "pregnancy" && V.earSlime.growth >= 100 && !V.earSlime.defyCooldown) {
 					wikifier("arousal", 100 * handsOn, "masturbationNipples");
 					sWikifier(`${altText.toys}하고, <span class="lewd">모유가 젖꼭지에서 터져나와, 빠르게 병을 채운다.</span>`);

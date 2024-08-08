@@ -724,7 +724,7 @@ function trBodyWriting_init()
             {
                 name: "deserves_prison",
                 writing: "Deserves prison",
-                writing_ko: "형무소 입소 확정"
+                writing_ko: "교도소 입소 확정"
             },
 
             {

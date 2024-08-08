@@ -146,6 +146,7 @@ Template.add("gwylanItem", () =>
 		"싸구려 카메라",
 		"조개껍데기가 꽉찬 집락 비닐백",
 		"작은 발판사다리",
+		"윤활액 병",
 		"어디 쓰이는지 모를 골동품"
 	); getPostNum(T.trResult); return T.trResult;}
 );

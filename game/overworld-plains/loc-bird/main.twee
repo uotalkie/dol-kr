@@ -179,7 +179,7 @@
 		<<if $birdescaped gte 1>>
 			"<<Wife>>'s fighting spirit is strong,"
 		<<else>>
-			You have a fighting spirit. You've impressed me,"
+			"You have a fighting spirit. You've impressed me,"
 		<</if>>
 		<<bhe>> says as the wings on <<bhis>> back beat furiously.
 	<<elseif $birdescaped gte 1>>
@@ -588,7 +588,7 @@ You remain still. The <<beasttype>> watches you a moment longer, then
 
 	<<link [[다음|Moor]]>><<set $eventskip to 1>><</link>>
 	<br>
-<<elseif $enemyhealth gte 0>>
+<<elseif $enemyhealth lte 0>>
 	You stagger backwards as the <<beasttype>> beats <<bhis>> wings, and takes to the air. <<bHe>> swoops behind a hillock, and out of sight. <span class="green">You're in the clear.</span> For now.
 	<<clotheson>>
 	<<endcombat>>
@@ -972,7 +972,7 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 <<if $syndromebird isnot 1>><<hunger_description>><</if>>
 <br><br>
 
-<<if isPlayerNonparasitePregnancyEnding() and !$possessed>>
+<<if isPregnancyEnding() and !$possessed>>
 	<<pregnancyPassout "castle">>
 <<elseif !$possessed and Object.values($children).find(child => (child.type is "hawk" and child.location is "inventory") or (child.location is "tower" and Time.date.timeStamp gte child.eggTimer))>>
 	/* Move hawk eggs that the player has to the nest */
@@ -1334,7 +1334,7 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 
 	<<link [[다음|Bird Tower]]>><<endevent>><</link>>
 	<br>
-<<elseif $bird.state is "home" and ["clear","lightClouds"].includes(Weather.name) and between(Time.hour, 21, 23) and !Weather.bloodMoon and $daily.birdNightFlightTrigger and !$weekly.birdNightFlight and !Weather.isFrozen("lake")>>
+<<elseif $bird.state is "home" and ["clear","lightClouds"].includes(Weather.name) and between(Time.hour, 21, 23) and !Weather.bloodMoon and $daily.birdNightFlightTrigger and !$weekly.birdNightFlight and !Weather.isFrozen("lake") and !$bird.injured>>
 	<<npc "Great Hawk">><<person1>>
 	<<set $weekly.birdNightFlight to true>>
 	<<your_bird_text "cap">> perches on a weathered ledge. Moonlight bathes <<bhim>> in a silvery glow.
@@ -1391,7 +1391,7 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 	<<if $exposed gte 1>>
 		<<if $syndromebird is 1>>
 			<<if $arousal gte $arousalmax / 2 and $bird.state isnot "home">>
-				You find yourself craving your <<your_bird_text "cap">>'s wings to keep you warm.
+				You find yourself craving <<your_bird_text "cap">>'s wings to keep you warm.
 			<</if>>
 		<<else>>
 			<<if $bird.state isnot "home">>
@@ -2844,7 +2844,7 @@ You put it in the wardrobe.
 <<if $syndromebird is 1 and $bird.activity is "sleep" and $bird.state is "home" and !$bird.satisfied>>
 	<<link [[Rub lewdly|Bird Tower Nest Rub]]>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<npcincr "Great Hawk" dom -1>><<set $phase to 1>><</link>><<glove>><<npc "Great Hawk">><<person1>><<ldom>><<endevent>><<deviant1>>
 	<br>
-	<<if $deviancy gte 55>>
+	<<if hasSexStat("deviancy", 4)>>
 		<<link [[Wake for sex|Bird Tower Nest Rub]]>><<transform bird 1>><<npcincr "Great Hawk" love 3>><<npcincr "Great Hawk" dom 1>><<set $phase to 2>><</link>><<gglove>><<gdom>><<deviant4>>
 		<br>
 	<</if>>
@@ -3693,7 +3693,7 @@ You bring your attentive touch down towards <<bhis>> groin.
 <</if>>
 <<deviancy1>>
 
-<<if $deviancy gte 15>>
+<<if hasSexStat("deviancy", 2)>>
 	<<link [[Take it further|Bird Tower Perch Sex]]>><<set $birdPerch to 1>><<set $sexstart to 1>><<set $phase to 2>><<transform bird 1>><<npcincr "Great Hawk" love 1>><</link>><<deviant2>><<glove>>
 	<br>
 <<else>>
@@ -4234,7 +4234,7 @@ You bring your attentive touch down towards <<bhis>> groin.
 		<<addinlineevent "bird_bask_rescued">>
 			<<run delete $weekly.birdRescued>>
 			As you bask, your thoughts turn to your recent ordeal with
-			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+			<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 				Remy's thugs out in the moor.
 			<<else>>
 				the people that tried to kidnap you out on the moor.
@@ -4655,9 +4655,7 @@ you say, flaring out your wings.
 
 :: Bird Tower Fly Intro 2
 <<set $birdFly to 1>><<bird_pass 10>><<set $outside to 1>>
-<<if $transformationParts.bird.wings is "hidden">>
-	<<set $transformationParts.bird.wings to "default">>
-<</if>>
+<<bird_fly_reveal_wings>>
 <<bHe>> spends some time helping you preen your wings.
 <<if $monster is 1>>
 	<br><br>
@@ -4959,7 +4957,7 @@ From a nearby tree, a pair of birds take flight. Chirps and trills fill the air 
 <br><br>
 
 Above the surface, the moon casts its gentle glow, illuminating the water with a silvery sheen. The ripples caused by your entry into the lake create mesmerising patterns that dance across the surface.
-Below, a vibrant array of fish dart to and fro, their scales glinting in the moonlight; Silver flashes reveal their pursuit of prey, some swimming alone while others move in synchronised schools, creating a mesmerising dance.
+Below, a vibrant array of fish dart to and fro, their scales glinting in the moonlight. Silver flashes reveal their pursuit of prey, some swimming alone while others move in synchronised schools, creating a mesmerising dance.
 <br><br>
 
 You glide through the water, catching glimpses of their colourful bodies darting in and out of shadows, their movements akin to flickers of light against the dark depths. <<stress -12>><<trauma -12>><<llstress>><<lltrauma>>
@@ -5080,7 +5078,7 @@ Shiny things:
 </span>
 <br>
 <<if $bird.clean lte 9>>
-	<span class="pink">The tower is too filthy to improve it.</span>
+	<span class="pink">The tower is too filthy to be improved.</span>
 <<elseif $tiredness gte (C.tiredness.max / 5) * 4>>
 	<span class="red">You're too tired to build anything.</span>
 <<elseif $hunger gte 2000>>
@@ -5651,7 +5649,7 @@ You consider your options. The moor itself has nothing special, neither do the a
 <br><br>
 
 Eventually your mind settles on the
-<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 	Remy estate. Knowing the kind of business they do, you're sure they would have something special.
 	<<if $estate and $estate.chaos>>
 		You're no stranger to causing trouble for Remy, but the mere thought of stealing something from the estate with <<your_bird_text>> fills you with adrenaline.
@@ -6045,7 +6043,7 @@ Where will you fly?
 			Your thoughts drift to Alex's farm. You decide to check up on it. You tell <<your_bird_text>> to follow you.
 			<br><br>
 
-			You fly towards the farm, past the Remy estate. Seeing the estate makes <<your_bird_text>> tense. After passing it <<bhe>> seems to calm down.
+			You fly towards the farm, past the Remy estate. Seeing the estate makes <<your_bird_text>> tense. After passing it, <<bhe>> seems to calm down.
 			<br><br>
 
 			You arrive near Alex's farm. You can see most of it from up here. The Great Hawk looks around, unsure of what to make of it.
@@ -6068,7 +6066,7 @@ Where will you fly?
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+	<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 		<<addinlineevent "flight_casual_moor_remy" 1>>
 			You end up close to the outskirts of the moor. You spot Remy's estate a bit further away. <<your_bird_text "cap">> looks uneasy.
 			<<if $monster is 1>>
@@ -6757,7 +6755,7 @@ You look through your telescope.
 			You see a group of campfires.
 		<</if>>
 		They're surrounded by tents, which are themselves surrounded by supplies and makeshift barriers. The occupants are dressed in matching uniforms.
-		<<if $remy_seen is "farm" or $remy_seen is "livestock" or $livestock_intro isnot undefined>>
+		<<if $remy_seen is "farm" or $remy_seen is "livestock" or $remy_seen is "manor" or $livestock_intro isnot undefined>>
 			You recognise them. <span class="red">Remy's goons.</span>
 		<<else>>
 			They look dangerous.

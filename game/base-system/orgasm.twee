@@ -237,6 +237,74 @@
 			<span class="pink">애액이 당신의 <<pussyPost>>에서 새어나온다.</span>
 		<</if>>
 	<</if>>
+	<<if $lactating is 1 and $milk_volume gte 1000 and $milk_amount gte ($milk_volume / 3) and $breastsensitivity gte 1.5>>
+		<<if $worn.over_upper.exposed is 0 or $worn.upper.exposed is 0 or $worn.under_upper.exposed is 0>>
+			<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+				<<breastfeed 4>><<set $_wetAmount to 100>><<set $_milkText to "뿜어져 나온다">>
+			<<else>>
+				<<breastfeed 2>><<set $_wetAmount to 50>><<set $_milkText to "새어나온다">>
+			<</if>>
+			<<if $worn.under_upper.exposed is 0>>
+				<<trClothes "under_upper" $worn.under_upper.name "name">><<set $_milkedName to _trResult>>
+				<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked")>>
+					<<underupperwet $_wetAmount>>
+				<</if>>
+			<<elseif $worn.upper.exposed is 0>>
+				<<trClothes "upper" $worn.upper.name "name">><<set $_milkedName to _trResult>>
+				<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
+					<<upperwet $_wetAmount>>
+				<</if>>
+			<<else>>
+				<<trClothes "over_upper" $worn.over_upper.name "name">><<set $_milkedName to _trResult>>
+			<</if>>
+			<span class="pink">모유가 <<breastsPost>>에서 당신의 $_milkedName 안으로 $_milkText.</span>
+			<<if $combat is 1>><<set $speechmilk to 1>><</if>>
+		<<elseif $combat is 1 and ($cheststate is "chest" or $cheststate is "chestimminent") and $breastfeedingdisable is "f">>
+			<<for $_i = 0; $_i lt $enemynomax; $_i++>>
+				<<if $NPCList[$_i].mouth is "chest">>
+					<<personselect $_i>>
+					<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+						<<if $milk_amount gte 2500>>
+							<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 뿜어져 나오기 시작한다. 당신의 모유가 <<his_ yi>> 입에서 넘쳐흐르자, <<hes_ nun>> 쿨럭거리며, 어쩔 수 없이 입을 뗀다.</span>
+							<<breastfeed 10>>
+							<<set $cheststate to "chestimminent">><<set $NPCList[$_i].mouth to "chestimminent">>
+							<<milkvolume 1>><<set $enemyanger += 10>>
+							<<set $speechmilk to 3>>
+						<<else>>
+							<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 뿜어져 나오기 시작한다. <<He_ nun>> 그것을 모두 마시려고 고군분투한다.</span>
+							<<breastfeed 8>><<milkvolume 1>><<sex 2 "breast" $_i>>
+							<<set $speechmilk to 1>>
+						<</if>>
+					<<else>>
+						<span class="pink">당신이 절정하자 <<breastsPost>>에서 더 많은 모유가 <<his_ yi>> 갈망하는 입 속으로 흘러들어간다.</span>
+						<<breastfeed 4>><<milkvolume 1>><<sex 2 "breast" $_i>>
+						<<set $speechmilk to 1>>
+					<</if>>
+				<<elseif $NPCList[$_i].mouth is "chestimminent" or $NPCList[$_i].mouth is "chestentrance">>
+					<<personselect $_i>>
+					<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+						<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 <<his_ yi>> 얼굴 전체에 뿜어져 나오기 시작한다.</span>
+						<<breastfeed 8>>
+						<<set $speechmilk to 2>>
+					<<else>>
+						<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 새어나온다.</span>
+						<<breastfeed 3>>
+						<<set $speechmilk to 1>>
+					<</if>>
+				<</if>>
+			<</for>>
+		<<else>>
+			<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+				<span class="pink">당신의 <<breastsPost>>에서 모유가 뿜어져 나온다.</span>
+				<<set _milkEscaped to true>>
+				<<breastfeed 4>>
+			<<else>>
+				<span class="pink">당신의 <<breastsPost>>에서 모유가 새어나온다.</span>
+				<<breastfeed 2>>
+			<</if>>
+			<<if $combat is 1>><<set $speechmilk to 1>><</if>>
+		<</if>>
+	<</if>>
 
 	<<if _deniedOrgasm>>
 		<span class="blue">용서의 따뜻함이 당신을 채운다.</span>
@@ -450,7 +518,7 @@
 <</widget>>
 
 <<widget "orgasmstage">>
-	<<if $exhibitionism gte 75 and $backgroundTraits.includes("lustful") and $orgasmtrait gte 1>>
+	<<if hasSexStat("exhibitionism", 5) and $backgroundTraits.includes("lustful") and $orgasmtrait gte 1>>
 		당신은 엄청난 절정이 몰려오는 것을 느낀다.
 		<br><br>
 		당신의 <span class="lewd">성욕과</span> 당신의 <span class="lewd">쾌락에</span> 못 견뎌, 당신은
@@ -509,7 +577,7 @@
 				<<gtrauma>><<gstress>><<trauma 10>><<stress 10>>
 				<<set $danceevent to "finish">>
 			<</if>>
-		<<elseif currentSkillValue('danceskill') gte 500 and $exhibitionism gte 55 and $promiscuity gte 55>>
+		<<elseif currentSkillValue('danceskill') gte 500 and hasSexStat("exhibitionism", 4) and hasSexStat("promiscuity", 4)>>
 			당신은 완전히 쓰러지기 전에 무릎을 꿇는다. 당신의 <<body_size_textPost "은">> 격렬한 경련으로 괴로워한다. 관중들이 당신에게 환호를 보낸다.
 			<br><br>
 			당신은 일어나 다시 춤추기 시작하고, 관중들은 야유를 보낸다.
@@ -821,16 +889,24 @@
 	<<if $worn.over_upper.exposed is 0 and $worn.upper.exposed is 0 and $worn.under_upper.exposed is 0>>
 	<<else>>
 		<<if $masturbating>>
-			<<set $masturbation_milk += $_milk_released>>
+			<<if $masturbation_bowl is 1 and _milkEscaped>>
+				/* Milk sprays everywhere and isn't collected */
+			<<else>>
+				<<set $masturbation_milk += $_milk_released>>
+			<</if>>
 		<</if>>
 		<<if _args[1] is "pump">>
 			<<set $bottledMilk to ($bottledMilk or 0) + $_milk_released>>
 		<</if>>
 		<<if $masturbation_bowl is 1>>
-			<!-- If the player is using both hands, only print this text the second time, and report the total milk released this turn -->
-			<<set _milk_this_turn to (_milk_this_turn is undefined ? $_milk_released : _milk_this_turn + $_milk_released)>>
-			<!-- _args[0] is how many times this widget has been called this turn -->
-			<span class="gold">당신은 <<print (_milk_this_turn).toFixed(1)>> mL의 모유를 얻었다.</span>
+			<<if _milkEscaped>>
+				<span class="red">당신이 절정하는 힘 때문에 당신의 모유가 그릇을 완전히 비껴가며, 넓게 흩뿌려진다.</span> <<gsuspicion>><<set $chef_sus += 5>><br>
+			<<else>>
+				<!-- If the player is using both hands, only print this text the second time, and report the total milk released this turn -->
+				<<set _milk_this_turn to (_milk_this_turn is undefined ? $_milk_released : _milk_this_turn + $_milk_released)>>
+				<!-- _args[0] is how many times this widget has been called this turn -->
+				<span class="gold">당신은 <<print (_milk_this_turn).toFixed(1)>> mL의 모유를 얻었다.</span>
+			<</if>>
 		<<elseif $leftaction is "mbreastpumppump" or $rightaction is "mbreastpumppump">>
 			<span class="gold">당신은 <<print ($_milk_released).toFixed(1)>> mL의 모유를 담았다.</span>
 		<</if>>

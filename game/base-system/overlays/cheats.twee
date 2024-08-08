@@ -5,6 +5,8 @@
 	<<link [[확인|$passage]]>><<set $cheatReload to true>><</link>>
 	<br>
 	이벤트 중간에나 NPC가 근처에 있는 경우 확인을 누르면 문제가 생길 수 있습니다.
+	<br>
+	현재 씬에서 치트가 즉각적인 효과를 발휘하기를 원할 때에만 확인을 누르는 것이 필요합니다.
 	<br><br>
 
 	<div id="cheatsShown"><<cheats-characterStats>></div>
@@ -42,7 +44,7 @@
 	<<set _id to `stats${_bodypart}parasite`>>
 	<<capture _bodypart _id>>
 		<<set $_currentType to $parasite[_bodypart].name or "none">>
-		<<trBodypart _bodypart>><<print _trResult>> 기생충: <span @id="_id" class="gold"><<print $_currentType>></span>
+		<<trBodypart _bodypart>><<print _trResult>> 기생충: <span @id="_id" class="gold"><<trParasite $_currentType>><<print _trResult>></span>
 		<<if ["left_ear", "right_ear"].includes(_bodypart) and !$player.vaginaExist and ["pregnancy", "mixed"].includes($earSlime.focus) and playerIsPregnant()>>
 			<span class="red">남자가 임신했을 때에는 바꿀 수 없습니다</span>
 			<<exit>>
@@ -116,7 +118,7 @@
 	<br>
 
 	<<if $debug is 1>>
-		페로몬: <span id="statsalluretest">$alluretest</span> |
+		페로몬 (DEBUG): <span id="statsalluretest"><<= $alluretest ? "사용" : "미사용">></span> |
 		<<link "변경">>
 			<<if $alluretest is 1>>
 				<<set $alluretest to 0>>
@@ -129,145 +131,42 @@
 	<</if>>
 	<br>
 
-	<span class="gold">플레이어 신체</span>
+	<span class="gold">신체</span> <mouse class="tooltip linkBlue">(?)<span>플레이어의 생식기를 변경하면, 존재하지 않은 신체 부위에 음란한 액체가 남아있는 것을 방지하기 위해 모든 액체가 씻겨질 것입니다.</span></mouse>
 	<br>
-	<<if _inWardrobe>>
-		/*passage change is intentional to allow the players to quickly see the visual differences*/
-		현재 성별: <<genderPost>>
-		<mouse class="tooltip linkBlue">(?)<span>성별을 바꾸는 경우 혹시 모를 문제를 방지하기 위해 플레이어를 깨끗이 하는 등의 부작용이 있습니다.</span></mouse>
-		<br>
-		<<if $earSlime.growth gt 50>>
-			귓속 슬라임의 현재 성장도로 인해 현재 성별 변경이 비활성화 되어 있습니다. 귓속 슬라임을 제거하면 이 치트가 다시 활성화됩니다.
-		<<elseif $sexStats.vagina.menstruation.currentState is "normal">>
-			다음으로 변경:
-			<<if $player.gender isnot "m">>
-				<<link [[남자가 된다|$passage]]>>
-					<<wash>>
-					<<set $vaginause to "none">>
-					<<set $vaginastate to "none">>
-					<<set $penisuse to 0>>
-					<<set $penisstate to 0>>
-					<<set $player.gender to "m">>
-					<<set $player.sex to "m">>
-					<<set $player.ballsExist to true>>
-					<<set $player.penisExist to true>>
-					<<set $player.vaginaExist to false>>
-					<<set $sexStats.vagina.menstruation.running = false>>
-				<</link>> |
-			<</if>>
-			<<if $player.gender isnot "f">>
-				<<link [[여자가 된다|$passage]]>>
-					<<wash>>
-					<<set $vaginause to 0>>
-					<<set $vaginastate to 0>>
-					<<set $penisuse to "none">>
-					<<set $penisstate to "none">>
-					<<set $player.gender to "f">>
-					<<set $player.sex to "f">>
-					<<set $player.ballsExist to false>>
-					<<set $player.penisExist to false>>
-					<<set $player.vaginaExist to true>>
-					<<set $sexStats.vagina.menstruation.running = true>>
-				<</link>> |
-			<</if>>
-			<<if $player.gender isnot "h">>
-				<<link [[후타나리가 된다|$passage]]>>
-					<<wash>>
-					<<set $vaginause to 0>>
-					<<set $vaginastate to 0>>
-					<<set $penisuse to 0>>
-					<<set $penisstate to 0>>
-					<<set $player.gender to "h">>
-					<<set $player.sex to "h">>
-					<<set $player.penisExist to true>>
-					<<set $player.vaginaExist to true>>
-					<<set $sexStats.vagina.menstruation.running = true>>
-				<</link>> |
-			<</if>>
-		<<else>>
-			혹시 모를 문제를 방지하기 위해 성별은 당신이 임신하지 않았을 때에만 바꿀 수 있습니다.
-		<</if>>
-		<<if $player.gender is "h">>
-			<br><br>
-			후타나리 고환: <span id="statsBallsExist"><<print ($player.ballsExist is true?"있음":"없음")>></span> |
-			<<link [[변경|$passage]]>>
-				<<set $player.ballsExist to clone(!$player.ballsExist)>>
-				<<replace #statsBallsExist>><<print $player.ballsExist>><</replace>>
-			<</link>> |
-		<</if>>
-	<<else>>
-		혹시 모를 문제를 방지하기 위해 성별은 옷장에서만 바꿀 수 있습니다.
-	<</if>>
-	<br><br>
+	성별:
+	<span id="statsGender">
+		<<cheatsGender>>
+	</span>
+	<br>
 	<<set _gender_body_words to {"m": "남성적", "f": "여성적", "a": "중성적"}>>
 	체형:
 	<span id="statsBodyType">
-		<<print _gender_body_words[$player.gender_body]>>
+		<<cheatsBody>>
 	</span>
 	<br>
-	<<link "남성적">>
-		<<set $player.gender_body to "m">>
-		<<replace "#statsBodyType">><<print _gender_body_words[$player.gender_body]>><</replace>><<updatesidebarimg>>
-	<</link>> |
-	<<link "여성적">>
-		<<set $player.gender_body to "f">>
-		<<replace "#statsBodyType">><<print _gender_body_words[$player.gender_body]>><</replace>><<updatesidebarimg>>
-	<</link>> |
-	<<link "중성적">>
-		<<set $player.gender_body to "a">>
-		<<replace "#statsBodyType">><<print _gender_body_words[$player.gender_body]>><</replace>><<updatesidebarimg>>
-	<</link>> |
-	<br><br>
 	<<set _bodysize_words to ["조그마함","작음","평범함","큼"]>>
 	신체 크기:
 	<span id="statsBodySize">
-		<<print _bodysize_words[$bodysize]>>
+		<<cheatsBodySize>>
 	</span>
-	<br>
-	<<link "조그마함">>
-		<<set $bodysize to 0>>
-		<<set _physique_max_old to $physiquesize>>
-		<<set $physiquesize to 6000>>
-		<<set $physique *= $physiquesize / _physique_max_old>>
-		<<replace "#statsBodySize">><<print _bodysize_words[$bodysize]>><</replace>>
-	<</link>> |
-	<<link "작음">>
-		<<set $bodysize to 1>>
-		<<set _physique_max_old to $physiquesize>>
-		<<set $physiquesize to 10000>>
-		<<set $physique *= $physiquesize / _physique_max_old>>
-		<<replace "#statsBodySize">><<print _bodysize_words[$bodysize]>><</replace>>
-	<</link>> |
-	<<link "평범함">>
-		<<set $bodysize to 2>>
-		<<set _physique_max_old to $physiquesize>>
-		<<set $physiquesize to 12000>>
-		<<set $physique *= $physiquesize / _physique_max_old>>
-		<<replace "#statsBodySize">><<print _bodysize_words[$bodysize]>><</replace>>
-	<</link>> |
-	<<link "큼">>
-		<<set $bodysize to 3>>
-		<<set _physique_max_old to $physiquesize>>
-		<<set $physiquesize to 16000>>
-		<<set $physique *= $physiquesize / _physique_max_old>>
-		<<replace "#statsBodySize">><<print _bodysize_words[$bodysize]>><</replace>>
-	<</link>> |
 	<br><br>
 
+	<span class="gold">순결</span>
+	<br>
 	<<set _virginity to clone($player.virginity)>>
 	<<if $player.vaginaExist or $player.virginity.vaginal isnot true>>
-		보지 처녀: <<cheatVirginityToggle "vaginal">>
+		보지: <<cheatVirginityToggle "vaginal">>
 		<br>
 	<</if>>
 	<<if $player.penisExist or $player.virginity.penile isnot true>>
-		자지 동정: <<cheatVirginityToggle "penile">>
+		자지: <<cheatVirginityToggle "penile">>
 		<br>
 	<</if>>
-	항문 순결: <<cheatVirginityToggle "anal">>
+	항문: <<cheatVirginityToggle "anal">>
 	<br>
-	입 순결: <<cheatVirginityToggle "oral">>
+	입: <<cheatVirginityToggle "oral">>
 	<br>
-	손 순결: <<cheatVirginityToggle "handholding">>
+	손: <<cheatVirginityToggle "handholding">>
 	<br>
 	첫 키스: <<cheatVirginityToggle "kiss">>
 	<br><br>
@@ -319,7 +218,7 @@
 	피로: <span id="statstiredness"><<print Math.trunc($tiredness)>></span>
 	| <<link ">">><<set $tiredness += 10>><<clamp>><<replace "#statstiredness">><<print Math.trunc($tiredness)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $tiredness += 100>><<clamp>><<replace "#statstiredness">><<print Math.trunc($tiredness)>><</replace>> <<updatesidebarimg>><</link>>
-	| <<link ">>>">><<set $tiredness += 1000>><<clamp>><<replace "#statstiredness">><<print Math.trunc($tiredness)>><</replace>> <<updatesidebarimg>><</link>> (상태바 최대치는 <<print C.tiredness.max>>)
+	| <<link ">>>">><<set $tiredness += 1000>><<clamp>><<replace "#statstiredness">><<print Math.trunc($tiredness)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
 
 	<<link "<<<">><<set $stress -= 1000>><<clamp>><<replace "#statsstress">><<print Math.trunc($stress)>><</replace>> <<updatesidebarimg>><</link>> |
@@ -381,7 +280,7 @@
 	<<link "<<<">><<set $purity -= 1000>><<clamp>><<replace "#statspurity">><<print Math.trunc($purity)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $purity -= 100>><<clamp>><<replace "#statspurity">><<print Math.trunc($purity)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $purity -= 10>><<clamp>><<replace "#statspurity">><<print Math.trunc($purity)>><</replace>> <<updatesidebarimg>><</link>> |
-	순결도: <span id="statspurity"><<print Math.trunc($purity)>></span>
+	<img class="icon" src="img/misc/icon/tf_angel.png"> 순결도: <span id="statspurity"><<print Math.trunc($purity)>></span>
 	| <<link ">">><<set $purity += 10>><<clamp>><<replace "#statspurity">><<print Math.trunc($purity)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $purity += 100>><<clamp>><<replace "#statspurity">><<print Math.trunc($purity)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $purity += 1000>><<clamp>><<replace "#statspurity">><<print Math.trunc($purity)>><</replace>> <<updatesidebarimg>><</link>>
@@ -390,7 +289,7 @@
 	<<link "<<<">><<set $beauty -= 5000>><<clamp>><<replace "#statsbeauty">><<print Math.trunc($beauty)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $beauty -= 500>><<clamp>><<replace "#statsbeauty">><<print Math.trunc($beauty)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $beauty -= 50>><<clamp>><<replace "#statsbeauty">><<print Math.trunc($beauty)>><</replace>> <<updatesidebarimg>><</link>> |
-	용모: <span id="statsbeauty"><<print Math.trunc($beauty)>></span>
+	<img class="icon" src="img/ui/sym_beauty.png"> 용모: <span id="statsbeauty"><<print Math.trunc($beauty)>></span>
 	| <<link ">">><<set $beauty += 50>><<clamp>><<replace "#statsbeauty">><<print Math.trunc($beauty)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $beauty += 500>><<clamp>><<replace "#statsbeauty">><<print Math.trunc($beauty)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $beauty += 5000>><<clamp>><<replace "#statsbeauty">><<print Math.trunc($beauty)>><</replace>> <<updatesidebarimg>><</link>>
@@ -399,7 +298,7 @@
 	<<link "<<<">><<set $physique -= 5000>><<clamp>><<replace "#statsphysique">><<print Math.trunc($physique)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $physique -= 500>><<clamp>><<replace "#statsphysique">><<print Math.trunc($physique)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $physique -= 50>><<clamp>><<replace "#statsphysique">><<print Math.trunc($physique)>><</replace>> <<updatesidebarimg>><</link>> |
-	신체 능력: <span id="statsphysique"><<print Math.trunc($physique)>></span>
+	<img class="icon" src="img/ui/sym_physique.png"> 신체 능력: <span id="statsphysique"><<print Math.trunc($physique)>></span>
 	| <<link ">">><<set $physique += 50>><<clamp>><<replace "#statsphysique">><<print Math.trunc($physique)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $physique += 500>><<clamp>><<replace "#statsphysique">><<print Math.trunc($physique)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $physique += 5000>><<clamp>><<replace "#statsphysique">><<print Math.trunc($physique)>><</replace>> <<updatesidebarimg>><</link>>
@@ -408,7 +307,7 @@
 	<<link "<<<">><<set $willpower -= 1000>><<clamp>><<replace "#statswillpower">><<print Math.trunc($willpower)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $willpower -= 100>><<clamp>><<replace "#statswillpower">><<print Math.trunc($willpower)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $willpower -= 10>><<clamp>><<replace "#statswillpower">><<print Math.trunc($willpower)>><</replace>> <<updatesidebarimg>><</link>> |
-	의지력: <span id="statswillpower"><<print Math.trunc($willpower)>></span>
+	<img class="icon" src="img/ui/redbolt.png"> 의지력: <span id="statswillpower"><<print Math.trunc($willpower)>></span>
 	| <<link ">">><<set $willpower += 10>><<clamp>><<replace "#statswillpower">><<print Math.trunc($willpower)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $willpower += 100>><<clamp>><<replace "#statswillpower">><<print Math.trunc($willpower)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $willpower += 1000>><<clamp>><<replace "#statswillpower">><<print Math.trunc($willpower)>><</replace>> <<updatesidebarimg>><</link>>
@@ -417,7 +316,7 @@
 	<<link "<<<">><<set $awareness -= 1000>><<clamp>><<replace "#statsawareness">><<print Math.trunc($awareness)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $awareness -= 100>><<clamp>><<replace "#statsawareness">><<print Math.trunc($awareness)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $awareness -= 10>><<clamp>><<replace "#statsawareness">><<print Math.trunc($awareness)>><</replace>> <<updatesidebarimg>><</link>> |
-	성지식: <span id="statsawareness"><<print Math.trunc($awareness)>></span>
+	<img class="icon" src="img/ui/sym_awareness.png"> 성지식: <span id="statsawareness"><<print Math.trunc($awareness)>></span>
 	| <<link ">">><<set $awareness += 10>><<clamp>><<replace "#statsawareness">><<print Math.trunc($awareness)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $awareness += 100>><<clamp>><<replace "#statsawareness">><<print Math.trunc($awareness)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $awareness += 1000>><<clamp>><<replace "#statsawareness">><<print Math.trunc($awareness)>><</replace>> <<updatesidebarimg>><</link>>
@@ -426,7 +325,7 @@
 	<<link "<<<">><<set $promiscuity -= 100>><<clamp>><<replace "#statspromiscuity">><<print Math.trunc($promiscuity)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $promiscuity -= 10>><<clamp>><<replace "#statspromiscuity">><<print Math.trunc($promiscuity)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $promiscuity -= 1>><<clamp>><<replace "#statspromiscuity">><<print Math.trunc($promiscuity)>><</replace>> <<updatesidebarimg>><</link>> |
-	음란도: <span id="statspromiscuity"><<print Math.trunc($promiscuity)>></span>
+	<img class="icon" src="img/ui/sym_promiscuity.png"> 음란도: <span id="statspromiscuity"><<print Math.trunc($promiscuity)>></span>
 	| <<link ">">><<set $promiscuity += 1>><<clamp>><<replace "#statspromiscuity">><<print Math.trunc($promiscuity)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $promiscuity += 10>><<clamp>><<replace "#statspromiscuity">><<print Math.trunc($promiscuity)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $promiscuity += 100>><<clamp>><<replace "#statspromiscuity">><<print Math.trunc($promiscuity)>><</replace>> <<updatesidebarimg>><</link>>
@@ -435,7 +334,7 @@
 	<<link "<<<">><<set $exhibitionism -= 100>><<clamp>><<replace "#statsexhibitionism">><<print Math.trunc($exhibitionism)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $exhibitionism -= 10>><<clamp>><<replace "#statsexhibitionism">><<print Math.trunc($exhibitionism)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $exhibitionism -= 1>><<clamp>><<replace "#statsexhibitionism">><<print Math.trunc($exhibitionism)>><</replace>> <<updatesidebarimg>><</link>> |
-	노출증: <span id="statsexhibitionism"><<print Math.trunc($exhibitionism)>></span>
+	<img class="icon" src="img/ui/sym_exhibitionism.png"> 노출증: <span id="statsexhibitionism"><<print Math.trunc($exhibitionism)>></span>
 	| <<link ">">><<set $exhibitionism += 1>><<clamp>><<replace "#statsexhibitionism">><<print Math.trunc($exhibitionism)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $exhibitionism += 10>><<clamp>><<replace "#statsexhibitionism">><<print Math.trunc($exhibitionism)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $exhibitionism += 100>><<clamp>><<replace "#statsexhibitionism">><<print Math.trunc($exhibitionism)>><</replace>> <<updatesidebarimg>><</link>>
@@ -444,7 +343,7 @@
 	<<link "<<<">><<set $deviancy -= 100>><<clamp>><<replace "#statsdeviancy">><<print Math.trunc($deviancy)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $deviancy -= 10>><<clamp>><<replace "#statsdeviancy">><<print Math.trunc($deviancy)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $deviancy -= 1>><<clamp>><<replace "#statsdeviancy">><<print Math.trunc($deviancy)>><</replace>> <<updatesidebarimg>><</link>> |
-	이상성욕: <span id="statsdeviancy"><<print Math.trunc($deviancy)>></span>
+	<img class="icon" src="img/ui/sym_deviancy.png"> 이상성욕: <span id="statsdeviancy"><<print Math.trunc($deviancy)>></span>
 	| <<link ">">><<set $deviancy += 1>><<clamp>><<replace "#statsdeviancy">><<print Math.trunc($deviancy)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $deviancy += 10>><<clamp>><<replace "#statsdeviancy">><<print Math.trunc($deviancy)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $deviancy += 100>><<clamp>><<replace "#statsdeviancy">><<print Math.trunc($deviancy)>><</replace>> <<updatesidebarimg>><</link>>
@@ -455,7 +354,7 @@
 	<<link "<<<">><<set $earSlime.corruption -= 100>><<clamp>><<replace "#statscorruption_slime">><<print Math.trunc($earSlime.corruption)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $earSlime.corruption -= 10>><<clamp>><<replace "#statscorruption_slime">><<print Math.trunc($earSlime.corruption)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $earSlime.corruption -= 1>><<clamp>><<replace "#statscorruption_slime">><<print Math.trunc($earSlime.corruption)>><</replace>> <<updatesidebarimg>><</link>> |
-	오염: <span id="statscorruption_slime"><<print Math.trunc($earSlime.corruption)>></span>
+	<img class="icon" src="img/ui/sym_corruption.png"> 오염도: <span id="statscorruption_slime"><<print Math.trunc($earSlime.corruption)>></span>
 	| <<link ">">><<set $earSlime.corruption += 1>><<clamp>><<replace "#statscorruption_slime">><<print Math.trunc($earSlime.corruption)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $earSlime.corruption += 10>><<clamp>><<replace "#statscorruption_slime">><<print Math.trunc($earSlime.corruption)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $earSlime.corruption += 100>><<clamp>><<replace "#statscorruption_slime">><<print Math.trunc($earSlime.corruption)>><</replace>> <<updatesidebarimg>><</link>>
@@ -464,18 +363,16 @@
 	<</if>>
 
 	<<if $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest">>
-
-	<<link "<<<">><<set $grace -= 100>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>> |
-	<<link "<<">><<set $grace -= 10>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>> |
-	<<link "<">><<set $grace -= 1>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>> |
-	신앙심: <span id="statsgrace"><<print Math.trunc($grace)>></span>
-	| <<link ">">><<set $grace += 1>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>>
-	| <<link ">>">><<set $grace += 10>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>>
-	| <<link ">>>">><<set $grace += 100>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>>
-	<br>
-
+		<br>
+		<<link "<<<">><<set $grace -= 100>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>> |
+		<<link "<<">><<set $grace -= 10>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>> |
+		<<link "<">><<set $grace -= 1>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>> |
+		신앙심: <span id="statsgrace"><<print Math.trunc($grace)>></span>
+		| <<link ">">><<set $grace += 1>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>>
+		| <<link ">>">><<set $grace += 10>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>>
+		| <<link ">>>">><<set $grace += 100>><<set $grace = Math.clamp($grace, -100, 100)>><<replace "#statsgrace">><<print Math.trunc($grace)>><</replace>> <<updatesidebarimg>><</link>>
 	<</if>>
-
+	<br>
 	<<link "<<<">><<set $submissive -= 1000>><<clamp>><<sub_check>><<replace "#statssubmissive">><<print Math.trunc($submissive)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $submissive -= 100>><<clamp>><<sub_check>><<replace "#statssubmissive">><<print Math.trunc($submissive)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $submissive -= 10>><<clamp>><<sub_check>><<replace "#statssubmissive">><<print Math.trunc($submissive)>><</replace>> <<updatesidebarimg>><</link>> |
@@ -506,10 +403,8 @@
 	젖 분비: <span id="statslactatingspray"><<print ($lactating is 1 ? "네" : "아니오")>></span> |
 	<<link "변경">><<set $lactating to ($lactating is 1 ? 0 : 1)>><<set $lactation_pressure to $lactating * 100>><<replace "#statslactatingspray">><<print ($lactating is 1 ? "네" : "아니오")>><</replace>><<updatesidebarimg>><</link>>
 	<br>
-
-	<<link "액체 리필">><<set $semen_amount to $semen_volume>><<set $milk_amount to $milk_volume>><</link>>
-	<br>
-	<<link "액체 비우기">><<set $semen_amount to 0>><<set $milk_amount to 0>><</link>>
+	액체:
+	<<link "리필">><<set $semen_amount to $semen_volume>><<set $milk_amount to $milk_volume>><</link>> | <<link "비우기">><<set $semen_amount to 0>><<set $milk_amount to 0>><</link>>
 	<br>
 	<<if $player.penisExist>>
 		<<link "<<<">><<set $semen_volume -= 1000>><<clamp>><<replace "#statssemen_volume">><<print Math.trunc($semen_volume)>><</replace>> <<updatesidebarimg>><</link>> |
@@ -533,39 +428,41 @@
 
 	<span class="gold">옷</span>
 	<br>
+	<<link "모든 특수 의상을 해금한다">>
+		<<run for(const c in V.specialClothes) V.specialClothes[c] = "unlocked">>
+    <</link>>
+    <br>
 	<span class="description">내구도가 0 이하로 떨어지면 부서집니다. 그 상태에서 치트 메뉴를 나가버리면 부서지게 되고, 다시 되돌릴 수 없습니다.</span>
 	<br>
+	<<set $_clothes to []>>
 	<<if $worn.over_upper.integrity gte 1>>
 		<<link "<<<">><<set $worn.over_upper.integrity -= 100>><<clamp>><<replace "#statsoverupperintegrity">><<print Math.trunc($worn.over_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.over_upper.integrity -= 10>><<clamp>><<replace "#statsoverupperintegrity">><<print Math.trunc($worn.over_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.over_upper.integrity -= 1>><<clamp>><<replace "#statsoverupperintegrity">><<print Math.trunc($worn.over_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		외투 상의 내구도: <span id="statsoverupperintegrity"><<print Math.trunc($worn.over_upper.integrity)>></span>
-		| <<link ">">><<set $worn.over_upper.integrity += 1>><<clamp>><<replace "#statsoverupperintegrity">><<print Math.trunc($worn.over_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>>
+		<<clothingicon $worn.over_upper "over_upper">><<worn_over_upper_name_ yi>> 내구도: <span id="statsoverupperintegrity"><<print Math.trunc($worn.over_upper.integrity)>></span>		| <<link ">">><<set $worn.over_upper.integrity += 1>><<clamp>><<replace "#statsoverupperintegrity">><<print Math.trunc($worn.over_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.over_upper.integrity += 10>><<clamp>><<replace "#statsoverupperintegrity">><<print Math.trunc($worn.over_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.over_upper.integrity += 100>><<clamp>><<replace "#statsoverupperintegrity">><<print Math.trunc($worn.over_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('over_upper',$worn.over_upper,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>상반신에 외투를 입고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("외투 상의")>>
 	<</if>>
 	<<if $worn.over_lower.integrity gte 1>>
 		<<link "<<<">><<set $worn.over_lower.integrity -= 100>><<clamp>><<replace "#statsoverlowerintegrity">><<print Math.trunc($worn.over_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.over_lower.integrity -= 10>><<clamp>><<replace "#statsoverlowerintegrity">><<print Math.trunc($worn.over_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.over_lower.integrity -= 1>><<clamp>><<replace "#statsoverlowerintegrity">><<print Math.trunc($worn.over_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		외투 하의 내구도: <span id="statsoverlowerintegrity"><<print Math.trunc($worn.over_lower.integrity)>></span>
+		<<clothingicon $worn.over_lower "over_lower">><<worn_over_lower_name_ yi>> 내구도: <span id="statsoverlowerintegrity"><<print Math.trunc($worn.over_lower.integrity)>></span>
 		| <<link ">">><<set $worn.over_lower.integrity += 1>><<clamp>><<replace "#statsoverlowerintegrity">><<print Math.trunc($worn.over_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.over_lower.integrity += 10>><<clamp>><<replace "#statsoverlowerintegrity">><<print Math.trunc($worn.over_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.over_lower.integrity += 100>><<clamp>><<replace "#statsoverlowerintegrity">><<print Math.trunc($worn.over_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('over_lower',$worn.over_lower,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>하반신에 외투를 입고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("외투 하의")>>
 	<</if>>
 	<<if $worn.upper.integrity gte 1>>
 		<<link "<<<">><<set $upperwet -= 100>><<clamp>><<replace "#statsupperwet">><<print Math.trunc($upperwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $upperwet -= 10>><<clamp>><<replace "#statsupperwet">><<print Math.trunc($upperwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $upperwet -= 1>><<clamp>><<replace "#statsupperwet">><<print Math.trunc($upperwet)>><</replace>> <<updatesidebarimg>><</link>> |
-		상의 젖음: <span id="statsupperwet"><<print Math.trunc($upperwet)>></span>
+		<<clothingicon $worn.upper "upper">><<worn_upper_name_ yi>> 젖은 정도: <span id="statsupperwet"><<print Math.trunc($upperwet)>></span>
 		| <<link ">">><<set $upperwet += 1>><<clamp>><<replace "#statsupperwet">><<print Math.trunc($upperwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $upperwet += 10>><<clamp>><<replace "#statsupperwet">><<print Math.trunc($upperwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $upperwet += 100>><<clamp>><<replace "#statsupperwet">><<print Math.trunc($upperwet)>><</replace>> <<updatesidebarimg>><</link>>
@@ -574,21 +471,20 @@
 		<<link "<<<">><<set $worn.upper.integrity -= 100>><<clamp>><<replace "#statsupperintegrity">><<print Math.trunc($worn.upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.upper.integrity -= 10>><<clamp>><<replace "#statsupperintegrity">><<print Math.trunc($worn.upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.upper.integrity -= 1>><<clamp>><<replace "#statsupperintegrity">><<print Math.trunc($worn.upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		상의 내구도: <span id="statsupperintegrity"><<print Math.trunc($worn.upper.integrity)>></span>
+		<<clothingicon $worn.upper "upper">><<worn_upper_name_ yi>> 내구도: <span id="statsupperintegrity"><<print Math.trunc($worn.upper.integrity)>></span>
 		| <<link ">">><<set $worn.upper.integrity += 1>><<clamp>><<replace "#statsupperintegrity">><<print Math.trunc($worn.upper.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.upper.integrity += 10>><<clamp>><<replace "#statsupperintegrity">><<print Math.trunc($worn.upper.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.upper.integrity += 100>><<clamp>><<replace "#statsupperintegrity">><<print Math.trunc($worn.upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('upper',$worn.upper,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>상반신에 옷을 입고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("상의")>>
 	<</if>>
 
 	<<if $worn.lower.integrity gte 1>>
 		<<link "<<<">><<set $lowerwet -= 100>><<clamp>><<replace "#statslowerwet">><<print Math.trunc($lowerwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $lowerwet -= 10>><<clamp>><<replace "#statslowerwet">><<print Math.trunc($lowerwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $lowerwet -= 1>><<clamp>><<replace "#statslowerwet">><<print Math.trunc($lowerwet)>><</replace>> <<updatesidebarimg>><</link>> |
-		하의 젖음: <span id="statslowerwet"><<print Math.trunc($lowerwet)>></span>
+		<<clothingicon $worn.lower "lower">><<worn_lower_name_ yi>> 젖은 정도: <span id="statslowerwet"><<print Math.trunc($lowerwet)>></span>
 		| <<link ">">><<set $lowerwet += 1>><<clamp>><<replace "#statslowerwet">><<print Math.trunc($lowerwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $lowerwet += 10>><<clamp>><<replace "#statslowerwet">><<print Math.trunc($lowerwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $lowerwet += 100>><<clamp>><<replace "#statslowerwet">><<print Math.trunc($lowerwet)>><</replace>> <<updatesidebarimg>><</link>>
@@ -597,21 +493,20 @@
 		<<link "<<<">><<set $worn.lower.integrity -= 100>><<clamp>><<replace "#statslowerintegrity">><<print Math.trunc($worn.lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.lower.integrity -= 10>><<clamp>><<replace "#statslowerintegrity">><<print Math.trunc($worn.lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.lower.integrity -= 1>><<clamp>><<replace "#statslowerintegrity">><<print Math.trunc($worn.lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		하의 내구도: <span id="statslowerintegrity"><<print Math.trunc($worn.lower.integrity)>></span>
+		<<clothingicon $worn.lower "lower">><<worn_lower_name_ yi>> 내구도: <span id="statslowerintegrity"><<print Math.trunc($worn.lower.integrity)>></span>
 		| <<link ">">><<set $worn.lower.integrity += 1>><<clamp>><<replace "#statslowerintegrity">><<print Math.trunc($worn.lower.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.lower.integrity += 10>><<clamp>><<replace "#statslowerintegrity">><<print Math.trunc($worn.lower.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.lower.integrity += 100>><<clamp>><<replace "#statslowerintegrity">><<print Math.trunc($worn.lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('lower',$worn.lower,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>하반신에 옷을 입고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("하의")>>
 	<</if>>
 
 	<<if $worn.under_lower.integrity gte 1>>
 		<<link "<<<">><<set $underlowerwet -= 100>><<clamp>><<replace "#statsunderlowerwet">><<print Math.trunc($underlowerwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $underlowerwet -= 10>><<clamp>><<replace "#statsunderlowerwet">><<print Math.trunc($underlowerwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $underlowerwet -= 1>><<clamp>><<replace "#statsunderlowerwet">><<print Math.trunc($underlowerwet)>><</replace>> <<updatesidebarimg>><</link>> |
-		속옷 하의 젖음: <span id="statsunderlowerwet"><<print Math.trunc($underlowerwet)>></span>
+		<<clothingicon $worn.under_lower "under_lower">><<worn_under_lower_name_ yi>> 젖은 정도: <span id="statsunderlowerwet"><<print Math.trunc($underlowerwet)>></span>
 		| <<link ">">><<set $underlowerwet += 1>><<clamp>><<replace "#statsunderlowerwet">><<print Math.trunc($underlowerwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $underlowerwet += 10>><<clamp>><<replace "#statsunderlowerwet">><<print Math.trunc($underlowerwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $underlowerwet += 100>><<clamp>><<replace "#statsunderlowerwet">><<print Math.trunc($underlowerwet)>><</replace>> <<updatesidebarimg>><</link>>
@@ -620,21 +515,20 @@
 		<<link "<<<">><<set $worn.under_lower.integrity -= 100>><<clamp>><<replace "#statsunderlowerintegrity">><<print Math.trunc($worn.under_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.under_lower.integrity -= 10>><<clamp>><<replace "#statsunderlowerintegrity">><<print Math.trunc($worn.under_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.under_lower.integrity -= 1>><<clamp>><<replace "#statsunderlowerintegrity">><<print Math.trunc($worn.under_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		속옷 하의 내구도: <span id="statsunderlowerintegrity"><<print Math.trunc($worn.under_lower.integrity)>></span>
+		<<clothingicon $worn.under_lower "under_lower">><<worn_under_lower_name_ yi>> 내구도: <span id="statsunderlowerintegrity"><<print Math.trunc($worn.under_lower.integrity)>></span>
 		| <<link ">">><<set $worn.under_lower.integrity += 1>><<clamp>><<replace "#statsunderlowerintegrity">><<print Math.trunc($worn.under_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.under_lower.integrity += 10>><<clamp>><<replace "#statsunderlowerintegrity">><<print Math.trunc($worn.under_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.under_lower.integrity += 100>><<clamp>><<replace "#statsunderlowerintegrity">><<print Math.trunc($worn.under_lower.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('under_lower',$worn.under_lower,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>하반신에 속옷을 입고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("속옷 하의")>>
 	<</if>>
 
 	<<if $worn.under_upper.integrity gte 1>>
 		<<link "<<<">><<set $underupperwet -= 100>><<clamp>><<replace "#statsunderupperwet">><<print Math.trunc($underupperwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $underupperwet -= 10>><<clamp>><<replace "#statsunderupperwet">><<print Math.trunc($underupperwet)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $underupperwet -= 1>><<clamp>><<replace "#statsunderupperwet">><<print Math.trunc($underupperwet)>><</replace>> <<updatesidebarimg>><</link>> |
-		속옷 상의 젖음: <span id="statsunderupperwet"><<print Math.trunc($underupperwet)>></span>
+		<<clothingicon $worn.under_upper "under_upper">><<worn_under_upper_name_ yi>> 젖은 정도: <span id="statsunderupperwet"><<print Math.trunc($underupperwet)>></span>
 		| <<link ">">><<set $underupperwet += 1>><<clamp>><<replace "#statsunderupperwet">><<print Math.trunc($underupperwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $underupperwet += 10>><<clamp>><<replace "#statsunderupperwet">><<print Math.trunc($underupperwet)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $underupperwet += 100>><<clamp>><<replace "#statsunderupperwet">><<print Math.trunc($underupperwet)>><</replace>> <<updatesidebarimg>><</link>>
@@ -643,43 +537,42 @@
 		<<link "<<<">><<set $worn.under_upper.integrity -= 100>><<clamp>><<replace "#statsunderupperintegrity">><<print Math.trunc($worn.under_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.under_upper.integrity -= 10>><<clamp>><<replace "#statsunderupperintegrity">><<print Math.trunc($worn.under_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.under_upper.integrity -= 1>><<clamp>><<replace "#statsunderupperintegrity">><<print Math.trunc($worn.under_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		속옷 상의 내구도: <span id="statsunderupperintegrity"><<print Math.trunc($worn.under_upper.integrity)>></span>
+		<<clothingicon $worn.under_upper "under_upper">><<worn_under_upper_name_ yi>> 내구도: <span id="statsunderupperintegrity"><<print Math.trunc($worn.under_upper.integrity)>></span>
 		| <<link ">">><<set $worn.under_upper.integrity += 1>><<clamp>><<replace "#statsunderupperintegrity">><<print Math.trunc($worn.under_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.under_upper.integrity += 10>><<clamp>><<replace "#statsunderupperintegrity">><<print Math.trunc($worn.under_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.under_upper.integrity += 100>><<clamp>><<replace "#statsunderupperintegrity">><<print Math.trunc($worn.under_upper.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('under_upper',$worn.under_upper,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>상반신에 속옷을 입고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("속옷 상의")>>
 	<</if>>
 
 	<<if $worn.genitals.integrity gte 1>>
 		<<link "<<<">><<set $worn.genitals.integrity -= 100>><<clamp>><<replace "#statsgenitalsintegrity">><<print Math.trunc($worn.genitals.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.genitals.integrity -= 10>><<clamp>><<replace "#statsgenitalsintegrity">><<print Math.trunc($worn.genitals.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.genitals.integrity -= 1>><<clamp>><<replace "#statsgenitalsintegrity">><<print Math.trunc($worn.genitals.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		정조대 내구도: <span id="statsgenitalsintegrity"><<print Math.trunc($worn.genitals.integrity)>></span>
+		<<clothingicon $worn.genitals "genitals">><<worn_genitals.name_ yi>> 내구도: <span id="statsgenitalsintegrity"><<print Math.trunc($worn.genitals.integrity)>></span>
 		| <<link ">">><<set $worn.genitals.integrity += 1>><<clamp>><<replace "#statsgenitalsintegrity">><<print Math.trunc($worn.genitals.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.genitals.integrity += 10>><<clamp>><<replace "#statsgenitalsintegrity">><<print Math.trunc($worn.genitals.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.genitals.integrity += 100>><<clamp>><<replace "#statsgenitalsintegrity">><<print Math.trunc($worn.genitals.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('genitals',$worn.genitals,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>정조대를 하고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("정조대")>>
 	<</if>>
 
 	<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
 		<<link "<<<">><<set $worn.face.integrity -= 100>><<clamp>><<replace "#statsfaceintegrity">><<print Math.trunc($worn.face.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<<">><<set $worn.face.integrity -= 10>><<clamp>><<replace "#statsfaceintegrity">><<print Math.trunc($worn.face.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
 		<<link "<">><<set $worn.face.integrity -= 1>><<clamp>><<replace "#statsfaceintegrity">><<print Math.trunc($worn.face.integrity)>><</replace>> <<updatesidebarimg>><</link>> |
-		마스크/재갈 내구도: <span id="statsfaceintegrity"><<print Math.trunc($worn.face.integrity)>></span>
+		<<clothingicon $worn.face "face">><<worn_face_name_ yi>> 내구도: <span id="statsfaceintegrity"><<print Math.trunc($worn.face.integrity)>></span>
 		| <<link ">">><<set $worn.face.integrity += 1>><<clamp>><<replace "#statsfaceintegrity">><<print Math.trunc($worn.face.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>">><<set $worn.face.integrity += 10>><<clamp>><<replace "#statsfaceintegrity">><<print Math.trunc($worn.face.integrity)>><</replace>> <<updatesidebarimg>><</link>>
 		| <<link ">>>">><<set $worn.face.integrity += 100>><<clamp>><<replace "#statsfaceintegrity">><<print Math.trunc($worn.face.integrity)>><</replace>> <<updatesidebarimg>><</link>> (<<print clothingData('face',$worn.face,'integrity_max')>> 이 기본 최대치)
 		<br>
 	<<else>>
-		<i>마스크나 재갈을 하고 있지 않다.</i>
-		<br>
+		<<set $_clothes.push("재갈, 혹은 마스크")>>
 	<</if>>
+	당신은 <<= $_clothes.join(", ")>>를 착용하고 있지 않다.
+	<br>
 
 	<<set _cl_slots to ["upper", "lower", "under_upper", "under_lower", "over_upper", "over_lower", "genitals"]>>
 	<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
@@ -737,6 +630,12 @@
 	<</link>>
 	<br><br>
 
+	<span class="gold">구속구:</span>
+	<br>
+	<<icon "clothes/gag.png">><<link "재갈을 한다">><<facewear 4>><<updatesidebarimg>><</link>> | <<link "안대를 한다">><<facewear 5>><<updatesidebarimg>><</link>> | <<link "재갈과 안대를 한다">><<facewear 6>><<updatesidebarimg>><</link>> | <<link "팔을 묶는다">><<bind>><<updatesidebarimg>><</link>> | <<link "발에 족쇄를 채운다">><<shackle_feet>><<updatesidebarimg>><</link>> (들고다니는 물건과 신발은 파괴될 것입니다)
+    <br>
+    <<undobindingsicon>> <<link "전부 푼다">><<unbind>><<set $worn.face.type.push("broken")>><<faceruined>><<updatesidebarimg>><</link>>
+    <br><br>
 
 	<span class="gold">일반 기술</span>
 	<br>
@@ -891,7 +790,7 @@
 	<<link "<<<">><<set $science -= 1000>><<set $school -= 4000>><<adjust_school_traits>><<clamp>><<replace "#statsscience">><<print Math.trunc($science)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $science -= 100>><<set $school -= 400>><<adjust_school_traits>><<clamp>><<replace "#statsscience">><<print Math.trunc($science)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $science -= 10>><<set $school -= 40>><<adjust_school_traits>><<clamp>><<replace "#statsscience">><<print Math.trunc($science)>><</replace>> <<updatesidebarimg>><</link>> |
-	과학: <span id="statsscience"><<print Math.trunc($science)>></span>
+	<<scienceicon>>과학: <span id="statsscience"><<print Math.trunc($science)>></span>
 	| <<link ">">><<set $science += 10>><<set $school += 40>><<adjust_school_traits>><<clamp>><<replace "#statsscience">><<print Math.trunc($science)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $science += 100>><<set $school += 400>><<adjust_school_traits>><<clamp>><<replace "#statsscience">><<print Math.trunc($science)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $science += 1000>><<set $school += 4000>><<adjust_school_traits>><<clamp>><<replace "#statsscience">><<print Math.trunc($science)>><</replace>> <<updatesidebarimg>><</link>>
@@ -900,7 +799,7 @@
 	<<link "<<<">><<set $maths -= 1000>><<set $school -= 4000>><<adjust_school_traits>><<clamp>><<replace "#statsmaths">><<print Math.trunc($maths)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $maths -= 100>><<set $school -= 400>><<adjust_school_traits>><<clamp>><<replace "#statsmaths">><<print Math.trunc($maths)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $maths -= 10>><<set $school -= 40>><<adjust_school_traits>><<clamp>><<replace "#statsmaths">><<print Math.trunc($maths)>><</replace>> <<updatesidebarimg>><</link>> |
-	수학: <span id="statsmaths"><<print Math.trunc($maths)>></span>
+	<<mathicon>>수학: <span id="statsmaths"><<print Math.trunc($maths)>></span>
 	| <<link ">">><<set $maths += 10>><<set $school += 40>><<adjust_school_traits>><<clamp>><<replace "#statsmaths">><<print Math.trunc($maths)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $maths += 100>><<set $school += 400>><<adjust_school_traits>><<clamp>><<replace "#statsmaths">><<print Math.trunc($maths)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $maths += 1000>><<set $school += 4000>><<adjust_school_traits>><<clamp>><<replace "#statsmaths">><<print Math.trunc($maths)>><</replace>> <<updatesidebarimg>><</link>>
@@ -909,7 +808,7 @@
 	<<link "<<<">><<set $english -= 1000>><<set $school -= 4000>><<adjust_school_traits>><<clamp>><<replace "#statsenglish">><<print Math.trunc($english)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $english -= 100>><<set $school -= 400>><<adjust_school_traits>><<clamp>><<replace "#statsenglish">><<print Math.trunc($english)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $english -= 10>><<set $school -= 40>><<adjust_school_traits>><<clamp>><<replace "#statsenglish">><<print Math.trunc($english)>><</replace>> <<updatesidebarimg>><</link>> |
-	영어: <span id="statsenglish"><<print Math.trunc($english)>></span>
+	<<englishicon>>영어: <span id="statsenglish"><<print Math.trunc($english)>></span>
 	| <<link ">">><<set $english += 10>><<set $school += 40>><<adjust_school_traits>><<clamp>><<replace "#statsenglish">><<print Math.trunc($english)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $english += 100>><<set $school += 400>><<adjust_school_traits>><<clamp>><<replace "#statsenglish">><<print Math.trunc($english)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $english += 1000>><<set $school += 4000>><<adjust_school_traits>><<clamp>><<replace "#statsenglish">><<print Math.trunc($english)>><</replace>> <<updatesidebarimg>><</link>>
@@ -918,7 +817,7 @@
 	<<link "<<<">><<set $history -= 1000>><<set $school -= 4000>><<adjust_school_traits>><<clamp>><<replace "#statshistory">><<print Math.trunc($history)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<<">><<set $history -= 100>><<set $school -= 400>><<adjust_school_traits>><<clamp>><<replace "#statshistory">><<print Math.trunc($history)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $history -= 10>><<set $school -= 40>><<adjust_school_traits>><<clamp>><<replace "#statshistory">><<print Math.trunc($history)>><</replace>> <<updatesidebarimg>><</link>> |
-	역사: <span id="statshistory"><<print Math.trunc($history)>></span>
+	<<historyicon>>역사: <span id="statshistory"><<print Math.trunc($history)>></span>
 	| <<link ">">><<set $history += 10>><<set $school += 40>><<adjust_school_traits>><<clamp>><<replace "#statshistory">><<print Math.trunc($history)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $history += 100>><<set $school += 400>><<adjust_school_traits>><<clamp>><<replace "#statshistory">><<print Math.trunc($history)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>>">><<set $history += 1000>><<set $school += 4000>><<adjust_school_traits>><<clamp>><<replace "#statshistory">><<print Math.trunc($history)>><</replace>> <<updatesidebarimg>><</link>>
@@ -926,132 +825,181 @@
 
 	<span class="gold">특성</span>
 	<br>
-	<span class="description">0 = 없음, 1 = 있음, -1 = 비활성화</span>
-	<br>
-	절정 중독: <span id="statsorgasmtrait">$orgasmtrait</span> |
+	<<set _traits to {"choke": $choketrait, "milkdrank" : $milkdranktrait, "vore" : $voretrait, "tentacle" : $tentacletrait, "bestiality" : $bestialitytrait, "rape" : $rapetrait, "molest" : $molesttrait, "ejac" : $ejactrait, "orgasm" : $orgasmtrait}>>
+	<<set _value to  {"1": "있음", "-1": "비활성화", "0": "없음"}>>
+
+	절정 중독: <span id="statsorgasmtrait" @class="$choketrait is 1 ? 'green' : 'red'"><<= _value[_traits["choke"].toString()]>></span> |
 	<<link "변경">>
-	<<set $orgasmtrait += 1>>
-	<<if $orgasmtrait gte 2>>
-	<<set $orgasmtrait to -1>>
-	<</if>>
-	<<replace "#statsorgasmtrait">><<print $orgasmtrait>><</replace>>
+		<<set $orgasmtrait += 1>>
+		<<if $orgasmtrait gte 2>>
+			<<set $orgasmtrait to -1>>
+		<</if>>
+		<<replace "#statsorgasmtrait">>
+			<<set _orgasmtrait to _value[$orgasmtrait.toString()]>>
+			<<= _orgasmtrait>>
+			<<changeCheatClass "#statsorgasmtrait" _orgasmtrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	정액받이: <span id="statsejactrait">$ejactrait</span> |
+	정액받이: <span id="statsejactrait" @class="$ejactrait is 1 ? 'green' : 'red'"><<= _value[_traits["ejac"].toString()]>></span> |
 	<<link "변경">>
-	<<set $ejactrait += 1>>
-	<<if $ejactrait gte 2>>
-	<<set $ejactrait to -1>>
-	<</if>>
-	<<replace "#statsejactrait">><<print $ejactrait>><</replace>>
+		<<set $ejactrait += 1>>
+		<<if $ejactrait gte 2>>
+			<<set $ejactrait to -1>>
+		<</if>>
+		<<replace "#statsejactrait">>
+			<<set _ejactrait to _value[$ejactrait.toString()]>>
+			<<= _ejactrait>>
+			<<changeCheatClass "#statsejactrait" _ejactrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	노리개: <span id="statsmolesttrait">$molesttrait</span> |
+	노리개: <span id="statsmolesttrait" @class="$molesttrait is 1 ? 'green' : 'red'"><<= _value[_traits["molest"].toString()]>></span> |
 	<<link "변경">>
-	<<set $molesttrait += 1>>
-	<<if $molesttrait gte 2>>
-	<<set $molesttrait to -1>>
-	<</if>>
-	<<replace "#statsmolesttrait">><<print $molesttrait>><</replace>>
+		<<set $molesttrait += 1>>
+		<<if $molesttrait gte 2>>
+			<<set $molesttrait to -1>>
+		<</if>>
+		<<replace "#statsmolesttrait">>
+			<<set _molesttrait to _value[$molesttrait.toString()]>>
+			<<= _molesttrait>>
+			<<changeCheatClass "#statsmolesttrait" _molesttrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	육변기: <span id="statsrapetrait">$rapetrait</span> |
+	육변기: <span id="statsrapetrait" @class="$rapetrait is 1 ? 'green' : 'red'"><<= _value[_traits["rape"].toString()]>></span> |
 	<<link "변경">>
-	<<set $rapetrait += 1>>
-	<<if $rapetrait gte 2>>
-	<<set $rapetrait to -1>>
-	<</if>>
-	<<replace "#statsrapetrait">><<print $rapetrait>><</replace>>
+		<<set $rapetrait += 1>>
+		<<if $rapetrait gte 2>>
+			<<set $rapetrait to -1>>
+		<</if>>
+		<<replace "#statsrapetrait">>
+			<<set _rapetrait to _value[$rapetrait.toString()]>>
+			<<= _rapetrait>>
+			<<changeCheatClass "#statsrapetrait" _rapetrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	암캐: <span id="statsbestialitytrait">$bestialitytrait</span> |
+	암캐/수캐: <span id="statsbestialitytrait"  @class="$bestialitytrait is 1 ? 'green' : 'red'"><<= _value[_traits["bestiality"].toString()]>></span> |
 	<<link "변경">>
-	<<set $bestialitytrait += 1>>
-	<<if $bestialitytrait gte 2>>
-	<<set $bestialitytrait to -1>>
-	<</if>>
-	<<replace "#statsbestialitytrait">><<print $bestialitytrait>><</replace>>
+		<<set $bestialitytrait += 1>>
+		<<if $bestialitytrait gte 2>>
+			<<set $bestialitytrait to -1>>
+		<</if>>
+		<<replace "#statsbestialitytrait">>
+			<<set _bestialitytrait to _value[$bestialitytrait.toString()]>>
+			<<= _bestialitytrait>>
+			<<changeCheatClass "#statsbestialitytrait" _bestialitytrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	먹잇감: <span id="statstentacletrait">$tentacletrait</span> |
+	먹잇감: <span id="statstentacletrait" @class="$tentacletrait is 1 ? 'green' : 'red'"><<= _value[_traits["tentacle"].toString()]>></span> |
 	<<link "변경">>
-	<<set $tentacletrait += 1>>
-	<<if $tentacletrait gte 2>>
-	<<set $tentacletrait to -1>>
-	<</if>>
-	<<replace "#statstentacletrait">><<print $tentacletrait>><</replace>>
+		<<set $tentacletrait += 1>>
+		<<if $tentacletrait gte 2>>
+			<<set $tentacletrait to -1>>
+		<</if>>
+		<<replace "#statstentacletrait">>
+			<<set _tentacletrait to _value[$tentacletrait.toString()]>>
+			<<= _tentacletrait>>
+			<<changeCheatClass "#statstentacletrait" _tentacletrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	맛있음: <span id="statsvoretrait">$voretrait</span> |
+	맛있음: <span id="statsvoretrait" @class="$voretrait is 1 ? 'green' : 'red'"><<= _value[_traits["vore"].toString()]>></span> |
 	<<link "변경">>
-	<<set $voretrait += 1>>
-	<<if $voretrait gte 2>>
-	<<set $voretrait to -1>>
-	<</if>>
-	<<replace "#statsvoretrait">><<print $voretrait>><</replace>>
+		<<set $voretrait += 1>>
+		<<if $voretrait gte 2>>
+			<<set $voretrait to -1>>
+		<</if>>
+		<<replace "#statsvoretrait">>
+			<<set _voretrait to _value[$voretrait.toString()]>>
+			<<= _voretrait>>
+			<<changeCheatClass "#statsvoretrait" _voretrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	모유 중독: <span id="statsmilkdranktrait">$milkdranktrait</span> |
+	모유 중독: <span id="statsmilkdranktrait" @class="$milkdranktrait is 1 ? 'green' : 'red'"><<= _value[_traits["milkdrank"].toString()]>></span> |
 	<<link "변경">>
-	<<set $milkdranktrait += 1>>
-	<<if $milkdranktrait gte 2>>
-	<<set $milkdranktrait to -1>>
-	<</if>>
-	<<replace "#statsmilkdranktrait">><<print $milkdranktrait>><</replace>>
+		<<set $milkdranktrait += 1>>
+		<<if $milkdranktrait gte 2>>
+			<<set $milkdranktrait to -1>>
+		<</if>>
+		<<replace "#statsmilkdranktrait">>
+			<<set _milkdranktrait to _value[$milkdranktrait.toString()]>>
+			<<= _milkdranktrait>>
+			<<changeCheatClass "#statsmilkdranktrait" _milkdranktrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	강한 욕망: <span id="statslustful"><<print ($backgroundTraits.includes("lustful") is true?"있음":"없음")>></span> |
+	강한 욕망: <span id="statslustful" @class="$backgroundTraits.includes('lustful') is true ? 'green' : 'red'"><<print $backgroundTraits.includes("lustful") is true ? "있음" : "없음">></span> |
 	<<link "변경">>
 		<<if !$backgroundTraits.includes("lustful")>>
 			<<set $backgroundTraits.pushUnique("lustful")>><<set $specialClothesEffects.bimboTotal to 1200>>
 		<<else>>
 			<<set $backgroundTraits.delete("lustful")>><<if $specialClothesEffects.bimboTotal gt 1000>><<set $specialClothesEffects.bimboTotal to 1000>><</if>>
 		<</if>>
-		<<replace "#statslustful">><<print ($backgroundTraits.includes("lustful") is true?"있음":"없음")>><</replace>>
+		<<replace "#statslustful">>
+			<<set _lustful to $backgroundTraits.includes("lustful") is true ? "있음" : "없음">>
+			<<= _lustful>>
+			<<changeCheatClass "#statslustful" _lustful>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	크로스드레서: <span id="statscrossdresser"><<print ($backgroundTraits.includes("crossdresser") is true?"네":"아니오")>></span> |
+	크로스드레서: <span id="statscrossdresser" @class="$backgroundTraits.includes('crossdresser') is true ? 'green' : 'red'"><<print $backgroundTraits.includes("crossdresser") is true ? "있음" : "없음">></span> |
 	<<link "변경">>
 		<<if !$backgroundTraits.includes("crossdresser")>>
 			<<set $backgroundTraits.pushUnique("crossdresser")>><<set $crossdressingTrait to 100>>
 		<<else>>
 			<<set $backgroundTraits.delete("crossdresser")>><<if $crossdressingTrait gt 80>><<set $crossdressingTrait to 80>><</if>>
 		<</if>>
-		<<replace "#statscrossdresser">><<print ($backgroundTraits.includes("crossdresser") is true?"네":"아니오")>><</replace>>
+		<<replace "#statscrossdresser">>
+			<<set _crossdresser to $backgroundTraits.includes("crossdresser") is true ? "있음" : "없음">>
+			<<= _crossdresser>>
+			<<changeCheatClass "#statscrossdresser" _crossdresser>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	원예가: <span id="statsgreenthumb"><<print ($backgroundTraits.includes("greenthumb") is true?"네":"아니오")>></span> |
+	원예가: <span id="statsgreenthumb" @class="$backgroundTraits.includes('greenthumb') is true ? 'green' : 'red'"><<print $backgroundTraits.includes("greenthumb")is true ? "있음" : "없음">></span> |
 	<<link "변경">>
 		<<if !$backgroundTraits.includes("greenthumb")>>
 			<<set $backgroundTraits.pushUnique("greenthumb")>>
 		<<else>>
 			<<set $backgroundTraits.delete("greenthumb")>>
 		<</if>>
-		<<replace "#statsgreenthumb">><<print ($backgroundTraits.includes("greenthumb") is true?"네":"아니오")>><</replace>>
+		<<replace "#statsgreenthumb">>
+			<<set _greenthumb to $backgroundTraits.includes("greenthumb") is true ? "있음" : "없음">>
+			<<= _greenthumb>>
+			<<changeCheatClass "#statsgreenthumb" _greenthumb>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	질식 기호증: <span id="statschoke">$choketrait</span> |
+	질식 기호증: <span id="statschoke" @class="$choketrait is 1 ? 'green' : 'red'"><<= _value[_traits["choke"].toString()]>></span> |
 	<<link "변경">>
-	<<set $choketrait += 1>>
-	<<if $choketrait gte 2>>
-	<<set $choketrait to 0>>
-	<</if>>
-	<<replace "#statschoke">><<print $choketrait>><</replace>>
+		<<set $choketrait += 1>>
+		<<if $choketrait gte 2>>
+			<<set $choketrait to 0>>
+		<</if>>
+		<<replace "#statschoke">>
+			<<set _choketrait to _value[$choketrait.toString()]>>
+			<<= _choketrait>>
+			<<changeCheatClass "#statschoke" _choketrait>>
+		<</replace>>
 	<</link>>
 	<br>
 
-	식물 성애자: <span id="statsplantlover"><<print $backgroundTraits.includes("plantlover") is true?"네":"아니오">></span> |
+	식물 성애자: <span id="statsplantlover" @class="$backgroundTraits.includes('plantlover') is true ? 'green' : 'red'"><<print $backgroundTraits.includes("plantlover")is true ? "있음" : "없음">></span> |
 	<<link "변경">>
 		<<if !$backgroundTraits.includes("plantlover")>>
 			<<set $backgroundTraits.pushUnique("plantlover")>>
@@ -1062,13 +1010,17 @@
 			<<set $nectar_addiction to 0>>
 			<<set $nectar_timer to 0>>
 		<</if>>
-		<<replace "#statsplantlover">><<print $backgroundTraits.includes("plantlover")>><</replace>>
+		<<replace "#statsplantlover">>
+			<<set _plantlover to $backgroundTraits.includes("plantlover") is true ? "있음" : "없음">>
+			<<= _plantlover>>
+			<<changeCheatClass "#statsplantlover" _plantlover>>
+		<</replace>>
 	<</link>>
 	<br>
 <</widget>>
 
 <<widget "cheats-characterVisual">>
-	<span class="gold">캐릭터 머리카락</span>
+	<span class="gold">머리카락 길이</span>
 	<br>
 	<<if $passage is "Hairdressers Seat">>
 		머리카락 치트는 미용사에게 가 있는 동안에는 사용할 수 없습니다.
@@ -1092,89 +1044,90 @@
 		| <<link ">>>">><<set $fringelength += 1000>><<clamp>><<replace "#statsfringelength">><<print Math.trunc($fringelength)>><</replace>><<calchairlengthstage>> <<updatesidebarimg>><</link>>
 		<br><br>
 
-		<<if $hairtest is 1 or $debug>>
-			원래 머리카락 색
+		<<foldout false "_cheatsFoldout">>
+			<span class="gold">머리카락 색상</span>
+			<<if $hairtest is 1 or $debug>>
+				자연적인 머리카락 색상:
+				<br>
+				<<set _bar to false>>
+				<<for _i = 0; _i < setup.colours.hair.length; _i++>>
+					<<if setup.colours.hair[_i].natural>>
+						<<if _bar>>|<</if>>
+						<label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<print _trResult>></span> <<radiovar "$naturalhaircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
+						<<set _bar to true>>
+					<</if>>
+				<</for>>
+				<br>
+				<br>
+			<</if>>
+
+			옆머리 염색 색상:
 			<br>
-			<<set _bar to false>>
+			<label>없음 <<radiovar "$haircolour" $naturalhaircolour>> <<updatesidebarimg>><</radiovar>></label>
 			<<for _i = 0; _i < setup.colours.hair.length; _i++>>
-				<<if setup.colours.hair[_i].natural>>
-					<<if _bar>>|<</if>>
-					<label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<print _trResult>></span> <<radiovar "$naturalhaircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
-					<<set _bar to true>>
+				<<if setup.colours.hair[_i].dye>>
+					| <label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<print _trResult>></span> <<radiovar "$haircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
 				<</if>>
 			<</for>>
 			<br>
+			투톤 색조:
+			<label>활성화 <<radiovar "$hairColourStyle" "gradient">> <<updatesidebarimg>><</radiovar>></label>
+			<label>비활성화 <<radiovar "$hairColourStyle" "simple">> <<updatesidebarimg>><</radiovar>></label>
 			<br>
-		<</if>>
+			투톤 스타일: <<listbox "$hairColourGradient.style" autoselect>>
+						<<option "옅은 그라데이션" "low-ombre">>
+						<<option "짙은 그라데이션" "high-ombre">>
+						<<option "분할" "split">>
+						<<option "얼굴 윤곽 강조" "face-frame">>
+					<</listbox>>
+			<br><br>
 
-		옆머리 염색
-		<br>
-		<label>없음 <<radiovar "$haircolour" $naturalhaircolour>> <<updatesidebarimg>><</radiovar>></label>
-		<<for _i = 0; _i < setup.colours.hair.length; _i++>>
-			<<if setup.colours.hair[_i].dye>>
-				| <label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<print _trResult>></span> <<radiovar "$haircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
-			<</if>>
-		<</for>>
-		<br>
-		투톤 색조:
-		<label>활성화 <<radiovar "$hairColourStyle" "gradient">> <<updatesidebarimg>><</radiovar>></label>
-		<label>비활성화 <<radiovar "$hairColourStyle" "simple">> <<updatesidebarimg>><</radiovar>></label>
-		<br>
-		투톤 스타일: <<listbox "$hairColourGradient.style" autoselect>>
-					<<option "옅은 그라데이션" "low-ombre">>
-					<<option "짙은 그라데이션" "high-ombre">>
-					<<option "분할" "split">>
-					<<option "얼굴 윤곽 강조" "face-frame">>
-				<</listbox>>
-		<br><br>
-
-		앞머리 염색
-		<br>
-		<label>없음 <<radiovar "$hairfringecolour" $naturalhaircolour>> <<updatesidebarimg>><</radiovar>></label>
-		<<for _i = 0; _i < setup.colours.hair.length; _i++>>
-			<<if setup.colours.hair[_i].dye>>
-				| <label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<print _trResult>></span> <<radiovar "$hairfringecolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
-			<</if>>
-		<</for>>
-		<br>
-		투톤 색조:
-		<label>활성화 <<radiovar "$hairFringeColourStyle" "gradient">> <<updatesidebarimg>><</radiovar>></label>
-		<label>비활성화 <<radiovar "$hairFringeColourStyle" "simple">> <<updatesidebarimg>><</radiovar>></label>
-		<br>
-		투톤 스타일: <<listbox "$hairFringeColourGradient.style" autoselect>>
-					<<option "옅은 그라데이션" "low-ombre">>
-					<<option "짙은 그라데이션" "high-ombre">>
-					<<option "분할" "split">>
-					<<option "얼굴 윤곽 강조" "face-frame">>
-				<</listbox>>
-		<br><br>
+			앞머리 염색:
+			<br>
+			<label>없음 <<radiovar "$hairfringecolour" $naturalhaircolour>> <<updatesidebarimg>><</radiovar>></label>
+			<<for _i = 0; _i < setup.colours.hair.length; _i++>>
+				<<if setup.colours.hair[_i].dye>>
+					| <label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<print _trResult>></span> <<radiovar "$hairfringecolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
+				<</if>>
+			<</for>>
+			<br>
+			투톤 색조:
+			<label>활성화 <<radiovar "$hairFringeColourStyle" "gradient">> <<updatesidebarimg>><</radiovar>></label>
+			<label>비활성화 <<radiovar "$hairFringeColourStyle" "simple">> <<updatesidebarimg>><</radiovar>></label>
+			<br>
+			투톤 스타일: <<listbox "$hairFringeColourGradient.style" autoselect>>
+						<<option "옅은 그라데이션" "low-ombre">>
+						<<option "짙은 그라데이션" "high-ombre">>
+						<<option "분할" "split">>
+						<<option "얼굴 윤곽 강조" "face-frame">>
+					<</listbox>>
+		<</foldout>>
 	<</if>>
-
-	<span class="gold">눈 색</span>
 	<br>
-	눈 색<br>
-	<<set _bar to false>>
-	<<for _i = 0; _i < setup.colours.eyes.length; _i++>>
-		<<if setup.colours.eyes[_i].natural>>
-			<<if _bar>>|<</if>>
-			<label><span @class="setup.colours.eyes[_i].csstext">
-				<<trColour setup.colours.eyes[_i].name>>_trResult</span>
-				<<radiovar "$eyeselected" setup.colours.eyes[_i].variable>>
-					<<cheatMenuEyesSelected>>
-				<</radiovar>></label>
-			<<set _bar to true>>
-		<</if>>
-	<</for>>
-	<br><br>
+
+	<<foldout false "_eyeFoldout">>
+		<span class="gold">눈 색</span>
+		<<set _bar to false>>
+		<<for _i = 0; _i < setup.colours.eyes.length; _i++>>
+			<<if setup.colours.eyes[_i].natural>>
+				<<if _bar>>|<</if>>
+				<label><span @class="setup.colours.eyes[_i].csstext">
+					<<trColour setup.colours.eyes[_i].name>><<print _trResult>></span>
+					<<radiovar "$eyeselected" setup.colours.eyes[_i].variable>>
+						<<cheatMenuEyesSelected>>
+					<</radiovar>></label>
+				<<set _bar to true>>
+			<</if>>
+		<</for>>
+	<</foldout>>
+	<br>
 
 	<span class="gold">주근깨</span>
 		<br>
 		<label>있음 <<radiobutton "$player.freckles" true autocheck>></label>
-		| <label>없음 <<radiobutton "$player.freckles" false autocheck>></label>
+		| <label>없음 <<radiobutton "$player.freckles" false `!$player.freckles ? "checked" : ""`>></label>
 	<br><br>
 
-	<span class="gold">신체 부위 크기 및 민감도</span>
-	<br><br>
 	<span class="gold">가슴 크기</span>
 	<<set _name to ["평평함", "약간 솟아오름", "조그마함", "작음", "앙증맞음", "평범함", "봉긋함", "큼", "풍만함", "커다람", "매우 큼", "엄청남", "거대함"]>>
 	<<numberslider "$player.breastsize" $player.breastsize 0 _name.length-1 1>>
@@ -1187,60 +1140,60 @@
 	<<run $(() => $('#checkbox-donthide').on('change', e => wikifier('<<updatesidebarimg>>')))>>
 	<br><br>
 
-	<<link "<">><<set $player.bottomsize -= 1>><<clamp>><<replace "#statsbottomsize">><<print Math.trunc($player.bottomsize)>><</replace>> <<updatesidebarimg>><</link>> |
-	엉덩이 크기: <span id="statsbottomsize"><<print Math.trunc($player.bottomsize)>></span>
-	| <<link ">">><<set $player.bottomsize += 1>><<clamp>><<replace "#statsbottomsize">><<print Math.trunc($player.bottomsize)>><</replace>> <<updatesidebarimg>><</link>>
-	<br>
+	<span class="gold">엉덩이</span>
+	<<set _butts to ["호리호리함", "날씬함", "평범함", "푹신함", "부드러움", "둥그스름", "포동포동함", "큼", "거대함"]>>
+	<<numberslider "$player.bottomsize" $player.bottomsize 0 _butts.length-1 1>>
+	<<run $(() => { $('#numberslider-input-playerbottomsize').on('input change', e => {
+		$('#numberslider-value-playerbottomsize').html(" "+_butts[e.currentTarget.value]);
+		wikifier('<<updatesidebarimg>>');
+	}).trigger('change') })>>
+	<br><br>
 
 	<<if $player.penisExist>>
-	<<link "<">><<set $player.penissize -= 1>><<clamp>><<replace "#statspenissize">><<print Math.trunc($player.penissize)>><</replace>><<replace "#statsgenitals">><<genitalsPost>><</replace>> <<updatesidebarimg>><</link>> |
-	자지 크기: <span id="statspenissize"><<print Math.trunc($player.penissize)>></span>
-	| <<link ">">><<set $player.penissize += 1>><<clamp>><<replace "#statspenissize">><<print Math.trunc($player.penissize)>><</replace>><<replace "#statsgenitals">><<genitalsPost>><</replace>> <<updatesidebarimg>><</link>>
-	<br>
+		<span class="gold">Penis</span>
+		<<set _penis to ["진짜 작음", "아주 작음", "조그마함", "작음", "평범함", "큼", "거대함"]>>
+		<<numberslider "$player.penissize" $player.penissize -2 4 1>>
+		<<run $(() => { $('#numberslider-input-playerpenissize').on('input change', e => {
+			$('#numberslider-value-playerpenissize').html(" "+T.penis[Number(e.currentTarget.value) + 2]);
+			wikifier('<<updatesidebarimg>>');
+		}).trigger('change') })>>
+		<br>
+		<<if $debug is 1>>
+			고환 크기 (DEBUG):
+			<<link "<">><<set $ballssize -= 1>><<clamp>><<replace "#statsballssize">><<print Math.trunc($ballssize)>><</replace>> <<updatesidebarimg>><</link>> |
+			<span id="statsballssize"><<print Math.trunc($ballssize)>></span>
+			| <<link ">">><<set $ballssize += 1>><<clamp>><<replace "#statsballssize">><<print Math.trunc($ballssize)>><</replace>> <<updatesidebarimg>><</link>>
+			<br>
+		<</if>>
+		<br>
 	<</if>>
 
-	<<if $debug is 1>>
-	<<link "<">><<set $ballssize -= 1>><<clamp>><<replace "#statsballssize">><<print Math.trunc($ballssize)>><</replace>> <<updatesidebarimg>><</link>> |
-	고환 크기: <span id="statsballssize"><<print Math.trunc($ballssize)>></span>
-	| <<link ">">><<set $ballssize += 1>><<clamp>><<replace "#statsballssize">><<print Math.trunc($ballssize)>><</replace>> <<updatesidebarimg>><</link>>
-
+	<span class="gold">민감도</span>
 	<br>
-	<</if>>
-
-	<<link "<<">><<set $mouthsensitivity -= 1>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>><</replace>><<replace "#statsmouth">><<mouth>><</replace>> <</link>> |
-	<<link "<">><<set $mouthsensitivity -= 0.25>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>><</replace>><<replace "#statsmouth">><<mouth>><</replace>> <</link>> |
-	입 민감도: <span id="statsmouthsensitivity"><<print $mouthsensitivity>></span>
-	| <<link ">">><<set $mouthsensitivity += 0.25>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>><</replace>><<replace "#statsmouth">><<mouth>><</replace>> <</link>>
-	| <<link ">>">><<set $mouthsensitivity += 1>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>><</replace>><<replace "#statsmouth">><<mouth>><</replace>> <</link>>
+	<<link "<<">><<set $mouthsensitivity -= 1>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>> <<= $mouthsensitivity gte 1.5 ? "- <<mouthsensitivity>> 입" : "- 평범함 ">><</replace>><</link>> |
+	<<link "<">><<set $mouthsensitivity -= 0.25>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>> <<= $mouthsensitivity gte 1.5 ? "- <<mouthsensitivity>> 입" : "- 평범함 ">><</replace>><</link>> |
+	입 민감도: <span id="statsmouthsensitivity"><<print $mouthsensitivity>> <<= $mouthsensitivity gte 1.5 ? "- <<mouthsensitivity>> 입" : "- 평범함 ">></span>
+	| <<link ">">><<set $mouthsensitivity += 0.25>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>> <<= $mouthsensitivity gte 1.5 ? "- <<mouthsensitivity>> 입" : "- 평범함 ">><</replace>><</link>>
+	| <<link ">>">><<set $mouthsensitivity += 1>><<clamp>><<replace "#statsmouthsensitivity">><<print $mouthsensitivity>> <<= $mouthsensitivity gte 1.5 ? "- <<mouthsensitivity>> 입" : "- 평범함 ">><</replace>><</link>>
 	<br>
-	<<link "<<">><<set $breastsensitivity -= 1>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>><</replace>><<replace "#statsbreasts">><<breasts>><</replace>> <</link>> |
-	<<link "<">><<set $breastsensitivity -= 0.25>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>><</replace>><<replace "#statsbreasts">><<breastsPost>><</replace>> <</link>> |
-	가슴 민감도: <span id="statsbreastsensitivity"><<print $breastsensitivity>></span>
-	| <<link ">">><<set $breastsensitivity += 0.25>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>><</replace>><<replace "#statsbreasts">><<breastsPost>><</replace>> <</link>>
-	| <<link ">>">><<set $breastsensitivity += 1>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>><</replace>><<replace "#statsbreasts">><<breasts>><</replace>> <</link>>
+	<<link "<<">><<set $breastsensitivity -= 1>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>> <<= $breastsensitivity gte 1.5 ? "- <<breastsensitivity>> 가슴" : "- 평범함 ">><</replace>><</link>> |
+	<<link "<">><<set $breastsensitivity -= 0.25>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>> <<= $breastsensitivity gte 1.5 ? "- <<breastsensitivity>> 가슴" : "- 평범함 ">><</replace>><</link>> |
+	가슴 민감도: <span id="statsbreastsensitivity"><<print $breastsensitivity>> <<= $breastsensitivity gte 1.5 ? "- <<breastsensitivity>> 가슴" : "- 평범함 ">></span>
+	| <<link ">">><<set $breastsensitivity += 0.25>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>> <<= $breastsensitivity gte 1.5 ? "- <<breastsensitivity>> 가슴" : "- 평범함 ">><</replace>><</link>>
+	| <<link ">>">><<set $breastsensitivity += 1>><<clamp>><<replace "#statsbreastsensitivity">><<print $breastsensitivity>> <<= $breastsensitivity gte 1.5 ? "- <<breastsensitivity>> 가슴" : "- 평범함 ">><</replace>><</link>>
 	<br>
-	<<link "<<">><<set $genitalsensitivity -= 1>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>><</replace>><<replace "#statsgenitals">><<genitals>><</replace>> <</link>> |
-	<<link "<">><<set $genitalsensitivity -= 0.25>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>><</replace>><<replace "#statsgenitals">><<genitalsPost>><</replace>> <</link>> |
-	성기 민감도: <span id="statsgenitalsensitivity"><<print $genitalsensitivity>></span>
-	| <<link ">">><<set $genitalsensitivity += 0.25>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>><</replace>><<replace "#statsgenitals">><<genitalsPost>><</replace>> <</link>>
-	| <<link ">>">><<set $genitalsensitivity += 1>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>><</replace>><<replace "#statsgenitals">><<genitals>><</replace>> <</link>>
+	<<link "<<">><<set $genitalsensitivity -= 1>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>> |
+	<<link "<">><<set $genitalsensitivity -= 0.25>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>> |
+	성기 민감도: <span id="statsgenitalsensitivity"><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>> 성기" : "- 평범함 ">></span>
+	| <<link ">">><<set $genitalsensitivity += 0.25>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>>
+	| <<link ">>">><<set $genitalsensitivity += 1>><<clamp>><<replace "#statsgenitalsensitivity">><<print $genitalsensitivity>> <<= $genitalsensitivity gte 1.5 ? "- <<genitalsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>>
 	<br>
-	<<link "<<">><<set $bottomsensitivity -= 1>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>><</replace>><<replace "#statsbottom">><<bottom>><</replace>> <</link>> |
-	<<link "<">><<set $bottomsensitivity -= 0.25>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>><</replace>><<replace "#statsbottom">><<bottom>><</replace>> <</link>> |
-	엉덩이 민감도: <span id="statsbottomsensitivity"><<print $bottomsensitivity>></span>
-	| <<link ">">><<set $bottomsensitivity += 0.25>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>><</replace>><<replace "#statsbottom">><<bottom>><</replace>> <</link>>
-	| <<link ">>">><<set $bottomsensitivity += 1>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>><</replace>><<replace "#statsbottom">><<bottom>><</replace>> <</link>>
-	<br>
-
-	당신의 얼굴에는 당신의: <span id="statsmouth"><<mouthPost>></span>
-	<br>
-	당신의 상반신에는 당신의 : <span id="statsbreasts"><<breastsPost>></span>
-	<br>
-	당신의 다리 사이에는 당신의 : <span id="statsgenitals"><<genitalsPost>></span>
-	<br>
-	그리고 당신의 뒤에는 당신의 : <span id="statsbottom"><<bottomPost>></span>
-	<br>
-	<br>
+	<<link "<<">><<set $bottomsensitivity -= 1>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>> |
+	<<link "<">><<set $bottomsensitivity -= 0.25>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>> |
+	엉덩이 민감도: <span id="statsbottomsensitivity"><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>> 성기" : "- 평범함 ">></span>
+	| <<link ">">><<set $bottomsensitivity += 0.25>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>>
+	| <<link ">>">><<set $bottomsensitivity += 1>><<clamp>><<replace "#statsbottomsensitivity">><<print $bottomsensitivity>> <<= $bottomsensitivity gte 1.5 ? "- <<bottomsensitivity>> 성기" : "- 평범함 ">><</replace>><</link>>
+	<br><br>
 
 	<<if $parasitedisable is "f">>
 		<span class="gold">기생충</span>
@@ -1381,65 +1334,65 @@
 	<br>
 	<span class="description">한 번에 하나의 짐승 변신과 하나의 영적 존재 변신만 가능합니다.</span>
 	<br>
-	천사 변신: <<link "한다">><<angelTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<angelTransform 99>><<updatesidebarimg>><</link>><br>
-	악마 변신: <<link "한다">><<demonTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<demonTransform 99>><<updatesidebarimg>><</link>><br>
-	늑대 변신: <<link "한다">><<wolfTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<wolfTransform 99>><<updatesidebarimg>><</link>><br>
-	고양이 변신: <<link "한다">><<catTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<catTransform 99>><<updatesidebarimg>><</link>><br>
-	소 변신: <<link "한다">><<cowTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
-	새 변신: <<link "한다">><<harpyTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
-	여우 변신: <<link "한다">><<foxTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
+	<<tficon "angel">>천사 변신: <<link "한다">><<angelTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<angelTransform 99>><<updatesidebarimg>><</link>><br>
+	<<tficon "demon">>악마 변신: <<link "한다">><<demonTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<demonTransform 99>><<updatesidebarimg>><</link>><br>
+	<<tficon "wolf">>늑대 변신: <<link "한다">><<wolfTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<wolfTransform 99>><<updatesidebarimg>><</link>><br>
+	<<tficon "cat">>고양이 변신: <<link "한다">><<catTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<catTransform 99>><<updatesidebarimg>><</link>><br>
+	<<tficon "cow">>소 변신: <<link "한다">><<cowTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
+	<<tficon "harpy">>새 변신: <<link "한다">><<harpyTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
+	<<tficon "fox">>여우 변신: <<link "한다">><<foxTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
 	<br>
 
-	늑대 (완전 변신에 30 필요):
+	<<tficon "wolf">>늑대 (완전 변신에 30 필요):
 	<<link "<<">><<set $wolfbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statswolfbuild">><<print Math.trunc($wolfbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $wolfbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statswolfbuild">><<print Math.trunc($wolfbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statswolfbuild"><<print Math.trunc($wolfbuild)>></span>
 	| <<link ">">><<set $wolfbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statswolfbuild">><<print Math.trunc($wolfbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $wolfbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statswolfbuild">><<print Math.trunc($wolfbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
-	천사 (완전 변신에 50 필요):
+	<<tficon "angel">>천사 (완전 변신에 50 필요):
 	<<link "<<">><<set $angelbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statsangelbuild">><<print Math.trunc($angelbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $angelbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statsangelbuild">><<print Math.trunc($angelbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statsangelbuild"><<print Math.trunc($angelbuild)>></span>
 	| <<link ">">><<set $angelbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statsangelbuild">><<print Math.trunc($angelbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $angelbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statsangelbuild">><<print Math.trunc($angelbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
-	타천사 (면죄에 30 필요):
+	<<tficon "fallen">>타천사 (면죄에 30 필요):
 	<<link "<<">><<set $fallenbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statsfallenbuild">><<print Math.trunc($fallenbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $fallenbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statsfallenbuild">><<print Math.trunc($fallenbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statsfallenbuild"><<print Math.trunc($fallenbuild)>></span>
 	| <<link ">">><<set $fallenbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statsfallenbuild">><<print Math.trunc($fallenbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $fallenbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statsfallenbuild">><<print Math.trunc($fallenbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
-	악마 (완전 변신에 30 필요):
+	<<tficon "demon">>악마 (완전 변신에 30 필요):
 	<<link "<<">><<set $demonbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statsdemonbuild">><<print Math.trunc($demonbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $demonbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statsdemonbuild">><<print Math.trunc($demonbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statsdemonbuild"><<print Math.trunc($demonbuild)>></span>
 	| <<link ">">><<set $demonbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statsdemonbuild">><<print Math.trunc($demonbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $demonbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statsdemonbuild">><<print Math.trunc($demonbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
-	고양이 (완전 변신에 50 필요):
+	<<tficon "cat">>고양이 (완전 변신에 50 필요):
 	<<link "<<">><<set $catbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statscatbuild">><<print Math.trunc($catbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $catbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statscatbuild">><<print Math.trunc($catbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statscatbuild"><<print Math.trunc($catbuild)>></span>
 	| <<link ">">><<set $catbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statscatbuild">><<print Math.trunc($catbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $catbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statscatbuild">><<print Math.trunc($catbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
-	소 (완전 변신에 30 필요):
+	<<tficon "cow">>소 (완전 변신에 30 필요):
 	<<link "<<">><<set $cowbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statscowbuild">><<print Math.trunc($cowbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $cowbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statscowbuild">><<print Math.trunc($cowbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statscowbuild"><<print Math.trunc($cowbuild)>></span>
 	| <<link ">">><<set $cowbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statscowbuild">><<print Math.trunc($cowbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $cowbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statscowbuild">><<print Math.trunc($cowbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
-	새 (완전 변신에 30 필요):
+	<<tficon "harpy">>새 (완전 변신에 30 필요):
 	<<link "<<">><<set $birdbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statsbirdbuild">><<print Math.trunc($birdbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $birdbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statsbirdbuild">><<print Math.trunc($birdbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statsbirdbuild"><<print Math.trunc($birdbuild)>></span>
 	| <<link ">">><<set $birdbuild += 5>><<transformationAlteration>><<clamp>><<replace "#statsbirdbuild">><<print Math.trunc($birdbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	| <<link ">>">><<set $birdbuild += 50>><<transformationAlteration>><<clamp>><<replace "#statsbirdbuild">><<print Math.trunc($birdbuild)>><</replace>> <<updatesidebarimg>><</link>>
 	<br>
-	여우 (완전 변신에 30 필요):
+	<<tficon "fox">>여우 (완전 변신에 30 필요):
 	<<link "<<">><<set $foxbuild -= 50>><<transformationAlteration>><<clamp>><<replace "#statsfoxbuild">><<print Math.trunc($foxbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<<link "<">><<set $foxbuild -= 5>><<transformationAlteration>><<clamp>><<replace "#statsfoxbuild">><<print Math.trunc($foxbuild)>><</replace>> <<updatesidebarimg>><</link>> |
 	<span id="statsfoxbuild"><<print Math.trunc($foxbuild)>></span>
@@ -1664,24 +1617,6 @@
 	| <<link ">>>">><<set $purityEvent to 1>><<set $corruptionEvent to 1>><<npcincr Sydney purity 100>><<clamp>><<replace "#statssydneypure">><<if C.npc.Sydney.purity gt 0>><<print Math.trunc(C.npc.Sydney.purity)>><<else>><<print Math.trunc(C.npc.Sydney.corruption)>><</if>><</replace>><<replace "#sydneypuretext">><<if C.npc.Sydney.purity gt 0>><<print "순결:">><<else>><<print "타락:">><</if>><</replace>><</link>> (100 = 최대, 0 이하로 떨어지면 타락으로 변경됨.)
 	<br><br>
 
-	<<link "<<<">><<npcincr Mason love -100>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> |
-	<<link "<<">><<npcincr Mason love -10>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> |
-	<<link "<">><<npcincr Mason love -1>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> |
-	메이슨 사랑: <span id="statsmasonlove"><<print Math.trunc(C.npc.Mason.love)>></span>
-	| <<link ">">><<npcincr Mason love 1>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>>
-	| <<link ">>">><<npcincr Mason love 10>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>>
-	| <<link ">>>">><<npcincr Mason love 100>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> (50 = 최대)
-	<br>
-
-	<<link "<<<">><<npcincr Mason lust -100>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> |
-	<<link "<<">><<npcincr Mason lust -10>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> |
-	<<link "<">><<npcincr Mason lust -1>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> |
-	메이슨 욕정: <span id="statsmasonlust"><<print Math.trunc(C.npc.Mason.lust)>></span>
-	| <<link ">">><<npcincr Mason lust 1>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>>
-	| <<link ">>">><<npcincr Mason lust 10>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>>
-	| <<link ">>>">><<npcincr Mason lust 100>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> (50 = 최대)
-	<br><br>
-
 	<<link "<<<">><<npcincr Alex love -100>><<clamp>><<replace "#statsalexlove">><<print Math.trunc(C.npc.Alex.love)>><</replace>><</link>> |
 	<<link "<<">><<npcincr Alex love -10>><<clamp>><<replace "#statsalexlove">><<print Math.trunc(C.npc.Alex.love)>><</replace>><</link>> |
 	<<link "<">><<npcincr Alex love -1>><<clamp>><<replace "#statsalexlove">><<print Math.trunc(C.npc.Alex.love)>><</replace>><</link>> |
@@ -1737,6 +1672,15 @@
 	| <<link ">>>">><<npcincr Sam love 100>><<clamp>><<replace "#statssamlove">><<print Math.trunc(C.npc.Sam.love)>><</replace>><</link>> (50 = 최대)
 	<br>
 
+	<<link "<<<">><<npcincr Charlie love -100>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> |
+	<<link "<<">><<npcincr Charlie love -10>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> |
+	<<link "<">><<npcincr Charlie love -1>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> |
+	찰리 사랑: <span id="statscharlielove"><<print Math.trunc(C.npc.Charlie.love)>></span>
+	| <<link ">">><<npcincr Charlie love 1>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>>
+	| <<link ">>">><<npcincr Charlie love 10>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>>
+	| <<link ">>>">><<npcincr Charlie love 100>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> (50 = 최대)
+	<br>
+
 	<<link "<<<">><<npcincr Wren love -100>><<clamp>><<replace "#statswrenlove">><<print Math.trunc(C.npc.Wren.love)>><</replace>><</link>> |
 	<<link "<<">><<npcincr Wren love -10>><<clamp>><<replace "#statswrenlove">><<print Math.trunc(C.npc.Wren.love)>><</replace>><</link>> |
 	<<link "<">><<npcincr Wren love -1>><<clamp>><<replace "#statswrenlove">><<print Math.trunc(C.npc.Wren.love)>><</replace>><</link>> |
@@ -1752,16 +1696,97 @@
 	시리스 사랑: <span id="statssirrislove"><<print Math.trunc(C.npc.Sirris.love)>></span>
 	| <<link ">">><<npcincr Sirris love 1>><<clamp>><<replace "#statssirrislove">><<print Math.trunc(C.npc.Sirris.love)>><</replace>><</link>>
 	| <<link ">>">><<npcincr Sirris love 10>><<clamp>><<replace "#statssirrislove">><<print Math.trunc(C.npc.Sirris.love)>><</replace>><</link>>
-	| <<link ">>>">><<npcincr Sirris love 100>><<clamp>><<replace "#statssirrislove">><<print Math.trunc(C.npc.Sirris.love)>><</replace>><</link>> (50 = 최대)
+	| <<link ">>>">><<npcincr Sirris love 100>><<clamp>><<replace "#statssirrislove">><<print Math.trunc(C.npc.Sirris.love)>><</replace>><</link>> (100 = 최대)
 	<br>
 
-	<<link "<<<">><<npcincr Charlie love -100>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> |
-	<<link "<<">><<npcincr Charlie love -10>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> |
-	<<link "<">><<npcincr Charlie love -1>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> |
-	찰리 사랑: <span id="statscharlielove"><<print Math.trunc(C.npc.Charlie.love)>></span>
-	| <<link ">">><<npcincr Charlie love 1>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>>
-	| <<link ">>">><<npcincr Charlie love 10>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>>
-	| <<link ">>>">><<npcincr Charlie love 100>><<clamp>><<replace "#statscharlielove">><<print Math.trunc(C.npc.Charlie.love)>><</replace>><</link>> (50 = 최대)
+	<<link "<<<">><<npcincr Winter love -100>><<clamp>><<replace "#statswinterlove">><<print Math.trunc(C.npc.Winter.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Winter love -10>><<clamp>><<replace "#statswinterlove">><<print Math.trunc(C.npc.Winter.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Winter love -1>><<clamp>><<replace "#statswinterlove">><<print Math.trunc(C.npc.Winter.love)>><</replace>><</link>> |
+    윈터 사랑: <span id="statswinterlove"><<print Math.trunc(C.npc.Winter.love)>></span>
+    | <<link ">">><<npcincr Winter love 1>><<clamp>><<replace "#statswinterlove">><<print Math.trunc(C.npc.Winter.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Winter love 10>><<clamp>><<replace "#statswinterlove">><<print Math.trunc(C.npc.Winter.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Winter love 100>><<clamp>><<replace "#statswinterlove">><<print Math.trunc(C.npc.Winter.love)>><</replace>><</link>> (100 = 최대)
+    <br>
+
+	<<link "<<<">><<npcincr Doren love -100>><<clamp>><<replace "#statsdorenlove">><<print Math.trunc(C.npc.Doren.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Doren love -10>><<clamp>><<replace "#statsdorenlove">><<print Math.trunc(C.npc.Doren.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Doren love -1>><<clamp>><<replace "#statsdorenlove">><<print Math.trunc(C.npc.Doren.love)>><</replace>><</link>> |
+    도렌 사랑: <span id="statsdorenlove"><<print Math.trunc(C.npc.Doren.love)>></span>
+    | <<link ">">><<npcincr Doren love 1>><<clamp>><<replace "#statsdorenlove">><<print Math.trunc(C.npc.Doren.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Doren love 10>><<clamp>><<replace "#statsdorenlove">><<print Math.trunc(C.npc.Doren.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Doren love 100>><<clamp>><<replace "#statsdorenlove">><<print Math.trunc(C.npc.Doren.love)>><</replace>><</link>> (100 = 최대)
+    <br>
+
+	<<link "<<<">><<npcincr Leighton love -100>><<clamp>><<replace "#statsleightonlove">><<print Math.trunc(C.npc.Leighton.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Leighton love -10>><<clamp>><<replace "#statsleightonlove">><<print Math.trunc(C.npc.Leighton.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Leighton love -1>><<clamp>><<replace "#statsleightonlove">><<print Math.trunc(C.npc.Leighton.love)>><</replace>><</link>> |
+    레이턴 사랑: <span id="statsleightonlove"><<print Math.trunc(C.npc.Leighton.love)>></span>
+    | <<link ">">><<npcincr Leighton love 1>><<clamp>><<replace "#statsleightonlove">><<print Math.trunc(C.npc.Leighton.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Leighton love 10>><<clamp>><<replace "#statsleightonlove">><<print Math.trunc(C.npc.Leighton.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Leighton love 100>><<clamp>><<replace "#statsleightonlove">><<print Math.trunc(C.npc.Leighton.love)>><</replace>><</link>> (100 = 최대)
+    <br>
+
+	<<link "<<<">><<npcincr Remy love -100>><<clamp>><<replace "#statsremylove">><<print Math.trunc(C.npc.Remy.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Remy love -10>><<clamp>><<replace "#statsremylove">><<print Math.trunc(C.npc.Remy.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Remy love -1>><<clamp>><<replace "#statsremylove">><<print Math.trunc(C.npc.Remy.love)>><</replace>><</link>> |
+    레미 사랑: <span id="statsremylove"><<print Math.trunc(C.npc.Remy.love)>></span>
+    | <<link ">">><<npcincr Remy love 1>><<clamp>><<replace "#statsremylove">><<print Math.trunc(C.npc.Remy.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Remy love 10>><<clamp>><<replace "#statsremylove">><<print Math.trunc(C.npc.Remy.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Remy love 100>><<clamp>><<replace "#statsremylove">><<print Math.trunc(C.npc.Remy.love)>><</replace>><</link>> (100 = 최대)
+    <br>
+
+	<<link "<<<">><<npcincr Harper love -100>><<clamp>><<replace "#statsharperlove">><<print Math.trunc(C.npc.Harper.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Harper love -10>><<clamp>><<replace "#statsharperlove">><<print Math.trunc(C.npc.Harper.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Harper love -1>><<clamp>><<replace "#statsharperlove">><<print Math.trunc(C.npc.Harper.love)>><</replace>><</link>> |
+    하퍼 사랑: <span id="statsharperlove"><<print Math.trunc(C.npc.Harper.love)>></span>
+    | <<link ">">><<npcincr Harper love 1>><<clamp>><<replace "#statsharperlove">><<print Math.trunc(C.npc.Harper.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Harper love 10>><<clamp>><<replace "#statsharperlove">><<print Math.trunc(C.npc.Harper.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Harper love 100>><<clamp>><<replace "#statsharperlove">><<print Math.trunc(C.npc.Harper.love)>><</replace>><</link>> (100 = 최대)
+    <br>
+
+	<<link "<<<">><<npcincr Briar love -100>><<clamp>><<replace "#statsbriarlove">><<print Math.trunc(C.npc.Briar.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Briar love -10>><<clamp>><<replace "#statsbriarlove">><<print Math.trunc(C.npc.Briar.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Briar love -1>><<clamp>><<replace "#statsbriarlove">><<print Math.trunc(C.npc.Briar.love)>><</replace>><</link>> |
+    브라이어 사랑: <span id="statsbriarlove"><<print Math.trunc(C.npc.Briar.love)>></span>
+    | <<link ">">><<npcincr Briar love 1>><<clamp>><<replace "#statsbriarlove">><<print Math.trunc(C.npc.Briar.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Briar love 10>><<clamp>><<replace "#statsbriarlove">><<print Math.trunc(C.npc.Briar.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Briar love 100>><<clamp>><<replace "#statsbriarlove">><<print Math.trunc(C.npc.Briar.love)>><</replace>><</link>> (100 = 최대)
+    <br>
+
+	<<link "<<<">><<npcincr Morgan love -100>><<clamp>><<replace "#statsmorganlove">><<print Math.trunc(C.npc.Morgan.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Morgan love -10>><<clamp>><<replace "#statsmorganlove">><<print Math.trunc(C.npc.Morgan.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Morgan love -1>><<clamp>><<replace "#statsmorganlove">><<print Math.trunc(C.npc.Morgan.love)>><</replace>><</link>> |
+    모건 사랑: <span id="statsmorganlove"><<print Math.trunc(C.npc.Morgan.love)>></span>
+    | <<link ">">><<npcincr Morgan love 1>><<clamp>><<replace "#statsmorganlove">><<print Math.trunc(C.npc.Morgan.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Morgan love 10>><<clamp>><<replace "#statsmorganlove">><<print Math.trunc(C.npc.Morgan.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Morgan love 100>><<clamp>><<replace "#statsmorganlove">><<print Math.trunc(C.npc.Morgan.love)>><</replace>><</link>> (100 = 최대)
+    <br>
+
+	<<link "<<<">><<npcincr Niki love -100>><<clamp>><<replace "#statsnikilove">><<print Math.trunc(C.npc.Niki.love)>><</replace>><</link>> |
+    <<link "<<">><<npcincr Niki love -10>><<clamp>><<replace "#statsnikilove">><<print Math.trunc(C.npc.Niki.love)>><</replace>><</link>> |
+    <<link "<">><<npcincr Niki love -1>><<clamp>><<replace "#statsnikilove">><<print Math.trunc(C.npc.Niki.love)>><</replace>><</link>> |
+    니키 사랑: <span id="statsnikilove"><<print Math.trunc(C.npc.Niki.love)>></span>
+    | <<link ">">><<npcincr Niki love 1>><<clamp>><<replace "#statsnikilove">><<print Math.trunc(C.npc.Niki.love)>><</replace>><</link>>
+    | <<link ">>">><<npcincr Niki love 10>><<clamp>><<replace "#statsnikilove">><<print Math.trunc(C.npc.Niki.love)>><</replace>><</link>>
+    | <<link ">>>">><<npcincr Niki love 100>><<clamp>><<replace "#statsnikilove">><<print Math.trunc(C.npc.Niki.love)>><</replace>><</link>> (100 = 최대)
+    <br><br>
+
+	<<link "<<<">><<npcincr Mason love -100>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> |
+	<<link "<<">><<npcincr Mason love -10>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> |
+	<<link "<">><<npcincr Mason love -1>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> |
+	메이슨 사랑: <span id="statsmasonlove"><<print Math.trunc(C.npc.Mason.love)>></span>
+	| <<link ">">><<npcincr Mason love 1>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>>
+	| <<link ">>">><<npcincr Mason love 10>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>>
+	| <<link ">>>">><<npcincr Mason love 100>><<clamp>><<replace "#statsmasonlove">><<print Math.trunc(C.npc.Mason.love)>><</replace>><</link>> (50 = 최대)
+	<br>
+
+	<<link "<<<">><<npcincr Mason lust -100>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> |
+	<<link "<<">><<npcincr Mason lust -10>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> |
+	<<link "<">><<npcincr Mason lust -1>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> |
+	메이슨 욕정: <span id="statsmasonlust"><<print Math.trunc(C.npc.Mason.lust)>></span>
+	| <<link ">">><<npcincr Mason lust 1>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>>
+	| <<link ">>">><<npcincr Mason lust 10>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>>
+	| <<link ">>>">><<npcincr Mason lust 100>><<clamp>><<replace "#statsmasonlust">><<print Math.trunc(C.npc.Mason.lust)>><</replace>><</link>> (50 = 최대)
 	<br><br>
 
 	<<link "<<<">><<npcincr "Zephyr" love -100>><<clamp>><<replace "#statszephyrlove">><<print Math.trunc(C.npc.Zephyr.love)>><</replace>><</link>> |
@@ -1780,9 +1805,7 @@
 	| <<link ">">><<npcincr "Zephyr" dom 1>><<clamp>><<replace "#statszephyrdom">><<print Math.trunc(C.npc.Zephyr.dom)>><</replace>><</link>>
 	| <<link ">>">><<npcincr "Zephyr" dom 10>><<clamp>><<replace "#statszephyrdom">><<print Math.trunc(C.npc.Zephyr.dom)>><</replace>><</link>>
 	| <<link ">>>">><<npcincr "Zephyr" dom 100>><<clamp>><<replace "#statszephyrdom">><<print Math.trunc(C.npc.Zephyr.dom)>><</replace>><</link>> (50 = 최대)
-	<br>
-
-	<br>
+	<br><br>
 
 	<<link "<<<">><<npcincr "Great Hawk" love -100>><<clamp>><<replace "#statsgreathawklove">><<print Math.trunc(C.npc["Great Hawk"].love)>><</replace>><</link>> |
 	<<link "<<">><<npcincr "Great Hawk" love -10>><<clamp>><<replace "#statsgreathawklove">><<print Math.trunc(C.npc["Great Hawk"].love)>><</replace>><</link>> |
@@ -1928,6 +1951,8 @@
 
 
 	<<if $farm_stage gte 2>>
+		<<link "밭을 정리한다">><<set $farm.clearing to 0>><</link>>
+		<br>
 		<<link "<<<">><<set $farm.beasts.horses -= 20>><<set $farm.beasts.horses = Math.clamp($farm.beasts.horses, -30, 30)>><<replace "#horse_respect">><<print Math.trunc($farm.beasts.horses)>><</replace>><</link>> |
 		<<link "<<">><<set $farm.beasts.horses -= 5>><<set $farm.beasts.horses = Math.clamp($farm.beasts.horses, -30, 30)>><<replace "#horse_respect">><<print Math.trunc($farm.beasts.horses)>><</replace>><</link>> |
 		<<link "<">><<set $farm.beasts.horses -= 1>><<set $farm.beasts.horses = Math.clamp($farm.beasts.horses, -30, 30)>><<replace "#horse_respect">><<print Math.trunc($farm.beasts.horses)>><</replace>><</link>> |
@@ -1962,20 +1987,39 @@
 		<br><br>
 	<</if>>
 
+	<<if $farm_stage gte 5>>
+		<<if $farm.aggro is undefined>><<set $farm.aggro to 0>><</if>>
+		<<link "<<<">><<set $farm.aggro -= 100>><<set $farm.aggro = Math.clamp($farm.aggro, -100, 100)>><<replace "#statfarm_aggro">><<print Math.trunc($farm.aggro)>><</replace>><</link>> |
+        <<link "<<">><<set $farm.aggro -= 10>><<set $farm.aggro = Math.clamp($farm.aggro, -100, 100)>><<replace "#statfarm_aggro">><<print Math.trunc($farm.aggro)>><</replace>><</link>> |
+        <<link "<">><<set $farm.aggro -= 1>><<set $farm.aggro = Math.clamp($farm.aggro, -100, 100)>><<replace "#statfarm_aggro">><<print Math.trunc($farm.aggro)>><</replace>><</link>> |
+        레미의 침략: <span id="statfarm_aggro"><<print Math.trunc($farm.aggro)>></span>
+        | <<link ">">><<set $farm.aggro += 1>><<set $farm.aggro = Math.clamp($farm.aggro, -100, 100)>><<replace "#statfarm_aggro">><<print Math.trunc($farm.aggro)>><</replace>><</link>>
+        | <<link ">>">><<set $farm.aggro += 10>><<set $farm.aggro = Math.clamp($farm.aggro, -100, 100)>><<replace "#statfarm_aggro">><<print Math.trunc($farm.aggro)>><</replace>><</link>>
+        | <<link ">>>">><<set $farm.aggro += 100>><<set $farm.aggro = Math.clamp($farm.aggro, -100, 100)>><<replace "#statfarm_aggro">><<print Math.trunc($farm.aggro)>><</replace>><</link>>
+		<br><br>
+	<</if>>
 
+	<<if $livestock_intro isnot undefined>>
+		<<link "<<<">><<set $livestock_obey -= 100>><<set $livestock_obey = Math.clamp($livestock_obey, 0, 100)>><<replace "#statlivestock_obey">><<print Math.trunc($livestock_obey)>><</replace>><</link>> |
+        <<link "<<">><<set $livestock_obey -= 10>><<set $livestock_obey = Math.clamp($livestock_obey, 0, 100)>><<replace "#statlivestock_obey">><<print Math.trunc($livestock_obey)>><</replace>><</link>> |
+        <<link "<">><<set $livestock_obey -= 1>><<set $livestock_obey = Math.clamp($livestock_obey, 0, 100)>><<replace "#statlivestock_obey">><<print Math.trunc($livestock_obey)>><</replace>><</link>> |
+        가축으로서의 순종도: <span id="statlivestock_obey"><<print Math.trunc($livestock_obey)>></span>
+        | <<link ">">><<set $livestock_obey += 1>><<set $livestock_obey = Math.clamp($livestock_obey, 0, 100)>><<replace "#statlivestock_obey">><<print Math.trunc($livestock_obey)>><</replace>><</link>>
+        | <<link ">>">><<set $livestock_obey += 10>><<set $livestock_obey = Math.clamp($livestock_obey, 0, 100)>><<replace "#statlivestock_obey">><<print Math.trunc($livestock_obey)>><</replace>><</link>>
+        | <<link ">>>">><<set $livestock_obey += 100>><<set $livestock_obey = Math.clamp($livestock_obey, 0, 100)>><<replace "#statlivestock_obey">><<print Math.trunc($livestock_obey)>><</replace>><</link>>
+        <br>
 
-
-
-	<<if $dockwork is 2>>
-
-	<<link "<<<">><<set $dockstatus -= 100>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>> |
-	<<link "<<">><<set $dockstatus -= 10>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>> |
-	<<link "<">><<set $dockstatus -= 1>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>> |
-	부두에서의 존중: <span id="statdockstatus"><<print Math.trunc($dockstatus)>></span>
-	| <<link ">">><<set $dockstatus += 1>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>>
-	| <<link ">>">><<set $dockstatus += 10>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>>
-	| <<link ">>>">><<set $dockstatus += 100>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>>
-	<br><br>
+		<<if $livestock_lock_intro isnot undefined>>
+			<<link "<<<">><<set $farmLockStr -= 100>><<set $farmLockStr = Math.clamp($farmLockStr, 0, 100)>><<replace "#statfarmLock">><<print Math.trunc($farmLockStr)>><</replace>><</link>> |
+        	<<link "<<">><<set $farmLockStr -= 10>><<set $farmLockStr = Math.clamp($farmLockStr, 0, 100)>><<replace "#statfarmLock">><<print Math.trunc($farmLockStr)>><</replace>><</link>> |
+        	<<link "<">><<set $farmLockStr -= 1>><<set $farmLockStr = Math.clamp($farmLockStr, 0, 100)>><<replace "#statfarmLock">><<print Math.trunc($farmLockStr)>><</replace>><</link>> |
+        	농장 자물쇠 내구도: <span id="statfarmLock"><<print Math.trunc($farmLockStr)>></span>
+        	| <<link ">">><<set $farmLockStr += 1>><<set $farmLockStr = Math.clamp($farmLockStr, 0, 100)>><<replace "#statfarmLock">><<print Math.trunc($farmLockStr)>><</replace>><</link>>
+        	| <<link ">>">><<set $farmLockStr += 10>><<set $farmLockStr = Math.clamp($farmLockStr, 0, 100)>><<replace "#statfarmLock">><<print Math.trunc($farmLockStr)>><</replace>><</link>>
+        	| <<link ">>>">><<set $farmLockStr += 100>><<set $farmLockStr = Math.clamp($farmLockStr, 0, 100)>><<replace "#statfarmLock">><<print Math.trunc($farmLockStr)>><</replace>><</link>>
+        	<br>
+		<</if>>
+		<br>
 	<</if>>
 
 	<<if $pound>>
@@ -1986,8 +2030,38 @@
 		| <<link ">">><<set $pound.status += 1>><<set $pound.status = Math.clamp($pound.status, 0, 100)>><<replace "#statpoundstatus">><<print Math.trunc($pound.status)>><</replace>><</link>>
 		| <<link ">>">><<set $pound.status += 10>><<set $pound.status = Math.clamp($pound.status, 0, 100)>><<replace "#statpoundstatus">><<print Math.trunc($pound.status)>><</replace>><</link>>
 		| <<link ">>>">><<set $pound.status += 100>><<set $pound.status = Math.clamp($pound.status, 0, 100)>><<replace "#statpoundstatus">><<print Math.trunc($pound.status)>><</replace>><</link>>
+		<br>
+        <<link "<<<">><<set $stray_happiness -= 100>><<set $stray_happiness = Math.clamp($stray_happiness, 0, 100)>><<replace "#statstrayhappiness">><<print Math.trunc($stray_happiness)>><</replace>><</link>> |
+        <<link "<<">><<set $stray_happiness -= 10>><<set $stray_happiness = Math.clamp($stray_happiness, 0, 100)>><<replace "#statstrayhappiness">><<print Math.trunc($stray_happiness)>><</replace>><</link>> |
+        <<link "<">><<set $stray_happiness  -= 1>><<set $stray_happiness = Math.clamp($stray_happiness, 0, 100)>><<replace "#statstrayhappiness">><<print Math.trunc($stray_happiness)>><</replace>><</link>> |
+        떠돌이 개들의 만족도: <span id="statstrayhappiness"><<print Math.trunc($stray_happiness)>></span>
+        | <<link ">">><<set $stray_happiness += 1>><<set $stray_happiness = Math.clamp($stray_happiness, 0, 100)>><<replace "#statstrayhappiness">><<print Math.trunc($stray_happiness)>><</replace>><</link>>
+        | <<link ">>">><<set $stray_happiness += 10>><<set $stray_happiness = Math.clamp($stray_happiness, 0, 100)>><<replace "#statstrayhappiness">><<print Math.trunc($stray_happiness)>><</replace>><</link>>
+        | <<link ">>>">><<set $stray_happiness += 100>><<set $stray_happiness = Math.clamp($stray_happiness, 0, 100)>><<replace "#statstrayhappiness">><<print Math.trunc($stray_happiness)>><</replace>><</link>>
 		<br><br>
 	<</if>>
+
+	<<if $dockwork is 2>>
+		<<link "<<<">><<set $dockstatus -= 100>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>> |
+		<<link "<<">><<set $dockstatus -= 10>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>> |
+		<<link "<">><<set $dockstatus -= 1>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>> |
+		부두에서의 존중: <span id="statdockstatus"><<print Math.trunc($dockstatus)>></span>
+		| <<link ">">><<set $dockstatus += 1>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>>
+		| <<link ">>">><<set $dockstatus += 10>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>>
+		| <<link ">>>">><<set $dockstatus += 100>><<set $dockstatus = Math.clamp($dockstatus, 0, 100)>><<replace "#statdockstatus">><<print Math.trunc($dockstatus)>><</replace>><</link>>
+		<br><br>
+	<</if>>
+
+	<<if $pirate_rank gte 0>>
+        <<link "<<<">><<set $pirate_status -= 100>><<set $pirate_status = Math.clamp($pirate_status, -100, 100)>><<replace "#statpiratetatus">><<print Math.trunc($pirate_status)>><</replace>><</link>> |
+        <<link "<<">><<set $pirate_status -= 10>><<set $pirate_status = Math.clamp($pirate_status, -100, 100)>><<replace "#statpiratetatus">><<print Math.trunc($pirate_status)>><</replace>><</link>> |
+        <<link "<">><<set $pirate_status -= 1>><<set $pirate_status = Math.clamp($pirate_status, -100, 100)>><<replace "#statpiratetatus">><<print Math.trunc($pirate_status)>><</replace>><</link>> |
+        해적 평판: <span id="statpiratetatus"><<print Math.trunc($pirate_status)>></span>
+        | <<link ">">><<set $pirate_status += 1>><<set $pirate_status = Math.clamp($pirate_status, -100, 100)>><<replace "#statpiratetatus">><<print Math.trunc($pirate_status)>><</replace>><</link>>
+        | <<link ">>">><<set $pirate_status += 10>><<set $pirate_status = Math.clamp($pirate_status, -100, 100)>><<replace "#statpiratetatus">><<print Math.trunc($pirate_status)>><</replace>><</link>>
+        | <<link ">>>">><<set $pirate_status += 100>><<set $pirate_status = Math.clamp($pirate_status, -100, 100)>><<replace "#statpiratetatus">><<print Math.trunc($pirate_status)>><</replace>><</link>>
+        <br><br>
+    <</if>>
 
 	<span class="gold">범죄</span>
 	<br>
@@ -2155,7 +2229,7 @@
 		<br>
 		<<soupkitchenicon>>[[무료 급식소|Soup Kitchen]]
 		<br>
-		<<connudatusicon>>[[코누다투스 가|Connudatus Street]]
+		<<connudatusicon>>[[콘누다투스 가|Connudatus Street]]
 		<br>
 		<<stripclubicon>>[[스트립 클럽|Strip Club]]
 		<br>
@@ -2300,13 +2374,13 @@
 		<<set Weather.Temperature.set($options.fahrenheit ? Weather.Temperature.toCelsius(_temp) : _temp, new DateTime(Time.date).addDays(1))>>
 		<<replace "#temperatureCheatDisplay">><<print _temp>><</replace>>
 	<</link>>
-	<br><span class="description">온도의 변화는 최소 1분 이상의 시간이 지나야 가시적으로 변화합니다</span>
+	<br><span class="description">온도의 변화는 최소 1분 이상의 시간이 지나야 가시적으로 변화합니다.</span>
 	<br><br>
 
 	<<if $maxDefaultActionSets isnot undefined>>
 		<span class="gold">기본 행동 세트</span>
 		<br>
-		<span class="description">너무 많게 설정하면 전투 퍼포먼스가 저하될 수 있고, 치트 메뉴 상에서 최대 값은 7입니다</span>
+		<span class="description">너무 많게 설정하면 전투 퍼포먼스가 저하될 수 있습니다. 치트 없이는, 기본 행동 세트의 최대 값은 7입니다.</span>
 		<br>
 		<<link "<<<">><<set $maxDefaultActionSets to Math.clamp($maxDefaultActionSets -= 10, 1, 10)>><<replace "#statsDefaultSets">><<print $maxDefaultActionSets>><</replace>><</link>> |
 		<<link "<<">><<set $maxDefaultActionSets to Math.clamp($maxDefaultActionSets -= 5, 1, 10)>><<replace "#statsDefaultSets">><<print $maxDefaultActionSets>><</replace>><</link>> |
@@ -2318,6 +2392,8 @@
 		<br><br>
 	<</if>>
 
+	<span class="gold">기생충 임신</span>
+	<br>
 	<<if $parasitepregdisable is "f" && ($sexStats.anus.pregnancy.type is "parasite" or $sexStats.anus.pregnancy.type is null)>>
 		<div id="cheatsImpregOptions-anus"><<cheatsImpregOptions "anus">></div>
 		<br>
@@ -2336,13 +2412,10 @@
 	<<elseif !($sexStats.vagina.pregnancy.type is "parasite" or $sexStats.vagina.pregnancy.type is null)>>
 		당신은 현재 "<<trNPCdesc $sexStats.vagina.pregnancy.type>>_trResult" 아이를 임신하고 있어 이 설정을 변경할 수 없습니다.
 		<br><br>
-	<<else>>
-		이 설정에 접근하려면 설정에서 기생충 임신을 활성화해야 합니다.
-		<br><br>
 	<</if>>
 
 	<<if ($playerPregnancyBeastDisable is "f" or $playerPregnancyHumanDisable is "f")>>
-		<span class="gold">임신 치트</span>
+		<span class="gold">기생충이 아닌 임신</span>
 		<div id="cheatsPregnancyOptions"><<cheatsPregnancyOptions>></div>
 	<<else>>
 		이 설정에 접근하려면 설정에서 임신을 활성화해야 합니다.
@@ -2677,7 +2750,6 @@
 			<<trNamedNPC _pregEnabled.nam>><<set _pregnantNPC[_pregEnabled.nam] to $NPCName.indexOf(_pregEnabled)>>
 		<</if>>
 	<</for>>
-	<<run console.log(_pregnantNPC)>>
 
 	<<if Object.keys(_pregnantNPC).length>>
 		<span class="gold">임신한 NPC들:</span>
@@ -2766,4 +2838,153 @@
 
 	<</if>>
 
+<</widget>>
+
+<<widget "changeCheatClass">>
+	<<if _args[1] is "있음">>
+		<<removeclass _args[0] "red">>
+		<<addclass _args[0] "green">>
+	<<else>>
+		<<removeclass _args[0] "green">>
+		<<addclass _args[0] "red">>
+	<</if>>
+<</widget>>
+
+<<widget "cheatsBody">>
+	<span @class="$player.gender_body is 'm' ? 'goldLink' : 'unselected'">
+		<<link "남성적">>
+			<<set $player.gender_body to "m">>
+			<<replace "#statsBodyType">><<cheatsBody>><</replace>><<updatesidebarimg>>
+		<</link>>
+	</span>	|
+	<span @class="$player.gender_body is 'f' ? 'goldLink' : 'unselected'">
+		<<link "여성적">>
+			<<set $player.gender_body to "f">>
+			<<replace "#statsBodyType">><<cheatsBody>><</replace>><<updatesidebarimg>>
+		<</link>>
+	</span> |
+	<span @class="$player.gender_body is 'a' ? 'goldLink' : 'unselected'">
+		<<link "중성적">>
+			<<set $player.gender_body to "a">>
+			<<replace "#statsBodyType">><<cheatsBody>><</replace>><<updatesidebarimg>>
+		<</link>>
+	</span>
+<</widget>>
+
+<<widget "cheatsBodySize">>
+	<span @class="$bodysize is 0 ? 'goldLink' : 'link'">
+		<<link "조그마함">>
+			<<set $bodysize to 0>>
+			<<set _physique_max_old to $physiquesize>>
+			<<set $physiquesize to 6000>>
+			<<set $physique *= $physiquesize / _physique_max_old>>
+			<<replace "#statsBodySize">><<cheatsBodySize>><</replace>>
+		<</link>>
+	</span> |
+	<span @class="$bodysize is 1 ? 'goldLink' : 'link'">
+		<<link "작음">>
+			<<set $bodysize to 1>>
+			<<set _physique_max_old to $physiquesize>>
+			<<set $physiquesize to 10000>>
+			<<set $physique *= $physiquesize / _physique_max_old>>
+			<<replace "#statsBodySize">><<cheatsBodySize>><</replace>>
+		<</link>>
+	</span> |
+	<span @class="$bodysize is 2 ? 'goldLink' : 'link'">
+		<<link "평범함">>
+			<<set $bodysize to 2>>
+			<<set _physique_max_old to $physiquesize>>
+			<<set $physiquesize to 12000>>
+			<<set $physique *= $physiquesize / _physique_max_old>>
+			<<replace "#statsBodySize">><<cheatsBodySize>><</replace>>
+		<</link>>
+	</span> |
+	<span @class="$bodysize is 3 ? 'goldLink' : 'link'">
+		<<link "큼">>
+			<<set $bodysize to 3>>
+			<<set _physique_max_old to $physiquesize>>
+			<<set $physiquesize to 16000>>
+			<<set $physique *= $physiquesize / _physique_max_old>>
+			<<replace "#statsBodySize">><<cheatsBodySize>><</replace>>
+		<</link>>
+	</span>
+<</widget>>
+
+<<widget "cheatsGender">>
+	<<if _inWardrobe>>
+		<<if $earSlime.growth gt 50>>
+			<span class="gold"><<= $player.gender is "m" ? "남자" : $player.gender is "f" ? "여자" : "후타나리">></span>
+			| 이 설정은 당신 귓속의 슬라임의 현재 성장도 때문에 변경할 수 없습니다. 귓속의 슬라임을 제거하면 이 치트들이 활성화됩니다.
+		<<elseif $sexStats.vagina.menstruation.currentState is "normal">>
+			<<if $player.gender is "m">>
+				<span class="gold">남자</span> |
+			<<else>>
+				<<link "남자">>
+					<<wash>>
+					<<set $vaginause to "none">>
+					<<set $vaginastate to "none">>
+					<<set $penisuse to 0>>
+					<<set $penisstate to 0>>
+					<<set $player.gender to "m">>
+					<<set $player.sex to "m">>
+					<<set $player.ballsExist to true>>
+					<<set $player.penisExist to true>>
+					<<set $player.vaginaExist to false>>
+					<<set $sexStats.vagina.menstruation.running = false>>
+					<<updatesidebarimg>>
+					<<replace "#statsGender">><<cheatsGender>><</replace>>
+				<</link>> |
+			<</if>>
+			<<if $player.gender is "f">>
+				<span class="gold">여자</span> |
+			<<else>>
+				<<link "여자">>
+					<<wash>>
+					<<set $vaginause to 0>>
+					<<set $vaginastate to 0>>
+					<<set $penisuse to "none">>
+					<<set $penisstate to "none">>
+					<<set $player.gender to "f">>
+					<<set $player.sex to "f">>
+					<<set $player.ballsExist to false>>
+					<<set $player.penisExist to false>>
+					<<set $player.vaginaExist to true>>
+					<<set $sexStats.vagina.menstruation.running = true>>
+					<<updatesidebarimg>>
+					<<replace "#statsGender">><<cheatsGender>><</replace>>
+				<</link>> |
+			<</if>>
+			<<if $player.gender is "h">>
+				<span class="gold">후타나리</span>
+			<<else>>
+				<<link "후타나리">>
+					<<wash>>
+					<<set $vaginause to 0>>
+					<<set $vaginastate to 0>>
+					<<set $penisuse to 0>>
+					<<set $penisstate to 0>>
+					<<set $player.gender to "h">>
+					<<set $player.sex to "h">>
+					<<set $player.penisExist to true>>
+					<<set $player.vaginaExist to true>>
+					<<set $sexStats.vagina.menstruation.running = true>>
+					<<updatesidebarimg>>
+					<<replace "#statsGender">><<cheatsGender>><</replace>>
+				<</link>>
+			<</if>>
+		<<else>>
+			<span class="gold"><<= $player.gender is "m" ? "남자" : $player.gender is "f" ? "여자" : "후타나리">></span> | 이 설정은 옷장에 있을 때에만 변경할 수 있습니다.
+		<</if>>
+		<<if $player.gender is "h">>
+			<br>
+			후타나리 고환: <span id="statsBallsExist"><<= $player.ballsExist ? "있음" : "없음">></span> |
+			<<link "변경">>
+				<<set $player.ballsExist to clone(!$player.ballsExist)>>
+				<<updatesidebarimg>>
+				<<replace "#statsGender">><<cheatsGender>><</replace>>
+			<</link>>
+		<</if>>
+	<<else>>
+		<span class="gold"><<= $player.gender is "m" ? "남자" : $player.gender is "f" ? "여자" : "후타나리">></span> | 이 설정은 옷장에 있을 때에만 변경할 수 있습니다.
+	<</if>>
 <</widget>>

@@ -4,33 +4,45 @@
  * Created by aimozg on 29.08.2020.
  */
 namespace Renderer {
-	const millitime = (typeof performance === 'object' && typeof performance.now === 'function') ?
-		function () {
-			return performance.now()
-		} : function () {
-			return new Date().getTime()
-		};
+	const millitime = function () {
+		return performance.now()
+	};
+
+	function rescaleImageToCanvasHeight(image: HTMLImageElement, targetHeight: number): HTMLCanvasElement {
+		const aspectRatio = image.width / image.height;
+		const scaledWidth = targetHeight * aspectRatio;
+		const i2 = createCanvas(scaledWidth, targetHeight);
+		i2.imageSmoothingEnabled = false;
+		i2.drawImage(image, 0, 0, scaledWidth, targetHeight);
+		return i2.canvas;
+	}
 
 	export interface LayerImageLoader {
 		loadImage(src: string,
-		          layer: CompositeLayer,
-		          successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement) => any,
-		          errorCallback: (src: string, layer: CompositeLayer, error: any) => any
+			layer: CompositeLayer,
+			successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement | HTMLCanvasElement) => any,
+			errorCallback: (src: string, layer: CompositeLayer, error: any) => any
 		);
 	}
 	export const DefaultImageLoader: LayerImageLoader = {
 		loadImage(src: string,
-		          layer: CompositeLayer,
-		          successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement) => any,
-		          errorCallback: (src: string, layer: CompositeLayer, error: any) => any) {
-			const image = new Image();
-			image.onload = () => {
-				successCallback(src, layer, image);
+			layer: CompositeLayer,
+			successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement | HTMLCanvasElement) => any,
+			errorCallback: (src: string, layer: CompositeLayer, error: any) => any) {
+			if (src instanceof HTMLCanvasElement) {
+				successCallback(src, layer, src);
+			} else {
+				const image = new Image();
+				image.onload = () => {
+					// Rescale the image to the canvas height, if layer.scale is true
+					const rescaledImage = layer.scale ? rescaleImageToCanvasHeight(image, layer.model.height) : image;
+					successCallback(src, layer, rescaledImage);
+				};
+				image.onerror = (event) => {
+					errorCallback(src, layer, event);
+				};
+				image.src = src;
 			}
-			image.onerror = (event) => {
-				errorCallback(src, layer, event);
-			}
-			image.src = src;
 		}
 	}
 	export let ImageLoader: LayerImageLoader = DefaultImageLoader;
@@ -779,7 +791,19 @@ namespace Renderer {
 		},
 
 		render(image: CanvasImageSource, layer: CompositeLayer, context: Renderer.RenderPipelineContext): HTMLCanvasElement {
-			return cutoutFrom(ensureCanvas(image).getContext('2d'), layer.mask).canvas;
+			if (Array.isArray(layer.mask)) {
+				let combinedCtx = Renderer.createCanvas(image.width as number, image.height as number);
+				combinedCtx.fillRect(0, 0, combinedCtx.canvas.width, combinedCtx.canvas.height);
+				combinedCtx.globalCompositeOperation = 'destination-in';
+				layer.mask.forEach(mask => {
+					if(!mask) return Renderer.ensureCanvas(image).getContext('2d').canvas;
+					combinedCtx.drawImage(mask as CanvasImageSource, 0, 0);
+				});
+	
+				return Renderer.cutoutFrom(Renderer.ensureCanvas(image).getContext('2d'), combinedCtx.canvas).canvas;
+			} else {
+				return Renderer.cutoutFrom(Renderer.ensureCanvas(image).getContext('2d'), layer.mask as CanvasImageSource).canvas;
+			}
 		}
 	}
 
@@ -969,6 +993,7 @@ namespace Renderer {
 			for (const layer of layers) {
 				if (layer.show !== false && !layer.image) return;
 				if (layer.masksrc && !layer.mask) return;
+				if((Array.isArray(layer.masksrc) && layer.masksrc.length < 1) && !layer.mask) return;
 			}
 			if (listener && listener.loadingDone) listener.loadingDone(millitime() - t0, layersLoaded);
 			try {
@@ -989,7 +1014,9 @@ namespace Renderer {
 					}
 					layer.image = image;
 					layer.imageSrc = src;
-					ImageCaches[src] = image;
+					if (!(layer.src instanceof HTMLCanvasElement)) {
+						ImageCaches[src] = image as HTMLImageElement;
+					}
 					maybeRenderResult();
 				},
 				(src,layer,error)=>{
@@ -1006,37 +1033,47 @@ namespace Renderer {
 			)
 		}
 		function loadLayerMask(layer: CompositeLayer) {
-			ImageLoader.loadImage(
-				layer.masksrc,
-				layer,
-				(src,layer,image)=>{
-					layersLoaded++;
-					if (listener && listener.loaded) {
-						listener.loaded(layer.name || 'unnamed', src);
-					}
-					layer.mask = image;
-					layer.cachedMaskSrc = src;
-					ImageCaches[src] = image;
-					maybeRenderResult();
-				},
-				(src,layer,error)=>{
-					// Mark this src as erroneous to avoid blinking due to reload attempts
-					ImageErrors[src] = true;
-					if (listener && listener.loadError) {
-						listener.loadError(layer.name || 'unnamed', src);
-					} else {
+			if (!Array.isArray(layer.masksrc)) {
+				if (layer.masksrc == null) return;
+				layer.masksrc = [layer.masksrc];
+			}
+		
+			const masksLoaded: (HTMLImageElement | HTMLCanvasElement)[] = [];
+			let masksToLoad = layer.masksrc.length;
+		
+			layer.masksrc.forEach((src, index) => {
+				ImageLoader.loadImage(
+					src,
+					layer,
+					(src, layer, image) => {
+						masksLoaded[index] = image;
+						masksToLoad--;
+		
+						if (!(src instanceof HTMLCanvasElement)) {
+							ImageCaches[src] = image as HTMLImageElement;
+						}
+		
+						if (masksToLoad === 0) {
+							layer.mask = masksLoaded.length === 1 ? masksLoaded[0] : masksLoaded;
+							layer.cachedMaskSrc = layer.masksrc;
+							maybeRenderResult();
+						}
+					},
+					(src, layer, error) => {
 						console.error('Failed to load mask ' + src + (layer.name ? ' for layer ' + layer.name : ''));
+						layer.show = false;
+						ImageErrors[src] = true;
+						layer.masksrc = null;
+						maybeRenderResult();
 					}
-					delete layer.masksrc;
-					maybeRenderResult();
-				}
-			)
+				);
+			});
 		}
 
 		for (const layer of layers) {
 			let needImage = true;
 			if (layer.image) {
-				if (layer.imageSrc === layer.src) {
+				if (layer.imageSrc === layer.src || layer.src instanceof HTMLCanvasElement) {
 					needImage = false;
 				} else {
 					// Layer was loaded in previous render, but then its src was changed - purge cache
@@ -1055,9 +1092,15 @@ namespace Renderer {
 					loadLayerImage(layer);
 				}
 			}
+			if (Array.isArray(layer.masksrc)) {
+				layer.masksrc = layer.masksrc.filter(value => value != null);
+				if (layer.masksrc.length === 0 || layer.masksrc.every(value => value == null)) {
+					layer.masksrc = null;
+				}
+			}
 			let needMask = !!layer.masksrc;
 			if (layer.mask) {
-				if (layer.cachedMaskSrc === layer.masksrc) {
+				if (layer.cachedMaskSrc === layer.masksrc || layer.masksrc instanceof HTMLCanvasElement) {
 					needMask = false;
 				} else {
 					// Layer mask was loaded in previous render, but then its masksrc was changed - purge cache
@@ -1066,13 +1109,27 @@ namespace Renderer {
 				}
 			}
 			if (needMask) {
-				if (ImageErrors[layer.masksrc]) {
-					delete layer.masksrc;
-				} else if (layer.masksrc in ImageCaches) {
-					layer.mask = ImageCaches[layer.masksrc];
-					layer.cachedMaskSrc = layer.masksrc;
+				if (Array.isArray(layer.masksrc)) {
+					layer.mask = [];
+					layer.masksrc.forEach(src => {
+						if (ImageErrors[src]) {
+							layer.masksrc = null;
+						} else if (src in ImageCaches) {
+							layer.mask.push(ImageCaches[src]);
+							layer.cachedMaskSrc = layer.masksrc;
+						} else {
+							loadLayerMask(layer);
+						}
+					});
 				} else {
-					loadLayerMask(layer);
+					if (ImageErrors[layer.masksrc]) {
+						layer.masksrc = null;
+					} else if (layer.masksrc in ImageCaches) {
+						layer.mask = ImageCaches[layer.masksrc];
+						layer.cachedMaskSrc = layer.masksrc;
+					} else {
+						loadLayerMask(layer);
+					}
 				}
 			}
 		}
@@ -1127,6 +1184,13 @@ namespace Renderer {
 		start(): void;
 
 		stop(): void;
+	}
+
+	export function refresh(model: { layerList: CompositeLayerSpec[], redraw: () => void }) {
+		ImageCaches = {};
+		ImageErrors = {};
+		invalidateLayerCaches(model.layerList);
+		model.redraw();
 	}
 
 	export function invalidateLayerCaches(layers: CompositeLayer[]) {

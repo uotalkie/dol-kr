@@ -624,6 +624,7 @@ function closeOverlay() {
 	delete V.tempDisable;
 	T.buttons.reset();
 	$("#customOverlay").addClass("hidden").parent().addClass("hidden");
+	$.event.trigger(":oncloseoverlay");
 }
 window.closeOverlay = closeOverlay;
 

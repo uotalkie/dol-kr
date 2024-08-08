@@ -663,7 +663,7 @@ setup.feats = {
 	},
 	"A Special Trait": {
 		title: "특수 도전과제",
-		desc: "특수 도전과제를 달성했다.",
+		desc: "특수 도전과제를 하나 달성했다.",
 		difficulty: 2,
 		series: "special trait",
 		hint: "Hint: 무언가 특별하다.",
@@ -1637,6 +1637,15 @@ setup.feats = {
 		hint: "Hint: 해외에서 잃어버린 것이 있다.",
 		softLockable: true,
 	},
+	"Backroom Deals": {
+		title: "밀실 거래",
+		desc: "고위급 인물들간의 게임을 목격했다.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: 도시의 상류층과 데이트를 한다.",
+		softLockable: true,
+	},
 	"Max Those Shots": {
 		title: "다다익선",
 		desc: "정말 많은 수의 후추 스프레이를 갖고 있다.",
@@ -1654,14 +1663,6 @@ setup.feats = {
 		filter: ["All", "Discoveries"],
 		hint: "Hint: 장난감 상자를 열 필요가 있을까?",
 	},
-	"Brothel Provider": {
-		title: "창관 공급자",
-		desc: "성인용품을 팔기 위한 자동판매기를 설치하였다.",
-		difficulty: 2,
-		series: "",
-		filter: ["All", "Discoveries"],
-		hint: "Hint: 장사를 할 수 있도록 브라이어를 설득한다.",
-	},
 	"Opened Pandoras Cocks": {
 		title: "열린 판도라의 꼭지",
 		desc: "당신이 없었으면 성인용품점은 존재하지 않았을 것이다.",
@@ -1669,6 +1670,14 @@ setup.feats = {
 		series: "Adult Shop",
 		filter: ["All", "Discoveries"],
 		hint: "Hint: 장난감 상자를 그렇게 빨리 열 필요가 있었을까?",
+	},
+	"Brothel Provider": {
+		title: "창관 공급자",
+		desc: "성인용품을 팔기 위한 자동판매기를 설치하였다.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries"],
+		hint: "Hint: 장사를 할 수 있도록 브라이어를 설득한다.",
 	},
 	"Ear Slime Lover": {
 		title: "귀 슬라임 성애자",

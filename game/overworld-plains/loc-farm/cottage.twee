@@ -9,6 +9,12 @@
 <</if>>
 <<if $farm_stage gte 7>><<unset $farm_naked>><</if>>
 
+<<if $alexSomnoAngry is 0>>
+	당신이 아래층으로 내려오자 알렉스가 당신을 노려본다.
+	<br><br>
+	<<set $alexSomnoAngry to 1>>
+<</if>>
+
 당신은 알렉스의 집 아래층에 있다. 이곳은 아담하고, 아늑하다. 현대식 가전 제품이 있는 주방과, 작은 테이블, 그리고 소파와 안락 의자가 있는 거실이 있다.
 <br><br>
 
@@ -36,7 +42,7 @@
 <<elseif Time.hour gte 21 or Time.hour lte 4>>
 	위층에서 알렉스의 코 고는 소리가 들린다.
 	<br><br>
-<<elseif Time.hour is 5 and ($alex_bed is "player" or $alex_bed is undefined)>>
+<<elseif Time.hour is 5 and ($alex_bed is "player" or $alex_bed is undefined) and $alexSomnoAngry is undefined>>
 	<<set $alex_bed to "none">><<npc Alex>><<person1>>
 	알렉스가 내려오자 계단이 삐걱거린다. <<covered>> "아침을 만들게." <<he_ ga>> 주방으로 향하며 말한다.
 	<<if $exposed gte 1>>
@@ -60,7 +66,7 @@
 	<br><br>
 	<<link [[다음|Farm Cottage]]>><</link>>
 
-<<elseif isPlayerNonparasitePregnancyEnding()>>
+<<elseif isPregnancyEnding()>>
 	<<pcFarmBirth>>
 
 <<elseif npcPregnancyEnding("Alex")>>
@@ -165,12 +171,18 @@
 	<<link [[준비한다|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 3>><</link>>
 	<br>
 <<elseif Time.hour is 5 and $alex_breakfast is undefined>>
-	<<foodicon "pancakes">><<link [[알렉스를 도와 아침식사를 준비한다 (0:20)|Farm Breakfast Make]]>><<set $alex_breakfast to 1>><<pass 20>><<npcincr Alex love 1>><<stress -6>><<tiredness -6>><</link>><<glove>><<lstress>><<ltiredness>>
-	<br>
-	<<foodicon "eat">><<link [[아침식사를 한다 (0:20)|Farm Breakfast Eat]]>><<set $alex_breakfast to 1>><<pass 20>><<stress -12>><<tiredness -6>><</link>><<llstress>><<ltiredness>>
+	<<if $alexSomnoAngry lte 1>>
+		<<foodicon "pancakes">><<link [[알렉스를 도와 아침식사를 준비한다|Farm Breakfast Reject]]>><<set $alex_breakfast to 1>><<set $phase to 0>><</link>>
+		<br>
+		<<foodicon "eat">><<link [[아침식사를 한다|Farm Breakfast Reject]]>><<set $alex_breakfast to 1>><<set $phase to 1>><</link>>
+	<<else>>
+		<<foodicon "pancakes">><<link [[알렉스를 도와 아침식사를 준비한다 (0:20)|Farm Breakfast Make]]>><<set $alex_breakfast to 1>><<pass 20>><<npcincr Alex love 1>><<stress -6>><<tiredness -6>><</link>><<glove>><<lstress>><<ltiredness>>
+		<br>
+		<<foodicon "eat">><<link [[아침식사를 한다 (0:20)|Farm Breakfast Eat]]>><<set $alex_breakfast to 1>><<pass 20>><<stress -12>><<tiredness -6>><</link>><<llstress>><<ltiredness>>
+	<</if>>
 	<br>
 	<<farm_cottage_options>>
-<<elseif Time.hour is 5>>
+<<elseif Time.hour is 5 and $alexSomnoAngry is undefined>>
 	알렉스는 거실에 앉아 TV를 본다.
 	<br><br>
 
@@ -485,32 +497,47 @@
 			<<link [[무시한다|Farm Cottage Nighttime Nursery]]>><<set $phase to 2>><</link>>
 
 		<<elseif $bus is "farm_alex_room">>
-			당신은 <<genitals_ rul>> 더듬는 손길을 느끼고 깨어났고,
-			<<if $NPCList[0].penis isnot "none">>
-				단단하고 긴 것이 당신의 <<bottomPost>>에 눌리는 것을 느낀다.
-			<<else>>
-				누군가의
-				<<if $NPCList[0].breastsize is 0>>
-					가슴이
-				<<else>>
-					<<breastsdesc_ ga $NPCList[0].breastsdesc>>
+			<<if (Time.hour gte 22 or Time.hour lt 6) and $rng gte 61 and C.npc.Alex.lust gte 60>>
+				You awake to feel <<if $NPCList[0].penis isnot "none">>a firm shaft<<else>>something wet<</if>> pressed against your rear end. You wait for Alex to say <<his>> familiar line, but you are greeted by silence. The loud snore you hear indicates that Alex is still asleep. <<His>> arms are wrapped around you, and <<he>> is dry humping you. <<arousal 600 "bottom">><<garousal>>
+				<br><br>
+				<<if hasSexStat("promiscuity", 4)>>
+					<span class="lewd">A lewd idea strikes you.</span>
+					<br>
+					<<link [[Pleasure Alex|Farm Alex Somno]]>><</link>><<promiscuous4>>
+					<br>
 				<</if>>
-				당신의 등을 누르는 것을 느낀다.
-			<</if>>
-			다른 한 손은 당신의 허벅지에 올라와 있다.
-			<br><br>
-
-			<<if $daily.alex.tvTease>>
-				"오늘 아침 일 만회하려고?" 알렉스가 말한다. <<his_ yi>> 숨결이 목덜미에 닿는다. "용서해 줄 수도 있는데."
+				<<link [[Wake Alex|Farm Alex Somno Wake Wholesome]]>><</link>>
+				<br>
+				<<link [[Try and go back to sleep|Farm Alex Somno Let Sleep]]>><<stress 6>><<trauma 6>><</link>><<gstress>><<gtrauma>>
+				<br>
 			<<else>>
-				"너 되게 뻔뻔하네." 알렉스가 말한다. <<his_ yi>> 숨결이 목덜미에 닿는다. "<<nnpc_genderPost "Alex">>애 침대에서 자다니."
-			<</if>>
-			<br><br>
+				당신은 <<genitals_ rul>> 더듬는 손길을 느끼고 깨어났고,
+				<<if $NPCList[0].penis isnot "none">>
+					단단하고 긴 것이 당신의 <<bottomPost>>에 눌리는 것을 느낀다.
+				<<else>>
+					누군가의
+					<<if $NPCList[0].breastsize is 0>>
+						가슴이
+					<<else>>
+						<<breastsdesc_ ga $NPCList[0].breastsdesc>>
+					<</if>>
+					당신의 등을 누르는 것을 느낀다.
+				<</if>>
+				다른 한 손은 당신의 허벅지에 올라와 있다.
+				<br><br>
 
-			<<link [[밀어낸다|Farm Alex Climb]]>><<def 1>><<npcincr Alex dom -1>><</link>><<ldom>>
-			<br>
-			<<link [[장단을 맞춘다|Farm Alex Allow]]>><<sub 1>><<npcincr Alex dom 1>><</link>><<promiscuous1>><<gdom>>
-			<br>
+				<<if $daily.alex.tvTease>>
+					"오늘 아침 일 만회하려고?" 알렉스가 말한다. <<his_ yi>> 숨결이 목덜미에 닿는다. "용서해 줄 수도 있는데."
+				<<else>>
+					"너 되게 뻔뻔하네." 알렉스가 말한다. <<his_ yi>> 숨결이 목덜미에 닿는다. "<<nnpc_genderPost "Alex">>애 침대에서 자다니."
+				<</if>>
+				<br><br>
+
+				<<link [[밀어낸다|Farm Alex Climb]]>><<def 1>><<npcincr Alex dom -1>><</link>><<ldom>>
+				<br>
+				<<link [[장단을 맞춘다|Farm Alex Allow]]>><<sub 1>><<npcincr Alex dom 1>><</link>><<promiscuous1>><<gdom>>
+				<br>
+			<</if>>
 		<<else>>
 			<<if $exposed gte 2 and random(1, 2) is 2>>
 				약간 쌀쌀함이 느껴진다. 이불이 사라져 있다. 당신의 방에서 멀어지는 발소리가 들린다. <<covered>>
@@ -525,7 +552,7 @@
 				<br>
 				<<link [[화를 낸다 (0:05)|Farm Bedroom Confront]]>><<pass 5>><<npcincr Alex love -1>><<npcincr Alex dom -1>><</link>><<llove>><<ldom>>
 				<br>
-				<<if $promiscuity gte 35>>
+				<<if hasSexStat("promiscuity", 3)>>
 					<<link [[되갚아준다 (0:20)|Farm Bedroom Revenge]]>><<pass 20>><<npcincr Alex dom -1>><<npcincr Alex lust 5>><</link>><<promiscuous3>><<ldom>><<gglust>>
 					<br>
 				<</if>>
@@ -576,6 +603,422 @@
 	<</if>>
 <</if>>
 <<set $phase to 0>>
+
+:: Farm Alex Somno
+<<effects>>
+
+You gently start to grind your rear into Alex's crotch. <<His>> body twitches as <<he>> moans into your ear. You move carefully so as to not wake <<him>>. <<promiscuity4>><<arousal 1000 "bottom">>
+
+Alex holds your body tighter and begins humping your rear faster.
+<br><br>
+
+<<link [[Keep going|Farm Alex Somno 2]]>><<set $phase to 0>><</link>>
+<br>
+<<link [[Give Alex oral|Farm Alex Somno 2]]>><<set $phase to 1>><</link>>
+<br>
+<<link [[Give Alex a hand job|Farm Alex Somno 2]]>><<set $phase to 2>><</link>>
+
+:: Farm Alex Somno 2
+<<effects>>
+
+<<if $phase is 0>> /* Keep going */
+	You continue to grind against <<his>> clothed <<if $NPCList[0].penis isnot "none">>dick<<else>>pussy<</if>>. Alex mumbles out words that you can't understand, but you can make out the word 'partner'. The idea of Alex having a wet dream about you sends a shiver through your body. <<arousal 2500 "bottom">><<ggarousal>>
+	<br><br>
+	<<if $speech_attitude is "meek">>
+		You soon find yourself begging for Alex's <<if $NPCList[0].penis isnot "none">>cock<<else>>pussy<</if>>, having to cover your mouth to stop yourself.
+	<<elseif $speech_attitude is "bratty">>
+		You grit your teeth. "Stupid cow<<nnpc_gendery "Alex">>..." you whisper as a moan escapes your lips.
+	<<else>>
+		You cover your mouth with your hand as you moan. "Alex..." you whisper.
+	<</if>>
+<<elseif $phase is 1>> /* Give Alex oral */
+	You take a deep breath as you carefully move Alex's arms to give you room to move. Slowly, you roll over to face Alex. <<He>> doesn't stop humping you, but <<his>> pace slows. You slip further down under the covers until your face is within inches of <<his>> crotch. You hook your fingers around <<his>> <<if $NPCList[0].penis isnot "none">>boxers<<else>>underwear<</if>> band and slide them down. You bring your lips to <<his>> <<if $NPCList[0].penis isnot "none">>dick<<else>>clit<</if>> and start gently licking it.
+	<br><br>
+	Alex twitches, bucking <<his>> <<if $NPCList[0].penis isnot "none">>dick<<else>>pussy<</if>> against your lips. You open your mouth <<if $NPCList[0].penis isnot "none">>to allow <<his>> dick to enter<<else>>and start sucking on <<his>> clit<</if>>.
+	<br><br>
+	<<if $speech_attitude is "meek">>
+		<<His>> <<if $NPCList[0].penis isnot "none">>precum<<else>>fluids<</if>> start to fill your mouth, causing you to moan. You push your legs together, attempting to stimulate your own growing arousal.
+	<<elseif $speech_attitude is "bratty">>
+		You brush your teeth against <<his>> <<if $NPCList[0].penis isnot "none">>shaft<<else>>clit<</if>>, causing <<him>> to thrust <<his>> hips forward. You nearly gag at the sudden movement, but huff before <<if $NPCList[0].penis isnot "none">>the tip of <<his>> dick<<else>>kissing <<his>> clit<</if>>.
+	<<else>>
+		You lick up and down <<his>> <<if $NPCList[0].penis isnot "none">>dick<<else>>clit<</if>>, tasting <<his>> <<if $NPCList[0].penis isnot "none">>precum<<else>>fluids<</if>>. You feel a warmth grow in between your legs, encouraging you to keep going. Your licks become faster, occasionally interrupted by you sucking the <<if $NPCList[0].penis isnot "none">>tip<<else>>bud<</if>>.
+	<</if>>
+	<<arousal 1500 "mouth">><<garousal>>
+<<else>> /* Give Alex a hand job */
+	You loosen Alex's hold on you before carefully rolling yourself over. <<Hes>> still humping, but <<his>> pace slows. You reach down into <<his>> <<if $NPCList[0].penis isnot "none">>boxers<<else>>underwear<</if>>, slipping your hand under the waistband. <<His>> <<if $NPCList[0].penis isnot "none">>dick<<else>>pussy<</if>> is already drenched with <<if $NPCList[0].penis isnot "none">>precum<<else>>fluids<</if>>.
+	<br><br>
+	<<if $NPCList[0].penis isnot "none">>
+		You take <<print $NPCList[0].penisdesc>> into your hand. You pump <<his>> cock at a steady pace at first. Alex's body twitches as <<his>> arms lock around you, pressing you against <<his>> body. <<His>> hips buck to match your pace.
+		<br><br>
+		<<if $speech_attitude is "meek">>
+			You tenderly take the tip into your hand, rubbing your finger over the slit. A soft moan falls from Alex's mouth along with a little drool. "Y-you are too cute..." you whisper as you slip your free hand down to rub against your crotch.
+		<<elseif $speech_attitude is "bratty">>
+			You caress <<his>> dick, pausing to squeeze the base of <<his>> shaft firmly. <<He>> groans before burying <<his>> head into your shoulder. You stifle a chuckle and resume stroking <<him>>.
+		<<else>>
+			You stroke <<his>> shaft, brushing your fingers over <<his>> balls. Alex twitches in your touch, panting softly. <<He>> humps your hand as you continue to work <<him>>. "Even asleep you get so worked up," you whisper as you quicken your movements.
+		<</if>>
+		<<arousal 1500>><<garousal>>
+	<<else>>
+		You slip two fingers into Alex's quim, and <<he>> tightens around you. <<His>> arms lock around your shoulders, pressing you against <<his>> body. <<His>> hips begin to buck against your hand.
+		<br><br>
+		<<if $speech_attitude is "meek">>
+			You brush your thumb against <<his>> clit, focusing on thrusting your fingers in and out. Alex's pants and moans encourage your own arousal. Your free hand slips between your legs, rubbing against your crotch.  "Y-you are too cute..." you whisper.
+		<<elseif $speech_attitude is "bratty">>
+			You thrust your fingers, pausing only to pinch <<his>> clit. <<He>> whimpers in <<his>> sleep but continues to needily hump your fingers. You smirk as an idea comes to mind. You slip two more fingers inside, keeping your pace steady. Alex's pants and moans quicken as <<he>> buries <<his>> face into your shoulder.
+		<<else>>
+			You tease Alex's clit with your thumb. <<He>> twitches at your touch and continues humping your fingers. You add another finger, and <<his>> moans become more frequent. "Even asleep you get so worked up," you whisper.
+		<</if>>
+		<<arousal 1500>><<garousal>>
+	<</if>>
+<</if>>
+<br><br>
+
+<<if $arousal gte $arousalmax>>
+	<<link [[Next |Farm Alex Somno Orgasm]]>><</link>>
+<<elseif $rng gte 60>> /* Alex wake up */
+	<<link [[Next |Farm Alex Somno Wake]]>><</link>>
+<<else>>
+	<<link [[Next |Farm Alex Somno 3]]>><</link>>
+<</if>>
+
+:: Farm Alex Somno 3
+<<effects>>
+
+<<if $phase is 0>> /* Keep going */
+	Suddenly, Alex's hands grip onto your arms. <<His>> hips give one final strong jerk against your ass. <<arousal 1500 "bottom">><<garousal>>
+<<elseif $phase is 1>> /* Give Alex oral */
+	<<if $NPCList[0].penis isnot "none">>
+		Without warning, Alex thrusts forward and ejaculates into your mouth. You manage to swallow most of it. <<bodyliquid "mouth" "semen">>
+	<<else>>
+		Without warning, Alex bucks <<his>> hips against your mouth. <<His>> orgasm covers your face in lewd fluids. You lick your lips. It tastes oddly nice. <<bodyliquid "face" "goo">>
+	<</if>>
+	<<arousal 1500>><<garousal>>
+<<else>> /* Give Alex a hand job */
+	<<if $NPCList[0].penis isnot "none">>
+		<<His>> body convulses in orgasmic bliss, covering your hands in cum. <<arousal 1500 "mouth">><<garousal>><<if random(0,1) is 1>><<bodyliquid "rightarm" "semen">><<else>><<bodyliquid "leftarm" "semen">><</if>>
+		<br><br>
+		<<His>> grip softens, then releases.
+	<<else>>
+		You feel Alex's fluids gushing out of <<his>> quim as <<he>> convulses in orgasmic bliss, leaving a wet spot on the sheets. <<arousal 1500>><<garousal>><<if random(0,1) is 1>><<bodyliquid "rightarm" "goo">><<else>><<bodyliquid "leftarm" "goo">><</if>>
+	<</if>>
+<</if>>
+<br><br>
+
+<<if $arousal gte $arousalmax>>
+	<<link [[Next |Farm Alex Somno Orgasm]]>><</link>>
+<<else>>
+	<<if $phase is 0>>
+		The tension leaves <<his>> body, and <<he>> sighs, apparently having climaxed. <<He>> clings to you, and you smile. <<stress -6>><<lstress>>
+	<<else>>
+		<<if $NPCList[0].penis isnot "none">>
+			You tuck <<his>> dick back into <<his>> boxers.
+		<<else>>
+			You fix <<his>> boyshorts and return to your place in Alex's hold.
+		<</if>>
+	<</if>>
+	<br><br>
+	You fall asleep soon after.
+	<br><br>
+
+	<<link [[다음|Farm Alex Bed]]>><<set $alexSomno to 0>><<endevent>><</link>>
+<</if>>
+
+:: Farm Alex Somno Orgasm
+<<effects>>
+
+Your own growing pleasure becomes too much.
+<<orgasm>>
+<<if $phase is 0>> /* Keep going */
+	Alex's hips continue grinding against you. You ride out your orgasm as <<he>> finishes pleasuring <<himself>> with your body.
+<<elseif $phase is 1>> /* Give Alex oral */
+	Alex continues to grind against your mouth as you come down from your orgasm.
+<<else>> /* Give Alex a hand job */
+	As you ride out your orgasm,
+	<<if $NPCList[0].penis isnot "none">>
+		you grip tighter onto <<his>> cock.
+	<<else>>
+		you plunge your fingers deeper into Alex's pussy.
+	<</if>>
+<</if>>
+<br><br>
+You settle back into <<his>> arms and drift off to sleep.
+<br><br>
+
+<<link [[다음|Farm Alex Bed]]>><<endevent>><</link>>
+
+:: Farm Alex Somno Wake
+<<effects>>
+
+Your body freezes as you hear a voice not your own. "...Partner?" <<stress 6>><<gstress>>
+<br><br>
+Alex still sounds sleepy, but also somewhat embarrassed. "What are you doing...?"
+<br><br>
+<<if $phase is 0>> /* Keep going */
+	<<if $speech_attitude is "meek">>
+		"I...You were grinding into me while you slept..." you mumble.
+	<<elseif $speech_attitude is "bratty">>
+		"You started humping my ass like a dog in heat. Figured I should help you out a bit," you snicker, pressing your butt further into <<his>> crotch.
+	<<else>>
+		"You woke me up by humping me. I thought I should help out a bit," you respond flatly.
+	<</if>>
+<<elseif $phase is 1>> /* Give Alex oral */
+	<<if $NPCList[0].penis isnot "none">>
+		<<if $speech_attitude is "meek">>
+			You stare up at Alex, eyes wide open. You hesitate for a moment before quickly pulling your mouth off Alex's cock. "I... you looked like you were really pent up, so I wanted to help you..." you mumble, precum still dripping from your mouth.
+		<<elseif $speech_attitude is "bratty">>
+			You smirk as you slip Alex's dick out of your mouth. "This buddy of yours was poking me while you slept. Figured I would help out," you say as you lick <<his>> precum off your lips.
+		<<else>>
+			You slip Alex's cock out of your mouth. "You were really pitching a tent in your sleep. I just wanted to help," you say.
+		<</if>>
+	<<else>>
+		<<if $speech_attitude is "meek">>
+			You stare up at Alex, eyes wide open. You hesitate as you pull your mouth away from Alex's quim. "I...you were getting really wet, so I wanted to help you..." you mumble, wiping the lewd fluid off your chin.
+		<<elseif $speech_attitude is "bratty">>
+			You smirk as you pull your mouth away from Alex's quim. "Your little friend was getting slick everywhere, so I wanted to help and clean it up," you say as you lick the lewd fluid off your lip.
+		<<else>>
+			You move your mouth away from Alex's quim. "I felt you getting wet. I just wanted to help you out," you say.
+		<</if>>
+	<</if>>
+<<else>> /* Give Alex a hand job */
+	<<if $NPCList[0].penis isnot "none">>
+		<<if $speech_attitude is "meek">>
+			You yelp, freezing in place. You let go of <<his>> cock and move your hand away. "I...you felt really pent up, so I just wanted to help you out..." you mumble as you hide your face partly in the pillow.
+		<<elseif $speech_attitude is "bratty">>
+			You chuckle, removing your hand from Alex's cock to pinch <<his>> cheek. "Your buddy needed a hand, that's all," you say with a smirk.
+		<<else>>
+			You jump at Alex's voice, removing your hand from <<his>> cock. "You were humping my ass while you slept. I wanted to help you out," you say with a small smile.
+		<</if>>
+	<<else>>
+		<<if $speech_attitude is "meek">>
+			You yelp, freezing in place. You slip your fingers out of Alex's quim, moving your hand away. "I...you were rubbing against me, so I just wanted to help you out..." you mumble as you hide your face partly in the pillow.
+		<<elseif $speech_attitude is "bratty">>
+			You chuckle, removing your finger from Alex's quim to pinch <<his>> cheek. "Your little friend was being real needy. You clearly needed a hand," you say with a smirk.
+		<<else>>
+			You jump and quickly remove your fingers from Alex's quim. You were rubbing up against me while you slept. I wanted to help you out," you say with a small smile.
+		<</if>>
+	<</if>>
+<</if>>
+<br><br>
+<<if C.npc.Alex.love lte 20>>
+	Alex shoves you off the bed onto the floor. <<pain 8>><<ggpain>>
+	<br><br>
+	<<He>> sits up and looks down at you.
+	<<if C.npc.Alex.dom gte 30>>
+		"The hell were you thinking? Go sleep in your own damn bed!" Alex shouts at you.
+	<<else>>
+		"W-what the hell were you thinking? I... Just go sleep in your own damn bed," Alex shouts.
+	<</if>>
+	<<npcincr Alex love -1>><<llove>>
+	<br><br>
+	Alex watches you intently. <<He>> won't let you back into the bed for the night.
+	<br><br>
+
+	<<set $alex_bed_spurned to 1>>
+
+	<<link [[다음|Farm Alex Bedroom]]>><<set $alexSomnoAngry to 0>><<endevent>><</link>>
+<<else>>
+	Alex's face goes red. <<He>> struggles to find <<his>> words.
+	<<if C.npc.Alex.dom gte 30>>
+		"How kind of you to help me out like this. Well, you should finish what you started then," Alex whispers before nipping your ear.
+	<<else>>
+		"I... You didn't need to help me out like this... Would you mind finishing up?" Alex whispers before nuzzling into your cheek.
+	<</if>>
+	<br><br>
+
+	<<link [[Oblige|Farm Alex Somno Wake 2]]>><</link>>
+	<br>
+	<<link [[Reject|Farm Alex Somno Wake Reject]]>><</link>>
+<</if>>
+
+:: Farm Alex Somno Wake 2
+<<effects>>
+
+<<if $phase is 0>> /* Keep going */
+	You waste no time continuing to grind your ass against Alex's crotch.
+	<<if $player.penisExist>>
+		<<He>> slips <<his>> hand around to your dick, pumping it. <<He>> occasionally squeezes too hard while <<he>> moans.
+	<<else>>
+		Alex gropes at your <<breasts>>. <<He>> occasionally pinches your nipples while <<he>> moans.
+	<</if>>
+	<<arousal 5000 "breasts">><<gggarousal>>
+<<elseif $phase is 1>> /* Give Alex oral */
+	You waste no time returning to your position in front of Alex's groin.
+	<<if C.npc.Alex.penis isnot "none">>
+		You plant a kiss onto the tip <<his>> cock, then take <<his>> length into your mouth, causing <<him>> to groan.
+	<<else>>
+		You plant a kiss onto <<his>> clit before dragging your tongue up <<his>> slit. You dip your tongue inside <<his>> quim, causing <<him>> to groan.
+	<</if>>
+	<<if C.npc.Alex.dom gte 30>>
+		You feel <<his>> hands on the back of your head encouraging you to keep going.
+	<<else>>
+		You feel <<his>> hands on top of your head. <<He>> strokes it gently.
+	<</if>>
+	<<arousal 5000 "mouth">><<gggarousal>>
+<<else>> /* Give Alex a hand job */
+	<<if C.npc.Alex.penis isnot "none">>
+		You wrap your hand around Alex's shaft and begin quickly pumping <<his>> cock.
+	<<else>>
+		You slip your fingers inside of Alex's quim, finger fucking <<him>> roughly.
+	<</if>>
+	<br><br>
+	Alex <<if $player.penisExist>>wraps <<his>> hand around your cock and begins to pump<<else>>shoves <<his>> fingers into your own quim<</if>>. <<arousal 5000 "genitals">><<gggarousal>>
+<</if>>
+<br><br>
+
+<<link [[Continue|Farm Alex Somno Wake 3]]>><</link>>
+
+:: Farm Alex Somno Wake 3
+<<effects>>
+
+<<if $phase is 0>> /* Keep going */
+	Alex keeps fondling you, until you eventually push <<him>> over the edge. <<He>> pushes <<his>> crotch against you wildly as <<he>> cums.
+<<elseif $phase is 1>> /* Give Alex oral */
+	Alex grips the back of your head tightly as <<he>> cums in your mouth.
+	<<if C.npc.Alex.penis isnot "none">>
+		<<bodyliquid "mouth" "semen">>
+	<<else>>
+		<<bodyliquid "mouth" "goo">>
+	<</if>>
+<<else>> /* Give Alex a hand job */
+	Alex groans, <<if $NPCList[0].penis isnot "none">>gripping on to your cock tightly<<else>>thrusting deeply into your quim<</if>> as <<he>> cums over your hand.
+	<<if C.npc.Alex.penis isnot "none">>
+		<<if random(0,1) is 1>><<bodyliquid "rightarm" "semen">><<else>><<bodyliquid "leftarm" "semen">><</if>>
+	<<else>>
+		<<if random(0,1) is 1>><<bodyliquid "rightarm" "goo">><<else>><<bodyliquid "leftarm" "goo">><</if>>
+	<</if>>
+<</if>>
+<br><br>
+
+<<if $arousal gte $arousalmax>>
+	<<orgasm>>
+	You pant as you calm down from your orgasm. Alex smiles with a devious look.
+	<br><br>
+<</if>>
+
+Alex takes you back into <<his>> arms. "Had your fun, partner?" <<he>> says, bumping <<his>> head against yours. You lazily nod as you relax against the pillow. Alex kisses your forehead. "Night, partner."
+<br><br>
+
+<<link [[다음|Farm Alex Bed]]>><<set $alexSomno to 1>><<endevent>><</link>>
+
+:: Farm Alex Somno Wake Reject
+<<effects>>
+
+<<if $speech_attitude is "meek">>
+	"In...in the morning, Alex," you meekly respond.
+<<elseif $speech_attitude is "bratty">>
+	"I was trying to sleep. We can fuck in the morning," you huff.
+<<else>>
+	"Not right now. Maybe in the morning," you say.
+<</if>>
+<br><br>
+<<if C.npc.Alex.dom gte 30>>
+	Alex sighs, staying silent for a moment. "Come on, now. Don't you want to know what I was dreaming about?" <<His>> hand travels down to grope your ass.
+	<br><br>
+
+	<<link [[Shove|Farm Alex Somno Wake Pushy]]>><<npcincr Alex dom -1>><</link>><<ldom>>
+	<br>
+	<<link [[Give in|Farm Alex Somno Wake Sex]]>><<npcincr Alex dom 1>><<set $sexstart to 1>><</link>><<gdom>>
+<<else>>
+	Alex pouts but doesn't push it further. "Alright then. Night, partner." Alex kisses your cheek before rolling over.
+	<br><br>
+
+	<<link [[다음|Farm Alex Bed]]>><<set $alexSomno to 2>><<endevent>><</link>>
+<</if>>
+
+:: Farm Alex Somno Wake Wholesome
+<<effects>>
+
+<<if $speech_attitude is "meek">>
+	You move away from Alex. "A-Alex...please wake up," you say as you tap <<his>> legs with your feet.
+<<elseif $speech_attitude is "bratty">>
+	"Alex, wake up, you horny bastard," you say, sounding annoyed. You elbow <<him>>.
+<<else>>
+	You sigh. "Alex, wake up." You nudge <<his>> shoulder.
+<</if>>
+<br><br>
+Alex groans and then yawns. <<He>> hugs onto you tighter, resting <<his>> head on your shoulder. "Something the matter?" <<He>> shifts, then freezes when <<he>> realises what <<he>> was doing. "Fuck..." You roll over to look at Alex.
+<br><br>
+<<if C.npc.Alex.lust gte 20>>
+	<<He>> glances between you and <<his>> groin. "How about a night ride?" <<he>> asks, smirking.
+	<br><br>
+
+	<<link [[받아들인다|Farm Alex Somno Wake Sex]]>><<set $sexstart to 1>><</link>>
+	<br>
+	<<link [[Reject|Farm Alex Somno Wake Reject]]>><</link>>
+<<else>>
+	<<He>> looks away before turning <<his>> back to you. <<He>> mumbles an apology, then pulls the blanket over <<him>> entirely.
+	<br><br>
+
+	<<link [[다음|Farm Alex Bed]]>><<endevent>><</link>>
+<</if>>
+
+:: Farm Alex Somno Wake Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+
+	You wrap your arms around Alex. <<He>> returns the gesture before ravaging your neck with kisses and love bites. <<arousal 600>><<garousal>>
+	<<set $enemytrust += 100>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[다음|Farm Alex Somno Wake Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Farm Alex Somno Wake Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Farm Alex Somno Wake Sex Finish
+<<effects>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	Alex buries <<his>> head in your neck, holding onto you. <<He>> mumbles a 'Good night' before falling asleep. <<lllust>><<npcincr Alex lust -10>>
+	<br><br>
+	<<tearful>> 당신은 <<his_ ga>> 코 고는 소리를 듣는다.
+	<<set $alexSomno to 1>>
+<<elseif $enemyhealth lte 0>>
+	Alex gives a small yelp. "You could've just said no, you know," <<he>> says, sounding wounded. <<He>> lays back down and faces away from you. <<llove>><<npcincr Alex love -1>>
+	<br><br>
+	<<tearful>> 당신은 돌아눕는다.
+	<<set $alexSomno to 2>>
+<<else>>
+	Alex pouts. "Gonna be hard to go back to sleep like this," <<he>> sheepishly chuckles.
+	<br><br>
+	<<He>> lays back down and faces away from you.
+	<br><br>
+	<<tearful>> 당신은 돌아눕는다.
+	<<set $alexSomno to 2>>
+<</if>>
+<br><br>
+<<clotheson>>
+<<endcombat>>
+
+<<link [[다음|Farm Alex Bed]]>><<endevent>><</link>>
+
+:: Farm Alex Somno Wake Pushy
+<<effects>>
+
+You shove Alex away, almost knocking <<him>> out of the bed. <<He>> gives you an annoyed look before rolling over. "Good night," you hear <<him>> say, sounding bitter. You return to your original position.
+<br><br>
+<<link [[다음|Farm Alex Bed]]>><<set $alexSomno to 2>><<endevent>><</link>>
+
+:: Farm Alex Somno Let Sleep
+<<effects>>
+
+You decide to try and go back to sleep. Alex continues to hump your rear. <<stress 6>><<trauma 6>><<gstress>><<gtrauma>>
+<br><br>
+
+<<link [[다음|Farm Alex Bed]]>><<endevent>><</link>>
 
 :: Farm Alex Climb
 <<effects>>
@@ -1020,6 +1463,15 @@
 			<<He_ 는>> 이불을 마룻바닥으로 내던진다. <<covered>> "아침밥," <<he_ 가>> 하품한다.
 			<<if $daily.alex.bedOrgasm>>
 				잠시 뒤, <<he_ 가>> 얼굴을 붉힌 채 당신을 돌아본다. "밤중에 분명 뭔가가 들리던데. 내-내가 했던 말은 잊어버려."
+			<<else>>
+				<<switch $alexSomno>>
+					<<case 0>> /* Alex didn't wake up */
+						Alex smiles, "I feel extra refreshed this morning. Feels like it's gonna be a good day."
+					<<case 1>> /* Alex did wake up and PC finished them off/they had sex */
+						Alex blushes, "Last night was nice, partner. I feel extra refreshed this morning."
+					<<case 2>> /* Alex did wake up but no sex */
+						Alex looks over at you and blushes, though <<he>> seems to avoid eye contact with you.
+				<</switch>>
 			<</if>>
 			<<if $exposed gte 1>>
 				<<He_ ga>> 곁눈질하지 않는 척하며 방을 나선다.<<glust>><<npcincr Alex lust 1>>
@@ -1058,7 +1510,7 @@
 			<<officeicon>><<link [[알렉스를 껴안는다 (0:30)|Farm Phone Cuddle]]>><<pass 30>><<npc Alex>><<person1>><<npcincr Alex love 1>><</link>><<glove>>
 			<br>
 		<</if>>
-		<<if $promiscuity gte 55 and !$daily.alex.adminOral>>
+		<<if hasSexStat("promiscuity", 4) and !$daily.alex.adminOral>>
 			<<officeicon>><<link [[책상 밑으로 기어 들어간다|Farm Alex Admin Crawl]]>><<npc Alex>><<person1>><<set $daily.alex.adminOral to true>><</link>><<promiscuous4>>
 			<br>
 		<</if>>
@@ -1130,11 +1582,26 @@
 <br><br>
 <<farm_sleep_options>>
 
+:: Farm Breakfast Reject
+<<effects>>
+
+<<npc Alex>><<person1>>
+
+<<if $phase is 0>> /* Help Alex make breakfast */
+	You attempt to help Alex with breakfast but <<he>> shoves you away. "I don't need your damn help. And you aren't welcome at the table this morning," Alex says with a harsh tone.
+<<else>> /* Eat breakfast */
+	You sit down at the table before Alex whips around. "You aren't getting anything. Make it yourself," Alex says with a harsh tone. <<He>> doesn't want you in the kitchen.
+<</if>>
+<br><br>
+
+<<link [[다음|Farm Cottage]]>><<endevent>><</link>>
 
 :: Farm Breakfast Make
 <<effects>>
 
 <<npc Alex>><<person1>>
+<<alexRemyTattoosCheck "breakfast">>
+
 당신은 주방에 있는 알렉스와 합류해, 그를 도와주겠다고 한다. <<He_ nun>> 당신의 도움에 고마워한다.
 
 <<if $rng gte 81>>
@@ -1422,7 +1889,7 @@
 	<br>
 	<<link [[무시한다|Farm Cottage]]>><<npcincr Alex dom 1>><<endevent>><</link>><<gdom>>
 	<br>
-	<<if $promiscuity gte 15>>
+	<<if hasSexStat("promiscuity", 2)>>
 		<<link [[자극한다|Farm Breakfast Tea Goad]]>><<sub 1>><<npcincr Alex dom 3>><</link>><<promiscuous2>><<ggdom>>
 		<br>
 	<</if>>
@@ -1494,7 +1961,7 @@
 	<br>
 	<<link [[무시한다|Farm Cottage]]>><<npcincr Alex dom 1>><<endevent>><</link>><<gdom>>
 	<br>
-	<<if $promiscuity gte 15>>
+	<<if hasSexStat("promiscuity", 2)>>
 		<<link [[자극한다|Farm Breakfast Tea 2 Goad]]>><<sub 1>><<npcincr Alex dom 3>><</link>><<promiscuous2>><<ggdom>>
 		<br>
 	<</if>>
@@ -1602,7 +2069,7 @@
 		<<He_ nun>> <<npcUndressText _alex "lower" "self" "and">>, <<npcRevealText _alex "lower">>.
 		<br><br>
 
-		<<if $promiscuity gte 55>>
+		<<if hasSexStat("promiscuity", 4)>>
 			<<link [[핥는다|Farm Breakfast Oral]]>><<set $sexstart to 1>><<set $daily.alex.breakfastSex to true>><</link>><<promiscuous4>>
 			<br>
 		<</if>>
@@ -1776,7 +2243,7 @@
 
 	<<link [[키스한다|Farm Breakfast Kiss]]>><<npcincr Alex love 1>><<npcincr Alex lust 5>><</link>><<kissvirginitywarning>><<glove>><<glust>>
 	<br>
-	<<if $promiscuity gte 55 and !playerChastity("hidden") and (!playerChastity("cage") or $player.vaginaExist)>>
+	<<if hasSexStat("promiscuity", 4) and !playerChastity("hidden") and (!playerChastity("cage") or $player.vaginaExist)>>
 		<<link [[알렉스의 머리를 당신의 가랑이에 누른다|Farm Breakfast Receive Oral]]>><<set $sexstart to 1>><<set $daily.alex.breakfastSex to true>><</link>>
 		<br>
 	<</if>>
@@ -1991,6 +2458,7 @@
 :: Farm Breakfast Cuddle
 <<effects>>
 <<set _alex to C.npc.Alex>>
+<<alexRemyTattoosCheck "cuddle">>
 
 당신은 알렉스의 곁에서 편하게 쉰다.
 <<if $daily.alex.spank and $pain gte 20>>
@@ -2004,7 +2472,7 @@
 			<<He_ ga>> 리모컨을 떨어트린다. "제길," <<he_ ga>> 말한다. "좀 주워줄래?" 당신은 팔을 뻗어, <<himPost>>에게 그것을 건넨다. "고마워." <<He_ nun>> 아무것도 아닌 척 휘파람을 불며, 당신에게서 시선을 돌린다.
 			<br><br>
 
-			<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and $exhibitionism gte 75>>
+			<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and hasSexStat("exhibitionism", 5)>>
 				당신은 <<he_ ga>> 당신의 치마를 올려다보려고 리모컨을 일부러 떨어트렸다는 사실을 눈치채고, <<he_ ga>> 당신을 다시 바라볼 때 치마를 다시 뒤집어 젖혀버린다.
 				<<He_ nun>> 당신의 시선을 피하고는, 완전히 빨개진 얼굴로 히죽거린다.<<npcincr Alex lust 3>><<glust>>
 			<<elseif setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
@@ -2028,7 +2496,7 @@
 		<<He_ ga>> 채널을 넘긴다. 영화에서 음란한 장면이 한창이다. <<He_ ga>> 당신을 힐끗 보더니, 빠르게 채널을 돌린다.<<npcincr Alex lust 1>><<glust>>
 		<<if Time.hour isnot 6>>
 		<br><br>
-			<<if $promiscuity gte 15>>
+			<<if hasSexStat("promiscuity", 2)>>
 				<<link [[그것을 가지고 놀린다|Farm TV Tease]]>><<npcincr Alex lust 5>><<arousal 200>><</link>><<promiscuous1>><<glust>><<garousal>>
 				<br>
 			<</if>>
@@ -2340,6 +2808,8 @@
 
 :: Farm Phone Cuddle
 <<effects>>
+
+<<alexRemyTattoosCheck "cuddleDesk">>
 
 당신은 알렉스의 옆에 앉아서, 편히 쉰다.
 <<switch random(1, 8)>>
