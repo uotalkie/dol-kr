@@ -573,7 +573,7 @@ function masturbationEffectsArms(
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						fragment.append(
 							span(
-								"당신이 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
+								"당신이 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
 							)
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
@@ -586,7 +586,7 @@ function masturbationEffectsArms(
 				} else if (V.player.breastsize <= 5) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신이 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
+							"당신이 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier(
@@ -598,7 +598,7 @@ function masturbationEffectsArms(
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신은 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 희롱한다. 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
+							"당신은 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 희롱한다. 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier(
@@ -624,7 +624,7 @@ function masturbationEffectsArms(
 				} else if (V.player.breastsize <= 5) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 가지고 논다."
+							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 가지고 논다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("당신은 당신의 <<breasts_ rul>> 애무하며 <<top_ ul>> 통해 당신의 젖꼭지를 꼬집는다.");
@@ -636,7 +636,7 @@ function masturbationEffectsArms(
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 가지고 논다."
+							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 가지고 논다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("당신은 당신의 <<breasts_ rul>> 애무하며 <<top_ ul>> 통해 당신의 젖꼭지를 꼬집는다.");
