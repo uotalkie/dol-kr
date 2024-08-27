@@ -9,7 +9,7 @@
 	/* FROSTBITE */
 	<<if _passout is "cold">>
 		<<set Weather.bodyTemperature to Weather.tempSettings.minTemperature + 1.5>>
-		<<if !["beach", "forest", "moor", "sea"].includes($location)>>
+		<<if !["beach", "estate", "forest", "lake", "moor", "park", "sea"].includes($location)>>
 			You pass out from the cold.
 			<br><br>
 		<</if>>
@@ -51,6 +51,34 @@
 						<<link [[Everything fades to black...|Passout Beach Hypothermia Molest]]>><<set $molestationstart to 1>><</link>>
 					<</addinlineevent>>
 				<</if>>
+			<<case "estate">>
+				<<if !$estate>><<estate_init>><</if>> /* It's possible to trigger the $estate location passout on the link that unsets $estate */
+				Your breath mists in the winter air. The <<= Weather.precipitation is "snow" ? "pristine snow looks soft and inviting" : "ground looks inviting">>. You take a few faltering steps. You sink down next to a car and close your eyes.
+				<br><br>
+
+				Just before you pass out, you
+				<<if $farm.aggro gte 60>>
+					<<addinlineevent "remy" 1>>
+						<span class="red">hear the sound of spurs approaching.</span>
+						<br><br>
+
+						<<link [[Everything fades to black...|Passout Estate Remy Hot Cold]]>><</link>>
+					<</addinlineevent>>
+				<<elseif $wren_intro isnot undefined>>
+					<<addinlineevent "wren" 1>>
+						<span class="green">hear the sound of boots approaching.</span>
+						<br><br>
+
+						<<link [[Everything fades to black...|Passout Estate Wren Hot Cold]]>><<set $passoutReason to "hypothermia">><</link>>
+					<</addinlineevent>>
+				<<else>>
+					<<addinlineevent "generic" 1>>
+						hear the sound of someone approaching.
+						<br><br>
+
+						<<link [[Everything fades to black...|Passout Hypothermia Rescue]]>><</link>>
+					<</addinlineevent>>
+				<</if>>
 			<<case "farm">>
 				<<if $bus.includes("farm")>>/* If not the Underground Farm */
 					<<addinlineevent "molest" 1>>
@@ -84,7 +112,14 @@
 				<<addinlineevent "rescue" 1>>
 					<<link [[Everything fades to black...|Passout Hypothermia Rescue]]>><</link>>
 				<</addinlineevent>>
-			<<case "moor" "tower">>
+			<<case "tower">>
+				<<addinlineevent "birdRescue" 1>>
+					You pass out from the cold.
+					<br><br>
+
+					<<link [[Everything fades to black...|Passout Bird Hypothermia]]>><</link>>
+				<</addinlineevent>>
+			<<case "moor">>
 				<<addinlineevent "birdRescue" 1.5>>
 					<<if $syndromebird gte 1>>
 						<<npc "Great Hawk">><<person1>>
@@ -119,13 +154,26 @@
 					<<link [[Everything fades to black...|Passout Hypothermia Rescue]]>><</link>>
 				<</addinlineevent>>
 			<<case "prison">>
-					<<addinlineevent "default" 1>>
-						<<link [[Everything fades to black...|Passout Prison 2]]>><</link>>
-					<</addinlineevent>>
+				<<addinlineevent "default" 1>>
+					<<link [[Everything fades to black...|Passout Prison 2]]>><</link>>
+				<</addinlineevent>>
 			<<case "lake">>
-				/* Lake events needed - adding default ones now to prevent empty passages */
-				<<addinlineevent "rescue" 1.1>>
-					<<link [[Everything fades to black...|Passout Hypothermia Rescue]]>><</link>>
+				Your vision blurs. You hold yourself tight to keep warm, but it's no use.
+				<br><br>
+				<<if $town_projects.diving gte 4 and (Time.schoolDay and Time.hour gte 16 and Time.hour lte 20 or !Time.schoolDay and Time.hour gte 6 and Time.hour lte 20)>>
+					<<addinlineevent "winter" 0.75>>
+						<<link [[Everything fades to black...|Passout Hot Cold Lake Office]]>><<set $passoutReason to "hypothermia">><</link>>
+					<</addinlineevent>>
+				<</if>>
+
+				<<if !Time.schoolDay and ["snow", "rain"].includes(Weather.precipitation) and Time.dayState is "day">>
+					<<addinlineevent "mason" 0.25>>
+							<<link [[Everything fades to black...|Passout Mason Hypothermia]]>><<set $phase to ["lakeunderwater", "lake_ruin", "lake_ruin_deep"].includes($bus) ? "underwater" : 1>><</link>>
+					<</addinlineevent>>
+				<</if>>
+
+				<<addinlineevent "danger" 1.25>>
+					<<link [[Everything fades to black...|Passout Hypothermia Lake Gangbang]]>><</link>>
 				<</addinlineevent>>
 			<<case "school">>
 				<<addinlineevent "default" 1>>
@@ -142,10 +190,20 @@
 				<<addinlineevent "default" 1>>
 					<<link [[Everything fades to black...|Passout Tentacle World]]>><</link>>
 				<</addinlineevent>>
-			<<case "tower">>
-				<<addinlineevent "default" 1>>
-					<<link [[Everything fades to black...|Moor Bird Wake]]>><</link>>
-				<</addinlineevent>>
+			<<case "park">>
+				You stumble forward, and slump to the cold ground, too battered to keep going.
+				<br><br>
+				/* Park events needed - adding default ones now to prevent empty passages */
+				<<if getRobinLocation() is "park" and !$daily.robin.passout>>
+					<<addinlineevent "park" 1.25>>
+						<<link [[Everything fades to black...|Passout Robin Hypothermia Park]]>><</link>>
+					<</addinlineevent>>
+				<</if>>
+
+					<<addinlineevent "rescue" 1>>
+						<<link [[Everything fades to black...|Passout Hypothermia Rescue]]>><</link>>
+					<</addinlineevent>>
+
 			<<default>>
 				/* Generic events */
 				<<addinlineevent "ambulance" 0.1>>
@@ -169,7 +227,7 @@
 	/* HEATSTROKE */
 	<<elseif _passout is "heat">>
 		<<set Weather.bodyTemperature to Weather.tempSettings.maxTemperature - 1>>
-		<<if !["beach", "forest", "moor", "sea"].includes($location)>>
+		<<if !["beach", "estate", "forest", "lake", "moor", "sea"].includes($location)>>
 			You pass out from the heat.
 			<br><br>
 		<</if>>
@@ -181,13 +239,19 @@
 					<</addinlineevent>>
 				<</if>>
 
+				<<if _underwear>>
+					<<addinlineevent "icecube" 1>>
+						<<link [[Everything fades to black...|Passout Heatstroke Ice Cube]]>><</link>>
+					<</addinlineevent>>
+				<</if>>
+
 				<<if !_fullyNaked>>
-					<<addinlineevent "strip" 1>>
+					<<addinlineevent "strip" .5>>
 						<<link [[Everything fades to black...|Passout Heatstroke Strip]]>><<set $molestationstart to 1>><</link>>
 					<</addinlineevent>>
 				<</if>>
 
-				<<addinlineevent "rescue" 1.1>>
+				<<addinlineevent "rescue" .5>>
 					<<link [[Everything fades to black...|Passout Heatstroke Rescue]]>><</link>>
 				<</addinlineevent>>
 
@@ -219,9 +283,42 @@
 					<<addinlineevent "students" 1>>
 						<<link [[Everything fades to black...|Passout Beach Heatstroke Students]]>><</link>>
 					<</addinlineevent>>
+					<<if !_fullyNaked and Weather.precipitation is "none">>
+						<<addinlineevent "wetShirt" 1>>
+							<<link [[Everything fades to black...|Passout Beach Heatstroke Wet Shirt]]>><</link>>
+						<</addinlineevent>>
+					<</if>>
 				<<else>>
 					<<addinlineevent "rescue" 1>>
 						<<link [[Everything fades to black...|Passout Beach Heatstroke Rescue]]>><</link>>
+					<</addinlineevent>>
+				<</if>>
+			<<case "estate">>
+
+				You can see heat radiating off the tops of the cars. Sweat pours down your forehead, stinging your eyes. You stagger to a patch of shade and collapse in a heap.
+				<br><br>
+
+				Just before you pass out, you
+				<<if $farm.aggro gte 60>>
+					<<addinlineevent "remy" 1>>
+						<span class="red">hear the sound of spurs approaching.</span>
+						<br><br>
+
+						<<link [[Everything fades to black...|Passout Estate Remy Hot Cold]]>><<estate_end>><</link>>
+					<</addinlineevent>>
+				<<elseif $wren_intro isnot undefined>>
+					<<addinlineevent "wren" 1>>
+						<span class="green">hear the sound of boots approaching.</span>
+						<br><br>
+
+						<<link [[Everything fades to black...|Passout Estate Wren Hot Cold]]>><<set $passoutReason to "hyperthermia">><</link>>
+					<</addinlineevent>>
+				<<else>>
+					<<addinlineevent "generic" 1>>
+						hear the sound of someone approaching.
+						<br><br>
+
+						<<link [[Everything fades to black...|Passout Heatstroke Rescue]]>><</link>>
 					<</addinlineevent>>
 				<</if>>
 			<<case "farm">>
@@ -255,6 +352,10 @@
 					<</addinlineevent>>
 				<</if>>
 
+				<<addinlineevent "mud" 1>>
+					<<link [[Everything fades to black...|Passout Heatstroke Mud]]>><</link>>
+				<</addinlineevent>>
+
 				<<addinlineevent "wolf" 1>>
 					<<link [[Everything fades to black...|Passout Wolves Hot Cold]]>><<set $passoutReason to "hyperthermia">><</link>>
 				<</addinlineevent>>
@@ -263,11 +364,32 @@
 					<<link [[Everything fades to black...|Passout Heatstroke Rescue]]>><</link>>
 				<</addinlineevent>>
 			<<case "lake">>
-				/* Lake events needed - adding default ones now to prevent empty passages */
-				<<addinlineevent "rescue" 1.1>>
-					<<link [[Everything fades to black...|Passout Heatstroke Rescue]]>><</link>>
+				Waves of heat engulf you. Your head spins and your vision blurs.
+				<br><br>
+
+				<<if $town_projects.diving gte 4 and (Time.schoolDay and Time.hour gte 16 and Time.hour lte 20 or !Time.schoolDay and Time.hour gte 6 and Time.hour lte 20)>>
+					<<addinlineevent "winter" 0.75>>
+						<<link [[Everything fades to black...|Passout Hot Cold Lake Office]]>><<set $passoutReason to "hyperthermia">><</link>>
+					<</addinlineevent>>
+				<</if>>
+
+				<<if !Time.schoolDay and ["snow", "rain"].includes(Weather.precipitation)  and Time.dayState is "day">>
+					<<addinlineevent "mason" 0.25>>
+							<<link [[Everything fades to black...|Passout Mason Hyperthermia]]>><<set $phase to ["lakeunderwater", "lake_ruin", "lake_ruin_deep"].includes($bus) ? "underwater" : 1>><</link>>
+					<</addinlineevent>>
+				<</if>>
+
+				<<addinlineevent "mud" 1>>
+					<<link [[Everything fades to black...|Passout Heatstroke Mud]]>><</link>>
 				<</addinlineevent>>
-			<<case "moor" "tower">>
+			<<case "tower">>
+				<<addinlineevent "birdRescue" 1.5>>
+					You pass out from the heat.
+					<br><br>
+
+					<<link [[Everything fades to black...|Passout Bird Heatstroke]]>><</link>>
+				<</addinlineevent>>
+			<<case "moor">>
 				<<addinlineevent "birdRescue" 1.5>>
 					<<if $syndromebird gte 1>>
 						<<npc "Great Hawk">><<person1>>
@@ -318,10 +440,6 @@
 			<<case "tentworld">>
 				<<addinlineevent "default" 1>>
 					<<link [[Everything fades to black...|Passout Tentacle World]]>><</link>>
-				<</addinlineevent>>
-			<<case "tower">>
-				<<addinlineevent "default" 1>>
-					<<link [[Everything fades to black...|Moor Bird Wake]]>><</link>>
 				<</addinlineevent>>
 			<<default>>
 				/* Generic events */
@@ -649,7 +767,7 @@ You wake up, feeling a little better than you remember. A thin towel covers your
 The <<person>> backs away. "I'll give you some <<= _exposed ? "space" : "privacy">>."
 <br><br>
 
-<<if $promiscuity gte 35>>
+<<if hasSexStat("promiscuity", 3)>>
 	<<link [[`Offer to thank ${$NPCList[0].pronouns.him} with your body`|Passout Heatstroke Rescue Thank]]>><</link>><<promiscuous3>>
 	<br>
 <</if>>
@@ -832,7 +950,7 @@ You awaken in a dingy windowless room, the stone walls lit only by a flaming tor
 	Another pirate fetches Captain Zephyr when you awake. "Welcome back from the brink, mate. Tis good fortune we found ye. <<print either ("Nature is no kinder mistress out at sea", "Raw nor cooked makes no difference to the mer. You're asking' for trouble swimming alone like that")>>."
 	<br><br>
 
-	<<= !_fullyNaked ? "<<dry_full>>Your dry clothes are returned to you and a towel" : "A towel">> is dropped onto your head.<<if $pirate_status gte 50>> A pirate ruffles your hair dry<<ruffleHair>><</if>>.
+	<<= !_fullyNaked ? "<<dry_full>>Your dry clothes are returned to you and a towel" : "A towel">> is dropped onto your head.<<if $pirate_status gte 50>> A pirate ruffles your hair dry<<ruffleHair>>.<</if>>
 	<br><br>
 
 	Once you're dry and on your feet again, Captain Zephyr commands <<nnpc_his "Zephyr">> crew.	"Alright, ye dogs! Back to work!"
@@ -862,8 +980,7 @@ You awaken in a dingy windowless room, the stone walls lit only by a flaming tor
 <<silently>><<water>><</silently>>
 You sit straight up, coughing water out of your lungs as the ocean waves surge over your prone body. It looks like the tide has come in.
 <<if !_fullyNaked and !_swimwear>>
-	<span class="red">Your clothes are soaked.</span> <<= $exhibitionism gte 75 ? "You shiver with excitement, your <<lewdness>> on full display" : "You quickly cover up and look for the nearest changing room">>. <<gstress>><<stress 6>>
-	<<silently>><<water>><</silently>>
+	<span class="red">Your clothes are soaked.</span> <<= hasSexStat("exhibitionism", 5) ? "You shiver with excitement, your <<lewdness>> on full display" : "You quickly cover up and look for the nearest changing room">>. <<gstress>><<stress 6>>
 	<br><br>
 	<<link [[Changing room|Changing Room]]>><<endevent>><</link>>
 <<else>>
@@ -972,7 +1089,7 @@ You feel a pair of arms hook under you and lift you off the sand.
 	<br><br>
 	You hear laughter, and look to find a <<person1>><<person>> from school, as well as some of <<his>> friends. <<He>> smirks at you. "You should count yourself lucky that I found you. Care to pay me back for my kindness?" <<he>> asks. <<He>> makes a lewd gesture, and <<his>> friends snicker.
 	<br><br>
-	<<if $promiscuity gte 55>>
+	<<if hasSexStat("promiscuity", 4)>>
 		<<link [[응한다|Passout Beach Heatstroke Students Sex]]>><<set $phase to 1>><<set $sexstart to 1>><</link>><<promiscuous4>>
 		<br>
 	<</if>>
@@ -1435,7 +1552,7 @@ After a few minutes, <<bhe>> gets off of you. <<if $monster is 1>>"Wait here," <
 <br><br>
 
 <<bHe>> puffs out <<bhis>> plumage, allowing them to settle into a fluffier silhouette.
-<<if understandsBirdBehaviour()>>You realise that <<bhe>> must be trapping air in the feathers. You smile when <<bhe>> confirms it by saying, "<</if>><<= _feathered ? "<<Wife>> should do the same. Keep air in feathers for warmth." : "Poor landbound <<wife>>, can't keep air in feathers for warmth.">>"
+<<if understandsBirdBehaviour()>>You realise that <<bhe>> must be trapping air in the feathers. <<if $monster is 1>>You smile when <<bhe>> confirms it by saying, "<</if>><<= _feathered ? "<<Wife>> should do the same. Keep air in feathers for warmth." : "Poor landbound <<wife>>, can't keep air in feathers for warmth.">>"<</if>>
 <<if _feathered>>
 	You follow suit, fluffing up your plumage.
 <<elseif !understandsBirdBehaviour()>>
@@ -1941,7 +2058,7 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 <br>
 <<link [[Let it happen|Passout Heatstroke Kiss End]]>><<set $phase to 1>><<trauma 6>><<stress 6>><</link>><<kissvirginitywarning>><<gtrauma>><<gstress>>
 <br>
-<<if $promiscuity gte 15>>
+<<if hasSexStat("promiscuity", 2)>>
 	<<link [[Make out|Passout Heatstroke Kiss End]]>><<set $phase to 2>><</link>><<promiscuous2>><<kissvirginitywarning>>
 <</if>>
 :: Passout Heatstroke Kiss End
@@ -1990,3 +2107,678 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 Soaked in sweat and still somewhat weak, you climb to your feet. Maybe you should try finding a way to cool down.
 <br><br>
 <<link [[다음|$safePassage]]>><<endevent>><<set $eventskip to 1>><</link>>
+
+:: Passout Robin Hypothermia Park
+<<effects>><<npc Robin>><<person1>>
+
+You wake up to the smell of hot chocolate. Robin kneels next to you, looking worried. "Are you okay?" <<He>> takes a look at what you're wearing<<if $exposed gte 1>>, or rather what you're not wearing<</if>>.
+<br><br>
+<<if C.npc.Robin.dom gte 50>>
+	<<upperundress "Robin_upper">>
+	<<upperwear 71>>
+	"What in the world are you wearing? In this weather?" <<he>> tuts. <<He>> drapes <<his>> puffer jacket over your shoulders and then places a warm thermos in your hands. "Here, drink this. It'll help you warm up."
+	<<set Weather.Temperature.override.increase.outside(-5, "Robin's puffer jacket making you warm.")>>
+<<else>>
+	"Erm... A-aren't you cold, dressed like that?" <<he>> asks anxiously. <<He>> helps you sit up and places a warm thermos in your hands. "Here, this should help."
+	<<set Weather.Temperature.override.increase.outside(-3, "Robin's hot chocolate warming you up.")>>
+<</if>>
+<br><br>
+The hot chocolate is warm and sweet as it goes down, and the radiant heat of the thermos eases the stiffness in your fingers.
+<br><br>
+"Th-thanks," you say, teeth chattering. Robin helps you stand to your feet <<if $exposed gte 1>>while trying to avoid looking directly at your <<lewdness>>,<</if>> but stops you when you start to walk away.
+<br><br>
+<<if C.npc.Robin.dom gte 50>>
+	"Hey, no way," <<he>> says firmly. "I'm taking you home to change into something else."
+<<else>>
+	"H-hey, erm... M-maybe you should go home and change. I can come with you?"
+<</if>>
+<br><br>
+<<link [[받아들인다|Passout Robin Hypothermia Park 2]]>><<set $phase to 0>><</link>>
+<br>
+<<link [[거절한다|Passout Robin Hypothermia Park 2]]>><<set $phase to 1>><</link>>
+
+:: Passout Robin Hypothermia Park 2
+<<effects>>
+<<if $phase is 0>>
+	Robin places an away sign at <<his>> stand and walks you to the Orphanage.
+
+	<<if C.npc.Robin.trauma gte 50>>
+		<<He>> doesn't say much along the way.
+	<<elseif C.npc.Robin.dom gte 50 and $robinromance is 1>>
+		<<He>> holds your hand the whole way.
+	<<else>>
+		<<He>> doesn't seem to mind taking a break to help you.
+	<</if>>
+
+	<<He>> escorts you to your bedroom, pausing at the door. "I have to get back. Please be careful."
+	<<storeon "Robin_upper">>
+	<br><br>
+	"I will," you assure <<him>>. "Thanks for walking me home."
+	<br><br>
+	<<if $robinromance is 1>>
+		<<if C.npc.Robin.dom gte 50>>
+			<<He>> places a firm smooch on your cheek.
+		<<else>>
+			<<He>> hesitates, but plants a small kiss on your cheek.
+		<</if>>
+	<</if>>
+
+	You give <<him>> a placating smile and see <<him>> off.
+	<br><br>
+	<<link [[다음|Bedroom]]>><<endevent>><<set $daily.robin.passout to 1>><</link>>
+
+<<else>>
+	<<if C.npc.Robin.dom gte 50>>
+		"...Okay." <<He>> nods after a terse huff. "As long as you know what you're doing..."
+		<br><br>
+		You give <<his>> jacket back.
+		<<storeon "Robin_upper">>
+		<<if $worn.hands.name is "naked">>
+			<<He>> removes <<his>> fingerless gloves and gives them to you. "I don't need them back, just... be safe, you know?"
+			<<handswear 1 "purple">>
+		<</if>>
+	<<else>>
+		"I... O-okay, if you know what you're doing..." <<He>> looks to <<his>> feet. "Just... promise me you'll be careful."
+	<</if>>
+	<br><br>
+	"I'll be fine," you say.
+	<br><br>
+	<<if $robinromance is 1>>
+		<<if C.npc.Robin.dom gte 50>>
+			<<He>> places a firm smooch on your cheek. "You know where to find me if you need anything."
+		<<else>>
+			<<He>> hesitates, but plants a small kiss on your cheek. "Okay. If you say so..."
+		<</if>>
+	<</if>>
+	<br><br>
+	You give <<him>> a reassuring smile and carry on as you are.
+	<br><br>
+	<<link [[다음|Park]]>><<endevent>><<set $daily.robin.passout to 1>><</link>>
+<</if>>
+
+:: Passout Hot Cold Lake Office
+<<set $outside to 0>><<set $location to "lake">><<effects>>
+<<npc Winter>><<person1>>
+<<outfitChecks>>
+<<returnCarried>>
+
+You wake up to the sound of pen scribbling on paper. You look around and see green tent walls surrounding a spacious interior. You realise you are in the archaeological office by the lake.
+<br><br>
+
+<<if $passoutReason is "hyperthermia">>
+	<<set Weather.Temperature.override.increase.inside(-5, "The ice bag cools you down.")>>
+	You find yourself wrapped solely in a towel. You sit up, and an ice bag slides down from your neck.
+	<br><br>
+
+	"Good to see you up." You turn around to find Winter mixing a spoonful of salt into a cup of water. "<<if !_fullyNaked>>I apologise, but I had to remove your clothes. <</if>>It seems like you were overheated." <<He>> hands you the cup and sits down next to you.
+	<br><br>
+
+	<<if $exposed gte 1>>
+		<<if Time.season is "summer">>
+			"The weather is severe around this time," <<he>> says. "You should be more cautious."
+		<<elseif Time.season is "spring">>
+			"The weather's getting warmer," <<he>> says. "Perhaps a bit too warm."
+		<<elseif Time.season is "autumn">>
+			"The weather's getting colder," <<he>> says. "But it seems like the remainder of summer is still there."
+		<<else>>
+			"I'm astonished you managed to pass out of heatstroke at this time of year." <<He>> examines you closely. "Especially in that state of dress."
+		<</if>>
+	<<else>>
+		<<if Time.season is "summer" and _top.warmth gte 7>>
+			<<He>> sighs. "Why would you dress like that during this time of the year?" <<He>> gives you a stern look. "I expected better from you." <<npcincr Winter love -1>><<llove>>
+		<<elseif Time.season is "spring">>
+			"The weather's getting warmer," <<he>> says. "You should be wiser in your choice of clothes."
+		<<elseif Time.season is "autumn">>
+			"The weather gets colder at this time of year," <<he>> says. "But you still need to watch how you dress."
+		<<elseif Weather.isFreezing>>
+			"Glacial temperatures, indeed." <<He>> looks outside the tent, then glances back at you. "But don't suffocate yourself."
+		<</if>>
+	<</if>>
+
+	<<if !_fullyNaked>>
+		<<strip>><<towelup>>
+		Winter hands you a pile of neatly-folded clothing. "Here are your belongings."
+		<br><br>
+
+		<<link [[Get dressed|Passout Lake Office Dress]]>><</link>>
+		<br>
+		<<link [[Insist on wearing the towel|Passout Lake Office Dress End]]>><<set $phase to "towel">><<returnCarried>><</link>>
+	<<else>>
+		<<towelup>>
+		Winter spends a few moments to ensure you're okay before sending you on your way.
+		<br><br>
+
+		<<link [[다음|Lake Office]]>><<endevent>><<pass 10>><</link>>
+	<</if>>
+<<else>>
+	<<set Weather.Temperature.override.increase.inside(5, "The comforter warms you up.")>>
+	You try to sit up, and a heavy comforter slides down from your body.
+	<br><br>
+
+	"Good to see you up." You turn to find Winter holding a tray with two cups of hot tea on top of it. "I found you lying on the bank. Have some tea, you need it."
+	<br><br>
+
+	You reach for a cup, but your fingers are numb and trembling, and you struggle to wrap them around the handle. Winter notices. <<He>> sighs and sets the tray on the table, then takes a cup in <<his>> hand and sits beside you. <<He>> holds your hand and presses it to the cup, warming it up. <<wearProp "tea">>
+	<br><br>
+
+	<<if $exposed gte 1>>
+		<<if Time.season is "summer">>
+			"I don't blame you for dressing like that during this time of the year," <<he>> says. "But perhaps you should be more careful."
+		<<elseif Time.season is "spring">>
+			"The weather's getting warmer," <<he>> says. "But that's no excuse to dress inappropriately."
+		<<elseif Time.season is "autumn">>
+			"The weather's getting colder," <<he>> says. "You should be wiser in your choice of clothes."
+		<<else>>
+			<<He>> squints upon seeing your state of dress. "Dressing like that in this weather?" <<He>> rubs <<his>> temples. "I expected better from you." <<npcincr Winter love -1>><<llove>>
+		<</if>>
+		<br><br>
+
+		<<He>> fetches a jacket from the back of the tent. "Here, take this," <<he>> says, wrapping it around your shoulders. "I have a few spares." <<upperwear 49 "grey" "blue steel">>
+		<br><br>
+
+		<<He>> stays by your side and spends a few minutes lecturing you.
+	<<elseif _top.warmth gte 7>>
+		<<if Time.season is "summer">>
+			"Magnificent," <<he>> muses. "It's a wonder how you managed to get hypothermia at this time of year." <<He>> pauses, then adds, "And with your state of dress, too."
+		<<elseif Time.season is "spring">>
+			"The weather's getting warmer," <<he>> says. "But you shouldn't underestimate its impact."
+		<<elseif Time.season is "autumn">>
+			"The weather's getting colder," <<he>> says. "I can see you are well prepared. But perhaps you should be more careful."
+		<<else>>
+			"You are prudent in your choice of clothes," <<he>> says. "Still, when the weather's exceptionally frigid, I'd suggest staying indoors."
+		<</if>>
+		<br><br>
+		<<He>> insists on keeping you around until you finish your tea, lecturing you the whole while.
+	<</if>>
+
+	You endure Winter's mild scolding and promise to take better care of yourself.
+	<br><br>
+
+	<<link [[다음|Lake Office]]>><<unset $passoutReason>><<endevent>><<pass 10>><</link>>
+<</if>>
+
+
+:: Passout Lake Office Dress
+<<effects>>
+
+It occurs to you that it might be best to put on fewer clothes for right now. Anything else can be sent to your wardrobe.
+<br>
+
+<<getDressedList>>
+
+<<link [[Finish dressing|Passout Lake Office Dress End]]>><</link>>
+
+
+:: Passout Lake Office Dress End
+<<effects>>
+
+<<if $phase is "towel">>
+	Winter frowns, but doesn't argue. "Very well then." <<He>> pauses, then concedes, "I suppose it will keep you cool."
+<<else>>
+	Winter keeps <<his>> back to you, respecting your privacy as you get dressed.
+<</if>>
+<<He>> spends a few moments to ensure you're okay before sending you on your way.
+<br><br>
+
+<<link [[다음|Lake Office]]>><<unset $passoutReason>><<endevent>><<pass 10>><</link>>
+
+
+:: Passout Mason Hyperthermia
+<<set $outside to 1>><<set $location to "lake">><<effects>>
+<<npc Mason>><<person1>><<outfitChecks>>
+
+<<if $phase is "underwater">>
+	You feel someone's arms wrap around you, dragging you to the surface.
+<</if>>
+
+<<if !Weather.isFreezing and Time.season isnot "winter">>
+	<<set Weather.Temperature.override.increase.outside(-5, "The cool water causes the heat from your body to dissipate quickly.")>>
+
+	You wake up in a pair of toned arms. Half of your body is immersed in the cool lake water.
+	<br><br>
+
+	"You're awake!" the person holding you cheers. <span class="green">It's Mason.</span> <<He>> sounds relieved. "You didn't wake up for quite a while, so I called an ambulance, just in case," <<he>> says. "They'll arrive soon."
+	<br><br>
+
+	<<He>> examines your state of dress.
+	<<if _fullyNaked>>
+		<<His>> cheeks are bright red, and <<he>> quickly looks away. "I'm not sure how you managed to get heatstroke, but you should be more careful. Too much physical exertion can cause you to overheat."
+	<<elseif _swimwear>>
+		"It's always nice to go swimming every now and then," <<he>> says. "But you shouldn't go overboard with it. Too much physical exertion can cause heatstroke, after all."
+	<<else>>
+		"Sorry for soaking your clothes," <<he>> says awkwardly. "I figured the water would be the best way to help cool you down."
+	<</if>>
+	<br><br>
+
+	<<He>> helps you stand, and escorts you to the shore. <<if !_fullyNaked and !_swimwear>><<He>> does <<his>> best to help you dry your clothes.<</if>><<dry>>
+
+<<else>>
+	<<set Weather.Temperature.override.increase.outside(-5, "The chilly air caresses your skin.")>>
+
+	You wake up beneath the shade of a tall tree near the lake.
+	<br><br>
+
+	"You're awake!" a voice exclaims. You turn and see Mason sitting beside you. "You didn't wake up for quite a while, so I called an ambulance, just in case," <<he>> says. "They'll arrive soon."
+
+	<<if $exposed gte 1>>
+		<<He>> examines you with concern. "Why would you dress so poorly at this time of year?" <<He>> rubs <<his>> head, looking confused. "And how did you manage to get heatstroke? You need to be more careful. Too much physical exertion can cause you to pass out."
+	<<else>>
+		<<He>> gives you a concerned glance. "It gets cold out this time of year, but you need to take care with how you dress."
+	<</if>>
+<</if>>
+<br><br>
+
+Mason stays with you until the ambulance arrives, and the two of you chat idly.
+<br><br>
+
+<<link [[다음|Passout Mason Ambulance]]>><<set $passoutReason to "hyperthermia">><</link>>
+
+:: Passout Mason Hypothermia
+<<set $outside to 1>><<set $location to "lake">><<effects>>
+<<npc Mason>><<person1>>
+<<set Weather.Temperature.override.increase.outside(5, "The towel and Mason's body heat warm you up.")>>
+
+<<if $phase is "underwater">>
+	You feel someone's arms wrap around you, dragging you to the surface.
+<</if>>
+
+You wake up to a pair of arms and a thick towel wrapped around you. A toned chest presses against your back. You try to move.
+<br><br>
+
+Your rescuer squeezes you. "You're awake!" <span class="green">It's Mason.</span> <<He>> sounds relieved. "You didn't wake up for quite a while, so I called an ambulance, just in case," <<he>> says. "They'll arrive soon."
+<br><br>
+
+<<He>> examines your state of dress.
+<<if $worn.upper.type.includes("diving") and $worn.lower.type.includes("diving")>>
+	<<if Time.season is "summer">>
+		"How did you manage this?" <<he>> asks in disbelief. "The suit itself is already warm, not to mention, it's summer."
+	<<elseif Time.season is "spring">>
+		"How strange," <<he>> muses. "It's getting warmer this time of year, and you're wearing a diving suit."
+	<<elseif Time.season is "autumn">>
+		"It gets chilly this time of year," <<he>> says. "You should be more cautious."
+	<<else>>
+		"Diving in the winter?" Mason shakes <<his>> head. "You might be dressed for it," <<he>> says. "But <<= Weather.isFrozen("lake") ? "the ice is treacherous" : "you should know better">>."<<npcincr Mason love -1>><<llove>>
+	<</if>>
+<<elseif $exposed gte 1>>
+	<<if _fullyNaked>>
+		<<His>> cheeks are bright red, and <<he>> quickly looks away.
+	<</if>>
+	<<if Time.season is "summer">>
+		"I know it's tempting to wear nothing when it's summertime," <<he>> says. "But you still need to be careful."
+	<<elseif Time.season is "spring">>
+		"It gets warmer this time of year, but still, you need to mind how you dress."
+	<<elseif Time.season is "autumn">>
+		"It gets chilly this time of year," <<he>> says. "You should wear more clothes."
+	<<else>>
+		"You should know better than to walk around like that in the winter." <<He>> shakes <<his>> head, but doesn't take it further.<<npcincr Mason love -1>><<llove>>
+	<</if>>
+<<else>>
+	<<if Time.season is "summer">>
+		"H-How did you?" <<he>> stammers, and shakes <<his>> head. "Perhaps you should report this to the developer team."
+	<<elseif Time.season is "spring">>
+		"The weather's starting to warm up, but it can still get chilly out." <<He>> frowns. "You should be more careful."
+	<<elseif Time.season is "autumn">>
+		"The weather's getting colder," <<he>> says. "It's never bad to wear a little extra."
+	<<else>>
+		"It can get pretty frigid in the winter." <<He>> gives you a reassuring smile. "If it gets to be too cold, I recommend staying indoors."
+	<</if>>
+<</if>>
+<br><br>
+Realising that <<hes>> still wrapped around you, Mason quickly lets go and sheepishly helps you up. <<He>> stays with you until the ambulance arrives, and the two of you chat idly.
+<br><br>
+
+<<link [[다음|Passout Mason Ambulance]]>><<set $passoutReason to "hypothermia">><</link>>
+
+
+:: Passout Mason Ambulance
+<<effects>>
+
+The paramedics insist on wheeling you onboard in a gurney, despite being alert and responsive. You give Mason an awkward wave goodbye as the ambulance doors shut. The paramedics ask questions about your health on the journey to the hospital. Thankfully, you're discharged soon after arriving, though the nurse gives you a stern lecture on the dangers of <<= $passoutReason>>.
+<br><br>
+<<if $exposed gte 1>>
+	<<if $backgroundTraits.includes("crossdresser")>>
+		<<set $clothingselector to $player.gender is "m" ? "f" : "m">>
+	<<else>>
+		<<set $clothingselector to $player.gender_appearance>>
+	<</if>>
+	<<if $clothingselector is "m">>
+		<<underlowerwear 4>>
+		<<upperwear 4>>
+		<<lowerwear 5>>
+	<<else>>
+		<<upperwear 1>>
+		<<underlowerwear 1>>
+	<</if>>
+<</if>>
+
+<<link [[다음|Hospital Foyer]]>><<unset $passoutReason>><<endevent>><<pass 20>><</link>>
+
+:: Passout Hypothermia Lake Gangbang
+<<set $outside to 1>><<set $location to "lake">><<effects>>
+<<generatey1>><<generatey2>><<generatey3>><<generatey4>>
+
+You wake up to hands groping your body.
+<br><br>
+
+"You're awake," says a <<person1>><<person>>. <<Hes>> not alone. "You looked so cold, we just want to help you warm up." You recognise them from school.
+<br><br>
+
+<<if $speech_attitude is "meek">>
+	"P-please don't," you plead.
+<<elseif $speech_attitude is "bratty">>
+	"Don't you dare touch me," you scowl. Your fingers are numb, but you still manage to curl them into fists.
+<<else>>
+	"Don't you dare," you say.
+<</if>>
+<br><br>
+
+Your voice falls on deaf ears as they close in.
+<br><br>
+
+<<link [[다음|Passout Hypothermia Lake Rape]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Passout Hypothermia Lake Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[다음|Passout Hypothermia Lake Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[다음|Passout Hypothermia Lake Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Passout Hypothermia Lake Rape Finish
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	"Thanks for getting us off, slut. Bet you're nice and warmed up now, eh?" Laughter and cheers erupt from the <<fullGroup>> as the <<person1>><<person>> sends you off with a smack on your <<bottom>>.
+<<elseif $enemyhealth lte 0>>
+	The <<person1>><<person>> shoves you away with a yelp of pain, and the others swear. "Fine, be like that, <<bitch>>! See if anyone saves your ass ever again!" They collect themselves and stalk off, shooting you dirty looks.
+<</if>>
+<br><br>
+<<tearful>> you gather yourself.
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<set Weather.Temperature.override.increase.outside(5, "The intense exertion has warmed your body up.")>>
+
+<<link [[다음|Lake Shore]]>><<endevent>><</link>>
+
+:: Passout Estate Remy Hot Cold
+<<effects>><<generate1>><<generate2>><<leash 21>>
+
+You awaken on a wooden floor, a cold heavy weight around your neck. Two figures loom over you.
+<br><br>
+
+"You weren't lying," a <<person1>><<person>> says. "Good stock.<<if $pregnancyspeechdisable is "f">> Would make a fine breeder.<</if>>"
+<br><br>
+
+"<<= $pregnancyspeechdisable is "f" ? "Breeder?" : "Personally,">>" the <<person2>><<person>> replies, "I'm more interested in the produce. Gonna make a killing." <<He>> grasps the leash attached to your collar, and forces you to your feet. You're in a small barn. The <<person>> tugs you behind <<him>>.
+<br><br>
+
+<<link [[다음|Livestock Intro]]>><<endevent>><</link>>
+<br>
+
+:: Passout Estate Wren Hot Cold
+<<set $outside to 0>><<effects>>
+<<outfitChecks>>
+<<npc Wren>><<person1>>
+
+You wake up in an unfamiliar room.
+
+<<if $passoutReason is "hypothermia">>
+	You're wearing a stranger's jacket and jeans.
+	<<if !_fullyNaked>>
+		<<if _underwear>>Your underwear is conspicuously missing.<</if>>
+		<span class="red">Your old clothes are nowhere to be found.</span>
+		<<upperruined>><<lowerruined>><<underlowerruined>><<underupperruined>>
+	<</if>>
+	At least you're not freezing anymore.
+	<br><br>
+
+	"This cold weather's dangerous, you know," a voice says. "You're lucky that we had some clothes lying around, but we are going to need them back."
+	<<upperwear 41 "tan">><<lowerwear 22 "denim">>
+<<else>>
+	<<set Weather.Temperature.override.increase.outside(-5, "The fan cools you.")>>
+	A standing fan is blowing on your face. There's a glass of water next to you. You take it and drink the entire glass in one breath.
+	<br><br>
+
+	<<if !_fullyNaked>>
+		"I'm surprised," a voice says. "I don't think I've ever seen you wearing so many clothes. You could stand to lose a few."
+	<<else>>
+		"I'm not surprised that I found you wearing so little," a voice says. "But I <i>am</i> surprised you managed to get heatstroke like this."
+	<</if>>
+<</if>>
+<br><br>
+
+You turn your head. <span class="gold">It's Wren.</span>
+<<outfitChecks>>
+<<if !_fullyNaked>>
+	<<He>> holds up a deck of cards. "Fancy a game?"
+	<br><br>
+
+	<<link [[받아들인다|Passout Estate Wren Cards Accept]]>><<npcincr Wren love 1>><</link>><<glove>>
+	<br>
+	<<link [[거절한다|Passout Estate Wren Cards Refuse]]>><<npcincr Wren love -1>><</link>><<llove>>
+<<else>>
+	<<He>> smiles. "I'd invite you to play cards while you cool down, but well... not much point." <<He>> nods at your naked body.
+	<br><br>
+
+	You blush profusely, but thank Wren for rescuing you. <<He>> gives a dismissive wave, and you turn to leave. "Come back when there's something you want," <<he>> says. "And maybe consider staying indoors, if the heat gets to you that much."
+	<br><br>
+
+	<<link [[다음|Estate]]>><<unset $passoutReason>><<endevent>><</link>>
+<</if>>
+
+:: Passout Estate Wren Cards Refuse
+<<effects>>
+
+"If you're sure," Wren says.
+
+<<if $passoutReason is "hypothermia">>
+	"That'll be <<printmoney 15000>>." <<He>> holds out <<his>> hand.
+	<br><br>
+
+	<<if $money gte 15000>>
+		<<link [[Pay|Passout Estate Wren Pay]]>><<set $money -= 15000>><</link>>
+	<<else>>
+		<span class="blue">You can't afford it.</span>
+	<</if>>
+	<br>
+	<<link[[Return clothes|Passout Estate Wren Return]]>><</link>>
+<<else>>
+	"Stay cool out there," <<he>> says. "I'm not sticking my neck out for you a second time."
+	<br><br>
+
+	You leave the cottage.
+	<br><br>
+
+	<<link [[다음|Estate]]>><<unset $passoutReason>><<endevent>><</link>>
+<</if>>
+
+:: Passout Estate Wren Cards Accept
+<<effects>>
+<<generate2>><<generate3>><<generate4>><<generate5>><<generate6>>
+
+"Good," Wren says. "Through here."
+<br><br>
+
+<<He>> gestures for you to follow and leads you into the familiar card room, where <<his>> goons are waiting. <<He>> sits at the table and nods at the chair opposite <<him>>.
+<br><br>
+
+<<link [[다음|Estate Cards Intro 2]]>><</link>>
+
+:: Passout Estate Wren Pay
+<<effects>>
+
+You hand Wren the money. <<He>> pockets it without looking. "So long," <<he>> says.
+<br><br>
+
+You leave the cottage.
+<br><br>
+
+<<link [[다음|Estate]]>><<unset $passoutReason>><<endevent>><</link>>
+
+:: Passout Estate Wren Return
+<<effects>><<upperruined true>><<lowerruined true>>
+
+You strip and drop the clothes at  Wren's feet. <<He>> lifts <<his>> eyebrows as if surprised. You fold your arms, smirking at <<him>>. <<His>> expression soon smooths as <<he>> takes in the sight.
+<br><br>
+
+"If that's what you want," <<he>> says. "Just keep warm. I'm not sticking my neck out for you a second time."
+<br><br>
+
+You leave the cottage, well aware of <<his>> eyes following you.
+<br><br>
+
+<<link [[다음|Estate]]>><<unset $passoutReason>><<endevent>><</link>>
+
+:: Passout Heatstroke Mud
+<<effects>><<set $location to "lake">><<set $outside to 1>><<outfitChecks>>
+<<set Weather.Temperature.override.increase.outside(-5, "The mud is cool against your skin.")>>
+<<generates1>>
+
+You wake up to a cold and wet sensation all over your body. Getting your bearings, you see that you are lying on your back next to the lake. A <<person1>><<person>> massages mud from the bank across your skin sensually while a small crowd of your classmates watch. <<if !_overNaked or !_middleNaked>>You notice immediately that you <<= _underwear ? "must have been stripped down to your underwear while you were unconscious" : "are not wearing anything beneath the mud">>!<</if>> You sit upright with a start, drawing a few gasps from the crowd.
+<br><br>
+
+"Sorry, you passed out, so we figured we needed to cool you down somehow," the <<personsimple>> explains, clearly feigning innocence. The other students laugh. Some film your reaction on their cell phones.
+<br><br>
+
+"Now that you're feeling better, you ought to wash off, you dirty, dirty, <<girl>>," <<he>> says with a mocking tone.
+<br><br>
+
+<<overupperruined>><<overlowerruined>><<upperruined>><<lowerruined>>
+<<if _bottom and _bottom is $worn.under_lower>>
+	<<underlowerruined>>
+<</if>>
+<<if _top and _top is $worn.under_upper>>
+	<<underupperruined>>
+<</if>>
+<<fameexhibitionism 5 "vid">>
+
+<<if hasSexStat("exhibitionism", 4) and $uncomfortable.nude is false>>
+	<<link[[Wash|Passout Heatstroke Mud Wash]]>><<water>><<status 1>><</link>><<exhibitionist4>><<gcool>>
+<<else>>
+	<<link[[Wash|Passout Heatstroke Mud Wash]]>><<set $desperateaction to "it's better than being covered in mud">><<stress 12>><<status 1>><<water>><</link>><<ggstress>><<gcool>>
+<</if>>
+<br>
+<<link[[Run|Passout Heatstroke Mud Run]]>><<stress 6>><</link>><<gstress>>
+
+:: Passout Heatstroke Mud Wash
+<<silently>><<effects>><</silently>>
+/* Yes this is intentional, because water effects are janky as hell. */
+
+<<if hasSexStat("exhibitionism", 4)>>
+	You confidently stride over to the lake and submerge yourself in the water. You rub as much of the mud off as possible while your audience snickers and giggles. As you emerge from the lake, the other students bolt before you have a chance to ask what happened to your clothing.
+<<else>>
+	Embarrassed, you cover yourself up as best you can and move to the lake. Slipping beneath the surface, you clean the mud off the best you can while trying to keep your classmates from seeing you undressed.
+	<br><br>
+
+	When you are as clean as you can get, you walk awkwardly back to the shore. Your peers point and laugh as your face burns with shame. Before you have a chance to ask what happened to your clothing, the other students bolt.
+<</if>>
+<br><br>
+
+<<exhibitionism4>>
+<<fameexhibitionism 10 "vid">>
+
+<<link[[다음|Lake Shore]]>><<endevent>><<set $eventskip to 1>><</link>>
+
+:: Passout Heatstroke Mud Run
+<<effects>><<set $location to "forest">><<set $outside to 1>>
+
+You get up and flee into the woods, hoping to get out of sight of your peers and their cameras. A few students chase you and shout lewd remarks, but you lose them relatively quickly in the trees. Once you feel you are far enough away, you finally stop to catch your breath. Using sticks and leaves, you clean off as much of the mud as possible and take a look at your surroundings.
+<br><br>
+
+<<link[[다음|Forest]]>><<endevent>><<set $eventskip to 1>><</link>>
+
+:: Passout Heatstroke Ice Cube
+<<effects>><<upperstrip>><<lowerstrip>><<facestrip>><<bindtemp>><<facewear 4>>
+<<generatey1>><<generatey2>>
+
+As you come to, you realise that you have been stripped down to your <<undies>>, gagged, and tied to a chair in the alley. Before you can get your bearings, you hear the voice of one of your classmates, a <<person1>><<person>>. "Shush! <<pShes>> waking up. Start recording."
+<br><br>
+
+"Ready, set, action," a <<person2>><<person>> whispers.
+<br><br>
+
+"Remember, folks: the best way to prevent heatstroke is to take lots of cool water with you and dress appropriately in hot weather!" the <<person1>><<person>> instructs in a cheesy tone. <<He>> addresses a small camera on a cheap tripod.
+<br><br>
+
+<<He>> brandishes a water bottle filled with more ice cubes than water, stretches the waistband of your <<undies>>, and pours half of its freezing contents down the front! You yelp into your gag and squirm to try and get the ice away from your <<= $player.penisExist ? "penis" : "clit">>. While you're otherwise occupied, the rest of the ice water is dumped down the back of your <<undies 1>>. The <<person>> takes an ice cube in each hand, and massages your nipples with them. You yelp at the frigid sensation. <<gpain>><<pain 6>>
+<br><br>
+
+<<He>> grins at the camera as <<he>> signs off, "Check out our other videos for more health tips. We'll see you next time!"
+<br><br>
+
+"Alright, let's go," the <<person2>><<person>> says, packing up the camera. The pair remove your gag and untie your hands, leaving you to free yourself from the remainder of your binds. <<if $carried.face.name isnot "naked">>They take your <<= $carried.face.name>> as a souvenir.<</if>>  By the time you remove the ice from your soaked <<undies>> and locate your clothes, they're long gone. <<gstress>><<stress 6>>
+<br><br>
+
+<<fameexhibitionism 10 "vid">>
+
+<<link [[다음|$safePassage]]>><<unbindtemp>><<set $worn.face.type.push("broken")>><<faceruined>><<set $underlowerwet to 200>><<clotheson>><<endevent>><<set $eventskip to 1>><</link>>
+
+:: Passout Beach Heatstroke Wet Shirt
+<<effects>><<set $location to "beach">><<set $outside to 1>>
+<<upperstrip>><<lowerstrip>><<underupperstrip>><<underlowerstrip>><<upperwear 148 "white">>
+<<generate1>><<person1>>
+
+You wake up under a small awning on the beach. Sitting up on the beach towel, you realise your clothing is gone. You're wearing nothing but a white oversized button-down shirt. Before you can speak, a <<person>> explains, "Hey, glad to see you're awake. I saw you passed out and decided to keep an eye on you while you recovered."
+<br><br>
+
+When you ask where your clothes are, <<he>> responds, "Well... I'm not entirely sure. I bet I could find them though, if you were willing to do something for me. A buddy of mine is starting up a wet t-shirt contest, and we want a few new contestants. What do you say? I bet the water could do you some good in your condition."
+<br><br>
+
+<<link[[Agree reluctantly|Passout Beach Heatstroke Wet Shirt 2]]>><<set  $phase to 0>><<stress 6>><</link>><<gstress>>
+<br>
+<<if hasSexStat("exhibitionism", 3)>>
+	<<link[[Agree enthusiastically|Passout Beach Heatstroke Wet Shirt 2]]>><<set  $phase to 1>><</link>><<exhibitionist3>>
+	<br>
+<</if>>
+<<link[[거절한다|Passout Beach Heatstroke Wet Shirt 2]]>><<set $phase to 2>><</link>>
+
+:: Passout Beach Heatstroke Wet Shirt 2
+<<effects>>
+
+<<if $phase is 2>>
+	You refuse to go along with the request, and the <<person>> shrugs. "Suit yourself," <<he>> says, walking away. You look around for your clothes but turn up empty-handed. The button-down will have to do.
+	<br><br>
+	<<link[[다음|Beach]]>><<upperruined>><<lowerruined>><<underupperruined>><<underlowerruined>><<upperwear 148 "white">><</link>>
+<<else>>
+	<<generate2>><<generate3>><<fameexhibitionism 5>><<set $upperwetstage to 2>><<set $lowerwetstage to 2>>
+
+	You agree to take part in the show, much to the pleasure of the <<person1>><<person>>. <<He>> leads you to a nearby pier where a small crowd is gathering, and has you line up with a <<person2>><<person>> and <<person3>><<person>>. You stand there <<= hasSexStat("exhibitionism", 3) ? "confidently" : hasSexStat("exhibitionism", 2) ? "patiently" : "nervously">>, waiting for your turn.
+	<br><br>
+
+	The <<person2>><<person>> goes first, doing a seductive dance while members of the crowd pour pitchers of water over <<his>> chest. The sounds of whistling and catcalling follow <<him>> as <<he>> walks down the pier. The <<person3>><<person>> goes next, standing with <<his>> hands raised stiffly while <<he>> is drenched. <<He>> fakes a smile while a few people in the crowd make crude remarks, before hurrying to find a place to change.
+	<br><br>
+
+	The <<person1>><<person>> leads you to the center of the transfixed crowd.
+	<<if $phase is 1>>
+		 You do a sexy little dance as the water is poured down your front. Your audience cheers as the oversized button-down becomes transparent, revealing your <<chest>>. <<exhibitionism3>>
+
+		 You twirl on the spot and give a bow before returning to the <<person1>><<person>>. <<He>> returns your clothes to you with a big smile on <<his>> face.
+	<<else>>
+		You go rigid, but manage to lift your arms up like the person before you. Despite some disappointed murmurs, the audience still enjoys watching the button-down turn transparent, revealing your <<chest>>.
+		<br><br>
+
+		As soon as you are able, you return to the <<person1>><<person>>. <<He>> returns your clothes to you with a neutral expression. "A deal's a deal, I guess. Here you go."
+	<</if>>
+	<br><br>
+
+	<<link[[다음|Beach]]>><<clotheson>><<dry_full>><<endevent>><<set $eventskip to 1>><</link>>
+<</if>>

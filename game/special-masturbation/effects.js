@@ -1656,7 +1656,7 @@ function masturbationEffectsArms(
 			} else {
 				altText.toys = `당신은 <<breastsPost>>에 있는 ${toyDisplay(altText.selectedToy, '을')} 사용`;
 			}
-			if (V.lactating === 1 && V.breastfeedingdisable === "f") {
+			if (V.lactating === 1) {
 				if (V.milk_amount >= 1 && V.earSlime.focus === "pregnancy" && V.earSlime.growth >= 100 && !V.earSlime.defyCooldown) {
 					wikifier("arousal", 100 * handsOn, "masturbationNipples");
 					sWikifier(`${altText.toys}하고, <span class="lewd">모유가 젖꼭지에서 터져나와, 빠르게 병을 채운다.</span>`);
@@ -2265,9 +2265,9 @@ function masturbationEffectsArms(
 						)
 					);
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-					fragment.append(span(`당신은 당신의 ${altText.toyDisplay} 클리토리스 끝을 희롱한다.`));
+					fragment.append(span(`당신은 당신의 ${toyDisplay(altText.selectedToy, '으로')} 클리토리스 끝을 희롱한다.`));
 				} else {
-					fragment.append(span(`당신은 당신의 ${altText.toyDisplay} 클리토리스를 비벼대며, 음란한 느낌을 키운다.`));
+					fragment.append(span(`당신은 당신의 ${toyDisplay(altText.selectedToy, '으로')} 클리토리스를 비벼대며, 음란한 느낌을 키운다.`));
 				}
 			}
 			break;

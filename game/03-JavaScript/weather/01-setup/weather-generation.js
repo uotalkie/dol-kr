@@ -237,7 +237,7 @@ setup.WeatherGeneration = {
 			},
 			tanningModifier: 0.1,
 			overcast: () => 1,
-			precipitationIntensity: 1.5,
+			precipitationIntensity: -1.5,
 			visibility: 0.4,
 		},
 		{

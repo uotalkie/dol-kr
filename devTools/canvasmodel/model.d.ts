@@ -39,6 +39,7 @@ declare interface BlendPatternSpec {
 declare type BlendSpec = string | BlendGradientSpec | BlendPatternSpec;
 
 declare interface CompositeLayerParams {
+	model?: any;
 	/**
 	 * Render the layer. Default true, only exact `false` value disables rendering
 	 */
@@ -70,7 +71,7 @@ declare interface CompositeLayerParams {
 	/**
 	 * Mask, a stencil image to cut out and display only select parts of this layer.
 	 */
-	masksrc?: string;
+	masksrc?: string | HTMLCanvasElement | (string | HTMLCanvasElement)[];
 	/**
 	 * Alpha, 0-1. Default 1
 	 */
@@ -101,13 +102,14 @@ declare interface CompositeLayerParams {
 	 * Animation name
 	 */
 	animation?: string;
+	scale?: boolean;
 }
 declare interface CompositeLayerSpec extends CompositeLayerParams {
 	name?: string;
 	/**
 	 * Image URL
 	 */
-	src: string;
+	src: string | HTMLCanvasElement;
 }
 
 declare interface KeyframeSpec {
@@ -158,7 +160,7 @@ declare interface CompositeLayer extends CompositeLayerSpec {
 	/**
 	 * Value of `masksrc` corresponding to current `mask` (if masksrc changes mask will be reloaded)
 	 */
-	cachedMaskSrc?: string;
+	cachedMaskSrc?: string | HTMLCanvasElement | (string | HTMLCanvasElement)[];
 	/**
 	 * Encoded processing options used to display cachedImage
 	 */

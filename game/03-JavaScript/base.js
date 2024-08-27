@@ -346,6 +346,7 @@ function outfitChecks() {
 				})
 			];
 	}
+	T.underwear = T.bottomUnder && V.worn.under_lower.name !== "naked";
 	T.swimwear =
 		((V.worn.under_lower.type.includes("swim") && V.worn.lower.type.includes("naked")) || V.worn.lower.type.includes("swim")) &&
 		(V.worn.under_upper.type.includes("swim") || V.worn.under_upper.type.includes("naked")) &&

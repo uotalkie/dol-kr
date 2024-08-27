@@ -753,7 +753,7 @@
 
 <<widget "bird_schedule">>
 	<<set $_eggCount to Object.values($children).filter(child => child.location is "tower" and child.eggTimer).length>>
-	<<if $syndromebird gte 1 and !$daily.birdNightFlightCheck and !$weekly.birdNightFlight and !Weather.bloodMoon and !Weather.isFrozen("lake")>>
+	<<if $syndromebird gte 1 and !$daily.birdNightFlightCheck and !$weekly.birdNightFlight and !Weather.bloodMoon and !Weather.isFrozen("lake") and !$bird.injured>>
 		<<set $daily.birdNightFlightCheck to true>>
 		<<if $rng lte C.npc["Great Hawk"].love>>
 			<<set $daily.birdNightFlightTrigger to true>>
@@ -882,7 +882,7 @@
 		<<npc "Great Hawk">>
 		<<bird_hunt_start>>
 	<<elseif $bird.activity is "sleep" and $birdSleep is undefined and $bird.state is "home">>
-		<<if $daily.birdNightFlightTrigger and !$weekly.birdNightFlight and ["clear","lightClouds"].includes(Weather.name) and !Weather.bloodMoon and !Weather.isFrozen("lake")>>
+		<<if $daily.birdNightFlightTrigger and !$weekly.birdNightFlight and ["clear","lightClouds"].includes(Weather.name) and !Weather.bloodMoon and !Weather.isFrozen("lake") and !$bird.injured>>
 			<<endevent>>
 			<<npc "Great Hawk">>
 			<<set $weekly.birdNightFlight to true>>
@@ -1353,7 +1353,7 @@
 		<<flight_time_check _returnTime "silent">>
 		<<link [[Return to the castle (<<print getTimeString(_hoursPassed, _minutesPassed)>>)|Bird Hunt Return]]>><<set $fatigueMod to _fatigueMod>><<set $flightTime to _flightTime>><<bird_pass _flightTime>><<endevent>><</link>><<print _fatigueText>>
 		<br>
-	<<elseif $stress gte $stressmax or isPlayerNonparasitePregnancyEnding()>>
+	<<elseif $stress gte $stressmax or isPregnancyEnding()>>
 		You don't have the strength to keep flying. Your wings limply carry you into a clumsy, rapidly descending glide. You black out.
 		<br><br>
 
@@ -2784,7 +2784,7 @@
 	<<if birdEggsReady("Great Hawk") is "fertilised">>
 		<<link [[Comfort|Bird Tower Great Hawk Egg Laying]]>><<set $phase to 2>><<npcincr "Great Hawk" love 1>><<npcincr "Great Hawk" dom -1>><<bird_stockholm 3>><</link>><<glove>><<ldom>><<ggbirdstockholm>><<deviant1>>
 		<br>
-		<<if $deviancy gte 35 and ($sciencetrait gte 2 or $harpy gte 6)>>
+		<<if hasSexStat("deviancy", 3) and ($sciencetrait gte 2 or $harpy gte 6)>>
 			<<link [[Help|Bird Tower Great Hawk Egg Laying]]>><<set $phase to 3>><<npcincr "Great Hawk" love 3>><<npcincr "Great Hawk" dom -5>><<bird_stockholm 5>><</link>><<gglove>><<llldom>><<gggbirdstockholm>><<deviant3>>
 		<<elseif $sciencetrait lt 2 and $harpy lte 5>>
 			<span class="red">You don't know how to help <<bhim>> pass <<bhis>> eggs.</span>
@@ -2794,7 +2794,7 @@
 	<<else>>
 		<<link [[Comfort|Bird Tower Great Hawk Egg Laying]]>><<set $phase to 2>><<npcincr "Great Hawk" love 1>><<npcincr "Great Hawk" dom -1>><<bird_stockholm 1>><</link>><<glove>><<ldom>><<gbirdstockholm>><<deviant1>>
 		<br>
-		<<if $deviancy gte 35 and ($sciencetrait gte 2 or understandsBirdBehaviour())>>
+		<<if hasSexStat("deviancy", 3) and ($sciencetrait gte 2 or understandsBirdBehaviour())>>
 			<<link [[Help|Bird Tower Great Hawk Egg Laying]]>><<set $phase to 3>><<npcincr "Great Hawk" love 3>><<npcincr "Great Hawk" dom -5>><<bird_stockholm 3>><</link>><<gglove>><<llldom>><<ggbirdstockholm>><<deviant3>>
 		<<elseif $sciencetrait lt 2 and !understandsBirdBehaviour()>>
 			<span class="red">You don't know how to help <<bhim>> pass <<bhis>> eggs.</span>
@@ -3161,7 +3161,7 @@
 				grabs the soft mass in <<childhis>> beak.
 			<</if>>
 			The Great Hawk breaks off more pieces, dropping them in the nest for your other children.
-			<<childSelect _child2>><<childname>> picks one up, only for <<childname _child3>> to push <<childhis _child3>><<childhands _child3>> in <<childname _child2>>'s face.
+			<<childSelect _child2>><<childname>> picks one up, only for <<childname _child3>> to push <<childhis _child3>> <<childhands _child3>> in <<childname _child2>>'s face.
 			The <<childsiblings _child2 _child3>> play-fight over the food, only for it to be snatched up by <<childname _child4>>, who nearly swallows it whole.
 			<br><br>
 
@@ -3321,5 +3321,15 @@
 				<<set $_guardSelected.movingTo to "none">>
 			<</if>>
 		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "bird_fly_reveal_wings">>
+	<<set _angelWings to $transformationParts.angel.wings>>
+	<<set _fallenAngelWings to $transformationParts.fallenAngel.wings>>
+	<<set _demonWings to $transformationParts.demon.wings>>
+
+	<<if $transformationParts.bird.wings is "hidden" and (_angelWings is "hidden" or _angelWings is "disabled") and (_fallenAngelWings is "hidden" or _fallenAngelWings is "disabled") and (_demonWings is "hidden" or _demonWings is "disabled")>>
+		<<set $transformationParts.bird.wings to "default">>
 	<</if>>
 <</widget>>
