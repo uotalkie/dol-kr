@@ -3000,6 +3000,12 @@
         + 여우. <<pShePost>>와 용도 및 방식 같음. 생략
     ```
 
+* overworld-town/loc-flats/widgets.twee
+    ```
+    <<hookah_master>>
+        + 물담배 가게 주인. <<pShePost>>와 용도 및 방식 같음. 생략
+    ```
+
 * overworld-town/loc-school/school-project-widgets.twee
     ```
     <<sterlingTitle>> <<sterlingFather>> <<sterlingSir>> <<taylorSon>> <<taylorSibling>> <<cassBoy>>
