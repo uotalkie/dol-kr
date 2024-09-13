@@ -361,19 +361,6 @@
 	<</if>>
 <</widget>>
 
-<<widget "clearPronouns">>
-	<<if _args[0]>>
-		<<set _args[0].pronouns.he = 0>>
-		<<set _args[0].pronouns.his = 0>>
-		<<set _args[0].pronouns.hers = 0>>
-		<<set _args[0].pronouns.him = 0>>
-		<<set _args[0].pronouns.himself = 0>>
-		<<set _args[0].pronouns.man = 0>>
-		<<set _args[0].pronouns.boy = 0>>
-		<<set _args[0].pronouns.men = 0>>
-	<</if>>
-<</widget>>
-
 <!-- [0] - string
 	 prints string [0] prepended with an indefinite article based on the [0]'s first character -->
 <<widget "a">><<silently>>
@@ -2061,56 +2048,6 @@
 		<span class="red">!이상성욕 6!</span>
 	<</if>>
 <</widget>>
-
-<<widget "combatdeviant">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<<set _color to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
-		<span @class="_color">이상성욕 _args[0]</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant1">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="teal">이상성욕 1</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant2">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="lblue">이상성욕 2</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant3">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="blue">이상성욕 3</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant4">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="purple">이상성욕 4</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant5">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="pink">이상성욕 5</span>
-	<</if>>
-<</widget>>
-
-<<widget "combatdeviant6">>
-	<<if $consensual is 1 and $statdisable is "f">>
-		<span class="red">!이상성욕 6!</span>
-	<</if>>
-<</widget>>
-
-<!-- Commented out for deprecation. Use: ?admires
-			See 03-JavaScript/Templates/..
-<<widget "admires">>
-	<<print either("힐끔거린다", "감상한다", "훑어본다", "유심히 쳐다본다")>>
-<</widget>>
--->
 
 <<widget "crime">>
 	<<if $statdisable is "f">> |
@@ -4279,7 +4216,7 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "skincolourtext">>
-	<<switch $skinColor.natural>>
+	<<switch Skin.color.natural>>
 		<<case "light" "ylight">>
 			연한
 		<<case "medium" "ymedium">>
@@ -4290,18 +4227,18 @@
 			<<set _textOverride to true>>
 	<</switch>>
 	<<if _textOverride is true>>
-		<<if $skinColor.tanValues[0] gte 66>>
+		<<if Skin.color.tan gte 66>>
 			어두운
-		<<elseif $skinColor.tanValues[0] gte 33>>
+		<<elseif Skin.color.tan gte 33>>
 			보통의
 		<<else>>
 			연한
 		<</if>>
-		피부색이다.
-	<<elseif $skinColor.tanValues[0] gte 80>> 색에 짙게 선탠을 했다.
-	<<elseif $skinColor.tanValues[0] gte 60>> 색에 어느 정도 선탠을 했다.
-	<<elseif $skinColor.tanValues[0] gte 30>> 색에 선탠을 했다.
-	<<elseif $skinColor.tanValues[0] gte 10>> 색에 가볍게 선탠을 했다.
+		색이다.
+	<<elseif Skin.color.tan gte 80>> 색에 짙게 선탠을 했다.
+	<<elseif Skin.color.tan gte 60>> 색에 어느 정도 선탠을 했다.
+	<<elseif Skin.color.tan gte 30>> 색에 선탠을 했다.
+	<<elseif Skin.color.tan gte 10>> 색에 가볍게 선탠을 했다.
 	<<else>>색이다.
 	<</if>>
 <</widget>>
@@ -5902,3 +5839,34 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 		<</if>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
+
+<<widget "fadeText">>
+	<span class="originalText fade-out">_args[0]</span>
+	<span class="changedText" hidden="">_args[1]</span>
+	<<set _delay to (_delay ? _delay : []).concat(_args[2] ? _args[2] : 1)>>
+
+	<<script>>
+		T.currentPassage = State.passage;
+
+		$(document).one(':passageend', function(ev) {
+			const originalTargets = [...document.getElementsByClassName('originalText')];
+			const changedTargets = [...document.getElementsByClassName('changedText')];
+
+			originalTargets.forEach((ele, index) => {
+				if (ele instanceof HTMLElement) {
+					setTimeout(() => {
+						if (State.passage === T.currentPassage) {
+							ele.remove();
+							changedTargets[index].hidden = false;
+							changedTargets[index].classList.add('fade-in')
+						}
+					}, T.delay[index] * 1000);
+
+					ele.addEventListener('animationend', function() {
+						ele.style.opacity = '0';
+					});
+				}
+			});
+		});
+	<</script>>
+<</widget>>

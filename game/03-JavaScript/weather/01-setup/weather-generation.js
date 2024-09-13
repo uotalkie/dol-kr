@@ -152,7 +152,7 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				// Visual only - determines how many clouds spawn at once in the sidebar of each type
-				small: () => random(0, 2),
+				small: () => random(0, 2, true),
 				large: () => 0,
 			},
 			// Modifies the tanning factor, based on cloud coverage. A modifier of 1 has no penalties.
@@ -175,11 +175,11 @@ setup.WeatherGeneration = {
 				autumn: 0.4,
 			},
 			cloudCount: {
-				small: () => random(1, 3),
-				large: () => random(0, 1),
+				small: () => random(1, 3, true),
+				large: () => random(0, 1, true),
 			},
 			tanningModifier: 0.5,
-			overcast: () => randomFloat(0, 0.3),
+			overcast: () => randomFloat(0, 0.3, true),
 			precipitationIntensity: 0,
 			visibility: 1,
 		},
@@ -195,10 +195,10 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(0, 4),
+				large: () => random(0, 4, true),
 			},
 			tanningModifier: 0.2,
-			overcast: () => randomFloat(0.5, 0.8),
+			overcast: () => random(0.5, 0.8, true),
 			precipitationIntensity: 0,
 			visibility: 0.8,
 		},
@@ -214,10 +214,10 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(1, 5),
+				large: () => random(1, 5, true),
 			},
 			tanningModifier: 0.2,
-			overcast: () => randomFloat(0.8, 1),
+			overcast: () => randomFloat(0.8, 1, true),
 			precipitationIntensity: 1,
 			visibility: 0.7,
 		},
@@ -233,11 +233,11 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(2, 5),
+				large: () => random(2, 5, true),
 			},
 			tanningModifier: 0.1,
 			overcast: () => 1,
-			precipitationIntensity: -1.5,
+			precipitationIntensity: 1.5,
 			visibility: 0.4,
 		},
 		{
@@ -252,7 +252,7 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(3, 5),
+				large: () => random(3, 5, true),
 			},
 			tanningModifier: 0,
 			overcast: () => 1,

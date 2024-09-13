@@ -578,7 +578,7 @@
 					<<set C.crime.exposureHistory += $_crimemod>>
 					<<set C.crime.exposureDaily += $_crimemod>>
 					<<set C.crime.exposureCount += 1>>
-					<<set C.crime.exposureCountHistory += 1>>					
+					<<set C.crime.exposureCountHistory += 1>>
 				<</if>>
 
 				<<if ["thievery", "petty"].includes(_crimeType) and
@@ -1581,7 +1581,7 @@
 
 <<widget "drunkcaption">>
 	<<if $drunk gt 0>>
-		<<set $_colour to getColourClassFromPercentage($drunk * (100 / 480))>>
+		<<set $_colour to getColourClassFromPercentage($drunk * (100 / 480), "drunk")>>
 		<<set $_barColour to $_colour + "bar">>
 		<<set $_percent to Math.floor(($drunk/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
@@ -1611,7 +1611,7 @@
 
 <<widget "druggedcaption">>
 	<<if $drugged gt 0>>
-		<<set $_colour to getColourClassFromPercentage($drugged / 5)>>
+		<<set $_colour to getColourClassFromPercentage($drugged / 5, "drugged")>>
 		<<set $_barColour to $_colour + "bar">>
 		<<set $_percent to Math.floor(($drugged/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
@@ -1634,7 +1634,7 @@
 
 <<widget "hallucinogencaption">>
 	<<if $hallucinogen gt 0>>
-		<<set $_colour to getColourClassFromPercentage($hallucinogen / 5)>>
+		<<set $_colour to getColourClassFromPercentage($hallucinogen / 5, "hallucinogen")>>
 		<<set $_barColour to $_colour + "bar">>
 		<<set $_percent to Math.floor(($hallucinogen/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
@@ -2070,7 +2070,7 @@
 
 <<widget "exposure">>
 	<!-- In safe locations, while alone, the player won't cover up. Love interest check is likely not hitting everywhere it should be due to NPCs generating after this check. -->
-	<<if ["Bedroom", "Sleep", "Bird Tower", "Bird Hunt"].some(keyword => V.passage.includes(keyword)) and !($NPCList.some(obj => Object.hasOwn(obj, "type")) and !$NPCList.find(({fullDescription:fd}) => fd && Object.values($loveInterest).includes(fd)))>>
+	<<if ["Wardrobe", "Bedroom", "Sleep", "Bird Tower", "Bird Hunt", "Spa Tan Underwear", "Spa Tan Curtains", "Spa Tan Naked"].some(keyword => V.passage.includes(keyword)) and !($NPCList.some(obj => Object.hasOwn(obj, "type")) and !$NPCList.find(({fullDescription:fd}) => fd && Object.values($loveInterest).includes(fd)))>>
 		<<set $libertine to 2>>
 	<<else>>
 		<<set $libertine to 0>>
@@ -2988,7 +2988,7 @@
 
 <<widget "roomoptions">>
 	<<if $sexStats.pills.boughtOnce is true or $sexStats.pills["pills"]["Dr Harper\'s prescription"].owned gte 1 or $sexStats.pills["pills"]["asylum\'s prescription"].owned gte 1>>
-		<<pillicon>><<link [[약 서랍을 확인한다|PillCollection]]>><<set $pillsExitPassage to $passage>><<endevent>><</link>>
+		<<pillicon>><<link [[Check your medicine drawer|PillCollection]]>><<set $pillsExitPassage to $passage>><<endevent>><</link>>
 		<br>
 	<</if>>
 <</widget>>
@@ -3416,7 +3416,7 @@
 				"love" : {
 					name : "사랑",
 					value : T.npcData.love,
-					activeIcon : 'img/ui/heart.png',
+					activeIcon : 'img/ui/sym_love.png',
 					inactiveIcon: 'img/ui/emptyheart.png',
 					color: 'red'
 				},
@@ -3424,26 +3424,26 @@
 					name : "욕정",
 					value : T.npcData.lust,
 					iconOrientation : 'vertical',
-					activeIcon : 'img/ui/vial.png',
+					activeIcon : 'img/ui/sym_lust.png',
 					inactiveIcon : 'img/ui/emptyvial.png',
 					color: 'pink'
 				},
 				"dom" : {
 					name : "지배",
 					value : T.npcData.dom,
-					activeIcon : "img/ui/collar.png",
+					activeIcon : "img/ui/sym_dominance.png",
 					color: 'purple'
 				},
 				"trauma" : {
 					name : "트라우마",
 					value : T.npcData.trauma,
-					activeIcon : "img/ui/redbolt.png",
+					activeIcon : "img/ui/sym_trauma.png",
 					color: 'teal'
 				},
 				"rage" : {
 					name : "분노",
 					value : T.npcData.rage,
-					activeIcon : "img/ui/rage.png",
+					activeIcon : "img/ui/sym_rage.png",
 					color: 'gold'
 				},
 				"purity" : {
@@ -3757,12 +3757,6 @@
 	<</if>>
 <</widget>>
 
-<<widget "fringecheck">>
-	<<if $fringetype is "default">>
-		<<set $fringetype to "messy">>
-	<</if>>
-<</widget>>
-
 <<widget "haircheck">>
 	<<if $hairtype is "default">>
 		<<set $hairtype to "messy">>
@@ -3865,7 +3859,7 @@
 <</widget>>
 
 <<widget "breastfed">>
-	<<set $milk_drank_stat += random(1, 5)>>
+	<<set $milk_drank_stat += _args[0] or random(1, 5)>>
 	<<if random(1, 100) gte 70>>
 		<<if $NPCList[0].type and $NPCList[0].type is "wolfgirl">>
 			<<transform wolf 1>>
@@ -4934,23 +4928,14 @@
 	<<set _money_gain to Math.floor((_base_amount + _variation) * _skulduggeryMulti)>>
 <</silently>><<printmoney _money_gain>><</widget>>
 
-<<widget "formatmoney">>
-	<<set _integer to Math.floor(_args[0] / 100)>>
-	<<set _printargs to Math.abs(_integer).toLocaleString("en-GB")>>
-	<<if _integer <= 9999>>
-		<<set _printargs to _printargs + (_args[0] % 100 ? "." + ("0" + Math.floor(Math.abs(_args[0] % 100))).slice(-2) : "")>>
-	<</if>>
-	<<set _printmoney to (_args[0] gte 0 ? "" : "-") + "£" + _printargs>>
-<</widget>>
-
 <<widget "printmoney">><<silently>><!-- (amount in pennies, highlight toggle) -->
 	<<if _args.length gt 2 or typeof(_args[0]) isnot "number">><!-- sanity checks -->
-		<<set _printmoney to '<span class="red">printmoney error: invalid arguments: _args</span>'>>
+		<<set $_printmoney to '<span class="red">printmoney error: invalid arguments: _args</span>'>>
 	<<else>>
-		<<formatmoney _args[0]>>
+		<<set $_printmoney to formatMoney(_args[0])>>
 	<</if>>
-	<<set _text_output to `<span @class='_args[1]?_args[1]:"gold"'>` + _printmoney + '</span>'>>
-<</silently>><<print _text_output>><</widget>>
+	<<set $_text_output to `<span @class='_args[1]?_args[1]:"gold"'>` + $_printmoney + '</span>'>>
+<</silently>><<print $_text_output>><</widget>>
 
 <<widget "sadism">>
 	<<if _args[0]>>
@@ -5147,4 +5132,6 @@
 	})>>
 	<<set $skulduggery to 0>>
 	<<set $spray to 0>>
+	<<set Skin.color.natural to "light">>
+	<<set Skin.color.tan to 0>>
 <</widget>>

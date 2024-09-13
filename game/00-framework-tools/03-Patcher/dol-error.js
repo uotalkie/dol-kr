@@ -135,7 +135,7 @@ throwError = function (place, message, source, isExportable = true, isLogged = t
 	const formattedSource = source.replace(/\n/g, "\n\t");
 	console.warn(`${mesg}\n\t${formattedSource}`);
 
-	if (isLogged && V.options.debugdisable === "f") Errors.report(mesg, getDebuggingInfo());
+	if (isLogged && V.options?.debugdisable === "f") Errors.report(mesg, getDebuggingInfo());
 
 	return false;
 };

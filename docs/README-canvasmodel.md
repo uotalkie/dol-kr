@@ -272,7 +272,7 @@ See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingCon
 Patterns are images that are tiled horizontally and vertically, and applied to the layer with specified blend mode.
 
 ```js
-T.modeloptions.worn_upper_colour = "custom";
+T.modeloptions.worn.upper_colour = "custom";
 T.modeloptions.filters.worn_lower_custom = {
     blend: { pattern:"wolfharmony" }, 
     blendMode:"hard-light"

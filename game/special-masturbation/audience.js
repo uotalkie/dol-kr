@@ -125,8 +125,14 @@ function masturbationAudienceLines(npc) {
 		return masturbationAudienceLineText(npc, "anus");
 	}
 
+	if (["mbreast"].includes(V.mouth) && random(0, 100) >= 20 * (V.masturbationAudienceReactions.filter(a => a === "mouthBreast").length + 1)) {
+		V.masturbationAudienceReactions.push("mouthBreast");
+		V.audiencearousal += 1;
+		return masturbationAudienceLineText(npc, "mouthBreast");
+	}
+
 	if (
-		["mchest"].includesAny(V.masturbationActions.leftaction, V.masturbationActions.rightaction) &&
+		["mchest", "mbreastfondle", "mbreastpinch"].includesAny(V.masturbationActions.leftaction, V.masturbationActions.rightaction) &&
 		random(0, 100) >= 20 * (V.masturbationAudienceReactions.filter(a => a === "chest").length + 1)
 	) {
 		V.masturbationAudienceReactions.push("chest");
@@ -342,6 +348,16 @@ function masturbationAudienceLineText(npc, lineType = "") {
 					V.masturbationAudience > 1 ? "<<pher_ yi>>" : "네"
 				} 주먹을 안에 집어넣을 줄이야. 그 항문에 지금까지 얼마나 많은 것들이 들어갔었던 거야?"`,
 			].random();
+		case "mouthBreast":
+			resultArray.push(
+				`"Sucking on your own nipples, stupid slut."`,
+				`"Showing off how easy it is to such on your own large breasts? You really are a pervert."`,
+				`"Can I suck on those tits too?"`
+			);
+			if (V.lactating && V.breastfeedingdisable === "f") {
+				resultArray.push(`"Look at how hard <<pshe>> is trying to milk <<pherself>>."`);
+			}
+			return resultArray.random();
 		case "chest":
 			resultArray.push(
 				`"그 젖꼭지 좀 쥐어짜봐, <<slut_ a>>."`,
