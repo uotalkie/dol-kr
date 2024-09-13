@@ -1626,7 +1626,7 @@ function masturbationEffectsArms(
 				altText.selectedOtherToy = selectedToy(otherArm);
 				sWikifier(`<span class="purple">당신은 ${toyDisplay(altText.selectedToy, altText.selectedOtherToy, '을')} 당신의 <<penisPost>>에서 치운다.</span>`);
 			} else {
-				sWikifier(`<span class="purple">당신은 <<hand_ yi '${arm}'>> <${toyDisplay(altText.selectedToy, '을')} 당신의 <<penisPost>>에서 치운다.</span>`);
+				sWikifier(`<span class="purple">당신은 <<hand_ yi '${arm}'>> ${toyDisplay(altText.selectedToy, '을')} 당신의 <<penisPost>>에서 치운다.</span>`);
 			}
 			break;
 		case "mbreastpump":
@@ -1700,7 +1700,7 @@ function masturbationEffectsArms(
 				altText.hands = "양손의";
 			} else {
 				altText.toyDisplay = toyDisplay(altText.selectedToy, '으로');
-				altText.hands = `<<hand_ yi '${arm}'>>`;
+				altText.hands = `${handPost(arm, '의')}`;
 			}
 			if (breastsExposed()) {
 				wikifier("arousal", 200 * handsOn, "masturbationNipples");

@@ -1474,6 +1474,7 @@ function trinit_hairtype()
 			/*"messy": "지저분한",	중복*/
 			"messy curls": "지저분한 컬",
 			"middle part": "중간 가르마",
+			"middlepart": "중간 가르마",
 			"mohawk": "모히칸",
 			"overgrown": "너무 자란",
 			"parted": "가르마",
