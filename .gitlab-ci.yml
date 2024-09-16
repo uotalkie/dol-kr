@@ -1,31 +1,25 @@
 stages:
   - build
 
-default:
-  image: alpine:latest
-  before_script:
-    # Install requirements
-    - | 
-      apk update
-      apk add git bash
+.debian-setup: &debian-setup # Install requirements
+  - |
+    apt-get update
+    apt-get upgrade -y
+    apt-get install -y wget curl git
+    chmod +x ./compile.sh
 
-    # Get devTools/tweego and images from original repository (with specific commit)
-    - |
-      git clone -c core.symlinks=false https://gitgud.io/Vrelnir/degrees-of-lewdity.git _originalRepository
-      cd _originalRepository
-      git checkout $(cat ../version.git | xargs)
-      cd ..
-      cp -rf ./_originalRepository/devTools/tweego ./devTools/tweego
-      cp -rf ./_originalRepository/img ./img
-  
-    # Fix Permission on compile script.
-    - |
-      chmod +x ./compile.sh
-      chmod +x ./devTools/tweego/tweego_linux64
+.alpine-setup: &alpine-setup # Install requirements
+  - |
+    apk update
+    apk upgrade
+    apk add git bash
+    chmod +x ./compile.sh
 
 build:html:
+  image: alpine:latest
   stage: build
   script:
+    - *alpine-setup
     # Build
     - FORCE_VERSION=kr-$(git describe --tags --always) ./compile.sh
 
@@ -34,12 +28,31 @@ build:html:
     paths:
       - Degrees of Lewdity kr-*.html
 
+.apk:asset_download: &apk_asset_download
+  - echo "Downloading assets for APK build"
+
+  # Get devTools/tweego and images from original repository (with specific commit)
+  - |
+    echo "Downloading devTools/tweego and images from original repository"
+    git clone -c core.symlinks=false https://gitgud.io/Vrelnir/degrees-of-lewdity.git _originalRepository
+    cd _originalRepository
+    git checkout $(cat ../version.git | xargs)
+    cd ..
+    cp -rf ./_originalRepository/devTools/tweego ./devTools/tweego
+    cp -rf ./_originalRepository/img ./img
+
+    # Fix Permission on compile script.
+    chmod +x ./devTools/tweego/tweego_linux64
+
 build:debug_apk:
   image: docker:latest
   services:
     - docker:dind
   stage: build
   script:
+    - *alpine-setup
+    - *apk_asset_download
+
     # Apply patch for APK build
     - |
       sed -i 's/\"enableLinkNumberify\"\: true/\"enableLinkNumberify\"\: false/g' game/01-config/sugarcubeConfig.js
@@ -59,16 +72,19 @@ build:debug_apk:
   artifacts:
     name: dol-kr-debug-apk
     paths:
-        - dist/*-debug.apk
+      - dist/*-debug.apk
 
 build:release_apk:
   image: docker:latest
   services:
     - docker:dind
   rules:
-    - if: '$CI_COMMIT_TAG'
+    - if: "$CI_COMMIT_TAG"
   stage: build
   script:
+    - *alpine-setup
+    - *apk_asset_download
+
     # Apply patch for APK build
     - |
       sed -i 's/\"enableLinkNumberify\"\: true/\"enableLinkNumberify\"\: false/g' game/01-config/sugarcubeConfig.js
@@ -81,12 +97,150 @@ build:release_apk:
     - |
       cd devTools/androidsdk/image
       docker build -t cordova-android:latest .
-  
+
     # Build release apk
     - docker run -v $CI_PROJECT_DIR:/src -t cordova-android npm run sign-build-release
 
   artifacts:
     name: dol-kr-release-apk
+    paths:
+      - dist/*.apk
+    exclude:
+      - dist/*-debug.apk
+
+.new_apk:setup: &new_apk_setup_script
+  - echo "Setting up new apk build environment"
+
+  # Install requirements
+  # - nodejs, npm, openjdk-17-jdk for cordova
+  # - libarchive-tools(bsdtar) for better dependency extraction
+  - |
+    apt-get install -y nodejs npm openjdk-17-jdk libarchive-tools
+
+  # Download command line tools (android sdk)
+  - |
+    echo "Downloading commandlinetools"
+    CMDTOOLS_VERSION="11076708_latest"
+    CMDTOOLS_DL_URL="https://dl.google.com/android/repository/commandlinetools-linux-$CMDTOOLS_VERSION.zip"
+    wget -q $CMDTOOLS_DL_URL -O /tmp/cmdline-tools.zip
+    mkdir -p $CI_PROJECT_DIR/devTools/apkbuilder/androidsdk/cmdline-tools/latest    
+    bsdtar -xf /tmp/cmdline-tools.zip --strip-components=1 -C $CI_PROJECT_DIR/devTools/apkbuilder/androidsdk/cmdline-tools/latest
+    rm /tmp/cmdline-tools.zip
+
+  # Download gradle and set to the path
+  - |
+    echo "Downloading gradle and setting up path"
+    GRADEL_VERSION="7.4.2"
+    GRADLE_DL_URL="https://services.gradle.org/distributions/gradle-$GRADEL_VERSION-all.zip"
+    wget -q $GRADLE_DL_URL -O /tmp/gradle.zip
+    mkdir -p $CI_PROJECT_DIR/devTools/apkbuilder/androidsdk/gradle
+    bsdtar -xf /tmp/gradle.zip --strip-components=1 -C $CI_PROJECT_DIR/devTools/apkbuilder/androidsdk/gradle
+    rm /tmp/gradle.zip
+    export PATH=$PATH:$CI_PROJECT_DIR/devTools/apkbuilder/androidsdk/gradle/bin
+
+  # Extract versions and store into variable for later use
+  # If tag version is exist, use it as APK version, otherwise use VERSION_ORIG-VERSION_KO+$CI_PIPELINE_ID
+  - |
+    echo "Extracting versions"
+    VERSION_ORIG=$(cat ./version | xargs)
+    VERSION_KO=$(cat ./version.ko | xargs)
+
+    if [ -z "$CI_COMMIT_TAG" ]; then
+      APK_VERSION="$VERSION_ORIG-$VERSION_KO+$CI_PIPELINE_ID"
+    else
+      APK_VERSION="$CI_COMMIT_TAG"
+    fi
+
+    echo "APK_VERSION: $APK_VERSION"
+
+  # Initialize build config and keys
+  - |
+    echo "Setting up build config and keys"
+    sed -i 's/\"enableLinkNumberify\"\: true/\"enableLinkNumberify\"\: false/g' game/01-config/sugarcubeConfig.js
+    chmod +x ./keys/initKeys.sh && ./keys/initKeys.sh
+
+  # Build HTML
+  - |
+    echo "Building HTML for APK"
+    FORCE_VERSION='' ./compile.sh
+
+  # Change directory to apkbuilder
+  - cd $CI_PROJECT_DIR/devTools/apkbuilder
+
+  # Change config.xml to represent current build.
+  - |
+    echo "Modifying config.xml to represent current build"
+    sed -i 's/android-packageName="com.vrelnir.dol"/android-packageName="com.vrelnir.dolKr"/g' config.xml
+    sed -i 's/short="DoL"/short="DoL KR"/g' config.xml
+    sed -i 's/>Degrees of Lewdity</>Degrees of Lewdity KR</g' config.xml
+    sed -i 's/version=".*"/version="'$APK_VERSION'"/g' config.xml
+
+  # Change build_app.js script to use own version of custom build
+  - |
+    echo "Modifying build_app.js to use custom version (commenting out original version)"
+    sed -i 's/const version = versionData.match/\/\/ const version = versionData.match/g' scripts/build_app.js
+    sed -i 's/configData.getroot().attrib.version = version/\/\/ configData.getroot().attrib.version = version/g' scripts/build_app.js
+
+  # Fix package.json for cordova version
+  # - |
+  # sed -i 's/"cordova": "^12.0.0"/"cordova": "^11.0.0"/g' package.json
+
+  # Change directory to apkbuilder and run setup_deps.sh
+  - |
+    echo "Setting up apkbuilder dependencies"
+    chmod +x setup_deps.sh
+    # Make PATH includes `$PATH` on script (seems missing on apkbuilder script)
+    sed -i 's/^PATH="\./PATH="$PATH:./g' ./setup_deps.sh
+    # Make sure it installs platform tools too
+    echo 'sdkmanager "platform-tools"' >> ./setup_deps.sh
+    # Make all install commands to --install
+    sed -i 's/^sdkmanager/sdkmanager --install/g' ./setup_deps.sh
+
+    ./setup_deps.sh
+
+build:new_apk:debug:
+  image:
+    name: debian:bookworm-slim
+    pull_policy: always
+  stage: build
+  script:
+    # Setup environment
+    - *debian-setup
+    - *apk_asset_download
+    - *new_apk_setup_script
+
+    # Build debug apk
+    - |
+      echo "Building debug apk"
+      cd $CI_PROJECT_DIR/devTools/apkbuilder
+      chmod +x build_app_debug.sh && ./build_app_debug.sh
+
+  artifacts:
+    name: dol-kr-new-apk-debug
+    paths:
+      - dist/*-debug.apk
+
+build:new_apk:release:
+  image:
+    name: debian:bookworm-slim
+    pull_policy: always
+  rules:
+    - if: "$CI_COMMIT_TAG"
+  stage: build
+  script:
+    # Setup environment
+    - *debian-setup
+    - *apk_asset_download
+    - *new_apk_setup_script
+
+    # Build release apk
+    - |
+      echo "Building release apk"
+      cd $CI_PROJECT_DIR/devTools/apkbuilder
+      chmod +x build_app_release.sh && ./build_app_release.sh
+
+  artifacts:
+    name: dol-kr-new-apk-release
     paths:
       - dist/*.apk
     exclude:
