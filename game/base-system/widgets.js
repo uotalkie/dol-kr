@@ -164,8 +164,8 @@ function genderappearancecheck() {
 	addfemininityfromfactor(Math.trunc(((V.physique + V.physiquesize / 2) / V.physiquesize) * -100), "탄탄한 근육");
 	/* Behaviour */
 	setfemininitymultiplierfromgender(V.player.gender_posture);
-	T.acting_multiplier = V.englishtrait + 1;
-	addfemininityfromfactor(T.femininity_multiplier * 100 * T.acting_multiplier, "태도 (영어 기술로 인해 효과 x" + T.acting_multiplier + ")");
+	const actingMultiplier = V.englishtrait + 1;
+	addfemininityfromfactor(T.femininity_multiplier * 100 * actingMultiplier, "태도 (영어 기술로 인해 효과 x" + actingMultiplier + ")");
 	/* Special handling for calculating topless gender */
 	T.over_lower_protected = V.worn.over_lower.exposed < 2;
 	T.lower_protected = V.worn.lower.exposed < 2;

@@ -1,6 +1,9 @@
 const ZIndices = {
+	flatlight: -4,
+	gradientlight: -3,
+	glowlight: -2,
+	spotlight: -1,
 	bg: 0,
-
 	over_head_back: 0,
 	head_back: 1,
 	basehead: 5,

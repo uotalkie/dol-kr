@@ -1,4 +1,11 @@
 :: Scene Viewer
+<<if !$scenesSearch>>
+	<<set $scenesSearch to {
+		numberOfItems: 12,
+		hideLocked: false,
+		text: "",
+	}>>
+<</if>>
 <h3>Scene Viewer</h3>
 <<scenes>>
 <<scenesSearch>>
@@ -26,8 +33,8 @@
 End of '<<print $replayScene.name>>' scene.
 <br><br>
 
-<<unfreezePlayerStats>>
 <<unset $replayScene>>
+<<unfreezePlayerStats>>
 <<endevent>>
 
 <<link [[Exit scene|Scene Viewer]]>><</link>>
@@ -40,7 +47,16 @@ End of '<<print $replayScene.name>>' scene.
 	<<case "AlexFarmWorkStage4">><<farmStage4>>
 	<<case "AlexFarmWorkStage5">><<farmStage5>>
 	<<case "AlexFarmWorkStage6">><<farmStage6>>
+	<<case "AlexFarmWorkStage7">><<farmStage7>>
+	<<case "AlexFarmWorkStage8">><<farmStage8>>
+	<<case "AlexFarmWorkStage9">><<farmStage9>>
+	<<case "AlexFarmWorkStage10">><<farmStage10>>
+	<<case "AlexFarmWorkStage11">><<farmStage11>>
+	<<case "AlexFarmWorkStage12">><<farmStage12>>
 	<<case "schoolBully">><<schoolbully>>
+	<<case "schoolBullyPantyCheck">><<WhitneyPantyCheck>>
+	<<case "whitneyShoppingCentre">><<whitneyShoppingCentre>>
+	<<case "prison_spire_options">><<prison_spire_options>>
 	<<default>>
 		Error occurred in scene viewer. <<print $replayScene.name>>. Please report.
 		<br><br>
@@ -75,7 +91,7 @@ End of '<<print $replayScene.name>>' scene.
 	<<if $scenePassages is undefined>>
 		<<set $scenePassages to []>>
 	<</if>>
-	<<run $scenePassages.pushUnique($passage)>>
+	<<run $scenePassages.pushUnique(_args[0] || $passage)>>
 <</widget>>
 
 /*Scenes when player viewing can be tracked*/
@@ -93,6 +109,12 @@ End of '<<print $replayScene.name>>' scene.
 	<<if $bun_value gte 15000>>
 		<<run $scenePassages.pushUnique("Photography Chef")>>
 		<<run $scenePassages.pushUnique("Chef Opening")>>
+	<</if>>
+	<<if $adultshopintro or $adultshopunlocked>>
+		<<run $scenePassages.pushUnique("AdultShopIntro")>>
+	<</if>>
+	<<if $adultshopunlocked>>
+		<<run $scenePassages.pushUnique("AdultShopOpening")>>
 	<</if>>
 	<<if $schoolevent gte 1>>
 		<<run $scenePassages.pushUnique("Penis School Inspection")>>
@@ -112,7 +134,13 @@ End of '<<print $replayScene.name>>' scene.
 	<!-- Intentional breakless design for this switch.
 		Example: If $farm_stage is 4, it will run cases 4, 3 and 2. -->
 	<<run
-		switch (Math.clamp($farm_stage, 0, 6)) {
+		switch (Math.clamp($farm_stage, 0, 12)) {
+			case 12: $scenePassages.pushUnique("AlexFarmWorkStage12");
+			case 11: $scenePassages.pushUnique("AlexFarmWorkStage11");
+			case 10: $scenePassages.pushUnique("AlexFarmWorkStage10");
+			case 9: $scenePassages.pushUnique("AlexFarmWorkStage9");
+			case 8: $scenePassages.pushUnique("AlexFarmWorkStage8");
+			case 7: $scenePassages.pushUnique("AlexFarmWorkStage7");
 			case 6: $scenePassages.pushUnique("AlexFarmWorkStage6");
 			case 5: $scenePassages.pushUnique("AlexFarmWorkStage5");
 			case 4: $scenePassages.pushUnique("AlexFarmWorkStage4");
@@ -135,6 +163,27 @@ End of '<<print $replayScene.name>>' scene.
 	<<if $bullyevent gt 3>>
 		<<run $scenePassages.pushUnique("WhitneySchoolBully4")>>
 	<</if>>
+	<<if $whitneypantiescheck>>
+		<<run $scenePassages.pushUnique("WhitneySchoolBullyPanty")>>
+	<</if>>
+	<<if $whitneyskirtcheck>>
+		<<run $scenePassages.pushUnique("WhitneySchoolBullySkirt")>>
+	<</if>>
+	<<if $bullyEventShopping isnot undefined>>
+		<<run $scenePassages.pushUnique("WhitneyShopping")>>
+		<<if $bullyEventShopping gt 1 or $whitneyCrossdressSchool gte 0 or $whitneyCrossdressNormalItems gte 0 or $whitneyCrossdressSwimwear gte 0 or $whitneyCrossdressSleepwear gte 0>>
+			<<run $scenePassages.pushUnique("Whitney Shopping Centre Clothes")>>
+		<</if>>
+		<<if $whitneyCrossdressMakeup gte 0>>
+			<<run $scenePassages.pushUnique("Whitney Shopping Centre Cosmetics")>>
+		<</if>>
+	<</if>>
+	<<if $whitneyCrossdressSwimwear gte 1>>
+		<<run $scenePassages.pushUnique("WhitneyCrossdressSwimming")>>
+	<</if>>
+	<<if $loft_whitney>>
+		<<run $scenePassages.pushUnique("WhitneyOrphanageLoft")>>
+	<</if>>
 	<!-- Intentional breakless design for this switch.
 		Example: If $_robin.cdquest is 3, it will run cases 3, 2 and 1. -->
 	<<run
@@ -149,6 +198,15 @@ End of '<<print $replayScene.name>>' scene.
 	>>
 	<<if $robinfirstrentfight is 1>>
 		<<run $scenePassages.pushUnique("RentFirstRobinFight")>>
+	<</if>>
+	<<if $robinPunishments.includes("docks")>>
+		<<run $scenePassages.pushUnique("RobinDocks")>>
+	<</if>>
+	<<if $robinPunishments.includes("landfill")>>
+		<<run $scenePassages.pushUnique("RobinLandfill")>>
+	<</if>>
+	<<if $robinPunishments.includes("pillory")>>
+		<<run $scenePassages.pushUnique("RobinPillory")>>
 	<</if>>
 	<<if $kylarSeen.includes("basement")>>
 		<<run $scenePassages.pushUnique("KylarBasement")>>
@@ -168,8 +226,37 @@ End of '<<print $replayScene.name>>' scene.
 			case 1: $scenePassages.pushUnique("KylarManorSecret");
 		}
 	>>
+	<<if $syndromeeden>>
+		<<set $scenePassages.pushUnique("EdenIntro")>>
+	<</if>>
+	<<if $edenradiointro gte 2>>
+		<<set $scenePassages.pushUnique("EdenRadioIntro")>>
+	<</if>>
 	<<if $wraithPrison and $wraithPrison.vision>>
 		<<set $scenePassages.pushUnique("Schism")>>
+	<</if>>
+	<<if $christmas_wraith>>
+		<<set $scenePassages.pushUnique("Christmas Mirror")>>
+	<</if>>
+	<<if $temple_rank is "monk" or $temple_rank is "priest">>
+		<<set $scenePassages.pushUnique("TempleVigil")>>
+	<</if>>
+	<<if $templePromised is "Sydney">>
+		<<set $scenePassages.pushUnique("TempleSydneyPureRitual")>>
+	<</if>>
+	<<if $sydneySeen>>
+		<<if $sydneySeen.includes("corruptroom")>>
+			<<set $scenePassages.pushUnique("TempleSydneyCorrupt")>>
+		<</if>>
+		<<if $sydneySeen.includes("punishment")>>
+			<<set $scenePassages.pushUnique("TempleSydneyPunish")>>
+		<</if>>
+	<</if>>
+	<<if $temple_confessor_intro>>
+		<<set $scenePassages.pushUnique("TempleConfessorIntro")>>
+	<</if>>
+	<<if $spear_vessel>>
+		<<set $scenePassages.pushUnique("IslandCastle")>>
 	<</if>>
 	<<if $christmas_book_read gte 3>>
 		<<set $scenePassages.pushUnique("Pinch")>>
@@ -191,7 +278,54 @@ End of '<<print $replayScene.name>>' scene.
 			<<set $scenePassages.pushUnique("NightmareHarper")>>
 		<</if>>
 	<</if>>
-
+	<<if $hypnosis gte 1>>
+		<<set $scenePassages.pushUnique("HarperHypnosisIntro")>>
+	<</if>>
+	<<if $hypnosis gte 2>>
+		<<set $scenePassages.pushUnique("HarperHypnosisTrance1")>>
+	<</if>>
+	<<if $hypnosis gte 3>>
+		<<set $scenePassages.pushUnique("HarperHypnosisTrance2")>>
+	<</if>>
+	<<if $hypnosis gte 4>>
+		<<set $scenePassages.pushUnique("HarperHypnosisTrance3")>>
+	<</if>>
+	<<if $harperexam gte 1>>
+		<<set $scenePassages.pushUnique("HarperHypnosisExam1")>>
+	<</if>>
+	<<if $harperexam gte 2>>
+		<<set $scenePassages.pushUnique("HarperHypnosisExam2")>>
+	<</if>>
+	<<if $harperexam gte 3>>
+		<<set $scenePassages.pushUnique("HarperHypnosisExam3")>>
+	<</if>>
+	<<if $hookah_plot gte 1>>
+		<<set $scenePassages.pushUnique("TentacleForestDoor")>>
+	<</if>>
+	<<if $hookah_plot gte 3>>
+		<<set $scenePassages.pushUnique("TownHallComputer")>>
+	<</if>>
+	<<if $syndromewolves>>
+		<<set $scenePassages.pushUnique("BlackWolfIntro")>>
+	<</if>>
+	<<if $pound?.progress gte 5>>
+		<<set $scenePassages.pushUnique("FreeTheBlackDog")>>
+	<</if>>
+	<<if $mickeyPub gte 2>>
+		<<set $scenePassages.pushUnique("OrphanageHacker")>>
+	<</if>>
+	<<if $pubfame and $pubfame.status>>
+		<<set $scenePassages.pushUnique("PubFameIntro")>>
+	<</if>>
+	<<if $per_npc.anxious_guard?.name_known>>
+		<<set $scenePassages.pushUnique("PrisonSpirePrecipice")>>
+	<</if>>
+	<<if $per_npc.veteran_guard?.name_known>>
+		<<set $scenePassages.pushUnique("PrisonYardLocket")>>
+	<</if>>
+	<<if $per_npc.scarred_inmate?.name_known>>
+		<<set $scenePassages.pushUnique("PrisonScarredInmate")>>
+	<</if>>
 <</widget>>
 
 <<widget "scenes">>
@@ -211,14 +345,38 @@ End of '<<print $replayScene.name>>' scene.
 				startPassage:"",
 				passages:["",""],
 				manualVariableChanges:"",
-				unlocked: $scenePassages.includes("startPassage")
+				unlocked: $scenePassages.includes("startPassage"),
+				lockedMessage: $someCheck ? "Optional locked message, remove line if not required" : "Locked"
 			},*/
+			"Tutorial":{
+				name:"Tutorial",
+				startPassage:"SV Tutorial",
+				passages: ["SV Tutorial","Tutorial","Tutorial Finish","Tutorial Flirt","Tutorial Thank","Rent Intro","Tutorial Bailey","Garden Fence Undies Day","Garden Fence Undies Night","Robin's Lemonade Set Tutorial","Robin's Lemonade Set Tutorial 2","Robin Chocolate Set Tutorial","Robin Chocolate Set Tutorial 2","Robin Walk School","Robin Walk School Tutorial"],
+				manualVariableChanges: "<<set $tutorial to 0>><<set $debug to 0>>",
+				unlocked: $scenePassages.includes("Tutorial"),
+				lockedMessage: "Locked." /* Intention change */
+			},
+			"TheFarm":{
+				name:"The Farm",
+				startPassage:"The Farm",
+				passages: ["The Farm","The Farm Finish"],
+				manualVariableChanges: "<<set $molestationstart to 1>>",
+				unlocked: $scenePassages.includes("The Farm"),
+				lockedMessage: "Locked." /* Intention change */
+			},
 			"AveryParkIntroduction":{
 				name:"Avery Park Introduction",
 				startPassage:"Park Lichen",
 				passages: ["Park Lichen","Park Lichen Climb","Park Lichen Help","Park Lichen Explain","Park Lichen Run","Park Lichen Honest","Park Lichen Evasive","Park Lichen Accept","Park Lichen Refuse","Park Lichen Smooch","Park Lichen Still","Park Lichen Move"],
 				manualVariableChanges: "<<set C.npc.Avery.init to 0>>",
 				unlocked: $scenePassages.includes("Park Lichen")
+			},
+			"AveryHelicopter":{
+				name:"Avery Helicopter",
+				startPassage:"SV Avery Helicopter",
+				passages: ["SV Avery Helicopter","Avery Helicopter","Avery Helicopter Drink","Avery Helicopter Refuse","Avery Helicopter 2","Avery Helicopter Nod","Avery Helicopter Brush","Avery Helicopter Push","Avery Helicopter Sex","Avery Helicopter Sex End","Avery Helicopter Roll","Avery Helicopter Slap","Avery Helicopter Walk"],
+				manualVariableChanges: "<<set $location to 'town'>>",
+				unlocked: $scenePassages.includes("Avery Helicopter")
 			},
 			"RobinIntro1":{
 				name:"Robin Intro 1",
@@ -255,22 +413,36 @@ End of '<<print $replayScene.name>>' scene.
 				manualVariableChanges:"",
 				unlocked: $scenePassages.includes("Chef Opening")
 			},
-			"PenisSchoolInspection":{
-				name:"Penis School Inspection",
+			"AdultShopIntro":{
+				name:"Adult Shop Intro",
+				startPassage:"SV Dilapidated Shop",
+				passages:["SV Dilapidated Shop","Dilapidated Shop","Dilapidated Shop Intro","Dilapidated Help","Dilapidated Toy","Dilapidated Suggest","Dilapidated Let","Dilapidated Paint Suit Romance","Dilapidated Paint Watch Romance","Dilapidated Paint Look","Dilapidated Paint Watch","Dilapidated Paint Help","Dilapidated Paint Watch 2","Dilapidated End","Dilapidated Dildo","Dilapidated Dildo Refuse","Dilapidated Dildo Encourage","Dilapidated Dildo Work","Dilapidated Dildo Tease","Dilapidated Pretend","Dilapidated Beads","Dilapidated Beads Refuse","Dilapidated Beads Lick","Dilapidated Beads Lick Refuse","Dilapidated Beads Tease","Dilapidated Crop Fours","Dilapidated Crop Refuse","Dilapidated Crop Whack Hard","Dilapidated Crop Whack Soft","Dilapidated Crop Whack Refuse","Dilapidated Crop Tease","Dilapidated Crop Fours 2","Dilapidated Crop Fours End","Dilapidated Crop Fours Flirt","Dilapidated Crop Fours Cry","Dilapidated Crop Fours Work","Dilapidated Beads 2","Dilapidated Beads Refuse 2","Dilapidated Dildo Lick","Dilapidated Dildo Sydney Lick","Dilapidated Bye","Dilapidated Temple"],
+				manualVariableChanges:"<<set $location to 'dilapidated_shop'>><<unset $adultshopintro>><<unset $adultshophelped>><<set $adultshopprogress to 0>><<set $sydney_location_override to 'shop'>><<run Time.setDate(Time.getNextWeekdayDate(6))>><<run Time.setTime(17,0)>>",
+				unlocked: $scenePassages.includes("AdultShopIntro")
+			},
+			"AdultShopOpening":{
+				name:"Adult Shop Opening",
+				startPassage:"SV Adult Shop Opening",
+				passages:["SV Adult Shop Opening","Adult Shop Opening","Adult Shop Opening 2","Adult Shop Opening Refuse","Adult Shop Opening Refuse 2","Adult Shop Opening Refuse 3","Adult Shop Opening Pure","Adult Shop Opening Pure Onesie","Adult Shop Opening Pure Babydoll","Adult Shop Opening Pure 2","Adult Shop Opening Pure 3","Adult Shop Opening Pure Refresh","Adult Shop Opening Pure Fine","Adult Shop Opening Pure Bed","Adult Shop Opening Pure Let","Adult Shop Opening Pure Hold","Adult Shop Opening Pure Kiss","Adult Shop Opening Neutral","Adult Shop Opening Neutral Onesie","Adult Shop Opening Neutral Onesie 2","Adult Shop Opening Neutral Pictures","Adult Shop Opening Neutral Refuse","Adult Shop Opening Neutral Babydoll","Adult Shop Opening Neutral Babydoll 2","Adult Shop Opening Neutral 2","Adult Shop Opening Neutral Kiss","Adult Shop Opening Neutral Smile","Adult Shop Opening Corrupt","Adult Shop Opening Corrupt Onesie","Adult Shop Opening Corrupt Onesie Ask","Adult Shop Opening Corrupt Onesie Compliment","Adult Shop Opening Corrupt Onesie 2","Adult Shop Opening Corrupt Babydoll","Adult Shop Opening Corrupt Babydoll Ask","Adult Shop Opening Corrupt Babydoll Compliment","Adult Shop Opening Corrupt Babydoll 2","Adult Shop Opening Corrupt 2","Adult Shop Opening Corrupt Niki","Adult Shop Opening Corrupt Niki Kiss","Adult Shop Opening Corrupt Niki 2","Adult Shop Opening Corrupt 3","Adult Shop Opening End","Adult Shop Opening End 2"],
+				manualVariableChanges:"<<set $location to 'adult_shop'>><<run Time.setTime(17,0)>><<set C.npc.Sydney.virginity.kiss to true>>",
+				unlocked: $scenePassages.includes("AdultShopOpening")
+			},
+			"SchoolInspectionPenis":{
+				name:"School Inspection - Penis",
 				startPassage:"Science Lesson",
 				passages:["Penis Inspection", "Penis Inspection 1", "Penis Inspection Expose", "Penis Inspection Flaunt", "Penis Inspection Run Away", "Penis Inspection End", "Penis Inspection Flaunt No Penis", "Penis Inspection Forced", "Penis Inspection Forced Defiant", "Penis Inspection 2"],
 				manualVariableChanges:"<<set Time.setDate(Time.getNextWeekdayDate(2))>><<set Time.setTime(9, 1)>><<set $schoolevent to 0>><<set $schooleventtimer to 0>>",
 				unlocked: $scenePassages.includes("Penis School Inspection")
 			},
-			"PussySchoolInspection":{
-				name:"Pussy School Inspection",
+			"SchoolInspectionPussy":{
+				name:"School Inspection - Pussy",
 				startPassage:"Science Lesson",
 				passages:["Pussy Inspection", "Pussy Inspection 1", "Pussy Inspection 2", "Pussy Inspection Run", "Pussy Inspection Flaunt No Pussy", "Pussy Inspection Comply", "Pussy Inspection Flaunt", "Pussy Inspection Forced", "Pussy Inspection Forced Defiant", "Pussy Inspection End"],
 				manualVariableChanges:"<<set Time.setDate(Time.getNextWeekdayDate(2))>><<set Time.setTime(9, 1)>><<set $schoolevent to 1>><<set $schooleventtimer to 0>>",
 				unlocked: $scenePassages.includes("Pussy School Inspection")
 			},
-			"BreastSchoolInspection":{
-				name:"Breast School Inspection",
+			"SchoolInspectionBreast":{
+				name:"School Inspection - Breast",
 				startPassage:"Science Lesson",
 				passages:["Breast Inspection","Breast Inspection Comply","Breast Inspection Flaunt","Breast Inspection Flat Flaunt","Breast Inspection Protest","Breast Inspection End"],
 				manualVariableChanges:"<<set Time.setTime(9, 1)>><<set $schoolevent to 2>><<set $schooleventtimer to 0>>",
@@ -297,33 +469,75 @@ End of '<<print $replayScene.name>>' scene.
 				manualVariableChanges:"",
 				unlocked: $scenePassages.includes("AlexFarmIntro")
 			},
-			"AlexFarmWorkStage3":{
+			"AlexFarmWorkStage03":{
 				name:"Alex Farm Work Stage 3",
 				startPassage:"Scene Viewer passages",
 				passages:["Farm Visitor"],
 				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage3'>><<farm_work_update>>",
 				unlocked: $scenePassages.includes("AlexFarmWorkStage3")
 			},
-			"AlexFarmWorkStage4":{
+			"AlexFarmWorkStage04":{
 				name:"Alex Farm Work Stage 4",
 				startPassage:"Scene Viewer passages",
 				passages:["Farm Stage 4"],
 				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage4'>><<farm_work_update>>",
 				unlocked: $scenePassages.includes("AlexFarmWorkStage4")
 			},
-			"AlexFarmWorkStage5":{
+			"AlexFarmWorkStage05":{
 				name:"Alex Farm Work Stage 5",
 				startPassage:"Scene Viewer passages",
 				passages:["Farm Stage 5","Farm Stage 5 2","Farm Stage 5 3"],
 				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage5'>><<farm_work_update>>",
 				unlocked: $scenePassages.includes("AlexFarmWorkStage5")
 			},
-			"AlexFarmWorkStage6":{
+			"AlexFarmWorkStage06":{
 				name:"Alex Farm Work Stage 6",
 				startPassage:"Scene Viewer passages",
 				passages:["Farm Stage 6","Farm Stage 6 2","Farm Stage 6 Look","Farm Stage 6 No Look","Farm Stage 6 Pull","Farm Stage 6 3","Farm Stage 6 Pull 2","Farm Stage 6 Pull Return","Farm Stage 6 Pull Refuse","Farm Stage 6 4","Farm Stage 6 5","Farm Stage 6 6","Farm Stage 6 7","Farm Stage 6 8"],
 				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage6'>>",
 				unlocked: $scenePassages.includes("AlexFarmWorkStage6")
+			},
+			"AlexFarmWorkStage07":{
+				name:"Alex Farm Work Stage 7",
+				startPassage:"Scene Viewer passages",
+				passages:["Farm Stage 7","Farm Stage 7 Warn","Farm Stage 7 Break","Farm Stage 7 2","Farm Fight","Farm Fight End","Farm Fight Search","Farm Fight Search Shelf","Farm Fight Search Toolbox","Farm Fight Search Cupboard","Farm Fight Search Rakes","Farm Fight Search Sheet","Farm Fight End 2","Farm Fight End Rush","Farm Fight End Confront","Farm Fight End Threaten","Farm Fight End 3","Farm Fight End Rational","Farm Fight End Tea","Farm Fight End 4","Farm Fight End Ask","Farm Fight End Apologise","Farm Fight End Suggest","Farm Fight End Accept","Farm Fight End Refuse"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage7'>>",
+				unlocked: $scenePassages.includes("AlexFarmWorkStage7")
+			},
+			"AlexFarmWorkStage08":{
+				name:"Alex Farm Work Stage 8",
+				startPassage:"Scene Viewer passages",
+				passages:["Farm Stage 8"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage8'>>",
+				unlocked: $scenePassages.includes("AlexFarmWorkStage8")
+			},
+			"AlexFarmWorkStage09":{
+				name:"Alex Farm Work Stage 9",
+				startPassage:"Scene Viewer passages",
+				passages:["Farm Stage 9 Catch","Farm Stage 9 Leave","Farm Stage 9 Empty","Farm Stage 9 Caught","Farm Stage 9 Impressed","Farm Stage 9 Curious","Farm Stage 9 Dismissive","Farm Stage 9 Lab","Farm Stage 9 Yes","Farm Stage 9 No","Farm Stage 9 Agree","Farm Stage 9 Object"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage9'>>",
+				unlocked: $scenePassages.includes("AlexFarmWorkStage9")
+			},
+			"AlexFarmWorkStage10":{
+				name:"Alex Farm Work Stage 10",
+				startPassage:"Scene Viewer passages",
+				passages:["Farm Stage 10 Impressed","Farm Stage 10 Dismiss","Farm Stage 10 Explain"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage10'>>",
+				unlocked: $scenePassages.includes("AlexFarmWorkStage10")
+			},
+			"AlexFarmWorkStage11":{
+				name:"Alex Farm Work Stage 11",
+				startPassage:"Scene Viewer passages",
+				passages:["Farm Stage 11 Confident","Farm Stage 11 Caution"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage11'>>",
+				unlocked: $scenePassages.includes("AlexFarmWorkStage11")
+			},
+			"AlexFarmWorkStage12":{
+				name:"Alex Farm Work Stage 12",
+				startPassage:"Scene Viewer passages",
+				passages:["Farm Stage 12 Hands","Farm Stage 12 Pat","Farm Stage 12 Reassure","Farm Stage 12 Embolden","Farm Stage 12 Remy","Farm Stage 12 Intercede","Farm Stage 12 Alex","Farm Stage 12 End"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'AlexFarmWorkStage12'>>",
+				unlocked: $scenePassages.includes("AlexFarmWorkStage12")
 			},
 			"AlexFarmSelfMilkingCaught":{
 				name:"Alex Farm Self Milking Caught",
@@ -336,29 +550,95 @@ End of '<<print $replayScene.name>>' scene.
 				name:"Whitney School Bully 1",
 				startPassage:"Scene Viewer passages",
 				passages:[],
-				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 0>>",
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 0>><<unset $whitneyReunionScene>>",
 				unlocked: $scenePassages.includes("WhitneySchoolBully1")
 			},
 			"WhitneySchoolBully2":{
 				name:"Whitney School Bully 2",
 				startPassage:"Scene Viewer passages",
 				passages:["Bully Locker","Bully Fight","Bully Fight Finish"],
-				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 1>>",
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 1>><<unset $whitneyReunionScene>>",
 				unlocked: $scenePassages.includes("WhitneySchoolBully2")
 			},
 			"WhitneySchoolBully3":{
 				name:"Whitney School Bully 3",
 				startPassage:"Scene Viewer passages",
 				passages:["Bully Fight","Bully Fight Finish","Bully Top","Bully Top Flaunt"],
-				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 2>>",
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 2>><<unset $whitneyReunionScene>>",
 				unlocked: $scenePassages.includes("WhitneySchoolBully3")
 			},
 			"WhitneySchoolBully4":{
 				name:"Whitney School Bully 4",
 				startPassage:"Scene Viewer passages",
 				passages:["Bully Fight","Bully Fight Finish","Bully Strip","Bully Strip Flaunt","Bully Walk","Bully Walk Flaunt","Bully Refuse"],
-				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 3>>",
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 3>><<unset $whitneyReunionScene>>",
 				unlocked: $scenePassages.includes("WhitneySchoolBully4")
+			},
+			"WhitneySchoolBullyPanty":{
+				name:"Whitney School Bully Underwear Rule",
+				startPassage:"Scene Viewer passages",
+				passages:["Bully Fight","Bully Fight Finish","Bully Panties","Bully Panties 2"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBullyPantyCheck'>><<npc Whitney>><<set $bullyevent to 10>><<set $whitneypantiescheck to 0>><<set C.npc.Whitney.dom to 18>><<unset $whitneyReunionScene>>",
+				unlocked: $scenePassages.includes("WhitneySchoolBullyPanty")
+			},
+			"WhitneySchoolBullySkirt":{
+				name:"Whitney School Bully Skirt Rule",
+				startPassage:"Scene Viewer passages",
+				passages:["Bully Fight","Bully Fight Finish","Bully Skirt"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 15>><<set $whitneyskirtcheck to 0>><<set $forcedcrossdressingdisable to 'f'>><<set C.npc.Whitney.dom to 18>><<unset $whitneyReunionScene>>",
+				unlocked: $scenePassages.includes("WhitneySchoolBullySkirt"),
+				lockedMessage: $player.gender isnot "m" ? "Male exclusive scene" : "Locked"
+			},
+			"WhitneySchoolBullyChastity":{
+				name:"Whitney School Bully Chastity Rule",
+				startPassage:"Scene Viewer passages",
+				passages:["Bully Chastity"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 15>><<set $whitneyskirtcheck to 1>><<set $forcedcrossdressingdisable to 'f'>><<set C.npc.Whitney.dom to 18>><<set $worn.genitals to setup.clothes.genitals[0]>><<unset $whitneychastity>><<unset $whitneyReunionScene>>",
+				unlocked: $scenePassages.includes("WhitneySchoolBullySkirt"),
+				lockedMessage: $player.gender isnot "m" ? "Male exclusive scene" : "Locked"
+			},
+			"WhitneyShoppingCentreHairDressers":{
+				name:"Whitney Shopping Centre Hairdressers",
+				startPassage:"Scene Viewer passages",
+				passages:["Whitney Shopping Centre", "Whitney Shopping Centre Refuse","Whitney Shopping Centre Hairdressers","Whitney Shopping Centre Hairdressers Refuse","Whitney Shopping Centre Hairdressers 2","Whitney Shopping Centre Hairdressers 3"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'whitneyShoppingCentre'>><<set $location to 'town'>><<set $bullyEventShopping to 0>>",
+				unlocked: $scenePassages.includes("WhitneyShopping"),
+			},
+			"WhitneyShoppingCentreClothes":{
+				name:"Whitney Shopping Centre Clothes",
+				startPassage:"Scene Viewer passages",
+				passages:["Whitney Shopping Centre", "Whitney Shopping Centre Refuse","Whitney Shopping Centre Clothes","Whitney Shopping Centre Clothes 2","Whitney Shopping Centre Clothes 2 Thank","Whitney Shopping Centre Clothes 2 Thank Lewd","Whitney Shopping Centre Clothes 2 Thank Lewd Sex","Whitney Shopping Centre Clothes 2 Thank Lewd Sex Finish","Whitney Shopping Centre Clothes 3"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'whitneyShoppingCentre'>><<set $location to 'town'>><<set $bullyEventShopping to 1>><<set C.npc.Whitney.lust to 100>><<set $whitneyCrossdressSchool to 0>>",
+				unlocked: $scenePassages.includes("Whitney Shopping Centre Clothes"),
+			},
+			"WhitneyShoppingCentreCosmetics":{
+				name:"Whitney Shopping Centre Cosmetics",
+				startPassage:"Scene Viewer passages",
+				passages:["Whitney Shopping Centre", "Whitney Shopping Centre Refuse","Whitney Shopping Centre Cosmetics","Whitney Shopping Centre Cosmetics 2"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'whitneyShoppingCentre'>><<set $location to 'town'>><<set $bullyEventShopping to 2>>",
+				unlocked: $scenePassages.includes("Whitney Shopping Centre Cosmetics"),
+			},
+			"WhitneySchoolBullySwimwear":{
+				name:"Whitney School Bully Swimwear Rule",
+				startPassage:"Scene Viewer passages",
+				passages:["Bully Fight","Bully Fight Finish","Bully Changing Room"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'schoolBully'>><<set $bullyevent to 11>><<set $whitneyCrossdressSwimwear to 0>><<set $forcedcrossdressingdisable to 'f'>><<set C.npc.Whitney.dom to 18>><<unset $whitneyReunionScene>>",
+				unlocked: $scenePassages.includes("WhitneySchoolBullySkirt"),
+				lockedMessage: $player.gender isnot "m" ? "Male exclusive scene" : "Locked"
+			},
+			"WhitneyOrphanageVisit":{
+				name:"Whitney Orphanage Visit",
+				startPassage:"SV Street Bully Orphanage Go",
+				passages:["SV Street Bully Orphanage Go","SV Street Bully Orphanage Go 2","Street Bully Orphanage Go","Street Bully Orphanage Promise","Street Bully Orphanage Refuse","Street Bully Orphanage Bedroom","Street Bully Orphanage Office","Street Bully Orphanage Office 2","Street Bully Orphanage Leave","Street Bully Orphanage Stay","Street Bully Orphanage Wait","Street Bully Orphanage Eavesdrop","Street Bully Orphanage Living","Street Bully Orphanage Close","Street Bully Orphanage Kiss","Street Bully Orphanage Oral","Street Bully Orphanage Sex","Street Bully Orphanage Sex Finish"],
+				manualVariableChanges:"",
+				unlocked: $scenePassages.includes("Street Bully Orphanage Go"),
+			},
+			"WhitneyOrphanageLoft":{
+				name:"Whitney Orphanage Loft",
+				startPassage:"Whitney Orphanage Loft 5",
+				passages:["Whitney Orphanage Loft 5","Whitney Orphanage Loft Decline","Whitney Orphanage Loft Pay","Whitney Orphanage Loft Kiss","Whitney Orphanage Loft Pull","Whitney Orphanage Loft Cafe","Whitney Orphanage Loft Cafe Hello","Whitney Orphanage Loft Cafe Shake","Whitney Orphanage Loft Cafe Silent","Whitney Orphanage Loft Cafe 2","Whitney Orphanage Loft Cafe Vegetarian","Whitney Orphanage Loft Cafe 3","Whitney Orphanage Loft Cafe Steal","Whitney Orphanage Loft Cafe 4","Whitney Orphanage Loft Cafe Ask","Whitney Orphanage Loft Cafe Ask 2","Whitney Orphanage Loft Cafe 5","Whitney Orphanage Loft Cafe 6","Whitney Orphanage Loft Ladder","Whitney Orphanage Loft Modest","Whitney Orphanage Loft Flaunt","Whitney Orphanage Loft Flaunt Lewd","Whitney Orphanage Loft Insist","Whitney Orphanage Loft Slap","Whitney Orphanage Loft 7","Whitney Orphanage Loft Flirt","Whitney Orphanage Loft 8","Whitney Orphanage Loft 9","Whitney Orphanage Loft 10","Whitney Orphanage Loft 11","Whitney Orphanage Loft 12","Whitney Orphanage Loft 13"],
+				manualVariableChanges:"<<npc Whitney>><<set $money to 200000>>",
+				unlocked: $scenePassages.includes("WhitneyOrphanageLoft"),
 			},
 			"RobinCrossdressing1":{
 				name:"Robin Caught Crossdressing",
@@ -417,6 +697,76 @@ End of '<<print $replayScene.name>>' scene.
 				manualVariableChanges:"<<set $robinpaid to 1>><<set $robinromance to 1>><<set $bus to \"home\">><<set $robinfirstrentfight to 0>><<set $baileydefeatedchain to 3>><<unset $baileyReunionScene>><<set $renttime to 0>><<set $robinmissing to 0>><<set $home_gone to 0>>",
 				unlocked: $scenePassages.includes("RentFirstRobinFight")
 			},
+			"RobinDocks":{
+				name:"Robin Docks",
+				startPassage:"Docks_Robin",
+				passages:["Docks_Robin","Docks_Robin Get Help","Docks_Robin Get Help 2","Docks_Robin Get Help 3","Docks_Robin Get Help 4","Docks_Robin Swap","Docks_Robin Fight","Docks_Robin Fight Finish","Docks_Robin Rescue","Docks_Robin Leave","Docks_Robin Swap 2","Docks_Robin Comfort","Docks_Robin Ignore"],
+				manualVariableChanges:"",
+				unlocked: $scenePassages.includes("RobinDocks")
+			},
+			"RobinLandfill":{
+				name:"Robin Landfill",
+				startPassage:"Robin Mist Intro",
+				passages:["Robin Mist Intro","Robin Mist Fight","Robin Mist Fight Finish","Robin Mist Rescue","Robin Mist Forgive","Robin Mist Silence","Robin Mist Rescue 2","Robin Mist Walk","Robin Mist Abandon"],
+				manualVariableChanges:"",
+				unlocked: $scenePassages.includes("RobinLandfill")
+			},
+			"RobinPilloryIntro":{
+				name:"Robin Pillory Intro",
+				startPassage:"Robin Pillory Intro",
+				passages:["Robin Pillory Intro","Robin Pillory Truth","Robin Pillory Evade"],
+				manualVariableChanges:"<<set $robinPillory to {}>>",
+				unlocked: $scenePassages.includes("RobinPillory")
+			},
+			"RobinPillory":{
+				name:"Robin Pillory",
+				startPassage:"Robin Pillory Watch",
+				passages:["Robin Pillory Watch","Robin Pillory Failure","Robin Pillory Failure 2","Robin Pillory Failure 3","Robin Pillory Failure Optimism","Robin Pillory Failure Pessimism","Robin Pillory Lockpick","Robin Pillory Distractions","Robin Pillory Speech","Robin Pillory Fruit","Robin Pillory Money","Robin Pillory Crime","Robin Pillory Flower","Robin Pillory Escape","Robin Pillory Escape End","Robin Pillory Escape Sex","Robin Pillory Escape Sex Finish","Robin Pillory Escape Orphanage","Robin Pillory Bath","Robin Pillory Bath Wait","Robin Pillory Finish"],
+				manualVariableChanges:"<<set $robinPillory to {locks: 3, danger: 0, distractions: [], known: true}>><<run Time.setTime(15,0)>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				unlocked: $scenePassages.includes("RobinPillory")
+			},
+			"RobinUndergroundDice":{
+				name:"Robin Underground Dice",
+				startPassage:"Underground Robin Dice Intro",
+				passages:["Underground Robin Dice Intro","Underground Robin Dice Intro 2","Underground Robin Dice Intro 3","Underground Robin Dice Intro 4","Underground Robin Dice Molestation","Underground Robin Dice Molestation Finish"],
+				manualVariableChanges:"<<set $undergroundbrothel to {}>><<ruined>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				unlocked: $scenePassages.includes("RobinUnderground")
+			},
+			"RobinUndergroundStage":{
+				name:"Robin Underground Stage",
+				startPassage:"Underground Robin Stage Intro",
+				passages:["Underground Robin Stage Intro","Underground Robin Stage Pig","Underground Robin Stage Pig Finish","Underground Robin Stage Molestation","Underground Robin Stage Molestation Finish"],
+				manualVariableChanges:"<<set $undergroundbrothel to {}>><<ruined>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				unlocked: $scenePassages.includes("RobinUnderground")
+			},
+			"RobinUndergroundMachine":{
+				name:"Robin Underground Machine",
+				startPassage:"Underground Robin Machine Intro",
+				passages:["Underground Robin Machine Intro","Underground Robin Machine","Underground Robin Machine End"],
+				manualVariableChanges:"<<set $undergroundbrothel to {}>><<ruined>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				unlocked: $scenePassages.includes("RobinUnderground")
+			},
+			"RobinUndergroundKiss":{
+				name:"Robin Underground Kiss",
+				startPassage:"Underground Robin Kiss Intro",
+				passages:["Underground Robin Kiss Intro","Underground Robin Kiss Molestation","Underground Robin Kiss Molestation Finish"],
+				manualVariableChanges:"<<set $undergroundbrothel to {}>><<ruined>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				unlocked: $scenePassages.includes("RobinUnderground")
+			},
+			"RobinUndergroundHunt":{
+				name:"Robin Underground Hunt",
+				startPassage:"Underground Robin Hunt Intro",
+				passages:["Underground Robin Hunt Intro","Underground Robin Hunt","Underground Robin Hunt Dog","Underground Robin Hunt Dog Finish","Underground Robin Hunt Molestation","Underground Robin Hunt Molestation Finish"],
+				manualVariableChanges:"<<set $undergroundbrothel to {}>><<ruined>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				unlocked: $scenePassages.includes("RobinUnderground")
+			},
+			"RobinUndergroundEscape":{
+				name:"Robin Underground Escape",
+				startPassage:"SV undergroundEscapeForestRobin",
+				passages:["SV undergroundEscapeForestRobin","Underground Robin Escape Stalk","Underground Robin Escape Stalk End","Underground Robin Escape Fight","Underground Robin Escape Fight Finish","Underground Robin Escape Swim","Underground Robin Escape Shore","Underground Robin Escape Orphanage","Underground Robin Escape Stay"],
+				manualVariableChanges:"<<set $undergroundbrothel to {}>><<ruined>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				unlocked: $scenePassages.includes("RobinUnderground")
+			},
 			"KylarBasement":{
 				name:"Kylar Basement",
 				startPassage:"Kylar Basement",
@@ -461,12 +811,84 @@ End of '<<print $replayScene.name>>' scene.
 				manualVariableChanges:"<<set $outside to 0>><<set $location to 'temple'>>",
 				unlocked: $scenePassages.includes("KylarMonstranceAccost")
 			},
+			"EdenIntro":{
+				name:"Eden Intro",
+				startPassage:"ForestHuntDebug",
+				passages:["ForestHuntDebug","Forest Hunter Molestation","Forest Hunter Molestation Finish","Forest Hunter Intro","Forest Hunter Resist Molestation","Forest Hunter Resist Molestation Finish","Forest Hunter Nod","Forest Hunter Refuse","Forest Hunter Punishment","Forest Hunter Punishment Finish"],
+				manualVariableChanges:"<<set $location to 'forest'>><<set $edenforesthunt to 1>><<unset $hunterintro>><<set $syndromeeden to 0>><<unset $edenCagedEscape>><<unset $edenfreedom>>",
+				unlocked: $scenePassages.includes("EdenIntro")
+			},
+			"EdenRadioIntro":{
+				name:"Eden Radio Intro",
+				startPassage:"Eden Radio Intro",
+				passages:["Eden Valentines Bath","Eden Radio Intro 2","Eden Radio Intro 3","Eden Radio Intro 4"],
+				manualVariableChanges:"<<npc Eden>><<person1>>",
+				unlocked: $scenePassages.includes("EdenRadioIntro")
+			},
+			"EdenValentinesBath":{
+				name:"Eden Valentines Bath",
+				startPassage:"Eden Valentines Bath",
+				passages:["Eden Valentines Bath","Eden Valentines Bath 2","Eden Valentines Relax","Eden Valentines Wash","Eden Valentines Wash Nod","Eden Valentines Bath 3","Eden Valentines Dance","Eden Valentines Dance 2","Eden Valentines Dance 3","Eden Valentines Book","Eden Valentines Book Refuse","Eden Valentines Read","Eden Valentines Book 2","Eden Valentines Listen","Eden Valentines Distract","Eden Valentines Distract Push","Eden Valentines Push","Eden Valentines Sex","Eden Valentines Sex Finish","Eden Valentines Book 3"],
+				manualVariableChanges:"<<npc Eden>><<person1>>",
+				unlocked: $scenePassages.includes("Eden Valentines Bath")
+			},
 			"Schism":{
 				name:"Schism",
 				startPassage:"Schism",
 				passages:["Schism", "Schism 2", "Schism 3", "Schism 4", "Schism Lichen Eat", "Schism Lichen Refuse", "Schism Lichen Refuse 2", "Schism Lichen Refuse 3", "Schism 5", "Schism Gold Give", "Schism Gold Refuse", "Schism 6", "Schism Robes Accept", "Schism Robes Refuse", "Schism Robes Refuse Finish", "Schism 7", "Schism 8", "Schism Continue", "Schism 9", "Schism 10", "Schism Awakening", "Schism Awake", "Schism Battle", "Schism Battle 2", "Schism Battle 3", "Schism Struggle", "Schism Drown", "Schism Drowned", "Schism Necklace", "Schism Ghost", "Schism Wraith", "Schism Wraith 2", "Schism Failure", "Schism End"],
 				manualVariableChanges:"<<set $outside to 0>><<set $location to 'lake_ruin'>>",
 				unlocked: $scenePassages.includes("Schism")
+			},
+			"Christmas Mirror":{
+				name:"Christmas Mirror",
+				startPassage:"Christmas Mirror",
+				passages:["Christmas Mirror","Christmas Mirror Leave","Christmas Mirror Watch","Christmas Mirror Reach","Christmas Mirror 2","Christmas Mirror 3","Christmas Mirror 4","Christmas Mirror 5","Christmas Mirror Fall","Christmas Mirror End"],
+				manualVariableChanges:"<<set $location to 'home'>>",
+				unlocked: $scenePassages.includes("Christmas Mirror")
+			},
+			"TempleSydneyPureRitual":{
+				name:"Temple Sydney Pure Ritual",
+				startPassage:"SV Sydney Temple Pure",
+				passages:["SV Sydney Temple Pure","Sydney Temple Pure","Sydney Temple Pure 2","Sydney Temple Pure 3","Sydney Temple Pure Eavesdrop","Sydney Temple Pure Eavesdrop 2","Sydney Temple Pure 4","Sydney Temple Pure 5","Sydney Temple Pure 6","Sydney Temple Pure Abuse","Sydney Temple Pure Appearance","Sydney Temple Pure Final","Sydney Temple Pure Fail","Sydney Temple Pure Test","Sydney Temple Pure Test Refuse","Sydney Temple Pure Test Admission","Sydney Temple Pure Pass","Sydney Temple Pure Ritual","Sydney Temple Pure Ritual 2","Sydney Temple Pure Sex","Sydney Temple Pure Sex Finish","Sydney Temple Pure End"],
+				manualVariableChanges:"<<set $outside to 0>><<set $location to 'temple'>><<run Time.setTime(17,0)>>",
+				unlocked: $scenePassages.includes("TempleSydneyPureRitual"),
+				lockedMessage: $scenePassages.includes("TempleSydneyCorrupt") ? "Mutually exclusive scene" : "Locked"
+			},
+			"TempleSydneyCorrupt":{
+				name:"Temple Sydney Corrupt",
+				startPassage:"SV Sydney Temple Corrupt",
+				passages:["SV Sydney Temple Corrupt","Sydney Temple Corrupt","Sydney Temple Corrupt Cancel","Sydney Temple Corrupt 2","Sydney Temple Corrupt Lock","Sydney Temple Corrupt Pick","Sydney Temple Corrupt Fight","Sydney Temple Corrupt Fight Finish","Sydney Temple Corrupt Search","Sydney Temple Corrupt 3","Sydney Temple Corrupt 4","Sydney Temple Corrupt Sex","Sydney Temple Corrupt Sex Finish","Sydney Temple Corrupt End","Sydney Temple Corrupt End 2","Sydney Temple Corrupt End 3","Sydney Temple Corrupt End 4","Sydney Temple Corrupt End 5","Sydney Temple Corrupt End 6","Sydney Temple Corrupt End Final"],
+				manualVariableChanges:"<<set $outside to 0>><<set $location to 'temple'>><<run Time.setTime(21,0)>>",
+				unlocked: $scenePassages.includes("TempleSydneyCorrupt"),
+				lockedMessage: $scenePassages.includes("TempleSydneyPureRitual") ? "Mutually exclusive scene" : "Locked"
+			},
+			"TempleSydneyPunish":{
+				name:"Temple Sydney Punish",
+				startPassage:"Sydney Temple Punish Intro",
+				passages:["Sydney Temple Punish Intro","Sydney Temple Punish Intro 2","Sydney Temple Punish Intro 3","Sydney Temple Punish Intro 4","Sydney Temple Punish","Sydney Temple Punish Repeat","Sydney Temple Punish Hold","Sydney Temple Punish Belt","Sydney Temple Punish Hit","Sydney Temple Punish Plead","Sydney Temple Punish Close","Sydney Temple Punish Touch","Sydney Temple Punish End"],
+				manualVariableChanges:"<<set $outside to 0>><<set $location to 'temple'>><<set $stress to 0>><<set $arousal to 0>>",
+				unlocked: $scenePassages.includes("TempleSydneyPunish")
+			},
+			"TempleVigil":{
+				name:"Temple Vigil",
+				startPassage:"SV Temple Vigil Inquire",
+				passages:["SV Temple Vigil Inquire","Temple Vigil Inquire","Temple Vigil","Temple Vigil 2","Temple Vigil 3","Temple Vigil 4","Temple Vigil Undress","Temple Vigil Undress Refuse","Temple Vigil Undress Refuse 2","Temple Vigil 5","Temple Vigil Abandon","Temple Vigil End","Temple Vigil End 2","Temple Vigil End Sydney","Temple Vigil End Sydney 2","Temple Vigil 6","Temple Vigil 7","Temple Vigil 8","Temple Vigil 9","Temple Vigil 10","Temple Vigil Refuse","Temple Vigil Refuse 2","Temple Vigil 11","Temple Vigil 12","Temple Vigil 13","Temple Vigil Focus","Temple Vigil Yield","Temple Vigil 14","Temple Vigil 15","Temple Vigil 15 Sydney"],
+				manualVariableChanges:"<<set $outside to 0>><<set $location to 'temple'>><<run Time.setDate(Time.getNextWeekdayDate(1))>><<run Time.setTime(20,0)>>",
+				unlocked: $scenePassages.includes("TempleVigil")
+			},
+			"TempleConfessorIntro":{
+				name:"Temple Purge and Confessor Intro",
+				startPassage:"SV Temple Confess Purge",
+				passages:["SV Temple Confess Purge","SV Temple Confess Purge 2","Temple Confess Purge Sex","Temple Confess Purge Sex Finish Corrupt","Temple Confess Inspect","Temple Confess Drain","Temple Confess Stop","Temple Confess Drain End","Temple Confessor Intro","Temple Confessor Intro 2","Temple Confessor Intro 3","Temple Confessor Intro 4","Temple Confessor Intro 5","Temple Confessor Intro Ask","Temple Confessor Intro 6","Temple Confessor Intro 7","Temple Confessor Intro 8"],
+				manualVariableChanges:"<<set $outside to 0>><<set $location to 'temple'>><<unset $temple_confessor_intro>>",
+				unlocked: $scenePassages.includes("TempleConfessorIntro")
+			},
+			"IslandCastle":{
+				name:"Island Castle",
+				startPassage:"SV Island Castle Approach",
+				passages:["SV Island Castle Approach","Island Castle Dignified","Island Castle Cute","Island Castle Enter","Island Castle 2","Island Castle 3","Island Castle Stool","Island Castle Stool 2","Island Castle Stool 3","Island Castle Stool 4","Island Castle Run","Island Castle Run 2","Islander","Islander 2","Islander Play","Islander Understand","Islander 3","Islander 4","Islander Walk","Islander Kneel","Islander Spear","Islander End","Islander End 2","Islander End 3","Islander Enforce","Islander End Hide","Islander End Confident","Islander End Hand","Islander Pirate Return","Islander End Swim","Islander End Throw","Islander End Throw 2"],
+				manualVariableChanges:"<<set $outside to 1>><<set $location to 'island'>><<unset $spear_vessel>>",
+				unlocked: $scenePassages.includes("IslandCastle")
 			},
 			"Pinch":{
 				name:"Pinch",
@@ -510,6 +932,132 @@ End of '<<print $replayScene.name>>' scene.
 				manualVariableChanges:"<<set $sleephour to 1>><<set $nightmareExit to 'Bed'>>",
 				unlocked: $scenePassages.includes("NightmareHarper")
 			},
+			"HarperHypnosisIntro":{
+				name:"Harper Hypnosis Intro",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Trance"],
+				manualVariableChanges:"<<unset $harperintro>><<set $hypnosis to 0>>",
+				unlocked: $scenePassages.includes("HarperHypnosisIntro")
+			},
+			"HarperHypnosisTrance1":{
+				name:"Harper Hypnosis Trance 1",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Trance","Doctor Harper's Office Camera"],
+				manualVariableChanges:"<<set $harperintro to 1>><<set $hypnosis to 1>><<set $rng to 100>>",
+				unlocked: $scenePassages.includes("HarperHypnosisTrance1")
+			},
+			"HarperHypnosisTrance2":{
+				name:"Harper Hypnosis Trance 2",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Trance","Doctor Harper's Office Camera2"],
+				manualVariableChanges:"<<set $harperintro to 1>><<set $hypnosis to 2>><<set $rng to 100>>",
+				unlocked: $scenePassages.includes("HarperHypnosisTrance2")
+			},
+			"HarperHypnosisTrance3":{
+				name:"Harper Hypnosis Trance 3",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Trance","Doctor Harper's Office Camera3"],
+				manualVariableChanges:"<<set $harperintro to 1>><<set $hypnosis to 3>><<set $rng to 100>>",
+				unlocked: $scenePassages.includes("HarperHypnosisTrance3")
+			},
+			"HarperHypnosisTrance4":{
+				name:"Harper Hypnosis Trance 4",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Trance","Doctor Harper's Office Camera3","Doctor Harper's Office Camera Molestation","Doctor Harper's Office Camera Molestation Finish"],
+				manualVariableChanges:"<<set $harperintro to 1>><<set $hypnosis to 4>><<set $rng to 100>>",
+				unlocked: $scenePassages.includes("HarperHypnosisTrance4")
+			},
+			"HarperHypnosisExam1":{
+				name:"Harper Hypnosis Exam 1",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Exam"],
+				manualVariableChanges:"<<set $harperintro to 1>><<set $harperexam to 0>><<set $rng to 0>>",
+				unlocked: $scenePassages.includes("HarperHypnosisExam1")
+			},
+			"HarperHypnosisExam2":{
+				name:"Harper Hypnosis Exam 2",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Exam"],
+				manualVariableChanges:"<<set $harperintro to 1>><<set $harperexam to 1>><<set $rng to 0>>",
+				unlocked: $scenePassages.includes("HarperHypnosisExam2")
+			},
+			"HarperHypnosisExam3":{
+				name:"Harper Hypnosis Exam 3",
+				startPassage:"Doctor Harper's Office",
+				passages:["Doctor Harper's Office","Doctor Harper's Office Exam"],
+				manualVariableChanges:"<<set $harperintro to 1>><<set $harperexam to 2>><<set $rng to 0>>",
+				unlocked: $scenePassages.includes("HarperHypnosisExam3")
+			},
+			"MoorFlower":{
+				name:"Moor Flower",
+				startPassage:"SV Moor Flower",
+				passages:["SV Moor Flower","Moor Flower","Moor Phallus Plant","Moor Flower Masturbation","Moor Flower Masturbation Finish","Moor Phallus Plant Masturbation","Moor Phallus Plant Masturbation Finish","Moor Flower Ignore","Moor Flower Leave","Moor Tentacles","Moor Tentacles Finish"],
+				manualVariableChanges:"<<set $location to 'moor'>>",
+				unlocked: $scenePassages.includes("Moor Flower") or $scenePassages.includes("Moor Phallus Plant")
+			},
+			"HookahPlot1":{
+				name:"Hookah Plot 1: Tentacle Forest Door",
+				startPassage:"Tentacle Forest Door",
+				passages:["Tentacle Forest Door","Tentacle Forest Quinn","Tentacle Forest Quinn 2","Tentacle Forest Quinn 3","Tentacle Forest Quinn 4"],
+				manualVariableChanges:"<<set $location to 'tentworld'>><<set $tentacle_forest_time to 30>><<set $tentacle_forest_key to 1>><<set $hookah_plot to 0>>",
+				unlocked: $scenePassages.includes("TentacleForestDoor")
+			},
+			"HookahPlot2":{
+				name:"Hookah Plot 2: Town Hall Computer",
+				startPassage:"Tentacle Forest Door",
+				passages:["Town Hall Computer","Town Hall Computer 2","Town Hall Computer 3","Town Hall Computer 4","Town Hall Computer 5","Town Hall Computer 6","Town Hall Computer 7","Town Hall Computer 8"],
+				manualVariableChanges:"<<set $location to 'town'>>",
+				unlocked: $scenePassages.includes("TownHallComputer")
+			},
+			"BlackWolfIntro":{
+				name:"Black Wolf Intro",
+				startPassage:"ForestHuntDebug",
+				passages:["ForestHuntDebug","Forest Wolf Molestation","Forest Wolf Molestation Finish","Forest Wolf Cave Intro","Forest Wolf Molestation Resist","Forest Wolf Molestation Resist Finish","Forest Wolf Cave Rape","Forest Wolf Cave Rape Finish","Forest Wolf Cave Rape End"],
+				manualVariableChanges:"<<set $location to 'forest'>><<set $blackwolfhunt to 1>><<set $syndromewolves to 0>>",
+				unlocked: $scenePassages.includes("BlackWolfIntro")
+			},
+			"FreeTheBlackDog":{
+				name:"Free the Black Dog",
+				startPassage:"Pound Free",
+				passages:["Pound Free","Pound Free Reassure","Pound Free Lead","Pound Free 2","Pound Free Distract","Pound Free Run","Pound Free 3","Pound Free 4","Pound Free 5","Pound Free Fight","Pound Free Fight Finish","Pound Free Submit","Pound Free Crawl","Pound Free Stand","Pound Free Refuse","Pound Free 6","Pound Free Rape","Pound Free Rape Finish","Pound Free 7","Pound Free Beast","Pound Free Beast End"],
+				manualVariableChanges:"<<set $location to 'town'>>",
+				unlocked: $scenePassages.includes("FreeTheBlackDog")
+			},
+			"MickeyOrphanageHacker":{
+				name:"Mickey Orphanage Hacker",
+				startPassage:"Orphanage Hacker",
+				passages:["Orphanage Hacker","Orphanage Hacker Strip Refuse","Orphanage Hacker Strip","Orphanage Hacker Strip 2","Orphanage Hacker Strip 3","Orphanage Hacker Strip 4"],
+				manualVariableChanges:"<<set $location to 'home'>>",
+				unlocked: $scenePassages.includes("OrphanageHacker")
+			},
+			"MickeyPubFameIntro":{
+				name:"Mickey Pub Fame Intro",
+				startPassage:"SV Pub Fame Intro",
+				passages:["SV Pub Fame Intro","Pub Fame Intro","Pub Fame Intro 2","Pub Fame Intro 3","Pub Fame Intro 4"],
+				manualVariableChanges:"<<set $location to 'pub'>><<set $mickeyPub to 2>>",
+				unlocked: $scenePassages.includes("PubFameIntro")
+			},
+			"PrisonSpirePrecipice":{
+				name:"Prison Spire Precipice",
+				startPassage:"Scene Viewer passages",
+				passages:["Prison Spire Precipice","Prison Spire Precipice Help","Prison Spire Precipice Demand"],
+				manualVariableChanges:"<<set $sceneViewSwitch to 'prison_spire_options'>><<set $location to 'prison'>><<set $per_npc.anxious_guard.name_known to 0>><<run Time.setTime(13,0)>>",
+				unlocked: $scenePassages.includes("PrisonSpirePrecipice")
+			},
+			"PrisonYardLocket":{
+				name:"Prison Yard Locket",
+				startPassage:"Prison Yard Speak",
+				passages:["Prison Yard Speak","Prison Yard Locket"],
+				manualVariableChanges:"<<set $location to 'prison'>><<set $per_npc.veteran_guard.name_known to 0>><<run Time.setTime(13,0)>>",
+				unlocked: $scenePassages.includes("PrisonYardLocket")
+			},
+			"PrisonScarredInmate":{
+				name:"Prison Scarred Inmate",
+				startPassage:"SV Prison Scarred",
+				passages:["SV Prison Scarred","Prison Scarred","Prison Scarred Bars","Prison Scarred Bars 2","Prison Scarred Bars Say","Prison Scarred Bars Refuse","Prison Scarred Bars Sob","Prison Scarred Refuse","Prison Scarred Pair","Prison Scarred Pair 2","Prison Scarred Pair Calm","Prison Scarred Pair Spank","Prison Scarred Pair Silent","Prison Scarred Pair Help","Prison Scarred Molestation","Prison Scarred Molestation 2","Prison Scarred Rape","Prison Scarred Rape Finish","Prison Scarred Turn","Prison Scarred Resist","Prison Scarred Fight","Prison Scarred Fight Finish","Prison Scarred Walk","Prison Scarred Walk 2","Prison Scarred Yard","Prison Scarred Yard Warn","Prison Scarred Yard End","Prison Scarred Yard Rape","Prison Scarred Yard Rape Finish","Prison Scarred Inmate Rape","Prison Scarred Inmate Rape Finish","Prison Scarred Inmate Help","Prison Scarred Sex","Prison Scarred Sex Finish","Prison Scarred Ask","Prison Scarred Sibling Refuse","Prison Scarred Sibling Agree","Prison Scarred Sibling 2","Prison Scarred Sibling 3","Prison Scarred Sibling 4","Prison Scarred Sex Refuse"],
+				manualVariableChanges:"<<set $location to 'prison'>><<run Time.setTime(13,0)>>",
+				unlocked: $scenePassages.includes("PrisonScarredInmate")
+			},
 		}>>
 	<</if>>
 <</widget>>
@@ -517,68 +1065,88 @@ End of '<<print $replayScene.name>>' scene.
 <<widget "scenesSearch">>
 	<span class="red">Avoid updating your games while you're replaying a scene.<<if $debug isnot 0>> "Teleporting" during a replay will break saves, avoid it if you don't know how to fix saves.<</if>></span>
 	<br>
-	Scenes per page (Click search to update): <<numberslider "_itemsPerPage" "12" 4 40 2>>
+	Scenes per page: <<numberslider "$scenesSearch.numberOfItems" $scenesSearch.numberOfItems 4 40 2>>
+	<br>
+	<label>Hide locked: <<checkbox "$scenesSearch.hideLocked" false true autocheck>></label>
+	<br>
+	Search: <<textbox "$scenesSearch.text" $scenesSearch.text>>
 	<br><br>
-	Search: <<textbox "_sceneSearch" "">>
-	<<link "Search">>
-		<<set _sceneSearch to _sceneSearch.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9]+/g,"")>>
-		<<set _listPage to 1>>
-		<<updateSceneViewer>>
-	<</link>>
-	<br><br>
+	<<run $(() => {
+		$("#numberslider-input-scenessearchnumberofitems, #checkbox-scenessearchhidelocked").on("input change", function (e) {
+			wikifier("<<scenesSearchUpdate>>");
+		});
+		$("#textbox-scenessearchtext").on("input keypress", function (e) {
+			V.scenesSearch.text = e.target.value;
+			switch(e.target.value.toLowerCase()) {
+				case "tutorial":
+					V.scenePassages.pushUnique("Tutorial");
+					V.scenes.Tutorial.unlocked = true;
+					break;
+				case "the farm":
+					V.scenePassages.pushUnique("The Farm");
+					V.scenes.TheFarm.unlocked = true;
+					break;
+			}
+			wikifier("<<scenesSearchUpdate>>");
+		});
+	})>>
+<</widget>>
+
+<<widget "scenesSearchUpdate">>
+	<<set $scenesSearch.text to $scenesSearch.text.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9]+/g,"")>>
+	<<set _listPage to 1>>
+	<<updateSceneViewer>>
 <</widget>>
 
 <<widget "scenesViewerCalc">>
-	<<if _sceneSearch.length is 0>>
-		<<set _scenes to clone($scenes)>>
-	<<else>>
-		<<set _scenes to {}>>
-		<<for _label, _value range $scenes>>
-			<<set _lowerName to clone(_value.name).toLowerCase()>>
-			<<set _lowerPassages to "".concat(_value.startPassage).toLowerCase()>>
-			<<if _value.name.toLowerCase().includes(_sceneSearch.toLowerCase()) or "".concat(_value.startPassage).toLowerCase().includes(_sceneSearch.toLowerCase())>>
-				<<run _scenes[_label] to clone(_value)>>
-			<</if>>
-		<</for>>
-	<</if>>
+	<<set _scenes to {}>>
+	<<for _label, _value range $scenes>>
+		<<if $scenesSearch.hideLocked and !_value.unlocked>><<continue>><</if>>
+		<<set _lowerName to clone(_value.name).toLowerCase()>>
+		<<set _lowerPassages to "".concat(_value.startPassage).toLowerCase()>>
+		<<if $scenesSearch.text.length is 0 or (_value.unlocked and (_value.name.toLowerCase().includes($scenesSearch.text.toLowerCase()) or "".concat(_value.startPassage).toLowerCase().includes($scenesSearch.text.toLowerCase())))>>
+			<<run _scenes[_label] to clone(_value)>>
+		<</if>>
+	<</for>>
 	<<set _keys to Object.keys(_scenes)>>
 	<<set _keys to _keys.sort()>>
 	<<set _scenesAvailable to _keys.length gt 0>>
 	<<if _listPage is undefined>>
 		<<set _listPage to 1>>
 	<</if>>
-	<<set _listMaxItems to _itemsPerPage>>
+	<<set _listMaxItems to $scenesSearch.numberOfItems>>
 	<<set _listPageMax to Math.ceil(_keys.length / _listMaxItems)>>
 	<<set _indexStart to ((_listPage - 1) * _listMaxItems)>>
 	<<set _indexEnd to (_indexStart + _listMaxItems gt _keys.length ? _keys.length : _indexStart + _listMaxItems)>>
 <</widget>>
 
 <<widget "scenesViewer">>
-	<<if _scenesAvailable>>
-		<<for _i to _indexStart; _i lt _indexEnd; _i++>>
-			<<set _item to _scenes[_keys[_i]]>>
-			<<if _item.unlocked is false and $debug is 0>>
-				<span class="no-numberify red">
-					Locked
-				</span>
-			<<elseif _item.name is undefined or _item.startPassage is undefined or _item.passages is undefined>>
-				<span class="no-numberify red">
-					Error in key '<<print _keys[_i]>>'.
-				</span>
-			<<else>>
-				<<capture _item>>
-					<span class="no-numberify">
-						<<link [[_item.name|_item.startPassage]]>><<setupReplayScene _item.name _item.startPassage _item.passages>><<print _item.manualVariableChanges>><</link>>
-					</span>
-				<</capture>>
-			<</if>>
-		<</for>>
-	<<else>>
+	<<if _scenesAvailable is false>>
 		No Scenes Found.
+		<<exit>>
 	<</if>>
+	<<for _i to _indexStart; _i lt _indexEnd; _i++>>
+		<<set _item to _scenes[_keys[_i]]>>
+		<<if _item.unlocked is false and $debug is 0>>
+			<span class="no-numberify red">
+				<<print _item.lockedMessage || "Locked">>
+			</span>
+		<<elseif _item.name is undefined or _item.startPassage is undefined or _item.passages is undefined>>
+			<span class="no-numberify red">
+				Error in key '<<print _keys[_i]>>'.
+			</span>
+		<<else>>
+			<<capture _item>>
+				<span class="no-numberify">
+					<<link [[_item.name|_item.startPassage]]>><<setupReplayScene _item.name _item.startPassage _item.passages>><<print _item.manualVariableChanges>><</link>>
+				</span>
+			<</capture>>
+		<</if>>
+	<</for>>
 <</widget>>
 
 <<widget "scenesViewerControls">>
+	<<if _scenesAvailable is false>><<exit>><</if>>
 	<<set _disabled = _listPage > 1 ? "" : "disabled">>
 	<div @class="'div-link btn-pagination prev ' + _disabled">
 		<<link "Previous">>
@@ -656,30 +1224,86 @@ End of '<<print $replayScene.name>>' scene.
 <</widget>>
 
 <<widget "freezePlayerStats">>
+	<<if $frozenValues>><<exit>><</if>> /* Should never be run more than once */
 	<<script>>
+		const skipKeysOnFreeze = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "debugMenu", "options"];
 		V.statFreeze = true;
-		const skipKeys = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "options"];
 		V.frozenValues = {};
-
 		V.frozenValues.deepMerge(V, (key, value, depth) => {
-			if ((depth === 1 && skipKeys.includes(key)) || typeof value === "function") {
-				return false;
-			}
-			return true;
+			return !(depth === 1 && skipKeysOnFreeze.includes(key)) && typeof value !== "function";
 		});
 	<</script>>
 <</widget>>
 
 <<widget "unfreezePlayerStats">>
+	<<if $replayScene>><<exit>><</if>> /* Should never be run when a scene is running */
 	<<script>>
+		const skipKeysOnFreeze = ["replayScene", "frozenValues", "statFreeze", "passage", "debug", "debugMenu", "options"];
 		delete V.statFreeze;
 		if (V.frozenValues) {
-			V.deepMerge(V.frozenValues);
+			const retainedKeys = Object.fromEntries(
+				Object.entries(V).filter(([key]) => skipKeysOnFreeze.includes(key))
+			);
+			V.deepMerge(V.frozenValues, "strict-replace");
+			Object.assign(V, retainedKeys);
 			delete V.frozenValues;
 			Time.set();
 		}
 	<</script>>
-	<<doVersionCheck>>
+	<<if $replayScene is undefined>>
+		<<doVersionCheck>>
+	<</if>>
+<</widget>>
+
+<<widget "SVTutorial">>
+	<<givestartclothing>>
+	<<set $worn.over_upper to clone(setup.clothes.over_upper[0])>>
+	<<set $worn.over_lower to clone(setup.clothes.over_lower[0])>>
+	<<set $worn.upper to clone(setup.clothes.upper[0])>>
+	<<set $worn.lower to clone(setup.clothes.lower[0])>>
+	<<exposedcheck>>
+<</widget>>
+
+<<widget "SVSydney">>
+	Sydney Purity: <span id="sydneyPurity">Current Save</span>
+	<br>
+	<<link "Set Pure">>
+		<<set C.npc.Sydney.purity to 100>>
+		<<set C.npc.Sydney.corruption to 0>>
+		<<replace "#sydneyPurity">>Pure<</replace>>
+	<</link>> |
+	<<link "Set Neutral">>
+		<<set C.npc.Sydney.purity to 0>>
+		<<set C.npc.Sydney.corruption to 0>>
+		<<replace "#sydneyPurity">>Neutral<</replace>>
+	<</link>> |
+	<<link "Set Corrupt">>
+		<<set C.npc.Sydney.purity to 0>>
+		<<set C.npc.Sydney.corruption to 100>>
+		<<replace "#sydneyPurity">>Corrupt<</replace>>
+	<</link>> |
+	<br><br>
+	Sydney Lust: <span id="sydneyLust">Current Save</span>
+	<br>
+	<<link "Clear">>
+		<<set C.npc.Sydney.lust to 0>>
+		<<replace "#sydneyLust">>Not Lustful<</replace>>
+	<</link>> |
+	<<link "Set">>
+		<<set C.npc.Sydney.lust to 100>>
+		<<replace "#sydneyLust">>Lustful<</replace>>
+	<</link>> |
+	<br><br>
+	Sydney Romance: <span id="sydneyRomance">Current Save</span>
+	<br>
+	<<link "Clear">>
+		<<set $sydneyromance to 0>>
+		<<replace "#sydneyRomance">>Not romancing<</replace>>
+	<</link>> |
+	<<link "Set">>
+		<<set $sydneyromance to 1>>
+		<<replace "#sydneyRomance">>Romancing<</replace>>
+	<</link>> |
 <</widget>>
 
 <!-- False passages to initiate scene viewer scenes, for cases where starting passages have too many potential roadblocks -->
@@ -832,3 +1456,378 @@ You are on Wolf Street. The nearby forest bleeds into the town here, particularl
 <br><br>
 
 <<monstrance_accost>>
+
+:: SV Temple Confess Purge
+
+<<SVSydney>>
+
+<br><br>
+<<link [[Start|SV Temple Confess Purge 2]]>><</link>>
+<br>
+
+:: SV Temple Confess Purge 2
+
+"I name you <span class="red">corrupted</span>." You kneel, positioning yourself against the seal and opening the small metal shutter. "Remove your clothes and stand against the seal of confession. I will take your corruption into myself, and you will be forgiven."
+<br><br>
+<<set $attendant to ["corrupt_1","corrupt_2","corrupt_3","corrupt_4","corrupt_5","corrupt_6","corrupt_7","corrupt_8","corrupt_9"].random()>>
+<<generate1>><<person1>>
+<<switch $attendant>>
+	<<case "corrupt_1">>
+		<<set _accepted to true>>
+		"Ah... yes! Fill the hole! I understand now! Bless you, <<sister>>!" <<He>> complies.
+	<<case "corrupt_2">>
+		<<set _accepted to true>>
+		"Oh? How unexpected. If you insist, dear <<sister>>." <<He>> complies.
+	<<case "corrupt_3">>
+		<<set _accepted to true>>
+		<<He>> complies. "Will this make God forgive me?"
+	<<case "corrupt_4">>
+		<<set _accepted to true>>
+		"Is this purification? Will this spare me the... the wall? Th-thank you, <<sister>>." <<He>> complies.
+	<<case "corrupt_5">>
+		<<set _accepted to true>>
+		"Finally, someone punctual." <<He>> complies.
+	<<case "corrupt_6">>
+		<<set _accepted to true>>
+		"Right away, <<sister>>. Anything to make this feeling stop. Is... is this going to hurt?"
+	<<case "corrupt_7">>
+		<<set _accepted to true>>
+		<<He>> complies with your request. "This... this feels sinful, but I trust you, <<sister>>."
+	<<case "corrupt_8">>
+		<<set _accepted to true>>
+		<<He>> goes silent for a moment. "Purges. Urges. Purges. Urges."
+		<br><br>
+
+		<<He>> continues to repeat <<himself>>, but complies with your request.
+	<<case "corrupt_9">>
+		<<set _accepted to true>>
+		"Wonderful! Thank you, <<sister>>." <<He>> complies with your request.
+<</switch>>
+<br><br>
+
+<<link [[다음|Temple Confess Purge Sex]]>><<set $sexstart to 1>><</link>>
+<br>
+
+:: SV Island Castle Approach
+<<effects>>
+
+<<generateRole 0 0 "islander">>
+<<generateRole 1 0 "islander">>
+<<person1>>
+You approach the guards, a <<person>> and <<person2>><<person>>.
+
+<span class="green">Your mask conceals your face.</span> They remain motionless, until you're halfway across the bridge.
+<br><br>
+"Halt," the <<person1>><<person>> says. "What gives you the right to enter here?" <span class="green">You should be able to respond in their language.</span>
+<br><br>
+<<ind>><<link [[Act dignified|Island Castle Dignified]]>><</link>>
+<br>
+<<ind>><<link [[Act cute|Island Castle Cute]]>><</link>>
+<br>
+
+:: SV Moor Flower
+
+<<if random(1, 2) is 1>>
+	<<set $moorFlower to "flower">>
+<<else>>
+	<<set $moorFlower to "phallus plant">>
+<</if>>
+You smell a sweet fragrance. A pink flower alongside an odd plant grows among the heather.
+<<if $earSlime.corruption gte 80 and random(1, 4) gte 5 - numberOfEarSlime()>>
+	<span class="red">The ear slimes weaken your ability to resist its allure.</span>
+	<<if numberOfEarSlime() gte 2>>
+		<<set $moorFlowerMod to 400>>
+	<<else>>
+		<<set $moorFlowerMod to 200>>
+	<</if>>
+<<else>>
+	<<set $moorFlowerMod to 0>>
+<</if>>
+
+<br><br>
+<<link [[Investigate the flower|Moor Flower]]>><<arousal 600>><<drugs 60>><<set $moorFlower to "flower">><</link>><<garousal>>
+<br>
+<<link [[Investigate the odd plant|Moor Phallus Plant]]>><<arousal 600>><<drugs 60>><<set $moorFlower to "phallus plant">><</link>><<garousal>>
+<br>
+<<link [[무시한다|Moor Flower Ignore]]>><</link>><<willpowerdifficulty `1 + $moorFlowerMod` `600 + $moorFlowerMod`>>
+<br>
+
+:: SV Tutorial
+
+<div id="SVTutorial">
+	<<link "Leaving the Orphanage">>
+		<<replace "#SVTutorial">>
+			<<generate1>><<person1>>As you leave the orphanage you bump into a <<person>> passing by. <<He>> staggers back and looks at you with anger, but <<his>> rage turns to lechery as <<he>> beholds you. "You're the cutest thing I've seen all week! Come 'ere."
+			<br><br>
+			<<link [[다음|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Domus Street">><</link>>
+		<</replace>>
+	<</link>>
+	<br>
+	<<link [[Climbing a Fence in just underwear at day|Garden Fence Undies Day]]>><<SVTutorial>><</link>> and <<link [[night|Garden Fence Undies Night]]>><<SVTutorial>><</link>>
+	<br>
+	<<link [[Walking to school with Robin|Robin Walk School]]>><</link>>
+	<br>
+	<<link [[Helping Robin with <<nnpc_his "Robin">> lemonade stand|Robin's Lemonade Set Tutorial]]>><<npc Robin>><</link>>
+	<br>
+	<<link [[Helping Robin with <<nnpc_his "Robin">> hot chocolate stand|Robin Chocolate Set Tutorial]]>><<npc Robin>><</link>>
+	<br>
+	<<link [[Waiting it out|Rent Intro]]>><</link>>
+	<br>
+	<<link '"Sleep" walking'>>
+		<<set $molestationstart to 1>>
+		<<replace "#SVTutorial">><<slimeWakeAlleyway>><</replace>>
+	<</link>>
+	<br>
+</div>
+
+:: SV undergroundEscapeForestRobin
+
+<<undergroundEscapeForestRobin>>
+
+:: SV Temple Vigil Inquire
+
+<<SVSydney>>
+
+<br><br>
+<<link [[Start|Temple Vigil Inquire]]>><</link>>
+<br>
+
+:: SV Dilapidated Shop
+
+<<SVSydney>>
+
+<br><br>
+<<link [[Start|Dilapidated Shop]]>><</link>>
+<br>
+
+:: SV Adult Shop Opening
+
+<<SVSydney>>
+
+<br><br>
+<<link [[Start|Adult Shop Opening]]>><</link>>
+<br>
+
+:: SV Pub Fame Intro
+
+<<set $pubfame to {seen: [], tasksDone: []}>><<set $fameDecay to {}>><<set $fameDecayTimer to {}>>
+<<generate1>><<person1>>
+A hand lands on your shoulder from behind. "You've been busy," a <<person>> says in your ear. You can smell the alcohol on <<his>> breath. "Don't think I don't recognise you. You're the talk of the town.
+<<if $fame.bestiality gte 400>>
+	Bit surprising not seeing a buncha mutts fucking you raw, though."
+<<elseif $fame.sex gte 400 or $fame.rape gte 400 or $fame.prostitution gte 400>>
+	Bit surprising not seeing you being fucked raw, though."
+<<else>>
+	Bit surprising seeing you all covered up, though."
+<</if>>
+<<stress 3>><<gstress>>
+<br><br>
+<<His>> grip tightens. "I reckon it's time I got my slice of the pie. <<if $fame.prostitution gte 400>>Hope you don't mind that I'm not paying for it.<<elseif $fame.rape gte 400>>You like it rough, right? That's what I've heard.<</if>> Come 'ere, sweetheart."
+<br><br>
+<<link [[다음|Pub Fame Intro]]>><</link>>
+
+:: SV Avery Helicopter
+<<npc Avery>><<person1>>
+As you are about to leave the building, you hear a great uproar. Dozens of students are gathering outside as a helicopter descends upon the school precincts. One of the passenger doors swings open. Avery beckons from inside.
+<br><br>
+
+"Come on, get a move on, I haven't got all day! Important business awaits!"
+<br><br>
+
+<<link [[Board helicopter (0:20)|Avery Helicopter]]>><<npcincr Avery love 2>><</link>><<gglove>>
+<br>
+<<link [[물러난다|Avery Helicopter Walk]]>><<npcincr Avery love -1>><<npcincr Avery rage 5>><</link>><<garage>><<llove>>
+
+:: SV Street Bully Orphanage Go
+
+Whitney Meets Bailey First Time: <span id="baileyMeet">False</span>
+<br>
+<<link "Clear">>
+	<<set $whitney_bailey_met to 0>>
+	<<replace "#baileyMeet">>False<</replace>>
+	<<run Time.setTime(17,0)>>
+	<<replace "#timeOfDay">>Day<</replace>>
+<</link>> |
+<<link "Set">>
+	<<set $whitney_bailey_met to 1>>
+	<<replace "#baileyMeet">>True<</replace>>
+	<<run Time.setTime(17,0)>>
+	<<replace "#timeOfDay">>Day<</replace>>
+<</link>> |
+<br><br>
+Time of day: <span id="timeOfDay">Current Save</span>
+<br>
+<<link "Day">>
+	<<run Time.setTime(17,0)>>
+	<<replace "#timeOfDay">>Day<</replace>>
+<</link>> |
+<<link "Night">>
+	<<run Time.setTime(22,0)>>
+	<<replace "#timeOfDay">>Night<</replace>>
+<</link>> |
+<br><br>
+<<link [[Start|SV Street Bully Orphanage Go 2]]>><</link>>
+<br>
+
+:: SV Street Bully Orphanage Go 2
+<<npc Whitney>><<person1>>
+"Just the slut I was looking for," <<he>> says, "Come on. I'm visiting your home. The orphanage." <<He>> flicks a fresh cigarette butt into the gutter, and takes your arm in <<his>> own.
+<br><br>
+
+<<link [[Make Whitney promise to be nice to the other residents (0:25)|Street Bully Orphanage Promise]]>><<pass 25>><</link>>
+<br>
+<<link [[Go to the orphanage (0:25)|Street Bully Orphanage Go]]>><<npcincr Whitney love 1>><<pass 25>><</link>><<glove>>
+<br>
+<<link [[거절한다|Street Bully Orphanage Refuse]]>><<npcincr Whitney love -3>><</link>><<lllove>>
+<br>
+
+:: SV Sydney Temple Pure
+Player Purity: <span id="playerPurity">Current Save</span>
+<br>
+<<link "High">>
+	<<set $purity to 999>>
+	<<replace "#playerPurity">>High<</replace>>
+<</link>> |
+<<link "Mid">>
+	<<set $purity to 950>>
+	<<replace "#playerPurity">>Mid<</replace>>
+<</link>> |
+<<link "Low">>
+	<<set $purity to 450>>
+	<<replace "#playerPurity">>Low<</replace>>
+<</link>> |
+<br><br>
+Player Grace: <span id="playerGrace">Current Save</span>
+<br>
+<<link "High">>
+	<<set $grace to 100>>
+	<<replace "#playerGrace">>High<</replace>>
+<</link>> |
+<<link "Mid">>
+	<<set $grace to 50>>
+	<<replace "#playerGrace">>Mid<</replace>>
+<</link>> |
+<<link "Low">>
+	<<set $grace to 1>>
+	<<replace "#playerGrace">>Low<</replace>>
+<</link>> |
+<<link "None">>
+	<<set $grace to 0>>
+	<<replace "#playerGrace">>None<</replace>>
+<</link>> |
+<br><br>
+Evaluation already taken: <span id="evaluation">Current Save</span>
+<br>
+<<link "No">>
+	<<run $sydneySeen.delete("evaluation")>>
+	<<replace "#evaluation">>No<</replace>>
+<</link>> |
+<<link "Yes">>
+	<<run $sydneySeen.pushUnique("evaluation")>>
+	<<replace "#evaluation">>Yes<</replace>>
+<</link>> |
+<br><br>
+Sydney is Pure: <span id="sydneyPurity">Current Save</span>
+<br>
+<<link "Yes">>
+	<<set C.npc.Sydney.purity to 100>>
+	<<replace "#sydneyPurity">>Yes<</replace>>
+<</link>> |
+<<link "Lost some">>
+	<<set C.npc.Sydney.purity to 80>>
+	<<replace "#sydneyPurity">>Lost some<</replace>>
+<</link>> |
+<<link "Not enough">>
+	<<set C.npc.Sydney.purity to 0>>
+	<<replace "#sydneyPurity">>Not enough<</replace>>
+<</link>> |
+<br><br>First met Sydney at: <span id="sydneyMet">Current Save</span>
+<br>
+<<link "Mass">>
+	<<set $sydneyFirstSeen to "mass">>
+	<<run $sydneySeen.pushUnique("mass")>>
+	<<replace "#sydneyMet">>Mass<</replace>>
+<</link>> |
+<<link "Library">>
+	<<set $sydneyFirstSeen to "library">>
+	<<run $sydneySeen.pushUnique("library")>>
+	<<replace "#sydneyMet">>Library<</replace>>
+<</link>> |
+<<link "Library rescue">>
+	<<set $sydneyFirstSeen to "libRescue">>
+	<<run $sydneySeen.pushUnique("libRescue")>>
+	<<replace "#sydneyMet">>Library rescue<</replace>>
+<</link>> |
+<<link "Science class">>
+	<<set $sydneyFirstSeen to "science">>
+	<<run $sydneySeen.pushUnique("science")>>
+	<<replace "#sydneyMet">>Science class<</replace>>
+<</link>> |
+<<link "Sirris' Shop">>
+	<<set $sydneyFirstSeen to "shop">>
+	<<run $sydneySeen.pushUnique("shop")>>
+	<<replace "#sydneyMet">>shop<</replace>>
+<</link>> |
+<<link "Trial of Anguish">>
+	<<set $sydneyFirstSeen to "anguish">>
+	<<run $sydneySeen.pushUnique("anguish")>>
+	<<replace "#sydneyMet">>anguish<</replace>>
+<</link>> |
+<br><br>
+<<link [[Start|Sydney Temple Pure]]>><<npc Sydney>><</link>>
+<br>
+
+:: SV Sydney Temple Corrupt
+<<npc "Sydney">><<person1>>
+
+Sydney takes a deep breath. "I'm ready." <<He>> begins to count the number of <<monks>> around. "Perfect. We should have an opening in a minute. I'll go first, follow me in about two minutes." <<He>> begins giving you a list of directions and subtle details to look out for in the temple's back halls.
+<br><br>
+<<He>> starts to get up, but stops <<himself>> and turns back to you. "Are you absolutely sure you're ready? Broken vows are taken very seriously here, and if we get caught..."
+<br><br>
+<<link [[Yes (0:02)|Sydney Temple Corrupt 2]]>><<pass 2>><</link>>
+<br>
+<<link [[No|Sydney Temple Corrupt Cancel]]>><</link>>
+<br>
+
+:: SV Prison Scarred
+
+<br><br>Stage: <span id="stage">Name Learned</span>
+<br>
+<<link "1st Event">>
+	<<set $per_npc.scarred_inmate.name_known to 0>>
+	<<set $prison.scarred to 0>>
+	<<set $prison.scarred_level to 0>>
+	<<replace "#stage">>1st Event<</replace>>
+<</link>> |
+<<link "2nd Event">>
+	<<set $per_npc.scarred_inmate.name_known to 0>>
+	<<set $prison.scarred to 0>>
+	<<set $prison.scarred_level to 1>>
+	<<replace "#stage">>2nd Event<</replace>>
+<</link>> |
+<<link "3rd Event">>
+	<<set $per_npc.scarred_inmate.name_known to 0>>
+	<<set $prison.scarred to 0>>
+	<<set $prison.scarred_level to 2>>
+	<<replace "#stage">>3rd Event<</replace>>
+<</link>> |
+<<link "4th Event">>
+	<<set $per_npc.scarred_inmate.name_known to 0>>
+	<<set $prison.scarred to 0>>
+	<<set $prison.scarred_level to 3>>
+	<<replace "#stage">>4th Event<</replace>>
+<</link>> |
+<<link "5th Event">>
+	<<set $per_npc.scarred_inmate.name_known to 0>>
+	<<set $prison.scarred to 0>>
+	<<set $prison.scarred_level to 5>>
+	<<replace "#stage">>5th Event<</replace>>
+<</link>> |
+<<link "Name Learned">>
+	<<set $per_npc.scarred_inmate.name_known to 0>>
+	<<replace "#stage">>Name Learned<</replace>>
+<</link>> |
+
+<br><br>
+<<link [[Start|Prison Scarred]]>><</link>>
+<br>

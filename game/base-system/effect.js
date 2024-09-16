@@ -330,8 +330,8 @@ function effects() {
 			}
 			break;
 	}
-
-	if (isPlayerNonparasitePregnancyEnding()) {
+	// eslint-disable-next-line no-undef
+	if (isPregnancyEnding()) {
 		sWikifier(
 			`<span class="red">당신의 양수가 터졌다.</span> ${
 				["asylum", "prison", "hospital"].includes(V.location) ? "당신은 도와줄 사람을 찾아야 한다, 당장!" : "당신은 병원으로 가야만 한다, 당장!"

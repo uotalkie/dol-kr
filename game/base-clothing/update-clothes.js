@@ -23,6 +23,7 @@ function updateClothingColours(item, itemRef) {
 		case "leather dress":
 		case "round shades":
 		case "witch shoes":
+		case "mesh shirt":
 			if (item.colour === 0) item.colour = "black";
 			break;
 		case "square shades":
@@ -37,6 +38,9 @@ function updateClothingColours(item, itemRef) {
 			break;
 		case "glasses":
 			if (item.colour === 0) item.colour = "silver";
+			break;
+		case "checkered shirt":
+			if (item.colour === 0) item.colour = "russet";
 			break;
 		case "lace choker":
 			if (item.colour === 0) item.colour = "black";
@@ -57,12 +61,6 @@ function updateClothingColours(item, itemRef) {
 			if (item.colour === 0) item.colour = "black";
 			if (item.accessory_colour === 0) item.accessory_colour = "silver";
 			break;
-		case "ballgown":
-		case "ballgown skirt":
-		case "short ballgown":
-		case "short ballgown skirt":
-			if (item.accessory_colour === 0) item.accessory_colour = item.colour;
-			break;
 		case "overall bottoms":
 		case "overalls":
 			if (item.colour === 0 || item.colour === "original") item.colour = "denim";
@@ -77,19 +75,19 @@ function updateClothingColours(item, itemRef) {
 		case "loose socks":
 			if (item.colour === 0) item.colour = "white";
 			break;
-		case "argyle sweater vest":
-			if (item.accessory_colour === 0) {
-				item.accessory_colour = item.colour !== "custom" ? item.colour : "black";
-			}
-			break;
 		case "cowboy hat":
 			if (item.colour === 0) item.colour = "sand";
 			if (item.accessory_colour === 0) item.accessory_colour = "black";
 			break;
+		case "ballgown":
+		case "ballgown skirt":
+		case "short ballgown":
+		case "short ballgown skirt":
+		case "school swim shorts":
 		case "futuristic bodysuit":
-			if (item.accessory_colour === 0) {
-				item.accessory_colour = item.colour !== "custom" ? item.colour : "black";
-			}
+		case "argyle sweater vest":
+			if (item.accessory_colour === 0) item.accessory_colour = item.colour;
+			if (item.colourCustom) item.accessory_colourCustom = item.colourCustom;
 			break;
 		default:
 			// Catch-all case if people forget to adjust this widget for whatever clothing item is updated. Can make weird looking clothes if "custom" is selected.

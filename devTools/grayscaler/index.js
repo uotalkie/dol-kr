@@ -220,39 +220,7 @@ function convertAllClothes() {
 	processSlot("game/base-clothing/clothing-under-upper.twee", "img/clothes/under_upper/", "setup.clothes.under_upper", true);
 }
 
-function convertAllHair() {
-	let lengths = ["short","shoulder","chest","navel","thighs","feet"];
-	let sidedir = baseurl+"img/hair/sides";
-	let fringedir = baseurl+"img/hair/fringe";
-	let files = [];
-	for (let sidestyle of fs.readdirSync(sidedir)) {
-		for (let l of lengths) {
-			let path = sidedir+"/"+sidestyle+"/"+l+".png";
-			files.push(path);
-		}
-	}
-	for (let fringestyle of fs.readdirSync(fringedir)) {
-		for (let l of lengths) {
-			let path = fringedir+"/"+fringestyle+"/"+l+".png";
-			files.push(path);
-		}
-	}
-	files.push(baseurl+"img/hair/red/backhairthighsred.png");
-	files.push(baseurl+"img/hair/red/backhairfeetred.png");
-	for (let path of files) {
-		if (!fs.existsSync(path)) continue;
-		console.log("Processing ",path);
-		try {
-			desaturateFile(path,hairpreset)
-		} catch (e) {
-			console.error(e.message);
-			failedFiles.push(path);
-		}
-	}
-}
-
 convertAllClothes();
-// convertAllHair();
 
 
 if (failedFiles.length>0) {

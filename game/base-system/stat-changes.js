@@ -580,12 +580,12 @@ const statChange = (() => {
 
 	function wolfpacktrust() {
 		V.wolfpacktrust++;
-		return statDisplay.statChange("The pack trusts you a little more.", 0, "green");
+		return statDisplay.statChange("무리가 당신을 조금 더 신뢰하게 되었다.", 0, "green");
 	}
 
 	function wolfpackfear() {
 		V.wolfpackfear++;
-		return statDisplay.statChange("The pack fears you a little more.", 0, "green");
+		return statDisplay.statChange("무리가 당신을 조금 더 두려워하게 되었다.", 0, "green");
 	}
 
 	function ferocity(amount) {

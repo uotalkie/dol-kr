@@ -643,7 +643,7 @@ function isInPark(name) {
 			return ["active", "rescued"].includes(C.npc.Whitney.state)
 				&& C.npc.Whitney.init === 1 && Weather.precipitation !== "none"
 				&& Time.dayState === "day" && !Time.schoolTime
-				&& V.daily.whitney.park === undefined && V.pillory_tenant.special.name !== "Whitney";
+				&& V.daily.whitney.park === undefined && V.pillory.tenant.special.name !== "Whitney";
 		default:
 			return false;
 	}
@@ -1316,6 +1316,80 @@ function currentSkillValue(skill, disableModifiers = 0) {
 	return result;
 }
 window.currentSkillValue = currentSkillValue;
+
+/**
+ * @param {string} input
+ */
+function hasSexStatMapper(input) {
+	switch (input) {
+		case "p":
+		case "promiscuity":
+		case "promiscuous":
+			return "promiscuity";
+		case "e":
+		case "exhibitionism":
+		case "exhibition":
+		case "exhibitionist":
+			return "exhibitionism";
+		case "d":
+		case "deviancy":
+		case "deviant":
+			return "deviancy";
+	}
+	return null;
+}
+window.hasSexStatMapper = hasSexStatMapper;
+
+/**
+ * @param {string} input
+ * @param {number} required
+ */
+function hasSexStat(input, required) {
+	const stat = hasSexStatMapper(input);
+	if (stat == null) {
+		Errors.report(`[hasSexStat]: input '${stat}' null.`, {
+			Stacktrace: Utils.GetStack(),
+			stat,
+		});
+		return false;
+	}
+	const statValue = V[stat];
+	if (!Number.isFinite(statValue)) {
+		Errors.report(`[hasSexStat]: sex stat '${stat}' unknown.`, {
+			Stacktrace: Utils.GetStack(),
+			stat,
+		});
+		return false;
+	}
+	switch (required) {
+		case 6:
+			/* self-destructive, extreme actions, like leglocking a rapist unprotected or provoking a group for no sane benefit. */
+			return statValue >= 95;
+		case 5:
+			/* Extremely lewd actions, like full nude exposure and inciting gangbangs. */
+			return statValue >= 75;
+		case 4:
+			/* Very lewd actions, like giving oral, using your body to get your way, and accepting lecherous propositions. */
+			return statValue >= 55;
+		case 3:
+			/* Moderately lewd actions, like giving handjobs, more lewd exposure/flaunting, and most prostitution. */
+			return statValue >= 35;
+		case 2:
+			/* Modestly lewd actions, like flashing underwear or light coercion. Many seduction checks fall under this level. */
+			return statValue >= 15;
+		case 1:
+			/* Do not use for events or checks, only for checking if value is above level 0. Level 1 actions should always be available. */
+			return statValue >= 1;
+		default:
+			Errors.report(`[hasSexStat]: sex stat requirement outside of possible value range: '${required}' (must be between 1 and 6!).`, {
+				Stacktrace: Utils.GetStack(),
+				stat,
+				required,
+			});
+			return false;
+	}
+}
+window.hasSexStat = hasSexStat;
 
 function playerIsPenetrated() {
 	return [V.mouthstate, V.vaginastate, V.anusstate].some(s => ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(s));

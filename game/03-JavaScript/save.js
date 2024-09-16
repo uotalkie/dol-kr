@@ -1109,10 +1109,10 @@ function settingsObjects(type) {
 				},
 				bottomsizemax: {
 					min: 0,
-					max: 9,
+					max: 8,
 					decimals: 0,
 					displayName: "Maximum bottom size:",
-					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned", 4: "Soft", 5: "Round", 6: "Plump", 7: "Large", 8: "Huge", 9: "Huge" },
+					textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned", 4: "Soft", 5: "Round", 6: "Plump", 7: "Large", 8: "Huge" },
 				},
 				penissizemin: { min: -2, max: 0, decimals: 0, displayName: "Minimum penis size:", textMap: { "-2": "Micro", "-1": "Mini", 0: "Tiny" } },
 				penissizemax: {
@@ -1184,7 +1184,6 @@ function settingsObjects(type) {
 					maxStates: { min: 1, max: 20, decimals: 0, displayName: "History depth:" },
 					maxSessionStates: { min: 1, max: 20, decimals: 0, displayName: "Session history depth:" },
 					historyControls: { bool: true, displayName: "Show history controls:" },
-					newWardrobeStyle: { bool: true, displayName: "Use the new wardrobe style:" },
 					useNarrowMarket: { bool: true, displayName: "Use 'narrow screen' version of market inventory:" },
 					skipStatisticsConfirmation: { bool: true, displayName: "Skip confirmation when viewing extra stats:" },
 					passageCount: { strings: ["disabled", "changes", "total"], displayName: "Display passage count:" },
@@ -1195,7 +1194,6 @@ function settingsObjects(type) {
 					pepperSprayDisplay: { strings: ["none", "sprays", "compact"], displayName: "Pepper spray display:" },
 					condomsDisplay: { strings: ["none", "standard"], displayName: "Condom display:" },
 					closeButtonMobile: { bool: true, displayName: "Items per page:" },
-					oldclock: { bool: true, displayName: "Use old clock style:" },
 					showDebugRenderer: { bool: true, displayName: "Enable renderer debugger:" },
 					numpad: { bool: true, displayName: "Enable numpad:" },
 					traitOverlayFormat: { strings: ["table", "reducedTable", "list"], displayName: "Display traits:" },

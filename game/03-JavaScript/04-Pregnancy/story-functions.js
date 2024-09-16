@@ -164,7 +164,7 @@ function playerPregnancyProgress(percent = true) {
 }
 window.playerPregnancyProgress = playerPregnancyProgress;
 
-function isPlayerNonparasitePregnancyEnding() {
+function isPregnancyEnding() {
 	if (V.statFreeze) return null;
 	return (
 		(V.sexStats.vagina.pregnancy.waterBreaking && !V.sexStats.vagina.pregnancy.gaveBirth) ||
@@ -172,7 +172,7 @@ function isPlayerNonparasitePregnancyEnding() {
 		false
 	);
 }
-window.isPlayerNonparasitePregnancyEnding = isPlayerNonparasitePregnancyEnding;
+window.isPregnancyEnding = isPregnancyEnding;
 
 function playerNormalPregnancyType() {
 	if (V.player.vaginaExist && V.sexStats.vagina.pregnancy.type !== "parasite") {

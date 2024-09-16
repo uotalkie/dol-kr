@@ -172,7 +172,7 @@ function masturbationEffects() {
 			if (genitalsExposed()) {
 				sWikifier('당신의 <<penis_ ga "strap-on">> 격렬하게 움직이며, <span class="pink">쿠퍼액이 끝에서 튀어오른다.</span>');
 			} else {
-				sWikifier('당신의 <<penis_ ga "strap-on">> 격렬하게 움직이며, 쿠퍼액이 당신의 <<exposedlower_ rul>> 통해 새어나온다.</span>');
+				sWikifier('당신의 <<penis_ ga "strap-on">> 격렬하게 움직이며, <span class="pink">쿠퍼액이 당신의 <<exposedlower_ rul>> 통해 새어나온다.</span>');
 			}
 		} else {
 			if (genitalsExposed()) {
@@ -1282,7 +1282,7 @@ function masturbationEffectsArms(
 				if (V.arousal >= (V.arousalmax / 5) * 4) {
 					sWikifier(`당신의 <<hand_ ga '${altText.hands}'>> 당신의 <<penis_ rul>> 육봉 끝에서 끝까지 위아래로 거칠게 펌프질한다.`);
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-					fragment.append(span(`당신의 <<hand_ ga '${altText.hands}'>> 손가락들을 당신의 육봉 위아래로 움직이면서, 살짝 자극하자 음란한 따뜻함이 생겨난다.`));
+					fragment.append(span(`당신의 ${handPost(altText.hands, '이')} 손가락들을 당신의 육봉 위아래로 움직이면서, 살짝 자극하자 음란한 따뜻함이 생겨난다.`));
 				} else {
 					sWikifier(`당신의 <<hand_ ga '${altText.hands}'>> 부자연스러운 움직임으로 당신의 <<penis_ rul>> 육봉 끝에서 끝까지 애무한다.`);
 				}
@@ -1626,7 +1626,7 @@ function masturbationEffectsArms(
 				altText.selectedOtherToy = selectedToy(otherArm);
 				sWikifier(`<span class="purple">당신은 ${toyDisplay(altText.selectedToy, altText.selectedOtherToy, '을')} 당신의 <<penisPost>>에서 치운다.</span>`);
 			} else {
-				sWikifier(`<span class="purple">당신은 <<hand_ yi '${arm}'>> <${toyDisplay(altText.selectedToy, '을')} 당신의 <<penisPost>>에서 치운다.</span>`);
+				sWikifier(`<span class="purple">당신은 <<hand_ yi '${arm}'>> ${toyDisplay(altText.selectedToy, '을')} 당신의 <<penisPost>>에서 치운다.</span>`);
 			}
 			break;
 		case "mbreastpump":
@@ -1656,7 +1656,7 @@ function masturbationEffectsArms(
 			} else {
 				altText.toys = `당신은 <<breastsPost>>에 있는 ${toyDisplay(altText.selectedToy, '을')} 사용`;
 			}
-			if (V.lactating === 1 && V.breastfeedingdisable === "f") {
+			if (V.lactating === 1) {
 				if (V.milk_amount >= 1 && V.earSlime.focus === "pregnancy" && V.earSlime.growth >= 100 && !V.earSlime.defyCooldown) {
 					wikifier("arousal", 100 * handsOn, "masturbationNipples");
 					sWikifier(`${altText.toys}하고, <span class="lewd">모유가 젖꼭지에서 터져나와, 빠르게 병을 채운다.</span>`);
@@ -1700,7 +1700,7 @@ function masturbationEffectsArms(
 				altText.hands = "양손의";
 			} else {
 				altText.toyDisplay = toyDisplay(altText.selectedToy, '으로');
-				altText.hands = `<<hand_ yi '${arm}'>>`;
+				altText.hands = `${handPost(arm, '의')}`;
 			}
 			if (breastsExposed()) {
 				wikifier("arousal", 200 * handsOn, "masturbationNipples");
@@ -2265,9 +2265,9 @@ function masturbationEffectsArms(
 						)
 					);
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-					fragment.append(span(`당신은 당신의 ${altText.toyDisplay} 클리토리스 끝을 희롱한다.`));
+					fragment.append(span(`당신은 당신의 ${toyDisplay(altText.selectedToy, '으로')} 클리토리스 끝을 희롱한다.`));
 				} else {
-					fragment.append(span(`당신은 당신의 ${altText.toyDisplay} 클리토리스를 비벼대며, 음란한 느낌을 키운다.`));
+					fragment.append(span(`당신은 당신의 ${toyDisplay(altText.selectedToy, '으로')} 클리토리스를 비벼대며, 음란한 느낌을 키운다.`));
 				}
 			}
 			break;

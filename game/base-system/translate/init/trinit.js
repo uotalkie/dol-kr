@@ -1449,6 +1449,7 @@ function trinit_hairtype()
 			"twin braids": "양쪽으로 땋은",
 			"twin fishtails": "트윈 피쉬테일",
 			"twintails": "트윈테일",
+			"twin double braids": "양쪽으로 이중으로 땋은",
 	
 			/*Fringe Styles */
 			"blunt sidelocks": "블런트록",
@@ -1473,6 +1474,7 @@ function trinit_hairtype()
 			/*"messy": "지저분한",	중복*/
 			"messy curls": "지저분한 컬",
 			"middle part": "중간 가르마",
+			"middlepart": "중간 가르마",
 			"mohawk": "모히칸",
 			"overgrown": "너무 자란",
 			"parted": "가르마",
@@ -1499,6 +1501,7 @@ function trinit_hairtype()
 			"tied back": "뒤로 묶은",
 			"trident": "삼지창",
 			"wide flaps": "넓게 휘날리는",
+			"loose antenna": "느슨한 바보털",
 		};
 	}
 }
