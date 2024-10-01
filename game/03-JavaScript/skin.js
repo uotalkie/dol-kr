@@ -291,31 +291,31 @@ const Skin = (() => {
 		if (V.statdisable !== "f") return "";
 		const factor = modifier * minutes;
 		if (factor === 0) {
-			return statDisplay.statChange("¼±ÅÄ È¿°ú ¾øÀ½", 0, "blue");
+			return statDisplay.statChange("ì„ íƒ  íš¨ê³¼ ì—†ìŒ", 0, "blue");
 		}
-		return statDisplay.statChange("¼±ÅÄ", factor >= 50 ? 3 : factor >= 20 ? 2 : 1, "green");
+		return statDisplay.statChange("ì„ íƒ ", factor >= 50 ? 3 : factor >= 20 ? 2 : 1, "green");
 	}
 
 	function tanningPenaltiesOutput(modifiers) {
 		const reasons = [];
 
 		if (modifiers.sunscreen === 0) {
-			return `<span class="blue">¼±½ºÅ©¸°ÀÌ ´ç½ÅÀÇ ÇÇºÎ°¡ Å¸´Â °ÍÀ» ¸·¾ÆÁÖ°í ÀÖ´Ù.</span><br>`;
+			return `<span class="blue">ì„ í¬ë¦¼ì´ ë‹¹ì‹ ì˜ í”¼ë¶€ê°€ íƒ€ëŠ” ê²ƒì„ ë§‰ì•„ì£¼ê³  ìˆë‹¤.</span><br>`;
 		}
 
 		if (V.outside) {
 			const month = modifiers.month <= 0.6;
 			const dayState = Weather.sky.dayFactor <= 0.6;
-			const output = month ? Time.monthName : dayState ? "ÇØ°¡ ³·°Ô ¶° ÀÖÀ½" : "³¯¾¾";
-			if (modifiers.sun <= 0.3) reasons.push(`ÇŞºûÀÌ °ÅÀÇ ¾øÀ½ (${output})`);
-			else if (modifiers.sun <= 0.7) reasons.push(`ÇŞºûÀÌ ÃæºĞÇÏÁö ¾ÊÀ½ (${output})`);
+			const output = month ? Time.monthName : dayState ? "í•´ê°€ ë‚®ê²Œ ë–  ìˆìŒ" : "ë‚ ì”¨";
+			if (modifiers.sun <= 0.3) reasons.push(`í–‡ë¹›ì´ ê±°ì˜ ì—†ìŒ (${output})`);
+			else if (modifiers.sun <= 0.7) reasons.push(`í–‡ë¹›ì´ ì¶©ë¶„í•˜ì§€ ì•ŠìŒ (${output})`);
 
-			if (modifiers.weather < 1) reasons.push("±¸¸§ÀÌ ÀÖÀ½");
+			if (modifiers.weather < 1) reasons.push("êµ¬ë¦„ì´ ìˆìŒ");
 		}
-		if (modifiers.clothing < 1) reasons.push("¿ÊÀ¸·Î °¡·ÁÁü");
+		if (modifiers.clothing < 1) reasons.push("ì˜·ìœ¼ë¡œ ê°€ë ¤ì§");
 
 		if (reasons.length === 0) return "";
-		return `<span class="teal">´ç½ÅÀÇ ¼±ÅÄÀº ´ÙÀ½°ú °°Àº ÀÌÀ¯·Î ¹æÇØ¹Ş°í ÀÖ½À´Ï´Ù:</span><br><span class="orange">${reasons.join("<br>")}</span><br>`;
+		return `<span class="teal">ë‹¹ì‹ ì˜ ì„ íƒ ì€ ë‹¤ìŒê³¼ ê°™ì€ ì´ìœ ë¡œ ë°©í•´ë°›ê³  ìˆìŠµë‹ˆë‹¤:</span><br><span class="orange">${reasons.join("<br>")}</span><br>`;
 	}
 	return {
 		cachedLayers,

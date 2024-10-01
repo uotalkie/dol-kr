@@ -1467,7 +1467,7 @@ setup.feats = {
 	},
 	"Dark Delvings": {
 		title: "어둠의 탐구",
-		desc: "흰색 크리스탈을 얻었다.",
+		desc: "흰색 수정을 얻었다.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Discoveries-Other"],
