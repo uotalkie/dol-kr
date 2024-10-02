@@ -9,7 +9,7 @@
 	<div id="cheatsShown"><<cheats-characterStats>></div>
 
 	<div class="settingsGrid">
-		<input type="button" class="toTop options" value="Top of Page" onclick="$('#customOverlayContent').scrollTop(0)"/>
+		<input type="button" class="toTop options" value="페이지 상단으로" onclick="$('#customOverlayContent').scrollTop(0)"/>
 	</div>
 <</widget>>
 
@@ -17,7 +17,7 @@
 	<<set _type to _args[0]>>
 	<<set _id to `stats${_type}virginity`>>
 	<<capture _type _id>>
-		<span @id="_id"><<= ($player.virginity[_type] is true ? "Present" : "Taken by " + ($player.virginity[_type] is false ? "unknown" : $player.virginity[_type]))>></span> |
+		<span @id="_id"><<= ($player.virginity[_type] is true ? "존재" : "가져간 자: " + ($player.virginity[_type] is false ? "불명" : $player.virginity[_type]))>></span> |
 		<span @id="_id + 'link'"><<link `($player.virginity[_type] is true ? "가져간다" : "복구한다")`>>
 			<<if $player.virginity[_type] is true>>
 				<<set $player.virginity[_type] to (_virginity[_type] is true ? false : _virginity[_type])>>
@@ -27,7 +27,7 @@
 				<<if $player.virginity.temple isnot false and ["penile", "vaginal"].includes(_type)>><<set $player.virginity.temple to true>><</if>>
 			<</if>>
 			<<run $(`#${_id}link .link-internal`).html($player.virginity[_type] is true ? "가져간다" : "복구한다")>>
-			<<trVirginity $player.virginity[_type]>><<run $(`#${_id}`).html($player.virginity[_type] is true ? "존재" : "가져간 사람: " + ($player.virginity[_type] is false ? "불명" : _trResult))>>
+			<<trVirginity $player.virginity[_type]>><<run $(`#${_id}`).html($player.virginity[_type] is true ? "존재" : "가져간 자: " + ($player.virginity[_type] is false ? "불명" : _trResult))>>
 		<</link>></span>
 	<</capture>>
 <</widget>>
@@ -36,11 +36,11 @@
 	<<set _bodypart to _args[0]>>
 	<<set _parasiteTypes to setup.parasiteTypesPerBodypart[_bodypart]>>
 
-	<<= _bodypart.toUpperFirst().replace("_", " ")>>:
+	<<trBodypart _bodypart>><<= _trResult>>:
 	<<capture _bodypart, _parasiteTypes, _i, _temp>>
 		<<for _i = 0; _i < _parasiteTypes.length; _i++>>
 			<span @id="_parasite" @class="_i is 0 ? 'goldLink' : 'link' ">
-				<<link _parasiteTypes[_i]>>
+				<<trParasite _parasiteTypes[_i]>><<link _trResult>>
 					<<removeparasite _bodypart>>
 					<<set _temp to _parasiteTypes[_i]>>
 					<<set _parasiteTypes[_i] to _parasiteTypes[0]>>
@@ -61,11 +61,11 @@
 	<<set _semen to _args[0]>>
 	<<set _label to _semen is "goo" ? "slime" : _semen>>
 	<div class="settingsToggleItem">
-		<span class="gold"><<= _label.toUpperFirst()>></span>
+		<span class="gold"><<putpost _label>></span>
 		<br>
 
 		<<capture _type _semen>>
-			<<link `'Add all ' + _label`>>
+			<<silently>><<putpost _label '을'>><</silently>><<link `'모든 부위에 ' + _trResult + ' 추가한다'`>>
 				<<for _type range ["neck","rightarm","leftarm","thigh","bottom","tummy","chest","face","hair","feet","vaginaoutside","vagina","penis","anus","mouth"]>>
 					<<bodyliquid _type _semen 5>><<run $(`#stats${_type}${_semen}`).html(Math.trunc($player.bodyliquid[_type][_semen]))>>
 				<</for>>
@@ -76,7 +76,7 @@
 		<</capture>> |
 
 		<<capture _type _semen>>
-			<<link `'Remove all ' + _label`>>
+			<<silently>><<putpost _label '을'>><</silently>><<link `'모든 부위의 ' + _trResult + ' 제거한다'`>>
 				<<for _type range ["neck","rightarm","leftarm","thigh","bottom","tummy","chest","face","hair","feet","vaginaoutside","vagina","penis","anus","mouth"]>>
 					<<bodyliquid _type _semen -5>><<run $(`#stats${_type}${_semen}`).html(Math.trunc($player.bodyliquid[_type][_semen]))>>
 				<</for>>
@@ -104,30 +104,30 @@
 			reverse: true,
 			css: {width: "220px", display: "inline-block", "margin-bottom": "0"}
 		}>>
-	<<numberStepper "Neck" $player.bodyliquid.neck[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.neck[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Right arm" $player.bodyliquid.rightarm[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.rightarm[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Left arm" $player.bodyliquid.leftarm[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.leftarm[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Thigh" $player.bodyliquid.thigh[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.thigh[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Bottom" $player.bodyliquid.bottom[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.bottom[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Tummy" $player.bodyliquid.tummy[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.tummy[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Chest" $player.bodyliquid.chest[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.chest[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Face" $player.bodyliquid.face[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.face[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Hair" $player.bodyliquid.hair[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.hair[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Feet" $player.bodyliquid.feet[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.feet[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Labia" $player.bodyliquid.vaginaoutside[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.vaginaoutside[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Vagina" $player.bodyliquid.vagina[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.vagina[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Penis" $player.bodyliquid.penis[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.penis[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Anus" $player.bodyliquid.anus[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.anus[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
-	<<numberStepper "Mouth" $player.bodyliquid.mouth[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.mouth[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "목" $player.bodyliquid.neck[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.neck[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "오른팔" $player.bodyliquid.rightarm[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.rightarm[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "왼팔" $player.bodyliquid.leftarm[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.leftarm[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "허벅지" $player.bodyliquid.thigh[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.thigh[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "엉덩이" $player.bodyliquid.bottom[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.bottom[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "배" $player.bodyliquid.tummy[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.tummy[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "가슴" $player.bodyliquid.chest[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.chest[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "얼굴" $player.bodyliquid.face[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.face[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "머리카락" $player.bodyliquid.hair[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.hair[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "발" $player.bodyliquid.feet[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.feet[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "음순" $player.bodyliquid.vaginaoutside[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.vaginaoutside[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "보지" $player.bodyliquid.vagina[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.vagina[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "자지" $player.bodyliquid.penis[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.penis[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "항문" $player.bodyliquid.anus[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.anus[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
+	<<numberStepper "입" $player.bodyliquid.mouth[_semen] {...T.options, callback: (value, arr) => { V.player.bodyliquid.mouth[arr[0]] = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }}>>
 <</widget>>
 
 <<widget "cheats-characterStats">>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Player</div>
+		<div class="settingsHeader options">플레이어</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold">기타</span>
 			<br>
-			<<numberStepper "Money" $money "money" {
+			<<numberStepper "소지금" $money "money" {
 				activeButtons: ["single", "double", "triple"],
 				step: 1000,
 				max: 100000000,
@@ -138,10 +138,10 @@
 
 			<<if $location is "prison">>
 				<<set $prison.teeth to $prison.teeth or 0>>
-				<<numberStepper "Teeth" $prison.teeth {callback: (value) => V.prison.teeth = value, disableMinMax: true, step: 1, max: 1000000, colorArr:["--yellow"], percentage: false}>>
+				<<numberStepper "이빨" $prison.teeth {callback: (value) => V.prison.teeth = value, disableMinMax: true, step: 1, max: 1000000, colorArr:["--yellow"], percentage: false}>>
 			<</if>>
 
-			Infinite spray: <span id="statsinfinitespray"><<= ($infinitespray ? "On" : "Off")>></span> |
+			무한 스프레이: <span id="statsinfinitespray"><<= ($infinitespray ? "사용" : "미사용")>></span> |
 			<<link "변경">>
 				<<if $infinitespray is 1>>
 					<<set $infinitespray to 0>>
@@ -211,7 +211,7 @@
 			<br>
 			<<set _state to ["pain", "arousal", "tiredness", "stress", "trauma", "drunk", "drugged", "hallucinogen"]>>
 
-			<<link "Refresh">>
+			<<link "상쾌함">>
 				<<set $control = 1000>><<clamp>>
 				<<for _i range _state>>
 					<<set V[_i] to 0>><<clamp>>
@@ -220,7 +220,7 @@
 				<<updatesidebarimg>>
 			<</link>> |
 
-			<<link "Ruin">>
+			<<link "망가짐">>
 				<<set $control = 0>><<clamp>>
 				<<for _i range _state>>
 					<<set V[_i] to 20000>><<clamp>>
@@ -234,21 +234,21 @@
 			</div>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Fluids:</span>
-			<<link "Refill">>
+			<span class="gold">체액:</span>
+			<<link "재충전시킨다">>
 				<<set $semen_amount to $semen_volume>>
 				<<set $milk_amount to $milk_volume>>
 				<<replace "#fluids">><<cheats-fluids>><</replace>>
-			<</link>> | <<link "Empty">>
+			<</link>> | <<link "고갈시킨다">>
 				<<set $semen_amount to 0>>
 				<<set $milk_amount to 0>>
 				<<replace "#fluids">><<cheats-fluids>><</replace>>
 			<</link>>
 			<br>
-			<span class="gold">Lactating:</span> <span id="statslactatingspray"><<= ($lactating is 1 ? "Yes" : "No")>></span> |	<<link "Toggle">><<set $lactating to ($lactating is 1 ? 0 : 1)>><<set $lactation_pressure to $lactating * 100>><<replace "#statslactatingspray">><<= ($lactating is 1 ? "Yes" : "No")>><</replace>><<updatesidebarimg>><</link>>
+			<span class="gold">젖 분비:</span> <span id="statslactatingspray"><<= ($lactating is 1 ? "네" : "아니오")>></span> |	<<link "변경">><<set $lactating to ($lactating is 1 ? 0 : 1)>><<set $lactation_pressure to $lactating * 100>><<replace "#statslactatingspray">><<= ($lactating is 1 ? "네" : "아니오")>><</replace>><<updatesidebarimg>><</link>>
 			<br><br>
 			<span id="fluids"><<cheats-fluids>></span>
-			<<numberStepper "Milk Volume" $milk_volume {
+			<<numberStepper "최대 모유량" $milk_volume {
 				callback: value => {
 					V.milk_volume = value;
 					V.milk_amount = Math.min(V.milk_amount, V.milk_volume);
@@ -259,7 +259,7 @@
 				percentage: false, min: 24, max: 3000
 			}>>
 			<<if $player.penisExist>>
-				<<numberStepper "Semen Volume" $semen_volume {
+				<<numberStepper "최대 정액량" $semen_volume {
 					callback: value => {
 						V.semen_volume = value;
 						V.semen_amount = Math.min(V.semen_amount, V.semen_volume);
@@ -274,13 +274,13 @@
 	</div>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Clothes</div>
+		<div class="settingsHeader options">의상</div>
 		<div class="settingsToggleItemWide">
 			<<link "모든 특수 의상을 해금한다">>
 				<<run for(const c in V.specialClothes) V.specialClothes[c] = "unlocked">>
 			<</link>>
 			<br>
-			<span class="description">If clothing health is set to zero, it will break. Leaving the cheats menu will destroy it, and you will not be able to get it back.</span>
+			<span class="description">내구도가 0 이하로 떨어지면 부서집니다. 그 상태에서 치트 메뉴를 나가버리면 해당 옷은 버려지고, 다시 되돌릴 수 없습니다.</span>
 			<br>
 		</div>
 		<<set _cl_slots to ["upper", "lower", "under_upper", "under_lower", "over_upper", "over_lower", "genitals"]>>
@@ -291,16 +291,16 @@
 
 		<<if $worn.over_upper.integrity gte 1>>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.over_upper "over_upper">><<= $worn.over_upper.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.over_upper "over_upper">><<worn_over_upper_name_ yi>> 내구도:</span>
 
 				<<set _overupperintegritymax to getSetupClothing('over_upper', $worn.over_upper)?.integrity_max || 200>>
 				<<numberslider "$worn.over_upper.integrity" `Math.min($worn.over_upper.integrity, _overupperintegritymax)` 0 _overupperintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.over_upper, "over_upper") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.over_upper, "over_upper") || `<span class="green">완벽함</span>`
 				}>>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.over_upper "over_upper">><<= $worn.over_upper.name.toUpperFirst()>> wetness:</span>
+				<span class="gold"><<clothingicon $worn.over_upper "over_upper">><<worn_over_upper_name_ yi>> 젖은 정도:</span>
 				<<numberslider "$overupperwet" $overupperwet 0 200 1 {
 					onInputChange: (value) => cheatsShowWetness('overupperwet', value),
 					value: v => wetnessWord('overupper')
@@ -312,14 +312,14 @@
 		<<if $worn.over_lower.integrity gte 1>>
 			<div class="settingsToggleItem numberslider-inline">
 				<<set _overlowerintegritymax to getSetupClothing('over_lower', $worn.over_lower)?.integrity_max || 200>>
-				<span class="gold"><<clothingicon $worn.over_lower "over_lower">><<= $worn.over_lower.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.over_lower "over_lower">><<worn_over_lower_name_ yi>> 내구도:</span>
 				<<numberslider "$worn.over_lower.integrity" `Math.min($worn.over_lower.integrity, _overlowerintegritymax)` 0 _overlowerintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.over_lower, "over_lower") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.over_lower, "over_lower") || `<span class="green">완벽함</span>`
 				}>>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.over_lower "over_lower">><<= $worn.over_lower.name.toUpperFirst()>> wetness:</span>
+				<span class="gold"><<clothingicon $worn.over_lower "over_lower">><<worn_over_lower_name_ yi>> 젖은 정도:</span>
 				<<numberslider "$overlowerwet" $overlowerwet 0 200 1 {
 					onInputChange: (value) => cheatsShowWetness('overlowerwet', value),
 					value: v => wetnessWord('overlower')
@@ -331,15 +331,15 @@
 
 		<<if $worn.upper.integrity gte 1>>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.upper "upper">><<= $worn.upper.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.upper "upper">><<worn_upper_name_ yi>> 내구도:</span>
 				<<set _upperintegritymax to getSetupClothing('upper', $worn.upper)?.integrity_max || 200>>
 				<<numberslider "$worn.upper.integrity" `Math.min($worn.upper.integrity, _upperintegritymax)` 0 _upperintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.upper, "upper") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.upper, "upper") || `<span class="green">완벽함</span>`
 				}>>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.upper "upper">><<= $worn.upper.name.toUpperFirst()>> wetness:</span>
+				<span class="gold"><<clothingicon $worn.upper "upper">><<worn_upper_name_ yi>> 젖은 정도:</span>
 				<<numberslider "$upperwet" $upperwet 0 200 1 {
 					onInputChange: (value) => cheatsShowWetness('upperwet', value),
 					value: v => wetnessWord('upper')
@@ -351,15 +351,15 @@
 
 		<<if $worn.lower.integrity gte 1>>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.lower "lower">><<= $worn.lower.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.lower "lower">><<worn_lower_name_ yi>> 내구도:</span>
 				<<set _lowerintegritymax to getSetupClothing('lower', $worn.lower)?.integrity_max || 200>>
 				<<numberslider "$worn.lower.integrity" `Math.min($worn.lower.integrity, _lowerintegritymax)` 0 _lowerintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.lower, "lower") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.lower, "lower") || `<span class="green">완벽함</span>`
 				}>>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.lower "lower">><<= $worn.lower.name.toUpperFirst()>> wetness:</span>
+				<span class="gold"><<clothingicon $worn.lower "lower">><<worn_lower_name_ yi>> 젖은 정도:</span>
 				<<numberslider "$lowerwet" $lowerwet 0 200 1 {
 					onInputChange: (value) => cheatsShowWetness('lowerwet', value),
 					value: v => wetnessWord('lower')
@@ -371,16 +371,16 @@
 
 		<<if $worn.under_lower.integrity gte 1>>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.under_lower "under_lower">><<= $worn.under_lower.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.under_lower "under_lower">><<worn_under_lower_name_ yi>> 내구도:</span>
 				<<set _underlowerintegritymax to getSetupClothing('under_lower', $worn.under_lower)?.integrity_max || 200>>
 				<<numberslider "$worn.under_lower.integrity" `Math.min($worn.under_lower.integrity, _underlowerintegritymax)`  0 _underlowerintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.under_lower, "under_lower") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.under_lower, "under_lower") || `<span class="green">완벽함</span>`
 				}>>
 				<br>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.under_lower "under_lower">><<= $worn.under_lower.name.toUpperFirst()>> wetness:</span>
+				<span class="gold"><<clothingicon $worn.under_lower "under_lower">><<worn_under_lower_name_ yi>> 젖은 정도:</span>
 				<<numberslider "$underlowerwet" $underlowerwet 0 200 1 {
 					onInputChange: (value) => cheatsShowWetness('underlowerwet', value),
 					value: v => wetnessWord('underlower')
@@ -392,16 +392,16 @@
 
 		<<if $worn.under_upper.integrity gte 1>>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.under_upper "under_upper">><<= $worn.under_upper.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.under_upper "under_upper">><<worn_under_upper_name_ yi>> 내구도:</span>
 				<<set _underupperintegritymax to getSetupClothing('under_upper', $worn.under_upper)?.integrity_max || 200>>
 				<<numberslider "$worn.under_upper.integrity" `Math.min($worn.under_upper.integrity, _underupperintegritymax)` 0 _underupperintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.under_upper, "under_upper") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.under_upper, "under_upper") || `<span class="green">완벽함</span>`
 				}>>
 				<br>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
-				<span class="gold"><<clothingicon $worn.under_upper "under_upper">><<= $worn.under_upper.name.toUpperFirst()>> wetness:</span>
+				<span class="gold"><<clothingicon $worn.under_upper "under_upper">><<worn_under_upper_name_ yi>> 젖은 정도:</span>
 				<<numberslider "$underupperwet" $underupperwet 0 200 1 {
 					onInputChange: (value) => cheatsShowWetness('underupperwet', value),
 					value: v => wetnessWord('underupper')
@@ -413,11 +413,11 @@
 
 		<<if $worn.genitals.integrity gte 1>>
 			<div class="settingsToggleItemWide numberslider-inline">
-				<span class="gold"><<clothingicon $worn.genitals "genitals">><<= $worn.genitals.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.genitals "genitals">><<worn_genitals_name_ yi>> 내구도:</span>
 				<<set _genitalsintegritymax to getSetupClothing('genitals', $worn.genitals)?.integrity_max || 200>>
 				<<numberslider "$worn.genitals.integrity" `Math.min($worn.genitals.integrity, _genitalsintegritymax)` 0 _genitalsintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.genitals, "genitals") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.genitals, "genitals") || `<span class="green">완벽함</span>`
 				}>>
 				<br>
 			</div>
@@ -427,12 +427,12 @@
 
 		<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
 			<div class="settingsToggleItemWide numberslider-inline">
-				<span class="gold"><<clothingicon $worn.face "face">><<= $worn.face.name.toUpperFirst()>> integrity:</span>
+				<span class="gold"><<clothingicon $worn.face "face">><<worn_face_name_ yi>> 내구도:</span>
 
 				<<set _faceintegritymax to getSetupClothing('face', $worn.face)?.integrity_max || 200>>
 				<<numberslider "$worn.face.integrity" `Math.min($worn.face.integrity, _faceintegritymax)` 0 _faceintegritymax 1 {
 					onInputChange: value => wikifier("<<updatesidebarimg false>>"),
-					value: () => integrityWord(V.worn.face, "face") || `<span class="green">full</span>`
+					value: () => integrityWord(V.worn.face, "face") || `<span class="green">완벽함</span>`
 				}>>
 				<br>
 			</div>
@@ -440,7 +440,7 @@
 			<<set $_clothes.push("재갈, 혹은 마스크")>>
 		<</if>>
 		<div class="settingsToggleItemWide">
-			You are not wearing <span class="gold"><<= $_clothes.join(", ")>></span>.
+			당신은 <span class="gold"><<= formatList($_clothes)>></span>?ul 착용하고 있지 않다.
 
 			/* Don't show links if player doesn't have anything to fix/destroy */
 			<<if $_clothes.length lt 8>>
@@ -471,7 +471,7 @@
 			<</if>>
 			/* Don't show unless the player is wearing clothes that can be drenched or dried */
 			<<if !$_clothes.includesAll("an overtop", "an overbottom", "a top", "a bottom", "underbottoms", "an undertop")>>
-				| <<link "Dry all">>
+				| <<link "전부 말린다">>
 					<<dry_full>>
 					<<run _cl_slots.slice(0, 4).forEach((slot) => {
 						if (V.worn[slot].name === 'naked') return;
@@ -495,17 +495,17 @@
 			<br><br>
 			<span class="gold">구속구:</span>
 			<br>
-			<span class="description"> Binding your arms will destroy handheld items. Shackling your feet will destroy shoes.</span>
+			<span class="description"> 팔을 묶으면 들고다니는 물건이 파괴될 것입니다. 발에 족쇄를 채우면 신발이 파괴될 것입니다.</span>
 			<br>
-			<<icon "clothes/gag.png">><<link "Gag">><<facewear 4>><<updatesidebarimg>><</link>> | <<link "Blindfold">><<facewear 5>><<updatesidebarimg>><</link>> | <<link "Gag and blindfold">><<facewear 6>><<updatesidebarimg>><</link>> | <<link "Bind arms">><<bind>><<updatesidebarimg>><</link>> | <<link "Shackle feet">><<shackle_feet>><<updatesidebarimg>><</link>>
+			<<icon "clothes/gag.png">><<link "재갈을 한다">><<facewear 4>><<updatesidebarimg>><</link>> | <<link "안대를 한다">><<facewear 5>><<updatesidebarimg>><</link>> | <<link "재갈과 안대를 한다">><<facewear 6>><<updatesidebarimg>><</link>> | <<link "팔을 묶는다">><<bind>><<updatesidebarimg>><</link>> | <<link "발에 족쇄를 채운다">><<shackle_feet>><<updatesidebarimg>><</link>>
 			<br>
 			<<undobindingsicon>> <<link "전부 푼다">><<unbind>><<set $worn.face.type.push("broken")>><<faceruined>><<updatesidebarimg>><</link>>
 
 			<<if $debug is 1>>
 				<br><br>
-				<span class="gold">Add to Wardrobe:</span>
+				<span class="gold">옷장에 옷을 추가한다:</span>
 				<br>
-				<span class="description">DEBUG: Send clothing with a given ID to your wardrobe.</span>
+				<span class="description">DEBUG: 다음 ID를 가진 옷을 옷장으로 보냅니다.</span>
 				<br>
 				<<trListboxItemsFromArray "setup.clothingLayer.body">><<listbox "_slot" autoselect>>
 					<<optionsfrom _trListboxItems>>
@@ -518,7 +518,7 @@
 						<<replace "#ClothesSendResult">>그렇게는 할 수 없습니다!<</replace>>
 					<<else>>
 						<<shopbuyv2 _slot "buy" "send" _clothesID 1>>
-						<<replace "#ClothesSendResult">>Sent <<= setup.clothes[_slot][_clothesID].name>> to your wardrobe!<</replace>>
+						<<replace "#ClothesSendResult">><<trClothes _slot setup.clothes[_slot][_clothesID].name "name" "을">><<= _trResult>> 옷장으로 보냈습니다!<</replace>>
 					<</if>>
 				<</link>>
 				<br>
@@ -528,20 +528,20 @@
 	</div>
 	<hr>
 	<div class="cheatsGrid">
-		<div class="settingsHeader options">Characteristics</div>
+		<div class="settingsHeader options">특징</div>
 		<div class="settingsToggleItem">
 			<<set _core to ["purity", "beauty", "physique", "willpower", "awareness", "promiscuity", "exhibitionism", "deviancy"]>>
 			<<if numberOfEarSlime()>><<set _core.push("earSlime.corruption")>><</if>>
-			<span class="gold">Core Characteristics</span>
+			<span class="gold">주요 특징</span>
 			<br>
-			<<link "Set all to 0">>
+			<<link "모두 0으로 설정한다">>
 				<<for _i range _core>>
 					<<set V[_i] to 0>><<clamp>>
 				<</for>>
 				<<replace "#characteristics">><<cheatSection "characteristics">><</replace>>
 			<</link>>
 			|
-			<<link "Set all to max">>
+			<<link "모두 최대로 설정한다">>
 				<<for _i range _core>>
 					<<set V[_i] to 20000>><<clamp>>
 				<</for>>
@@ -552,27 +552,27 @@
 				<<cheatSection "characteristics">>
 			</span>
 			<hr>
-			<span class="gold">Secondary Characteristics</span>
-			<<numberStepper "Submissiveness" $submissive "submissive" {max: 2000}>>
-			<<numberStepper "Masochism" $masochism "masochism" {max: 1000}>>
-			<<numberStepper "Sadism" $sadism "sadism" {max: 1000}>>
+			<span class="gold">2차 특징</span>
+			<<numberStepper "순종도" $submissive "submissive" {max: 2000}>>
+			<<numberStepper "마조히즘" $masochism "masochism" {max: 1000}>>
+			<<numberStepper "새디즘" $sadism "sadism" {max: 1000}>>
 
 			<<if $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest">>
-				<<numberStepper "Grace" $grace "grace">>
+				<<numberStepper "신앙심" $grace "grace">>
 			<</if>>
 		</div>
 		<div class="settingsToggleItem">
 			<<set _skills to ["skulduggery", "skulduggeryday", "danceskill", "swimmingskill", "athletics", "tending", "housekeeping"]>>
-			<span class="gold">Core Skills</span>
+			<span class="gold">주요 기술</span>
 			<br>
-			<<link "Set all to 0">>
+			<<link "모두 0으로 설정한다">>
 				<<for _i range _skills>>
 					<<set V[_i] to 0>><<clamp>>
 				<</for>>
 				<<replace "#coreSkills">><<cheatSection "skills">><</replace>>
 			<</link>>
 			|
-			<<link "Set all to max">>
+			<<link "모두 최대로 설정한다">>
 				<<for _i range _skills>>
 					<<set V[_i] to 20000>><<clamp>>
 				<</for>>
@@ -584,16 +584,16 @@
 			</span>
 			<hr>
 			<<set _subjects to ["english", "maths", "science", "history"]>>
-			<span class="gold">School Skills</span>
+			<span class="gold">학업 기술</span>
 			<br>
-			<<link "Set all to 0">>
+			<<link "모두 0으로 설정한다">>
 				<<for _i range _subjects>>
 					<<set V[_i] to 0>><<clamp>>
 				<</for>>
 				<<replace "#schoolSkills">><<cheatSection "school">><</replace>>
 			<</link>>
 			|
-			<<link "Set all to max">>
+			<<link "모두 최대로 설정한다">>
 				<<for _i range _subjects>>
 					<<set V[_i] to 1000>><<clamp>>
 				<</for>>
@@ -607,16 +607,16 @@
 
 		<div class="settingsToggleItem">
 			<<set _sexSkills to ["seduction", "oral", "vaginal", "penile", "anal", "hand", "feet", "bottom", "thigh", "chest"]>>
-			<span class="gold">Sex Skills</span>
+			<span class="gold">성 기술</span>
 			<br>
-			<<link "Set all to 0">>
+			<<link "모두 0으로 설정한다">>
 				<<for _i range _sexSkills>>
 					<<set V[`${_i}skill`] to 0>><<clamp>>
 				<</for>>
 				<<replace "#cheatsSex">><<cheatSection "sex">><</replace>>
 			<</link>>
 			|
-			<<link "Set all to max">>
+			<<link "모두 최대로 설정한다">>
 				<<for _i range _sexSkills>>
 					<<set V[`${_i}skill`] to 1000>><<clamp>>
 				<</for>>
@@ -633,9 +633,9 @@
 			<span class="gold">특성</span>
 			<br>
 			<<set $_traits to {"choke": $choketrait, "milkdrank" : $milkdranktrait, "vore" : $voretrait, "tentacle" : $tentacletrait, "bestiality" : $bestialitytrait, "rape" : $rapetrait, "molest" : $molesttrait, "ejac" : $ejactrait, "orgasm" : $orgasmtrait}>>
-			<<set _traitValue to  {"1": "On", "-1": "Disabled", "0": "Off"}>>
+			<<set _traitValue to  {"1": "있음", "-1": "비활성화", "0": "없음"}>>
 
-			Orgasm Addict: <span id="statsorgasmtrait" @class="$orgasmtrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["orgasm"].toString()]>></span> |
+			절정 중독: <span id="statsorgasmtrait" @class="$orgasmtrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["orgasm"].toString()]>></span> |
 			<<link "변경">>
 				<<set $orgasmtrait += 1>>
 				<<if $orgasmtrait gte 2>>
@@ -649,7 +649,7 @@
 			<</link>>
 			<br>
 
-			Cum Dump: <span id="statsejactrait" @class="$ejactrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["ejac"].toString()]>></span> |
+			정액받이: <span id="statsejactrait" @class="$ejactrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["ejac"].toString()]>></span> |
 			<<link "변경">>
 				<<set $ejactrait += 1>>
 				<<if $ejactrait gte 2>>
@@ -663,7 +663,7 @@
 			<</link>>
 			<br>
 
-			Plaything: <span id="statsmolesttrait" @class="$molesttrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["molest"].toString()]>></span> |
+			노리개: <span id="statsmolesttrait" @class="$molesttrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["molest"].toString()]>></span> |
 			<<link "변경">>
 				<<set $molesttrait += 1>>
 				<<if $molesttrait gte 2>>
@@ -677,7 +677,7 @@
 			<</link>>
 			<br>
 
-			Fucktoy: <span id="statsrapetrait" @class="$rapetrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["rape"].toString()]>></span> |
+			육변기: <span id="statsrapetrait" @class="$rapetrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["rape"].toString()]>></span> |
 			<<link "변경">>
 				<<set $rapetrait += 1>>
 				<<if $rapetrait gte 2>>
@@ -691,7 +691,7 @@
 			<</link>>
 			<br>
 
-			Bitch: <span id="statsbestialitytrait"  @class="$bestialitytrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["bestiality"].toString()]>></span> |
+			암캐/수캐: <span id="statsbestialitytrait"  @class="$bestialitytrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["bestiality"].toString()]>></span> |
 			<<link "변경">>
 				<<set $bestialitytrait += 1>>
 				<<if $bestialitytrait gte 2>>
@@ -705,7 +705,7 @@
 			<</link>>
 			<br>
 
-			Prey: <span id="statstentacletrait" @class="$tentacletrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["tentacle"].toString()]>></span> |
+			먹잇감: <span id="statstentacletrait" @class="$tentacletrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["tentacle"].toString()]>></span> |
 			<<link "변경">>
 				<<set $tentacletrait += 1>>
 				<<if $tentacletrait gte 2>>
@@ -719,7 +719,7 @@
 			<</link>>
 			<br>
 
-			Tasty: <span id="statsvoretrait" @class="$voretrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["vore"].toString()]>></span> |
+			맛있음: <span id="statsvoretrait" @class="$voretrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["vore"].toString()]>></span> |
 			<<link "변경">>
 				<<set $voretrait += 1>>
 				<<if $voretrait gte 2>>
@@ -733,7 +733,7 @@
 			<</link>>
 			<br>
 
-			Milk Addict: <span id="statsmilkdranktrait" @class="$milkdranktrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["milkdrank"].toString()]>></span> |
+			모유 중독: <span id="statsmilkdranktrait" @class="$milkdranktrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["milkdrank"].toString()]>></span> |
 			<<link "변경">>
 				<<set $milkdranktrait += 1>>
 				<<if $milkdranktrait gte 2>>
@@ -747,7 +747,7 @@
 			<</link>>
 			<br>
 
-			Lustful: <span id="statslustful" @class="$backgroundTraits.includes('lustful') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("lustful") is true ? "On" : "Off">></span> |
+			강한 욕망: <span id="statslustful" @class="$backgroundTraits.includes('lustful') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("lustful") is true ? "있음" : "없음">></span> |
 			<<link "변경">>
 				<<if !$backgroundTraits.includes("lustful")>>
 					<<set $backgroundTraits.pushUnique("lustful")>><<set $specialClothesEffects.bimboTotal to 1200>>
@@ -762,7 +762,7 @@
 			<</link>>
 			<br>
 
-			Crossdresser: <span id="statscrossdresser" @class="$backgroundTraits.includes('crossdresser') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("crossdresser") is true ? "On" : "Off">></span> |
+			크로스드레서: <span id="statscrossdresser" @class="$backgroundTraits.includes('crossdresser') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("crossdresser") is true ? "있음" : "없음">></span> |
 			<<link "변경">>
 				<<if !$backgroundTraits.includes("crossdresser")>>
 					<<set $backgroundTraits.pushUnique("crossdresser")>><<set $crossdressingTrait to 100>>
@@ -777,7 +777,7 @@
 			<</link>>
 			<br>
 
-			Green Thumb: <span id="statsgreenthumb" @class="$backgroundTraits.includes('greenthumb') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("greenthumb")is true ? "On" : "Off">></span> |
+			원예가: <span id="statsgreenthumb" @class="$backgroundTraits.includes('greenthumb') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("greenthumb")is true ? "있음" : "없음">></span> |
 			<<link "변경">>
 				<<if !$backgroundTraits.includes("greenthumb")>>
 					<<set $backgroundTraits.pushUnique("greenthumb")>>
@@ -792,7 +792,7 @@
 			<</link>>
 			<br>
 
-			Asphyxiophilia: <span id="statschoke" @class="$choketrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["choke"].toString()]>></span> |
+			질식 기호증: <span id="statschoke" @class="$choketrait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["choke"].toString()]>></span> |
 			<<link "변경">>
 				<<set $choketrait += 1>>
 				<<if $choketrait gte 2>>
@@ -806,7 +806,7 @@
 			<</link>>
 			<br>
 
-			Plant Lover: <span id="statsplantlover" @class="$backgroundTraits.includes('plantlover') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("plantlover")is true ? "On" : "Off">></span> |
+			식물 성애자: <span id="statsplantlover" @class="$backgroundTraits.includes('plantlover') is true ? 'green' : 'red'"><<= $backgroundTraits.includes("plantlover")is true ? "있음" : "없음">></span> |
 			<<link "변경">>
 				<<if !$backgroundTraits.includes("plantlover")>>
 					<<set $backgroundTraits.pushUnique("plantlover")>>
@@ -833,7 +833,7 @@
 			<<set _negativeFames to ["exhibitionism", "prostitution", "bestiality", "sex", "rape", "pregnancy", "impreg"]>>
 			<span class="gold">Negative Fame</span>
 			<br>
-			<<link "Set all to 0">>
+			<<link "모두 0으로 설정한다">>
 				<<for _i range _negativeFames>>
 					<<set $fame[_i] to 0>>
 				<</for>>
@@ -841,7 +841,7 @@
 				<<replace #cheatsNegative>><<cheatSection "negative">><</replace>>
 			<</link>>
 			|
-			<<link "Set all to max">>
+			<<link "모두 최대로 설정한다">>
 				<<for _i range _negativeFames>>
 					<<set $fame[_i] to 2000>>
 				<</for>>
@@ -855,7 +855,7 @@
 			<hr>
 			<span class="gold">Positive Fame</span>
 			<br>
-			<<link "Set all to 0">>
+			<<link "모두 0으로 설정한다">>
 				<<for _i range _positiveFames>>
 					<<set $fame[_i] to 0>>
 				<</for>>
@@ -863,7 +863,7 @@
 				<<replace #cheatsPositive>><<cheatSection "positive">><</replace>>
 			<</link>>
 			|
-			<<link "Set all to max">>
+			<<link "모두 최대로 설정한다">>
 				<<for _i range _positiveFames>>
 					<<set $fame[_i] to 2000>>
 				<</for>>
@@ -878,7 +878,7 @@
 		<div class="settingsToggleItem">
 			<span class="gold">범죄</span>
 			<br>
-			<<link "Set all to 0">>
+			<<link "모두 0으로 설정한다">>
 				<<for _cr range Object.keys(setup.crimeNames)>>
 					<<capture _cr>>
 						<<set C.crime[_cr] to 0>>
@@ -886,7 +886,7 @@
 					<</capture>>
 				<</for>>
 			<</link>> |
-			<<link "Set all to max">>
+			<<link "모두 최대로 설정한다">>
 				<<for _cr range Object.keys(setup.crimeNames)>>
 					<<capture _cr>>
 						<<set C.crime[_cr] to 10000>>
