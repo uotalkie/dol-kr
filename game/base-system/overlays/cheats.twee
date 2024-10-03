@@ -17,7 +17,7 @@
 	<<set _type to _args[0]>>
 	<<set _id to `stats${_type}virginity`>>
 	<<capture _type _id>>
-		<span @id="_id"><<= ($player.virginity[_type] is true ? "존재" : "가져간 자: " + ($player.virginity[_type] is false ? "불명" : $player.virginity[_type]))>></span> |
+		<<trVirginity $player.virginity[_type]>><span @id="_id"><<= ($player.virginity[_type] is true ? "존재" : "가져간 자: " + ($player.virginity[_type] is false ? "불명" : _trResult))>></span> |
 		<span @id="_id + 'link'"><<link `($player.virginity[_type] is true ? "가져간다" : "복구한다")`>>
 			<<if $player.virginity[_type] is true>>
 				<<set $player.virginity[_type] to (_virginity[_type] is true ? false : _virginity[_type])>>
@@ -827,11 +827,11 @@
 	</div>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Fame</div>
+		<div class="settingsHeader options">명성</div>
 		<div class="settingsToggleItem">
 			<<set _positiveFames to ["good", "business", "scrap", "social", "model"]>>
 			<<set _negativeFames to ["exhibitionism", "prostitution", "bestiality", "sex", "rape", "pregnancy", "impreg"]>>
-			<span class="gold">Negative Fame</span>
+			<span class="gold">부정적 명성</span>
 			<br>
 			<<link "모두 0으로 설정한다">>
 				<<for _i range _negativeFames>>
@@ -853,7 +853,7 @@
 				<<cheatSection "negative">>
 			</span>
 			<hr>
-			<span class="gold">Positive Fame</span>
+			<span class="gold">긍정적 명성</span>
 			<br>
 			<<link "모두 0으로 설정한다">>
 				<<for _i range _positiveFames>>
@@ -899,7 +899,7 @@
 				<<cheatSection "crime">>
 			</span>
 			<hr>
-			<span class="gold">Crime Events</span>
+			<span class="gold">범죄 이벤트</span>
 			<br>
 			<span id="statscrimeevents"><<listCrimeCheats>></span>
 			<<link "범죄 이벤트를 삭제한다">><<crimeClearEvent "all">><<replace #statscrimeevents>><<listCrimeCheats>><</replace>><</link>>
@@ -908,13 +908,13 @@
 <</widget>>
 
 <<widget "cheats-fluids">>
-	<<numberStepper "Milk Amount" $milk_amount "milk_amount" {
+	<<numberStepper "모유량" $milk_amount "milk_amount" {
 		max: $milk_volume,
 		step: 10,
 		valueFormat: (value, percentage) => `<b>${Math.round(percentage)}%</b> (${Math.round(value)}ml)`
 	}>>
 	<<if $player.penisExist>>
-		<<numberStepper "Semen Amount" $semen_amount "semen_amount" {
+		<<numberStepper "정액량" $semen_amount "semen_amount" {
 			max: $semen_volume,
 			step: 10,
 			valueFormat: (value, percentage) => `<b>${Math.round(percentage)}%</b> (${Math.round(value)}ml)`
@@ -924,7 +924,7 @@
 
 <<widget "cheats-characterVisual">>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Player</div>
+		<div class="settingsHeader options">플레이어</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold">머리카락 길이</span>
 			<br>
@@ -932,17 +932,17 @@
 				머리카락 치트는 미용사에게 가 있는 동안에는 사용할 수 없습니다.
 				<br><br>
 			<<else>>
-				<<numberStepper "Hair length" $hairlength {max: 1000, callback: value => {V.hairlength = value; Wikifier.wikifyEval("<<calchairlengthstage>><<updatesidebarimg>>")}}>>
-				<<numberStepper "Fringe length" $fringelength {max: 1000, callback: value => {V.fringelength = value; Wikifier.wikifyEval("<<calchairlengthstage>><<updatesidebarimg>>")}}>>
+				<<numberStepper "머리카락 길이" $hairlength {max: 1000, callback: value => {V.hairlength = value; Wikifier.wikifyEval("<<calchairlengthstage>><<updatesidebarimg>>")}}>>
+				<<numberStepper "앞머리 길이" $fringelength {max: 1000, callback: value => {V.fringelength = value; Wikifier.wikifyEval("<<calchairlengthstage>><<updatesidebarimg>>")}}>>
 
 				<<if $hairtest is 1 or $debug>>
 					<<foldout false "_cheatsFoldoutNatural">>
-						<span class="gold">Natural Hair Colour (DEBUG)</span>
+						<span class="gold">자연적인 머리카락 색상 (DEBUG)</span>
 						<<set _bar to false>>
 						<<for _i = 0; _i < setup.colours.hair.length; _i++>>
 							<<if setup.colours.hair[_i].natural>>
 								<<if _bar>>|<</if>>
-								<label><span @class="setup.colours.hair[_i].csstext"><<= setup.colours.hair[_i].name_cap>></span> <<radiovar "$naturalhaircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
+								<label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<= _trResult>></span> <<radiovar "$naturalhaircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
 								<<set _bar to true>>
 							<</if>>
 						<</for>>
@@ -951,11 +951,11 @@
 				<</if>>
 
 				<<foldout false "_cheatsFoldoutDye">>
-					<span class="gold">Hair Dye</span>
+					<span class="gold">머리카락 염색</span>
 					<label>없음 <<radiovar "$haircolour" $naturalhaircolour>> <<updatesidebarimg>><</radiovar>></label>
 					<<for _i = 0; _i < setup.colours.hair.length; _i++>>
 						<<if setup.colours.hair[_i].dye>>
-							| <label><span @class="setup.colours.hair[_i].csstext"><<= setup.colours.hair[_i].name_cap>></span> <<radiovar "$haircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
+							| <label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<= _trResult>></span> <<radiovar "$haircolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
 						<</if>>
 					<</for>>
 					<br>
@@ -973,11 +973,11 @@
 				<</foldout>>
 
 				<<foldout false "_cheatsFoldoutFringe">>
-					<span class="gold">Hair Fringe Dye</span>
+					<span class="gold">옆머리 염색 색상</span>
 					<label>없음 <<radiovar "$hairfringecolour" $naturalhaircolour>> <<updatesidebarimg>><</radiovar>></label>
 					<<for _i = 0; _i < setup.colours.hair.length; _i++>>
 						<<if setup.colours.hair[_i].dye>>
-							| <label><span @class="setup.colours.hair[_i].csstext"><<= setup.colours.hair[_i].name_cap>></span> <<radiovar "$hairfringecolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
+							| <label><span @class="setup.colours.hair[_i].csstext"><<trColour setup.colours.hair[_i].name>><<= _trResult>></span> <<radiovar "$hairfringecolour" setup.colours.hair[_i].variable>> <<updatesidebarimg>><</radiovar>></label>
 						<</if>>
 					<</for>>
 					<br>
@@ -1004,7 +1004,7 @@
 				<<if setup.colours.eyes[_i].natural>>
 					<<if _bar>>|<</if>>
 					<label><span @class="setup.colours.eyes[_i].csstext">
-						<<= setup.colours.eyes[_i].name>></span>
+						<<trColour setup.colours.eyes[_i].name>><<= _trResult>></span>
 						<<radiovar "$eyeselected" setup.colours.eyes[_i].variable>>
 							<<cheatMenuEyesSelected>>
 						<</radiovar>></label>
@@ -1019,8 +1019,8 @@
 			| <label>없음 <<radiobutton "$player.freckles" false `!$player.freckles ? "checked" : ""`>></label>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Breast Size</span>
-			<<set _breastsText to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
+			<span class="gold">가슴 크기</span>
+			<<set _breastsText to ["평평함", "약간 솟아오름", "조그마함", "작음", "앙증맞음", "평범함", "봉긋함", "큼", "풍만함", "커다람", "매우 큼", "엄청남", "거대함"]>>
 			<<numberslider "$player.breastsize" $player.breastsize  0 _breastsText.length-1 1 {
 				onInputChange: value => {
 					wikifier("<<updatesidebarimg false>>");
@@ -1031,8 +1031,8 @@
 			}>>
 			<br><br>
 
-			<span class="gold">Bottom Size</span>
-			<<set _buttsText to ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"]>>
+			<span class="gold">엉덩이 크기</span>
+			<<set _buttsText to ["호리호리함", "날씬함", "평범함", "푹신함", "부드러움", "둥그스름", "포동포동함", "큼", "거대함"]>>
 			<<numberslider "$player.bottomsize" $player.bottomsize  0 _buttsText.length-1 1 {
 				onInputChange: value => {
 					wikifier("<<updatesidebarimg false>>");
@@ -1044,8 +1044,8 @@
 
 			<<if $player.penisExist>>
 				<br><br>
-				<span class="gold">Penis</span>
-				<<set _penisText to ["Micro", "Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
+				<span class="gold">자지 크기</span>
+				<<set _penisText to ["진짜 작음", "아주 작음", "조그마함", "작음", "평범함", "큼", "거대함"]>>
 				<<numberslider "$player.penissize" $player.penissize  -2 4 1 {
 				onInputChange: value => {
 					wikifier("<<updatesidebarimg false>>");
@@ -1056,31 +1056,31 @@
 			}>>
 				<<if $debug is 1>>
 					<br>
-					<span class="description">Ball Size (DEBUG):
+					<span class="description">고환 크기 (DEBUG):
 					<<link "<">><<set $ballssize -= 1>><<clamp>><<replace "#statsballssize">><<= Math.trunc($ballssize)>><</replace>> <<updatesidebarimg>><</link>> |
 					<span id="statsballssize"><<= Math.trunc($ballssize)>></span>
 					| <<link ">">><<set $ballssize += 1>><<clamp>><<replace "#statsballssize">><<= Math.trunc($ballssize)>><</replace>> <<updatesidebarimg>><</link>></span>
 				<</if>>
 			<</if>>
 			<br><br>
-			Cover nudity (only if embarrassed): <<checkbox "$dontHide" true false autocheck>>
+			벌거벗은 몸을 가린다 (부끄러운 경우에만): <<checkbox "$dontHide" true false autocheck>>
 			<<run $(() => $('#checkbox-donthide').on('change', e => wikifier('<<updatesidebarimg>>')))>>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">민감도</span>
-			<<numberStepper "Mouth sensitivity" $mouthsensitivity "mouthsensitivity" {
+			<<numberStepper "입 민감도" $mouthsensitivity "mouthsensitivity" {
 				min: 1, max: 4, step: 0.1, reverse: true,
 				valueFormat: value => `<b>${round(value, 2)}</b> (${sensitivityString(value)})`
 			}>>
-			<<numberStepper "Breast sensitivity" $breastsensitivity "breastsensitivity" {
+			<<numberStepper "가슴 민감도" $breastsensitivity "breastsensitivity" {
 				min: 1, max: 4, step: 0.1, reverse: true,
 				valueFormat: value => `<b>${round(value, 2)}</b> (${sensitivityString(value)})`
 			}>>
-			<<numberStepper "Genital sensitivity" $genitalsensitivity "genitalsensitivity" {
+			<<numberStepper "성기 민감도" $genitalsensitivity "genitalsensitivity" {
 				min: 1, max: 4, step: 0.1, reverse: true,
 				valueFormat: value => `<b>${round(value, 2)}</b> (${sensitivityString(value)})`
 			}>>
-			<<numberStepper "Bottom sensitivity" $bottomsensitivity "bottomsensitivity" {
+			<<numberStepper "엉덩이 민감도" $bottomsensitivity "bottomsensitivity" {
 				min: 1, max: 4, step: 0.1, reverse: true,
 				valueFormat: value => `<b>${round(value, 2)}</b> (${sensitivityString(value)})`
 			}>>
@@ -1089,7 +1089,7 @@
 	<<if $parasitedisable is "f">>
 		<hr>
 		<div class="settingsGrid">
-			<div class="settingsHeader options">Parasites</div>
+			<div class="settingsHeader options">기생충</div>
 			<div class="settingsToggleItemWide">
 				<<set _penis to $player.penisExist ? "penis" : "clit">>
 				<div id="nipples"><<cheatParasiteToggle "nipples">></div>
@@ -1101,7 +1101,7 @@
 				<div id="right_arm"><<cheatParasiteToggle "right_arm">></div>
 				<div id="tummy"><<cheatParasiteToggle "tummy">></div>
 				<<if playerIsPregnant() and $player.gender is "m" and numberOfEarSlime()>>
-					<div class="red">Unable to remove ear slimes while pregnant as a male.</div>
+					<div class="red">남자로 임신했을 경우 귓속 슬라임을 제거할 수 없습니다.</div>
 				<<else>>
 					<div id="left_ear"><<cheatParasiteToggle "left_ear">></div>
 					<div id="right_ear"><<cheatParasiteToggle "right_ear">></div>
@@ -1111,34 +1111,34 @@
 	<</if>>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Fluids</div>
+		<div class="settingsHeader options">체액</div>
 		<<cheatBodyLiquid "semen">>
 		<<cheatBodyLiquid "goo">>
 		<<cheatBodyLiquid "nectar">>
 	</div>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Transformations</div>
+		<div class="settingsHeader options">변신</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Transformation Types</span>
+			<span class="gold">변신 종류</span>
 			<br>
-			<<tficon "angel">>Angel: <<link "Set">><<angelTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<angelTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "fallen">>Fallen Angel: <<link "Set">><<set $fallenangel to 2>><<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "traditional" ? "traditional" : "default")>><<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>><<updatesidebarimg>><</link>> / <<link "Clear">><<set $specialTransform to 0>><<set $fallenangel to 0>>				<<set $transformationParts.fallenAngel.halo to "disabled">><<set $transformationParts.fallenAngel.wings to "disabled">><<set $transformationParts.traits.flaunting to "disabled">><<updatesidebarimg>><</link>><br>
-			<<tficon "demon">>Demon: <<link "Set">><<demonTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<demonTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "wolf">>Wolf: <<link "Set">><<wolfTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<wolfTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "cat">>Cat: <<link "Set">><<catTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<catTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "cow">>Cow: <<link "Set">><<cowTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "bird">>Bird: <<link "Set">><<harpyTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "fox">>Fox: <<link "Set">><<foxTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "angel">>천사 변신: <<link "한다">><<angelTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<angelTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "fallen">>타천사 변신: <<link "한다">><<set $fallenangel to 2>><<set $transformationParts.fallenAngel.halo to ($transformationParts.angel.halo is "traditional" ? "traditional" : "default")>><<set $transformationParts.fallenAngel.wings to ($transformationParts.angel.wings is "classic" ? "classic" : "default")>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<set $specialTransform to 0>><<set $fallenangel to 0>>				<<set $transformationParts.fallenAngel.halo to "disabled">><<set $transformationParts.fallenAngel.wings to "disabled">><<set $transformationParts.traits.flaunting to "disabled">><<updatesidebarimg>><</link>><br>
+			<<tficon "demon">>악마 변신: <<link "한다">><<demonTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<demonTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "wolf">>늑대 변신: <<link "한다">><<wolfTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<wolfTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "cat">>고양이 변신: <<link "한다">><<catTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<catTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "cow">>소 변신: <<link "한다">><<cowTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "bird">>새 변신: <<link "한다">><<harpyTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "fox">>여우 변신: <<link "한다">><<foxTransform>><<updatesidebarimg>><</link>> / <<link "하지 않는다">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
 			<hr>
-			<span class="description">You may only have one animal and one divine transformation at a time.</span>
+			<span class="description">한 번에 하나의 짐승 변신과 하나의 영적 존재 변신만 가능합니다.</span>
 		</div>
 	<div class="settingsToggleItem">
-		<span class="gold">Transformation Points</span>
+		<span class="gold">변신 포인트</span>
 		<<for _tf range ["angel", "fallen", "demon", "wolf", "cat", "cow", "bird", "fox"]>>
 			<<capture _tf>>
 				<<set _name to (_tf is "fallen" ? "Fallen Angel" : _tf)>>
-				<<set _title to `<<tficon _tf>> ${toTitleCase(_name)}`>>
+				<<set _title to `<<tficon _tf>> <<putpost _name>>`>>
 				<<set _varName to `${_tf}build`>>
 				<<numberStepper _title `V[T.varName]` {
 					callback: (value, arr) => {
@@ -1151,7 +1151,7 @@
 		<</for>>
 		<<unset _cr>>
 		<hr>
-		<span class="description">Angel and Cat require 50 points to reach their full transformation, while all others require 30 points. Fallen Angel requires 30 points for Acceptance.</span>
+		<span class="description">천사와 고양이 완전 변신에는 50 포인트가 필요하며, 다른 종류의 완전 변신에는 30 포인트가 필요합니다. 타천사의 면죄에는 30 포인트가 필요합니다.</span>
 	</div>
 <</widget>>
 
@@ -1163,7 +1163,7 @@
 
 <<widget "cheats-npcs">>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">NPC Virginity</div>
+		<div class="settingsHeader options">NPC 순결</div>
 		<div class="settingsToggleItemWide">
 			다음 NPC의 순결을 시작값으로 되돌립니다:
 			<br>
@@ -1179,202 +1179,202 @@
 				<<for _virginType, _virginList range $virginTaken>>
 					<<run _virginList.delete(_npcId)>>
 				<</for>>
-				<<replace "#npcvirgin">><br><<= _npcId>>'s virginities have been restored.<</replace>>
+				<<replace "#npcvirgin">><br><<trNamedNPC _npcId "의">><<= _trResult>> 순결이 초기화되었습니다.<</replace>>
 			<</link>>
 			<span id="npcvirgin"></span>
 		</div>
 	</div>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Primary Relationships</div>
+		<div class="settingsHeader options">주요 인물들과의 관계</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Robin</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Robin.love` { callback: value => { C.npc.Robin.love = value } }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Robin.lust` { callback: value => { C.npc.Robin.lust = value } }>>
-			<<numberStepper "<<symbol confidence>> Confidence" `C.npc.Robin.dom` { callback: value => { C.npc.Robin.dom = value } }>>
-			<<numberStepper "<<symbol trauma>> Trauma" `C.npc.Robin.trauma` { callback: value => { C.npc.Robin.trauma = value }, reverse: true }>>
+			<span class="gold">로빈</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Robin.love` { callback: value => { C.npc.Robin.love = value } }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Robin.lust` { callback: value => { C.npc.Robin.lust = value } }>>
+			<<numberStepper "<<symbol confidence>> 자신감" `C.npc.Robin.dom` { callback: value => { C.npc.Robin.dom = value } }>>
+			<<numberStepper "<<symbol trauma>> 트라우마" `C.npc.Robin.trauma` { callback: value => { C.npc.Robin.trauma = value }, reverse: true }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Whitney</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Whitney.love` { callback: value => { C.npc.Whitney.love = value }, max: 30 }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Whitney.lust` { callback: value => { C.npc.Whitney.lust = value } }>>
-			<<numberStepper "<<symbol dominance>> Dominance" `C.npc.Whitney.dom` { callback: value => { C.npc.Whitney.dom = value }, max: 20 }>>
+			<span class="gold">휘트니</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Whitney.love` { callback: value => { C.npc.Whitney.love = value }, max: 30 }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Whitney.lust` { callback: value => { C.npc.Whitney.lust = value } }>>
+			<<numberStepper "<<symbol dominance>> 지배도" `C.npc.Whitney.dom` { callback: value => { C.npc.Whitney.dom = value }, max: 20 }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Eden</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Eden.love` { callback: value => { C.npc.Eden.love = value }, max: 200 }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Eden.lust` { callback: value => { C.npc.Eden.lust = value } }>>
-			<<numberStepper "<<symbol dominance>> Dominance" `C.npc.Eden.dom` { callback: value => { C.npc.Eden.dom = value }, max: 150}>>
+			<span class="gold">에덴</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Eden.love` { callback: value => { C.npc.Eden.love = value }, max: 200 }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Eden.lust` { callback: value => { C.npc.Eden.lust = value } }>>
+			<<numberStepper "<<symbol dominance>> 지배도" `C.npc.Eden.dom` { callback: value => { C.npc.Eden.dom = value }, max: 150}>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Kylar</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Kylar.love` { callback: value => { C.npc.Kylar.love = value } }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Kylar.lust` { callback: value => { C.npc.Kylar.lust = value } }>>
-			<<numberStepper "<<symbol jealousy>> Jealousy" `C.npc.Kylar.rage` { callback: value => { C.npc.Kylar.rage = value }, reverse: true }>>
+			<span class="gold">카일라</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Kylar.love` { callback: value => { C.npc.Kylar.love = value } }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Kylar.lust` { callback: value => { C.npc.Kylar.lust = value } }>>
+			<<numberStepper "<<symbol jealousy>> 질투" `C.npc.Kylar.rage` { callback: value => { C.npc.Kylar.rage = value }, reverse: true }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Avery</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Avery.love` { callback: value => { C.npc.Avery.love = value } }>>
-			<<numberStepper "<<symbol rage>> Rage" `C.npc.Avery.rage` { callback: value => { C.npc.Avery.rage = value }, reverse: true }>>
+			<span class="gold">에이버리</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Avery.love` { callback: value => { C.npc.Avery.love = value } }>>
+			<<numberStepper "<<symbol rage>> 분노" `C.npc.Avery.rage` { callback: value => { C.npc.Avery.rage = value }, reverse: true }>>
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">Alex</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Alex.love` { callback: value => { C.npc.Alex.love = value } }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Alex.lust` { callback: value => { C.npc.Alex.lust = value } }>>
-			<<numberStepper "<<symbol dominance>> Dominance" `C.npc.Alex.dom` { callback: value => { C.npc.Alex.dom = value } }>>
+			<span class="gold">알렉스</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Alex.love` { callback: value => { C.npc.Alex.love = value } }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Alex.lust` { callback: value => { C.npc.Alex.lust = value } }>>
+			<<numberStepper "<<symbol dominance>> 지배도" `C.npc.Alex.dom` { callback: value => { C.npc.Alex.dom = value } }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Great Hawk</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc["Great Hawk"].love` { callback: value => { C.npc["Great Hawk"].love = value } }>>
-			<<numberStepper "<<symbol dominance>> Dominance" `C.npc["Great Hawk"].dom` { callback: value => { C.npc["Great Hawk"].dom = value } }>>
+			<span class="gold">거대 매</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc["Great Hawk"].love` { callback: value => { C.npc["Great Hawk"].love = value } }>>
+			<<numberStepper "<<symbol dominance>> 지배도" `C.npc["Great Hawk"].dom` { callback: value => { C.npc["Great Hawk"].dom = value } }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Black Wolf</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc["Black Wolf"].love` { callback: value => { C.npc["Black Wolf"].love = value }, max: 150 }>>
+			<span class="gold">검은 늑대</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc["Black Wolf"].love` { callback: value => { C.npc["Black Wolf"].love = value }, max: 150 }>>
 		</div>
 		<div class="settingsToggleItemWide">
-			<span class="gold">Sydney</span>
+			<span class="gold">시드니</span>
 			<<set _purity to C.npc.Sydney.purity gt 0 ? "purity" : "corruption">>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Sydney.love` { callback: value => { C.npc.Sydney.love = value }, max: 150 }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Sydney.lust` { callback: value => { C.npc.Sydney.lust = value } }>>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Sydney.love` { callback: value => { C.npc.Sydney.love = value }, max: 150 }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Sydney.lust` { callback: value => { C.npc.Sydney.lust = value } }>>
 			<span id="sydneypurity">
 				<<sydneyPurity>>
 			</span>
 			<span id="sydneydesc" class="description">
-				(Setting Sydney's <<= _purity is "purity" ? "purity to below 0%" : "corruption to above 0%">> will switch it to <<= _purity is "purity" ? "corruption" : "purity">>.)
+				(시드니의 <<= _purity is "purity" ? "순결을 0% 이하로" : "타락을 0% 이상으로">> 설정하면 <<= _purity is "purity" ? "타락으로" : "순결로">> 변경됩니다.)
 			</span>
 		</div>
 	</div>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">People of Interest</div>
+		<div class="settingsHeader options">주변 인물들과의 관계</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Mason</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Mason.love` { callback: value => { C.npc.Mason.love = value }, max: 50 }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Mason.lust` { callback: value => { C.npc.Mason.lust = value }, max: 100 }>>
+			<span class="gold">메이슨</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Mason.love` { callback: value => { C.npc.Mason.love = value }, max: 50 }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Mason.lust` { callback: value => { C.npc.Mason.lust = value }, max: 100 }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Zephyr</span>
-			<<numberStepper "<<symbol love>> Love" `C.npc.Zephyr.love` { callback: value => { C.npc.Zephyr.love = value } }>>
-			<<numberStepper "<<symbol lust>> Lust" `C.npc.Zephyr.lust` { callback: value => { C.npc.Zephyr.lust = value }, max: 50 }>>
+			<span class="gold">제퍼</span>
+			<<numberStepper "<<symbol love>> 사랑" `C.npc.Zephyr.love` { callback: value => { C.npc.Zephyr.love = value } }>>
+			<<numberStepper "<<symbol lust>> 욕정" `C.npc.Zephyr.lust` { callback: value => { C.npc.Zephyr.lust = value }, max: 50 }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Teachers</span>
-			<<numberStepper "<<symbol love>> Sirris Love" `C.npc.Sirris.love` { callback: value => { C.npc.Sirris.love = value } }>>
-			<<numberStepper "<<symbol love>> Doren Love" `C.npc.Doren.love` { callback: value => { C.npc.Doren.love = value } }>>
-			<<numberStepper "<<symbol love>> Leighton Love" `C.npc.Leighton.love` { callback: value => { C.npc.Leighton.love = value } }>>
-			<<numberStepper "<<symbol love>> River Love" `C.npc.River.love` { callback: value => { C.npc.River.love = value }, max: 50 }>>
-			<<numberStepper "<<symbol love>> Winter Love" `C.npc.Winter.love` { callback: value => { C.npc.Winter.love = value }, max: 50 }>>
+			<span class="gold">선생님들과의 관계</span>
+			<<numberStepper "<<symbol love>> 시리스 사랑" `C.npc.Sirris.love` { callback: value => { C.npc.Sirris.love = value } }>>
+			<<numberStepper "<<symbol love>> 도렌 사랑" `C.npc.Doren.love` { callback: value => { C.npc.Doren.love = value } }>>
+			<<numberStepper "<<symbol love>> 레이턴 사랑" `C.npc.Leighton.love` { callback: value => { C.npc.Leighton.love = value } }>>
+			<<numberStepper "<<symbol love>> 리버 사랑" `C.npc.River.love` { callback: value => { C.npc.River.love = value }, max: 50 }>>
+			<<numberStepper "<<symbol love>> 윈터 사랑" `C.npc.Winter.love` { callback: value => { C.npc.Winter.love = value }, max: 50 }>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Other Named NPCs</span>
-			<<numberStepper "<<symbol love>> Briar Love" `C.npc.Briar.love` { callback: value => { C.npc.Briar.love = value } }>>
-			<<numberStepper "<<symbol love>> Charlie Love" `C.npc.Charlie.love` { callback: value => { C.npc.Charlie.love = value }, max: 50 }>>
-			<<numberStepper "<<symbol love>> Darryl Love" `C.npc.Darryl.love` { callback: value => { C.npc.Darryl.love = value }, max: 50 }>>
-			<<numberStepper "<<symbol love>> Harper Love" `C.npc.Harper.love` { callback: value => { C.npc.Harper.love = value } }>>
-			<<numberStepper "<<symbol love>> Morgan Love" `C.npc.Morgan.love` { callback: value => { C.npc.Morgan.love = value } }>>
-			<<numberStepper "<<symbol love>> Niki Love" `C.npc.Niki.love` { callback: value => { C.npc.Niki.love = value } }>>
-			<<numberStepper "<<symbol love>> Remy Love" `C.npc.Remy.love` { callback: value => { C.npc.Remy.love = value } }>>
-			<<numberStepper "<<symbol love>> Sam Love" `C.npc.Sam.love` { callback: value => { C.npc.Sam.love = value }, max: 50 }>>
-			<<numberStepper "<<symbol love>> Wren Love" `C.npc.Wren.love` { callback: value => { C.npc.Wren.love = value }, max: 50 }>>
+			<span class="gold">다른 네임드 NPC들과의 관계</span>
+			<<numberStepper "<<symbol love>> 브라이어 사랑" `C.npc.Briar.love` { callback: value => { C.npc.Briar.love = value } }>>
+			<<numberStepper "<<symbol love>> 찰리 사랑" `C.npc.Charlie.love` { callback: value => { C.npc.Charlie.love = value }, max: 50 }>>
+			<<numberStepper "<<symbol love>> 데릴 사랑" `C.npc.Darryl.love` { callback: value => { C.npc.Darryl.love = value }, max: 50 }>>
+			<<numberStepper "<<symbol love>> 하퍼 사랑" `C.npc.Harper.love` { callback: value => { C.npc.Harper.love = value } }>>
+			<<numberStepper "<<symbol love>> 모건 사랑" `C.npc.Morgan.love` { callback: value => { C.npc.Morgan.love = value } }>>
+			<<numberStepper "<<symbol love>> 니키 사랑" `C.npc.Niki.love` { callback: value => { C.npc.Niki.love = value } }>>
+			<<numberStepper "<<symbol love>> 레미 사랑" `C.npc.Remy.love` { callback: value => { C.npc.Remy.love = value } }>>
+			<<numberStepper "<<symbol love>> 샘 사랑" `C.npc.Sam.love` { callback: value => { C.npc.Sam.love = value }, max: 50 }>>
+			<<numberStepper "<<symbol love>> 렌 사랑" `C.npc.Wren.love` { callback: value => { C.npc.Wren.love = value }, max: 50 }>>
 		</div>
 	</div>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Reputation</div>
+		<div class="settingsHeader options">평판</div>
 		<<if $farm_stage gte 2>>
 			<div class="settingsToggleItem">
-				<<farmicon>><span class="gold">Farm</span>
-				<<numberStepper "Steeds' Respect" `V.farm.beasts.horses` { callback: value => { V.farm.beasts.horses = value }, min: -30, max: 30 }>>
-				<<numberStepper "Pigs' Respect" `V.farm.beasts.pigs` { callback: value => { V.farm.beasts.pigs = value }, min: -30, max: 30}>>
-				<<numberStepper "Cattle' Respect" `V.farm.beasts.cattle` { callback: value => { V.farm.beasts.cattle = value }, min: -30, max: 30 }>>
-				<<numberStepper "Dogs' Respect" `V.farm.beasts.dogs` { callback: value => { V.farm.beasts.dogs = value }, min: -30, max: 30 }>>
+				<<farmicon>><span class="gold">농장</span>
+				<<numberStepper "말들'의 존중" `V.farm.beasts.horses` { callback: value => { V.farm.beasts.horses = value }, min: -30, max: 30 }>>
+				<<numberStepper "돼지들'의 존중" `V.farm.beasts.pigs` { callback: value => { V.farm.beasts.pigs = value }, min: -30, max: 30}>>
+				<<numberStepper "소들'의 존중" `V.farm.beasts.cattle` { callback: value => { V.farm.beasts.cattle = value }, min: -30, max: 30 }>>
+				<<numberStepper "개들'의 존중" `V.farm.beasts.dogs` { callback: value => { V.farm.beasts.dogs = value }, min: -30, max: 30 }>>
 			</div>
 			<div class="settingsToggleItem">
-				<<farmicon>><span class="gold">Farm Progress</span>
+				<<farmicon>><span class="gold">농장 진행도</span>
 				<br>
 				<<if $farm_stage gte 12>>
-					You've cleared <span class="green">all</span> of the fields.
+					당신은 <span class="green">모든</span> 밭을 정리했습니다.
 				<<else>>
 					<span id="farmYard"><<cheatsRep "farm">></span>
 				<</if>>
 				<<if $farm_stage gte 5>>
 					<hr>
-					<<numberStepper "Remy's Encroachment" `V.farm.aggro` { reverse: true, callback: value => { V.farm.aggro = value; Wikifier.wikifyEval("<<replace #farmAggro>><<cheatsRep aggro>><</replace>>") } }>>
+					<<numberStepper "레미의 침략" `V.farm.aggro` { reverse: true, callback: value => { V.farm.aggro = value; Wikifier.wikifyEval("<<replace #farmAggro>><<cheatsRep aggro>><</replace>>") } }>>
 					<span id="farmAggro"><<cheatsRep "aggro">></span>
 				<</if>>
 			</div>
 		<</if>>
 		<div class="settingsToggleItem">
-			<<wolfcaveicon "pup">><span class="gold">Wolves</span>
+			<<wolfcaveicon "pup">><span class="gold">늑대</span>
 			<br>
-			<<numberStepper "Trust" $wolfpacktrust "wolfpacktrust" {max: 30}>>
-			<<numberStepper "Fear" $wolfpackfear "wolfpackfear" {max: 30}>>
+			<<numberStepper "신뢰" $wolfpacktrust "wolfpacktrust" {max: 30}>>
+			<<numberStepper "공포" $wolfpackfear "wolfpackfear" {max: 30}>>
 			<<if $syndromewolves is 1>>
-				<<numberStepper "Harmony" $wolfpackharmony "wolfpackharmony" {max: 20}>>
-				<<numberStepper "Ferocity" $wolfpackferocity "wolfpackferocity" {max: 20}>>
-				Rank: <span id="wolfpackleader"><<cheatsRep "wolfpackleader">></span>
+				<<numberStepper "화합" $wolfpackharmony "wolfpackharmony" {max: 20}>>
+				<<numberStepper "흉폭" $wolfpackferocity "wolfpackferocity" {max: 20}>>
+				계급: <span id="wolfpackleader"><<cheatsRep "wolfpackleader">></span>
 			<</if>>
 		</div>
 		<div class="settingsToggleItem">
-			<<schoolicon "building">><span class="gold">School</span>
-			<<numberStepper "Status" $cool "cool" {max: V.coolmax}>>
-			<<numberStepper "Delinquency" $delinquency "delinquency" {max: 1000, reverse: true}>>
+			<<schoolicon "building">><span class="gold">학교</span>
+			<<numberStepper "평판" $cool "cool" {max: V.coolmax}>>
+			<<numberStepper "불량도" $delinquency "delinquency" {max: 1000, reverse: true}>>
 			<hr>
 			<<if $player.penisExist and $player.vaginaExist>>
-				<<numberStepper "Hermaphrodite Fame" $schoolrep.herm { callback: value => {V.schoolrep.herm = value; Wikifier.wikifyEval("<<replace '#repherm'>><<cheatsRep herm>><</replace>>")}, max: 5, step: 1, percentage: false, reverse: true, activeButtons: ["single", "minMax"] }>>
+				<<numberStepper "후타나리 평판" $schoolrep.herm { callback: value => {V.schoolrep.herm = value; Wikifier.wikifyEval("<<replace '#repherm'>><<cheatsRep herm>><</replace>>")}, max: 5, step: 1, percentage: false, reverse: true, activeButtons: ["single", "minMax"] }>>
 				<span id="repherm"><<cheatsRep "herm">></span>
 			<<else>>
-				<<numberStepper "Crossdresser Fame" $schoolrep.crossdress { callback: value => {V.schoolrep.crossdress = value; Wikifier.wikifyEval("<<replace '#repcrossdress'>><<cheatsRep crossdress>><</replace>>")}, max: 5, step: 1, percentage: false, reverse: true, activeButtons: ["single", "minMax"] }>>
+				<<numberStepper "크로스드레서 평판" $schoolrep.crossdress { callback: value => {V.schoolrep.crossdress = value; Wikifier.wikifyEval("<<replace '#repcrossdress'>><<cheatsRep crossdress>><</replace>>")}, max: 5, step: 1, percentage: false, reverse: true, activeButtons: ["single", "minMax"] }>>
 				<span id="repcrossdress"><<cheatsRep "crossdress">></span>
 			<</if>>
 		</div>
 		<<if ["asylum", "prison"].includes($location)>>
 			<div class="settingsToggleItem">
 				<<if $location is "asylum">>
-					<<asylumicon "cell">><span class="gold">Asylum</span>
-					<<numberStepper "Status" $asylumstatus "asylumstatus">>
-					<<numberStepper "Suspicion" $asylumsuspicion "asylumsuspicion">>
+					<<asylumicon "cell">><span class="gold">정신병원</span>
+					<<numberStepper "평판" $asylumstatus "asylumstatus">>
+					<<numberStepper "의심" $asylumsuspicion "asylumsuspicion">>
 				<<elseif $location is "prison">>
-					<<policeicon>><span class="gold">Prison</span>
-					<<numberStepper "Guards" $prison.guards { callback: value => { V.prison.guards = value } }>>
-					<<numberStepper "Inmates" $prison.inmates { callback: value => { V.prison.inmates = value } }>>
+					<<policeicon>><span class="gold">교도소</span>
+					<<numberStepper "간수" $prison.guards { callback: value => { V.prison.guards = value } }>>
+					<<numberStepper "죄수" $prison.inmates { callback: value => { V.prison.inmates = value } }>>
 				<</if>>
 			</div>
 		<</if>>
 		<<if $dockwork is 2>>
 			<div class="settingsToggleItem">
-				<<docksicon>><span class="gold">Docks</span>
-				<<numberStepper "Status" $dockstatus "dockstatus">>
+				<<docksicon>><span class="gold">부두</span>
+				<<numberStepper "평판" $dockstatus "dockstatus">>
 			</div>
 		<</if>>
 		<<if $pirate_rank gte 0>>
 			<div class="settingsToggleItem">
-				<<mericon>><span class="gold">Pirates</span>
-				<<numberStepper "Status" $pirate_status "pirate_status">>
+				<<mericon>><span class="gold">해적</span>
+				<<numberStepper "평판" $pirate_status "pirate_status">>
 				<br>
-				Rank: <span id="pirate_rank"><<cheatsRep "pirate_rank">></span>
+				계급: <span id="pirate_rank"><<cheatsRep "pirate_rank">></span>
 			</div>
 		<</if>>
 		<<if $pound>>
 			<div class="settingsToggleItem">
-				<<poundicon>><span class="gold">Pound</span>
-				<<numberStepper "Status" $pound.status { callback: value => { V.pound.status = value } }>>
-				<<numberStepper "Stray Contentment" $stray_happiness "stray_happiness">>
+				<<poundicon>><span class="gold">개 보호소</span>
+				<<numberStepper "평판" $pound.status { callback: value => { V.pound.status = value } }>>
+				<<numberStepper "떠돌이 개들의 만족도" $stray_happiness "stray_happiness">>
 			</div>
 		<</if>>
 		<div class="settingsToggleItem">
-			<<homeicon>><span class="gold">Orphanage</span>
-			<<numberStepper "Hope" $orphan_hope "orphan_hope" {max: 50}>>
-			<<numberStepper "Rebelliousness" $orphan_reb "orphan_reb" {max: 50}>>
+			<<homeicon>><span class="gold">고아원</span>
+			<<numberStepper "희망" $orphan_hope "orphan_hope" {max: 50}>>
+			<<numberStepper "반항심" $orphan_reb "orphan_reb" {max: 50}>>
 		</div>
 	</div>
 <</widget>>
 
 <<widget "sydneyPurity">>
 	<<if C.npc.Sydney.purity gt 0>>
-		<<numberStepper "<<symbol purity>> Purity" `C.npc.Sydney.purity` {
+		<<numberStepper "<<symbol purity>> 순결" `C.npc.Sydney.purity` {
 			callback: value => {
 				C.npc.Sydney.purity = value;
 				if (value < 0) {
@@ -1387,7 +1387,7 @@
 			valueFormat: value => `<b>${value}%</b>`
 		}>>
 	<<else>>
-		<<numberStepper "<<symbol corruption>> Corruption" `C.npc.Sydney.corruption` {
+		<<numberStepper "<<symbol corruption>> 타락" `C.npc.Sydney.corruption` {
 			callback: value => {
 				C.npc.Sydney.corruption = value;
 				if (value < 0) {
@@ -1406,62 +1406,62 @@
 	<<switch _args[0]>>
 		<<case "aggro">>
 			<<if $farm.aggro gte 100>>
-				<span class="red">Remy's goons operate in the open, sabotaging the farm and its business.</span>
+				<span class="red">레미의 깡패들이 공공연히 돌아다니며, 농장과 사업을 공격하고 있다.</span>
 			<<elseif $farm.aggro gte 60>>
-				<span class="pink">The farm is being sabotaged, day and night.</span>
+				<span class="pink">농장이 밤낮으로 공격받고 있다.</span>
 			<<elseif $farm.aggro gte 40>>
-				<span class="purple">The farm is being sabotaged at night.</span>
+				<span class="purple">농장이 밤에 공격받고 있다.</span>
 			<<elseif $farm.aggro gte 20>>
-				<span class="blue">Something is spooking the beasts of the farm.</span>
+				<span class="blue">무언가가 농장의 동물들을 겁먹게 하고 있다.</span>
 			<<elseif $farm.aggro gte 10>>
-				<span class="lblue">Signs of intrusion have been found around the farm.</span>
+				<span class="lblue">농장 주위에서 침입의 흔적들이 발견되고 있다.</span>
 			<<elseif $farm.aggro gte 1>>
-				<span class="teal">Strange people have been seen watching the farm.</span>
+				<span class="teal">이상한 사람들이 농장 근처에서 보이고 있다.</span>
 			<<else>>
-				<span class="green">The farm is peaceful.</span>
+				<span class="green">농장은 평온하다.</span>
 			<</if>>
 		<<case "farm">>
-			One of the fields is being cleared,
+			밭들 중 하나가 정리되는 중이다.
 			<<if $farm.clearing lte 0>>
-				<span class="green">and is ready for planting!</span>
+				<span class="green">그리고 이제 작물을 심을 준비가 되었다!</span>
 			<<elseif $farm.clearing lte 20>>
-				<span class="teal">and is almost ready for planting.</span>
+				<span class="teal">그리고 거의 작물을 심을 준비가 되었다.</span>
 			<<elseif $farm.clearing lte 40>>
-				<span class="lblue">and is starting to look civilised.</span>
+				<span class="lblue">그리고 어느 정도 정리되어 보이기 시작한다.</span>
 			<<elseif $farm.clearing lte 60>>
-				<span class="blue">and soil has been exposed in places.</span>
+				<span class="blue">그리고 곳곳에 토양이 노출되어 보인다.</span>
 			<<elseif $farm.clearing lte 80>>
-				<span class="purple">but the tangle remains defiant.</span>
+				<span class="purple">그러나 넝쿨들이 아직 무성하다.</span>
 			<<elseif $farm.clearing lte 99>>
-				<span class="pink">but little progress has been made.</span>
+				<span class="pink">그러나 거의 진행되지 않았다.</span>
 			<<else>>
-				<span class="red">but remains a jungle of weeds.</span>
+				<span class="red">그러나 잡초들이 정글을 이루고 있다.</span>
 			<</if>>
 			<<if $farm.clearing gt 0>>
-				| <<farmicon "clear yard">><<link "Clear field">><<set $farm.clearing to 0>><<replace "#farmYard">><<cheatsRep "farm">><</replace>><</link>>
+				| <<farmicon "clear yard">><<link "밭을 정리한다">><<set $farm.clearing to 0>><<replace "#farmYard">><<cheatsRep "farm">><</replace>><</link>>
 			<<else>>
-				<span class="green">Talk to Alex to advance farm progress.</span>
+				<span class="green">농장 진행을 하려면 알렉스와 이야기해야 한다.</span>
 			<</if>>
 		<<case "crossdress">>
 			<<switch $schoolrep.crossdress>>
-				<<case 5>><span class="red">Your crossdressing has become common knowledge at school. Everyone knows, including the teachers.</span>
-				<<case 4>><span class="pink">Rumours of your crossdressing are spreading throughout the school.</span>
-				<<case 3>><span class="purple">Rumours of your crossdressing are spreading, and have become a popular topic of conversation at school.</span>
-				<<case 2>><span class="blue">Whispers of your crossdressing are spreading through the school.</span>
-				<<case 1>><span class="lblue">A few cliques at school have begun whispering of your crossdressing.</span>
-				<<default>><span class="green">No one is spreading rumours about you at school.</span>
+				<<case 5>><span class="red">학교 내에서 당신이 크로스드레서라는 건 공공연한 사실이 되었다. 선생님들을 포함해서, 모두가 알고 있다.</span>
+				<<case 4>><span class="pink">학교 전체에 당신이 크로스드레서라는 소문이 퍼지고 있다.</span>
+				<<case 3>><span class="purple">학교에 당신이 크로스드레서라는 소문이 퍼지고 있고, 흔한 대화 주제 중 하나가 되었다.</span>
+				<<case 2>><span class="blue">당신이 크로스드레서라는 내용의 귓속말이 학교에 퍼지고 있다.</span>
+				<<case 1>><span class="lblue">학교 내의 몇몇 학생들이 당신이 크로스드레서라며 귓속말을 하기 시작했다.</span>
+				<<default>><span class="green">누구도 당신에 대한 소문을 퍼뜨리고 있지 않다.</span>
 			<</switch>>
 		<<case "herm">>
 			<<switch $schoolrep.herm>>
-				<<case 5>><span class="red">Everyone at school has heard of your unique genitalia, including the teachers.</span>
-				<<case 4>><span class="pink">Rumours of your unique genitalia have spread throughout the school.</span>
-				<<case 3>><span class="purple">It sounds far-fetched to many, but the school is rife with gossip about a student with both boy and girl parts.</span>
-				<<case 2>><span class="blue">Rumours of a student with both boy and girl parts are spreading through the school.</span>
-				<<case 1>><span class="lblue">A few cliques at school have begun whispering about a student with both boy and girl parts.</span>
-				<<default>><span class="green">No one is spreading rumours about you at school.</span>
+				<<case 5>><span class="red">선생님들을 포함해서, 학교의 모두가 당신의 독특한 성기에 대해 들어보았다.</span>
+				<<case 4>><span class="pink">학교 전체에 당신의 독특한 성기에 대한 소문이 퍼지고 있다.</span>
+				<<case 3>><span class="purple">많은 학생들이 믿지는 않으나, 남성기와 여성기를 모두 가진 학생에 대한 소문이 학교에 만연하다.</span>
+				<<case 2>><span class="blue">남성기와 여성기를 모두 가진 학생에 대한 소문이 학교에 퍼지고 있다.</span>
+				<<case 1>><span class="lblue">학교 내의 몇몇 학생들이 남성기와 여성기를 모두 가진 학생에 대해 귓속말을 하기 시작했다.</span>
+				<<default>><span class="green">누구도 당신에 대한 소문을 퍼뜨리고 있지 않다.</span>
 			<</switch>>
 		<<case "wolfpackleader" "pirate_rank">>
-				<<set _ranks to _args[0] is "pirate_rank" ? {0: "Scum", 1: "Mate"} : {0: "Packmate", 1: "Pack leader"}>>
+				<<set _ranks to _args[0] is "pirate_rank" ? {0: "쓰레기", 1: "동료"} : {0: "무리 동료", 1: "무리 우두머리"}>>
 				<<capture _i, _ranks>>
 				    <<for _i to 0; _i lt Object.keys(_ranks).length; _i++>>
 						<span @class="V[_args[0]] is _i ? 'goldLink' : 'unselected'">
@@ -1479,7 +1479,7 @@
 
 <<widget "cheats-teleport">>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Teleportation</div>
+		<div class="settingsHeader options">순간이동</div>
 		<<if ["Clothing Shop", "Forest Shop", "School Library Shop", "Adult Shop Store"].includes($passage)>>
 			<div class="settingsToggleItemWide">
 				<span class="red">옷 가게에서의 순간이동은 당신의 옷장을 망칠 수 있습니다.</span> 순간이동하기 전에 가게에서 나와 주세요.
@@ -1489,14 +1489,14 @@
 			<b>Overworld가 아닌 곳에서 순간이동하면 버그가 생길 수 있습니다.</b>
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold">Town Locations</span>
+				<span class="gold">도시 장소</span>
 				<br>
 				<<homeicon>>[[고아원|Orphanage]]
 				<br>
 				<<shopicon>>[[쇼핑 센터|Shopping Centre]]
 				<br>
 				<<if $dorenintro gte 1 and $exposed lte 0>>
-					<<dooricon "doren">><<link [[Doren's Flat|Doren Entrance]]>><</link>>
+					<<dooricon "doren">><<link [[도렌의 아파트|Doren Entrance]]>><</link>>
 					<br>
 				<</if>>
 				<<dancestudioicon>>[[무용 학원|Dance Studio]]
@@ -1548,7 +1548,7 @@
 				<<farmicon "barn">>[[농장|Farmland]]
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold">Town Streets</span>
+				<span class="gold">도시 거리</span>
 				<br>
 				<<domusicon>>[[도무스 가|Domus Street]]
 				<br>
@@ -1608,35 +1608,35 @@
 
 <<widget "cheats-other">>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Time and Weather</div>
+		<div class="settingsHeader options">시간과 날씨</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Advance time:</span>
+			<span class="gold">시간 진행:</span>
 			<br>
-			<<link [[15 minutes|$passage]]>><<pass 15>><</link>>
+			<<link [[15 분 뒤로|$passage]]>><<pass 15>><</link>>
 			<br>
-			<<link [[30 minutes|$passage]]>><<pass 30>><</link>>
+			<<link [[30 분 뒤로|$passage]]>><<pass 30>><</link>>
 			<br>
 			<<for _i, _hr range [1, 2, 3, 6, 8, 12, 16, 24]>>
 				<<capture _hr>>
-					<<set _hours to _i is 0 ? "hour" : "hours">>
+					<<set _hours to _i is 0 ? "시간 뒤로" : "시간 뒤로">>
 					<<link [[_hr _hours|$passage]]>><<pass _hr hour>><</link>>
 					<<= _i lt 7 ? "<br>" : "">>
 				<</capture>>
 			<</for>>
 		</div>
 		<div class="settingsToggleItem">
-			<span class="gold">Current Weather:</span>
+			<span class="gold">현재 날씨:</span>
 			<br>
 			<span id="cheatsWeather"><<cheatsWeather>></span>
 			<br>
-			<span class="description">Changing this setting will change the weather for at least 6 hours, before returning to the original weather simulation.</span>
+			<span class="description">이 설정을 변경하면 최소 6시간 동안 현재 날씨를 변경하며, 이후로 일반 날씨 시뮬레이션으로 돌아옵니다.</span>
 		</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold">기온</span>
 			<br>
 			<span class="description">내일까지 기본 온도를 올리거나 내립니다 - 그리고 점진적으로 적절한 온도로 돌아옵니다.<br>
 			그렇더라도 기본 온도는 하루의 시간 변화 같은 다른 요인에 의해 변화합니다 - 그리고 하루가 지나는 동안 고정되지 않을 것입니다.</span>
-			<<numberStepper "Outside Temperature" `Weather.toSelected(Weather.temperature)` {
+			<<numberStepper "실외 온도" `Weather.toSelected(Weather.temperature)` {
 				callback: value => {
 					Weather.Temperature.set(V.options.fahrenheit ? Weather.Temperature.toCelsius(value) : value);
 					Weather.Temperature.set(V.options.fahrenheit ? Weather.Temperature.toCelsius(value) : value, new DateTime(Time.date).addDays(1));
@@ -1645,36 +1645,36 @@
 				valueFormat: value => round(value, 1) + (V.options.fahrenheit ? "°F" : "°C"),
 				activeButtons: ["single", "double", "triple"]
 			}>>
-			<span class="description">Changes will be visible after at least 1 minute of game time passes.</span>
+			<span class="description">최소 1분 이상의 시간이 지나야 가시적으로 변화합니다.</span>
 		</div>
 	</div>
 
 	<<if $maxDefaultActionSets isnot undefined>>
 		<hr>
 		<div class="settingsGrid">
-			<div class="settingsHeader options">Default Action Sets</div>
+			<div class="settingsHeader options">기본 행동 세트</div>
 			<div class="settingsToggleItemWide">
-			Too many action sets may reduce combat performance. Without cheats, the max number of default action sets is 7.
-			<<numberStepper "Sets" $maxDefaultActionSets "maxDefaultActionSets" {min: 1, max: 10, step: 1, colorArr: ["--teal", "--teal"], percentage: false, activeButtons: ["single", "minMax"]}>>
+			너무 많게 설정하면 전투 퍼포먼스가 저하될 수 있습니다. 치트 없이는, 기본 행동 세트의 최대 값은 7입니다.
+			<<numberStepper "세트" $maxDefaultActionSets "maxDefaultActionSets" {min: 1, max: 10, step: 1, colorArr: ["--teal", "--teal"], percentage: false, activeButtons: ["single", "minMax"]}>>
 		</div>
 	<</if>>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Pregnancy</div>
+		<div class="settingsHeader options">임신</div>
 			<<if $parasitepregdisable is "t">>
 				<div class="settingsToggleItemWide">
 					<span class="gold">기생충 임신</span>
 					<br>
-					You need to enable parasitic pregnancy in the settings to access these cheats.
+					이 치트에 접근하려면 설정에서 기생충 임신을 활성화해야 합니다.
 				</div>
 			<<else>>
 				<div @class="$player.vaginaExist ? 'settingsToggleItem' : 'settingsToggleItemWide'">
 					<<if $sexStats.anus.pregnancy.type is "parasite" or $sexStats.anus.pregnancy.type is null>>
 						<div id="cheatsParasiteOptions-anus"><<cheatsParasiteOptions "anus">></div>
 					<<else>>
-						<span class="gold">Anal Parasitic Pregnancy</span>
+						<span class="gold">항문 기생충 임신</span>
 						<br>
-						You're currently pregnant with <<= $sexStats.anus.pregnancy.type>> children and can't get pregnant with anal parasites.
+						당신은 현재 <<trNPCdesc $sexStats.anus.pregnancy.type>><<= _trResult>> 아이를 임신하고 있어 항문 기생충 임신을 할 수 없습니다.
 					<</if>>
 				</div>
 				<<if $player.vaginaExist>>
@@ -1682,9 +1682,9 @@
 						<<if ($sexStats.vagina.pregnancy.type is "parasite" or $sexStats.vagina.pregnancy.type is null)>>
 							<div id="cheatsParasiteOptions-vagina"><<cheatsParasiteOptions "vagina">></div>
 						<<elseif !($sexStats.vagina.pregnancy.type is "parasite" or $sexStats.vagina.pregnancy.type is null)>>
-							<span class="gold">Vaginal Parasitic Pregnancy</span>
+							<span class="gold">질 기생충 임신</span>
 							<br>
-							You're currently pregnant with <<= $sexStats.vagina.pregnancy.type>> children and can't get pregnant with vaginal parasites.
+							당신은 현재 <<trNPCdesc $sexStats.vagina.pregnancy.type>><<= _trResult>> 아이를 임신하고 있어 질 기생충 임신을 할 수 없습니다.
 						<</if>>
 					</div>
 				<</if>>
@@ -1700,12 +1700,12 @@
 			<div class="settingsToggleItem">
 				<span class="gold">기생충이 아닌 임신</span>
 				<br>
-				You need to enable pregnancy in the settings to access these cheats.
+				이 치트에 접근하려면 설정에서 임신을 활성화해야 합니다.
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold">Impregnation</span>
+				<span class="gold">임신시키기</span>
 				<br>
-				You need to enable pregnancy in the settings to access these cheats.
+				이 치트에 접근하려면 설정에서 임신을 활성화해야 합니다.
 			</div>
 		<</if>>
 	</div>
@@ -1714,23 +1714,23 @@
 <<widget "cheatsParasiteOptions">>
 	<<capture _args, _anal, _type>>
 		<<set $_pregnancy to $sexStats[_args[0]].pregnancy>>
-		<<set _anal to _args[0] is "anus" ? "anal" : "vaginal">>
+		<<set _anal to _args[0] is "anus" ? "항문" : "질">>
 		<<set _slots to maxParasites(_args[0])>>
 		<<set $_aPregnancy to $sexStats[_args[0]].pregnancy>>
 		<<set _parasiteTypes to ["eels", "slimes", "fish", "snake", "worms", "tentacle", "lurker", "wasp", "bee", "squid", "vine", "slug", "maggots", "spiders"]>>
-		<<set $_linkName to "Clear current " + _anal + " pregnancies">>
+		<<set $_linkName to "현재의 " + _anal + " 임신 상태를 없앤다">>
 
-		<span class="gold"><<= _anal.toUpperFirst()>> Parasitic Pregnancy</span>
+		<span class="gold"><<= _anal>> 기생 임신</span>
 		<br>
-		You can have up to <<number _slots>> _anal <<= _slots is 1 ? "parasite" : "parasites">>.
+		당신은 최대 <<trNumber _slots>> 마리의 _anal <<= _slots is 1 ? "기생" : "기생">> 임신을 할 수 있습니다.
 		<<if $_pregnancy.fetus.length lt maxParasites(_args[0])>>
 			<br><br>
 			<<if $_aPregnancy.type is "parasite" or $_aPregnancy.type is null>>
-				Get Pregnant with a:
+				다음 생물로 기생 임신:
 				<br>
 				<<for _i, _type range _parasiteTypes>>
 					<<set _parasiteName to _type.endsWith('s') ? _type.slice(0, -1).toUpperFirst() : _type.toUpperFirst()>>
-					<<link _parasiteName>>
+					<<trCreature "all" _parasiteName>><<link _trResult>>
 						<<impregnateParasite _type true _args[0]>><<cheatsParasite _args[0] _hermaphrodite>>
 						<<set _hermaphrodite to false>>
 					<</link>>
@@ -1738,29 +1738,29 @@
 				<</for>>
 				<br>
 				<<if $_pregnancy.motherStatus lt 2>>
-					<label><<checkbox "_hermaphrodite" false true autocheck>> Hermaphrodite</label>
+					<label><<checkbox "_hermaphrodite" false true autocheck>> 자웅동체</label>
 				<<else>>
-					You can only have one hermaphrodite parasite in your _args[0] at a time.
+					자웅동체는 당신의 _anal 안에 한 번에 하나만 임신 가능합니다.
 				<</if>>
 			<<else>>
-				You are currently unable to host parasites due to your current _anal pregnancy.
+				당신은 현재의 _anal 임신 때문에 현재 기생 임신을 할 수 없습니다.
 			<</if>>
 			<br>
 		<<else>>
-			You cannot get <<= _anal + "ly">> pregnant with any more parasites.
+			당신은 <<= _anal>>에 더 기생 임신을 할 수 없습니다.
 		<</if>>
 		<hr>
 		<<for _i to 0; _i lt maxParasites(_args[0]); _i++>>
 			<<if $_aPregnancy.fetus[_i] isnot undefined>>
 				<<if $_aPregnancy.fetus[_i].fertilised>>
-					<<= _anal.toUpperFirst()>> slot <<=_i+1>> is pregnant with a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature.
+					<<= _anal>> 슬롯 <<=_i+1>> 번에 <<putpost $_aPregnancy.fetus[_i].stats.gender>> <<trCreature "all" $_aPregnancy.fetus[_i].creature "이">>_trResult 기생 임신되어 있습니다.
 					<br>
 				<<else>>
-					<<= _anal.toUpperFirst()>> slot <<=_i+1>> has a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature egg ready to be fertilised.
+					<<= _anal>> 슬롯 <<=_i+1>> 번에 <<putpost $_aPregnancy.fetus[_i].stats.gender>> <<trCreature "all" $_aPregnancy.fetus[_i].creature "의">>_trResult 알이 부화할 준비가 되어 있습니다.
 					<br>
 				<</if>>
 			<<else>>
-				<<= _anal.toUpperFirst()>> slot <<=_i+1>> is empty.
+				<<= _anal>> 슬롯 <<=_i+1>> 번은 비어 있습니다.
 				<br>
 			<</if>>
 		<</for>>
@@ -1816,25 +1816,25 @@
 		<<set _menstruation to $sexStats.vagina.menstruation>>
 		<<set $_pregnancy to getPregnancyObject()>>
 		<<if !playerIsPregnant() and $cycledisable == "f">>
-			You aren't pregnant.
+			당신은 임신하지 않았습니다.
 			<<if $pregnancytype is "realistic">>
-				You have <span id="cheatSpermSources"><span class="gold"><span class="gold">$sexStats[_womb].sperm.length</span></span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">></span> contributing to your chances of getting pregnant.
+				당신 안에는 당신을 임신시킬 수 있는 <span id="cheatSpermSources"><span class="gold"><span class="gold">$sexStats[_womb].sperm.length</span></span> <<= $sexStats[_womb].sperm.length is 1 ? "종의 정액" : "종의 정액">></span>이 있습니다.
 			<</if>>
 			<br><br>
-			Menstruation:
+			월경 주기:
 			<br>
 			<<link "<<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
 			<<link "<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
-			Day <span id="cheatMenstruationDay"><<= Math.trunc(_menstruation.currentDay)>></span> of _menstruation.currentDaysMax
-			| <<link "Ovulate">><<set _menstruation.currentDay to _menstruation.stages[2]>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
+			<span id="cheatMenstruationDay"><<= Math.trunc(_menstruation.currentDay)>></span>일 / _menstruation.currentDaysMax일
+			| <<link "배란">><<set _menstruation.currentDay to _menstruation.stages[2]>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
 			| <<link ">">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
 			| <<link ">>">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
 			<br><br>
 		<</if>>
 		<<if playerIsPregnant()>>
-			You are pregnant.
+			당신은 임신했습니다.
 			<<set _pregnancyTimer to getPregnancyObject()>>
-			<<numberStepper "Pregnancy progress" _pregnancyTimer.timer {
+			<<numberStepper "임신 진행률" _pregnancyTimer.timer {
 				callback: value => {
 					getPregnancyObject().timer = value;
 					Wikifier.wikifyEval("<<updatesidebarimg>>");
@@ -1870,7 +1870,7 @@
 			<span class="description">이것은 치트이지, 유산시키는 것이 아닙니다.</span>
 		<<else>>
 			<<if ($playerPregnancyHumanDisable == "f" or $playerPregnancyBeastDisable == "f") and !playerIsPregnant()>>
-				Get pregnant from:
+				다음 상대와 임신합니다:
 				<br>
 				<<if $playerPregnancyHumanDisable == "f">>
 					<<link [[임의의 인간|$passage]]>> /* checks if males or females have penises, if there is no people with penises a foreigner impregnates PC */
@@ -1923,12 +1923,12 @@
 				<</if>>
 				<br><br>
 				<<if $pregnancytype is "realistic">>
-					Add sperm from:
+					정액 추가:
 					<br>
 					<<if $playerPregnancyHumanDisable == "f">>
-						<<link "An anonymous donor">> /* The sperm owner is always the same, anonymous donor, so it helps pregnancy from only one source */
+						<<link "익명의 기부자">> /* The sperm owner is always the same, anonymous donor, so it helps pregnancy from only one source */
 							<<recordSperm `{target: "pc", spermOwner: "anonymous donor", spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "종의 정액" : "종의 정액">><</replace>>
 						<</link>>
 						| <<link "임의의 인간">> /* checks if males or females have penises, if there is no people with penises a foreigner inseminates PC */
 							<<set _impregnator to either("arbitrary", "aimless", "by-the-way", "casual", "driftless", "hit-or-miss", "fluky", "promiscuous", "slapdash",  "irresponsible", "careless", "negligent") + " cheater ">>
@@ -1942,7 +1942,7 @@
 								<<set _impregnator += "foreigner">>
 							<</if>>
 							<<recordSperm `{target: "pc", spermOwner: _impregnator, spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "종의 정액" : "종의 정액">><</replace>>
 						<</link>>
 					<</if>>
 					<<if $playerPregnancyBeastDisable == "f">>
@@ -1956,7 +1956,7 @@
 								<<set _impregnator to "foreign cheater wolf">>
 							<</if>>
 							<<recordSperm `{target: "pc", spermOwner: _impregnator, spermType: "wolf", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "종의 정액" : "종의 정액">><</replace>>
 						<</link>>
 					<</if>>
 					<<for _pregEnabled range _impregnatorNPC>>
@@ -1972,29 +1972,29 @@
 						<<capture _actor, _spermType, _womb>>
 						| <<trNamedNPC _actor.nam>><<link _trResult>>
 							<<recordSperm `{target: "pc", spermOwner: _actor.nam, spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "종의 정액" : "종의 정액">><</replace>>
 						<</link>>
 						<</capture>>
 					<</for>>
 					<<if $player.penisExist>>
 						| <<link "당신 자신">>
 							<<recordSperm `{target: "pc", spermOwner: "pc", spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "종의 정액" : "종의 정액">><</replace>>
 						<</link>>
 					<</if>>
 				<</if>>
 			<</if>>
 		<</if>>
 	<<else>>
-		You are unable to get pregnant.
+		당신은 임신할 수 없습니다.
 	<</if>>
 <</widget>>
 
 <<widget "cheatsImpregOptions">>
-	<span class="gold">Impregnation</span>
+	<span class="gold">임신시키기</span>
 	<<if $player.penisExist and _impregnatableNPC.length>>
 		<br>
-		You can impregnate <span class="gold">_impregnatableNPC.length</span> fertile <<= _impregnatableNPC.length is 1 ? "NPC" : "NPCs">>.
+		당신은 <span class="gold">_impregnatableNPC.length</span> 명의 임신가능한 <<= _impregnatableNPC.length is 1 ? "NPC를" : "NPC들을">> 임신시킬 수 있다.
 		<br><br>
 		<<set _fertileNPC to 0>>
 		<<for _pregEnabled range _impregnatableNPC>>
@@ -2004,23 +2004,23 @@
 				<<continue>>
 			<</if>>
 			<<set _fertileNPC += 1>>
-			<<= _actor.nam>>:
+			<<trNamedNPC _actor.nam>><<= _trResult>>:
 			<br>
 			<<capture _actor>>
-				<<set _linkText to "Impregnate">>
+				<<set _linkText to "임신시킨다">>
 				<<link [[_linkText|$passage]]>>
 					<<namedNpcPregnancy _actor.nam "pc" "human" true undefined true>>
 				<</link>>
 				<<if $pregnancytype is "realistic">>
-					<<set _linkText to "Inseminate">>
+					<<set _linkText to "수정시킨다">>
 					- <<link _linkText>>
 						<<recordSperm `{target: _actor.nam, spermOwner: "pc", spermType: "human", genital: "vagina"}`>>
-						<<replace `"#cheatSpermSources" + _actorNameNoSpace`>>(<<= _actor.pregnancy.sperm.length>> doses)<</replace>>
+						<<replace `"#cheatSpermSources" + _actorNameNoSpace`>>(정액량 <<= _actor.pregnancy.sperm.length>>)<</replace>>
 					<</link>>
-					<span @id="'cheatSpermSources' + _actorNameNoSpace" class="description">(<<= _actor.pregnancy.sperm.length>> doses)</span>
+					<span @id="'cheatSpermSources' + _actorNameNoSpace" class="description">(정액량 <<= _actor.pregnancy.sperm.length>>)</span>
 				<</if>>
 				<<if $cycledisable == "f">>
-					- <<link [[Set cycle to fertile days|$passage]]>>
+					- <<link [[임신 주기를 임신 가능일로 변경|$passage]]>>
 						<<set _actor.pregnancy.cycleDay to _actor.pregnancy.cycleDangerousDay - 1>>
 					<</link>>
 				<</if>>
@@ -2028,11 +2028,11 @@
 			<br>
 		<</for>>
 		<<if !_fertileNPC is 0>>
-			You can't impregnate any other NPCs.
+			당신은 다른 어떤 NPC도 임신시킬 수 없습니다.
 		<</if>>
 	<<else>>
 		<br>
-		You can't currently impregnate any NPCs<<if !$player.penisExist>>, since you have no penis<</if>>.
+		당신은<<if !$player.penisExist>> 자지가 없기 때문에<</if>> 현재 어떤 NPC도 임신시킬 수 없습니다.
 	<</if>>
 
 	<<for _pregEnabled range $NPCName>> /* Checks for any pregnant named NPC. */
@@ -2043,7 +2043,7 @@
 
 	<<if Object.keys(_pregnantNPC).length>>
 		<hr>
-		<span class="gold">Pregnant NPCs</span>
+		<span class="gold">임신한 NPC들</span>
 		<br>
 		<<trListboxItemsFromArray "_pregnantNPC">><<listbox "_pregnantNPCId" autoselect>>
 			<<optionsfrom _trListboxItems>>
@@ -2057,7 +2057,7 @@
 <</widget>>
 
 <<widget "cheatPregnancyNPCStepper">>
-<<numberStepper "Pregnancy progress" _pregnancyNPC.timer {
+<<numberStepper "임신 진행도" _pregnancyNPC.timer {
 	callback: (value, arr) => {
 		$NPCName[arr[0]].pregnancy.timer = value;
 		Wikifier.wikifyEval("<<updatesidebarimg>>");
@@ -2070,7 +2070,7 @@
 <<widget "cheatPregnancyNPC">>
 	<<set _pregnancyNPC to $NPCName[_args[0]].pregnancy>>
 	<<set $_fatherName to pregnancyNameCorrection(_pregnancyNPC.fetus[0].father)>>
-	<<= $NPCName[_args[0]].nam>> is pregnant with <<= _pregnancyNPC.type is "wolf" ? "wolve" : _pregnancyNPC.type>>s. <<= $_fatherName === "yourself" ? "You are" : $_fatherName.toUpperFirst() + "is">> the father.
+	<<trNamedNPC $NPCName[_args[0]].nam "은">><<= _trResult>> <<trBeasttypeFun _pregnancyNPC.type "을">><<= _trResult>> 임신했다. <<= $_fatherName === "당신 자신" ? "당신" : $_fatherName>>?i 아기 아빠이다.
 	<span id="cheatNPCPregnancyProgress">
 		<<cheatPregnancyNPCStepper _args[0]>>
 	</span>
@@ -2113,19 +2113,19 @@
 	<<for _class range ["red", "pink", "purple", "blue", "lblue", "teal", "green", "gold"]>>
 		<<removeclass _args[0] _class>>
 	<</for>>
-	<<if _args[1] is "On">><<addclass _args[0] "green">>
-	<<elseif ["Off", "Disabled"].includes(_args[1])>><<addclass _args[0] "red">>
+	<<if _args[1] is "있음">><<addclass _args[0] "green">>
+	<<elseif ["없음", "비활성화"].includes(_args[1])>><<addclass _args[0] "red">>
 	<<else>><<addclass _args[0] _statColour>>
 	<</if>>
 <</widget>>
 
 <<widget "cheatsBody">>
-	<<set _bodyTypes to ["masculine", "feminine", "androgynous"]>>
+	<<set _bodyTypes to ["masculine", "feminine", "androgynous"]>><<set _trBodyTypes to ["남성적", "여성적", "중성적"]>>
 
 	<<capture _i>>
 		<<for _i = 0; _i < _bodyTypes.length; _i++>>
 			<span @class="$player.gender_body is _bodyTypes[_i].charAt(0) ? 'goldLink' : 'unselected'">
-				<<link _bodyTypes[_i].toUpperFirst()>>
+				<<link _trBodyTypes[_i]>>
 					<<set $player.gender_body to _bodyTypes[_i].charAt(0)>>
 					<<replace "#statsBodyType">><<cheatsBody>><</replace>><<updatesidebarimg>>
 				<</link>>
@@ -2136,7 +2136,7 @@
 
 <<widget "cheatsBodySize">>
 	<<set _size = [6000, 10000, 12000, 16000]>>
-	<<set _label = ["Tiny", "Small", "Normal", "Large"]>>
+	<<set _label = ["조그마함", "작음", "평범함", "큼"]>>
 
 	<<capture _i, _size, _label>>
 		<<for _i = 0; _i < _size.length; _i++>>
@@ -2163,7 +2163,7 @@
 
 			<<set _weatherIcon to `<<icon 'weather/${_dayState}_${_iconType}.png'>>`>>
 
-			<<set _weatherName to _weatherState.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase().toUpperFirst()>>
+			<<set _weatherName to trWeather(_weatherState)>>
 			<<= _weatherIcon.replace("none", "rain")>>
 			<span @class="Weather.name is _weatherState ? 'goldLink' : 'unselected'">
 				<<link _weatherName>>
@@ -2178,12 +2178,12 @@
 
 <<widget "cheatsGender">>
 	<<set _reasons to []>>
-	<<if $sexStats.vagina.menstruation.currentState isnot "normal">><<set _reasons.push($sexStats.vagina.menstruation.currentState is "recovering" ? "you still being in recovery from your last pregnancy" : "your pregnancy")>><</if>>
-	<<if $earSlime.growth gt 50>><<set _reasons.push("your ear slime's current growth")>><</if>>
+	<<if $sexStats.vagina.menstruation.currentState isnot "normal">><<set _reasons.push($sexStats.vagina.menstruation.currentState is "recovering" ? "마지막 출산에서 아직 회복중이" : "임신중이")>><</if>>
+	<<if $earSlime.growth gt 50>><<set _reasons.push("당신의 귓속 슬라임이 현재 성장도가 높")>><</if>>
 	<<if _inWardrobe>>
 		<<if _reasons.length gte 1>>
 			<span class="gold"><<= $player.gender is "m" ? "남자" : $player.gender is "f" ? "여자" : "후타나리">></span>
-			| This setting cannot be changed due to <<= _reasons.join(" and ")>>.
+			| 이 설정은 <<= _reasons.join("고 ")>>기 때문에 변경할 수 없습니다.
 		<<else>>
 			<<if $player.gender is "m">>
 				<span class="gold">남자</span> |
@@ -2252,95 +2252,95 @@
 			<</link>>
 		<</if>>
 	<<else>>
-		<span class="gold"><<= $player.gender is "m" ? "Male" : $player.gender is "f" ? "Female" : "Hermaphrodite">></span> | <<if _reasons.length gte 1>>You cannot change your gender due to <<= _reasons.join(" and ")>>. Normally, this<<else>>This<</if>> setting can only be changed when accessing your wardrobe.
+		<span class="gold"><<= $player.gender is "m" ? "남자" : $player.gender is "f" ? "여자" : "후타나리">></span> | <<if _reasons.length gte 1>>이 설정은 <<= _reasons.join("고 ")>>기 때문에 변경할 수 없습니다. 일반적으로, 이<<else>>이<</if>> 설정은 당신이 옷장에 있을 때에만 변경할 수 있습니다.
 	<</if>>
 <</widget>>
 
 <<widget "cheatSection">>
 	<<switch _args[0]>>
 		<<case "state">>
-			<<numberStepper "Pain" $pain { callback: value => { V.pain = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 200, reverse: true}>>
-			<<numberStepper "Arousal" $arousal { callback: value => { V.arousal = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
-			<<numberStepper "Fatigue" $tiredness { callback: value => { V.tiredness = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 2000, reverse: true}>>
-			<<numberStepper "Stress" $stress { callback: value => { V.stress = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
-			<<numberStepper "Trauma" $trauma { callback: value => { V.trauma = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 5000, reverse: true}>>
-			<<numberStepper "Control" $control { callback: value => { V.control = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000}>>
-			<<numberStepper "Alcohol" $drunk { callback: value => { V.drunk = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000, reverse: true}>>
-			<<numberStepper "Drugs" $drugged { callback: value => { V.drugged = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000, reverse: true}>>
-			<<numberStepper "Hallucinogens" $hallucinogen { callback: value => { V.hallucinogen = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000, reverse: true}>>
+			<<numberStepper "고통" $pain { callback: value => { V.pain = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 200, reverse: true}>>
+			<<numberStepper "흥분" $arousal { callback: value => { V.arousal = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
+			<<numberStepper "피로" $tiredness { callback: value => { V.tiredness = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 2000, reverse: true}>>
+			<<numberStepper "스트레스" $stress { callback: value => { V.stress = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 10000, reverse: true}>>
+			<<numberStepper "트라우마" $trauma { callback: value => { V.trauma = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 5000, reverse: true}>>
+			<<numberStepper "통제력" $control { callback: value => { V.control = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000}>>
+			<<numberStepper "취기" $drunk { callback: value => { V.drunk = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000, reverse: true}>>
+			<<numberStepper "약물" $drugged { callback: value => { V.drugged = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000, reverse: true}>>
+			<<numberStepper "환각" $hallucinogen { callback: value => { V.hallucinogen = value; Wikifier.wikifyEval("<<updatesidebarimg>>") }, max: 1000, reverse: true}>>
 		<<case "crime">>
 			<<for _cr range Object.keys(setup.crimeNames)>>
 				<<capture _cr>>
-					<<numberStepper toTitleCase(setup.crimeNames[_cr]) $crime[_cr].current { callback: (value, arr) => { V.crime[arr[0]].current = value }, max: 10000, step: 10, reverse: true, percentage: false, values: [_cr]}>>
+					<<trCrimeName `setup.crimeNames[_cr]`>><<numberStepper _trResult $crime[_cr].current { callback: (value, arr) => { V.crime[arr[0]].current = value }, max: 10000, step: 10, reverse: true, percentage: false, values: [_cr]}>>
 				<</capture>>
 			<</for>>
 			<<unset _cr>>
 		<<case "negative">>
-			<<numberStepper "Sex" $fame.sex { callback: value => { V.fame.sex = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Prostitution" $fame.prostitution { callback: value => { V.fame.prostitution = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Rape" $fame.rape { callback: value => { V.fame.rape = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Bestiality" $fame.bestiality { callback: value => { V.fame.bestiality = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Pregnancy" $fame.pregnancy { callback: value => { V.fame.pregnancy = value }, max: Math.clamp(playerNormalPregnancyTotal(),1,8) * 250, step: 2000 / 100,  percentage: false, reverse: true, valueFormat: (value) => `<b>${Math.round(((value - 0) / (2000 - 0)) * 100)}%</b>`}>>
-			<<numberStepper "Impregnation" $fame.impreg { callback: value => { V.fame.impreg = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Exhibitionism" $fame.exhibitionism { callback: value => { V.fame.exhibitionism = value }, max: 2000, reverse: true}>>
+			<<numberStepper "섹스" $fame.sex { callback: value => { V.fame.sex = value }, max: 2000, reverse: true}>>
+			<<numberStepper "매춘" $fame.prostitution { callback: value => { V.fame.prostitution = value }, max: 2000, reverse: true}>>
+			<<numberStepper "강간" $fame.rape { callback: value => { V.fame.rape = value }, max: 2000, reverse: true}>>
+			<<numberStepper "수간" $fame.bestiality { callback: value => { V.fame.bestiality = value }, max: 2000, reverse: true}>>
+			<<numberStepper "임신" $fame.pregnancy { callback: value => { V.fame.pregnancy = value }, max: Math.clamp(playerNormalPregnancyTotal(),1,8) * 250, step: 2000 / 100,  percentage: false, reverse: true, valueFormat: (value) => `<b>${Math.round(((value - 0) / (2000 - 0)) * 100)}%</b>`}>>
+			<<numberStepper "수태" $fame.impreg { callback: value => { V.fame.impreg = value }, max: 2000, reverse: true}>>
+			<<numberStepper "노출증" $fame.exhibitionism { callback: value => { V.fame.exhibitionism = value }, max: 2000, reverse: true}>>
 			<<if playerNormalPregnancyTotal() lt 8>>
 				<span class="description"><<set _pregsNeeded to Math.trunc(8-playerNormalPregnancyTotal())>>
-				Your pregnancy fame is capped by the amount of pregnancies you've had. You need to get pregnant <span class="gold"><<number _pregsNeeded>></span> more <<= _pregsNeeded is 1 ? "time" : "times">> to reach maximum pregnancy fame.</span>
+				당신의 임신 명성은 당신이 경험한 임신 횟수에 의해 최대치가 제한되어 있습니다. 최대 임신 명성을 얻기 위해서는 <span class="gold"><<trNumber _pregsNeeded>></span> 번 더 임신해야 할 필요가 있습니다.</span>
 			<</if>>
 		<<case "positive">>
-			<<numberStepper "Combat" $fame.scrap { callback: value => { V.fame.scrap = value }, max: 2000}>>
-			<<numberStepper "Kindness" $fame.good { callback: value => { V.fame.good = value }, max: 2000}>>
-			<<numberStepper "Business" $fame.business { callback: value => { V.fame.business = value }, max: 2000}>>
-			<<numberStepper "Socialite" $fame.social { callback: value => { V.fame.social = value }, max: 2000}>>
-			<<numberStepper "Model" $fame.model { callback: value => { V.fame.model = value }, max: 2000}>>
+			<<numberStepper "전투" $fame.scrap { callback: value => { V.fame.scrap = value }, max: 2000}>>
+			<<numberStepper "친절" $fame.good { callback: value => { V.fame.good = value }, max: 2000}>>
+			<<numberStepper "사업" $fame.business { callback: value => { V.fame.business = value }, max: 2000}>>
+			<<numberStepper "사교" $fame.social { callback: value => { V.fame.social = value }, max: 2000}>>
+			<<numberStepper "모델" $fame.model { callback: value => { V.fame.model = value }, max: 2000}>>
 		<<case "skills">>
-			<<numberStepper "Skulduggery" $skulduggery "skulduggery" {max: 1000}>>
-			<<numberStepper "Dance" $danceskill "danceskill" {max: 1000}>>
-			<<numberStepper "Swimming" $swimmingskill "swimmingskill" {max: 1000}>>
-			<<numberStepper "Athletics" $athletics "athletics" {max: 1000}>>
-			<<numberStepper "Tending" $tending "tending" {max: 1000}>>
-			<<numberStepper "Housekeeping" $housekeeping "housekeeping" {max: 1000}>>
+			<<numberStepper "속임수" $skulduggery "skulduggery" {max: 1000}>>
+			<<numberStepper "춤" $danceskill "danceskill" {max: 1000}>>
+			<<numberStepper "수영" $swimmingskill "swimmingskill" {max: 1000}>>
+			<<numberStepper "운동" $athletics "athletics" {max: 1000}>>
+			<<numberStepper "관리" $tending "tending" {max: 1000}>>
+			<<numberStepper "정리정돈" $housekeeping "housekeeping" {max: 1000}>>
 		<<case "school">>
 			/* normally, school traits are adjusted by the widget "school_skill_change" */
-			<<numberStepper "<<scienceicon>> Science" $science "science" {
+			<<numberStepper "<<scienceicon>> 과학" $science "science" {
 				callback: (value) => wikifier('adjust_school_traits'),
 				max: 1000
 			}>>
-			<<numberStepper "<<mathicon>> Maths" $maths "maths" {
+			<<numberStepper "<<mathicon>> 수학" $maths "maths" {
 				callback: (value) => wikifier('adjust_school_traits'),
 				max: 1000
 			}>>
-			<<numberStepper "<<englishicon>> English" $english "english" {
+			<<numberStepper "<<englishicon>> 영어" $english "english" {
 				callback: (value) => wikifier('adjust_school_traits'),
 				max: 1000
 			}>>
-			<<numberStepper "<<historyicon>> History" $history "history" {
+			<<numberStepper "<<historyicon>> 역사" $history "history" {
 				callback: (value) => wikifier('adjust_school_traits'),
 				max: 1000
 			}>>
 		<<case "characteristics">>
-			<<numberStepper "<<tficon angel>> Purity" $purity "purity" {max: 1000}>>
-			<<numberStepper "<<symbol beauty>> Beauty" $beauty "beauty" {max: 10000}>>
-			<<numberStepper "<<symbol physique>> Physique" $physique "physique" {max: $physiquesize}>>
-			<<numberStepper "<<symbol willpower>> Willpower" $willpower "willpower" {max: 1000}>>
-			<<numberStepper "<<symbol awareness>> Awareness" $awareness "awareness" {max: 1000, reverse: true}>>
-			<<numberStepper "<<symbol promiscuity>> Promiscuity" $promiscuity "promiscuity" {reverse: true}>>
-			<<numberStepper "<<symbol exhibitionism>> Exhibitionism" $exhibitionism "exhibitionism" {reverse: true}>>
-			<<numberStepper "<<symbol deviancy>> Deviancy" $deviancy "deviancy" {reverse: true}>>
+			<<numberStepper "<<tficon angel>> 순결도" $purity "purity" {max: 1000}>>
+			<<numberStepper "<<symbol beauty>> 용모" $beauty "beauty" {max: 10000}>>
+			<<numberStepper "<<symbol physique>> 신체 능력" $physique "physique" {max: $physiquesize}>>
+			<<numberStepper "<<symbol willpower>> 의지력" $willpower "willpower" {max: 1000}>>
+			<<numberStepper "<<symbol awareness>> 성지식" $awareness "awareness" {max: 1000, reverse: true}>>
+			<<numberStepper "<<symbol promiscuity>> 음란도" $promiscuity "promiscuity" {reverse: true}>>
+			<<numberStepper "<<symbol exhibitionism>> 노출증" $exhibitionism "exhibitionism" {reverse: true}>>
+			<<numberStepper "<<symbol deviancy>> 이상성욕" $deviancy "deviancy" {reverse: true}>>
 			<<if numberOfEarSlime()>>
-				<<numberStepper "<<symbol corruption>> Corruption" $earSlime.corruption { callback: value => {V.earSlime.corruption = value; Wikifier.wikifyEval("<<updatesidebarimg>>")}, reverse: true}>>
+				<<numberStepper "<<symbol corruption>> 오염도" $earSlime.corruption { callback: value => {V.earSlime.corruption = value; Wikifier.wikifyEval("<<updatesidebarimg>>")}, reverse: true}>>
 			<</if>>
 		<<case "sex">>
-			<<numberStepper "Seduction" $seductionskill "seductionskill" {max: 1000}>>
-			<<numberStepper "Chest" $chestskill "chestskill" {max: 1000}>>
-			<<numberStepper "Buttocks" $bottomskill "bottomskill" {max: 1000}>>
-			<<if $player.vaginaExist>><<numberStepper "Vaginal" $vaginalskill "vaginalskill" {max: 1000}>><</if>>
-			<<if $player.penisExist>><<numberStepper "Penile" $penileskill "penileskill" {max: 1000}>><</if>>
-			<<numberStepper "Thighs" $thighskill "thighskill" {max: 1000}>>
-			<<numberStepper "Oral" $oralskill "oralskill" {max: 1000}>>
-			<<numberStepper "Hands" $handskill "handskill" {max: 1000}>>
-			<<numberStepper "Anal" $analskill "analskill" {max: 1000}>>
-			<<numberStepper "Feet" $feetskill "feetskill" {max: 1000}>>
+			<<numberStepper "유혹" $seductionskill "seductionskill" {max: 1000}>>
+			<<numberStepper "가슴" $chestskill "chestskill" {max: 1000}>>
+			<<numberStepper "엉덩이" $bottomskill "bottomskill" {max: 1000}>>
+			<<if $player.vaginaExist>><<numberStepper "보지" $vaginalskill "vaginalskill" {max: 1000}>><</if>>
+			<<if $player.penisExist>><<numberStepper "자지" $penileskill "penileskill" {max: 1000}>><</if>>
+			<<numberStepper "허벅지" $thighskill "thighskill" {max: 1000}>>
+			<<numberStepper "입" $oralskill "oralskill" {max: 1000}>>
+			<<numberStepper "손" $handskill "handskill" {max: 1000}>>
+			<<numberStepper "항문" $analskill "analskill" {max: 1000}>>
+			<<numberStepper "발" $feetskill "feetskill" {max: 1000}>>
 		<<default>>
 			ERROR: Skill issue.
 	<</switch>>
