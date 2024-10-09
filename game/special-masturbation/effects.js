@@ -120,11 +120,11 @@ function masturbationEffects() {
 						} else if (V.mouth === "mbreast" || V.leftarm === "mbreasthold" || V.rightarm === "mbreasthold") {
 							if (V.mouth === "mbreast") {
 								sWikifier(
-									'<span class="green">With the loss of the control from the slime in your ear, you move your mouth away from your <<breasts>>.</span>'
+									'<span class="green">>당신 귓속의 슬라임이 통제력을 잃어버림에 따라, 당신은 입에서 당신의 <<breasts_ rul>> 치운다.</span>'
 								);
 							} else {
 								sWikifier(
-									'<span class="green">With the loss of the control from the slime in your ear, you stop squeezing your <<breasts>>.</span>'
+									'<span class="green">>당신 귓속의 슬라임이 통제력을 잃어버림에 따라, 당신은 <<breasts_ rul>> 짜내는 것을 그만둔다.</span>'
 								);
 							}
 							fragment.append(" ");
@@ -198,8 +198,8 @@ function masturbationEffects() {
 		if (V.arousal >= V.arousalmax * (4 / 5) || (V.earSlime.focus === "impregnation" && V.earSlime.growth >= 100)) {
 			if (genitalsExposed()) {
 				sWikifier(
-					`Your <<penis "strap-on">> bucks eagerly, and <span class="pink">precum leaps from the tip${
-						V.bugsinside && V.player.penissize >= 0 ? " covering some of the insects crawling over you" : ""
+					`당신의 <<penis_ ga "strap-on">> 격렬하게 움직이며, and <span class="pink">쿠퍼액이 끝에서 튀어${
+						V.bugsinside && V.player.penissize >= 0 ? "올라 그 위를 기어다니는 벌레 몇 마리를 뒤덮는다" : "오른다"
 					}.</span>`
 				);
 			} else {
@@ -208,8 +208,8 @@ function masturbationEffects() {
 		} else {
 			if (genitalsExposed()) {
 				sWikifier(
-					`Your <<penis "strap-on">> bucks eagerly, and <span class="pink">precum beads at the tip${
-						V.bugsinside && V.player.penissize >= 0 ? " covering some of the insects crawling over you" : ""
+					`당신의 <<penis_ ga "strap-on">> 격렬하게 움직이며, <span class="pink">쿠퍼액이 귀두에서 방울져${
+						V.bugsinside && V.player.penissize >= 0 ? "나와 그 위를 기어다니는 벌레 몇 마리를 뒤덮는다" : " 나온다"
 					}.</span>`
 				);
 			} else {
@@ -607,18 +607,18 @@ function masturbationEffectsArms(
 				if (V.lactating && V.breastfeedingdisable === "f" && V.bugsinside) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"You squeeze your <<breasts>> as much as you can stand, milking yourself as much as you can for the insects crawling over you."
+							"당신은 <<breasts_ rul>> 견딜 수 있는 한 많이 쥐어짜, 그 위를 기어다니는 벌레들을 위해 가능한 한 많이 모유를 짜낸다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						sWikifier("You fondle your <<breasts>> while allowing access the many insects crawling over you, to your nipples.");
+						sWikifier("당신은 <<breasts_ rul>> 애무하며 그 위를 기어다니는 벌레들을 가능한 많이 당신의 젖꼭지로 다가오도록 한다.");
 					} else {
-						sWikifier("You stroke your <<breasts>>, feeling the lewd warmth grow even as insects crawl over you.");
+						sWikifier("당신은 <<breasts_ rul>> 비비면서, 벌레들이 그 위를 기어다녀도 음란한 따뜻함이 점점 커지는 것을 느낀다.");
 					}
 				} else if (V.player.breastsize <= 2) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						fragment.append(
 							span(
-								"당신이 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
+								"당신이 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
 							)
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
@@ -631,7 +631,7 @@ function masturbationEffectsArms(
 				} else if (V.player.breastsize <= 5) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신이 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
+							"당신이 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier(
@@ -643,7 +643,7 @@ function masturbationEffectsArms(
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신은 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 희롱한다. 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
+							"당신은 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 희롱한다. 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier(
@@ -669,7 +669,7 @@ function masturbationEffectsArms(
 				} else if (V.player.breastsize <= 5) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 가지고 논다."
+							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 가지고 논다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("당신은 당신의 <<breasts_ rul>> 애무하며 <<top_ ul>> 통해 당신의 젖꼭지를 꼬집는다.");
@@ -681,7 +681,7 @@ function masturbationEffectsArms(
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜수 있는 한 많이 가지고 논다."
+							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 당신의 <<breasts_ rul>> 감싸고 당신의 민감한 젖꼭지를 견딜 수 있는 한 많이 가지고 논다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("당신은 당신의 <<breasts_ rul>> 애무하며 <<top_ ul>> 통해 당신의 젖꼭지를 꼬집는다.");
@@ -716,9 +716,9 @@ function masturbationEffectsArms(
 			wikifier("arousal", 50 * handsOn, "masturbationBreasts");
 			if (V.mouthaction === "mbreastentrance") {
 				// Should only be reachable with a single action
-				fragment.append(Wikifier.wikifyEval(`You hold onto your other <<breasts>> and bring it up to your mouth.`));
+				fragment.append(Wikifier.wikifyEval(`당신은 반대쪽 <<breasts_ rul>> 잡고 그 끝을 당신의 입으로 가져온다.`));
 			} else {
-				fragment.append(Wikifier.wikifyEval(`You hold onto ${doubleAction ? "both of your <<breasts>>" : "your <<breasts>>"}.`));
+				fragment.append(Wikifier.wikifyEval(`당신은 ${doubleAction ? "두 <<breasts_ rul>>" : "<<breasts_ rul>>"} 잡고 있다.`));
 			}
 			break;
 		case "mbreastfondle":
@@ -733,36 +733,36 @@ function masturbationEffectsArms(
 					if (V.lactating && V.breastfeedingdisable === "f" && V.bugsinside) {
 						if (V.arousal >= (V.arousalmax / 5) * 4) {
 							sWikifier(
-								"You squeeze your cupped <<breasts>> as much as you can stand, milking yourself as much as you can for the insects crawling over you."
+								"당신은 손으로 감싼 <<breasts_ rul>> 견딜 수 있는 한 많이 쥐어짜, 그 위를 기어다니는 벌레들을 위해 가능한 한 많이 모유를 짜낸다."
 							);
 						} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-							sWikifier("You fondle your cupped <<breasts>> while allowing access the many insects crawling over you, to your nipples.");
+							sWikifier("당신은 손으로 감싼 <<breasts_ rul>> 애무하며 그 위를 기어다니는 벌레들을 가능한 많이 당신의 젖꼭지로 다가오도록 한다.");
 						} else {
-							sWikifier("You stroke your cupped <<breasts>>, feeling the lewd warmth grow even as insects crawl over you.");
+							sWikifier("당신은 손으로 감싼 <<breasts_ rul>> 비비면서, 벌레들이 그 위를 기어다녀도 음란한 따뜻함이 점점 커지는 것을 느낀다.");
 						}
 					} else {
 						if (V.arousal >= (V.arousalmax / 5) * 4) {
 							fragment.append(
 								span(
-									"You squeeze your sensitive breasts and nipples as much as you can stand, each time sending jolts of excitement through you."
+									"당신이 당신의 민감한 가슴과 젖꼭지를 견딜 수 있는 한 많이 희롱하자, 손가락이 스칠 때 마다 흥분의 충격이 당신의 몸을 타고 달린다."
 								)
 							);
 						} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-							sWikifier("You squeeze your cupped <<breasts>> while occasionally giving your nipples a little tweak.");
+							sWikifier("당신은 손으로 감싼 <<breasts_ rul>> 애무하며 가끔씩 젖꼭지를 살짝 꼬집는다.");
 						} else {
-							sWikifier("You fondle your cupped <<breasts>> and rub your nipples between your fingers, feeling the lewd warmth grow.");
+							sWikifier("당신은 손으로 감싼 <<breasts_ rul>> 쓰다듬으며 손가락 사이로 젖꼭지를 비비면서, 음란한 따뜻함이 점점 커지는 것을 느낀다.");
 						}
 					}
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier(
-							"Your nipples stand erect against the fabric of your <<top>>, straining for attention. You cup your <<breasts>> and squeeze your sensitive <<breasts>> and nipples as much as you can bear."
+							"당신의 <<nipples_ ga>> 자극에 대한 반응으로 긴장하여, 당신의 <<topPost>> 안에서 발기한 채로 서 있다. 당신은 <<breasts_ rul>> 감싸고 당신의 민감한 <<breasts_ wa>> 젖꼭지를 견딜 수 있는 한 많이 쥐어짠다."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						sWikifier("You squeeze your cupped <<breasts>> and tweak your nipples through your <<top>>.");
+						sWikifier("당신은 손으로 감싼 <<breasts_ rul>> 쥐어짜며 <<top_ ul>> 통해 당신의 젖꼭지를 꼬집는다.");
 					} else {
 						sWikifier(
-							"You fondle your cupped <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way."
+							"당신은 손으로 감싼 <<breasts_ rul>> 애무하며 손가락 사이로 당신의 젖꼭지를 비빈다. 비록 당신의 <<topaside_ ga>> 사이에 있지만, 좋은 기분이 든다."
 						);
 					}
 				}
@@ -799,33 +799,33 @@ function masturbationEffectsArms(
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						fragment.append(
 							span(
-								`You pinch, twist and pull on the ${V.parasite.nipples.name} attached to your nipple${
-									handsOn > 1 ? "s" : ""
-								} as much as you can stand, enjoying both the pain and pleasure as ${handsOn > 1 ? "they bite" : "it bites"} harder onto you.`
+								`당신은${
+									handsOn > 1 ? " 양쪽" : ""
+								} 젖꼭지에 붙어있는 ${trParasite(V.parasite.nipples.name, "을")} 견딜 수 있는 한 많이 꼬집고, 비틀고, 잡아당기며, ${handsOn > 1 ? "그것들이" : "그것이"} 당신을 더 세게 물어뜯는 아픔과 쾌감을 즐긴다.`
 							)
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						fragment.append(
-							span(`You pinch the ${V.parasite.nipples.name} attached to your nipple${handsOn > 1 ? "s" : ""} as much as you can stand.`)
+							span(`당신은${handsOn > 1 ? " 양쪽" : ""} 젖꼭지에 붙어있는 ${trParasite(V.parasite.nipples.name, "을")} 견딜 수 있는 한 많이 꼬집는다.`)
 						);
 					} else {
-						fragment.append(span(`You lightly pinch the ${V.parasite.nipples.name} attached to your nipple${handsOn > 1 ? "s" : ""}.`));
+						fragment.append(span(`당신은${handsOn > 1 ? " 양쪽" : ""} 젖꼭지에 붙어있는 ${trParasite(V.parasite.nipples.name, "을")} 살짝 꼬집는다.`));
 					}
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						fragment.append(
 							span(
-								`You pinch, twist and pull on your nipple${
-									handsOn > 1 ? "s" : ""
-								} as much as you can stand, enjoying both the pain and pleasure${
-									V.pain >= 40 ? " while ignoring your tears the best you can" : ""
+								`당신은${
+									handsOn > 1 ? " 양쪽" : ""
+								} 젖꼭지를 견딜 수 있는 한 많이 꼬집고, 비틀고, 잡아당${
+									V.pain >= 40 ? "기며 흐르는 눈물은 가능한 무시하려고 노력한다" : "긴다"
 								}.`
 							)
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						fragment.append(span(`You pinch your nipple${handsOn > 1 ? "s" : ""} as much as you can stand.`));
+						fragment.append(span(`당신은${handsOn > 1 ? " 양쪽" : ""} 젖꼭지를 견딜 수 있는 한 많이 꼬집는다.`));
 					} else {
-						fragment.append(span(`You lightly pinch your nipple${handsOn > 1 ? "s" : ""}.`));
+						fragment.append(span(`당신은${handsOn > 1 ? " 양쪽" : ""} 젖꼭지를 살짝 꼬집는다.`));
 					}
 				}
 			} else {
@@ -837,9 +837,9 @@ function masturbationEffectsArms(
 			V[arm + "arm"] = 0;
 			if (doubleAction) {
 				V[otherArm + "arm"] = 0;
-				fragment.append(span(`You let go of both of your breasts.`));
+				fragment.append(span(`당신은 양쪽 가슴을 놓아둔다.`));
 			} else {
-				fragment.append(span(`You let go of your ${arm} breast.`));
+				fragment.append(span(`당신은 ${(arm == 'left'? "왼쪽" : "오른쪽")} 가슴을 놓아둔다.`));
 			}
 
 			// Deal with the players mouth actions
@@ -2909,12 +2909,12 @@ function masturbationEffectsMouth({
 			if (breastsHeld > 1) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`You ${breastsFondle ? "briefly stop fondling your breasts and lift them" : "lift both of your <<breasts>>"} up to your mouth.`
+						`당신은 ${breastsFondle ? "잠시 가슴을 애무하는 것을 멈추고 양쪽 가슴을" : "양쪽 <<breasts_ rul>>"} 입까지 들어올린다.`
 					)
 				);
 			} else {
 				fragment.append(
-					Wikifier.wikifyEval(`You ${breastsFondle ? "briefly stop fondling your breast and lift it" : "lift your breast"} up to your mouth.`)
+					Wikifier.wikifyEval(`당신은 ${breastsFondle ? "잠시 가슴을 애무하는 것을 멈추고 가슴을" : "가슴을"} 입까지 들어올린다.`)
 				);
 			}
 			break;
@@ -2925,26 +2925,27 @@ function masturbationEffectsMouth({
 				fragment.append(
 					Wikifier.wikifyEval(
 						`You drag your quivering tongue across over your exposed ${
-							breastsHeld > 1 ? "<<nipples>>" : "<<nipple>>"
-						}. Jolts of shocking pleasure shoot through your body.`
+						`당신은 떨리는 혀를 당신의 노출된 ${
+							breastsHeld > 1 ? "<<nipplesPost>> 위로" : "<<nipplePost>> 위로"
+						} 훑는다. 소름끼치는 쾌감의 충격이 당신의 몸 속을 내달린다.`
 					)
 				);
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`You circle the tip of your tongue around your exposed ${
-							breastsHeld > 1 ? "areolae. Your <<nipples>> stiffen" : "areola. Your <<nipple>> stiffens"
-						} in response.`
+						`당신은 혀 끝으로 당신의 노출된 ${
+							breastsHeld > 1 ? "유륜 주위에 동그라미를 그린다. 당신의 <<nipples_ i>>" : "유륜 주위에 동그라미를 그린다. 당신의 <<nipple_ i>>"
+						} 그 반응으로 단단해진다.`
 					)
 				);
 			} else {
-				fragment.append(Wikifier.wikifyEval(`You lick your exposed ${breastsHeld > 1 ? "<<nipples>>" : "<<nipple>>"}.`));
+				fragment.append(Wikifier.wikifyEval(`당신은 노출된 ${breastsHeld > 1 ? "<<nipples_ rul>>" : "<<nipple_ ul>>"} 핥는다.`));
 			}
 
 			if (V.lactating === 1 && V.breastfeedingdisable === "f") {
 				fragment.append(" ");
 				if (V.milk_amount >= 1) {
-					fragment.append(span("Milk leaks from your buds. It tastes sweet.", "lewd"));
+					fragment.append(span("모유가 당신의 젖꼭지에서 흘러내린다. 그것은 달콤하다.", "lewd"));
 					fragment.append(" ");
 					fragment.append(wikifier("breastfeed", 1 + breastsHeld, undefined, false));
 					fragment.append(wikifier("breastfed", T.milk_released)); // PC is breastfed by, well, themselves
@@ -2959,43 +2960,43 @@ function masturbationEffectsMouth({
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`You feverishly suck on ${
-							breastsHeld > 1 ? "both of your erect <<nipples>>" : "your erect <<nipple>>"
-						}. Your body jolts involuntarily with pleasure.`
+						`당신은 열광적으로 ${
+							breastsHeld > 1 ? "당신의 발기한 양쪽 <<nipples_ rul>>" : "당신의 발기한 <<nipple_ ul>>"
+						} 빨아댄다. 당신의 몸이 쾌감으로 자신도 모르게 급격히 꿈틀댄다.`
 					)
 				);
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`You tightly wrap your lips around your exposed ${
-							breastsHeld > 1 ? "<<nipples>> and suck on them. They feel" : "<<nipple>> and suck on it. It feels"
-						} stiff against your tongue.`
+						`당신은 노출된 ${
+							breastsHeld > 1 ? "양쪽 <<nipplesPost>> 주위로 당신의 입술을 단단히 감싸고 빤다. 그것들이" : "<<nipplePost>> 주위로 당신의 입술을 단단히 감싸고 빤다. 그것이"
+						} 당신의 혀 위에서 단단해진다.`
 					)
 				);
 			} else {
-				fragment.append(Wikifier.wikifyEval(`You suck on your exposed ${breastsHeld > 1 ? "<<nipples>>" : "<<nipple>>"}.`));
+				fragment.append(Wikifier.wikifyEval(`당신은 노출된 ${breastsHeld > 1 ? "양쪽 <<nipples_ rul>>" : "<<nipple_ ul>>"} 빤다.`));
 			}
 			if (V.lactating === 1 && V.breastfeedingdisable === "f") {
 				fragment.append(" ");
 				if (V.milk_amount >= 1) {
 					fragment.append(wikifier("breastfeed", breastsHeld, "drunk", false));
 					if (T.milk_released <= 5) {
-						fragment.append(span(`A small dribble of milk leaks from your bud${breastsHeld > 1 ? "s" : ""} onto your tongue.`, "lewd"));
+						fragment.append(span(`소량의 모유가 당신의${breastsHeld > 1 ? " 양쪽" : ""} 젖꼭지에서 혀로 흘러내린다.`, "lewd"));
 					} else if (T.milk_released <= 10) {
-						fragment.append(span(`A steady stream of milk trickles from your bud${breastsHeld > 1 ? "s" : ""} into your mouth.`, "lewd"));
+						fragment.append(span(`모유가 당신의${breastsHeld > 1 ? " 양쪽" : ""} 젖꼭지에서 계속 혀로 흘러나온다.`, "lewd"));
 					} else if (T.milk_released <= 15) {
 						fragment.append(
 							span(
-								`${breastsHeld > 1 ? "A couple thin streams of milk spray" : "A thin stream of milk sprays"} from your bud${
-									breastsHeld > 1 ? "s" : ""
-								}, filling your mouth.`,
+								`${breastsHeld > 1 ? "가느다란 두 줄기의 모유가" : "가느다란 한 줄기의 모유가"} 당신의${
+									breastsHeld > 1 ? " 양쪽" : ""
+								} 젖꼭지에서 뿜어져 나와, 입을 채운다.`,
 								"lewd"
 							)
 						);
 					} else {
 						fragment.append(
 							span(
-								`Several thin streams of milk spray from your bud${breastsHeld > 1 ? "s" : ""}, filling your mouth at an alarming speed.`,
+								`여러 줄기의 모유가 당신의${breastsHeld > 1 ? " 양쪽" : ""} 젖꼭지에서 뿜어져 나와, 입을 놀라운 속도로 가득 채운다.`,
 								"lewd"
 							)
 						);
@@ -3003,18 +3004,18 @@ function masturbationEffectsMouth({
 					fragment.append(" ");
 					if (T.milk_released >= 15) {
 						if (V.oralskill < 200) {
-							fragment.append(span("You struggle to swallow it all. The excess trickles out of your lips and dribbles down your chin."));
+							fragment.append(span("당신은 그것을 전부 삼키기 위해 몸부림친다. 넘친 모유가 당신의 입에서 흘러나와 턱을 타고 뚝뚝 떨어져 내린다."));
 						} else {
-							fragment.append(span("It's a lot to swallow, but you manage to get it all down. It's remarkably sweet."));
+							fragment.append(span("그것은 삼키기에는 꽤 많은 양이었지만, 당신은 어떻게든 전부 목구멍으로 넘긴다. 그것은 놀랍도록 달콤하다."));
 						}
 					} else if (T.milk_released >= 10) {
 						if (V.oralskill < 100) {
-							fragment.append(span("It's tough to swallow all of it, but you barely manage to get it down."));
+							fragment.append(span("그것을 전부 삼키기는 꽤 힘들었지만, 당신은 겨우겨우 그것을 전부 목구멍으로 넘긴다."));
 						} else {
-							fragment.append(span("You swallow it all with ease. It's remarkably sweet."));
+							fragment.append(span("당신은 쉽게 그것을 모두 삼킨다. 그것은 놀랍도록 달콤하다."));
 						}
 					} else {
-						fragment.append(span("It's a small enough amount that it's simple to swallow. It's remarkably sweet."));
+						fragment.append(span("그것은 양이 충분히 많지 않아 간단히 삼킬 수 있다. 그것은 놀랍도록 달콤하다."));
 					}
 					fragment.append(wikifier("breastfed", T.milk_released)); // PC is breastfed by, well, themselves
 				} else {

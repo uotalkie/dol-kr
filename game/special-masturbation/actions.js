@@ -230,7 +230,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			if (V.awareness >= 200 && V.player.breastsize >= 3) {
 				result.options.push({
 					action: "mbreasthold",
-					text: `Hold your${V[otherArm + "arm"] === "mbreasthold" ? " other" : ""} breast`,
+					text: `${V[otherArm + "arm"] === "mbreasthold" ? " 반대쪽" : ""} 가슴을 잡는다`,
 					colour: "sub",
 					otherElements: "<<combataware 3>>",
 				});
@@ -455,10 +455,10 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			result.options.push(stop("mvaginastopdildo"));
 			break;
 		case "mbreasthold":
-			result.text = `You hold your ${arm} breast with your ${arm} hand.`;
+			result.text = `당신은 <<hand_ ro '${arm}'>> 당신의 ${(arm == 'left'? "왼쪽" : "오른쪽")} 가슴을 잡고 있다.`;
 			result.options.push({
 				action: "mbreastfondle",
-				text: "Fondle your breast",
+				text: "가슴을 애무한다",
 				colour: "sub",
 			});
 			if (
@@ -469,7 +469,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			) {
 				result.options.push({
 					action: "mbreastpinch",
-					text: "Pinch your nipple",
+					text: "젖꼭지를 꼬집는다",
 					colour: "sub",
 				});
 			}
@@ -857,7 +857,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 				) {
 					result.options.push({
 						action: "mbreastentrance",
-						text: `Take your nipple${V.leftarm === "mbreasthold" && V.rightarm === "mbreasthold" ? "s" : ""} into your mouth`,
+						text: `당신의 ${V.leftarm === "mbreasthold" && V.rightarm === "mbreasthold" ? "양쪽 " : ""}젖꼭지를 입 안에 넣는다`,
 						colour: "sub",
 						otherElements: "<<combataware 3>>",
 					});
@@ -1049,7 +1049,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 			result.options.push(rest());
 			break;
 		case "mbreast":
-			result.text = `Your ${V.leftarm === "mbreastmouthhold" && V.rightarm === "mbreastmouthhold" ? "<<nipples>> are" : "<<nipple>> is"} in your mouth.`;
+			result.text = `당신의 ${V.leftarm === "mbreastmouthhold" && V.rightarm === "mbreastmouthhold" ? "<<nipples_ nun>>" : "<<nipple_ un>>"} 당신의 입 안에 있다.`;
 			result.options.push({
 				action: "mbreastlick",
 				text: "핥는다",
