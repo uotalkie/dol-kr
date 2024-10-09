@@ -483,7 +483,7 @@ function init_trHandheld()
 		},
 		{
 			index: 60,
-			name: "English textbook",
+			name: "english textbook",
 			name_ko: "영어 교과서",
 			variable: "bookenglish",
 			post: 1,
@@ -531,7 +531,7 @@ function init_trHandheld()
 		},
 		{
 			index: 66,
-			name: "English textbook",
+			name: "english textbook",
 			name_ko: "영어 교과서",
 			variable: "bookenglishclosed",
 			post: 1,
