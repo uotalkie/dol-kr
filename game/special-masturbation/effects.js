@@ -2924,7 +2924,6 @@ function masturbationEffectsMouth({
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
 				fragment.append(
 					Wikifier.wikifyEval(
-						`You drag your quivering tongue across over your exposed ${
 						`당신은 떨리는 혀를 당신의 노출된 ${
 							breastsHeld > 1 ? "<<nipplesPost>> 위로" : "<<nipplePost>> 위로"
 						} 훑는다. 소름끼치는 쾌감의 충격이 당신의 몸 속을 내달린다.`

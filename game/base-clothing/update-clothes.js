@@ -536,11 +536,11 @@ function wardrobesUpdate() {
 		V.wardrobes.birdTower.isolated = true;
 		V.wardrobes.birdTower.space = 15;
 	}
-	if (!V.wardrobes.birdTower.locationRequirement) {
+	if (!V.wardrobes.birdTower.locationRequirement?.length) {
 		V.wardrobes.birdTower.locationRequirement = ["tower", "moor"];
 	}
 
-	if (!V.wardrobes.prison.locationRequirement) {
+	if (!V.wardrobes.prison.locationRequirement?.length) {
 		V.wardrobes.prison.locationRequirement = ["prison"];
 	}
 }
