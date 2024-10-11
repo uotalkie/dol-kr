@@ -51,7 +51,7 @@ function trNPCdesc(npcinfo, post, sep)
 			/* NPCName (the NPCRole) */
 			T.trResult = (tempArray[2]?trRole(tempArray[2]) + " ":"") + trNPCname(tempArray[0], post, sep);
 		}
-		else if (setup.trCreatures.nameIndex[tempArray[tempArray.length - 1]])
+		else if (tempArray.length >= 2 && setup.trCreatures.nameIndex[tempArray[tempArray.length - 1]])
 		{
 			/* Creature? */
 			T.trResult = trCreature("all", name, 1, post, sep);
