@@ -736,21 +736,10 @@ function randomPregnancyProgress() {
 			}
 			npc.pregnancy.timer += parseFloat(multiplier.toFixed(3));
 			if (npc.pregnancy.timer >= npc.pregnancy.timerEnd) {
-				let npcDecompressed;
-				try {
-					npcDecompressed = npcDecompressor(npc.npc);
-				} catch (e) {
-					console.error("randomPregnancyProgress", e);
-					Errors.report(
-						"randomPregnancyProgress - Compressed NPC '" +
-							npcKey +
-							"' cannot be decompressed for pregnancy compatibility check. Please export your save if reporting.",
-						e
-					);
-				}
+				const npcDetails = npc.npc;
 				const [birthLocation, location] = defaultBirthLocations(npc.pregnancy.type);
-				if (npcDecompressed) {
-					giveBirthToChildren(npcDecompressed.fullDescription, birthLocation, location, npc.pregnancy);
+				if (npcDetails) {
+					giveBirthToChildren(npcDetails.fullDescription, birthLocation, location, npc.pregnancy);
 				} else {
 					giveBirthToChildren(npc.pregnancy.fetus[0].mother, birthLocation, location, npc.pregnancy);
 				}

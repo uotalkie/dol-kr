@@ -340,7 +340,7 @@ function effects() {
 		br();
 	}
 
-	if (V.effectsmessage) {
+	if (V.effectsmessage && !V.statFreeze) {
 		delete V.effectsmessage;
 
 		if (V.recovered_from_pregnancy) {
@@ -1053,7 +1053,7 @@ function effects() {
 		}
 	}
 
-	if (numberOfEarSlime() && V.earSlime.event) {
+	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(
 				"span",

@@ -1,20 +1,20 @@
 :: Spa
 <<set $outside to 0>><<set $location to "spa">><<effects>>
-
 <<if !$daily.spaEvent>>
 	<<spa_event_select>>
 <</if>>
 
+<<switch Time.season>>
+	<<case "summer">>
+		<<set _price to 1000>>
+	<<case "winter">>
+		<<set _price to 6000>>
+	<<default>>
+		<<set _price to 2500>>
+<</switch>>
+
 당신은 다뉴브 가의 온천에 있다. 큰 창이 천연 온천으로 열려있고, 옆으로 난 복도는 다른 시설로 통한다.
-표지판이 적혀있다: "태닝 베드 이용가능. 회당
-<<if Time.season is "summer">>
-	<<printmoney 1000>>
-<<elseif Time.season is "winter">>
-	<<printmoney 6000>>
-<<else>>
-	<<printmoney 2500>>
-<</if>>
-. 계절에 따라 가격이 다를 수 있음."
+표지판이 적혀있다: "태닝 베드 이용가능. 회당 <<printmoney _price>>. 계절에 따라 가격이 다를 수 있음."
 <br><br>
 <<if $openinghours is 1>>
 	<<if $daily.spaEvent is "party">>
@@ -59,28 +59,13 @@
 			<<askicon>><<link [[도울 일이 있는지 묻는다|Spa Work Ask]]>><</link>>
 			<br>
 		<</if>>
-		<<if Time.season is "spring" or Time.season is "autumn">>
-			<<if $money gte 2500>>
-				<<ind>><<link [[태닝 살롱 (£25 1:00)|Spa Tan]]>><<set $money -= 2500>><</link>><<lstress>><<gggtanned>>
-			<<else>>
-				<<ind>><span class="purple">당신은 태닝을 하기 위해 <<printmoney 2500>>를 낼 돈이 없다.</span>
-			<</if>>
-			<br>
-		<<elseif Time.season is "winter">>
-			<<if $money gte 6000>>
-				<<ind>><<link [[태닝 살롱 (£60 1:00)|Spa Tan]]>><<set $money -= 6000>><</link>><<lstress>><<gggtanned>>
-			<<else>>
-				<<ind>><span class="purple">당신은 태닝을 하기 위해 <<printmoney 6000>>를 낼 돈이 없다.</span>
-			<</if>>
-			<br>
+		<<if $money gte _price>>
+			<<set _tanning to Skin.getTanningFactor(true)>>
+			<<ind>><<link [[태닝 살롱 (<<printmoney _price>> 1:00)|Spa Tan]]>><<set $money -= _price>><</link>><<lstress>><<tanningGainOutput _tanning.result 60>>
 		<<else>>
-			<<if $money gte 1000>>
-				<<ind>><<link [[태닝 살롱 (£10 1:00)|Spa Tan]]>><<set $money -= 1000>><</link>><<lstress>><<gggtanned>>
-			<<else>>
-				<<ind>><span class="purple">당신은 태닝을 하기 위해 <<printmoney 1000>>를 낼 돈이 없다.</span>
-			<</if>>
-			<br>
+			<<ind>><span class="purple">당신은 태닝을 하기 위해 <<printmoney _price>>를 낼 돈이 없다.</span>
 		<</if>>
+		<br>
 	<</if>>
 	<<if $openinghours is 0 and Time.hour isnot $closinghour and !$weekly.theft.spa>>
 		<<shopicon "register">><<link [[금전등록기를 살펴본다|Spa Register]]>><</link>>
@@ -111,52 +96,48 @@
 	<br>
 <</if>>
 
-
 :: Spa Tan Underwear
 <<effects>>
 
 <<upperstrip>>
 <<lowerstrip>>
-<<pass 60>>
-<<set _tanningModifiers to Weather.getTanningFactor(false, 1.2)>>
-<<tanningPenaltiesOutput _tanningModifiers>>
-<<run tanned(T.tanningModifiers.result * 60, "tanLines")>>
+<<legsstrip>>
+<<feetstrip>>
+<<handsstrip>>
+<<handheldstrip>>
+<<neckstrip>>
+<<headstrip>>
+<<set Skin.tanningBonus = 1>>
+<<set Skin.tanningBed to true>>
 
 옷가지를 가지런히 쌓아두고, 당신은 태닝 베드에 들어가, 덮개를 닫는다.
 <br><br>
 
 푸른 빛에 둘러싸여, 당신은 눈을 감고 피부에 온기가 스며들자 긴장을 푼다.
-<br><br>
-
+<br>
+<<set _tanningModifiers to Skin.getTanningFactor(true)>>
+<<tanningPenaltiesOutput _tanningModifiers>>
+<br>
+<<pass 60>>
 <<if $rng gte 91>>
 	<<spa_tan_events>>
 <<elseif $rng gte 81>>
 	어느 새 시간이 끝나고, 불이 꺼진다. 깜빡 졸았다.<<ltiredness>><<tiredness -6>>
 	<br><br>
-
-
-
 	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <<else>>
 	시간이 끝날 때까지 긴장을 풀자, 빛이 희미해진다.
 	<br><br>
-
-
-
 	<<link [[다음|Spa]]>><<clotheson>><</link>>
-	<br>
 <</if>>
-
 
 :: Spa Tan Naked
 <<effects>>
 
-<<clothesstrip>>
-<<pass 60>>
-<<set _tanningModifiers to Weather.getTanningFactor(false, 1.2)>>
-<<tanningPenaltiesOutput _tanningModifiers>>
-<<run tanned(T.tanningModifiers.result * 60)>>
+<<strip>>
+<<set Skin.tanningBonus = 1>>
+<<set Skin.tanningBed to true>>
 당신은 옷을 전부 벗어, 옷가지를 가지런히 쌓아둔다.
 <<exhibitionism1>>
 
@@ -164,39 +145,32 @@
 <br><br>
 
 푸른 빛에 둘러싸여, 당신은 눈을 감고 피부에 온기가 스며들자 긴장을 푼다.
-<br><br>
-
+<br>
+<<set _tanningModifiers to Skin.getTanningFactor(true)>>
+<<tanningPenaltiesOutput _tanningModifiers>>
+<br>
+<<pass 60>>
 <<if $rng gte 91>>
 	<<spa_tan_events>>
 <<elseif $rng gte 81>>
 	어느 새 시간이 끝나고, 불이 꺼진다. 깜빡 졸았다.<<ltiredness>><<tiredness -6>>
 	<br><br>
-
-
-
 	<<link [[다음|Spa]]>><<clotheson>><</link>>
 	<br>
 <<else>>
 	시간이 끝날 때까지 긴장을 풀자, 빛이 희미해진다.
 	<br><br>
-
-
-
 	<<link [[다음|Spa]]>><<clotheson>><</link>>
-	<br>
 <</if>>
-
-
 
 :: Spa Tan Curtains
 <<effects>>
 
 <<generate1>><<person1>>
-<<clothesstrip>>
-<<pass 60>>
-<<set _tanningModifiers to Weather.getTanningFactor(false, 1.2)>>
-<<tanningPenaltiesOutput _tanningModifiers>>
-<<run tanned(T.tanningModifiers.result * 60)>>
+<<strip>>
+<<set Skin.tanningBonus = 1>>
+<<set Skin.tanningBed to true>>
+
 <<if $daily.spaEvent is "party">>
 	당신이 커튼을 걷자 바깥에서 파티가 진행되고 있는 것이 보인다. 파티 참가자들은 춤추고 마시느라 당신에게 신경쓰지 않는다. 지금은.
 	<br><br>
@@ -211,7 +185,11 @@
 <<exhibitionism5>>
 
 푸른 빛에 둘러싸이고, 따뜻함이 당신의 피부에 스며들자 심장이 뛰는 것을 느낀다.
-<br><br>
+<br>
+<<set _tanningModifiers to Skin.getTanningFactor(true)>>
+<<tanningPenaltiesOutput _tanningModifiers>>
+<br>
+<<pass 60>>
 <<endevent>>
 <<if $rng gte 81>>
 	<<spa_tan_events>>
@@ -224,7 +202,6 @@
 	시간이 끝날 때까지 긴장을 풀자, 빛이 희미해진다.
 	<br><br>
 	<<link [[다음|Spa]]>><<clotheson>><</link>>
-	<br>
 <</if>>
 
 :: Spa Lock
@@ -360,7 +337,6 @@
 	<br>
 	<<set $skulduggerydifficulty to 500>>
 	<<link [[대신할 수건을 찾는다|Spa Tan Sneak]]>><<endevent>><</link>><<skulduggerydifficulty>>
-	<br>
 <</if>>
 
 :: Spa Tan Follow
@@ -431,6 +407,7 @@
 
 <<set $stealtextskip to 1>>
 <<stealclothes>>
+<<steal>>
 
 당신은 돌아서서 달린다. 당신은 온천에 도착할 때까지 달린다.
 <br><br>
@@ -563,7 +540,6 @@
 <<endevent>>
 
 <<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
-<br>
 
 :: Spa Tan Clothes
 <<effects>>
@@ -575,7 +551,6 @@
 <<endevent>>
 
 <<link [[다음|Danube Street]]>><<set $eventskip to 1>><</link>>
-<br>
 
 :: Spa Tan Slap
 <<effects>>
@@ -587,7 +562,6 @@
 <<endevent>>
 
 <<link [[다음|Spa]]>><</link>>
-<br>
 
 :: Spa Tan Turn
 <<effects>>
@@ -599,7 +573,6 @@
 <<endevent>>
 
 <<link [[다음|Spa]]>><</link>>
-<br>
 
 
 :: Spa Tan Help
@@ -607,6 +580,7 @@
 
 <<set $stealtextskip to 1>>
 <<stealclothes>>
+<<steal>>
 
 <<covered>> 당신은 웅크린 채 모퉁이를 돈다. 아무도 없다. <<tearful>> 당신은 복도를 살금살금 내려간다. 앞쪽에서 목소리가 들린다.
 <<generate1>><<generate2>>
@@ -795,9 +769,9 @@
 :: Spa Tan Sneak
 <<effects>>
 
-
 <<set $stealtextskip to 1>>
 <<stealclothes>>
+<<steal>>
 
 당신은 웅크린 채 모퉁이를 돈다. 아무도 없다. 당신은 몰래 건물을 지나간다. 다른 방들에는 사람이 있지만, 문 하나가 약간 열려있다. 당신은 들어간다. 태닝 베드에 누워있는 형체가 보인다. 그 옆 선반에 수건이 있다.
 <br><br>
@@ -823,8 +797,6 @@
 	<<skulduggeryuse>>
 
 	<<link [[다음|Spa Tan Spank]]>><<set $molestationstart to 1>><</link>>
-	<br>
-
 <</if>>
 
 :: Spa Tan Spank

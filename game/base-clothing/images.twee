@@ -1,6 +1,5 @@
 :: Widgets Img [widget]
 <<widget "img">>
-	<<set _filters to $skinColor.current>>
 	<<if !_thermoDisable>>
 		<<thermometer>>
 	<</if>>
@@ -15,180 +14,10 @@
 			<div><<peppersprays>></div>
 		<</if>>
 	</div>
-	<div id="img" @class="limitedColourContainerClasses() + ($options.sidebarAnimations isnot false ? '':' noAnimations') + ' offset-sidebar-img'">
-	<<canvasimg "mainCanvas">>
-	<div id="characterTooltip"></div>
+	<div id="img" class="offset-sidebar-img">
+		<<canvasimg "mainCanvas">>
 	</div>
-	<<run Renderer.refresh(Renderer.locateModel("main", "sidebar"));>>
-<</widget>>
-
-<<widget "faceimg">>
-	<<set _diagram = _args[0] ? 1 : 0>>
-	<<set _animIdle = _diagram ? "" : "anim-idle-2f">>
-
-	<<if $options.tanImgEnabled>>
-		<<set _red = "/red">>
-	<<else>>
-		<<set _red = "">>
-	<</if>>
-
-	<img @class="'layer-facebase ' + _animIdle" @src="'img/face/' + $facestyle + _red + '/base.png'" @style="'filter: '+_filters.body">
-
-	<<if $earsfront == true>>
-		<img class="layer-ears ears" @src="'img/face/' + $facestyle + '/ears.png'" @style="'filter: '+_filters.body">
-	<</if>>
-
-	<<if $player.freckles == true and $makeup.concealer != 1>>
-		<img class="layer-freckles freckles" @src="'img/face/' + $facestyle + _red + '/freckles.png'" @style="'filter: '+_filters.body">
-	<</if>>
-
-	<!-- Eyes -->
-	<<if ($trauma gte ($traumamax * 0.9) and _diagram is 0) or $possessed>>
-		<<set _iris = "irisempty">>
-		<<set _trauma = "-trauma">>
-	<<else>>
-		<<set _iris = "iris">>
-		<<set _trauma = "">>
-	<</if>>
-	<<if $options.blinkingEnabled and _diagram is 0>>
-		<<set _blink = "eyes-blink" + _trauma>>
-	<<else>>
-		<<set _blink = "">>
-	<</if>>
-	<<if $pain gte 100 and $willpowerpain is 0 and _diagram is 0>>
-		<<set _sclera = "sclerabloodshot">>
-	<<else>>
-		<<set _sclera = "sclera">>
-	<</if>>
-	<<if $options.halfClosedEnabled and ($arousal gte ($arousalmax / 5) * 4 or $orgasmdown gte 1) and _trauma is "" and $pain lt 60 and _diagram is 0 and $eyelidTEST is true or $possessed>>
-		<<set _half = "_halfclosed">>
-	<<else>>
-		<<set _half = "">>
-	<</if>>
-
-	<<run defineCustomEyeColourStyle()>> /* define Filter: css style for eyes for old renderer */
-
-	<<if $possessed>>
-		<<set _colourEye to (["haunt", "despair"].includes($wraith.state) ? "eye-redPossessed" : "eye-bluePossessed")>>
-	<<else>>
-		<<set _colourEye to "">>
-		<<if $passage == "Start">>
-			<<set _colourEyeLeft to "eye-" + $eyeselect>>
-			<<set _colourEyeRight to "eye-" + $eyeselect>>
-			<<script>>T.colourEyeLeft = T.colourEyeLeft.replace(/\s/g, '-')<</script>>
-			<<script>>T.colourEyeRight = T.colourEyeRight.replace(/\s/g, '-')<</script>>
-		<<else>>
-			<<if $makeup.eyelenses.left == 0>>
-				<<set _colourEyeLeft to "eye-" + $leftEyeColour>>
-				<<script>>T.colourEyeLeft = T.colourEyeLeft.replace(/\s/g, '-')<</script>>
-			<<else>>
-				<<set _colourEyeLeft to "eye-" + $makeup.eyelenses.left>>
-				<<script>>T.colourEyeLeft = T.colourEyeLeft.replace(/\s/g, '-')<</script>>
-			<</if>>
-			<<if $makeup.eyelenses.right == 0>>
-				<<set _colourEyeRight to "eye-" + $rightEyeColour>>
-				<<script>>T.colourEyeRight = T.colourEyeRight.replace(/\s/g, '-')<</script>>
-			<<else>>
-				<<set _colourEyeRight to "eye-" + $makeup.eyelenses.right>>
-				<<script>>T.colourEyeRight = T.colourEyeRight.replace(/\s/g, '-')<</script>>
-			<</if>>
-		<</if>>
-	<</if>>
-	<<run defineCustomEyeColourStyle()>> /* define Filter: css style for eyes for old renderer */
-	<img class="layer-eyes" @src="'img/face/' + $facestyle + _red + '/eyes.png'" @style="'filter: '+_filters.body">
-	<img class="layer-sclera" @src="'img/face/' + $facestyle + '/' + _sclera + '.png'">
-	<img @style="_custom_eyelenses_left_style" @class="'layer-iris' + _colourEye + ' left-iris ' + _colourEyeLeft + ' ' + _animIdle" @src="'img/face/' + $facestyle + '/' + _iris + _half + '_left.png'">
-	<img @style="_custom_eyelenses_right_style" @class="'layer-iris' + _colourEye + ' right-iris ' + _colourEyeRight + ' ' + _animIdle" @src="'img/face/' + $facestyle + '/' + _iris + _half + '_right.png'">
-	<img @class="'layer-eyelids ' + _blink" @src="'img/face/' + $facestyle + _red + '/eyelids' + _half + '.png'" @style="'filter: '+_filters.body">
-	<img @class="'layer-lashes ' + _blink" @src="'img/face/' + $facestyle + '/lashes' + _half + '.png'">
-
-	<<if _diagram is 0>>
-		<<if $makeup.eyeshadow != 0>>
-			<img @class="'layer-eyelids ' + _blink + ' eyeshadow-' + $makeup.eyeshadow.replace(/ /g, '-')" @src="'img/face/' + $facestyle + '/makeup/eyeshadows' + _half + '.png'">
-		<</if>>
-		<<if $makeup.mascara != 0>>
-			<img @class="'layer-lashes ' + _blink + ' mascara-' + $makeup.mascara.replace(/ /g, '-')" @src="'img/face/' + $facestyle + '/makeup/mascara' + _half + '.png'">
-		<</if>>
-	<</if>>
-
-	<!-- Brows -->
-	<<if $trauma gte $traumamax or $possessed or _diagram is 1>>
-		<<set _brows = "top">>
-	<<elseif $pain gte 60>>
-		<<set _brows = "low">>
-	<<elseif $arousal gte ($arousalmax / 5) * 4 or $orgasmdown gte 1>>
-		<<set _brows = "orgasm">>
-	<<elseif $pain gte 20>>
-		<<set _brows = "mid">>
-	<<else>>
-		<<set _brows = "top">>
-	<</if>>
-	<<if $makeup.browscolour != 0>>
-		<<set _naturalColour = "">>
-		<<set _browsColour = "brows-" + $makeup.browscolour.replace(/ /g, '-')>>
-	<<else>>
-		<<set _naturalColour = "hair-" + $naturalhaircolour.replace(/ /g, '-')>>
-		<<set _browsColour = "colour-hair">>
-	<</if>>
-	<<if $browsposition is "back">>
-		<div @class="'layer-backbrow ' + _naturalColour">
-			<img @class="_browsColour" @src="'img/face/' + $facestyle + '/brow' + _brows + '.png'">
-		</div>
-	<<else>>
-		<div @class="'layer-brow ' + _naturalColour">
-			<img @class="_browsColour" @src="'img/face/' + $facestyle + '/brow' + _brows + '.png'">
-		</div>
-	<</if>>
-
-
-	<!-- Mouth -->
-	<<if $trauma gte $traumamax or _diagram is 1>>
-		<<set _mouth = "neutral">>
-	<<elseif $pain gte 60 or $orgasmdown gte 1 or ($possessed)>>
-		<<set _mouth = "cry">>
-	<<elseif $exposed is 2 and $uncomfortable.nude is true and $dontHide is false or $pain gte 20>>
-		<<set _mouth = "frown">>
-	<<elseif $pain gte 1 or ($exposed is 1 and $uncomfortable.underwear is true) or ($combat is 1 and $consensual isnot 1)>>
-		<<set _mouth = "neutral">>
-	<<else>>
-		<<set _mouth = "smile">>
-	<</if>>
-	<img class="layer-mouth" @src="'img/face/' + $facestyle + _red + '/mouth' + _mouth + '.png'" @style="'filter: ' + _filters.mouth">
-
-	<<if $makeup.lipstick != 0 and _diagram is 0>>
-		<img @class="'layer-mouth lipstick-' + $makeup.lipstick.replace(/ /g, '-')" @src="'img/face/' + $facestyle + '/makeup/lipstick_' + _mouth + '.png'">
-	<</if>>
-
-	<!-- Don't draw blush or tears on a static diagram -->
-	<<if _diagram is 0>>
-		<!-- Blush -->
-		<<set _blush = Math.min(5, Math.floor($arousal / 2000) + 1)>>
-		<<if _blush lt 2 and $exposed gte 2>>
-			<<set _blush = 2>>
-		<<elseif $arousal lt 100 and $exposed lt 1>>
-			<<set _blush = 0>>
-		<</if>>
-		<<if !$worn.over_upper.type.includes("naked") and !$worn.over_lower.type.includes("naked") and
-		$worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and
-		$worn.under_upper.type.includes("naked") and $worn.under_lower.type.includes("naked")>>
-			<<set _blush = 2>>
-		<</if>>
-		<<if _blush gte 1>>
-			<img class="layer-blush" @src="'img/face/' + $facestyle + _red + '/blush' + _blush + '.png'">
-		<</if>>
-
-		<!-- Tears -->
-		<<if $pain gte 20>>
-			<img class="layer-tears anim-idle-2f" @src="'img/face/' + $facestyle + '/' + 'tear' + painToTearsLvl($pain) + '.png'">
-			<<if $makeup.mascara != 0>>
-				<img @class="'layer-lashes ' + _blink + ' mascara-' + $makeup.mascara.replace(/ /g, '-')" @src="'img/face/' + $facestyle + '/' + 'makeup/mascara' + painToTearsLvl($pain) + '.png'">
-			<</if>>
-		<</if>>
-	<</if>>
-	<<if $passage == "Pharmacy Select Custom Lenses">>
-		<<unset _custom_eyelenses_right_style>>
-		<<unset _custom_eyelenses_left_style>>
-	<</if>>
+	<div id="characterTooltip"></div>
 <</widget>>
 
 :: Widgets Combat Clothes Img [widget]
@@ -2982,8 +2811,7 @@
 <</widget>>
 
 <<widget "player-base-body">>
-	<<set _filters to $skinColor.current>>
-	<div id="img" @class="limitedColourContainerClasses() + ' noAnimations'">
+	<div id="img">
 		<<canvas-player-base-body>>
 	</div>
 <</widget>>

@@ -620,11 +620,11 @@ window.onInputChanged = onInputChanged;
 function closeOverlay() {
 	wikifier("journalNotesTextareaSave");
 	updateOptions();
-	delete T.currentOverlay;
-	delete V.tempDisable;
 	T.buttons.reset();
 	$("#customOverlay").addClass("hidden").parent().addClass("hidden");
-	$.event.trigger(":oncloseoverlay");
+	$.event.trigger(":oncloseoverlay", [T.currentOverlay]);
+	delete T.currentOverlay;
+	delete V.tempDisable;
 }
 window.closeOverlay = closeOverlay;
 
@@ -641,10 +641,6 @@ function updatehistorycontrols() {
 	// enable fast rng re-roll on "keypad *" for debug and testing
 	if (V.debug || V.cheatdisable === "f" || V.testing) Links.disableRNGReload = false;
 	else Links.disableRNGReload = true;
-
-	// option to reduce the number of states going into sessionStorage, for better performance
-	if (V.options.maxSessionStates === undefined) V.options.maxSessionStates = Config.history.maxSessionStates;
-	else Config.history.maxSessionStates = V.options.maxSessionStates;
 
 	// option to still record history without showing the controls, for better debugging
 	if (V.options.maxStates === 1 || !V.options.historyControls || V.ironmanmode) {
@@ -673,7 +669,6 @@ function updateOptions() {
 
 		if (!State.restore(true)) return; // don't do anything if state couldn't be restored
 		V.options = optionsData; /* numberify_enabled workaround */ Links.enabled=V.options.numberify_enabled?true:false;
-		tanned(0, "ignoreCoverage");
 		State.show();
 
 		T.key = tmpKey;
@@ -803,3 +798,13 @@ function returnTimeFormat() {
 	return V.options.dateFormat;
 }
 window.returnTimeFormat = returnTimeFormat;
+
+/* Temporary until npc rework */
+function sensitivityString(value) {	/* Todo: 현재 이 위젯은 치트메뉴에서만 사용하는 것 같은데 다른 곳에서 사용되는 경우가 생기면 trintegrityKeyword 처럼 따로 분리할 것 */
+	if (value >= 3.5) return "예민함";	// "sensitive"
+	if (value >= 2.5) return "민감함";	// "tender"
+	if (value >= 1.5) return "섬세함";	// "receptive"
+	return "평범함";	// "normal"
+};
+
+window.sensitivityString = sensitivityString;

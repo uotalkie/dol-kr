@@ -104,15 +104,52 @@ setup.colours = {
 		blendMode: "hard-light",
 	},
 
-	skin_gradients: {
-		light: ["#ffffff", "#ffd2ac"],
-		medium: ["#ffd2ac", "#8a614d"],
-		dark: ["#8a614d", "#39241a"],
-		gyaru: ["#ffffff", "#ffd2ac", "#8a614d", "#39241a"],
-		ylight: ["#f0ffe6", "#f0e4bc"],
-		ymedium: ["#f0e4bc", "#8e7f68"],
-		ydark: ["#8e7f68", "#483f35"],
-		ygyaru: ["#f0ffe6", "#f0e4bc", "#8e7f68", "#483f35"],
+	skin_options: {
+		light: {
+			gradient: ["#ffffff", "#ffd2ac"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		medium: {
+			gradient: ["#ffd2ac", "#8a614d"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		dark: {
+			gradient: ["#8a614d", "#39241a"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		gyaru: {
+			gradient: ["#ffffff", "#ffd2ac", "#8a614d", "#39241a"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		ylight: {
+			gradient: ["#f0ffe6", "#f0e4bc"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		ymedium: {
+			gradient: ["#f0e4bc", "#8e7f68"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		ydark: {
+			gradient: ["#8e7f68", "#483f35"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		ygyaru: {
+			gradient: ["#f0ffe6", "#f0e4bc", "#8e7f68", "#483f35"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		wraith: {
+			gradient: ["#ffffff", "#ffffff"],
+			blendMode: "multiply",
+			desaturate: true,
+		}
 	},
 	/**
 	 * Get canvas filter for skin of given type and tan progression (0..1).
@@ -121,19 +158,20 @@ setup.colours = {
 	 * @param {any} tan
 	 */
 	getSkinFilter(type, tan) {
+		const options = setup.colours.skin_options[type];
 		return {
-			blend: setup.colours.getSkinRgb(type, tan),
-			blendMode: "multiply",
+			blend: setup.colours.getSkinRgb(options, tan / 100),
+			blendMode: options.blendMode,
+			desaturate: options.desaturate,
 		};
 	},
 	getSkinRgb(type, tan) {
 		tan = Math.clamp(0, tan, 1);
-		const gradient = setup.colours.skin_gradients[type];
-		if (!gradient) {
+		if (!type.gradient) {
 			Errors.report("Unknown skin gradient " + type);
 			return "#ffffff";
 		}
-		return Renderer.lintRgbStaged(tan, gradient).toHexString();
+		return Renderer.lintRgbStaged(tan, type.gradient).toHexString();
 	},
 	/**
 	 * Get CSS style filter that, when applied, transforms #FF0000 colour to a skin colour.
@@ -145,7 +183,25 @@ setup.colours = {
 	 */
 	getSkinCSSFilter(type, tan = 0) {
 		const slidersValues = setup.skinColor[type];
-		return skinColor(true, tan, slidersValues);
+		const ranges = window.ensureIsArray(slidersValues || setup.skinColor.light);
+
+		const totalProgress = tan / 100;
+
+		const scaledProgress = ranges.length * totalProgress;
+		const rangeIndex = totalProgress === 1 ? ranges.length - 1 : Math.floor(scaledProgress);
+		const progress = totalProgress === 1 ? 1 : scaledProgress - rangeIndex;
+
+		const { hStart, hEnd, sStart, sEnd, bStart, bEnd } = ranges[rangeIndex];
+
+		const hue = (hEnd - hStart) * progress + hStart;
+		const saturation = (sEnd - sStart) * progress + sStart;
+		const brightness = (bEnd - bStart) * progress + bStart;
+
+		const hueCss = `hue-rotate(${hue}deg)`;
+		const saturationCss = `saturate(${saturation.toFixed(2)})`;
+		const brightnessCss = `brightness(${brightness.toFixed(2)})`;
+
+		return `${hueCss} ${saturationCss} ${brightnessCss}`;
 	},
 };
 

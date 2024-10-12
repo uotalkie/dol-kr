@@ -7,10 +7,11 @@
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 3>>
 		<<if $rng is 3>>
+			<<wearProp "bullet">>
 			오솔길 가장자리에 총알이 놓여 있는 것을 볼 수 있다. 오래된 것 같다. 수집가가 돈을 낼지도 모른다.
 			<br><br>
 			<<set $antiquemoney += 50>><<museumAntiqueStatus "antiquebullet" "found">>
-			<<link [[다음|Moor]]>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Moor]]>><<handheldon>><<set $eventskip to 1>><</link>>
 			<br>
 		<<elseif $rng is 2>>
 			작고 노란 꽃들이 헤더 사이에서 자라고 있다.
@@ -27,7 +28,7 @@
 				<span class="blue">브로콜리 씨앗을 얻기 위해서는 관리 스킬이 더 높아야 합니다.</span>
 				<br><br>
 			<</if>>
-			<<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
+			<<mooricon>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
 			<br>
 		<<else>>
 			작고 하얀 꽃들이 헤더 사이에서 자라고 있다.
@@ -44,7 +45,7 @@
 				<span class="blue">야생의 당근을 수확하기 위해서는 관리 스킬이 더 높아야 합니다.</span>
 				<br><br>
 			<</if>>
-			<<ind>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
+			<<mooricon>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
 			<br>
 		<</if>>
 	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
@@ -266,6 +267,7 @@
 	<<if random(1, 8) is 8 or ($moormove is "quick_search" or $moormove is "normal_search" or $moormove is "careful_search" or $moormove is "fly_search") and random(1, 4) is 4>>
 		<<rng 2>>
 		<<if $rng is 2>>
+			<<wearProp "artillery">>
 			당신은 진흙 속에 반쯤 묻혀 있는, 검은 형체를 발견하게 된다. 포탄이다. 오래된 것처럼 보인다.
 
 			<<if currentSkillValue('history') gte 500>>
@@ -278,7 +280,7 @@
 
 			<</if>>
 
-			<<link [[다음|Moor]]>><<set $eventskip to 1>><</link>>
+			<<link [[다음|Moor]]>><<handheldon>><<set $eventskip to 1>><</link>>
 			<br>
 		<<else>>
 			초록색 새싹들이 무리를 지어 땅을 뚫고 나와있다.
@@ -292,7 +294,7 @@
 				<span class="blue">야생의 양파를 수확하기 위해서는 관리 스킬이 더 높아야 합니다.</span>
 				<br><br>
 			<</if>>
-			<<getinicon>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
+			<<mooricon>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
 			<br>
 		<</if>>
 	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
@@ -570,7 +572,7 @@
 				<span class="blue">야생의 마늘을 수확하기 위해서는 관리 스킬이 더 높아야 합니다.</span>
 				<br><br>
 			<</if>>
-			<<ind>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
+			<<mooricon>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
 			<br>
 		<</if>>
 	<<elseif $danger gte (9900 - ($allure * $forestmod))>>
@@ -658,7 +660,6 @@
 			<<else>>
 				<<if $worn.feet.type.includes("naked")>>
 					발이 진흙 속으로 가라앉고, <span class="pink">딸깍하는 소리가 들린다.</span> 금속으로 된 구속구가 당신의 발목 주변을 꽉 조이고, 양 발목을 하나로 묶는다. 한쪽에 열쇠구멍이 있다.
-					<br><br>
 				<<else>>
 					당신의 발은 진흙 속으로 가라앉아, 꿈쩍도 하지 않는다. <span class="pink">딸깍하는 소리가 들린다.</span> 당신은 다리를 당겨 빼고 앞쪽으로 휘청거리면서 움직였지만, 당신의 <<trClothes "feet" $worn.feet.name "name" "은">>_trResult 뒤에 남겨져 있다. 대신, 금속으로 된 구속구가 당신의 발목 주변을 꽉 조이고, 양 발목을 하나로 묶는다. 한쪽에 열쇠구멍이 있다.
 					<<feetruined>>
@@ -704,7 +705,50 @@
 				<<moor_hunt_start>>
 			<</if>>
 		<<case 10>>
-			<<moor_fox>>
+			<<if random(1,5) is 1 and $wrenSeen?.length and !$daily.moorhighWren>>
+				<<npc Wren>><<person1>>
+				<<set $daily.moorhighWren to true>>
+
+				As you're about to step forward, someone grabs your wrist from behind. You're pulled roughly backwards. You stumble and fall on your ass.<<pain 4>><<gpain>>
+				<br><br>
+				<<if $wrenSeen.includes("moorhigh")>>
+					"I thought I told you it was dangerous here," a voice says. <span class="gold">It's Wren.</span> <<He>> sounds exasperated. "I shouldn't be surprised. I often seem to find you in these kinds of places. Want me to lead you out again?"
+					<br><br>
+
+					<<link [[받아들인다 (0:45)|Moor Wren Meeting End]]>><<set $phase to 0>><<pass 45>><</link>>
+					<br>
+					<<link [[거절한다|Moor Wren Meeting End]]>><<set $phase to 1>><</link>>
+					<br>
+				<<else>>
+					"Careful, <<girl>>," a voice warns. "It's dangerous here."
+					<br><br>
+					<span class="gold">It's Wren.</span>
+					<br><br>
+					<<if $lurkerdisable is "f">>
+						As if to prove <<his>> point, a shadow scuttles out of the bush right in front of you. It hurries away before you can get a good look.
+					<<else>>
+						<<He>> picks up a stone and tosses it where you were going to step. You watch the ground swallow it without a ripple.
+					<</if>>
+					<br><br>
+					<<if $speech_attitude is "meek">>
+						"Thanks for s-saving me," you say.
+					<<elseif $speech_attitude is "bratty">>
+						"I can take care of myself, you know," you say.
+					<<else>>
+						"I appreciate it," you say. "But I could have handled it."
+					<</if>>
+					<br><br>
+					"You're welcome," <<he>> says. "What are you even doing here?"
+					<br><br>
+
+					<<link [[Be honest|Moor Wren Meeting]]>><<set $phase to 0>><</link>>
+					<br>
+					<<link [[Lie|Moor Wren Meeting]]>><<set $phase to 1>><</link>>
+					<br>
+				<</if>>
+			<<else>>
+				<<moor_fox>>
+			<</if>>
 		<</switch>>
 	<<else>>
 		<<rng 6>>
@@ -959,7 +1003,7 @@
 			<<link [[울음 소리를 낸다|Moor Bird Screech]]>><</link>><<harpy>>
 			<br>
 		<</if>>
-		<<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
+		<<mooricon>><<link [[계속 나아간다|Moor]]>><<set $eventskip to 1>><</link>>
 		<br>
 	<<else>>
 		<<if $birdescaped gte 1>>

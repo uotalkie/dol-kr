@@ -234,3 +234,76 @@ Object.defineProperty(Object.prototype, "clearProperties", {
 		clearProperties(this);
 	},
 });
+
+/**
+ * Based on https://github.com/epoberezkin/fast-deep-equal
+ * Modified to better work for primitives
+ */
+Object.defineProperty(Object.prototype, "isEqual", {
+	configurable: true,
+	writable: true,
+	value(b) {
+		const a = this;
+
+		if (a === b) return true;
+
+		if (a && b && typeof a === "object" && typeof b === "object") {
+			if (a.constructor !== b.constructor) return false;
+
+			let length, i;
+
+			// Array
+			if (Array.isArray(a)) {
+				length = a.length;
+				if (length !== b.length) return false;
+				for (i = length; i-- !== 0; ) if (!a[i].isEqual(b[i])) return false;
+				return true;
+			}
+
+			// Map
+			if (a instanceof Map && b instanceof Map) {
+				if (a.size !== b.size) return false;
+				for (i of a.entries()) if (!b.has(i[0])) return false;
+				for (i of a.entries()) if (!i[1].isEqual(b.get(i[0]))) return false;
+				return true;
+			}
+
+			// Set
+			if (a instanceof Set && b instanceof Set) {
+				if (a.size !== b.size) return false;
+				for (i of a.entries()) if (!b.has(i[0])) return false;
+				return true;
+			}
+
+			// ArrayBuffer
+			if (ArrayBuffer.isView(a) && ArrayBuffer.isView(b)) {
+				length = a.length;
+				if (length !== b.length) return false;
+				for (i = length; i-- !== 0; ) if (a[i] !== b[i]) return false;
+				return true;
+			}
+
+			if (a.constructor === RegExp) return a.source === b.source && a.flags === b.flags;
+
+			const keys = Object.keys(a);
+			length = keys.length;
+			if (length !== Object.keys(b).length) return false;
+
+			for (i = length; i-- !== 0; ) if (!Object.hasOwn(b, keys[i])) return false;
+
+			for (i = length; i-- !== 0; ) {
+				const key = keys[i];
+				const aValue = a[key];
+				const bValue = b[key];
+				if (typeof aValue === "object" && typeof bValue === "object") {
+					if (!aValue.isEqual(bValue)) return false;
+				} else if (aValue !== bValue) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+		return Number.isNaN(a) && Number.isNaN(b);
+	},
+});

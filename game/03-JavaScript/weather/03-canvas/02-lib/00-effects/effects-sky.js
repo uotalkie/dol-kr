@@ -37,13 +37,16 @@ Weather.Renderer.Effects.add({
 		this.scaledMinDistance = this.starsConfig.minDistance * this.renderInstance.settings.scale;
 		this.scaledPivotX = this.pivot.x * this.renderInstance.settings.scale;
 		this.scaledPivotY = this.pivot.y * this.renderInstance.settings.scale;
+
+		const rngInstance = new PRNG(Weather.starSeed);
+
 		// Returns a random star based on the weights from spriteOptions
 		const getRandomStar = () => {
 			const options = Object.entries(this.spriteOptions).map(([key, value]) => {
 				return { key, weight: value.weight };
 			});
 			const totalWeight = options.reduce((sum, { weight }) => sum + weight, 0);
-			let choice = State.random() * totalWeight;
+			let choice = rngInstance.random() * totalWeight;
 			for (const { key, weight } of options) {
 				if ((choice -= weight) < 0) {
 					return key;
@@ -61,7 +64,7 @@ Weather.Renderer.Effects.add({
 			const interpolateTo = interpolateFrom.slice(0, -1)[0];
 
 			if (!interpolateFrom.length) return interpolateTo;
-			return ColourUtils.interpolateColor(either(interpolateFrom), interpolateTo, State.random());
+			return ColourUtils.interpolateColor(rngInstance.either(interpolateFrom), interpolateTo, rngInstance.random());
 		};
 
 		const radius = this.scaledArea / 2;
@@ -74,8 +77,8 @@ Weather.Renderer.Effects.add({
 			let newStar;
 			// Make sure it doesn't generate stars too close to other stars
 			do {
-				const distance = State.random() * radius; // Random radius
-				const angle = State.random() * Math.PI * 2; // Random angle
+				const distance = rngInstance.random() * radius; // Random radius
+				const angle = rngInstance.random() * Math.PI * 2; // Random angle
 
 				const spriteKey = getRandomStar();
 

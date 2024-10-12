@@ -45,7 +45,7 @@ Weather.Renderer.Effects.add({
 		};
 
 		if (!this.x || this.elapsedTime() >= 3 * Time.minutesPerHour) {
-			this.x = random(0, this.images.overlay.width);
+			this.x = this.renderInstance.rng.randomInt(0, this.images.overlay.width);
 			this.currentDate = new DateTime(Time.date);
 		}
 		this.scaleFactor = this.canvas.element.height / this.images.overlay.height;

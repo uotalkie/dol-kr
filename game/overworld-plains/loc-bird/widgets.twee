@@ -92,7 +92,7 @@
 		<</if>>
 	<</if>>
 
-	<<if $bird.hunts?.timer>>
+	<<if $bird.hunts?.timer isnot undefined>>
 		<<set $bird.hunts.timer += _args[0]>>
 	<</if>>
 
@@ -934,7 +934,7 @@
 		<<if $daily.birdGroom is undefined and $bird.activity is "groom">>
 			<<birdicon "preen">><<link [[Groom (0:15)|Bird Tower Groom]]>><<bird_pass 15>><<trauma -6>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<endevent>><</link>><<ltrauma>><<glove>><br>
 		<</if>>
-		<<if $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
+		<<if $harpy gte 6 and $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
 			<<if Weather.precipitation is "rain">>
 				<span class="purple">It's too rainy to go flying casually.</span>
 			<<elseif $tiredness gte (C.tiredness.max / 5) * 4>>
@@ -961,7 +961,7 @@
 		<<if npcIsPregnant("Great Hawk") and talkedAboutPregnancy("Great Hawk","pc")>>
 			<<pregnancyicon "Great Hawk">><<link "Rub <<bhis>> pregnant belly (0:30)" "Bird Tower Pregnant Belly Rub">><<transform bird 1>><<bird_pass 30>><<stress -6>><<trauma -6>><<endevent>><</link>><<llstress>><<lltrauma>><br>
 		<</if>>
-		<<if $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
+		<<if $harpy gte 6 and $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
 			<<if Weather.precipitation is "rain">>
 				<span class="purple">It's too rainy to go flying casually.</span>
 			<<elseif $tiredness gte (C.tiredness.max / 5) * 4>>
@@ -1097,48 +1097,50 @@
 			<<set _fatigueMod to 0.5>>
 			<<if _args[1] isnot "silent">><span class="gold">강한 바람이 더 쉽고 빠르게 날 수 있게 해 줄 것이다.</span><</if>>
 		<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
-			<<set _flightTime += 1>>
-			<<for _active_clothes range Object.keys($worn)>>
-				<<if !$worn[_active_clothes].type.includes("naked") and !$worn[_active_clothes].type.includes("swim")>>
-					<<switch _active_clothes>>
-						<<case "over_upper" "over_lower">>
-							<<set _flightTime += Math.floor(_flightTimeBase / 6)>><<set _slowText to true>>
-						<<case "upper" "lower">>
-							<<set _flightTime += Math.floor(_flightTimeBase / 9)>><<set _slowText to true>>
-						<<case "under_upper" "under_lower" "feet">>
-							<<set _flightTime += Math.floor(_flightTimeBase / 18)>><<set _slowText to true>>
-						<<default>>
-					<</switch>>
-				<</if>>
-			<</for>>
-			<<if _slowText>>
-				<<if _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.5))>>
-					<<set _fatigueText to "<<gggtiredness>>">>
-					<<set _fatigueMod to 3>>
-					<<if _args[1] isnot "silent">><span class="red">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 심하게 늦추고 맨살을 드러내게 할 것이다.</span><</if>>
-				<<elseif _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.25))>>
-					<<set _fatigueText to "<<gggtiredness>>">>
-					<<set _fatigueMod to 3>>
-					<<if _args[1] isnot "silent">><span class="pink">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 늦추고 맨살을 드러내게 할 것이다.</span><</if>>
-				<<elseif _flightTime gt _flightTimeBase>>
-					<<set _fatigueText to "<<ggtiredness>>">>
-					<<set _fatigueMod to 2>>
-					<<if _args[1] isnot "silent">><span class="blue">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 살짝 늦추고 맨살을 드러내게 할 것이다.</span><</if>>
+			<<if Weather.precipitation is "snow">>
+				<<set _flightTime += Math.floor(_flightTimeBase / 6)>>
+				<<set _fatigueText to "<<ggtiredness>>">>
+				<<set _fatigueMod to 2>>
+				<<if _args[1] isnot "silent">><span class="blue">눈속에서 날면 시야가 방해받고 속도가 느려질 것이다.</span><</if>>
+			<<else>>
+				<<set _flightTime += 1>>
+				<<for _active_clothes range Object.keys($worn)>>
+					<<if !$worn[_active_clothes].type.includes("naked") and !$worn[_active_clothes].type.includes("swim")>>
+						<<switch _active_clothes>>
+							<<case "over_upper" "over_lower">>
+								<<set _flightTime += Math.floor(_flightTimeBase / 6)>><<set _slowText to true>>
+							<<case "upper" "lower">>
+								<<set _flightTime += Math.floor(_flightTimeBase / 9)>><<set _slowText to true>>
+							<<case "under_upper" "under_lower" "feet">>
+								<<set _flightTime += Math.floor(_flightTimeBase / 18)>><<set _slowText to true>>
+							<<default>>
+						<</switch>>
+					<</if>>
+				<</for>>
+				<<if _slowText>>
+					<<if _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.5))>>
+						<<set _fatigueText to "<<gggtiredness>>">>
+						<<set _fatigueMod to 3>>
+						<<if _args[1] isnot "silent">><span class="red">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 심하게 늦추고 맨살을 드러내게 할 것이다.</span><</if>>
+					<<elseif _flightTime gte Math.floor(_flightTimeBase + (_flightTimeBase * 0.25))>>
+						<<set _fatigueText to "<<gggtiredness>>">>
+						<<set _fatigueMod to 3>>
+						<<if _args[1] isnot "silent">><span class="pink">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 늦추고 맨살을 드러내게 할 것이다.</span><</if>>
+					<<elseif _flightTime gt _flightTimeBase>>
+						<<set _fatigueText to "<<ggtiredness>>">>
+						<<set _fatigueMod to 2>>
+						<<if _args[1] isnot "silent">><span class="blue">빗속에서 날아다니면 옷이 비에 젖어, 당신의 속도를 살짝 늦추고 맨살을 드러내게 할 것이다.</span><</if>>
+					<<else>>
+						<<set _fatigueText to "<<gtiredness>>">>
+						<<set _fatigueMod to 2>>
+						<<if _args[1] isnot "silent">><span class="green">현재 옷 상태로는 빗속에서 날아다녀도 속도가 느려지지 않을 것이다.</span><</if>>
+					<</if>>
 				<<else>>
 					<<set _fatigueText to "<<gtiredness>>">>
 					<<set _fatigueMod to 2>>
 					<<if _args[1] isnot "silent">><span class="green">현재 옷 상태로는 빗속에서 날아다녀도 속도가 느려지지 않을 것이다.</span><</if>>
 				<</if>>
-			<<else>>
-				<<set _fatigueText to "<<gtiredness>>">>
-				<<set _fatigueMod to 2>>
-				<<if _args[1] isnot "silent">><span class="green">현재 옷 상태로는 빗속에서 날아다녀도 속도가 느려지지 않을 것이다.</span><</if>>
 			<</if>>
-		<<case "snow">>
-			<<set _flightTime += Math.floor(_flightTimeBase / 6)>>
-			<<set _fatigueText to "<<ggtiredness>>">>
-			<<set _fatigueMod to 2>>
-			<<if _args[1] isnot "silent">><span class="blue">눈속에서 날면 시야가 방해받고 속도가 느려질 것이다.</span><</if>>
 		<<default>>
 			<<set _fatigueText to "<<gtiredness>>">>
 			<<set _fatigueMod to 1>>
@@ -1952,7 +1954,7 @@
 		<<if playerAwareTheyArePregnant()>>
 			<span class="lewd">Your eggs are nourished. They'll be ready for laying sooner.</span>
 		<<else>>
-			<span class="lewd">Your feel something inside you settle.</span>
+			<span class="lewd">You feel something inside you settle.</span>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -2576,7 +2578,7 @@
 							mirror: 1,
 							tools: 1
 						}>>
-						<<set $_upgrade.housekeeping to 900>>
+						<<set $_upgrade.housekeeping to 700>>
 					<<case 1>>
 						<span class="green">Wardrobe</span>: Access to clothing.
 				<</switch>>
@@ -2825,7 +2827,7 @@
 		<<if playerIsPregnant() and $_eggnant.type is "hawk">>
 			<<if $location is "tower">>
 				<<set _eggIcon to $_eggnant.fetus.length>>
-				You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
+				You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if $harpy gte 6 and V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
 				Something big is moving around inside of you, sending waves of both pain and pleasure as it rubs against your walls. <<arousal 4000>><<pain 12>><<gggarousal>><<ggpain>>
 				<br><br>
 
@@ -2842,7 +2844,7 @@
 						<</if>>
 						<<if $_eggnant.fetus.length is 2>>
 							The second egg passes much easier, joining its sibling in your nest.
-						<<elseif $_eggnant.fetus.length gte 3>>
+						<<elseif $_eggnant.fetus.length is 3>>
 							The second egg passes easily, but the third one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
 						<<else>>
 							The next eggs pass easily, but the last one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
@@ -2872,7 +2874,7 @@
 				<<set $harpyEggsPrevent to 28>>
 			<<else>>
 				<<set _eggIcon to $_eggnant.fetus.length>>
-				You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
+				You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if $harpy gte 6 and V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
 				Something big is moving around inside of you, sending waves of both pain and pleasure through you as it rubs against your walls. <<arousal 4000>><<garousal>>
 				<br><br>
 
@@ -2889,7 +2891,7 @@
 						<</if>>
 						<<if $_eggnant.fetus.length is 2>>
 							The second egg passes much easier, joining its sibling on your bed.
-						<<elseif $_eggnant.fetus.length gte 3>>
+						<<elseif $_eggnant.fetus.length is 3>>
 							The second egg passes easily, but the third one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
 						<<else>>
 							The next eggs pass easily, but the last one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
@@ -2919,7 +2921,7 @@
 				<<set $harpyEggsPrevent to 28>>
 			<</if>>
 		<<elseif !playerIsPregnant() and $harpyEggs>>
-			You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
+			You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if $harpy gte 6 and V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
 			Something is moving around inside of you, sending waves of pleasure through you as it rubs against your walls. <<arousal 2000>><<garousal>>
 			<br><br>
 
@@ -2936,7 +2938,7 @@
 					<</if>>
 					<<if $harpyEggs.count is 2>>
 						The second egg passes much easier, joining its sibling <<if $location is "tower">>in your nest<<else>>on your bed<</if>>.
-					<<elseif $harpyEggs.count gte 3>>
+					<<elseif $harpyEggs.count is 3>>
 						The second egg passes easily, but the third one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
 					<<else>>
 						The next eggs pass easily, but the last one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.

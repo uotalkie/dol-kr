@@ -97,9 +97,9 @@ const ZIndices = {
 	head: 150,
 	over_head: 152,
 
+	old_over_upper: 164,
+
 	tailPenisCover: 165,
 	tailPenisCoverOverlay: 166,
-
-	old_over_upper: 171,
 };
 window.ZIndices = ZIndices;
