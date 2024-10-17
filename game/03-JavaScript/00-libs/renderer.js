@@ -4,22 +4,35 @@
  */
 var Renderer;
 (function (Renderer) {
-    const millitime = (typeof performance === 'object' && typeof performance.now === 'function') ?
-        function () {
-            return performance.now();
-        } : function () {
-            return new Date().getTime();
-        };
+    const millitime = function () {
+        return performance.now();
+    };
+    function rescaleImageToCanvasHeight(scale, image, targetHeight) {
+        const aspectRatio = image.width / image.height;
+        const scaledWidth = scale ? targetHeight * aspectRatio : image.width;
+        const scaledHeight = scale ? targetHeight : image.height;
+        const i2 = createCanvas(scaledWidth, scaledHeight);
+        i2.imageSmoothingEnabled = false;
+        i2.drawImage(image, 0, 0, scaledWidth, scaledHeight);
+        return i2.canvas;
+    }
     Renderer.DefaultImageLoader = {
         loadImage(src, layer, successCallback, errorCallback) {
-            const image = new Image();
-            image.onload = () => {
-                successCallback(src, layer, image);
-            };
-            image.onerror = (event) => {
-                errorCallback(src, layer, event);
-            };
-            image.src = src;
+            if (src instanceof HTMLCanvasElement) {
+                successCallback(src, layer, src);
+            }
+            else {
+                const image = new Image();
+                image.onload = () => {
+                    // Rescale the image to the canvas height, if layer.scale is true
+                    const rescaledImage = rescaleImageToCanvasHeight(layer.scale, image, layer.model.height);
+                    successCallback(src, layer, rescaledImage);
+                };
+                image.onerror = (event) => {
+                    errorCallback(src, layer, event);
+                };
+                image.src = src;
+            }
         }
     };
     Renderer.ImageLoader = Renderer.DefaultImageLoader;
@@ -112,8 +125,8 @@ var Renderer;
      * Cuts out from base a shape in form of stencil.
      * Modifies and returns base.
      */
-    function cutoutFrom(base, stencil) {
-        base.globalCompositeOperation = 'destination-in';
+    function cutoutFrom(base, stencil, operation) {
+        base.globalCompositeOperation = operation ?? 'destination-in';
         base.drawImage(stencil, 0, 0);
         return base;
     }
@@ -259,6 +272,7 @@ var Renderer;
     Renderer.composeUnderRect = composeUnderRect;
     Renderer.ImageCaches = {};
     Renderer.ImageErrors = {};
+    Renderer.imageIsLoading = false;
     /**
      * Switch between compose(Over|Under)(Rect|Cutout)
      */
@@ -302,7 +316,7 @@ var Renderer;
                 }
                 else if (typeof target.brightness === 'number' && typeof source.brightness === 'object') {
                     const brightnessToAdd = target.brightness;
-                    target.brightness = Object.assign({}, source.brightness);
+                    target.brightness = { ...source.brightness };
                     for (const [adjustmentIndex, adjustment] of target.brightness.adjustments.entries()) {
                         if (typeof adjustment === 'number') {
                             target.brightness.adjustments[adjustmentIndex] += brightnessToAdd;
@@ -401,24 +415,26 @@ var Renderer;
         if (gradientInitializations[0].blendMode != gradientInitializations[1].blendMode) {
             const gradients = [];
             for (const [i, gradientInit] of gradientInitializations.entries()) {
-                gradients.push(createGradient(Object.assign(Object.assign({}, brightness), {
+                gradients.push(createGradient({
+                    ...brightness,
                     colors: [
                         [gradientInitializations[0].offset, i === 0 ? gradientInit.grey : gradientInit.neutral],
                         [gradientInitializations[1].offset, i === 0 ? gradientInit.neutral : gradientInit.grey]
                     ]
-                })));
+                }));
             }
             const firstGradientApplied = composeUnderSpecialRect(image, gradients[0], gradientInitializations[0].blendMode, frameCount);
             const secondGradientApplied = composeUnderSpecialRect(firstGradientApplied.canvas, gradients[1], gradientInitializations[1].blendMode, frameCount, resultCanvas);
             return secondGradientApplied.canvas;
         }
         else {
-            const brightnessGradient = createGradient(Object.assign(Object.assign({}, brightness), {
+            const brightnessGradient = createGradient({
+                ...brightness,
                 colors: [
                     [gradientInitializations[0].offset, gradientInitializations[0].grey],
                     [gradientInitializations[1].offset, gradientInitializations[1].grey]
                 ]
-            }));
+            });
             return composeUnderSpecialRect(image, brightnessGradient, gradientInitializations[0].blendMode, frameCount, resultCanvas).canvas;
         }
     }
@@ -441,15 +457,15 @@ var Renderer;
         }
     }
     Renderer.adjustBrightness = adjustBrightness;
-    function adjustLevels(image,
-        /**
-         * scale factor, 1 - no change, >1 - higher contrast, <1 - lower contrast.
-         */
-        factor,
-        /**
-         * shift, 0 - no change, >0 - brighter, <0 - darker
-         */
-        shift, resultCanvas) {
+    function adjustLevels(image, 
+    /**
+     * scale factor, 1 - no change, >1 - higher contrast, <1 - lower contrast.
+     */
+    factor, 
+    /**
+     * shift, 0 - no change, >0 - brighter, <0 - darker
+     */
+    shift, resultCanvas) {
         if (factor >= 1) {
             /*
              color-dodge ( color, X ) = color / (1 - X) ; 0..(1-X) -> 0..1, (1-X) and brighter become white
@@ -588,8 +604,25 @@ var Renderer;
         condition(layer, context) {
             return !!layer.mask;
         },
-        render(image, layer, context) {
-            return cutoutFrom(ensureCanvas(image).getContext('2d'), layer.mask).canvas;
+        render(image, compositeLayer, renderContext) {
+            const maskCanvas = Renderer.ensureCanvas(image).getContext('2d');
+            let finalMask = compositeLayer.mask;
+            if (Array.isArray(compositeLayer.mask)) {
+                const combinedCtx = Renderer.createCanvas(image.width, image.height);
+                compositeLayer.mask.forEach((maskItem, index) => {
+                    const offset = compositeLayer.maskOffsets[index] || { x: 0, y: 0 };
+                    combinedCtx.drawImage(maskItem, offset.x, offset.y);
+                });
+                finalMask = combinedCtx.canvas;
+            }
+            else if (compositeLayer.maskOffsets[0]?.x || compositeLayer.maskOffsets[0]?.y) {
+                const offsetCtx = Renderer.createCanvas(image.width, image.height);
+                const offset = compositeLayer.maskOffsets[0] || { x: 0, y: 0 };
+                offsetCtx.drawImage(compositeLayer.mask, offset.x, offset.y);
+                finalMask = offsetCtx.canvas;
+            }
+            maskCanvas.globalAlpha = compositeLayer.maskAlpha;
+            return Renderer.cutoutFrom(maskCanvas, finalMask, compositeLayer.maskBlendMode).canvas;
         }
     };
     const RenderingStepCutout = {
@@ -665,6 +698,8 @@ var Renderer;
         else {
             targetCanvas.globalAlpha = 1.0;
         }
+        targetCanvas.save();
+        targetCanvas.globalCompositeOperation = layer.compositeOperation ?? "source-over";
         const { frameWidth, frameCount, subspriteWidth, subspriteHeight, subspriteFrameCount, dx, dy } = rects;
         if (rects.subspriteFrameCount === frameCount && !layer.frames) {
             targetCanvas.drawImage(image, dx, dy);
@@ -675,6 +710,7 @@ var Renderer;
                 targetCanvas.drawImage(image, imageFrameIndex * subspriteWidth, 0, subspriteWidth, subspriteHeight, dx + i * frameWidth, dy, subspriteWidth, subspriteHeight);
             }
         }
+        targetCanvas.restore();
     }
     Renderer.composeProcessedLayer = composeProcessedLayer;
     function composeLayers(targetCanvas, layerSpecs, frameCount, listener) {
@@ -683,20 +719,20 @@ var Renderer;
         // Sort layers by z-index, then array index
         const layers = layerSpecs
             .filter(layer => layer.show !== false
-                && !(typeof layer.alpha === 'number' && layer.alpha <= 0.0))
+            && !(typeof layer.alpha === 'number' && layer.alpha <= 0.0))
             .map((layer, i) => {
-                if (isNaN(layer.z)) {
-                    console.error("Layer " + (layer.name || layer.src) + " has z-index NaN");
-                    layer.z = 0;
-                }
-                return [layer, i];
-            }) // map to pairs [element, index]
+            if (isNaN(layer.z)) {
+                console.error("Layer " + (layer.name || layer.src) + " has z-index NaN");
+                layer.z = 0;
+            }
+            return [layer, i];
+        }) // map to pairs [element, index]
             .sort((a, b) => {
-                if (a[0].z === b[0].z)
-                    return a[1] - b[1];
-                else
-                    return a[0].z - b[0].z;
-            })
+            if (a[0].z === b[0].z)
+                return a[1] - b[1];
+            else
+                return a[0].z - b[0].z;
+        })
             .map(e => e[0]); // unwrap values;
         if (listener && listener.composeLayers)
             listener.composeLayers(layers);
@@ -748,9 +784,13 @@ var Renderer;
             if (rendered)
                 return;
             for (const layer of layers) {
+                if (Renderer.imageIsLoading === true)
+                    return;
                 if (layer.show !== false && !layer.image)
                     return;
                 if (layer.masksrc && !layer.mask)
+                    return;
+                if ((Array.isArray(layer.masksrc) && layer.masksrc.length < 1) && !layer.mask)
                     return;
             }
             if (listener && listener.loadingDone)
@@ -770,7 +810,9 @@ var Renderer;
                 }
                 layer.image = image;
                 layer.imageSrc = src;
-                Renderer.ImageCaches[src] = image;
+                if (!(layer.src instanceof HTMLCanvasElement)) {
+                    Renderer.ImageCaches[src] = image;
+                }
                 maybeRenderResult();
             }, (src, layer, error) => {
                 // Mark this src as erroneous to avoid blinking due to reload attempts
@@ -786,32 +828,38 @@ var Renderer;
             });
         }
         function loadLayerMask(layer) {
-            Renderer.ImageLoader.loadImage(layer.masksrc, layer, (src, layer, image) => {
-                layersLoaded++;
-                if (listener && listener.loaded) {
-                    listener.loaded(layer.name || 'unnamed', src);
-                }
-                layer.mask = image;
-                layer.cachedMaskSrc = src;
-                Renderer.ImageCaches[src] = image;
-                maybeRenderResult();
-            }, (src, layer, error) => {
-                // Mark this src as erroneous to avoid blinking due to reload attempts
-                Renderer.ImageErrors[src] = true;
-                if (listener && listener.loadError) {
-                    listener.loadError(layer.name || 'unnamed', src);
-                }
-                else {
+            if (!Array.isArray(layer.masksrc)) {
+                if (layer.masksrc == null)
+                    return;
+                layer.masksrc = [layer.masksrc];
+            }
+            const masksLoaded = [];
+            let masksToLoad = layer.masksrc.length;
+            layer.masksrc.forEach((src, index) => {
+                Renderer.ImageLoader.loadImage(src, layer, (src, layer, image) => {
+                    masksLoaded[index] = image;
+                    masksToLoad--;
+                    if (!(src instanceof HTMLCanvasElement)) {
+                        Renderer.ImageCaches[src] = image;
+                    }
+                    if (masksToLoad === 0) {
+                        layer.mask = masksLoaded.length === 1 ? masksLoaded[0] : masksLoaded;
+                        layer.cachedMaskSrc = layer.masksrc;
+                        maybeRenderResult();
+                    }
+                }, (src, layer, error) => {
                     console.error('Failed to load mask ' + src + (layer.name ? ' for layer ' + layer.name : ''));
-                }
-                delete layer.masksrc;
-                maybeRenderResult();
+                    layer.show = false;
+                    Renderer.ImageErrors[src] = true;
+                    layer.masksrc = null;
+                    maybeRenderResult();
+                });
             });
         }
         for (const layer of layers) {
             let needImage = true;
             if (layer.image) {
-                if (layer.imageSrc === layer.src) {
+                if (layer.imageSrc === layer.src || layer.src instanceof HTMLCanvasElement) {
                     needImage = false;
                 }
                 else {
@@ -833,9 +881,28 @@ var Renderer;
                     loadLayerImage(layer);
                 }
             }
+            layer.maskOffsets = [];
+            if (Array.isArray(layer.masksrc)) {
+                layer.masksrc = layer.masksrc
+                    .map(item => {
+                    if (item?.path) {
+                        layer.maskOffsets.push({ x: item.offsetX || 0, y: item.offsetY || 0 });
+                        return item.path;
+                    }
+                    return item;
+                })
+                    .filter(value => value != null);
+                if (layer.masksrc.length === 0 || layer.masksrc.every(value => value == null)) {
+                    layer.masksrc = null;
+                }
+            }
+            else if (layer.masksrc?.path) {
+                layer.maskOffsets.push({ x: layer.masksrc.offsetX || 0, y: layer.masksrc.offsetY || 0 });
+                layer.masksrc = layer.masksrc.path;
+            }
             let needMask = !!layer.masksrc;
             if (layer.mask) {
-                if (layer.cachedMaskSrc === layer.masksrc) {
+                if (layer.cachedMaskSrc === layer.masksrc || layer.masksrc instanceof HTMLCanvasElement) {
                     needMask = false;
                 }
                 else {
@@ -845,21 +912,51 @@ var Renderer;
                 }
             }
             if (needMask) {
-                if (Renderer.ImageErrors[layer.masksrc]) {
-                    delete layer.masksrc;
-                }
-                else if (layer.masksrc in Renderer.ImageCaches) {
-                    layer.mask = Renderer.ImageCaches[layer.masksrc];
-                    layer.cachedMaskSrc = layer.masksrc;
+                if (Array.isArray(layer.masksrc)) {
+                    layer.mask = [];
+                    layer.masksrc.forEach(src => {
+                        if (Renderer.ImageErrors[src]) {
+                            layer.masksrc = null;
+                        }
+                        else if (src in Renderer.ImageCaches) {
+                            layer.mask.push(Renderer.ImageCaches[src]);
+                            layer.cachedMaskSrc = layer.masksrc;
+                        }
+                        else {
+                            loadLayerMask(layer);
+                        }
+                    });
                 }
                 else {
-                    loadLayerMask(layer);
+                    if (Renderer.ImageErrors[layer.masksrc]) {
+                        layer.masksrc = null;
+                    }
+                    else if (layer.masksrc in Renderer.ImageCaches) {
+                        layer.mask = Renderer.ImageCaches[layer.masksrc];
+                        layer.cachedMaskSrc = layer.masksrc;
+                    }
+                    else {
+                        loadLayerMask(layer);
+                    }
                 }
             }
         }
         maybeRenderResult();
     }
     Renderer.composeLayers = composeLayers;
+    function refresh(model) {
+        if (!model.canvas)
+            return;
+        clearCaches(model);
+        model.redraw();
+    }
+    Renderer.refresh = refresh;
+    function clearCaches(model) {
+        Renderer.ImageCaches = {};
+        Renderer.ImageErrors = {};
+        invalidateLayerCaches(model.layerList);
+    }
+    Renderer.clearCaches = clearCaches;
     function invalidateLayerCaches(layers) {
         for (let layer of layers) {
             delete layer.image;
@@ -876,6 +973,14 @@ var Renderer;
     }
     Renderer.animateLayersAgain = animateLayersAgain;
     const animatingCanvases = new WeakMap();
+    function getAnimatingCanvas(targetCanvas) {
+        return animatingCanvases.get(targetCanvas);
+    }
+    Renderer.getAnimatingCanvas = getAnimatingCanvas;
+    function getAnimatingCanvases() {
+        return animatingCanvases;
+    }
+    Renderer.getAnimatingCanvases = getAnimatingCanvases;
     Renderer.Animations = {};
     /**
      * Animation spec provider; default implementation is look up in Renderer.Animations by layer's `animation` property.
@@ -970,10 +1075,8 @@ var Renderer;
                     if (listener && listener.keyframe)
                         listener.keyframe(animation.name, animation.keyframeIndex, animation.keyframe);
                 }
-                compose().catch((e) => {
-                    if (e)
-                        console.error(e);
-                });
+                compose().catch((e) => { if (e)
+                    console.error(e); });
             },
             stop() {
                 if (!this.playing)
@@ -993,10 +1096,8 @@ var Renderer;
             invalidateCaches,
             time: 0,
             redraw() {
-                compose().catch((e) => {
-                    if (e)
-                        console.error(e);
-                });
+                compose().catch((e) => { if (e)
+                    console.error(e); });
             }
         };
         function genAnimationSpec() {
@@ -1024,10 +1125,8 @@ var Renderer;
                         animatingCanvas.time = Math.max(t1, animatingCanvas.time);
                         for (let task of tasks)
                             task();
-                        compose().catch((e) => {
-                            if (e)
-                                console.error(e);
-                        });
+                        compose().catch((e) => { if (e)
+                            console.error(e); });
                     }
                     catch (e) {
                         rendererError(listener, e);

@@ -15,13 +15,17 @@
 <</if>>
 
 <<getouticon>><<link [[떠난다|Shopping Centre Top]]>><</link>>
-<br>
 
 :: Cosmetics Store
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 
 당신은 화장품 가게에 있다. 여러 종류의 알록달록한 튜브, 병, 상자들로 가득 찬 선반들이 당신 앞에 서 있다.
 <br><br>
+
+<<if Time.dayState is "night" and Time.hour isnot 21 and !$weekly.theft.cosmeticsShop>>
+	<<shopicon "register">><<link [[금전등록기를 살펴본다|Cosmetics Store Register]]>><</link>>
+	<br><br>
+<</if>>
 <<cosmeticsicon>><<link [[립스틱을 본다|Cosmetics Lipstick]]>><</link>>
 <br>
 <<cosmeticsicon "eyeshadow">><<link [[아이섀도우를 본다|Cosmetics Eyeshadow]]>><</link>>
@@ -29,6 +33,8 @@
 <<cosmeticsicon "mascara">><<link [[마스카라를 본다|Cosmetics Mascara]]>><</link>>
 <br>
 <<cosmeticsicon "dyes">><<link [[염색약을 본다|Cosmetics Dyes]]>><</link>>
+<br>
+<<cosmeticsicon "sunscreen">><<link [[선크림을 본다|Cosmetics Sunscreen]]>><</link>>
 <br><br>
 <<getouticon>><<link [[떠난다|Shopping Centre Top]]>><</link>>
 
@@ -43,6 +49,50 @@
 
 :: Cosmetics Dyes
 <<CosmeticsGenericDepartment "hairdye" "hair dye" "hair dyes" "hair" "colour-hair" "#FD6064" 4000 "Cosmetics Dyes" "당신은 염색약이 있는 선반 앞으로 간다." false true 1 `setup.colours.hair.filter(c=>c.dye).map(c=>c.variable)`>>
+
+
+:: Cosmetics Sunscreen
+<<set _sunscreen to Skin.Sunscreen.bottle>>
+<<set _sunscreen.durationHours to Math.floor(Skin.Sunscreen.duration / TimeConstants.secondsPerHour)>>
+
+You come to a shelf with many bottles of sunscreen.
+<<if Skin.Sunscreen.usesLeft gt 0>>
+	<<set _ownedBottles to Math.ceil(Skin.Sunscreen.usesLeft / _sunscreen.uses)>>
+	<br>
+	You already own <<print _ownedBottles>> bottle<<if _ownedBottles gt 1>>s<</if>>, with <<print Skin.Sunscreen.usesLeft>> use<<if Skin.Sunscreen.usesLeft gt 1>>s<</if>> left.
+<</if>>
+
+<br><br>
+Each bottle costs <<printmoney _sunscreen.price>> and has <<print _sunscreen.uses>> uses. Each use lasts around <<print _sunscreen.durationHours>> hour<<if _sunscreen.durationHours isnot 1>>s<</if>>.
+<br>
+<<if Time.dayState is "night">>
+	<<link [[Steal a bottle|Cosmetics Sunscreen]]>>
+		<<crimeUp `_sunscreen.price / 100` "thievery">>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+	<</link>><<crime "thievery">>
+	<br>
+	<<link [[Steal a bottle and apply right now|Cosmetics Sunscreen]]>>
+		<<crimeUp `_sunscreen.price / 100` "thievery">>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+		<<run Skin.Sunscreen.apply()>>
+	<</link>><<crime "thievery">>
+<<elseif $money gte _sunscreen.price>>
+	<<link [[Buy a bottle (<<printmoney _sunscreen.price>>)|Cosmetics Sunscreen]]>>
+		<<set $money -= _sunscreen.price>>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+	<</link>>
+	<br>
+	<<link [[Buy a bottle and apply right now (<<printmoney _sunscreen.price>>)|Cosmetics Sunscreen]]>>
+		<<set $money -= _sunscreen.price>>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+		<<run Skin.Sunscreen.apply()>>
+	<</link>>
+<<else>>
+	<span class="purple">당신은 지금 구입할 돈이 없다.</span>
+<</if>>
+<br><br>
+<<link [[Go back|Cosmetics Store]]>><</link>>
+
 
 :: Cosmetics Store Widgets [widget]
 <<widget "CosmeticsGenericDepartment">>

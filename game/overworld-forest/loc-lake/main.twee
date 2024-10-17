@@ -161,8 +161,8 @@
 		<<if Time.hour gte 18 and $halloween is 1 and Time.monthDay is 31 and $halloween_lake is 1>>
 			<<socialiseicon "party">><<link [[파티에 동참한다 (0:10)|Lake Halloween Party]]>><<pass 10>><<stress -6>><<status 1>><</link>><<gcool>><<lstress>>
 			<br>
-		<<elseif $laketeenspresent is 1 and $exposed lte 0 and Time.hour isnot 20 and Time.season isnot "winter">>
-			<<socialiseicon>><<link [[어울려 논다 (0:30)|Lake Hang]]>><<pass 30>><<stress -6>><<status 1>><</link>><<gcool>><<lstress>>
+		<<elseif $laketeenspresent is 1 and $exposed lte 0 and Time.hour isnot 20 and !Weather.isFrozen("lake")>>
+			<<socialiseicon>><<link [[어울려 논다 (0:30)|Lake Hang]]>><<stress -6>><<status 1>><</link>><<gcool>><<lstress>>
 			<br>
 		<</if>>
 		<<if Weather.isFrozen("lake")>>
@@ -190,10 +190,10 @@
 		<</if>>
 		<<if !Weather.isFrozen("lake") and !Time.isBloodMoon()>>
 			<<if $exposed gte 2>>
-				<<if $exhibitionism gte 75 and $laketeenspresent is 1>>
+				<<if hasSexStat("exhibitionism", 5) and $laketeenspresent is 1>>
 					<<walkicon>><<link [[산책한다 (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<arousal 1000>><<rng>><<set $phase to 2>><</link>><<exhibitionist5>><<garousal>><<lstress>>
 					<br>
-				<<elseif $exhibitionism gte 55 and $laketeenspresent isnot 1>>
+				<<elseif hasSexStat("exhibitionism", 4) and $laketeenspresent isnot 1>>
 					<<walkicon>><<link [[산책한다 (1:00)|Lake Stroll]]>><<pass 60>><<stress -6>><<arousal 1000>><<rng>><<set $phase to 3>><</link>><<exhibitionist4>><<garousal>><<lstress>>
 					<br>
 				<</if>>
@@ -219,7 +219,7 @@
 	<</if>>
 	<br><br>
 	/* Added $exhibitionism due to situations where the player can be soft locked and unsure how best to deal with it */
-	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and hasSexStat("exhibitionism", 3)>>
 		<span class="red">귓속의 슬라임이 <<underwearTypeText "을">> 입은 채 나가는 것을 허락하지 않는다.</span>
 	<<else>>
 		<<foresticon>><<link [[숲 (0:10)|Forest]]>><<pass 10>><</link>>
@@ -357,7 +357,7 @@ You ask.
 			<<npc Robin 5>><<set $bogTeam.robinKnown to true>><<set $bogTeam.robinPresent to true>>
 			Two more enter. You first notice Robin shuffling awkwardly and looking downtrodden. <<person5>><<He>> lightens up upon seeing you. "Hey. Winter said <<person1>><<he>> needed help, so I volunteered!"
 			Behind <<person5>><<him>> is a <<person4>><<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair. There's a pistol holstered on <<his>> belt.
-			<<if $wren_seen is "cards" or $wren_seen is "letter" or $wren_seen is "catsuit" or $wren_seen is "prison">>
+			<<if $wrenSeen.includesAny("cards", "letter", "prison", "catsuit")>>
 				<span class="gold">It's Wren.</span>
 				<br><br>
 
@@ -367,9 +367,18 @@ You ask.
 				<<else>>
 					"Never guessed this would be the friend you were telling me all about, Ro." Robin pushes Wren's hand away and takes a step out of reach. The emotion on <<his>> face is hard to read.
 				<</if>>
-			<<else>>
+			<<elseif $wrenSeen.length>>
+				<span class="gold">It's Wren.</span>
 				<br><br>
 
+				"Well, fancy seeing you here," <<he>> says with a grin. <<He>> places a hand on Robin's head, ruffling <<person5>><<his>> hair.
+				<<if $robinromance is 1>>
+					"Never guessed this would be your <<girlfriend>>, Ro." Robin pushes Wren's hand away. The emotion on <<his>> face is hard to read, but you think you catch a mixture of disgust and 'help me'.
+				<<else>>
+					"Never guessed this would be the friend you were telling me all about, Ro." Robin pushes Wren's hand away and takes a step out of reach. The emotion on <<his>> face is hard to read.
+				<</if>>
+			<<else>>
+				<br><br>
 				<<if $robinromance is 1>>
 					"Oh, is this your <<girlfriend>>, Ro? <span class="gold">The name's Wren,</span>" <<he>> says, ruffling Robin's hair as <<he>> looks at you. Robin pushes Wren's hand away. The emotion on <<person5>><<his>> face is hard to read, but you think you catch a mixture of disgust and 'help me'.
 				<<else>>
@@ -379,11 +388,16 @@ You ask.
 			Wren frowns, but is cut off by
 		<<else>>
 			Two more enter the tent. You first notice a <<person4>><<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair. There's a pistol holstered on <<his>> belt.
-			<<if $wren_seen is "cards" or $wren_seen is "letter" or $wren_seen is "catsuit" or $wren_seen is "prison">>
+			<<if $wrenSeen.includesAny("cards", "letter", "prison", "catsuit")>>
 				<span class="gold">It's Wren.</span>
 				<br><br>
 
 				"Well, if it isn't my favourite troublemaker," <<he>> says with a grin.
+			<<elseif $wrenSeen.length>>
+				<span class="gold">It's Wren.</span>
+				<br><br>
+
+				"Well, fancy seeing you here," <<he>> says with a grin.
 			<<else>>
 				"Damn, how much more help are you planning on pulling in, Winter?" <<He>> regards you with a grin. <span class="gold">"The name's Wren."</span>
 			<</if>>
@@ -392,19 +406,20 @@ You ask.
 		a young <<person3>><<personsimple>> with a stick in <<his>> mouth pushing in, looking down at a camera.
 		<br><br>
 
-		<<if $niki_seen is undefined>>
+		<<if !$nikiSeen.length>>
 			"That's Niki," Sirris says. "A photographer who works in town. When Winter came calling, I thought <<he>> would be interested." Niki acknowledges you with a nod.
-		<<elseif $niki_seen is "adult_shop_opening">>
+		<<elseif $nikiSeen.includes("adult_shop_opening")>>
 			It's Niki, the photographer. "You remember Niki, right?" Sirris asks. "From the opening of the shop." Niki acknowledges you with a nod.
-		<<elseif $niki_seen is "farm">>
+		<<elseif $nikiSeen.includes("farm")>>
 			<span class="red">It's Niki,</span> the photographer from Remy's farm. <<He>> looks alarmed to see you. "That's Niki," Sirris says. "A photographer who works in town. When Winter came calling, I thought <<he>> would be interested." <<gtrauma>><<trauma 6>>
 		<<else>>
 			It's Niki, the photographer. <<He>> acknowledges you with a nod. "That's Niki," Sirris says. "A photographer who works in town. When Winter came calling, I thought <<he>> would be interested."
 		<</if>>
 		<br><br>
 
-		<<set $wren_seen to "winter">>
-		<<set $niki_seen to "winter">>
+		<<set $wrenSeen.pushUnique("winter")>>
+		<<set $wrenSeenLast to "winter">>
+		<<set $nikiSeen.pushUnique("winter")>>
 
 		<<link [[다음|Lake Office Volunteers]]>><</link>>
 		<br>
@@ -517,7 +532,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 
 <br><br>
 <<if $exposed gte 1 and $laketeenspresent is 1>>
-	<<if $exhibitionism gte 75>>
+	<<if hasSexStat("exhibitionism", 5)>>
 		당신은 자세를 낮추고 나무 사이에 숨는다. 당신은 당신의 <<lewdnessPost "을">> 정말 보여 주고 싶지만, 스스로 자제하고 있다.
 	<<else>>
 		당신은 자세를 낮추고 나무 사이에 숨어 당신의 <<lewdnessPost "을">> 보이지 않도록 조심한다.
@@ -572,7 +587,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 		<br>
 	<</if>>
 	<br>
-	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and hasSexStat("exhibitionism", 3)>>
 		<span class="red">귓속의 슬라임이 <<underwearTypeText "을">> 입은 채 나가는 것을 허락하지 않는다.</span>
 	<<else>>
 		<<foresticon>><<link [[숲 (0:10)|Forest]]>><<pass 10>><</link>>
@@ -603,7 +618,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 <br><br>
 
 <<if $exposed gte 1 and $laketeenspresent is 1>>
-	<<if $exhibitionism gte 75>>
+	<<if hasSexStat("exhibitionism", 5)>>
 		당신은 자세를 낮추고 나무 사이에 숨는다. 당신은 당신의 <<lewdnessPost "을">> 정말 보여 주고 싶지만, 스스로 자제하고 있다.
 	<<else>>
 		당신은 자세를 낮추고 나무 사이에 숨어 당신의 <<lewdnessPost "을">> 보이지 않도록 조심한다.
@@ -632,7 +647,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 	<<lakeicon "campfire">><<link [[남쪽 캠핑장으로 간다 (0:20)|Lake Campsite]]>><<pass 20>><</link>>
 	<br><br>
 
-	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and hasSexStat("exhibitionism", 3)>>
 		<span class="red">귓속의 슬라임이 <<underwearTypeText "을">> 입은 채 나가는 것을 허락하지 않는다.</span>
 	<<else>>
 		<<foresticon>><<link [[숲 (0:10)|Forest]]>><<pass 10>><</link>>
@@ -666,7 +681,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 <br><br>
 
 <<if $exposed gte 1 and ($laketeenspresent is 1 or $laketeensfire is 1)>>
-	<<if $exhibitionism gte 75>>
+	<<if hasSexStat("exhibitionism", 5)>>
 		당신은 자세를 낮추고 나무 사이에 숨는다. 당신은 당신의 <<lewdnessPost "을">> 정말 보여 주고 싶지만, 스스로 자제하고 있다.
 	<<else>>
 		당신은 자세를 낮추고 나무 사이에 숨어 당신의 <<lewdnessPost "을">> 보이지 않도록 조심한다.
@@ -690,7 +705,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 	<<link [[남쪽 호숫가로 간다 (0:10)|Lake Shore]]>><<pass 10>><</link>>
 	<br><br>
 
-	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and hasSexStat("exhibitionism", 3)>>
 		<span class="red">귓속의 슬라임이 <<underwearTypeText "을">> 입은 채 나가는 것을 허락하지 않는다.</span>
 	<<else>>
 		<<foresticon>><<link [[숲 (0:10)|Forest]]>><<pass 10>><</link>>
@@ -721,7 +736,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 <br><br>
 
 <<if Weather.precipitation is "none" and Time.hour gte 18 and $exposed gte 1 and $daily.lakeCouple isnot 1>>
-	<<if $exhibitionism gte 75>>
+	<<if hasSexStat("exhibitionism", 5)>>
 		당신은 자세를 낮추고 나무 사이에 숨는다. 당신은 당신의 <<lewdnessPost "을">> 정말 보여 주고 싶지만, 스스로 자제하고 있다.
 	<<else>>
 		당신은 자세를 낮추고 나무 사이에 숨어 당신의 <<lewdnessPost "을">> 보이지 않도록 조심한다.
@@ -753,7 +768,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 	<</if>>
 	<br><br>
 
-	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and hasSexStat("exhibitionism", 3)>>
 		<span class="red">귓속의 슬라임이 <<underwearTypeText "을">> 입은 채 나가는 것을 허락하지 않는다.</span>
 	<<else>>
 		<<foresticon>><<link [[숲 (0:10)|Forest]]>><<pass 10>><</link>>
@@ -783,7 +798,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 <br><br>
 
 <<if $laketeenspresent is 1 and $exposed gte 1>>
-	<<if $exhibitionism gte 75>>
+	<<if hasSexStat("exhibitionism", 5)>>
 		당신은 물 속에 몸을 숨긴다. 당신은 당신의 <<lewdnessPost "을">> 정말로 보여주고 싶지만, 스스로 자제하고 몸을 가릴 만한 것을 찾는다.
 	<<else>>
 		당신은 물 속에 숨어 당신의 <<lewdnessPost "을">> 보이지 않게 숨긴다. 가릴만한 것을 찾아야 할 것이다.
@@ -895,9 +910,9 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 	<</if>>
 	<br>
 	<<if $exposed gte 1 and $laketeenspresent is 1>>
-		<<if $exposed gte 2 and $exhibitionism gte 75>>
+		<<if $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
 			<<lakeicon>><<link [[헐벗은 상태로 물에서 나온다 (0:02)|Lake Shore Exposed]]>><<set $phase to 0>><<pass 2>><</link>><<exhibitionist5>>
-		<<elseif $exposed gte 1 and $exhibitionism gte 55>>
+		<<elseif $exposed gte 1 and hasSexStat("exhibitionism", 4)>>
 			<<lakeicon>><<link [[헐벗은 상태로 물에서 나온다 (0:02)|Lake Shore Exposed]]>><<set $phase to 1>><<pass 2>><</link>><<exhibitionist4>>
 		<</if>>
 	<<else>>
@@ -1027,7 +1042,7 @@ The group leaves the tent, saying their goodbyes. "I may ask you to join them on
 <br><br>
 
 <<if $laketeenspresent is 1 and $exposed gte 1>>
-	<<if $exhibitionism gte 75>>
+	<<if hasSexStat("exhibitionism", 5)>>
 		당신은 물 속에 몸을 숨긴다. 당신은 당신의 <<lewdnessPost "을">> 정말로 보여주고 싶지만, 스스로 자제하고 몸을 가릴 만한 것을 찾는다.
 	<<else>>
 		당신은 물 속에 숨어 당신의 <<lewdnessPost "을">> 보이지 않게 숨긴다. 가릴만한 것을 찾아야 할 것이다.
@@ -1473,6 +1488,7 @@ You don't catch the rest as the two <<if $location is "school">>round a corner<<
 <<if playerAwareTheyArePregnant()>>
 	You sit and chat under the moonlight, though you refrain from any drinks.
 <<else>>
+	<<wearProp "solo cup">>
 	You sit, chat, and drink under the moonlight.
 <</if>>
 The others try to entertain themselves with ghost stories.
@@ -1484,16 +1500,15 @@ The others try to entertain themselves with ghost stories.
 	<<case 2>>A <<persons>> story leaves the whole party howling with ridicule. <<He>> washes down the shame with another beer.
 	<<case 1>>One drives a <<person>> to tears, to the amusement of the group. <<He>> sniffles and retreats to the woods, drawing further laughter.
 <</switch>>
-<<endevent>>
 <br><br>
 
 <<if $syndromewolves is 1 and !$halloweenWolves>><<set $halloweenWolves to 1>>
 	The party is suddenly silenced by a cry from the woods. A howl, followed by cursing, then a pained yelp.
 	<br><br>
 
-	<<investigateicon>><<link [[조사한다|Lake Halloween Wolves Investigate]]>><</link>>
+	<<investigateicon>><<link [[조사한다|Lake Halloween Wolves Investigate]]>><<endevent>><</link>>
 	<br>
-	<<ind>><<link [[Stay seated|Lake Halloween Wolves Ignore]]>><</link>>
+	<<ind>><<link [[Stay seated|Lake Halloween Wolves Ignore]]>><<endevent>><</link>>
 	<br>
 <<elseif Time.monthDay isnot 31>>
 	It's getting late, and the shadows of the forest are lengthening. People are preparing to return to town. No one wants to be left to travel alone.
@@ -1504,26 +1519,26 @@ The others try to entertain themselves with ghost stories.
 		<span class="red">귓속의 슬라임이 <<underwearTypeText "을">> 입은 채 나가는 것을 허락하지 않는다.</span>
 		<<set _earSlimeText to true>>
 	<<elseif _storedClothes.length>>
-		<<ind>><<link [[Get changed, then go with them (0:40)|Lake Return Journey]]>><<storeload "lakeshore">><<set $foresthunt to 0>><<pass 30>><</link>>
+		<<ind>><<link [[Get changed, then go with them (0:40)|Lake Return Journey]]>><<endevent>><<storeload "lakeshore">><<set $foresthunt to 0>><<pass 30>><</link>>
 		<br>
 	<</if>>
 	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked")>>
 		<<if _earSlimeText>><span class="red">귓속의 슬라임이 <<underwearTypeText "을">> 입은 채 나가는 것을 허락하지 않는다.</span><</if>>
 	<<elseif $exposed lte 0>>
-		<<ind>><<link [[Go with them (0:30)|Lake Return Journey]]>><<set $foresthunt to 0>><<pass 30>><</link>>
+		<<ind>><<link [[Go with them (0:30)|Lake Return Journey]]>><<endevent>><<set $foresthunt to 0>><<pass 30>><</link>>
 		<br>
 	<</if>>
 
-	<<ind>><<link [[Stay|Lake Shore]]>><</link>>
+	<<ind>><<link [[Stay|Lake Shore]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	<<if playerAwareTheyArePregnant()>>
-		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<stress -4>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>>
+		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<endevent>><<set $phase to 1>><<stress -4>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>>
 	<<else>>
-		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<set $phase to 1>><<stress -4>><<alcohol 20>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>><<galcohol>>
+		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<endevent>><<set $phase to 1>><<stress -4>><<alcohol 20>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>><<galcohol>>
 	<</if>>
 	<br>
-	<<getouticon>><<link [[떠난다|Lake Shore]]>><<set $phase to 0>><</link>>
+	<<getouticon>><<link [[떠난다|Lake Shore]]>><<endevent>><<set $phase to 0>><</link>>
 	<br>
 <</if>>
 

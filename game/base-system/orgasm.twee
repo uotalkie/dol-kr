@@ -92,7 +92,7 @@
 							<<set $_impregnatedChance to Math.ceil($_impregnatedChance * 0.1)>>
 						<</if>>
 						<<set $_impregnatedChance to Math.floor($_impregnatedChance * (_orgasmSpermRng / 100))>>
-						/*If random NPC is impregnated, compress NPC and fetus*/
+						/*If random NPC is impregnated, store NPC and fetus*/
 						<<if ($_impregnatedChance gte random(0,200) or _npcForceImpregnation)>>
 							<<switch $NPCList[$penistarget].type>>
 								<<case "human">><<set $_pregnancy to pregnancyGenerator.human(V.NPCList[$penistarget], "pc", true)>>
@@ -101,10 +101,8 @@
 							<</switch>>
 							<<if $_pregnancy and !(typeof $_pregnancy is "string" || $_pregnancy instanceof String)>>
 								<<if $consensual is 1 and ((random(0, 1 + $_count) is 0 and $_count lte 10) or (setup.pregnancy.randomAlwaysKeep.includes($location) and $_count lte 15))>>
-									<<compressNPC $penistarget "pregnancy">>
-									<<set $storedNPCs[_lastCompressedName].pregnancy to $_pregnancy>>
-									/* ToDo: Uncomment when compression when is ready */
-									/*<<run $storedNPCs[_lastCompressedName].pregnancy.fetus.forEach((child, index, array) => array[index] to childCompressor(child, false))>>*/
+									<<storeNPC $penistarget "pregnancy">>
+									<<set $storedNPCs[_lastStoredName].pregnancy to $_pregnancy>>
 								<</if>>
 								<<if $pregnancytype is "fetish">><<set _npcIsNowPregnant to $NPCList[$penistarget].fullDescription>><</if>>
 								<<set $NPCList[$penistarget].pregnancy to 1>>
@@ -219,10 +217,22 @@
 		<</if>>
 	<</if>>
 
-	<<if $arousalmasochism/$arousal gte 0.70 and !_deniedOrgasm>>
-		<!-- If over 70% arousal is from pain, PC has added reaction NG v2.7 -->
-		<span class="green"> 당신은 몸부림을 치며 더 큰 고통을 갈구한다.</span>
-		<<masochism 5>>
+	<<if $arousalmasochism/$arousal gte 0.70>>
+		<!--
+			If over 70% arousal is from pain, PC has added reaction NG v2.7
+			combat get 4 points per orgasm
+			everything else get 8 points per day if from just pain, 10 if its from a denied orgasm
+		-->
+		<<if $combat>>
+			<span class="green">당신의 신체가 몸부림치며 더 큰 고통을 갈구한다.</span>
+			<<masochism 4>>
+		<<elseif $daily.masturbationMasochism or 0 lte _deniedOrgasm ? 10 : 8>>
+			<span class="green">당신의 신체가 몸부림치며 더 큰 고통을 갈구한다.</span>
+			<<masochism `_deniedOrgasm ? 2 : 1`>>
+			<<set $daily.masturbationMasochism to ($daily.masturbationMasochism or 0) + (_deniedOrgasm ? 2 : 1)>>
+		<<else>>
+			<span class="red">당신의 신체가 몸부림치며 다른 곳에서의 더 큰 고통을 갈구한다.</span>
+		<</if>>
 	<</if>>
 
 	<<if $masturbation_bowl is 1>><<set _liquid_collection_text to []>><</if>>
@@ -235,6 +245,74 @@
 			<span class="pink">애액이 당신의 <<pussyPost>>에서 솟구친다.</span>
 		<<elseif _lube_released gt 0>>
 			<span class="pink">애액이 당신의 <<pussyPost>>에서 새어나온다.</span>
+		<</if>>
+	<</if>>
+	<<if $lactating is 1 and $milk_volume gte 1000 and $milk_amount gte ($milk_volume / 3) and $breastsensitivity gte 1.5>>
+		<<if $worn.over_upper.exposed is 0 or $worn.upper.exposed is 0 or $worn.under_upper.exposed is 0>>
+			<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+				<<breastfeed 4>><<set $_wetAmount to 100>><<set $_milkText to "뿜어져 나온다">>
+			<<else>>
+				<<breastfeed 2>><<set $_wetAmount to 50>><<set $_milkText to "새어나온다">>
+			<</if>>
+			<<if $worn.under_upper.exposed is 0>>
+				<<trClothes "under_upper" $worn.under_upper.name "name">><<set $_milkedName to _trResult>>
+				<<if !$worn.under_upper.type.includes("swim") and !$worn.under_upper.type.includes("naked")>>
+					<<underupperwet $_wetAmount>>
+				<</if>>
+			<<elseif $worn.upper.exposed is 0>>
+				<<trClothes "upper" $worn.upper.name "name">><<set $_milkedName to _trResult>>
+				<<if !$worn.upper.type.includes("swim") and !$worn.upper.type.includes("naked")>>
+					<<upperwet $_wetAmount>>
+				<</if>>
+			<<else>>
+				<<trClothes "over_upper" $worn.over_upper.name "name">><<set $_milkedName to _trResult>>
+			<</if>>
+			<span class="pink">모유가 <<breastsPost>>에서 당신의 $_milkedName 안으로 $_milkText.</span>
+			<<if $combat is 1>><<set $speechmilk to 1>><</if>>
+		<<elseif $combat is 1 and ($cheststate is "chest" or $cheststate is "chestimminent") and $breastfeedingdisable is "f">>
+			<<for $_i = 0; $_i lt $enemynomax; $_i++>>
+				<<if $NPCList[$_i].mouth is "chest">>
+					<<personselect $_i>>
+					<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+						<<if $milk_amount gte 2500>>
+							<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 뿜어져 나오기 시작한다. 당신의 모유가 <<his_ yi>> 입에서 넘쳐흐르자, <<hes_ nun>> 쿨럭거리며, 어쩔 수 없이 입을 뗀다.</span>
+							<<breastfeed 10>>
+							<<set $cheststate to "chestimminent">><<set $NPCList[$_i].mouth to "chestimminent">>
+							<<milkvolume 1>><<set $enemyanger += 10>>
+							<<set $speechmilk to 3>>
+						<<else>>
+							<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 뿜어져 나오기 시작한다. <<He_ nun>> 그것을 모두 마시려고 고군분투한다.</span>
+							<<breastfeed 8>><<milkvolume 1>><<sex 2 "breast" $_i>>
+							<<set $speechmilk to 1>>
+						<</if>>
+					<<else>>
+						<span class="pink">당신이 절정하자 <<breastsPost>>에서 더 많은 모유가 <<his_ yi>> 갈망하는 입 속으로 흘러들어간다.</span>
+						<<breastfeed 4>><<milkvolume 1>><<sex 2 "breast" $_i>>
+						<<set $speechmilk to 1>>
+					<</if>>
+				<<elseif $NPCList[$_i].mouth is "chestimminent" or $NPCList[$_i].mouth is "chestentrance">>
+					<<personselect $_i>>
+					<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+						<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 <<his_ yi>> 얼굴 전체에 뿜어져 나오기 시작한다.</span>
+						<<breastfeed 8>>
+						<<set $speechmilk to 2>>
+					<<else>>
+						<span class="pink">당신이 절정하자 <<breastsPost>>에서 모유가 새어나온다.</span>
+						<<breastfeed 3>>
+						<<set $speechmilk to 1>>
+					<</if>>
+				<</if>>
+			<</for>>
+		<<else>>
+			<<if $milk_amount gte (($milk_volume / 3) * 2) and $milk_amount gte 2500>>
+				<span class="pink">당신의 <<breastsPost>>에서 모유가 뿜어져 나<<if $lactating and $bugsinside>>오며, 기생충 일부를 같이 날려버린다<<else>>온다<</if>>.</span>
+				<<set _milkEscaped to true>>
+				<<breastfeed 4>>
+			<<else>>
+				<span class="pink">당신의 <<breastsPost>>에서 모유가 새어나온다.</span>
+				<<breastfeed 2>>
+			<</if>>
+			<<if $combat is 1>><<set $speechmilk to 1>><</if>>
 		<</if>>
 	<</if>>
 
@@ -450,7 +528,7 @@
 <</widget>>
 
 <<widget "orgasmstage">>
-	<<if $exhibitionism gte 75 and $backgroundTraits.includes("lustful") and $orgasmtrait gte 1>>
+	<<if hasSexStat("exhibitionism", 5) and $backgroundTraits.includes("lustful") and $orgasmtrait gte 1>>
 		당신은 엄청난 절정이 몰려오는 것을 느낀다.
 		<br><br>
 		당신의 <span class="lewd">성욕과</span> 당신의 <span class="lewd">쾌락에</span> 못 견뎌, 당신은
@@ -509,7 +587,7 @@
 				<<gtrauma>><<gstress>><<trauma 10>><<stress 10>>
 				<<set $danceevent to "finish">>
 			<</if>>
-		<<elseif currentSkillValue('danceskill') gte 500 and $exhibitionism gte 55 and $promiscuity gte 55>>
+		<<elseif currentSkillValue('danceskill') gte 500 and hasSexStat("exhibitionism", 4) and hasSexStat("promiscuity", 4)>>
 			당신은 완전히 쓰러지기 전에 무릎을 꿇는다. 당신의 <<body_size_textPost "은">> 격렬한 경련으로 괴로워한다. 관중들이 당신에게 환호를 보낸다.
 			<br><br>
 			당신은 일어나 다시 춤추기 시작하고, 관중들은 야유를 보낸다.
@@ -801,42 +879,48 @@
 <</widget>>
 
 <<widget "breastfeed">>
-	<<set $_milk_released to random(10, 50)>>
+	<<set _milk_released to random(10, 50)>>
 	<<if $cow gte 6>>
-		<<set $_milk_released *= 2>>
+		<<set _milk_released *= 2>>
 	<</if>>
-	<<set $_milk_released /= 10>>
-	<<set $_milk_released to parseFloat($_milk_released.toFixed(1))>>
+	<<set _milk_released /= 10>>
+	<<set _milk_released to parseFloat(_milk_released.toFixed(1))>>
 
-	<<if _args[0]>><<set $_milk_released *= _args[0]>><</if>>
+	<<if _args[0]>><<set _milk_released *= _args[0]>><</if>>
 
-	/* if the player doesn't have enough milk, set $_milk_released to whatever they have left */
-	<<if $milk_amount lt $_milk_released>>
-		<<set $_milk_released to $milk_amount>>
+	/* if the player doesn't have enough milk, set _milk_released to whatever they have left */
+	<<if $milk_amount lt _milk_released>>
+		<<set _milk_released to $milk_amount>>
 	<</if>>
-	<<set $milk_produced_stat += Math.trunc($_milk_released)>>
+	<<set $milk_produced_stat += Math.trunc(_milk_released)>>
 
 	<<milkvolume 1>>
 
-	<<if $worn.over_upper.exposed is 0 and $worn.upper.exposed is 0 and $worn.under_upper.exposed is 0>>
+	<<if ($worn.over_upper.exposed is 0 and $worn.upper.exposed is 0 and $worn.under_upper.exposed is 0) or _args[1] is "drunk">>
 	<<else>>
+		<<set $_milkEscaped to _milkEscaped and _args[1] isnot "pump">>
 		<<if $masturbating>>
-			<<set $masturbation_milk += $_milk_released>>
+			<<if $masturbation_bowl is 1 and $_milkEscaped>>
+				/* Either Milk sprays everywhere or is drunk, so isn't collected */
+			<<else>>
+				<<set $masturbation_milk += _milk_released>>
+			<</if>>
 		<</if>>
 		<<if _args[1] is "pump">>
-			<<set $bottledMilk to ($bottledMilk or 0) + $_milk_released>>
+			<<set $bottledMilk to ($bottledMilk or 0) + _milk_released>>
 		<</if>>
 		<<if $masturbation_bowl is 1>>
-			<!-- If the player is using both hands, only print this text the second time, and report the total milk released this turn -->
-			<<set _milk_this_turn to (_milk_this_turn is undefined ? $_milk_released : _milk_this_turn + $_milk_released)>>
-			<!-- _args[0] is how many times this widget has been called this turn -->
-			<span class="gold">당신은 <<print (_milk_this_turn).toFixed(1)>> mL의 모유를 얻었다.</span>
+			<<if $_milkEscaped>>
+				<span class="red">당신이 절정하는 힘 때문에 당신의 모유가 그릇을 완전히 비껴가며, 넓게 흩뿌려진다.</span> <<gsuspicion>><<set $chef_sus += 5>><br>
+			<<else>>
+				<span class="gold">당신은 <<print (_milk_released).toFixed(1)>> mL의 모유를 얻었다.</span>
+			<</if>>
 		<<elseif $leftaction is "mbreastpumppump" or $rightaction is "mbreastpumppump">>
-			<span class="gold">당신은 <<print ($_milk_released).toFixed(1)>> mL의 모유를 담았다.</span>
+			<span class="gold">당신은 <<print (_milk_released).toFixed(1)>> mL의 모유를 담았다.</span>
 		<</if>>
 	<</if>>
 
-	<<milk_amount `-$_milk_released`>>
+	<<milk_amount `-_milk_released`>>
 <</widget>>
 
 <<widget "orgasmHourlyRecovery">>
@@ -898,11 +982,11 @@
 <</widget>>
 
 <<widget "semenOrgasm">>
-	<<set $_semen_released to calculateSemenReleased()>>
+	<<set _semen_released to calculateSemenReleased()>>
 
 	<<if $semen_amount gte 1 and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $mouth isnot "mpenis" and $worn.genitals.name isnot "chastity parasite">>
 		<<if $masturbating>>
-			<<set $masturbation_semen += $_semen_released>>
+			<<set $masturbation_semen += _semen_released>>
 		<</if>>
 		<<if $masturbation_bowl is 1>>
 			<<silently>><<semenPost>><</silently>><<set _liquid_collection_text.push($masturbation_semen.toFixed(1) + " mL의 " + _trResult)>>
@@ -913,9 +997,8 @@
 		<<semenvolume 1>>
 	<</if>>
 
-	<<set $semen_produced_stat += $_semen_released>>
-	<<semen_amount `-$_semen_released`>>
-	<<set _semen_released to $_semen_released>>
+	<<set $semen_produced_stat += _semen_released>>
+	<<semen_amount `-_semen_released`>>
 <</widget>>
 
 <<widget "wetnessCalculate">>

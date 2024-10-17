@@ -75,11 +75,11 @@ Will return `true` if the player's belly is visible. Include true to make it pre
 -   `<<if playerBellyVisible()>>`
 -   `<<if playerBellyVisible(true)>>`
 
-#### isPlayerNonparasitePregnancyEnding()
+#### isPregnancyEnding()
 
 Will return `true` if the players non-parasite pregnancy is ending.
 
--   `<<if isPlayerNonparasitePregnancyEnding()>>`
+-   `<<if isPregnancyEnding()>>`
 
 #### playerNormalPregnancyType()
 

@@ -4,33 +4,46 @@
  * Created by aimozg on 29.08.2020.
  */
 namespace Renderer {
-	const millitime = (typeof performance === 'object' && typeof performance.now === 'function') ?
-		function () {
-			return performance.now()
-		} : function () {
-			return new Date().getTime()
-		};
+	const millitime = function () {
+		return performance.now()
+	};
+
+	function rescaleImageToCanvasHeight(scale: boolean, image: HTMLImageElement, targetHeight: number): HTMLCanvasElement {
+		const aspectRatio = image.width / image.height;
+		const scaledWidth = scale ? targetHeight * aspectRatio : image.width;
+		const scaledHeight = scale ? targetHeight : image.height;
+		const i2 = createCanvas(scaledWidth, scaledHeight);
+		i2.imageSmoothingEnabled = false;
+		i2.drawImage(image, 0, 0, scaledWidth, scaledHeight);
+		return i2.canvas;
+	}
 
 	export interface LayerImageLoader {
-		loadImage(src: string,
-		          layer: CompositeLayer,
-		          successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement) => any,
-		          errorCallback: (src: string, layer: CompositeLayer, error: any) => any
+		loadImage(src: string | HTMLCanvasElement,
+			layer: CompositeLayer,
+			successCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, image: HTMLCanvasElement) => any,
+			errorCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, error: any) => any
 		);
 	}
 	export const DefaultImageLoader: LayerImageLoader = {
-		loadImage(src: string,
-		          layer: CompositeLayer,
-		          successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement) => any,
-		          errorCallback: (src: string, layer: CompositeLayer, error: any) => any) {
-			const image = new Image();
-			image.onload = () => {
-				successCallback(src, layer, image);
+		loadImage(src: string | HTMLCanvasElement,
+			layer: CompositeLayer,
+			successCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, image: HTMLCanvasElement) => any,
+			errorCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, error: any) => any) {
+			if (src instanceof HTMLCanvasElement) {
+				successCallback(src, layer, src);
+			} else {
+				const image = new Image();
+				image.onload = () => {
+					// Rescale the image to the canvas height, if layer.scale is true
+					const rescaledImage = rescaleImageToCanvasHeight(layer.scale, image, layer.model.height);
+					successCallback(src, layer, rescaledImage);
+				};
+				image.onerror = (event) => {
+					errorCallback(src, layer, event);
+				};
+				image.src = src;
 			}
-			image.onerror = (event) => {
-				errorCallback(src, layer, event);
-			}
-			image.src = src;
 		}
 	}
 	export let ImageLoader: LayerImageLoader = DefaultImageLoader;
@@ -150,9 +163,8 @@ namespace Renderer {
 	 * Cuts out from base a shape in form of stencil.
 	 * Modifies and returns base.
 	 */
-	export function cutoutFrom(base: CanvasRenderingContext2D,
-	                           stencil: CanvasImageSource): CanvasRenderingContext2D {
-		base.globalCompositeOperation = 'destination-in';
+	export function cutoutFrom(base: CanvasRenderingContext2D, stencil: CanvasImageSource, operation?: GlobalCompositeOperation): CanvasRenderingContext2D {
+		base.globalCompositeOperation = operation ?? 'destination-in';
 		base.drawImage(stencil, 0, 0);
 		return base;
 	}
@@ -360,11 +372,12 @@ namespace Renderer {
 	}
 
 	export let ImageCaches: {
-		[index: string]: HTMLImageElement
+		[index: string]: HTMLCanvasElement
 	} = {};
 	export let ImageErrors: {
 		[index: string]: boolean
 	} = {};
+	export let imageIsLoading: boolean = false;
 
 	/**
 	 * Switch between compose(Over|Under)(Rect|Cutout)
@@ -778,8 +791,25 @@ namespace Renderer {
 			return !!layer.mask;
 		},
 
-		render(image: CanvasImageSource, layer: CompositeLayer, context: Renderer.RenderPipelineContext): HTMLCanvasElement {
-			return cutoutFrom(ensureCanvas(image).getContext('2d'), layer.mask).canvas;
+		render(image: HTMLCanvasElement, compositeLayer: CompositeLayer, renderContext: Renderer.RenderPipelineContext): HTMLCanvasElement {
+			const maskCanvas = Renderer.ensureCanvas(image).getContext('2d');
+			let finalMask = compositeLayer.mask;
+
+			if (Array.isArray(compositeLayer.mask)) {
+				const combinedCtx = Renderer.createCanvas(image.width, image.height);
+				compositeLayer.mask.forEach((maskItem, index) => {
+					const offset = compositeLayer.maskOffsets[index] || { x: 0, y: 0 };
+					combinedCtx.drawImage(maskItem, offset.x, offset.y);
+				});
+				finalMask = combinedCtx.canvas;
+			} else if (compositeLayer.maskOffsets[0]?.x || compositeLayer.maskOffsets[0]?.y) {
+				const offsetCtx = Renderer.createCanvas(image.width, image.height);
+				const offset = compositeLayer.maskOffsets[0] || { x: 0, y: 0 };
+				offsetCtx.drawImage(compositeLayer.mask as CanvasImageSource, offset.x, offset.y);
+				finalMask = offsetCtx.canvas;
+			}
+			maskCanvas.globalAlpha = compositeLayer.maskAlpha;
+			return Renderer.cutoutFrom(maskCanvas, finalMask as CanvasImageSource, compositeLayer.maskBlendMode as GlobalCompositeOperation).canvas;
 		}
 	}
 
@@ -879,6 +909,8 @@ namespace Renderer {
 		} else {
 			targetCanvas.globalAlpha = 1.0;
 		}
+		targetCanvas.save();
+		targetCanvas.globalCompositeOperation = layer.compositeOperation ?? "source-over";
 
 		const {frameWidth, frameCount, subspriteWidth, subspriteHeight, subspriteFrameCount, dx, dy} = rects;
 		if (rects.subspriteFrameCount === frameCount && !layer.frames) {
@@ -892,6 +924,7 @@ namespace Renderer {
 					dx + i * frameWidth, dy, subspriteWidth, subspriteHeight);
 			}
 		}
+		targetCanvas.restore();
 	}
 
 	export function composeLayers(targetCanvas: CanvasRenderingContext2D,
@@ -961,14 +994,17 @@ namespace Renderer {
 					listener.composition(name, targetCanvas.canvas);
 				}
 			}
+	
 			if (listener && listener.renderingDone) listener.renderingDone(millitime() - t1);
 		}
 
 		function maybeRenderResult() {
 			if (rendered) return;
 			for (const layer of layers) {
+				if (imageIsLoading === true) return;
 				if (layer.show !== false && !layer.image) return;
 				if (layer.masksrc && !layer.mask) return;
+				if((Array.isArray(layer.masksrc) && layer.masksrc.length < 1) && !layer.mask) return;
 			}
 			if (listener && listener.loadingDone) listener.loadingDone(millitime() - t0, layersLoaded);
 			try {
@@ -982,21 +1018,23 @@ namespace Renderer {
 			ImageLoader.loadImage(
 				layer.src,
 				layer,
-				(src,layer,image)=>{
+				(src, layer, image)=>{
 					layersLoaded++;
 					if (listener && listener.loaded) {
-						listener.loaded(layer.name || 'unnamed', src);
+						listener.loaded(layer.name || 'unnamed', src as string);
 					}
 					layer.image = image;
-					layer.imageSrc = src;
-					ImageCaches[src] = image;
+					layer.imageSrc = src as string;
+					if (!(layer.src instanceof HTMLCanvasElement)) {
+						ImageCaches[src as string] = image as HTMLCanvasElement;
+					}
 					maybeRenderResult();
 				},
-				(src,layer,error)=>{
+				(src, layer, error) => {
 					// Mark this src as erroneous to avoid blinking due to reload attempts
-					ImageErrors[src] = true;
+					ImageErrors[src as string] = true;
 					if (listener && listener.loadError) {
-						listener.loadError(layer.name || 'unnamed', src);
+						listener.loadError(layer.name || 'unnamed', src as string);
 					} else {
 						console.error('Failed to load image ' + src + (layer.name ? ' for layer ' + layer.name : ''));
 					}
@@ -1006,37 +1044,47 @@ namespace Renderer {
 			)
 		}
 		function loadLayerMask(layer: CompositeLayer) {
-			ImageLoader.loadImage(
-				layer.masksrc,
-				layer,
-				(src,layer,image)=>{
-					layersLoaded++;
-					if (listener && listener.loaded) {
-						listener.loaded(layer.name || 'unnamed', src);
-					}
-					layer.mask = image;
-					layer.cachedMaskSrc = src;
-					ImageCaches[src] = image;
-					maybeRenderResult();
-				},
-				(src,layer,error)=>{
-					// Mark this src as erroneous to avoid blinking due to reload attempts
-					ImageErrors[src] = true;
-					if (listener && listener.loadError) {
-						listener.loadError(layer.name || 'unnamed', src);
-					} else {
+			if (!Array.isArray(layer.masksrc)) {
+				if (layer.masksrc == null) return;
+				layer.masksrc = [layer.masksrc];
+			}
+		
+			const masksLoaded: (HTMLCanvasElement)[] = [];
+			let masksToLoad = layer.masksrc.length;
+		
+			layer.masksrc.forEach((src, index) => {
+				ImageLoader.loadImage(
+					src,
+					layer,
+					(src, layer, image) => {
+						masksLoaded[index] = image;
+						masksToLoad--;
+		
+						if (!(src instanceof HTMLCanvasElement)) {
+							ImageCaches[src] = image as HTMLCanvasElement;
+						}
+		
+						if (masksToLoad === 0) {
+							layer.mask = masksLoaded.length === 1 ? masksLoaded[0] : masksLoaded;
+							layer.cachedMaskSrc = layer.masksrc;
+							maybeRenderResult();
+						}
+					},
+					(src, layer, error) => {
 						console.error('Failed to load mask ' + src + (layer.name ? ' for layer ' + layer.name : ''));
+						layer.show = false;
+						ImageErrors[src as string] = true;
+						layer.masksrc = null;
+						maybeRenderResult();
 					}
-					delete layer.masksrc;
-					maybeRenderResult();
-				}
-			)
+				);
+			});
 		}
 
 		for (const layer of layers) {
 			let needImage = true;
 			if (layer.image) {
-				if (layer.imageSrc === layer.src) {
+				if (layer.imageSrc === layer.src || layer.src instanceof HTMLCanvasElement) {
 					needImage = false;
 				} else {
 					// Layer was loaded in previous render, but then its src was changed - purge cache
@@ -1045,19 +1093,41 @@ namespace Renderer {
 				}
 			}
 			if (needImage) {
-				if (ImageErrors[layer.src]) {
+				if (ImageErrors[layer.src as string]) {
 					layer.show = false;
 					continue;
-				} else if (layer.src in ImageCaches) {
-					layer.image = ImageCaches[layer.src];
-					layer.imageSrc = layer.src;
+				} else if (layer.src as string in ImageCaches) {
+					layer.image = ImageCaches[layer.src as string];
+					layer.imageSrc = layer.src as string;
 				} else {
 					loadLayerImage(layer);
 				}
 			}
+
+			layer.maskOffsets = [] as MaskObject;
+			
+			if (Array.isArray(layer.masksrc)) {
+				layer.masksrc = layer.masksrc
+					.map(item => {
+						if (item?.path) {
+							layer.maskOffsets.push({ x: item.offsetX || 0, y: item.offsetY || 0 });
+							return item.path;
+						}
+						return item;
+					})
+					.filter(value => value != null);
+		
+				if (layer.masksrc.length === 0 || layer.masksrc.every(value => value == null)) {
+					layer.masksrc = null;
+				}
+			} else if (layer.masksrc?.path) {
+				layer.maskOffsets.push({ x: layer.masksrc.offsetX || 0, y: layer.masksrc.offsetY || 0 });
+				layer.masksrc = layer.masksrc.path;
+			}
+
 			let needMask = !!layer.masksrc;
 			if (layer.mask) {
-				if (layer.cachedMaskSrc === layer.masksrc) {
+				if (layer.cachedMaskSrc === layer.masksrc || layer.masksrc instanceof HTMLCanvasElement) {
 					needMask = false;
 				} else {
 					// Layer mask was loaded in previous render, but then its masksrc was changed - purge cache
@@ -1066,13 +1136,27 @@ namespace Renderer {
 				}
 			}
 			if (needMask) {
-				if (ImageErrors[layer.masksrc]) {
-					delete layer.masksrc;
-				} else if (layer.masksrc in ImageCaches) {
-					layer.mask = ImageCaches[layer.masksrc];
-					layer.cachedMaskSrc = layer.masksrc;
+				if (Array.isArray(layer.masksrc)) {
+					layer.mask = [];
+					layer.masksrc.forEach(src => {
+						if (ImageErrors[src]) {
+							layer.masksrc = null;
+						} else if (src in ImageCaches) {
+							layer.mask.push(ImageCaches[src]);
+							layer.cachedMaskSrc = layer.masksrc;
+						} else {
+							loadLayerMask(layer);
+						}
+					});
 				} else {
-					loadLayerMask(layer);
+					if (ImageErrors[layer.masksrc]) {
+						layer.masksrc = null;
+					} else if (layer.masksrc in ImageCaches) {
+						layer.mask = ImageCaches[layer.masksrc];
+						layer.cachedMaskSrc = layer.masksrc;
+					} else {
+						loadLayerMask(layer);
+					}
 				}
 			}
 		}
@@ -1119,14 +1203,22 @@ namespace Renderer {
 		 * True during rendering a frame
 		 */
 		busy: boolean;
-
 		redraw(): void;
-
 		invalidateCaches(): void;
-
 		start(): void;
-
 		stop(): void;
+	}
+
+	export function refresh(model: { canvas: HTMLCanvasElement, layerList: CompositeLayerSpec[], redraw: () => void }) {
+		if (!model.canvas) return;
+		clearCaches(model);
+		model.redraw();
+	}
+
+	export function clearCaches(model: { layerList: CompositeLayerSpec[]}) {
+		ImageCaches = {};
+		ImageErrors = {};
+		invalidateLayerCaches(model.layerList);
 	}
 
 	export function invalidateLayerCaches(layers: CompositeLayer[]) {
@@ -1145,6 +1237,14 @@ namespace Renderer {
 	}
 
 	const animatingCanvases = new WeakMap<CanvasRenderingContext2D, AnimatingCanvas>();
+
+	export function getAnimatingCanvas(targetCanvas: CanvasRenderingContext2D): AnimatingCanvas | undefined {
+		return animatingCanvases.get(targetCanvas);
+	}
+
+	export function getAnimatingCanvases(): WeakMap<CanvasRenderingContext2D, AnimatingCanvas> | undefined {
+		return animatingCanvases;
+	}
 
 	export let Animations: Dict<AnimationSpec> = {};
 	/**

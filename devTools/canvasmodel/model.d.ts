@@ -39,6 +39,7 @@ declare interface BlendPatternSpec {
 declare type BlendSpec = string | BlendGradientSpec | BlendPatternSpec;
 
 declare interface CompositeLayerParams {
+	model?: any;
 	/**
 	 * Render the layer. Default true, only exact `false` value disables rendering
 	 */
@@ -51,6 +52,10 @@ declare interface CompositeLayerParams {
 	 * Blend color/gradient/pattern. For color, CSS color string.
 	 */
 	blend?: BlendSpec;
+	/**
+	 * Blend mode for the whole layer.
+	 */
+	compositeOperation?: GlobalCompositeOperation;
 	/**
 	 * Blend mode.
 	 */
@@ -70,7 +75,7 @@ declare interface CompositeLayerParams {
 	/**
 	 * Mask, a stencil image to cut out and display only select parts of this layer.
 	 */
-	masksrc?: string;
+	masksrc?: string | HTMLCanvasElement | MaskObject | (string | HTMLCanvasElement | MaskObject)[];
 	/**
 	 * Alpha, 0-1. Default 1
 	 */
@@ -101,13 +106,14 @@ declare interface CompositeLayerParams {
 	 * Animation name
 	 */
 	animation?: string;
+	scale?: boolean;
 }
 declare interface CompositeLayerSpec extends CompositeLayerParams {
 	name?: string;
 	/**
 	 * Image URL
 	 */
-	src: string;
+	src: string | HTMLCanvasElement;
 }
 
 declare interface KeyframeSpec {
@@ -142,7 +148,14 @@ declare interface SimpleAnimationSpec {
 	duration: number;
 }
 
+declare interface MaskObject {
+	path?: string;
+	offsetX?: number;
+	offsetY?: number;
+}
+
 declare interface CompositeLayer extends CompositeLayerSpec {
+	maskBlendMode: GlobalCompositeOperation;
 	/**
 	 * `src` of cached `image` (if `src` changes, `image` will be reloaded)
 	 */
@@ -154,11 +167,15 @@ declare interface CompositeLayer extends CompositeLayerSpec {
 	/**
 	 * Loaded/cached mask image
 	 */
-	mask?: CanvasImageSource;
+	mask?: CanvasImageSource | MaskObject | (CanvasImageSource | MaskObject)[];
+	/**
+	 * Offset of mask image
+	 */
+	maskOffsets?: MaskObject;
 	/**
 	 * Value of `masksrc` corresponding to current `mask` (if masksrc changes mask will be reloaded)
 	 */
-	cachedMaskSrc?: string;
+	cachedMaskSrc?: string | MaskObject | (string | MaskObject)[];
 	/**
 	 * Encoded processing options used to display cachedImage
 	 */
@@ -167,4 +184,12 @@ declare interface CompositeLayer extends CompositeLayerSpec {
 	 * Last displayed composed image
 	 */
 	cachedImage?: CanvasImageSource;
+	/**
+	 * Scale it?
+	 */
+	scale?: boolean;
+	/**
+	 * Mask alpha
+	 */
+	maskAlpha?: number;
 }

@@ -55,6 +55,7 @@ Weather.Renderer.Layer = class Layer {
 
 	async init() {
 		this.loading = true;
+		if (!this.renderInstance) return;
 		this.canvas = new this.renderInstance.Canvas();
 
 		// Reset animations on that layer

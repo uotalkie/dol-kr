@@ -961,7 +961,10 @@
 		<<set $chef_sus to 0>>
 	<</if>>
 
-	<<if ndef $pillory_tenant>> /* Pillory related */
+	<<if $pillory is undefined>>
+		<<set $pillory to {}>>
+	<</if>>
+	<<if $pillory.tenant is undefined>> /* Pillory related */
 		<<setup_pillory>>
 	<</if>>
 	<<if ndef $police_intro>>							/* Police hack related*/
@@ -992,17 +995,6 @@
 		<<set $hy_parent to 0>>
 		<<set $long_hair_meet_day to 9999>>
 		<<set $misbehaviour_day to 9999>>
-	<</if>>
-
-
-	<<if $objectVersion.skinColor is undefined>>
-		<<skinColorInitOldSave>>
-	<</if>>
-	<<if $skinColor.tanningEnabled is "t">>
-		<<set $skinColor.tanningEnabled to true>>
-	<</if>>
-	<<if $skinColor.tanningEnabled is "f">>
-		<<set $skinColor.tanningEnabled to false>>
 	<</if>>
 
 	<<if $objectVersion.chastity lt 3 or $objectVersion.chastity is undefined>>
@@ -1090,7 +1082,6 @@
 
 	<<if $lastWardrobeSlot is undefined>>
 		<<set $lastWardrobeSlot to "head">>
-		<<set $newWardrobeStyle to true>>
 	<</if>>
 
 	<<if $objectVersion.customColors lt 4 or $objectVersion.customColors is undefined>>
@@ -1514,10 +1505,6 @@
 
 	<<set $BeastList to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","spider"]>>
 
-	<<if $niki_seen is undefined and $chef_state gte 5>>
-		<<set $niki_seen to "chef">>
-	<</if>>
-
 	<<if $active_enemy is undefined>>
 		<<set $active_enemy to 0>>
 	<</if>>
@@ -1617,8 +1604,7 @@
 	<</if>>
 
 	<<if $livestock_intro is 0>>
-		<<if $remy_seen is undefined>>
-			<<set $remy_seen to "livestock">>
+		<<if $remySeen is undefined>>
 			<<set $livestock_robin to 1>>
 		<</if>>
 		<<if $livestock_noise is undefined>>
@@ -3243,8 +3229,6 @@
 			combatImages: $combatimages !== undefined && StartConfig.enableImages !== false ? $combatimages : 0,
 			bodywritingImages: $bodywritingImages !== undefined ? $bodywritingImages : true,
 			silhouetteEnabled: $silhouettedisable !== undefined ? $silhouettedisable === "f" : true,
-			tanImgEnabled: $skinColor.tanImgEnabled !== undefined ? $skinColor.tanImgEnabled !== "f" : true,
-			tanningEnabled: $skinColor.tanningEnabled !== undefined ? $skinColor.tanningEnabled === "f" : true,
 			sidebarAnimations: $sidebarAnimations !== undefined ? $sidebarAnimations : true,
 			blinkingEnabled: $blinkingdisable !== undefined ? $blinkingdisable === "f" : true,
 			combatAnimations: $combatAnimations !== undefined ? $combatAnimations : true,
@@ -3257,10 +3241,8 @@
 			lightCombat: $lightCombat !== undefined ? $lightCombat : 0.2,
 			lightTFColor: $lightTFColor !== undefined ? $lightTFColor : 0.2,
 			maxStates: $maxStates !== undefined ? $maxStates : 5,
-			maxSessionStates: 1,
 			historyControls: false,
 			numpad: $numpad !== undefined ? $numpad : false,
-			newWardrobeStyle: $newWardrobeStyle !== undefined ? $newWardrobeStyle : true,
 			useNarrowMarket: $useNarrowMarket !== undefined ? $useNarrowMarket : false,
 			skipStatisticsConfirmation: $skipStatisticsConfirmation !== undefined ? $skipStatisticsConfirmation : false,
 			showDebugRenderer: $showDebugRenderer !== undefined ? $showDebugRenderer : !!StartConfig.debug,
@@ -3529,7 +3511,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 56 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 61 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3540,26 +3522,26 @@
 			<!--Should'nt need to re-run that often-->
 			<<run clothesDataTrimmerLoop()>>
 		<</if>>
-		
+
 		<!--If you have added any `colour_combat` or `accessory_colour_combat` to clothes that need their `colour` or `accessory_colour`, this will clear them.
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
-		
+
 		<!-- integrity_max was zero for a piece of clothing [Skimpy Leotard], this caused an infinity money bug at tailor, update people's clothing here -->
 		<<if $objectVersion.updateClothes lt 56>>
 			<<run fixIntegrityUpdater()>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 56>>
+		<<set $objectVersion.updateClothes to 61>>
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 15 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 16 or $objectVersion.specialClothes is undefined>>
 		<<specialClothesSetup>>
 		<<specialClothesUpdate>>
-		<<set $objectVersion.specialClothes to 15>>
+		<<set $objectVersion.specialClothes to 16>>
 	<</if>>
 
-	<<if $objectVersion.wardrobes lt 12 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 13 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 12>>
+		<<set $objectVersion.wardrobes to 13>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -3871,7 +3853,6 @@
 	<</if>>
 
 	<<if $oldclock isnot undefined>>
-		<<set $options.oldclock to $oldclock>>
 		<<unset $oldclock>>
 	<</if>>
 
@@ -3959,7 +3940,7 @@
 		<<set $whitneyrescued to true>>
 		<<set C.npc.Whitney.state to "active">>
 	<</if>>
-	<<if $pillory_tenant.special.name is "Whitney" and C.npc.Whitney.state isnot "pillory">>
+	<<if $pillory_tenant isnot undefined and ($pillory_tenant.special.name is "Whitney" and C.npc.Whitney.state isnot "pillory")>>
 		<!-- Making "pillory" a state means that whitney's state shouldn't be anything but "pillory" when they're locked up -->
 		<<set C.npc.Whitney.state to "pillory">>
 	<</if>>
@@ -4676,7 +4657,7 @@
 	<</if>>
 
 	<!-- V.pillory_tenant.endDate update -->
-	<<if !$pillory_tenant.endDate and $pillory_tenant.endday>>
+	<<if $pillory_tenant isnot undefined and (!$pillory_tenant.endDate and $pillory_tenant.endday)>>
 		<<set $pillory_tenant.endDate to ($pillory_tenant.endday * TimeConstants.secondsPerDay + ($pillory_tenant.endhour - 7) * TimeConstants.secondsPerHour)>>
 		<<run delete $pillory_tenant.endday>>
 	<</if>>
@@ -5066,9 +5047,22 @@
 		<<set $objectVersion.defileSacredGroundStore to 2>>
 	<</if>>
 	/* Docks dog-related scenes refactor*/
-	<<if $dock_dog isnot undefined>>
-		<<beastNEWinit 1 dog>>
+	<<if $dock_dog isnot undefined and typeof $dock_dog is "string">>
+		<<set $_indexTmp to $index>>
+		<<set $_isOverwritingNPC to !!$NPCList[0].fullDescription>>
+		<<if $_isOverwritingNPC>>
+			<<saveNPC 0 "dockDogUpdate">>
+			<<clearsinglenpc 0>>
+		<</if>>
+		<<generateBEAST 1 "dog">>
 		<<set $dock_dog to clone($NPCList[0])>>
+		<<if $_isOverwritingNPC>>
+			<<loadNPC 0 "dockDogUpdate">>
+			<<clearNPC "dockDogUpdate">>
+		<</if>>
+		<<personselect $_indexTmp>>
+		<<unset $_indexTmp>>
+		<<unset $_isOverwritingNPC>>
 	<</if>>
 	/* Kill the leather leggings with fire */
 	/* Commenting out again due to continued issues
@@ -5142,16 +5136,8 @@
 		<<set $dateCount.GreatHawkCasual to 0>>
 	<</if>>
 
-	<!--Skin colours for nonhuman children -->
-    <<if !$objectVersion.missingChildSkinColors>>
-        <<run Object.values($children).forEach(child => {
-            if (!child.features.skinColour) child.features.skinColour = V.skinColor.natural;
-        })>>
-        <<set $objectVersion.missingChildSkinColors to 1>>
-    <</if>>
-
 	<!-- Pillory time fixes -->
-	<<if $pillory_tenant.starthour isnot undefined or $pillory_tenant.startday isnot undefined>>
+	<<if $pillory_tenant isnot undefined and ($pillory_tenant.starthour isnot undefined or $pillory_tenant.startday isnot undefined)>>
 		<!-- The start day / hour are broken anyways - so resetting the starttime to current time -->
 		<<set $_newTime to new DateTime(Time.date)>>
 		<<set $_endTime to new DateTime($_newTime.timeStamp).addHours($pillory_tenant.duration)>>
@@ -5165,6 +5151,106 @@
 		<<unset $pillory_tenant.endhour>>
 		<<unset $pillory_tenant.duration>>
 	<</if>>
+
+	<!-- 5.0.6 -->
+	<<if $pillory is undefined>>
+		<<set $pillory to {}>>
+	<</if>>
+	<<if $pillorytime isnot undefined or $pillory.time is undefined>>
+		<<set _pilloryStartTime to new DateTime(Time.date)>>
+		<<set _pilloryEndTime to new DateTime(Time.date).addMinutes(60 - Time.date.minute)>>
+		<<if !isNaN($pillorytime) and $pillorytime gte 0>>
+			<<set _pilloryEndTime.addHours($pillortime)>>
+		<</if>>
+		<<set $pillory.time to {
+			start: _pilloryStartTime.timeStamp,
+			end: _pilloryEndTime.timeStamp,
+		}>>
+		<<unset $pillorytime>>
+	<</if>>
+	<<if $pilloryaudience isnot undefined>>
+		<<if !isNaN($pilloryaudience) and $pilloryaudience gte 0>>
+			<<set $pillory.audience to $pilloryaudience>>
+		<</if>>
+		<<unset $pilloryaudience>>
+	<</if>>
+	<<if $pillory_tenant isnot undefined>>
+		<<set $pillory.tenant to $pillory_tenant>>
+		<<unset $pillory_tenant>>
+	<</if>>
+	<<if $options.oldclock isnot undefined>>
+		<<run delete $options.oldclock>>
+	<</if>>
+	<<if $options.newWardrobeStyle isnot undefined>>
+		<<run delete $options.newWardrobeStyle>>
+	<</if>>
+
+	<!-- 5.2 tanning rework -->
+	<!-- Don't move to bottom -->
+	<<if $player.skin is undefined>>
+		<<set $player.skin to {
+			color: "light",
+			layers: [],
+		}>>
+	<</if>>
+	<<if $skinColor isnot undefined>>
+		<<set $player.skin.color to $skinColor.natural>>
+		<<script>>
+			const colorValue = Math.max(...V.skinColor.tanValues);
+			V.player.skin.layers = [
+				{
+					layers: [],
+					slots: {},
+					value: colorValue,
+				}
+			];
+		<</script>>
+		<<unset $skinColor>>
+	<</if>>
+	<<if $player.skin.sunscreen is undefined>>
+		<<set $player.skin.sunscreen to { usesLeft: 0 }>>
+	<</if>>
+
+	<<if $options.tanningEnabled isnot undefined>>
+		<<set delete $options.tanningEnabled>>
+	<</if>>
+
+	<<if $options.tanLines is undefined>>
+		<<set $options.tanLines to true>>
+	<</if>>
+
+	<<if $tanned isnot undefined>>
+		<<unset $tanned>>
+	<</if>>
+
+	<<if $gameTanImgSetting isnot undefined>>
+		<<unset $gameTanImgSetting>>
+	<</if>>
+
+	<!--Skin colours for nonhuman children and inconsistency npc skin colour fix -->
+    <<if !$objectVersion.missingChildSkinColors or $objectVersion.missingChildSkinColors lt 3>>
+		<<script>>
+			const fixChild = (child) => {
+				if (!child.features) return;
+				if (!child.features.skinColour) child.features.skinColour = Skin.color.natural;
+				if (child.features.skinColour === "black") child.features.skinColour = "dark";
+				if (child.features.skinColour === "white") child.features.skinColour = "light";
+			};
+			Object.values(V.children).forEach(child => fixChild(child));
+			getPregnancyObject().fetus.forEach(child => fixChild(child));
+			Object.values(V.NPCName).forEach(npc => {
+				if (npc.pregnancy.fetus) {
+					npc.pregnancy.fetus.forEach(child => fixChild(child));
+				}
+			});
+			Object.values(V.storedNPCs).forEach(npc => {
+				if (npc?.pregnancy.fetus) {
+					npc.pregnancy.fetus.forEach(child => fixChild(child));
+				}
+			})
+		<</script>>
+		<<set $objectVersion.missingChildSkinColors to 3>>
+    <</if>>
 
 	<!-- 0.5 Weather update -->
 	<<if Time.year is 361 and $location is "temple">>
@@ -5251,5 +5337,143 @@
 
 	<<if !Number.isFinite($money)>>
 		<<set $money to 0>>
+	<</if>>
+
+	<!-- 5.0.6 -->
+	<!-- Fix for not having an island home set, should only be run once -->
+	<<if !$objectVersion.islandHomeFix>>
+		<<if $passage.startsWith("Island") and $island and $island.home is undefined>>
+			<<set $island.home to "rocky_hillock">>
+		<</if>>
+		<<set $objectVersion.islandHomeFix to 1>>
+	<</if>>
+
+	<!-- Fix for not having an island home set, should only be run once -->
+	<<if !$objectVersion.islandHomeFix>>
+		<<if $passage.startsWith("Island") and $island and $island.home is undefined>>
+			<<set $island.home to "rocky_hillock">>
+		<</if>>
+		<<set $objectVersion.islandHomeFix to 1>>
+	<</if>>
+
+	<!-- Fix for older instance of 'cat_tf_stage_' not being cleared, leading to exceeded loop iterations -->
+	<<if $custom_eyecolours.filter(obj => obj.variable.includes("cat_tf_stage_")).length gt 8>>
+		<!-- filter out cat_tf_stages, then append only the first instances of them found in the original array -->
+		<<set _newEyecolours to V.custom_eyecolours.filter(i => !i.variable.startsWith("cat_tf_stage_")).concat(["cat_tf_stage_0_left", "cat_tf_stage_0_right", "cat_tf_stage_1_left", "cat_tf_stage_1_right", "cat_tf_stage_2_left", "cat_tf_stage_2_right", "cat_tf_stage_3_left", "cat_tf_stage_3_right"].map(o => V.custom_eyecolours.find(c => c.variable === o)));>>
+		<<set $custom_eyecolours to _newEyecolours>>
+	<</if>>
+
+	<!-- 0.5.2.0, converting NPC seen variables to arrays -->
+	<<if $remy_seen isnot undefined>>
+		<<set $remySeen to []>>
+		<<set $remySeen.pushUnique($remy_seen)>>
+		<<set $remySeenLast to $remy_seen>>
+		<<unset $remy_seen>>
+		<<if $farm_stage gte 5>>
+			<<set $remySeen.pushUnique("farm")>>
+		<</if>>
+		<<if $livestock_intro isnot undefined>>
+			<<set $remySeen.pushUnique("livestock")>>
+		<</if>>
+		<<if $ridingschoolintro isnot undefined>>
+			<<set $remySeen.pushUnique("riding_school")>>
+		<</if>>
+	<</if>>
+	<<if $wren_seen isnot undefined>>
+		<<set $wrenSeen to []>>
+		<<set $wrenSeen.pushUnique($wren_seen)>>
+		<<set $wrenSeenLast to $wren_seen>>
+		<<unset $wren_seen>>
+		<<if $wren_intro isnot undefined>>
+			<<set $wrenSeen.pushUnique("cards")>>
+		<</if>>
+		<<if $winterLakeTalk gte 3>>
+			<<set $wrenSeen.pushUnique("winter")>>
+		<</if>>
+	<</if>>
+	<<if $niki_seen isnot undefined>>
+		<<set $nikiSeen to []>>
+		<<set $nikiSeen.pushUnique($niki_seen)>>
+		<<unset $niki_seen>>
+		<<if $livestock_pig gte 1>>
+			<<set $nikiSeen.pushUnique("farm")>>
+		<</if>>
+		<<if $chef_state gte 5>>
+			<<set $nikiSeen.pushUnique("chef")>>
+		<</if>>
+		<<if $winterLakeTalk gte 3>>
+			<<set $nikiSeen.pushUnique("winter")>>
+		<</if>>
+	<</if>>
+
+	<!-- Disabled the npc compressor -->
+	<<if !$objectVersion.npcCompressorDisable>>
+		<<set _storedNPCToDelete to []>>
+		<<run Object.entries($storedNPCs).forEach(([key, npcStore]) => {
+			if (npcStore.npc && (typeof npcStore.npc === 'string' || npcStore.npc instanceof String)) {
+				try {
+					npcStore.npc = npcDecompressor(npcStore.npc);
+				} catch (e) {
+					T.storedNPCToDelete.push(key);
+				}
+			}
+		})>>
+		<<run _storedNPCToDelete.forEach(key => {
+			delete $storedNPCs[key];
+		})>>
+		<<set $objectVersion.npcCompressorDisable to 1>>
+	<</if>>
+	<<if $objectVersion.npcCompressorDisable lt 2>>
+		<<script>>
+			const decompress = (parent) => {
+				let result = parent;
+				try {
+					result = npcDecompressor(parent);
+				} catch (e) {
+					result = null;
+				}
+				return result;
+			};
+			V.parentList.fathers.forEach(parent => {
+				if (parent.compressed && parent.compressed !== "none") {
+					parent.npc = decompress(parent.compressed);
+					delete parent.compressed;
+				} else {
+					parent.npc = false;
+					delete parent.compressed;
+				}
+			});
+			V.parentList.mothers.forEach(parent => {
+				if (parent.compressed && parent.compressed !== "none") {
+					parent.npc = decompress(parent.compressed);
+					delete parent.compressed;
+				} else {
+					parent.npc = false;
+					delete parent.compressed;
+				}
+			});
+		<</script>>
+		<<set $objectVersion.npcCompressorDisable to 2>>
+	<</if>>
+
+	<<if Browser.isMobile.any() is true and $mobileZoomFix is undefined>>
+		<<if $options.zoom is 100>>
+			<<set $mobileZoomFix to 1>>
+			<<set $options.zoom to 75>>
+			<<run zoom($options.zoom)>>
+		<<else>>
+			<<set $mobileZoomFix to 1>>
+		<</if>>
+	<</if>>
+
+	<!-- Fix for named npcs whose gender could be changed by the randomizer -->
+	<<if !$objectVersion.npcPregnancyGenderChange>>
+		<<initnpcgender>>
+		<<set $objectVersion.npcPregnancyGenderChange to 1>>
+	<</if>>
+
+	<!-- 0.5.2.5 Temporarily disabling the toggle to fix bleached PCs in combat -->
+	<<if $options?.tanImgEnabled is false>>
+		<<set $options.tanImgEnabled to true>>
 	<</if>>
 <<init_customSetting>><</widget>>

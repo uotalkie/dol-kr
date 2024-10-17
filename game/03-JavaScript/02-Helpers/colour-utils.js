@@ -142,6 +142,41 @@ const ColourUtils = (() => {
 	}
 
 	/**
+	 *
+	 * @param {string} color
+	 * @returns {string} hex
+	 */
+	function cssColorToHex(color) {
+		color = color.toLowerCase();
+		// Variables
+		color = getComputedStyle(document.documentElement).getPropertyValue(color).trim() || color;
+
+		// Named
+		if (tinycolor.names[color]) {
+			return `#${tinycolor.names[color]}`;
+		}
+
+		// Hex format (3 or 6 characters)
+		if (/^#([a-fA-F0-9]{3}){1,2}$/.test(color)) {
+			return color.length === 4 ? `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}` : color;
+		}
+
+		// hsl or hsla format
+		if (/^hsl(a?)\(/.test(color)) {
+			try {
+				const hexColor = tinycolor().toHexFromHsl(color);
+				return hexColor;
+			} catch (error) {
+				console.error(`Error converting HSL to Hex: ${error.message}`);
+				return undefined;
+			}
+		}
+
+		console.error(`Invalid color: ${color}.`);
+		return undefined;
+	}
+
+	/**
 	 * Interpolates between 2 colors, based on a factor
 	 *
 	 * @param {string} color1
@@ -201,6 +236,29 @@ const ColourUtils = (() => {
 		}
 	}
 
+	/**
+	 * Interpolates between multiple colors, based on a factor
+	 *
+	 * @param {Array<string>} colors - Array of hex colors (e.g., ['#ff0000', '#00ff00', '#0000ff'])
+	 * @param {number} factor
+	 * @returns {string}
+	 */
+	function interpolateMultiple(colors, factor) {
+		factor = Math.max(0, Math.min(factor, 1));
+
+		if (colors.length === 1) {
+			return cssColorToHex(colors[0]);
+		}
+
+		const numSegments = colors.length - 1;
+		const segmentFactor = factor * numSegments;
+		const lowerIndex = Math.floor(segmentFactor);
+		const upperIndex = Math.min(lowerIndex + 1, colors.length - 1);
+		const localFactor = segmentFactor - lowerIndex;
+
+		return interpolateColor(cssColorToHex(colors[lowerIndex]), cssColorToHex(colors[upperIndex]), localFactor);
+	}
+
 	/* Export module */
 	return Object.seal({
 		partToFilter,
@@ -214,6 +272,7 @@ const ColourUtils = (() => {
 		invertHex,
 		interpolateColor,
 		interpolateTripleColor,
+		interpolateMultiple,
 	});
 })();
 

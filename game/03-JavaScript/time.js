@@ -102,7 +102,7 @@ const Time = (() => {
 	let currentDate = {};
 
 	function set(time = V.timeStamp) {
-		V.startDate = V.startDate ?? new DateTime(2022, 9, 4, 7).timeStamp;
+		V.startDate ??= new DateTime(2022, 9, 4, 7).timeStamp;
 
 		if (time instanceof DateTime) {
 			currentDate = time;
@@ -274,7 +274,7 @@ const Time = (() => {
 	}
 
 	function isBloodMoon(date) {
-		date = date ?? currentDate;
+		date ??= currentDate;
 		return (date.day === date.lastDayOfMonth && date.hour >= 21) || (date.day === 1 && date.hour < 6);
 	}
 
@@ -519,6 +519,9 @@ function dayPassed() {
 	const fragment = document.createDocumentFragment();
 
 	Weather.sky.initSun();
+
+	// Lose one day of tanning
+	Skin.applyTanningLoss(1440);
 
 	if (V.statFreeze) return fragment;
 
@@ -855,6 +858,9 @@ function dayPassed() {
 		if (V.harpyEggsPrevent <= 0) delete V.harpyEggsPrevent;
 	}
 
+	// Activate the robin pillory
+	if (V.robinPillory && V.robinPillory.danger !== undefined && (V.robindebtevent <= 1 || !V.baileySold)) V.robinPillory.active = true;
+
 	V.daily.clearProperties();
 
 	return fragment;
@@ -909,8 +915,8 @@ function hourPassed(hours) {
 	if (V.wolfpatrolsent >= 24) delete V.wolfpatrolsent;
 	else if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
 
-	if (V.robinPillory && V.robinPillory.danger !== undefined) fragment.append(wikifier("robinPilloryHour"));
-	if (V.pillory_tenant.exists && V.pillory_tenant.endTime < V.timeStamp) fragment.append(wikifier("clear_pillory"));
+	if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) fragment.append(wikifier("robinPilloryHour"));
+	if (V.pillory.tenant.exists && V.pillory.tenant.endTime < V.timeStamp) fragment.append(wikifier("clear_pillory"));
 
 	if (C.npc.Sydney.init === 1) {
 		fragment.append(wikifier("sydneySchedule"));
@@ -945,16 +951,15 @@ function minutePassed(minutes) {
 
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
-	if (isPlayerNonparasitePregnancyEnding()) {
+	// eslint-disable-next-line no-undef
+	if (isPregnancyEnding()) {
 		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		V.stress += Math.floor(minutes * 40);
 	}
 
 	// Tanning
-	if (V.outside) {
-		tanned(Weather.getTanningFactor().result, "tanLines");
-	}
+	Skin.applyTanningGain(minutes);
 
 	// Body temperature
 	const temperature = V.outside ? Weather.temperature : Weather.insideTemperature;
@@ -1036,6 +1041,8 @@ function dawnCheck() {
 	delete V.alexwake;
 	delete V.alex_bed;
 	delete V.alex_bed_spurned;
+	delete V.alexSomno;
+	delete V.alexSomnoAngry;
 	delete V.connudatus_stripped;
 	delete V.robin_kicked_out;
 
@@ -1256,10 +1263,6 @@ function dailyPlayerEffects() {
 		if (V.farm_stage >= 6) V.physique = V.physique - V.physique / 3000;
 		else V.physique = V.physique - V.physique / 2500;
 	}
-
-	/* PC loses 40 minutes of tanning every day */
-	tanned(-40, true);
-	V.skinColor.sunBlock = false;
 
 	V.hairlength += 3;
 	V.fringelength += 3;
@@ -1898,6 +1901,7 @@ function getArousal(passMinutes) {
 	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * V.breastsensitivity;
 	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
 	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
+	if (V.parasite.tummy.name) addedArousal += minuteMultiplier / 4;
 	if (V.parasite.bottom.name) addedArousal += minuteMultiplier * V.bottomsensitivity;
 	if (V.analchastityparasite) addedArousal += minuteMultiplier;
 	if (V.parasite.tummy.name) addedArousal += minuteMultiplier;

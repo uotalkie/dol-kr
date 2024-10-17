@@ -3,7 +3,6 @@
 <<run T.buttons = new window.Tab("overlayButtons", "macro-button-selected")>>
 
 <<if $intro is 0>>
-
 	<<if $options.weatherUpdate && $options.images>>
 		<<skybox>>
 	<<else>>
@@ -25,7 +24,7 @@
 	<</if>>
 	<<combateffects>>
 	<div id="storyCaptionDiv" @class="($extendedStats ? 'statsExtended' : '')">
-		
+
 	<div id="debugWindow"></div>
 	<<if $options.images is 1>>
 		<div id="stats" onclick="extendStats()">
@@ -249,17 +248,6 @@
 			<<drunkcaption>><<druggedcaption>><<hallucinogencaption>>
 		</div>
 		<br>
-		<<if $passage isnot "Start" and $passage isnot "Start2">>
-			<<if $options.sidebarTime is "top">>
-				<<append #mobileStats>><<mobileStatsTime>><</append>>
-			<</if>>
-			<<if $options.sidebarStats isnot "disabled">>
-				<<append #mobileStats>><<mobileStats>><</append>>
-			<</if>>
-			<<if $options.sidebarTime is "bottom">>
-				<<append #mobileStats>><<mobileStatsTime>><</append>>
-			<</if>>
-		<</if>>
 
 		<<if $options.tipdisable is "f" and !$statFreeze>>
 			<span class="gold">팁:</span> <<tips>>
@@ -336,11 +324,30 @@
 		</div>
 	</div>
 </div>
+	<<if $passage isnot "Start" and $passage isnot "Start2">>
+		<div id="mobileStats">
+			<<if $options.sidebarStats is "all">>
+				<div class="weatherIcon">
+					<<weatherIcon>>
+				</div>
+			<</if>>
+			<<if $options.sidebarTime is "top">>
+				<<mobileStatsTime>>
+			<</if>>
+			<<if $options.sidebarStats isnot "disabled">>
+				<<mobileStats>>
+			<</if>>
+			<<if $options.sidebarTime is "bottom">>
+				<<mobileStatsTime>>
+			<</if>>
+		</div>
+	<</if>>
 <<else>>
+	<<run T.buttons = new window.Tab("startCaption", "macro-button-selected")>>
 	<<if StartConfig.enableImages is true>>
 		<div id="startingPlayerImage" class="hidden"></div>
 	<</if>>
-	<div id="overlayButtons">
+	<div id="startCaption">
 		<<if _warningConfirm>><<startCaption>><<else>><<coveredStartCaption>><</if>>
 	</div>
 <</if>>
@@ -485,11 +492,7 @@
 					</span>
 				</div>
 				<div>
-					<<if !$options.oldclock>>
-						<<clock>>
-					<<else>>
-						<img class="icon_ui" src="img/ui/icon_time.png">
-					<</if>>
+					<<clock>>
 					<<ampm>>
 				</div>
 				<<if !$extendedStats>>
@@ -515,10 +518,10 @@
 <<widget "startingPlayerImage">>
 	<<set $naturalhaircolour to $hairselect>>
 	<<set _filters to {
-		"body": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
-		"breasts": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
-		"penis": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
-		"mouth": skinColor("t", $skinColor.range, setup.skinColor[$skinColor.natural]),
+		"body": Skin.cssColorFilter(Skin.color.natural),
+		"breasts": Skin.cssColorFilter(Skin.color.natural),
+		"penis": Skin.cssColorFilter(Skin.color.natural),
+		"mouth": Skin.cssColorFilter(Skin.color.natural),
 	}>>
 	<<if $hairlength gte 900>>
 		<<set _hairlengthstage to "feet">>
@@ -555,8 +558,7 @@
 		<<set _clothesType to (_clothesType is "male" ? "female" : "male")>>
 	<</if>>
 
-	<div id="img" @class="'hair-'+ $hairselect + ' noAnimations'">
-		<<charLight "118px" "187px" "limited">>
+	<div id="startImg" @class="'hair-'+ $hairselect + ' noAnimations'">
 		/*Prep for image checks*/
 		<<switch $player.breastsize>>
 		<<case 12>>
@@ -581,6 +583,11 @@
 		<</if>>
 		<<set _disabled to ["disabled","hidden"]>>
 
+		<<selectmodel "lighting" "sidebar">>
+		<<set _modeloptions.lights.gradient.enabled = false>>
+		<<set _modeloptions.lights.flat.enabled = false>>
+		<<rendermodel "lighting">>
+
 		<<selectmodel "main" "sidebar">> <!-- reuse sidebar cache slot -->
 		<<twinescript>>
 			_modeloptions.body_type = $player.gender_body;
@@ -592,8 +599,8 @@
 				_modeloptions.balls = $player.gender is "h" ? $player.ballsExist : true;
 			}
 
-			_modeloptions.skin_type = $skinColor.natural;
-			_modeloptions.skin_tone = $skinColor.range/100;
+			_modeloptions.skin_type = Skin.color.natural;
+			_modeloptions.skin_tone = Skin.color.tan;
 
 			_modeloptions.hair_colour = $hairselect;
 			_modeloptions.hair_fringe_colour = $hairselect;
@@ -611,35 +618,62 @@
 			_modeloptions.angel_wings_type = $transformationParts.angel.wings;
 			_modeloptions.fallen_wings_type = $transformationParts.fallenAngel.wings;
 
+			_modeloptions.worn =  {};
 			if (_clothesType is "male") {
 				if (_showClothes) {
-					_modeloptions.worn_upper = 4; /* t-shirt */
-					_modeloptions.worn_upper_colour = "tangerine";
-					_modeloptions.worn_lower = 5; /* shorts */
-					_modeloptions.worn_lower_colour = "blue";
-					_modeloptions.worn_legs = 2; /* boysgymsocks */
-					_modeloptions.worn_feet = 1; /* schoolshoes */
+					_modeloptions.worn = {
+						upper: {
+							index: 4, /* t-shirt */
+							colour: "tangerine",
+						},
+						lower: {
+							index: 5, /* shorts */
+							colour: "blue",
+						},
+						legs: {
+							index: 2 /* boysgymsocks */
+						},
+						feet: {
+							index: 1 /* schoolshoes */
+						},
+					};
 				}
 				if (_showUnderwear) {
-					_modeloptions.worn_under_lower = 4; /* briefs */
-					_modeloptions.worn_under_lower_colour = "black";
+					_modeloptions.worn.under_lower = {
+						index: 4, /* briefs */
+						colour: "black",
+					};
 				}
 			} else if (_clothesType is "female") {
 				if (_showClothes) {
-					_modeloptions.worn_upper = 1; /* sundress */
-					_modeloptions.worn_upper_colour = "white";
-					_modeloptions.worn_lower = 1; /* sundress */
-					_modeloptions.worn_lower_colour = "white";
-					_modeloptions.worn_legs = 3; /* girlsgymsocks */
-					_modeloptions.worn_feet = 1; /* schoolshoes */
+					_modeloptions.worn = {
+						upper: {
+							index: 1, /* sundress */
+							colour: "white",
+						},
+						lower: {
+							index: 1, /* sundress */
+							colour: "white",
+						},
+						legs: {
+							index: 3 /* girlsgymsocks */
+						},
+						feet: {
+							index: 1 /* schoolshoes */
+						},
+					};
 				}
 				if (_showUnderwear) {
 					if ($player.breastsize > 3) {
-						_modeloptions.worn_under_upper = 12; /* plainbra */
-						_modeloptions.worn_under_upper_colour = "pale white";
+						_modeloptions.worn.under_upper = {
+							index: 12, /* plainbra */
+							colour: "pale white",
+						};
 					}
-					_modeloptions.worn_under_lower = 1; /* plainpanties */
-					_modeloptions.worn_under_lower_colour = "pale white";
+					_modeloptions.worn.under_lower = {
+						index: 1, /* plainpanties */
+						colour: "pale white",
+					};
 				}
 			}
 			_modeloptions.crotch_visible = !_showClothes && !_showUnderwear;

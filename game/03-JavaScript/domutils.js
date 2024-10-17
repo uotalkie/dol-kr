@@ -96,6 +96,7 @@ function customElement(tag, baseProps, props, children, customProps) {
 /**
  * Extra props:
  * - set(newValue:(string|number)) - input listener.
+ * - disabled:boolean - disables the input.
  *
  * @param {object} props
  */
@@ -111,6 +112,9 @@ function eInput(props) {
 				}
 				set(value);
 			});
+		},
+		disabled(e, disabled) {
+			e.disabled = disabled;
 		},
 	});
 }

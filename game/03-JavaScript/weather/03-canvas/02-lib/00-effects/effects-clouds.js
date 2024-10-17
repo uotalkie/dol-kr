@@ -53,7 +53,7 @@ Weather.Renderer.Effects.add({
 				}
 
 				// Shuffle sprites to reduce duplicates (same sprite generating twice in a row)
-				const shuffledSprites = [...this.types[type]].shuffle();
+				const shuffledSprites = this.renderInstance.rng.shuffle([...this.types[type]]);
 
 				// Add cloud to the least populated layer, starting with layer 0 - for a more even spread
 				for (let i = 0; i < cloudsNeeded; i++) {
@@ -68,11 +68,11 @@ Weather.Renderer.Effects.add({
 					let attempts = 0;
 
 					do {
-						let x = offScreen ? -sprite.width : random(0, this.canvas.element.width) - sprite.width / 2;
+						let x = offScreen ? -sprite.width : this.renderInstance.rng.randomInt(0, this.canvas.element.width) - sprite.width / 2;
 						if (offScreen && randomPosition) {
-							x -= random(0, this.canvas.element.width / 2);
+							x -= this.renderInstance.rng.randomInt(0, this.canvas.element.width / 2);
 						}
-						const y = random(
+						const y = this.renderInstance.rng.randomInt(
 							layerSettings.height.min * this.renderInstance.settings.scale,
 							Math.min(layerSettings.height.max * this.renderInstance.settings.scale, bottomY - sprite.height)
 						);
@@ -158,7 +158,7 @@ Weather.Renderer.Effects.add({
 		const updateTargetCount = () => {
 			if (this.currentWeather === this.weather.name) return;
 			this.currentWeather = this.weather.name;
-			this.targetCount = random(this.count.min, this.count.max);
+			this.targetCount = this.renderInstance.rng.randomInt(this.count.min, this.count.max);
 		};
 
 		this.generateClouds = (offScreen = true, randomPosition = false) => {
@@ -166,7 +166,7 @@ Weather.Renderer.Effects.add({
 			const cloudsNeeded = this.targetCount - currentCount;
 
 			// Shuffle sprites to reduce duplicates (same sprite generating twice in a row)
-			const shuffledSprites = Object.values(this.images).shuffle();
+			const shuffledSprites = this.renderInstance.rng.shuffle(Object.values(this.images));
 
 			for (let i = 0; i < cloudsNeeded; i++) {
 				const spriteIndex = i % shuffledSprites.length;
@@ -176,11 +176,14 @@ Weather.Renderer.Effects.add({
 				let attempts = 0;
 
 				do {
-					let x = offScreen ? -sprite.width : random(-sprite.width, this.canvas.element.width - sprite.width / 2);
+					let x = offScreen ? -sprite.width : this.renderInstance.rng.randomInt(-sprite.width, this.canvas.element.width - sprite.width / 2);
 					if (offScreen && randomPosition) {
-						x -= random(0, this.canvas.element.width / 2);
+						x -= this.renderInstance.rng.randomInt(0, this.canvas.element.width / 2);
 					}
-					const y = random(this.height.min * this.renderInstance.settings.scale, this.height.max * this.renderInstance.settings.scale);
+					const y = this.renderInstance.rng.randomInt(
+						this.height.min * this.renderInstance.settings.scale,
+						this.height.max * this.renderInstance.settings.scale
+					);
 					cloud = { sprite, x, y, movementSpeed, width: sprite.width, height: sprite.height };
 					attempts++;
 				} while (attempts < 5 && Weather.Renderer.Sky.isOverlappingAny(cloud, this.clouds, this.overlapLimit));

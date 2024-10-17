@@ -39,7 +39,7 @@ setup.WeatherDescriptions = {
 			dusk: () => Weather.precipitation === "rain" ? "세찬 빗줄기가 심해지고 있다." : "저녁이 되면서 눈이 쌓이고 있다.",
 			night: () => Weather.precipitation === "rain" ? "세찬 빗줄기가 어둠을 명백히 보여주고 있다." : "세찬 눈보라가 밤을 감싸고 있다.",
 			bloodMoon: () => Weather.precipitation === "rain" ? "폭우가 붉은 하늘을 반사하고 있다." : "눈이 달의 으스스한 붉은 빛을 반사하며, 세상을 비현실적인 정적으로 덮고 있다.",
-			transition: () => !Weather.isOvercast && !Weather.isFreezing ? "짙은 구름들이 모이기 시작하고 있다. 비가 내릴 것이다." : !Weather.isOvercast ? "구름들이 저 위에서 모이고 있다. 곧 눈이 내릴 것이다." : null,
+			transition: () => !Weather.isOvercast && !Weather.isFreezing ? "짙은 구름들이 모이기 시작하고 있다. 곧 비가 내릴 것이다." : !Weather.isOvercast ? "구름들이 저 위에서 모이고 있다. 곧 눈이 내릴 것이다." : null,
 		},
 		thunderStorm: {
 			dawn: "번개폭풍이 새벽에 맹위를 떨치고 있다.",

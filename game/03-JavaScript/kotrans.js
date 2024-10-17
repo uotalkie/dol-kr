@@ -1,6 +1,6 @@
 /* Korean translation information */
 window.koTrans = {
-	"version": "0.1.2024.0726",
+	"version": "0.1.2024.1009",
 	
 	"info": 
 		'<br>'+
@@ -38,7 +38,7 @@ window.koTrans = {
 		'</p>' +
 		'<p><span class="white">위와 같은 이유로, 해당 게임은 반드시 <span style="background: black">성인만이 플레이</span>하여야 하며 해당 게임 및 내용을 <span style="background: black">미성년자가 관람할 수 있는 곳<br>(예: 유튜브, x(트위터), 페이스북 등)에 게시</span>하는 것은 법적인 저촉을 받을 수도 있다는 것을 알려드립니다.</span></p>' +
 		'<p>당신은 법적 성인이며 이 게임을 플레이하는 데 따르는 모든 책임을 당신 자신이 지겠다고 확인하시겠습니까?</p>' +
-		'<p><<link "네. 나는 법적으로 성인이며 모든 책임을 자신이 지겠다고 확인합니다.">><<set _warningConfirm to true>><<replace "#settingsStart">><<settingsStart>><</replace>><<replace "#overlayButtons">><<startCaption>><</replace>><</link>><br>' +
+		'<p><<link "네. 나는 법적으로 성인이며 모든 책임을 자신이 지겠다고 확인합니다.">><<set _warningConfirm to true>><<replace "#settingsStart">><<settingsStart>><</replace>><<replace "#startCaption">><<startCaption>><</replace>><</link>><br>' +
 		'<<link "아니오. 이 게임을 플레이하지 않겠습니다.">><<run koTrans.warningNoHandler()>><</link>></p>' +
 		'</div>',
 	"coveredStartCaption": '<<versioninfo>><<koTransInfo>><br><br><div class="my-4"><<linkinformation>></div>',
@@ -56,8 +56,6 @@ l10nStrings.restartPrompt = "정말 재시작하시겠습니까? 저장되지 �
 l10nStrings.cancel = "취소";
 l10nStrings.ok = "확인";
 
-
-
 l10nStrings.savesHeaderSaveLoad = "세이브/로드";
 l10nStrings.savesHeaderIDName = "ID/이름";
 l10nStrings.savesHeaderDetails = "상세";
@@ -65,8 +63,9 @@ l10nStrings.savesTitle = "세이브";
 l10nStrings.savesDisallowed = "이 경로에서는 세이브가 금지되어 있습니다.";
 l10nStrings.savesLabelAuto = "자동저장";
 l10nStrings.savesLabelDelete = "삭제";
-// l10nStrings.savesLabelExport = "Save to Disk…";
-// l10nStrings.savesLabelImport = "Load from Disk…";
+l10nStrings.savesLabelExport = "파일로 저장…";
+l10nStrings.savesLabelToClipboard = "클립보드로 저장…";
+l10nStrings.savesLabelImport = "파일에서 로드…";
 l10nStrings.savesLabelLoad = "로드";
 l10nStrings.savesLabelClear = "모든 세이브를 삭제";
 l10nStrings.savesLabelSave = "저장";
@@ -81,6 +80,7 @@ l10nStrings.savesPagerJump = " 가장 최근의 수동 저장으로 이동 ";
 l10nStrings.savesPagerPage = "페이지: ";
 l10nStrings.savesPagerSavesPerPage = " 페이지당 세이브 수: ";
 l10nStrings.savesOptionsConfirmOn = " 다음의 경우 확인 필요: ";
+l10nStrings.savesOptionsOverwrite = "덮어쓰기";
 l10nStrings.savesOptionsUseLegacy = " 기존의 세이브 저장 공간 사용: ";
 l10nStrings.savesWarningSaveOnSlot = "에 저장하시겠습니까?";
 l10nStrings.savesWarningOverwriteSlot = "에 덮어쓰시겠습니까?";
@@ -137,3 +137,6 @@ l10nStrings.savesExportReminder = "여기에서의 세이브는 당신의 브라
 // l10nStrings.autoloadPrompt = "An autosave exists. Load it now or go to the start?";
 // l10nStrings.macroBackText = "Back";
 // l10nStrings.macroReturnText = "Return";
+
+/* 콘솔창 확인용 */
+//window.l10nStrings = l10nStrings;

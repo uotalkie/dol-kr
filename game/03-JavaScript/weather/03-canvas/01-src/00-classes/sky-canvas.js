@@ -24,6 +24,8 @@ Weather.Renderer.Sky = class {
 		this.mainLayer.element.width = this.settings.size[0];
 		this.mainLayer.element.height = this.settings.size[1];
 
+		this.rng = new PRNG();
+
 		if (this.resizable) {
 			// Only trigger the resize event if the actual element is resized
 			new ResizeObserver(e => {
@@ -188,38 +190,6 @@ Weather.Renderer.Sky = class {
 		const overcastTarget = V.weatherObj.targetOvercast ?? 0;
 		this.fadables.overcast.setFadeFactor(Time.date, overcastTarget, instant);
 		V.weatherObj.overcast = round(this.fadables.overcast.factor, 2);
-	}
-
-	updateTooltip() {
-		// Maybe not hardcode this here
-		const key = V.location === "tentworld" ? "tentaclePlains" : Weather.name;
-		const weatherState = Weather.TooltipDescriptions.type[key];
-
-		if (!weatherState) return;
-		const transition = weatherState.transition ? weatherState.transition() : null;
-		const weatherDescription = transition || (typeof weatherState === "string" ? weatherState : resolveValue(weatherState[Weather.skyState], ""));
-
-		const tempDescription = Weather.TooltipDescriptions.temperature();
-		const debug = V.debug
-			? `<br><br><span class="teal">DEBUG:</span>
-			<br><span class="blue">Passage:</span> <span class="yellow">${V.passage}</span>
-			<br><span class="blue">Time:</span> <span class="yellow">${ampm()}</span>
-			<br><span class="blue">Weather:</span> <span class="yellow">${Weather.name}</span>
-			<br><span class="blue">Outside temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.temperature)}</span>
-			<br><span class="blue">Inside temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.insideTemperature)}</span>
-			<br><span class="blue">Water temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.waterTemperature)}</span>
-			<br><span class="blue">Body temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.bodyTemperature)}</span>
-			<br><span class="blue">Sun intensity:</span> <span class="yellow">${round(Weather.sunIntensity * 100, 2)}% (${V.outside ? "outside" : "inside"})</span>
-			<br><span class="blue">Overcast amount:</span> <span class="yellow">${round(Weather.overcast * 100, 2)}%</span>
-			<br><span class="blue">Fog amount:</span> <span class="yellow">${round(Weather.fog * 100, 2)}%</span>
-			<br><span class="blue">Snow ground accumulation:</span> <span class="yellow">${V.weatherObj.snow}mm</span>
-			<br><span class="blue">Lake ice thickness:</span> <span class="yellow">${V.weatherObj.ice.lake ?? 0}mm</span>`
-			: "";
-		this.skybox.tooltip({
-			message: `${weatherDescription}<br>${tempDescription}${debug}`,
-			delay: 200,
-			position: "cursor",
-		});
 	}
 
 	get dayFactor() {

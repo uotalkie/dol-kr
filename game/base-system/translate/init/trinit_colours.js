@@ -7,6 +7,7 @@ function trinit_colorList()
 			"twotoned" : "투톤 색조",
 			"ghost" : "유령같은 반투명색",
 			"no" : "빡빡",
+			"original" : "원래 색",
 
 			/* setup.colours.hair (04-Variables/colours.js) */
 			"random" : "랜덤",
@@ -89,7 +90,7 @@ function trinit_colorList()
 			"fleshy": "살색",
 			/*"grey" : "회색",*/
 			"sand" : "모래색",
-			"off-white": "어두운 흰색",
+			"offwhite": "어두운 흰색",
 			"navy" : "남색",
 			"navyblue" : "곤색",
 			"denim" : "데님 파란색",

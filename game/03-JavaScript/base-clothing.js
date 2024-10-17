@@ -73,11 +73,6 @@ function colourContainerClasses() {
 }
 window.colourContainerClasses = colourContainerClasses; // export function
 
-function limitedColourContainerClasses() {
-	return "hair-" + (V.haircolour || "").replace(/ /g, "-");
-}
-window.limitedColourContainerClasses = limitedColourContainerClasses; // export function
-
 function debugColourContainerClasses(color) {
 	return (
 		"hair-" +
@@ -606,3 +601,62 @@ function makeMissingOutfit(brokenOutfit) {
 	V.worn[brokenHalf] = brokenOutfit;
 }
 window.makeMissingOutfit = makeMissingOutfit;
+
+/* Moved out of canvasmodel-img.twee */
+function getClothingOptionsItem(slot, item, stage) {
+	const itemOptions = {};
+
+	const index = clothesIndex(slot, item);
+	itemOptions[slot] = {
+		index,
+		setup: setup.clothes[slot][index],
+		integrity: integrityKeyword(item, slot),
+		colour: item.colour,
+		alt: item.altposition,
+	};
+	itemOptions[slot].alpha = { 1: 0.9, 2: 0.7, 3: 0.5 }[stage] ?? 1.0;
+	itemOptions[slot].accColour = item.accessory_colour;
+	return itemOptions;
+}
+window.getClothingOptionsItem = getClothingOptionsItem;
+
+/* Moved out of canvasmodel-img.twee */
+function getClothingOptions() {
+	const modelOptions = { worn: {}, filters: {} };
+	const slots = [
+		["upper", V.upperwetstage],
+		["over_upper"],
+		["genitals"],
+		["lower", V.lowerwetstage],
+		["over_lower"],
+		["under_lower", V.underlowerwetstage],
+		["under_upper", V.underupperwetstage],
+		["hands"],
+		["handheld"],
+		["head"],
+		["over_head"],
+		["face"],
+		["neck"],
+		["legs"],
+		["feet"],
+	];
+
+	for (const slotobj of slots) {
+		const item = V.worn[slotobj[0]];
+		modelOptions.worn = { ...modelOptions.worn, ...getClothingOptionsItem(slotobj[0], item, slotobj[1]) };
+
+		if (item.accessory_layer_under) {
+			modelOptions.acc_layer_under = item.accessory_layer_under;
+		}
+		if (item.colour === "custom") {
+			/* TODO @aimozg We recalculate custom colour RGB here; in future versions, we should store custom colours in canvasfilter-friendly way */
+			modelOptions.filters["worn_" + slotobj[0] + "_custom"] = item.colourCanvasFilter || getCustomClothesColourCanvasFilter(item.colourCustom);
+		}
+		if (item.accessory_colour === "custom") {
+			modelOptions.filters["worn_" + slotobj[0] + "_acc_custom"] =
+				item.accessory_colourCanvasFilter || getCustomClothesColourCanvasFilter(item.accessory_colourCustom);
+		}
+	}
+	return modelOptions;
+}
+window.getClothingOptions = getClothingOptions;

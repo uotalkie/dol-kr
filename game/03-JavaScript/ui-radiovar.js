@@ -29,7 +29,7 @@ Macro.add("radiovar", {
 					Wikifier.wikifyEval(content);
 				}
 			});
-		if (this.args[2]) e = $("<label>").append(this.args[2], e);
+		if (this.args[2]) e = $("<label>").append(this.args[2], " ", e);
 		e.appendTo(this.output);
 	},
 });

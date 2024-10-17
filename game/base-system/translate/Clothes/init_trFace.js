@@ -378,6 +378,15 @@ function init_trFace()
             post: 1,
             description: "학교에서 평판이 빠르게 상승한다."
         },
+
+        {
+            index: 42,
+            name: "fox mask",
+            name_ko: "여우 마스크",
+            variable: "foxmask",
+            post: 1,
+            description: "엘크의 선율에 장단을 맞춰 춤출 때 사용한다."
+        },
 	];
 }
 window.init_trFace = init_trFace;

@@ -213,12 +213,12 @@ window.categorise = categorise;
  * @param {number} num The base number.
  * @param {number} min The minimum offset subtracted from the base number.
  * @param {number} max The maximum offset added to the base number.
+ * @param rngInstance
  * @returns {number} A random number between `num - min` and `num + max`.
  */
-function boundedRandom(num, min, max) {
-	const lowerBound = num - min;
-	const upperBound = num + (max ?? min);
-	return round(randomFloat(lowerBound, upperBound), 2);
+function boundedRandom(num, min, max = min, rngInstance) {
+	const result = rngInstance ? rngInstance.randomFloat(num - min, num + max) : randomFloat(num - min, num + max);
+	return round(result, 2);
 }
 window.boundedRandom = boundedRandom;
 

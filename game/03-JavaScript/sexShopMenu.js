@@ -492,12 +492,16 @@ function sexShopOnGiftClick(index) {
 	updateSideBarMoney();
 
 	/* fade in/out bought green text indicator */
-	document.getElementById("ssmGiftButton").outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">구입했다!</span>`;
+	if (document.getElementById("ssmGiftButton")) {
+		document.getElementById("ssmGiftButton").outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">구입했다!</span>`;
+	}
 	document.getElementById("recipientList").remove();
 	document.getElementById("spanGift").remove();
 	if (sexShopOnGiftClick.counter === "off") {
 		sexShopOnGiftClick.counter = setTimeout(function () {
-			document.getElementById("ssmGiftButton").outerHTML = determineRecipient(index);
+			if (document.getElementById("ssmGiftButton")) {
+				document.getElementById("ssmGiftButton").outerHTML = determineRecipient(index);
+			}
 			sexShopOnGiftClick.counter = "off";
 		}, 1400);
 	}
@@ -545,7 +549,9 @@ function sexShopOnBuyClick(index, inSexShop = true, colour, costsMoney = true) {
 			.getElementById("ssm_item_" + item.name_underscore)
 			.getElementsByClassName("ssm_already_owned")[0].innerHTML = `<span class="ssm_owned_text ssm_fade_in">소유함</span>`;
 		/* fade in/out bought green text indicator */
-		document.getElementById("ssmBuyButton").outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">구입했다!</span>`;
+		if (document.getElementById("ssmBuyButton")) {
+			document.getElementById("ssmBuyButton").outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">구입했다!</span>`;
+		}
 		if (sexShopOnBuyClick.counter === "off") {
 			sexShopOnBuyClick.counter = setTimeout(function () {
 				if (document.getElementById("ssmBuyButton"))

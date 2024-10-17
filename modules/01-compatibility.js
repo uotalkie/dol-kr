@@ -1,3 +1,4 @@
+/* eslint-disable no-eval */
 /* Use the most compatible code possible for this script, it should serve as the first script to load on the page, so should have total precedence. */
 (() => {
 	"use strict";
@@ -5,18 +6,11 @@
 	let hasErrored = false;
 	let resp = "";
 	try {
-		// eslint-disable-next-line no-eval
 		eval("const tdTest = { 'name': 'Bob', 'age': 5 };const tfTest2 = { 'hair': 'blonde', ...tdTest };");
+		eval("let foo = {}; foo?.bar; foo ??= []");
 	} catch (e) {
 		hasErrored = true;
-		resp += "Destructuring is not supported for your browser.\n";
-	}
-	try {
-		// eslint-disable-next-line no-eval
-		eval("const foo = {}; foo?.bar;");
-	} catch (e) {
-		hasErrored = true;
-		resp += "This browser does not meet the minimum requirements for DoL (ES2020).\n";
+		resp += "This browser does not meet the minimum requirements for DoL (ES2021).\n";
 	}
 	if (hasErrored) {
 		/* Calculate how the user should upgrade. */
@@ -25,7 +19,7 @@
 		const chromeTest = segments.findIndex(s => s.startsWith("Chrome"));
 		const firefoxTest = segments.findIndex(s => s.startsWith("Firefox"));
 		if (androidTest >= 0) {
-			resp += "\nUpdate your Android WebView System app. Requires at least version 80. \nCurrent version: " + segments[androidTest].slice(8);
+			resp += "\nUpdate your Android WebView System app. Requires at least version 89. \nCurrent version: " + segments[androidTest].slice(8);
 		} else if (chromeTest >= 0) {
 			resp += "\nUpdate your Chrome browser.\nVersion: " + segments[chromeTest].slice(7);
 		} else if (firefoxTest >= 0) {
