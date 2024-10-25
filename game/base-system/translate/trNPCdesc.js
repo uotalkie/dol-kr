@@ -32,6 +32,7 @@ function trNPCdesc(npcinfo, post, sep)
 
     delete T.trResult;
 	let name;
+	let found;
 	if (Array.isArray(npcinfo))
 		name = npcinfo[0];
 	else if (typeof(npcinfo) === "string")
@@ -39,12 +40,28 @@ function trNPCdesc(npcinfo, post, sep)
 
 	if (name)
 	{
+		/* 어디에도 넣을 수 없는 것들은 여기 넣음 */
+		const specialNames = {
+			"Lake couple" : {
+				"ko" : "호수의 커플들",
+				"post" : 2
+			},
+		};
 		let tempArray = name.split(' ');
-		/* namedNPC? */
-		trNamedNPCInner(name);
-		if (T.trResult && post)
+		
+		found = specialNames[name];
+		if (found)
 		{
-			trPost(T.postNum, post, sep);
+			T.trResult = found.ko;
+			T.postNum = found.post;
+			if (post)
+				trPost(T.postNum, post, sep);
+		}
+		else if (trNamedNPCInner(name))
+		{
+			/* namedNPC? */
+			if (post)
+				trPost(T.postNum, post, sep);
 		}
 		else if (setup.trNPCnameList[tempArray[0]])
 		{
@@ -91,7 +108,7 @@ function trNPCdesc(npcinfo, post, sep)
 				}
 			}
 
-			let found = setup.trRoleList[tempArray[1]];
+			found = setup.trRoleList[tempArray[1]];
 			if (!found)
 				found = setup.trGenderList[tempArray[1]];
 
