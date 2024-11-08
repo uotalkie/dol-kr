@@ -9,7 +9,8 @@
 # $KEYSTORE_KEY_PASS    : Key Password
 
 # Proceed only keystore file environment is defined.
-BASE=.
+BASE=$(pwd)
+KEYS_BASE=$BASE/keys
 APP_BASE=$BASE/devTools/androidsdk/image/cordova
 PROP_BASE=$APP_BASE/platforms/android
 KEYSTORE_FILE_NAME=keystore.jks
@@ -59,6 +60,36 @@ cat << EOF > $APP_BASE/build.json
         },
         "release": {
             "keystore": "${KEYSTORE_DOCKER_PATH}",
+            "storePassword": "${KEYSTORE_STORE_PASS}",
+            "alias": "${KEYSTORE_ALIAS}",
+            "password" : "${KEYSTORE_KEY_PASS}",
+            "keystoreType": "jks",
+            "packageType": "apk"
+        }
+    }
+}
+EOF
+
+
+# Make fake keystore for new apk CI build (bypass keystore check)
+ABS_KEYSTORE_FILE_PATH=$KEYS_BASE/dol.keystore
+echo -n $KEYSTORE_FILE_B64 | base64 -d > $ABS_KEYSTORE_FILE_PATH
+
+# make new apk build.json for CI
+NEW_APP_BASE=$BASE/devTools/apkbuilder
+cat << EOF > $NEW_APP_BASE/build.json
+{
+    "android": {
+        "debug": {
+            "keystore": "${ABS_KEYSTORE_FILE_PATH}",
+            "storePassword": "${KEYSTORE_STORE_PASS}",
+            "alias": "${KEYSTORE_ALIAS}",
+            "password" : "${KEYSTORE_KEY_PASS}",
+            "keystoreType": "jks",
+            "packageType": "apk"
+        },
+        "release": {
+            "keystore": "${ABS_KEYSTORE_FILE_PATH}",
             "storePassword": "${KEYSTORE_STORE_PASS}",
             "alias": "${KEYSTORE_ALIAS}",
             "password" : "${KEYSTORE_KEY_PASS}",
