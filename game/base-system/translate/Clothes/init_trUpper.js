@@ -310,7 +310,7 @@ function init_trUpper()
         {
             index: 34,
             name: "belly dancer's top",
-            name_ko: "벨리 댄서 상의",
+            name_ko: "밸리 댄서 상의",
             variable: "belly",
             description: "이국적이고, 보기보다 튼튼하다.",
             post: 1
@@ -580,7 +580,7 @@ function init_trUpper()
         {
             index: 64,
             name: "shadbelly coat",
-            name_ko: "섀드벨리 코트",
+            name_ko: "섀드밸리 코트",
             variable: "shadbelly",
             description: "격식 있는 승마용 복장.",
             post: 1
