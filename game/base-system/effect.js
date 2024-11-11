@@ -928,7 +928,7 @@ function effects() {
 			if (V.earSlimebreastsParasite) parasiteMessage += `새 기생충이 당신 ${V.player.breastsize >= 1 ? "유방" : "가슴"}`;
 
 			if (V.earSlimePenisParasite) {
-				parasiteMessage += parasiteMessage ? "과 자지의 밑둥" : "새 기생충이 당신 자지의 밑둥";
+				parasiteMessage += parasiteMessage ? "과 자지의 밑동" : "새 기생충이 당신 자지의 밑동";
 			}
 
 			if (V.earSlimeClitParasite) {
@@ -957,7 +957,7 @@ function effects() {
 		if (V.penisslimebrokenchastitymessage) {
 			element(
 				"span",
-				`당신의 성기 밑둥에 있던 기생충이 ${trClothes("genitals", V.penisslimebrokenchastitymessage)}에서 떨어${
+				`당신의 성기 밑동에 있던 기생충이 ${trClothes("genitals", V.penisslimebrokenchastitymessage)}에서 떨어${
 					V.penisslimecagemessage === 1 ? "지고, 그리고 곧바로, 새 기생충 정조대가 당신의 자지 주위에 형성된다" : "진다"
 				}.`,
 				"purple"

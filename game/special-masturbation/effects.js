@@ -198,7 +198,7 @@ function masturbationEffects() {
 		if (V.arousal >= V.arousalmax * (4 / 5) || (V.earSlime.focus === "impregnation" && V.earSlime.growth >= 100)) {
 			if (genitalsExposed()) {
 				sWikifier(
-					`당신의 <<penis_ ga "strap-on">> 격렬하게 움직이며, and <span class="pink">쿠퍼액이 끝에서 튀어${
+					`당신의 <<penis_ ga "strap-on">> 격렬하게 움직이며, <span class="pink">쿠퍼액이 끝에서 튀어${
 						V.bugsinside && V.player.penissize >= 0 ? "올라 그 위를 기어다니는 벌레 몇 마리를 뒤덮는다" : "오른다"
 					}.</span>`
 				);
@@ -1280,7 +1280,7 @@ function masturbationEffectsArms(
 					if (V.arousal >= V.arousalmax * (4 / 5)) {
 						fragment.append(
 							span(
-								`당신은 양손으로 당신의 ${balls} 더듬으며 그것이 당신의 자지 밑둥에서 긴장하며 꽉 조이는 느낌을 즐긴다.`
+								`당신은 양손으로 당신의 ${balls} 더듬으며 그것이 당신의 자지 밑동에서 긴장하며 꽉 조이는 느낌을 즐긴다.`
 							)
 						);
 					} else if (V.arousal >= V.arousalmax * (3 / 5)) {
@@ -1294,7 +1294,7 @@ function masturbationEffectsArms(
 					altText.oneOfYour = V.ballssize <= 0 ? `당신의 양쪽 ${balls}` : additionalEffect.hands ? "다른쪽을" : `당신의 한쪽 ${balls}`;
 					if (V.arousal >= V.arousalmax * (4 / 5)) {
 						sWikifier(
-							`당신은 <<hand_ ro '${arm}'>> ${altText.oneOfYour} 더듬으며 그것이 당신의 <<penisPost>> 밑둥에서 긴장하며 꽉 조이는 느낌을 즐긴다.`
+							`당신은 <<hand_ ro '${arm}'>> ${altText.oneOfYour} 더듬으며 그것이 당신의 <<penisPost>> 밑동에서 긴장하며 꽉 조이는 느낌을 즐긴다.`
 						);
 					} else if (V.arousal >= V.arousalmax * (3 / 5)) {
 						fragment.append(span(`당신은 ${handPost(arm, '으로')} ${altText.oneOfYour} 애무하며 그 간지러운 느낌을 즐긴다.`));
@@ -3203,9 +3203,9 @@ function masturbationEffectsMouth({
 				} else {
 					if (V.penisHeight === V.selfsuckDepth) {
 						if (V.selfsuckDepth >= 2) {
-							sWikifier(`당신의 목구멍이 육봉을 마사지하는 동안 당신은 당신의 <<penisPost>> 밑둥을 핥는다.`);
+							sWikifier(`당신의 목구멍이 육봉을 마사지하는 동안 당신은 당신의 <<penisPost>> 밑동을 핥는다.`);
 						} else {
-							sWikifier(`당신은 ${altText.eagerly} 당신의 <<penis_ rul>> 빨면서 그 밑둥을 핥는다.`);
+							sWikifier(`당신은 ${altText.eagerly} 당신의 <<penis_ rul>> 빨면서 그 밑동을 핥는다.`);
 						}
 					} else if (V.selfsuckDepth >= 1) {
 						sWikifier(`당신은 ${altText.eagerly} 당신의 <<penis_ rul>> 빨면서 육봉을 핥는다.`);
@@ -3225,9 +3225,9 @@ function masturbationEffectsMouth({
 				} else {
 					if (V.penisHeight === V.selfsuckDepth) {
 						if (V.selfsuckDepth >= 2) {
-							sWikifier(`당신의 목구멍이 육봉을 마사지하는 동안 당신은 당신의 <<penisPost>> 밑둥을 핥는다.`);
+							sWikifier(`당신의 목구멍이 육봉을 마사지하는 동안 당신은 당신의 <<penisPost>> 밑동을 핥는다.`);
 						} else {
-							sWikifier(`당신은 ${altText.eagerly} 당신의 <<penis_ rul>> 빨면서 그 밑둥을 핥는다.`);
+							sWikifier(`당신은 ${altText.eagerly} 당신의 <<penis_ rul>> 빨면서 그 밑동을 핥는다.`);
 						}
 					} else if (V.selfsuckDepth >= 1) {
 						sWikifier(`당신은 ${altText.eagerly} 당신의 <<penis_ rul>> 빨면서 육봉을 핥는다.`);
@@ -3484,7 +3484,7 @@ function deepthroateffects(span) {
 		case 1:
 			switch (V.selfsuckDepth) {
 				case 1:
-					sWikifier("당신의 입술이 당신의 <<penisPost>> 밑둥에 닿으며 그 끝은 당신의 입 뒤쪽을 쿡쿡 찌른다.");
+					sWikifier("당신의 입술이 당신의 <<penisPost>> 밑동에 닿으며 그 끝은 당신의 입 뒤쪽을 쿡쿡 찌른다.");
 					break;
 				default:
 					fragment.append(span("Error: Impossible condition.", "red"));
@@ -3497,7 +3497,7 @@ function deepthroateffects(span) {
 					sWikifier("당신의 <<penisPost>> 귀두부분이 당신의 목구멍 입구를 쿡쿡 찌른다.");
 					break;
 				case 2:
-					sWikifier("당신의 입술이 당신의 <<penisPost>> 밑둥에 닿자 그 머리부분이 당신의 목구멍 안을 누른다.");
+					sWikifier("당신의 입술이 당신의 <<penisPost>> 밑동에 닿자 그 머리부분이 당신의 목구멍 안을 누른다.");
 					break;
 				default:
 					fragment.append(span("Error: Impossible condition.", "red"));
@@ -3513,7 +3513,7 @@ function deepthroateffects(span) {
 					sWikifier("당신의 <<penis_ ga>> 당신의 목구멍 벽을 확장시킨다.");
 					break;
 				case 3:
-					sWikifier("당신의 입술이 당신의 <<penisPost>> 밑둥에 닿자 육봉이 당신의 목구멍을 가득 채운다.");
+					sWikifier("당신의 입술이 당신의 <<penisPost>> 밑동에 닿자 육봉이 당신의 목구멍을 가득 채운다.");
 					break;
 				default:
 					fragment.append(span("Error: Impossible condition.", "red"));
@@ -3526,7 +3526,7 @@ function deepthroateffects(span) {
 	}
 	if (V.selfsuckDepth === V.penisHeight) {
 		fragment.append(" ");
-		fragment.append(span("당신은 밑둥까지 전부 집어넣었다."));
+		fragment.append(span("당신은 밑동까지 전부 집어넣었다."));
 	} else if (V.selfsuckDepth === V.selfsuckLimit) {
 		fragment.append(" ");
 		fragment.append(span("당신이 더 아래까지 집어넣기에는 유연성이 부족하다."));
