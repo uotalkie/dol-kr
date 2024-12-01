@@ -58,7 +58,7 @@
 		const buildFile = path.resolve('build.json');
 		const buildFileExists = fs.existsSync(buildFile);
 		let password = ""
-		try {
+		try {	console.log("Test: read:");console.log(read);
 			if (buildFileExists && process.env.SKIP_PASSWORD); // skip the prompt
 			else password = await read({
 				prompt: 'Please enter the password' + (buildFileExists ? ' (or press enter to re-use last provided): ' : ': '),
