@@ -624,6 +624,8 @@ const EasyPostMacroList = [
 	{ name: "temple_Title_", orig_name: "temple_titlePost", is_print: 0},
 	
 	{ name: "changingRoomGender_", orig_name: "changingRoomGenderPost", is_print: 0},
+	
+	{ name: "your_bird_text_", orig_name: "your_bird_textPost", is_print: 0},
 
 	// outfitNamePost
 	{ name: "top_name", orig_name: "topNamePost", is_print: 0},
