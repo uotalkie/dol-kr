@@ -1303,6 +1303,12 @@
     ```
 
     ```
+    <<friendPost>>
+        <<friend>>의 대체 위젯.
+        + <<charlesPost>>와 용도 및 방식 같음. 생략
+    ```
+
+    ```
     <<wifePost>>
         <<wife>>의 대체 위젯. <<WifePost>> 로도 사용가능.
         + <<charlesPost>>와 용도 및 방식 같음. 생략
