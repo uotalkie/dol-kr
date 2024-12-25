@@ -3184,7 +3184,8 @@
 		```
 	- bodyPost 계열
 		```
-		<<breasts_ (조사)>>, <<breastssimple_ (조사)>>, <<bellyDescription_ (조사)>>, <<nipple_ (조사)>>, <<nipples_ (조사)>>, <<bottom_ (조사)>>, <<pussy_ (조사)>>, <<genitals_ (조사)>>, <<genitalsandbreasts_ (조사)>>,
+		<<breasts_ (조사)>>, <<breastssimple_ (조사)>>, <<bellyDescription_ (조사)>>, <<chest_ (조사)>>, <<chestsimple_ (조사)>>, <<nipple_ (조사)>>, <<nipples_ (조사)>>, <<bottom_ (조사)>>, 
+		<<pussy_ (조사)>>, <<genitals_ (조사)>>, <<genitalsandbreasts_ (조사)>>,
 		<<clit_ (조사)>>, <<penis_ (조사)>>, <<penisSimple_ (조사)>>, <<glans_ (조사)>>, <<testicles_ (조사)>>, <<testicle_ (조사)>>, <<hand_ (조사)>>, <<mouth_ (조사)>>,  
 		<<npcPenis_ (조사)>>, <<npcPenisSimple_ (조사)>>, <<npcVagina_ (조사)>>, <<npcAnus_ (조사)>>, <<npcGenitals_ (조사)>>, 
 		```

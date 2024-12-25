@@ -74,6 +74,9 @@ const EasyPostMacroList = [
 	{ name: "breastssimple_", orig_name: "breastssimplePost", is_print: 0},
 
 	{ name: "bellyDescription_", orig_name: "bellyDescriptionPost", is_print: 0},
+	
+	{ name: "chest_", orig_name: "chestPost", is_print: 0},
+	{ name: "chestsimple_", orig_name: "chestsimplePost", is_print: 0},
 
 	// <<nipple_ ul>> = <<nipple>>을 
 	// <<nipples_ rul>> = <<nipples>>를 
