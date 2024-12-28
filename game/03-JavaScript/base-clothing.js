@@ -613,6 +613,8 @@ function getClothingOptionsItem(slot, item, stage) {
 		integrity: integrityKeyword(item, slot),
 		colour: item.colour,
 		alt: item.altposition,
+		pattern: item.pattern,
+		pattern_layer: item.pattern_layer,
 	};
 	itemOptions[slot].alpha = { 1: 0.9, 2: 0.7, 3: 0.5 }[stage] ?? 1.0;
 	itemOptions[slot].accColour = item.accessory_colour;

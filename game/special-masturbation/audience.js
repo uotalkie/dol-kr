@@ -20,7 +20,7 @@ function masturbationAudience() {
 		}
 		if (V.npc[npc - 1]) {
 			sWikifier(
-				`<span class="lewd"><<person${npc}>>당신은 <<combatperson_ yi>> 눈길이${V.masturbationAudience > 1 ? ", 다른 사람들과 같이," : ""} 당신을 향하고 있다는 것을 느낀다.${
+				`<span class="lewd"><<person${npc}>>You can feel <<combatpersons>> eyes${V.masturbationAudience > 1 ? ", alongside others," : ""} on you.${
 					audienceMutual && V.masturbationAudience <= 6
 						? ` <<He_ nun>> 당신의 움직임을${V.mouth === 0 || V.mouth === "disabled" ? " " : "일부 "} 따라하고 있다.`
 						: ""
@@ -147,9 +147,13 @@ function masturbationAudienceLines(npc) {
 		V.audiencearousal += 1;
 		switch (V.player.penissize) {
 			case -2:
+				wikifier("insecurity", '"penis_small"', 4);
+				break;
 			case -1:
+				wikifier("insecurity", '"penis_small"', 3);
+				break;
 			case 0:
-				wikifier("insecurity", '"penis_tiny"', 1);
+				wikifier("insecurity", '"penis_small"', 2);
 				break;
 			case 1:
 				wikifier("insecurity", '"penis_small"', 1);
@@ -157,7 +161,7 @@ function masturbationAudienceLines(npc) {
 			case 2:
 				break;
 			case 3:
-				if (V.player.gender !== "m") wikifier("insecurity", '"penis_big"', 1);
+				wikifier("insecurity", '"penis_big"', 1);
 				break;
 			case 4:
 				wikifier("insecurity", '"penis_big"', 1);
@@ -172,7 +176,7 @@ function masturbationAudienceLines(npc) {
 		V.masturbationAudienceReactions.push("breastSize");
 		V.audiencearousal += 1;
 		if (V.player.gender_appearance !== "m") {
-			wikifier("insecurity", '"breasts_tiny"', 1);
+			wikifier("insecurity", '"breasts_small"', 2);
 		}
 		return masturbationAudienceLineText(npc, "breastSizeFlat");
 	} else if (V.player.breastsize <= 5) {
@@ -377,7 +381,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				`"저런 한심한 자지는 지금까지 본 적이 없어."`,
 			]
 				.random()
-				.concat(`<<ginsecurity "penis_tiny">>`);
+				.concat(`<<ginsecurity "penis_small">>`);
 		case "penisSize0":
 			return [
 				`"${V.masturbationAudience > 1 ? "<<pShes_ yi>>" : "네"} 자지는 정말 조그마하구나!"`,
@@ -385,7 +389,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				`"저런 한심한 자지는 지금까지 본 적이 없어."`,
 			]
 				.random()
-				.concat(`<<ginsecurity "penis_tiny">>`);
+				.concat(`<<ginsecurity "penis_small">>`);
 		case "penisSize1":
 			return [
 				`"${V.masturbationAudience > 1 ? "<<pShes_ yi>>" : "네"} 자지는 정말 작구나!"`,
@@ -441,7 +445,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 						`"내가 <<pher_ yi>> 귀여운 가슴을 찍어놓는 게 좋을까? 나중에 유용해질 것 같은데."`,
 					]
 						.random()
-						.concat(`<<ginsecurity "breasts_tiny">>`);
+						.concat(`<<ginsecurity "breasts_small">>`);
 				} else {
 					return [
 						`"<<pher_ yi>> 상의 아래를 보고 싶어."`,
@@ -449,7 +453,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 						`"걱정 마, 너는 젖가슴이 없어도 귀여우니까."`,
 					]
 						.random()
-						.concat(`<<ginsecurity "breasts_tiny">>`);
+						.concat(`<<ginsecurity "breasts_small">>`);
 				}
 			}
 		case "breastSizeSmall":

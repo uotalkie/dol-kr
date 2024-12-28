@@ -111,8 +111,13 @@ Macro.add("numberStepper", {
 
 		let currentValue = initialValue !== undefined ? Math.min(Math.max(initialValue, min), max) : min;
 
-		const convertToPercentage = value => (min === max ? 0 : ((value - min) / (max - min)) * 100);
-
+		const convertToPercentage = value => {
+			// Ensures it doesn't return the 0/100 when its not the min or max value
+			if (value === min) return 0;
+			if (value === max) return 100;
+			return min === max ? 0 : Math.clamp(((value - min) / (max - min)) * 100, 1, 99);
+		};
+		window.convertToPercentage = convertToPercentage;
 		// Actual color hex is cached to prevent multiple calls per passage
 		const getColor = factor => {
 			let colors;
@@ -199,7 +204,7 @@ Macro.add("numberStepper", {
 					button.prop("disabled", disabled);
 				});
 			});
-			titleText.fontResizer({ margin: 28 });
+			titleText.fontResizer({ margin: 18 });
 		};
 
 		const createButton = (classes, iconClasses, clickHandler) => {
@@ -270,10 +275,9 @@ Macro.add("numberStepper", {
 		}
 
 		// Title
-		const numberText = $("<span>", { class: "red" });
-		const titleInline = $("<span>", { class: "titleInline" }).append(Wikifier.wikifyEval(title));
-		const divider = $("<span>", { class: "numberStepperDivider" }).append(":");
-		const titleText = $("<div>", { class: "titlePercentage" }).append(titleInline).append(divider).append(numberText).appendTo(group);
+		const numberText = $("<span>", { class: "red percentage" });
+		const divider = $("<span>", { class: "numberStepperDivider" }).append(Wikifier.wikifyEval(title)).append(": ");
+		const titleText = $("<div>", { class: "titlePercentage" }).append(divider).append(numberText).appendTo(group);
 
 		// Tooltip
 		if (tooltip) {

@@ -1,11 +1,16 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
 function initGenitals() {
-	setup.clothes.genitals = [
+	/** @type {ClothesItem[]} */
+	const clothing = [
 		{
 			index: 0,
 			name: "naked",
 			name_cap: "Naked",
 			variable: "naked",
+			state: 0,
+			state_base: 0,
+			warmth: 0,
 			integrity: 0,
 			integrity_max: 0,
 			fabric_strength: 0,
@@ -49,6 +54,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: [],
@@ -92,6 +98,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: [],
@@ -161,6 +168,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: [],
@@ -196,6 +204,9 @@ function initGenitals() {
 			name: "fetish chastity belt",
 			name_cap: "Fetish Chastity belt",
 			variable: "chastitybeltfetish",
+			combat: {
+				reference: "chastitybelt",
+			},
 			integrity: 1500,
 			integrity_max: 1500,
 			fabric_strength: 12,
@@ -204,6 +215,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "white", "yellow", "tangerine", "cyan"],
@@ -240,6 +252,9 @@ function initGenitals() {
 			name: "fetish chastity cage",
 			name_cap: "Fetish Chastity cage",
 			variable: "chastitycagefetish",
+			combat: {
+				reference: "chastitycage",
+			},
 			integrity: 1500,
 			integrity_max: 1500,
 			fabric_strength: 12,
@@ -248,6 +263,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["black", "grey", "blue", "brown", "green", "pink", "purple", "red", "yellow", "tangerine", "cyan"],
@@ -308,6 +324,9 @@ function initGenitals() {
 			name: "small chastity cage",
 			name_cap: "Small Chastity cage",
 			variable: "smallchastitycage",
+			combat: {
+				reference: "chastitycage",
+			},
 			integrity: 4000,
 			integrity_max: 4000,
 			fabric_strength: 20,
@@ -316,6 +335,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["pink"],
@@ -385,6 +405,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["pink"],
@@ -446,6 +467,9 @@ function initGenitals() {
 			name: "chastity parasite",
 			name_cap: "chastity parasite",
 			variable: "slimechastitycage",
+			combat: {
+				reference: "chastitycage",
+			},
 			integrity: 500,
 			integrity_max: 500,
 			fabric_strength: 10,
@@ -454,6 +478,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["red"],
@@ -511,6 +536,7 @@ function initGenitals() {
 			penisSize: true,
 		},
 	];
+	setup.clothes.genitals = clothing;
 
 	/*
 		Clothes that modders add go into this array, this should be empty in the base game at all times.

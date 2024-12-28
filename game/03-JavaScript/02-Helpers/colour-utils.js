@@ -239,7 +239,7 @@ const ColourUtils = (() => {
 	/**
 	 * Interpolates between multiple colors, based on a factor
 	 *
-	 * @param {Array<string>} colors - Array of hex colors (e.g., ['#ff0000', '#00ff00', '#0000ff'])
+	 * @param {Array<string>} colors Array of hex colors (e.g., ['#ff0000', '#00ff00', '#0000ff'])
 	 * @param {number} factor
 	 * @returns {string}
 	 */

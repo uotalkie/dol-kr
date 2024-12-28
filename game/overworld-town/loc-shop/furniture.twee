@@ -5,11 +5,13 @@
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<<if $leftarm is "bound" and $rightarm is "bound">>
 		당신은 <span class="blue">양팔이 묶여 있지만 않다면,</span> 이 자물쇠를 딸 수 있을 거라고 생각한다.
+		<br><br>
 	<<else>>
+		<<wearProp "lockpick">>
 		<span class="green">이 자물쇠는 아주 따기 쉬워 보인다.</span>
 		<br><br>
 
-		<<lockpickicon>><<link [[자물쇠를 딴다 (0:10)|Furniture Shop]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<<lockicon "pick">><<link [[자물쇠를 딴다 (0:10)|Furniture Shop]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
 	<</if>>
 	<br>
 <<else>>
@@ -17,7 +19,7 @@
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<getouticon>><<link [[떠난다|Shopping Centre Top]]>><</link>>
+<<getouticon>><<link [[떠난다|Shopping Centre Top]]>><<handheldon>><</link>>
 
 :: Furniture Shop
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
@@ -57,13 +59,13 @@
 		<<elseif $exposed lte 0 and Time.dayState isnot "night" and Time.hour isnot 21>>
 			판매 목록에는 방에 어울릴 만한 몇몇 가구들이 있다.
 			<br>
-			<<furnitureicon "catalogue.png">><<link [[판매 목록을 본다|Furniture Shop Catalogue]]>><</link>>
+			<<furnitureicon "catalogue">><<link [[Catalogue|Furniture Shop Catalogue]]>><</link>>
 			<br><br>
 		<</if>>
 		<<if ($exposed lte 0 and Time.dayState isnot "night" and Time.hour isnot 21) or (Time.hour gte 21 and !$weekly.theft.furnitureShop)>>
 			벽지들과 포스터들이 구석에 쌓여 있다.
 			<br>
-			<<furnitureicon "wallpaper.png">><<link [[벽지와 포스터를 본다|Furniture Shop Papers]]>><</link>>
+			<<furnitureicon "wallpaper">><<link [[Paperhangings|Furniture Shop Papers]]>><</link>>
 			<br><br>
 		<</if>>
 		<<getouticon>><<link [[나간다|Shopping Centre]]>><</link>>
@@ -90,6 +92,7 @@
 <<getouticon>><<link [[뒤로|Furniture Shop]]>>
 	<<run delete $chosenFurnitureCategory>>
 	<<unset $furnitureDowngrade>>
+	<<handheldon>>
 <</link>>
 <br>
 <<furnitureCatalogue>>
@@ -106,6 +109,7 @@
 		당신은 벽지 및 포스터 코너로 다가간다. 미리 만들어진 포스터와 벽지의 견본이 전시되어 있다. 추가금을 주면, 원하는 디자인을 주문제작해 받을 수도 있다.
 	<<else>>
 		당신은 가구 목록을 주욱 훑어본다. "반품 불가!" 라는 안내가 맨 위에 적혀 있다.
+		<<wearProp "catalogue">>
 	<</if>>
 	<br><br>
 
@@ -238,7 +242,7 @@
 	현재 당신의 방에 설치되어 있는 가구:
 	<<if $currentFurnishing>>
 		<<set _premade to ["vines", "tentacles", "plainwhite", "cowgirls", "cow_girls", "hearts", "trees", "crosses", "cowgirl", "cow_girl", "cat", "puppy"].includes($currentFurnishing.name)>>
-		<<set _icon to _premade ? $currentFurnishing.id + "_" + $currentFurnishing.name + ".png" : ['dol', 'degrees of lewdity'].some(e => $currentFurnishing.name.toLowerCase().includes(e)) ? $chosenFurnitureCategory + "_dol.png" : $chosenFurnitureCategory is "poster" ? "poster.png" : "wallpaper_custom.png">>
+		<<set _icon to _premade ? $currentFurnishing.id + "_" + $currentFurnishing.name : ['dol', 'degrees of lewdity'].some(e => $currentFurnishing.name.toLowerCase().includes(e)) ? $chosenFurnitureCategory + "_dol" : $chosenFurnitureCategory is "poster" ? "poster" : "wallpaper_custom">>
 		<<furnitureicon _icon>>
 		<<set $_label to $currentFurnishing.nameCap is "Plainwhite" ? "평범한 하얀색" : trFurniture($currentFurnishing.name, "name")>>
 		<<= $_label>>
@@ -306,7 +310,7 @@
 		<br>
 	<<else>>
 		<<for $_key range _availableHangings>>
-			<<set $_icon to $chosenFurnitureCategory + "_" + $_key + ".png">>
+			<<set $_icon to $chosenFurnitureCategory + "_" + $_key>>
 			<<set $_label to $_key is "plainwhite" ? "평범한 하얀색" : trFurniture($_key, "name")>>
 			<<set $_cost to Furniture.setPrice(Furniture.get($chosenFurnitureCategory, true).cost)>>
 			<<set $_isCurrent to !(!$currentFurnishing or $_key isnot $currentFurnishing.name)>>
@@ -328,7 +332,7 @@
 					<<elseif $money gte $_cost>>
 						<<capture $_key $_cost>>
 							<<link [["£" + $_cost/100|Furniture Shop Papers]]>>
-								<<set $money -= $_cost>>
+								<<money `-$_cost` "furniture">>
 								<<run Furniture.set($chosenFurnitureCategory, $chosenFurnitureCategory, {
 									name	: $_key,
 									nameCap	: $_key.toUpperFirst()
@@ -351,7 +355,7 @@
 					<<if $money gte $_customCost>>
 						 주문제작: <<textbox "_customHanging" "">> |
 						<<link [['£' + $_cost / 50|Furniture Shop Papers]]>>
-							<<set $money -= $_customCost>>
+							<<money `-$_customCost` "furniture">>
 							<<if _customHanging is "" or _customHanging is undefined>><<set _customHanging to "주문제작한 디자인">><</if>>
 							<<set _normalisedName to Util.escape(_customHanging).replace(/\[/g, "&#91;").replace(/\]/g, "&#93;")>>
 							<<run Furniture.set($chosenFurnitureCategory, $chosenFurnitureCategory, {
@@ -424,7 +428,7 @@
 									type: $_furnishing.type,
 								}>>
 							<<else>>
-								<<set $money -= $_cost>>
+								<<money `-$_cost` "furniture">>
 								<<run Furniture.set($_key, $chosenFurnitureCategory)>>
 								<<set $boughtfurniturename to $_furnishing.name>>
 								<<run Furniture.wardrobeUpdate()>>
@@ -461,7 +465,7 @@
 		<<unset $furnitureDowngrade>>
 	<</button>>
 	<<button [[네|Furniture Shop Catalogue]]>>
-		<<set $money -= $furnitureDowngrade.cost>>
+		<<money `-$furnitureDowngrade.cost` "furniture">>
 		<<run Furniture.set($furnitureDowngrade.key, $chosenFurnitureCategory)>>
 		<<set $boughtfurniturename to $furnitureDowngrade.name>>
 		<<run Furniture.wardrobeUpdate()>>

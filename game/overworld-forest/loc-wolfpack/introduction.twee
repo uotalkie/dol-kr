@@ -13,6 +13,7 @@
 	<<else>>
 		<<beastTrainGenerate>>
 	<</if>>
+	<<set $noFinish to 1>>
 <</if>>
 
 <<effects>>
@@ -48,7 +49,7 @@
 		<br><br>
 		<<link [[다음|Forest Wolf Cave Rape End]]>><</link>>
 	<</if>>
-<<elseif $enemyhealth lte 0>>
+<<else>>
 	<<beastwound>>
 	<<if $combatTrain.length gt 0>>
 		<<beasttype_ un>> 고통과 두려움에 움츠러들지만, 곧 다른 한마리가 당신을 차지한다.
@@ -73,6 +74,7 @@
 
 	<<clotheson>>
 	<<endcombat>>
+	<<badEndTrackingEnd "Wolf Cave" { reason: "wolfCaveDefeated" }>>
 
 	<<link [[다음|Forest]]>><<set $stress -= 1000>><<set $eventskip to 1>><<set $eventskip to 1>><</link>>
 
@@ -150,6 +152,7 @@
 <<set $outside to 0>><<set $location to "wolf_cave">><<effects>>
 
 <<if $wolfpacktrust gte 12>>
+	<<badEndTrackingEnd "Wolf Cave" { reason: "wolfCaveTrusted" }>>
 	무리는 당신이 떠나려고 하자 당신을 바라보지만 움직이지는 않는다. 그들은 당신을 놓아줄 만큼 신뢰하는 것 같다.
 	<<lstress>>
 
@@ -157,6 +160,7 @@
 	<<link [[다음|Forest]]>><<set $stress -= 1000>><<set $eventskip to 1>><<set $forest to 80>><<set $eventskip to 1>><</link>>
 	<br>
 <<elseif $wolfpackfear gte 12>>
+	<<badEndTrackingEnd "Wolf Cave" { reason: "wolfCaveFeared" }>>
 	무리는 당신이 떠나려고 하자 으르렁대지만 당신을 막을 움직임은 보이지 않는다. 그들은 너무 두려워서 당신을 막으려고 하지 않는 것 같다.
 	<<lstress>>
 
@@ -326,7 +330,7 @@
 :: Forest Wolf Cave Examine
 <<set $outside to 0>><<set $location to "wolf_cave">><<effects>>
 
-동굴 뒤쪽의 어둠이 둘러싸인 느낌이 드는 곳에서 당신은 바람의 근원을 찾는다. 공기는 느슨한 바윗더미 뒤에서 나오는 것 같이 느껴진다.
+You feel around the darkness at the back of the cave, looking for the source of the draught. The air feels like its coming from behind a pile of loose rocks.
 <br><br>
 
 <<if $syndromewolves gte 1>>
@@ -340,7 +344,7 @@
 :: Forest Wolf Cave Hole
 <<set $outside to 0>><<set $location to "wolf_cave">><<effects>>
 
-동굴 뒤쪽의 구멍을 들여다보지만 아무것도 알아낼 수 없다. 당신은 거칠게 흐르는 물소리를 듣는다. 당신은 당신이 온 길로 돌아갈 수 없을 거라고 생각한다.
+You peer down the hole at the back of the cave but can't make anything out. You hear rushing water. If you climb into it, you won't be able to come back the way you came.
 <br><br>
 
 <<getouticon "hole">><<link [[내려간다|Wolf Cave Descent]]>><</link>>
@@ -354,15 +358,36 @@
 	<br>
 <</if>>
 
-:: Wolf Cave Hand
+:: Wolf Cave Accept
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
 	<<beastCombatInit>>
-	<<blackwolfhand>>
-	<<deviancy1>>
+	<<if $phase is 0>>
+		You reach beneath the <<beasttype>> and take it in your hand.
+		<<npchand>><<deviancy1>>
+	<<elseif $phase is 2>>
+		<<clothesstrip>><<deviancy5>>
+		You bend forward, assuming a submissive stance on your hands and knees, before bringing your shoulders down to stick your butt up and leave your <<print ($player.vaginaExist ? '<<pussy>>' : 'anus')>> exposed to the <<beasttype>>. <<bHe>> bears down on you, keeping you grounded under <<bhis>> massive size.<<if $NPCList[0].monster>> "<<pPackbrother>> knows <<pher>> place, very well. Will make you a good pack mother," <<bhe>> says with a big, lustful smile.<</if>>
+		<<npc_attempt_sex>>
+		<<set $position to "doggy">>
+		<<set $position_lock to 1>>
+		<<set $NPCList[0].location.head to "head">>
+		<<set $NPCList[0].location.genitals to "genitals">>
+	<<elseif $phase is 3>>
+		<<clothesstrip>><<deviancy5>>
+		You draw closer to the Black Wolf, bringing your mouth closer to <<bhis>> dark fur. You attempt to place a playful bite on <<bhim>> but the Black Wolf puts <<bhis>> <<if $NPCList[0].monster>>hand<<else>>paw<</if>> on your chest, before driving you down onto the ground with little to no effort. <<bHis>> overwhelming weight and size leaves you with few other options.<<if $NPCList[0].monster>> "<<pPackbrother>> knows <<pher>> place, very well. Will make you a proud pack father," <<bhe>> says with a big, lustful smile.<</if>>
+		<<npc_attempt_sex>>
+		<<set $position to "missionary">>
+		<<set $position_lock to 1>>
+		<<set $NPCList[0].location.head to "head">>
+		<<set $NPCList[0].location.genitals to "genitals">>
+	<<else>>
+		You lean beneath the <<beasttype>>.
+		<<npcoral>><<deviancy4>>
+	<</if>>
 <</if>>
 
 <<effects>>
@@ -375,16 +400,17 @@
 <<actionsman>>
 
 <<if _combatend>>
-	<span id="next"><<link [[다음|Wolf Cave Hand Finish]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Wolf Cave Accept Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[다음|Wolf Cave Hand]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[다음|Wolf Cave Accept]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Wolf Cave Hand Refuse
+:: Wolf Cave Refuse
 
 <<set $outside to 0>><<set $location to "wolf_cave">><<effects>>
 당신은 다시 공격을 준비하며, 검은 늑대에게서 멀어진다. 그러나 아무 공격도 오지 않는다. <<bHePost "은">> 돌아서 걸어간다. <<if $monster is 1>>"괜찮아. 넌 곧 배우게 될 거야."<</if>>
 <br><br>
+<<badEndTrackingEnd "Wolf Cave" { reason: "wolfCaveAccepted" }>>
 <<set $syndromewolves to 1>>
 <<set $wolfevent to 0>>
 <<set $wolfstate to "cave">>
@@ -411,11 +437,23 @@
 <<link [[다음|Wolf Cave]]>><<endevent>><</link>>
 <br>
 
-:: Wolf Cave Hand Finish
+:: Wolf Cave Accept Finish
 
 <<set $outside to 1>><<set $location to "wolf_cave">><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-	<<beastejaculation>>
+	<<if $phase is 3 and $orgasmcurrent is 0 and $NPCList[0].vagina is "penis">>
+		<<set _forcedOrgasm to true>>
+		<<set $orgasmdown to 3>>
+	<</if>>
+	<<beastejaculation>><<wolfpacktrust>>
+	<br>
+
+	<<if _forcedOrgasm>>
+		Despite having an orgasm, the Black Wolf continues pleasuring your <<penis>>.
+		<<set $penisuse to "othervagina">>
+		<<orgasm>>
+	<</if>>
+	
 	<<tearful>> 당신은 검은 늑대가 하품하며 누워있는 것을 본다.
 	<br><br>
 	<<clotheson>>
@@ -434,6 +472,7 @@
 <<if $monster is 1>>
 	"피곤해. 잘 했어... <<ppackbrother>>."
 <</if>>
+<<badEndTrackingEnd "Wolf Cave" { reason: "wolfCaveAccepted" }>>
 <<set $syndromewolves to 1>>
 <<set $wolfevent to 0>>
 <<set $wolfstate to "cave">>

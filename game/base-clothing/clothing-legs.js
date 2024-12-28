@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites.
 
 Warmth checklist:
@@ -14,7 +15,8 @@ Warmth checklist:
 	Max warmth: 4
 */
 function initLegs() {
-	setup.clothes.legs = [
+	/** @type {ClothesItem[]} */
+	const clothing = [
 		{
 			index: 0,
 			name: "naked",
@@ -45,12 +47,14 @@ function initLegs() {
 			accIcon: 0,
 			mainImage: 0,
 		},
-
 		{
 			index: 1,
 			name: "tights",
 			name_cap: "Tights",
 			variable: "tights",
+			combat: {
+				renderType: "waisthighs",
+			},
 			integrity: 30,
 			integrity_max: 30,
 			fabric_strength: 20,
@@ -77,18 +81,22 @@ function initLegs() {
 			iconFile: "tights.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 2,
 			name: "boy's gym socks",
 			name_cap: "Boy's gym socks",
 			variable: "boysgymsocks",
+			combat: {
+				renderType: "thighhighs",
+				accessory: true,
+				accColour: "#00f",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
 			reveal: 1,
 			word: "n",
-			state: "thighs",
+			state: "thighs", // Thighs?
 			state_base: "thighs",
 			plural: 1,
 			colour: 0,
@@ -109,18 +117,22 @@ function initLegs() {
 			iconFile: "boys_gym_socks.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 3,
 			name: "girl's gym socks",
 			name_cap: "Girl's gym socks",
 			variable: "girlsgymsocks",
+			combat: {
+				reference: "boysgymsocks",
+				accessory: true,
+				accColour: "#a354ce",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
 			reveal: 1,
 			word: "n",
-			state: "thighs",
+			state: "thighs", // Thighs?
 			state_base: "thighs",
 			plural: 1,
 			colour: 0,
@@ -141,12 +153,14 @@ function initLegs() {
 			iconFile: "girls_gym_socks.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 4,
 			name: "stockings",
 			name_cap: "Stockings",
 			variable: "stockings",
+			combat: {
+				renderType: "thighhighs",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -173,12 +187,14 @@ function initLegs() {
 			iconFile: "stockings.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 5,
 			name: "fishnet stockings",
 			name_cap: "Fishnet stockings",
 			variable: "fishnetstockings",
+			combat: {
+				renderType: "thighhighs",
+			},
 			integrity: 20,
 			integrity_max: 20,
 			fabric_strength: 20,
@@ -206,12 +222,14 @@ function initLegs() {
 			iconFile: "fishnet_stockings.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 6,
 			name: "fishnet tights",
 			name_cap: "Fishnet tights",
 			variable: "fishnettights",
+			combat: {
+				renderType: "waisthighs",
+			},
 			integrity: 25,
 			integrity_max: 25,
 			fabric_strength: 20,
@@ -239,12 +257,14 @@ function initLegs() {
 			iconFile: "fishnet_tights.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 7,
 			name: "garter stockings",
 			name_cap: "Garter stockings",
 			variable: "garterstockings",
+			combat: {
+				renderType: "thighhighs",
+			},
 			integrity: 15,
 			integrity_max: 15,
 			fabric_strength: 20,
@@ -291,12 +311,14 @@ function initLegs() {
 			iconFile: "garter_stockings.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 8,
 			name: "legwarmers",
 			name_cap: "Legwarmers",
 			variable: "legwarmers",
+			combat: {
+				renderType: "thighhighs",
+			},
 			integrity: 25,
 			integrity_max: 25,
 			fabric_strength: 20,
@@ -323,12 +345,14 @@ function initLegs() {
 			iconFile: "legwarmers.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 9,
 			name: "christmas leg warmers",
 			name_cap: "Christmas leg warmers",
 			variable: "christmas",
+			combat: {
+				renderType: "thighhighs",
+			},
 			integrity: 25,
 			integrity_max: 25,
 			fabric_strength: 20,
@@ -354,12 +378,15 @@ function initLegs() {
 			location: 0,
 			iconFile: "christmas_leg_warmers.png",
 		},
-
 		{
 			index: 10,
 			name: "gold anklets",
 			name_cap: "Gold anklets",
 			variable: "goldanklets",
+			combat: {
+				renderType: "ankled",
+				mainColour: "#e8b826",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -385,7 +412,6 @@ function initLegs() {
 			iconFile: "gold_anklets.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 11,
 			name: "naked",
@@ -415,12 +441,14 @@ function initLegs() {
 			iconFile: 0,
 			accIcon: 0,
 		},
-
 		{
 			index: 12,
 			name: "striped thighhighs",
 			name_cap: "Striped thighhighs",
 			variable: "stripedthighhighs",
+			combat: {
+				reference: "plainthighhighs",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -450,12 +478,15 @@ function initLegs() {
 			iconFile: "striped_thighhighs.png",
 			accIcon: "striped_thighhighs_acc.png",
 		},
-
 		{
 			index: 13,
 			name: "ankle socks",
 			name_cap: "Ankle socks",
 			variable: "anklesocks",
+			combat: {
+				renderType: "ankled",
+				accColour: "#f5f0ee",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -483,12 +514,14 @@ function initLegs() {
 			iconFile: "ankle_socks.png",
 			accIcon: "ankle_socks_acc.png",
 		},
-
 		{
 			index: 14,
 			name: "plain thighhighs",
 			name_cap: "Plain thighhighs",
 			variable: "plainthighhighs",
+			combat: {
+				renderType: "thighhighs",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -516,12 +549,14 @@ function initLegs() {
 			iconFile: "striped_thighhighs.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 15,
 			name: "cow socks",
 			name_cap: "Cow socks",
 			variable: "cow",
+			combat: {
+				renderType: "kneehighs",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -548,12 +583,15 @@ function initLegs() {
 			iconFile: "cow_socks.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 16,
 			name: "nurse socks",
 			name_cap: "Nurse socks",
 			variable: "nursesocks",
+			combat: {
+				reference: "stockings",
+				mainColour: "#f00",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -580,12 +618,14 @@ function initLegs() {
 			iconFile: "nurse_socks.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 17,
 			name: "ribbon stockings",
 			name_cap: "Ribbon stockings",
 			variable: "ribbonstockings",
+			combat: {
+				renderType: "thighhighs",
+			},
 			integrity: 15,
 			integrity_max: 15,
 			fabric_strength: 20,
@@ -620,6 +660,9 @@ function initLegs() {
 			name: "patterned dress socks",
 			name_cap: "Patterned dress socks",
 			variable: "twirly socks",
+			combat: {
+				reference: "striped socks long",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -653,6 +696,9 @@ function initLegs() {
 			name: "polka dot socks",
 			name_cap: "Polka dot socks",
 			variable: "polka socks",
+			combat: {
+				reference: "striped socks long",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -700,6 +746,9 @@ function initLegs() {
 			name: "sports socks",
 			name_cap: "Sports socks",
 			variable: "sports socks short",
+			combat: {
+				reference: "striped socks short",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -733,6 +782,9 @@ function initLegs() {
 			name: "knee-high sports socks",
 			name_cap: "Knee-high sports socks",
 			variable: "sports socks long",
+			combat: {
+				reference: "striped socks long",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -766,6 +818,9 @@ function initLegs() {
 			name: "rib-knit socks",
 			name_cap: "Rib-knit socks",
 			variable: "striped socks long",
+			combat: {
+				renderType: "kneehighs",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -799,6 +854,10 @@ function initLegs() {
 			name: "rib-knit ankle socks",
 			name_cap: "Rib-knit ankle socks",
 			variable: "striped socks short",
+			combat: {
+				renderType: "ankled",
+				accessory: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -832,6 +891,10 @@ function initLegs() {
 			name: "striped kneehighs",
 			name_cap: "Striped kneehighs",
 			variable: "striped kneehighs",
+			combat: {
+				reference: "striped socks short",
+				accessory: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -865,6 +928,9 @@ function initLegs() {
 			name: "sheer leggings",
 			name_cap: "Sheer leggings",
 			variable: "sheerleggings",
+			combat: {
+				reference: "tights",
+			},
 			integrity: 30,
 			integrity_max: 30,
 			fabric_strength: 20,
@@ -915,6 +981,10 @@ function initLegs() {
 			name: "mismatched socks",
 			name_cap: "Mismatched socks",
 			variable: "mismatched socks",
+			combat: {
+				reference: "striped socks short",
+				accessory: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -947,6 +1017,9 @@ function initLegs() {
 			name: "loose socks",
 			name_cap: "Loose socks",
 			variable: "loosesocks",
+			combat: {
+				renderType: "ankled",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -978,6 +1051,9 @@ function initLegs() {
 			name: "sexy nun's stockings",
 			name_cap: "Sexy nun's stockings",
 			variable: "nunlewd",
+			combat: {
+				reference: "striped socks long",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1010,6 +1086,9 @@ function initLegs() {
 			name: "leather leggings",
 			name_cap: "Leather leggings",
 			variable: "leatherleggings",
+			combat: {
+				reference: "tights",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -1047,6 +1126,9 @@ function initLegs() {
 			name: "men's garter socks",
 			name_cap: "Men's garter socks",
 			variable: "mensgarters",
+			combat: {
+				reference: "striped socks long",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1067,7 +1149,7 @@ function initLegs() {
 			shop: ["clothing", "adult"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["steel", "blue steel", "bronze", "gold", "silver", "black", "white"],
+			accessory_colour_options: ["steel", "blue steel", "bronze", "gold", "rose gold", "silver", "black", "white"],
 			accessory_colour_sidebar: 1,
 			cursed: 0,
 			location: 0,
@@ -1079,6 +1161,10 @@ function initLegs() {
 			name: "ruffled socks",
 			name_cap: "Ruffled socks",
 			variable: "ruffled socks",
+			combat: {
+				reference: "anklesocks",
+				accColour: "primary",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1111,6 +1197,9 @@ function initLegs() {
 			name: "ruffled kneehighs",
 			name_cap: "Ruffled kneehighs",
 			variable: "ruffled kneehighs",
+			combat: {
+				reference: "striped socks long",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1143,6 +1232,9 @@ function initLegs() {
 			name: "ruffled thighhighs",
 			name_cap: "Ruffled thighhighs",
 			variable: "ruffled thighhighs",
+			combat: {
+				reference: "plainthighhighs",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1176,6 +1268,10 @@ function initLegs() {
 			name: "tabi",
 			name_cap: "Tabi",
 			variable: "tabi",
+			combat: {
+				reference: "anklesocks",
+				accColour: "primary",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1207,6 +1303,10 @@ function initLegs() {
 			name: "gold shackles",
 			name_cap: "Gold shackles",
 			variable: "goldshackles",
+			combat: {
+				reference: "goldanklets",
+				mainColour: "#e8b826",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1233,6 +1333,7 @@ function initLegs() {
 			accIcon: 0,
 		},
 	];
+	setup.clothes.legs = clothing;
 
 	/*
 		Clothes that modders add go into this array, this should be empty in the base game at all times.

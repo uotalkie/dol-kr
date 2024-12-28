@@ -553,17 +553,45 @@ setup.LocationImages = {
 			default: {
 				image: "base.png",
 			},
+			foam: {
+				image: "waves.png",
+				animation: {
+					frameDelay: 200,
+					cycleDelay: () => 1000,
+				},
+			},
+		},
+		reflective: {
+			mask: {
+				image: "reflective.png",
+				verticalFactor: 3.5,
+				amplitude: 35,
+			},
+			waves: {
+				image: "waves.png",
+				alpha: 0.5,
+				alwaysDisplay: false,
+				compositeOperation: "overlay",
+				animation: "foam",
+			},
+		},
+		layerTop: {
+			tree: {
+				image: "tree.png",
+				animation: {
+					frameDelay: 350,
+					cycleDelay: () => 3250,
+				},
+			},
 			snow: {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
 			},
-			water: {
-				image: "water.png",
-				animation: {
-					frameDelay: 250,
-					cycleDelay: 1500,
-				},
-			},
+		},
+		emissive: {
+			image: "emissive.png",
+			color: "#c26802",
+			size: 1,
 		},
 	},
 	churchyard: {
@@ -955,9 +983,21 @@ setup.LocationImages = {
 				condition: () => V.farm.tower >= 1,
 				image: "watchtower.png",
 			},
-			default: {
-				condition: () => !Weather.isSnow,
-				image: `${Time.season}.png`,
+			spring: {
+				condition: () => !Weather.isSnow && Time.season === "spring",
+				image: "spring.png",
+			},
+			summer: {
+				condition: () => !Weather.isSnow && Time.season === "summer",
+				image: "summer.png",
+			},
+			autumn: {
+				condition: () => !Weather.isSnow && Time.season === "autumn",
+				image: "autumn.png",
+			},
+			winter: {
+				condition: () => !Weather.isSnow && Time.season === "winter",
+				image: "winter.png",
 			},
 			snow: {
 				condition: () => Weather.isSnow,
@@ -1219,6 +1259,26 @@ setup.LocationImages = {
 			intensity: 0.8,
 		},
 	},
+	kylarmanor_grounds: {
+		folder: "kylarmanor_grounds",
+		base: {
+			default: {
+				condition: () => !Weather.isSnow,
+				image: "base.png",
+			},
+			snow: {
+				condition: () => Weather.isSnow,
+				image: "snow.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			condition: () => Weather.lightsOn,
+			color: "#9484d1",
+			size: 2,
+			intensity: 0.4,
+		},
+	},
 	lake: {
 		folder: "lake",
 		base: {
@@ -1306,6 +1366,59 @@ setup.LocationImages = {
 			ice: {
 				condition: () => Weather.isFrozen("lake"),
 				image: "ice.png",
+			},
+		},
+	},
+	lake_office: {
+		folder: "lake_office",
+		base: {
+			default: {
+				condition: () => Time.season !== "winter",
+				image: "base.png",
+			},
+			waterbase: {
+				image: "water.png",
+			},
+			snow: {
+				condition: () => Time.season === "winter",
+				image: "snow.png",
+			},
+			ice: {
+				condition: () => Weather.isFrozen("lake"),
+				image: "ice.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				condition: () => Weather.lightsOn && Time.season !== "winter" && Time.season !== "autumn",
+				animation: {
+					frameDelay: 300,
+					cycleDelay: () => 0,
+				},
+				color: "#deae66",
+				strength: 2,
+			},
+			heater: {
+				image: "emissive_winter.png",
+				condition: () => !Weather.lightsOn && Time.season === "winter",
+				color: "#ff5724",
+				strength: 1,
+			},
+			heaterdim: {
+				image: "emissive_winter.png",
+				condition: () => Weather.lightsOn && Time.season === "winter",
+				color: "#360c01",
+				strength: 1,
+			},
+		},
+		reflective: {
+			mask: {
+				image: "reflective.png",
+				horizon: 18,
+				blur: 0.5,
+				verticalDirection: () => (!Weather.isFrozen("lake") ? 1 : 0),
+				alpha: () => (!Weather.isFrozen("lake") ? 0.6 : 0.15),
 			},
 		},
 	},
@@ -1768,6 +1881,58 @@ setup.LocationImages = {
 					frameDelay: 200,
 					cycleDelay: () => 0,
 				},
+			},
+		},
+	},
+	prison_beach: {
+		folder: "beach",
+		base: {
+			default: {
+				condition: () => !Weather.isSnow,
+				image: "base.png",
+			},
+			snow: {
+				condition: () => Weather.isSnow,
+				image: "snow.png",
+			},
+			foam: {
+				image: "waves.png",
+				animation: {
+					frameDelay: 200,
+					cycleDelay: () => 1000,
+				},
+			},
+		},
+		reflective: {
+			mask: {
+				image: "reflective.png",
+				verticalFactor: 3.5,
+				amplitude: 35,
+			},
+			waves: {
+				image: "waves.png",
+				alpha: 0.5,
+				alwaysDisplay: false,
+				compositeOperation: "overlay",
+				animation: "foam",
+			},
+			overlay: {
+				image: "water.png",
+				compositeOperation: "overlay",
+				alpha: 0.4,
+			},
+		},
+		layerTop: {
+			tree: {
+				image: "tree.png",
+				animation: {
+					frameDelay: 350,
+					cycleDelay: () => 3250,
+				},
+			},
+			prison_boat: {
+				image: "prison_boat.png",
+				condition: () => between(Time.hour, 12, 14) && Time.weekDay === 6,
 			},
 		},
 	},

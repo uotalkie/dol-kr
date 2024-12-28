@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /*
 	Key points
 	series: "seriesName", //Will only show the first locked feat in a series to the player
@@ -183,6 +184,27 @@ setup.feats = {
 		desc: "학교 시험에서 15회 우수한 성적을 거뒀다.",
 		difficulty: 3,
 		series: "distinction",
+		filter: ["All", "General"],
+	},
+	"Chef de Tournant": {
+		title: "Chef de Tournant",
+		desc: "Learn recipes.",
+		difficulty: 1,
+		series: "chef",
+		filter: ["All", "General"],
+	},
+	"Chef de Partie": {
+		title: "Chef de Partie",
+		desc: "Learn recipes.",
+		difficulty: 2,
+		series: "chef",
+		filter: ["All", "General"],
+	},
+	"Sous Chef": {
+		title: "Sous Chef",
+		desc: "Learn recipes.",
+		difficulty: 3,
+		series: "chef",
 		filter: ["All", "General"],
 	},
 	"Science Fair Winner": {
@@ -407,6 +429,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Hungry Orphan": {
+		title: "Hungry Orphan",
+		desc: "You gifted Robin a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Robin's Song": {
 		title: "로빈의 노래",
 		desc: "로빈이 크로스드레싱 하는 것을 편안하게 느끼도록 도와줬다.",
@@ -417,6 +446,13 @@ setup.feats = {
 	"Whitney the Tsundere": {
 		title: "일진 휘트니",
 		desc: "휘트니에게 순결을 바쳤다.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"The Bully's Tithe": {
+		title: "The Bully's Tithe",
+		desc: "You gifted Whitney a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -442,6 +478,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Not for Rats": {
+		title: "Not for Rats",
+		desc: "You gifted Kylar a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Eden the Lonely": {
 		title: "외톨이 에덴",
 		desc: "에덴에게 순결을 바쳤다.",
@@ -449,9 +492,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Sweet and Tender": {
+		title: "Sweet and Tender",
+		desc: "You gifted Eden a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Avery the Moneybags": {
 		title: "물주 에이버리",
 		desc: "에이버리에게 순결을 바쳤다.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Haute Cuisine": {
+		title: "Haute Cuisine",
+		desc: "You gifted Avery a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -470,9 +527,16 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Great Hawk the Terror": {
-		title: "두려운 거대 매",
-		desc: "당신은 훌륭한 배우자가 될 것이다.",
+	"Home Cooking": {
+		title: "Home Cooking",
+		desc: "You gifted Alex a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Return the Favour": {
+		title: "Return the Favour",
+		desc: "You gifted the great hawk a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -498,9 +562,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Encroaching Civilisation": {
+		title: "Encroaching Civilisation",
+		desc: "You gifted the black wolf a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Sydney the Pure Hearted": {
 		title: "순결한 마음의 시드니",
 		desc: "시드니가 당신에게 순결을 바쳤다.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Communion": {
+		title: "Communion",
+		desc: "You gifted Sydney a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -2021,7 +2099,7 @@ function earnHourlyFeats() {
 	if (V.produce_sold >= 100) earnFeat("Hawker");
 	if (V.produce_sold >= 1000) earnFeat("Vendor");
 	if (V.produce_sold >= 5000) earnFeat("Merchant");
-	if (V.plants_known.length >= 17) earnFeat("Seedy");
+	if (V.plants_known.length >= 18) earnFeat("Seedy");
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
@@ -2102,6 +2180,9 @@ function earnHourlyFeats() {
 	}
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.5)) earnFeat("My Collection of Feats");
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.95)) earnFeat("My Timeless Collection of Feats");
+
+	// Bugged in saves that used the "Show them the stolen card" link in many older versions
+	if (V.compoundcard === 2) earnFeat("Illicit Science");
 
 	return fragment;
 }

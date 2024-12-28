@@ -60,6 +60,9 @@ Renderer.Stats = {
 	nlayers: 0,
 	ncached: 0,
 };
+/**
+ * @type {Renderer.RendererListener}
+ */
 Renderer.defaultListener = {
 	error(error) {
 		// strip source data
@@ -140,8 +143,8 @@ Renderer.defaultListener = {
 };
 
 function refreshCanvas(model) {
-	const canvasModel = Renderer.locateModel(model, "sidebar");
-	if (model.canvas) {
+	const canvasModel = Renderer.locateModel("lighting", "sidebar");
+	if (canvasModel.canvas) {
 		Renderer.invalidateLayerCaches(canvasModel.layerList);
 		canvasModel.redraw();
 	}

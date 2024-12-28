@@ -85,11 +85,10 @@
 			<<if $exposed lte 1>>
 				<<if $forest_shop_intro is 1>>
 					<<shopicon "forest">><<link [[숲속 가게|Forest Shop]]>><</link>>
-					<br><br>
 				<<else>>
-					<<shopicon "forest">><<link [[이상한 가게|Forest Shop]]>><</link>>
-					<br><br>
+					<<shopicon "forest">><<link [[Strange shop|Forest Shop]]>><</link>>				
 				<</if>>
+				<br><br>
 			<</if>>
 
 			<<forestdeeper>>
@@ -113,7 +112,7 @@
 			<br><br>
 
 			<<if $historytrait gte 2 and $thicket_tunnel_intro is 1>>
-				<<link [[비밀 터널로 거주 지구 골목길로 간다 (0:05)|Residential Thicket]]>><<pass 5>><</link>>
+				<<ind>><<link [[Take the secret tunnel to the residential alleyways (0:05)|Residential Thicket]]>><<pass 5>><</link>>
 				<br>
 			<</if>>
 			<<if $historytrait gte 3>>
@@ -267,21 +266,23 @@
                 <</if>>
                     <br>
 			<</if>>
-			<<if $syndromewolves gte 1 and $caveHumanPregnancyDiscovered isnot 1>>
-				<<wolfcaveicon>><<link [[늑대 동굴 (0:10)|Wolf Cave Clearing]]>><<pass 10>><</link>>
-				<br>
-			<<elseif $syndromewolves gte 1 and $caveHumanPregnancyDiscovered is 1>>
-				<span class="blue">당신은 임신중일 때에는 늑대들이 당신이 늑대 동굴로 돌아오는 것을 허락하지 않으리라 생각한다.</span>
-				<br>
+			<<if $syndromewolves gte 1>>
+				<<if $caveHumanPregnancyDiscovered isnot 1 or !playerIsPregnant()>>
+					<<wolfcaveicon>><<link [[늑대 동굴 (0:10)|Wolf Cave Clearing]]>><<pass 10>><</link>>
+					<br>
+				<<else>>
+					<span class="blue">당신은 임신중일 때에는 늑대들이 당신이 늑대 동굴로 돌아오는 것을 허락하지 않으리라 생각한다.</span>
+					<br>
+				<</if>>
 			<</if>>
 			<<if $pubtask is "forest" and $pubtask2 isnot 1>>
 				<<rng>>
 				<!-- Modified for Monster People -->
-				<<if $pubtasksetting is "bear" and $bestialitydisable is "f">>
+				<<if $pubtasksetting is "bear">>
 					<<crimeicon "black box">><<link [[랜드리의 블랙박스를 찾는다|Forest Bear Box]]>><</link>>
 				<<elseif $pubtasksetting is "pair">>
 					<<crimeicon "black box">><<link [[랜드리의 블랙박스를 찾는다|Forest Box]]>><</link>>
-				<<elseif $rng gte 51 and $bestialitydisable is "f">>
+				<<elseif $rng gte 51>>
 					<<crimeicon "black box">><<link [[랜드리의 블랙박스를 찾는다|Forest Bear Box]]>><</link>>
 				<<else>>
 					<<crimeicon "black box">><<link [[랜드리의 블랙박스를 찾는다|Forest Box]]>><</link>>
@@ -344,6 +345,7 @@
 
 :: Forest Bear Box
 <<location "forest">><<effects>>
+<<beastNEWinit 1 bear>>
 
 <<if $pubtasksetting is "bear">>
 	당신은 랜드리의 블랙박스를 찾을 수 있는 동굴로 돌아온다. 내부에서 무언가의 큰 숨소리가 들린다.
@@ -357,9 +359,14 @@
 <</if>>
 <br><br>
 
-<<getinicon>><<link [[들어간다|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<getouticon>><<link [[떠난다|Forest]]>><</link>>
+<<if $monster is 1 or $bestialitydisable is "f">>
+	<<getinicon>><<link [[들어간다|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
+	<br>
+<<else>>
+	<<getinicon>><<link [[Enter|Forest Bear Box Molestation Finish]]>><<set $phase to 1>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[떠난다|Forest]]>><<endevent>><</link>>
 
 :: Forest Box
 <<location "forest">><<effects>>
@@ -388,7 +395,7 @@
 	<br>
 <</if>>
 <<if $submissive lte 500>>
-	<<link [[그들을 공격한다|Forest Box Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+	<<link [[Attack them|Forest Box Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>><<defianttext>>
 	<br>
 <</if>>
 <<link [[거절한다|Forest Box Refuse]]>><</link>>
@@ -402,7 +409,6 @@
 	<<neutral 1>>
 	<<molested>>
 
-	<<beastNEWinit 1 bear>>
 	<<beastCombatInit>><<set $enemytrust -= 40>><<set $enemyanger += 40>><<set $enemyhealthmax to 400>><<set $enemyhealth to 400>>
 	당신은 동굴로 살금살금 들어간다. 어둠 속에서 좀 더듬거린 후에 당신은 무언가 반짝이는 것을 발견한다. 블랙박스다.
 	당신은 상자를 손에 들고, 동굴을 떠나려고 몸을 돌리지만, 어둠 속에서 뭔가가 나타난다. 당신이 돌아선 순간, <<bhe_ ga>> 당신을 덮친다.
@@ -428,29 +434,43 @@
 :: Forest Bear Box Molestation Finish
 <<location "forest">><<effects>>
 
-<<if $enemyarousal gte $enemyarousalmax>>
-	<<beastejaculation>>
+<<if $phase is 1>> /* Autoresolve when bestiality disabled */
+	<<unset $phase>>
+	<<set $pubtask2 to 1>>
+	You creep into the cave. After some fumbling through the dark you see the light catch on something. It's the black box. The box in hand, you turn to leave the cave, but something emerges from the darkness. You turn around to see a mighty bear swiping its claw at you!<<gstress>>
+	<br><br>
 
-	만족한 곰은 은신처로 돌아간다.
-	<<if $monster is 1>>
-		<<bHe_ nun>> 하품을 하면서 <<bhis_ yi>> 털이 무성한 가슴을 마지막으로 한 번 긁은 다음 <<bhis_ yi>> 잠자리로 돌아간다.
+	You narrowly dodge aside, dropping the black box in the process. Irritated, the bear lets out a rumbling growl and tries to strike you again. Fortunately, it's too groggy to aim at you properly. You duck below and pick up the black box again, scrambling out of the cave. <<gstress>><<ggtrauma>><<ggpain>>
+	<br><br>
+
+	<<tearful>> you lean against a tree to catch your breath.<<silently>><<beastescape>><<beastescape>><</silently>>
+	<br><br>
+<<else>>
+	<<if $enemyarousal gte $enemyarousalmax>>
+		<<beastejaculation>>
+
+		만족한 곰은 은신처로 돌아간다.
+		<<if $monster is 1>>
+			<<bHe_ nun>> 하품을 하면서 <<bhis_ yi>> 털이 무성한 가슴을 마지막으로 한 번 긁은 다음 <<bhis_ yi>> 잠자리로 돌아간다.
+		<</if>>
+	<<elseif $enemyhealth lte 0>>
+		<<if $monster is 1>>
+			<<beasttypePost "은">> 고통에 몸을 움츠리고, 당신에게서 등을 돌린다. <<bHe_ nun>> 손으로 <<bhis_ yi>> 손목을 가리고, 더 깊은 곳에 있는 <<bhis_ yi>> 은신처로 도망친다.
+		<<else>>
+			<<beasttypePost "은">> 당신에게서 떨어져 은신처로 도망친다.
+		<</if>>
 	<</if>>
-<<elseif $enemyhealth lte 0>>
-	<<if $monster is 1>>
-		<<beasttypePost "은">> 고통에 몸을 움츠리고, 당신에게서 등을 돌린다. <<bHe_ nun>> 손으로 <<bhis_ yi>> 손목을 가리고, 더 깊은 곳에 있는 <<bhis_ yi>> 은신처로 도망친다.
-	<<else>>
-		<<beasttypePost "은">> 당신에게서 떨어져 은신처로 도망친다.
-	<</if>>
+	<br><br>
+
+	<<tearful>> you pick up te box again and leave the cave.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
 <</if>>
-<br><br>
+<<wearProp "black box">>
 
-<<tearful>> 당신은 동굴을 떠난다. 
-<br><br>
-
-<<clotheson>>
-<<endcombat>>
-
-<<link [[다음|Forest]]>><</link>>
+<<link [[다음|Forest]]>><<set $eventskip to 1>><<handheldon>><</link>>
 
 :: Forest Box Molestation
 <<if $molestationstart is 1>>
@@ -509,9 +529,9 @@
 	"그렇게 쉽게 도망가지 못할거야." <<person1>><<personPost "이">> 말한다.
 	<br><br>
 
-	<<controlloss>><<set $consensual to 0>><<molested>><<set $finish to 0>>
+	<<set $consensual to 0>><<set $finish to 0>>
 
-	<<link [[다음|Forest Box Molestation]]>><</link>>
+	<<link [[다음|Forest Box Molestation]]>><<set $molestationstart to 1>><</link>>
 
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
@@ -524,7 +544,7 @@
 	<<endcombat>>
 	<<wearProp "black box">>
 
-	<<link [[다음|Forest]]>><<handheldon>><</link>>
+	<<link [[다음|Forest]]>><<set $eventskip to 1>><<handheldon>><</link>>
 
 <<elseif $enemyhealth lte 0>>
 	두 명은 고통에 몸부림치며 풀 위에 박스를 떨어뜨린다. <<tearful>> 당신은 박스를 붙잡고 공터에서 도망친다. 성난 고함이 뒤에서 쫓아온다.
@@ -535,7 +555,7 @@
 	<<endcombat>>
 	<<wearProp "black box">>
 
-	<<link [[다음|Forest]]>><<handheldon>><</link>>
+	<<link [[다음|Forest]]>><<set $eventskip to 1>><<handheldon>><</link>>
 <</if>>
 
 :: Forest Science Shroom
@@ -586,7 +606,7 @@
 	<<if $bogProgress gte 1>>
 		<<foresticon "bog">><<link [[하류를 따라 늪으로 간다 (0:20)|Bog Intro]]>><<set $foresthunt to 0>><<pass 20>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
 	<<else>>
-		<<askicon>><<link [[하류를 탐사한다 (0:20)|Bog Intro]]>><<set $foresthunt to 0>><<pass 20>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
+		<<mysteryicon>><<link [[Explore downstream (0:20)|Bog Intro]]>><<set $foresthunt to 0>><<pass 20>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
 	<</if>>
 <</if>>
 <br><br>

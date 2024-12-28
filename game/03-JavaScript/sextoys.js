@@ -23,7 +23,7 @@ function npcHasStrapon(index) {
 	}
 	// index is 0 to 5
 	const npc = V.NPCList[index];
-	return npc && npc.strapon && npc.strapon.state === "worn";
+	return !!npc && !!npc.strapon && npc.strapon.state === "worn";
 }
 window.npcHasStrapon = npcHasStrapon;
 

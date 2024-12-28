@@ -129,11 +129,16 @@
 		<<lakeicon "key">><<link [[열쇠를 사용한다 (0:05)|Trash Enter]]>><<set $trash_unlocked to 1>><<pass 5>><</link>>
 		<br>
 	<<elseif currentSkillValue('skulduggery') gte $lock>>
-		<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
-		<br><br>
-
-		<<lockpickicon>><<link [[자물쇠를 딴다 (0:05)|Trash Lock Enter]]>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-		<br>
+		<<if $leftarm is "bound" and $rightarm is "bound">>
+			You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+			<br><br>
+		<<else>>
+			<<wearProp "lockpick">>
+			<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
+			<br><br>
+			<<lockicon "pick">><<link [[Pick lock (0:05)|Trash Lock Enter]]>><<handheldon>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+			<br>
+		<</if>>
 	<<else>>
 		<span class="red">이 자물쇠는 당신의 자물쇠따기 능력으로는 딸 수 없다.</span><<skulduggeryrequired>>
 		<br><br>
@@ -142,7 +147,7 @@
 	<</if>>
 <</if>>
 
-<<elkicon>><<link [[떠난다|Elk Street]]>><</link>>
+<<elkicon>><<link [[떠난다|Elk Street]]>><<handheldon>><</link>>
 <br>
 
 :: Trash Gate Leave
@@ -152,19 +157,24 @@
 <br><br>
 
 <<set $lock to 800>>
-
-	<<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
-	<br><br>
-
-	<<lockpickicon>><<link [[자물쇠를 딴다 (0:05)|Trash Lock Leave]]>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
 	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
+		<br><br>
+
+		<<lockicon "pick">><<link [[Pick lock (0:05)|Trash Lock Leave]]>><<handheldon>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
 	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력으로는 딸 수 없다.</span> <<skulduggeryrequired>>
 	<br><br>
-	<</if>>
+<</if>>
 
-<<getouticon>><<link [[떠난다|Trash]]>><</link>>
+<<getouticon>><<link [[떠난다|Trash]]>><<handheldon>><</link>>
 
 :: Trash Lock Enter
 <<set $location to "landfill">><<set $outside to 1>><<effects>>
@@ -214,6 +224,7 @@
 <<if $trash_key isnot 1 and $trash_unlocked isnot 1>>
 	당신은 커다란, 쇠로 된 열쇠를 찾아낸다. 당신은 근처에 그 열쇠로 열 수 있는 것이 있는지 궁금해한다.
 	<<set $trash_key to 1>>
+	<<wearProp "key" 0 "iron">>
 
 <<elseif $trash gte 100>>
 	<<if $brothel_machine_repair is 2>>
@@ -244,10 +255,9 @@
 	<</if>>
 <<elseif $trash gte 50>>
 	<<if $rng gte 80>>
+		<<wearProp "note">>
 		당신은 누군가의 개인 정보가 가득 담긴 봉투를 찾아낸다. 은행 관련 정보, 주민등록번호, 직업. 누군가는 기꺼이 이것에 돈을 지불할 것이다.
 		<<crimeUp 50 "thievery">><<set $blackmoney += 50>>
-
-		<br><br>
 	<<elseif $rng gte 60>>
 		<<rng>>
 		<<if $rng gte 81>>
@@ -271,10 +281,9 @@
 	<</if>>
 <<elseif $trash gte 30>>
 	<<if $rng gte 80>>
+		<<wearProp "wallet">>
 		당신은 은행 카드를 찾아낸다. 누군가는 버리기 전에 사용할 수 없게 하려고 어느 정도는 애쓴 것 같지만 구부려 원래 모양으로 되돌린다. 적절한 사람에게는 가치가 있을 것이다.
 		<<crimeUp 30 "thievery">><<set $blackmoney += 30>>
-
-		<br><br>
 	<<elseif $rng gte 60>>
 		<<rng>>
 		<<if $rng gte 81>>
@@ -318,6 +327,7 @@
 	<</if>>
 <<else>>
 	<<if $rng gte 80>>
+		<<wearProp "phone" 0 "corded">>
 		당신은 오래되었지만 여전히 작동하는 핸드폰을 발견한다. 적어도 누군가에게는 가치가 있을 것이다.
 		<<crimeUp 30 "thievery">><<set $blackmoney += 30>>
 		<i>더 귀중한 것들은 매립지의 좀 더 깊은 곳에서 찾아낼 수 있을 것이다.</i>
@@ -372,7 +382,7 @@
 		<<case 0>>
 			The <<group>> burst into laughter. "<<pShes>> flat as a board!" the <<trashSelect>><<person>> jeers.
 			<<set _notInsecure to $player.gender is "m" or $acceptance_breasts_tiny gte 1000>>
-			<<set _insecurityType to "breasts_tiny">>
+			<<set _insecurityType to "breasts_small">>
 		<<case 1 2 3>>
 			The <<group>> chuckle as they examine your <<breasts>>. "A bit on the small side," the <<trashSelect>><<person>> says.
 			<<set _notInsecure to $player.gender is "m" or $acceptance_breasts_small gte 1000>>
@@ -414,11 +424,11 @@
 		<<case -2>>
 			The <<group>> burst into uncontrollable laughter. "That's the smallest thing I've ever seen!" the <<trashSelect>><<person>> coos. "Aww, who's a little guy? Can it even get erect?"
 			<<set _notInsecure to $acceptance_penis_tiny gte 1000>>
-			<<set _insecurityType to "penis_tiny">>
+			<<set _insecurityType to "penis_small">>
 		<<case -1 0>>
 			The <<group>> turn to each other, before laughing. "Anyone have a microscope?" the <<trashSelect>><<person>> jokes.
 			<<set _notInsecure to $acceptance_penis_tiny gte 1000>>
-			<<set _insecurityType to "penis_tiny">>
+			<<set _insecurityType to "penis_small">>
 		<<case 1>>
 			The <<group>> look down at your <<penis>>, and a couple let out small chuckles. "A little on the small side," the <<trashSelect>><<person>> says. "It's no big deal."
 			<<set _notInsecure to $acceptance_penis_small gte 1000>>
@@ -519,7 +529,7 @@
 <<if $beauty gte 2000>>
 	<<person4>><<personPost "가">> 앞쪽의 <<person1>><<personPost "에게">> 속삭인다. <<person1>><<personPost "가">> <<himPost "를">> 다른 이들과 함께 의심의 눈초리로 쳐다보더니, 이내 그들은 <<himPost "에게">> 불안하게 고개를 끄덕인다. "뭘 하는지 말해 줄게," <<person1>><<personPost "가">> 말한다. "하지만 네가 그걸 아무에게도 말하지 않는다고 동의한다면 말이야. 아, 그리고 너도 우리가 하자는 대로 최선을 다해 따라야 하고. 우리가 뭘 하는지 알고 싶으면, 너도 같이 해야 해."
 	<br><br>
-	<<link [[받아들인다|Trash Compare Others]]>><<set $phase to 0>><</link>>
+	<<ind>><<link [[받아들인다|Trash Compare Others]]>><<set $phase to 0>><</link>>
 	<br>
 	<<refuseicon>><<link [[거절한다|Trash Compare Refuse]]>><</link>>
 <<else>>
@@ -714,12 +724,7 @@
 
 <<if $phase is 5>>
 	<<personselect $phase>>
-	The <<group>> turn to look at you expectantly. "Come on," the <<person>> says. "It's your turn.
-	<<if $player.gender_appearance is "f">>
-		Show us your chest."
-	<<else>>
-		Show us your junk."
-	<</if>>
+	The <<group>> turn to look at you expectantly. "Come on," the <<person>> says. "It's your turn. Show us your <<if $player.gender_appearance is "f">>tits<<else>>junk<</if>>."
 	<br><br>
 
 	<<link [[Try and back out|Trash Compare Back Out]]>><</link>>
@@ -736,13 +741,7 @@
 <<effects>>
 "No, I'd rather not," you say to the <<group>>.
 <br><br>
-"You made a promise," the <<person1>><<person>> retorts angrily, stepping forward. "Now you can either strip of your own free will, or we can make you." <<He>> crosses <<his>> arms. "It's ok if you feel a little embarrassed, but a promise is a promise.
-<<if $player.gender_appearance is "f">>
-	So take out your tits."
-<<else>>
-	So take out your dick."
-<</if>>
-<<stress 6>><<gstress>>
+"You made a promise," the <<person1>><<person>> retorts angrily, stepping forward. "Now you can either strip of your own free will, or we can make you." <<He>> crosses <<his>> arms. "It's ok if you feel a little embarrassed, but a promise is a promise. So take out your <<if $player.gender_appearance is "f">>tits<<else>>dick<</if>>."<<stress 6>><<gstress>>
 <br><br>
 <<if hasSexStat("exhibitionism", 4)>>
 	<<link [[벌거벗는다|Trash Compare Show]]>><</link>><<exhibitionist4>>
@@ -853,7 +852,7 @@ Talking together they search their pockets and manage to produce a total of <<pr
 Grinning, you take their money and tell them about the urchin parasites they can find in the sea, and how if you let them stay on your _target, they make _it grow. You neglect to tell them about how it likes to pleasure them too.
 You can only imagine them attempting to try this before realising in shock what it's doing to them and that they can't get it off without showing their _target to a doctor.
 <<arousal 1000>><<garousal>>
-<<set $money += _offer>>
+<<money _offer>>
 <br><br>
 
 <<if $trashCompare.girl is 6 and $phase is 0>>

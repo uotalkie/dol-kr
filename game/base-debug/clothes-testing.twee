@@ -41,6 +41,8 @@
 		}>>
 		<<set $characterViewer.bodyState to {
 			show_face: true,
+			facestyle: "default",
+			facevariant: "default",
 			freckles: false,
 			brows: "none",
 			mouth: "none",
@@ -89,6 +91,7 @@
 			wolfTailLayer:"front",
 			wolfPits:"hidden",
 			wolfPubes:"hidden",
+			wolfCheeks:"hidden",
 			catEars:"hidden",
 			catTail:"hidden",
 			catTailLayer:"front",
@@ -114,6 +117,7 @@
 			foxCheeks:"hidden",
 		}>>
 		<<set $characterViewer.colours to {
+			dyedHairPart: "full",
 			hair_colour_style: "simple",
 			hair: "red",
 			hair_colour_gradient: {style: "low-ombre", colours: ["red", "red"]},
@@ -288,11 +292,11 @@
 <<widget "clothesTestingImageGenerateAll">>
 	<<set _test to []>>
 	<<for _i to 0; _i lt $characterViewer.controls.charactersToShow; _i++>>
-	<<capture _i>>
-		<div @id="'no' + _i" class="left debug-hideImageOverflow debug-images">
-			<<characterViewerModel _i>>
-		</div>
-	<</capture>>
+		<<capture _i>>
+			<div @id="'no' + _i" class="left debug-hideImageOverflow debug-images">
+				<<characterViewerModel _i>>
+			</div>
+		<</capture>>
 	<</for>>
 <</widget>>
 
@@ -304,18 +308,72 @@
 		<<set _clothes[_slot] to {}>>
 		<<set _keys to Object.keys(setup.clothes[_slot])>>
 		<<for _j to 0; _j lt _keys.length; _j++>>
-			<<set _clothes[_slot][setup.clothes[_slot][_j].name] to setup.clothes[_slot][_j].index>>
+			<<if _clothes[_slot][setup.clothes[_slot][_j].name] is undefined>>
+				<<set _clothes[_slot][setup.clothes[_slot][_j].name] to setup.clothes[_slot][_j].index>>
+			<</if>>
 		<</for>>
 	<</for>>
 <</widget>>
 
 <<widget "clothesTestingBodyControls">>
 	<h4>Body</h4>
+	<<set _penisSize to {"None":"none","Micro":"-2", "Mini":"-1", "Tiny":"0", "Small":"1", "Normal":"2", "Large":"3", "Enormous":"4"}>>
+	<<set _breastNames to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
+	<<set _liquidNames to ["None","Drops","Some","Lots","Dripping","Overflowing"]>>
+	<<link "Reset">>
+		<<set $characterViewer.bodyState.bodytype to 0>>
+		<<set $characterViewer.skinColour.type to "light">>
+		<<set $characterViewer.skinColour.range to 0>>
+		<<set $characterViewer.bodyState.penisSize to "none">>
+		<<set $characterViewer.bodyState.penisVirgin to "virgin">>
+		<<set $characterViewer.bodyState.ballsExist to true>>
+		<<set $characterViewer.bodyState.breastSize to 0>>
+		<<set $characterViewer.bodyState.cleavage to false>>
+		<<set $characterViewer.bodyState.bellySize to 0>>
+		<<set $characterViewer.bodyState.vaginaCum to 0>>
+		<<set $characterViewer.bodyState.anusCum to 0>>
+		<<set $characterViewer.bodyState.mouthCum to 0>>
+		<<set $characterViewer.bodyState.leftArmCovering to false>>
+		<<set $characterViewer.bodyState.rightArmCovering to false>>
+
+		<<replace "#controls-body">><<clothesTestingBodyControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-body input, #controls-body select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>> |
+	<<link "Randomise">>
+		<<set $characterViewer.bodyState.bodytype to random(0,2)>>
+		<<set $characterViewer.skinColour.type to ["light", "medium", "dark", "gyaru", "ylight", "ymedium", "ydark", "ygyaru"].random()>>
+		<<set $characterViewer.skinColour.range to random(0, 100)>>
+		<<set $characterViewer.bodyState.penisSize to Object.values(_penisSize).random()>>
+		<<set $characterViewer.bodyState.penisVirgin to ["virgin", "default"].random()>>
+		<<set $characterViewer.bodyState.ballsExist to !random(1)>>
+		<<set $characterViewer.bodyState.breastSize to random(0, _breastNames.length - 1)>>
+		<<set $characterViewer.bodyState.cleavage to !random(1)>>
+		<<set $characterViewer.bodyState.bellySize to random(0, 24)>>
+		<<set $characterViewer.bodyState.vaginaCum to random(0, _liquidNames.length - 1)>>
+		<<set $characterViewer.bodyState.anusCum to random(0, _liquidNames.length - 1)>>
+		<<set $characterViewer.bodyState.mouthCum to random(0, _liquidNames.length - 1)>>
+		<<set $characterViewer.bodyState.leftArmCovering to !random(1)>>
+		<<set $characterViewer.bodyState.rightArmCovering to !random(1)>>
+
+		<<replace "#controls-body">><<clothesTestingBodyControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-body input, #controls-body select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>>
+	<br><br>
 	<span class="gold">Body Type</span>
 	<br>
-	<label>Masculine <<radiobutton "$characterViewer.bodyState.bodytype" 0 autocheck>></label> |
-	<label>Androgynous <<radiobutton "$characterViewer.bodyState.bodytype" 1 autocheck>></label> |
-	<label>Feminine <<radiobutton "$characterViewer.bodyState.bodytype" 2 autocheck>></label> |
+	<label>Classic <<radiobutton "$characterViewer.bodyState.bodytype" 0 autocheck>></label> |
+	<label>Slender <<radiobutton "$characterViewer.bodyState.bodytype" 1 autocheck>></label> |
+	<label>Curvy <<radiobutton "$characterViewer.bodyState.bodytype" 2 autocheck>></label> |
 	<br><br>
 	<span class="gold">Skin Colour</span>
 	<br>
@@ -337,7 +395,6 @@
 
 	<span class="gold">Penis Size</span>
 	<br>
-	<<set _penisSize to {"None":"none","Micro":"-2", "Mini":"-1", "Tiny":"0", "Small":"1", "Normal":"2", "Large":"3", "Enormous":"4"}>>
 	<<set _keys to Object.keys(_penisSize)>>
 	<<for _i to 0; _i lt _keys.length; _i++>>
 		<label>
@@ -358,13 +415,10 @@
 	<label>No <<radiobutton "$characterViewer.bodyState.ballsExist" false autocheck>></label> |
 	<br><br>
 
-	<<set _breastNames to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
-	<<set _liquidNames to ["None","Drops","Some","Lots","Dripping","Overflowing"]>>
-
 	<span class="gold">Breasts</span>
 	<<numberslider "$characterViewer.bodyState.breastSize" $characterViewer.bodyState.breastSize 0 _breastNames.length-1 1>>
 	<br>
-	Breast Cleavage: <<checkbox "$characterViewer.bodyState.cleavage" false true autocheck>>
+	<label>Breast Cleavage: <<checkbox "$characterViewer.bodyState.cleavage" false true autocheck>></label>
 	<br><br>
 
 	<span class="gold">Belly Size</span>
@@ -387,11 +441,15 @@
 	<<numberslider "$characterViewer.bodyState.mouthCum" $characterViewer.bodyState.mouthCum 0 _liquidNames.length-1 1>>
 	<br><br>
 
-	<span class="gold">Left Arm Covering Chest:</span>
-	<<checkbox "$characterViewer.bodyState.leftArmCovering" false true autocheck>>
+	<label>
+		<span class="gold">Left Arm Covering Chest:</span>
+		<<checkbox "$characterViewer.bodyState.leftArmCovering" false true autocheck>>
+	</label>
 	<br>
-	<span class="gold">Right Arm Covering Crotch:</span>
-	<<checkbox "$characterViewer.bodyState.rightArmCovering" false true autocheck>>
+	<label>
+		<span class="gold">Right Arm Covering Crotch:</span>
+		<<checkbox "$characterViewer.bodyState.rightArmCovering" false true autocheck>>
+	</label>
 	<br><br>
 
 	<<run $(() => {
@@ -410,9 +468,70 @@
 
 <<widget "clothesTestingFaceControls">>
 	<h4>Face</h4>
+	<<set _browTypes to ["none", "top", "mid", "low", "orgasm"]>>
+	<<set _mouthTypes to ["none", "neutral", "cry", "frown", "smile"]>>
+	<<set _eyeColours to ["purple", "dark blue", "light blue", "amber", "hazel", "green", "red", "pink", "grey", "range"]>>
+	<<link "Reset">>
+		<<set $characterViewer.bodyState.show_face to true>>
+		<<set $characterViewer.bodyState.freckles to false>>
+		<<set $characterViewer.bodyState.brows to "none">>
+		<<set $characterViewer.bodyState.blush to 0>>
+		<<set $characterViewer.bodyState.mouth to "none">>
+		<<set $characterViewer.bodyState.trauma to false>>
+		<<set $characterViewer.bodyState.blink to false>>
+		<<set $characterViewer.bodyState.eyes_half to false>>
+		<<set $characterViewer.bodyState.eyes_bloodshot to false>>
+		<<set $characterViewer.bodyState.tears to 0>>
+		<<set $characterViewer.colours.eyesl to "purple">>
+		<<set $characterViewer.colours.eyesr to "purple">>
+
+		<<replace "#controls-face">><<clothesTestingFaceControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-face input, #controls-face select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>> |
+	<<link "Randomise">>
+		<<set $characterViewer.bodyState.show_face to true>>
+		<<set $characterViewer.bodyState.freckles to !random(1)>>
+		<<set $characterViewer.bodyState.brows to _browTypes.random()>>
+		<<set $characterViewer.bodyState.blush to random(4)>>
+		<<set $characterViewer.bodyState.mouth to _mouthTypes.random()>>
+		<<set $characterViewer.bodyState.trauma to !random(1)>>
+		<<set $characterViewer.bodyState.blink to !random(1)>>
+		<<set $characterViewer.bodyState.eyes_half to !random(1)>>
+		<<set $characterViewer.bodyState.eyes_bloodshot to !random(1)>>
+		<<set $characterViewer.bodyState.tears to random(4)>>
+		<<set $characterViewer.colours.eyesl to _eyeColours.random()>>
+		<<set $characterViewer.colours.eyesr to _eyeColours.random()>>
+
+		<<replace "#controls-face">><<clothesTestingFaceControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-face input, #controls-face select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>>
+	<br><br>
 	<span class="gold">Show Face</span><br>
 	<label>Yes <<radiobutton "$characterViewer.bodyState.show_face" true autocheck>></label> |
 	<label>No <<radiobutton "$characterViewer.bodyState.show_face" false autocheck>></label> |
+	<br><br>
+
+	<<if setup.faceStyleOptions.length gt 1>>
+		<span class="gold">Face style:</span><br>
+		<<listbox "$characterViewer.bodyState.facestyle" autoselect>>
+			<<optionsfrom setup.faceStyleOptions>>
+		<</listbox>>
+		<br><br>
+	<</if>>
+	<span class="gold">Demeanour:</span><br>
+	<<listbox "$characterViewer.bodyState.facevariant" autoselect>>
+		<<optionsfrom setup.faceVariantOptions[$characterViewer.bodyState.facestyle]>>
+	<</listbox>>
 	<br><br>
 
 	<span class="gold">Freckles</span><br>
@@ -421,11 +540,9 @@
 	<br><br>
 
 	<span class="gold">Brow</span><br>
-	<label>None <<radiobutton "$characterViewer.bodyState.brows" "none" autocheck>></label> |
-	<label>Top <<radiobutton "$characterViewer.bodyState.brows" "top" autocheck>></label> |
-	<label>Mid <<radiobutton "$characterViewer.bodyState.brows" "mid" autocheck>></label> |
-	<label>Low <<radiobutton "$characterViewer.bodyState.brows" "low" autocheck>></label> |
-	<label>Orgasm <<radiobutton "$characterViewer.bodyState.brows" "orgasm" autocheck>></label> |
+	<<for $_name range _browTypes>>
+		<label><<print $_name.toUpperFirst()>> <<radiobutton "$characterViewer.bodyState.brows" $_name autocheck>></label> |
+	<</for>>
 	<br><br>
 
 	<span class="gold">Blush level</span><br>
@@ -437,11 +554,9 @@
 	<br><br>
 
 	<span class="gold">Mouth</span><br>
-	<label>None <<radiobutton "$characterViewer.bodyState.mouth" "none" autocheck>></label> |
-	<label>Neutral <<radiobutton "$characterViewer.bodyState.mouth" "neutral" autocheck>></label> |
-	<label>Cry <<radiobutton "$characterViewer.bodyState.mouth" "cry" autocheck>></label> |
-	<label>Frown <<radiobutton "$characterViewer.bodyState.mouth" "frown" autocheck>></label> |
-	<label>Smile <<radiobutton "$characterViewer.bodyState.mouth" "smile" autocheck>></label> |
+	<<for $_name range _mouthTypes>>
+		<label><<print $_name.toUpperFirst()>> <<radiobutton "$characterViewer.bodyState.mouth" $_name autocheck>></label> |
+	<</for>>
 	<br><br>
 
 	<h4>Eyes</h4>
@@ -504,32 +619,111 @@
 
 <<widget "clothesTestingHairControls">>
 	<h4>Hair</h4>
-
-	<span class="gold">Hair Length</span>
-	<br>
-	<label>None <<radiobutton "$characterViewer.bodyState.hairStage" "none" autocheck>></label> |
-	<label>Short <<radiobutton "$characterViewer.bodyState.hairStage" "short" autocheck>></label> |
-	<label>Shoulder <<radiobutton "$characterViewer.bodyState.hairStage" "shoulder" autocheck>></label> |
-	<label>Chest <<radiobutton "$characterViewer.bodyState.hairStage" "chest" autocheck>></label> |
-	<label>Navel <<radiobutton "$characterViewer.bodyState.hairStage" "navel" autocheck>></label> |
-	<label>Thighs <<radiobutton "$characterViewer.bodyState.hairStage" "thighs" autocheck>></label> |
-	<label>Feet <<radiobutton "$characterViewer.bodyState.hairStage" "feet" autocheck>></label> |
-	<br><br>
-
-	<span class="gold">Hair Type</span>
-	<br>
+	<<set _hairLengths to ["short", "shoulder", "chest", "navel", "thighs", "feet"]>>
+	<<set _hairColorByName to {"Red":"red", "Jet Black":"jetblack", "Black":"black", "Brown":"brown", "Soft Brown":"softbrown", "Light Brown":"lightbrown", "Blond":"blond",
+	"Platinum Blond":"platinumblond", "Strawberry Blond":"strawberryblond", "Soft Blond":"softblond", "Ashy blond":"ashyblond", "Burnt Orange":"burntorange", "Ginger":"ginger", "Blue":"blue", "Green":"green", "Teal":"teal",
+	"Pink":"pink", "Hotpink":"hotpink", "Softpink":"softpink", "Crimson":"crimson", "Purple":"purple","Medium Purple":"mediumpurple", "Bright Purple":"brightpurple", "White":"white", "Snow White":"snowwhite", "Deep Blue":"deepblue","Dark Lime":"darklime", "Toxic Green":"toxicgreen",}>>
 	<<set _hairTypeByName to {}>>
 	<<run setup.hairstyles.sides.forEach(style => {
 		if (!V.shopClothingFilter || !V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.hairTypeByName[style.name_cap] = style.variable;
 	})>>
+	<<set _fringeTypeByName to {}>>
+	<<run setup.hairstyles.fringe.forEach(style => {
+		if (!V.shopClothingFilter || !V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.fringeTypeByName[style.name_cap] = style.variable;
+	})>>
+	<<link "Reset">>
+		<<set $characterViewer.bodyState.hairStage to "none">>
+		<<set $characterViewer.bodyState.hairType to "default">>
+		<<set $characterViewer.colours.hair to Object.values(_hairColorByName)[0]>>
+		<<set $characterViewer.colours.hair_colour_style to "simple">>
+
+		<<set $characterViewer.colours.dyedHairPart to "full">>
+		
+		<<set $characterViewer.bodyState.fringeStage to "none">>
+		<<set $characterViewer.bodyState.fringeType to "default">>
+		<<set $characterViewer.colours.fringe to Object.values(_hairTypeByName)[0]>>
+		<<set $characterViewer.colours.hair_fringe_colour_style to "simple">>
+
+		<<replace "#controls-hair">><<clothesTestingHairControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-hair input, #controls-hair select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>> |
+	<<link "Randomise">>
+		<<set $characterViewer.bodyState.hairStage to _hairLengths.random()>>
+		<<set $characterViewer.bodyState.hairType to Object.values(_hairTypeByName).random()>>
+		<<set $characterViewer.colours.hair to Object.values(_hairColorByName).random()>>
+		<<set $characterViewer.colours.hair_colour_style to ["simple", "gradient"].random()>>
+		<<set $characterViewer.colours.hair_colour_gradient.style to ["low-ombre", "high-ombre", "split", "face-frame"].random()>>
+		<<set $characterViewer.colours.hair_colour_gradient.colours[0] to Object.values(_hairColorByName).random()>>
+		<<set $characterViewer.colours.hair_colour_gradient.colours[1] to Object.values(_hairColorByName).random()>>
+
+		<<set $characterViewer.colours.dyedHairPart to ["full", "split"].random()>>
+
+		<<set $characterViewer.bodyState.fringeStage to _hairLengths.random()>>
+		<<set $characterViewer.bodyState.fringeType to Object.values(_fringeTypeByName).random()>>
+		<<set $characterViewer.colours.fringe to Object.values(_hairTypeByName).random()>>
+		<<set $characterViewer.colours.hair_fringe_colour_style to ["simple", "gradient"].random()>>
+		<<set $characterViewer.colours.hair_fringe_colour_gradient.style to ["low-ombre", "high-ombre", "split", "face-frame"].random()>>
+		<<set $characterViewer.colours.hair_fringe_colour_gradient.colours[0] to Object.values(_hairTypeByName).random()>>
+		<<set $characterViewer.colours.hair_fringe_colour_gradient.colours[1] to Object.values(_hairTypeByName).random()>>
+
+		<<replace "#controls-hair">><<clothesTestingHairControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-hair input, #controls-hair select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>>
+	<br><br>
+
+	<span class="gold">Hair Length</span>
+	<br>
+	<label>None <<radiobutton "$characterViewer.bodyState.hairStage" "none" autocheck>></label> |
+	<<for $_name range _hairLengths>>
+		<label><<print $_name.toUpperFirst()>> <<radiobutton "$characterViewer.bodyState.hairStage" $_name autocheck>></label> |
+	<</for>>
+	<br><br>
+
+	<span class="gold">Hair Type</span>
+	<br>
 	<<listbox "$characterViewer.bodyState.hairType" autoselect>>
 		<<optionsfrom _hairTypeByName>>
 	<</listbox>>
 	<br><br>
-	
-	<<set _hairColorByName to {"Red":"red", "Jet Black":"jetblack", "Black":"black", "Brown":"brown", "Soft Brown":"softbrown", "Light Brown":"lightbrown", "Blond":"blond",
-	"Platinum Blond":"platinumblond", "Strawberry Blond":"strawberryblond", "Soft Blond":"softblond", "Ashy blond":"ashyblond", "Burnt Orange":"burntorange", "Ginger":"ginger", "Blue":"blue", "Green":"green", "Teal":"teal",
-	"Pink":"pink", "Hotpink":"hotpink", "Softpink":"softpink", "Crimson":"crimson", "Purple":"purple","Medium Purple":"mediumpurple", "Bright Purple":"brightpurple", "White":"white", "Snow White":"snowwhite", "Deep Blue":"deepblue","Dark Lime":"darklime", "Toxic Green":"toxicgreen",}>>
+
+	<span class="gold">Colour Method: </span>
+	<br>
+	<span @class="$characterViewer.colours.dyedHairPart is 'full' ? 'goldLink' : ''">
+		<<link "Full">>
+			<<set $characterViewer.colours.dyedHairPart to "full">>
+			<<replace "#controls-hair">><<clothesTestingHairControls>><</replace>>
+			<<clothesTestingImageUpdate>>
+			<<if $characterViewer.controls.autoRefresh>>
+				<<run $(() =>
+					$('#controls-hair input, #controls-hair select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+				)>>
+			<</if>>
+		<</link>>
+	</span> |
+	<span @class="$characterViewer.colours.dyedHairPart is 'split' ? 'goldLink' : ''">
+		<<link "Split">>
+			<<set $characterViewer.colours.dyedHairPart to "split">>
+			<<replace "#controls-hair">><<clothesTestingHairControls>><</replace>>
+			<<clothesTestingImageUpdate>>
+			<<if $characterViewer.controls.autoRefresh>>
+				<<run $(() =>
+					$('#controls-hair input, #controls-hair select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+				)>>
+			<</if>>
+		<</link>>
+	</span>
+	<br><br>
+
 	<div id="controls-hair-colour-simple" @class="$characterViewer.colours.hair_colour_style is 'simple' ? '' : 'hidden'">
 		<<link "Enable Two Tone for hair">>
 			<<set $characterViewer.colours.hair_colour_style to "gradient">>
@@ -575,89 +769,201 @@
 
 	<span class="gold">Fringe Length</span>
 	<br>
-	<<set _fringeLengthByName to {"Short":"short", "Shoulder":"shoulder", "Chest":"chest", "Navel":"navel", "Thighs":"thighs", "Feet":"feet", }>>
-	<<set _keys to Object.keys(_fringeLengthByName)>>
-	<<for _i to 0; _i lt _keys.length; _i++>>
-		<label>
-			<<print _keys[_i]>>
-			<<print '<<radiobutton "$characterViewer.bodyState.fringeStage" "'+_fringeLengthByName[_keys[_i]]+'" ' + ($characterViewer.bodyState.fringeStage is _fringeLengthByName[_keys[_i]] ? "checked" : "") + '>>'>>
-		</label> |
+	<label>None <<radiobutton "$characterViewer.bodyState.fringeStage" "none" autocheck>></label> |
+	<<for $_name range _hairLengths>>
+		<label><<print $_name.toUpperFirst()>> <<radiobutton "$characterViewer.bodyState.fringeStage" $_name autocheck>></label> |
 	<</for>>
 	<br><br>
 
 	<span class="gold">Fringe Type</span>
-	<br>
-	<<set _fringeTypeByName to {}>>
-	<<run setup.hairstyles.fringe.forEach(style => {
-		if (!V.shopClothingFilter || !V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.fringeTypeByName[style.name_cap] = style.variable;
-	})>>
-	
+	<br>	
 	<<listbox "$characterViewer.bodyState.fringeType" autoselect>>
 		<<optionsfrom _fringeTypeByName>>
 	<</listbox>>
 	<br><br>
-
-	<<set _fringeColorByName to {"Red":"red", "Jet Black":"jetblack", "Black":"black", "Brown":"brown", "Soft Brown":"softbrown", "Light Brown":"lightbrown", "Blond":"blond",
-	"Platinum Blond":"platinumblond", "Strawberry Blond":"strawberryblond", "Soft Blond":"softblond", "Ashy blond":"ashyblond", "Burnt Orange":"burntorange", "Ginger":"ginger", "Blue":"blue", "Green":"green", "Teal":"teal",
-	"Pink":"pink", "Hotpink":"hotpink", "Softpink":"softpink", "Crimson":"crimson", "Purple":"purple","Medium Purple":"mediumpurple", "Bright Purple":"brightpurple", "White":"white", "Snow White":"snowwhite", "Deep Blue":"deepblue","Dark Lime":"darklime", "Toxic Green":"toxicgreen",}>>
-	<div id="controls-hair-colourfringe-simple" @class="$characterViewer.colours.hair_fringe_colour_style is 'simple' ? '' : 'hidden'">
-		<<link "Enable Two Tone for fringe">>
-			<<set $characterViewer.colours.hair_fringe_colour_style to "gradient">>
-			<<addclass "#controls-hair-colourfringe-simple" "hidden">>
-			<<removeclass "#controls-hair-colourfringe-gradient" "hidden">>
-		<</link>>
-		<br><br>
-		<span class="gold">Fringe Colour</span>
-		<br>
-		<<listbox "$characterViewer.colours.fringe" autoselect>>
-			<<optionsfrom _fringeColorByName>>
-		<</listbox>>
-		<br><br>
-	</div>
-	<div id="controls-hair-colourfringe-gradient" @class="$characterViewer.colours.hair_fringe_colour_style is 'simple' ? 'hidden' : ''">
-		<<link "Disable Two Tone for fringe">>
-			<<set $characterViewer.colours.hair_fringe_colour_style to "simple">>
-			<<removeclass "#controls-hair-colourfringe-simple" "hidden">>
-			<<addclass "#controls-hair-colourfringe-gradient" "hidden">>
-		<</link>>
-		<br><br>
-		<span class="gold">Style:</span>
-		<<listbox "$characterViewer.colours.hair_fringe_colour_gradient.style" autoselect>>
-			<<option "Low Ombré" "low-ombre">>
-			<<option "High Ombré" "high-ombre">>
-			<<option "Split" "split">>
-			<<option "Face-framing highlights" "face-frame">>
-		<</listbox>>
-		<br><br>
-		<span class="gold">First Colour:</span>
-		<br>
-		<<listbox "$characterViewer.colours.hair_fringe_colour_gradient.colours[0]" autoselect>>
-			<<optionsfrom _hairColorByName>>
-		<</listbox>>
-		<br><br>
-		<span class="gold">Second Colour:</span>
-		<br>
-		<<listbox "$characterViewer.colours.hair_fringe_colour_gradient.colours[1]" autoselect>>
-			<<optionsfrom _hairColorByName>>
-		<</listbox>>
-		<br><br>
-	</div>
+	<<if $characterViewer.colours.dyedHairPart is "split">>
+		<div id="controls-hair-colourfringe-simple" @class="$characterViewer.colours.hair_fringe_colour_style is 'simple' ? '' : 'hidden'">
+			<<link "Enable Two Tone for fringe">>
+				<<set $characterViewer.colours.hair_fringe_colour_style to "gradient">>
+				<<addclass "#controls-hair-colourfringe-simple" "hidden">>
+				<<removeclass "#controls-hair-colourfringe-gradient" "hidden">>
+			<</link>>
+			<br><br>
+			<span class="gold">Fringe Colour</span>
+			<br>
+			<<listbox "$characterViewer.colours.fringe" autoselect>>
+				<<optionsfrom _hairColorByName>>
+			<</listbox>>
+			<br><br>
+		</div>
+		<div id="controls-hair-colourfringe-gradient" @class="$characterViewer.colours.hair_fringe_colour_style is 'simple' ? 'hidden' : ''">
+			<<link "Disable Two Tone for fringe">>
+				<<set $characterViewer.colours.hair_fringe_colour_style to "simple">>
+				<<removeclass "#controls-hair-colourfringe-simple" "hidden">>
+				<<addclass "#controls-hair-colourfringe-gradient" "hidden">>
+			<</link>>
+			<br><br>
+			<span class="gold">Style:</span>
+			<<listbox "$characterViewer.colours.hair_fringe_colour_gradient.style" autoselect>>
+				<<option "Low Ombré" "low-ombre">>
+				<<option "High Ombré" "high-ombre">>
+				<<option "Split" "split">>
+				<<option "Face-framing highlights" "face-frame">>
+			<</listbox>>
+			<br><br>
+			<span class="gold">First Colour:</span>
+			<br>
+			<<listbox "$characterViewer.colours.hair_fringe_colour_gradient.colours[0]" autoselect>>
+				<<optionsfrom _hairColorByName>>
+			<</listbox>>
+			<br><br>
+			<span class="gold">Second Colour:</span>
+			<br>
+			<<listbox "$characterViewer.colours.hair_fringe_colour_gradient.colours[1]" autoselect>>
+				<<optionsfrom _hairColorByName>>
+			<</listbox>>
+			<br><br>
+		</div>
+	<</if>>
 <</widget>>
 
 <<widget "clothesTestingTransformationsControls">>
 	<h4>Transformations</h4>
+	<<link "Reset">>
+		/* Figured that it was only V. that was needed for this method to work, just as i was about done... */
+		<<set $characterViewer.bodyState to {
+			...V.characterViewer.bodyState,
+			angelHalo:"hidden",
+			angelWings:"hidden",
+			angelWingsLeftType:"idle",
+			angelWingsRightType:"idle",
+			angelWingsLayer:"front",
+			fallenAngelHalo:"hidden",
+			fallenAngelWings:"hidden",
+			fallenAngelWingsLeftType:"idle",
+			fallenAngelWingsRightType:"idle",
+			fallenAngelWingsLayer:"front",
+			demonHorns:"hidden",
+			demonHornsLayer:"back",
+			demonTail:"hidden",
+			demonTailType:"idle",
+			demonTailLayer:"front",
+			demonWings:"hidden",
+			demonWingsType:"idle",
+			demonWingsLayer:"front",
+			wolfEars:"hidden",
+			wolfTail:"hidden",
+			wolfTailLayer:"front",
+			wolfPits:"hidden",
+			wolfPubes:"hidden",
+			wolfCheeks:"hidden",
+			catEars:"hidden",
+			catTail:"hidden",
+			catTailLayer:"front",
+			catTailType:"idle",
+			cowHorns:"hidden",
+			cowHornsLayer:"back",
+			cowEars:"hidden",
+			cowTail:"hidden",
+			cowTailLayer:"front",
+			birdEyes:"hidden",
+			birdMalar:"hidden",
+			birdPlumage:"hidden",
+			birdPubes:"hidden",
+			birdWings:"hidden",
+			birdWingsLeftType:"idle",
+			birdWingsRightType:"idle",
+			birdWingsLayer:"front",
+			birdTail:"hidden",
+			birdTailLayer:"front",
+			foxEars:"hidden",
+			foxTail:"hidden",
+			foxTailLayer:"front",
+			foxCheeks:"hidden",
+		}>>
+		<<replace "#controls-transformations">><<clothesTestingTransformationsControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-transformations input, #controls-transformations select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>> |
+	<<link "Randomise">>
+		<<set $characterViewer.bodyState to {
+			...V.characterViewer.bodyState,
+			angelHalo:["hidden", "default", "traditional"].random(),
+			angelWings:["hidden", "default", "classic"].random(),
+			angelWingsLeftType:["idle", "cover"].random(),
+			angelWingsRightType:["idle", "cover"].random(),
+			angelWingsLayer:["front", "back"].random(),
+			fallenAngelHalo:["hidden", "default", "traditional"].random(),
+			fallenAngelWings:["hidden", "default", "classic", "fallenplus", "classicfallenplus"].random(),
+			fallenAngelWingsLeftType:["idle", "cover"].random(),
+			fallenAngelWingsRightType:["idle", "cover"].random(),
+			fallenAngelWingsLayer:["front", "back"].random(),
+			demonHorns:["hidden", "default", "classic", "succubus"].random(),
+			demonHornsLayer:["front", "back"].random(),
+			demonTail:["hidden", "default", "classic", "succubus"].random(),
+			demonTailType:["idle", "cover"].random(),
+			demonTailLayer:["front", "back"].random(),
+			demonWings:["hidden", "default", "succubus"].random(),
+			demonWingsType:["idle", "cover"].random(),
+			demonWingsLayer:["front", "back"].random(),
+			wolfEars:["hidden", "default", "feral"].random(),
+			wolfTail:["hidden", "default", "feral"].random(),
+			wolfTailLayer:["front", "back"].random(),
+			wolfPits:"hidden",
+			wolfPubes:"hidden",
+			wolfCheeks:["hidden", "feral"].random(),
+			catEars:["hidden", "default"].random(),
+			catTail:["hidden", "default"].random(),
+			catTailLayer:["front", "back"].random(),
+			catTailType:["idle", "cover"].random(),
+			cowHorns:["hidden", "default"].random(),
+			cowHornsLayer:["front", "back"].random(),
+			cowEars:["hidden", "default", "spotted black", "spotted brown"].random(),
+			cowTail:["hidden", "default", "black"].random(),
+			cowTailLayer:["front", "back"].random(),
+			birdEyes:["hidden", "default"].random(),
+			birdMalar:["hidden", "default"].random(),
+			birdPlumage:["hidden", "default"].random(),
+			birdPubes:["hidden", "default"].random(),
+			birdWings:["hidden", "default"].random(),
+			birdWingsLeftType:["idle", "cover"].random(),
+			birdWingsRightType:["idle", "cover"].random(),
+			birdWingsLayer:["front", "back"].random(),
+			birdTail:["hidden", "default"].random(),
+			birdTailLayer:["front", "back"].random(),
+			foxEars:["hidden", "default"].random(),
+			foxTail:["hidden", "default"].random(),
+			foxTailLayer:["front", "back"].random(),
+			foxCheeks:["hidden", "default"].random(),
+		}>>
+
+		<<replace "#controls-transformations">><<clothesTestingTransformationsControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-transformations input, #controls-transformations select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>>
+	<br><br>
 	<span class="gold">Angel:</span>
 	<br>
 	Wings:
 	<<listbox "$characterViewer.bodyState.angelWings" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Classic" "classic">>
 	<</listbox>>
 	||
 	Halo:
 	<<listbox "$characterViewer.bodyState.angelHalo" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Traditional" "traditional">>
 	<</listbox>>
 	<br>
 	Left Wing Type:
@@ -685,12 +991,16 @@
 	<<listbox "$characterViewer.bodyState.fallenAngelWings" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Classic" "classic">>
+		<<option "Feathered" "fallenplus">>
+		<<option "Classic Feathered" "classicfallenplus">>
 	<</listbox>>
 	||
 	Halo:
 	<<listbox "$characterViewer.bodyState.fallenAngelHalo" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Traditional" "traditional">>
 	<</listbox>>
 	<br>
 	Left Wing Type:
@@ -776,12 +1086,20 @@
 	<<listbox "$characterViewer.bodyState.wolfEars" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Feral" "feral">>
 	<</listbox>>
 	||
 	Tail:
 	<<listbox "$characterViewer.bodyState.wolfTail" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Feral" "feral">>
+	<</listbox>>
+	||
+	Cheeks:
+	<<listbox "$characterViewer.bodyState.wolfCheeks" autoselect>>
+		<<option "Hide" "hidden">>
+		<<option "Feral" "feral">>
 	<</listbox>>
 	<br>
 	Tail Layering:
@@ -831,12 +1149,15 @@
 	<<listbox "$characterViewer.bodyState.cowEars" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Spotted black" "spotted black">>
+		<<option "Spotted brown" "spotted brown">>
 	<</listbox>>
 	||
 	Tail:
 	<<listbox "$characterViewer.bodyState.cowTail" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
+		<<option "Black" "black">>
 	<</listbox>>
 	<br>
 	Horn Layering:
@@ -955,7 +1276,7 @@
 	<<set _modeloptions.show_face to $characterViewer.bodyState.show_face>>
 
 	/*body*/
-	<<set _modeloptions.body_type to ["m","a","f","o"][$characterViewer.bodyState.bodytype]>>
+	<<set _modeloptions.body_type to ["classic","slender","curvy"][$characterViewer.bodyState.bodytype]>>
 	<<set _modeloptions.breasts to $characterViewer.bodyState.cleavage ? "cleavage" : "default">>
 	/* <<set _modeloptions.breasts to $characterViewer.clothesEquipped.under_upper isnot 0 ? "cleavage" : "default">> */
 	<<set _modeloptions.arm_left to $characterViewer.bodyState.leftArmCovering ? "cover" : "idle">>
@@ -986,7 +1307,7 @@
 
 	/*Skin & tan*/
 	<<set _modeloptions.skin_type to $characterViewer.skinColour.type>>
-	<<set _modeloptions.skin_tone to $characterViewer.skinColour.range / 100>>
+	<<set _modeloptions.skin_tone to $characterViewer.skinColour.range>>
 
 	/*Hair*/
 	<<set _modeloptions.hair_colour_style to $characterViewer.colours.hair_colour_style>>
@@ -995,14 +1316,32 @@
 	<<set _modeloptions.hair_sides_type to $characterViewer.bodyState.hairType>>
 	<<set _modeloptions.hair_sides_length to $characterViewer.bodyState.hairStage>>
 	<<set _modeloptions.hair_sides_position to $characterViewer.bodyState.fringePosition>>
-	<<set _modeloptions.hair_fringe_colour_style to $characterViewer.colours.hair_fringe_colour_style>>
-	<<set _modeloptions.hair_fringe_colour to $characterViewer.colours.fringe>>
-	<<set _modeloptions.hair_fringe_colour_gradient to $characterViewer.colours.hair_fringe_colour_gradient>>
+	<<if $characterViewer.colours.dyedHairPart is "full">>
+		<<set _modeloptions.hair_fringe_colour_style to $characterViewer.colours.hair_colour_style>>
+		<<set _modeloptions.hair_fringe_colour to $characterViewer.colours.hair>>
+		<<set _modeloptions.hair_fringe_colour_gradient to $characterViewer.colours.hair_colour_gradient>>
+	<<else>>
+		<<set _modeloptions.hair_fringe_colour_style to $characterViewer.colours.hair_fringe_colour_style>>
+		<<set _modeloptions.hair_fringe_colour to $characterViewer.colours.fringe>>
+		<<set _modeloptions.hair_fringe_colour_gradient to $characterViewer.colours.hair_fringe_colour_gradient>>
+	<</if>>
+
 	<<set _modeloptions.hair_fringe_type to $characterViewer.bodyState.fringeType>>
 	<<set _modeloptions.hair_fringe_length to $characterViewer.bodyState.fringeStage>>
 	<<set _modeloptions.brows_colour to $characterViewer.colours.hair>>
 
+	<<switch $characterViewer.colours.dyedHairPart>>
+		<<case "full">>
+			<<set _modeloptions.hair_fringe_colour_style to $characterViewer.colours.hair_colour_style>>
+			<<set _modeloptions.hair_fringe_colour to $characterViewer.colours.hair>>
+			<<set _modeloptions.hair_fringe_colour_gradient to $characterViewer.colours.hair_colour_gradient>>
+		<<case "fringe">>
+		<<case "sides">>
+	<</switch>>
+
 	/*Face*/
+	<<set _modeloptions.facestyle to $characterViewer.bodyState.facestyle>>
+	<<set _modeloptions.facevariant to $characterViewer.bodyState.facevariant>>
 	<<set _modeloptions.freckles to $characterViewer.bodyState.freckles>>
 	<<set _modeloptions.brows to $characterViewer.bodyState.brows>>
 	<<set _modeloptions.mouth to $characterViewer.bodyState.mouth>>
@@ -1075,6 +1414,7 @@
 	<<set _modeloptions.wolf_ears_type to $characterViewer.bodyState.wolfEars>>
 	<<set _modeloptions.wolf_pits_type to $characterViewer.bodyState.wolfPits>>
 	<<set _modeloptions.wolf_pubes_type to $characterViewer.bodyState.wolfPubes>>
+	<<set _modeloptions.wolf_cheeks_type to $characterViewer.bodyState.wolfCheeks>>
 	<<set _modeloptions.wolf_cheeks_type to "disabled">>
 	<<set _modeloptions.cat_tail_type to $characterViewer.bodyState.catTail>>
 	<<set _modeloptions.cat_tail_state to $characterViewer.bodyState.catTailType>>
@@ -1109,25 +1449,48 @@
 
 <<widget "characterViewerModelClothesControls">>
 	<h4>Clothes</h4>
+	<<link "Reset">>
+		<<run Object.keys($characterViewer.clothesEquipped).forEach(slot => {
+			$characterViewer.clothesEquipped[slot] = 0;
+			$characterViewer.colours[slot] = ["Range", "Range"];
+		})>>
+		<<replace "#controls-clothes">><<characterViewerModelClothesControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-clothes input, #controls-clothes select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>> |
+	<<link "Randomise">>
+		<<run Object.keys($characterViewer.clothesEquipped).forEach(slot => {
+			const item = clone(setup.clothes[slot]).random();
+			$characterViewer.clothesEquipped[slot] = item.index;
+			$characterViewer.colours[slot] = [(item.colour_options || [0]).random(), (item.accessory_colour_options || [0]).random()];
+		})>>
+		<<replace "#controls-clothes">><<characterViewerModelClothesControls>><</replace>>
+		<<clothesTestingImageUpdate>>
+		<<if $characterViewer.controls.autoRefresh>>
+			<<run $(() =>
+				$('#controls-clothes input, #controls-clothes select').on('input change', e => wikifier('<<clothesTestingImageUpdate>>'))
+			)>>
+		<</if>>
+	<</link>>
+	<br><br>
 	<<set $_equip to ["upper","lower","under_upper","under_lower","head","face","neck","hands", "handheld","legs","feet","genitals"]>>
-	<<set _clothesColorOptions to ["Range", "Inversed Range", "black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow"]>>
 	<<for $_i to 0; $_i lt $_equip.length; $_i++>>
-		<<set $_slot to _equip[$_i]>>
+		<<set $_slot to $_equip[$_i]>>
 		<span class="gold"><<print $_slot.toUpperFirst()>></span>
 
 		<<set _clothingMap to new Map(Object.entries(_clothes[$_slot]).sort((a, b) => a[0].localeCompare(b[0])))>>
-		<<listbox `"$characterViewer.clothesEquipped." + $_slot` autoselect>>
+		<<set $_var to `$characterViewer.clothesEquipped.${$_slot}`>>
+		<<listbox $_var autoselect>>
 			<<optionsfrom _clothingMap>>
 		<</listbox>>
 		<br>
-		Primary:
-		<<listbox `"$characterViewer.colours." + $_slot + "[0]"` autoselect>>
-			<<optionsfrom _clothesColorOptions>>
-		<</listbox>>
-		| Secondary:
-		<<listbox `"$characterViewer.colours." + $_slot + "[1]"` autoselect>>
-			<<optionsfrom _clothesColorOptions>>
-		<</listbox>>
+		<div @id="'controls-clothes-colour-' + $_slot">
+			<<characterViewerModelClothesControlsColour $_slot>>
+		</div>
 		<<if ["over_upper","over_lower","upper","lower","under_upper","under_lower","genitals"].includes($_slot)>>
 			<br>
 			Integrity:
@@ -1140,6 +1503,38 @@
 		<</if>>
 		<br><br>
 	<</for>>
+	<<run $(() => {
+		function setupListener(slot = "") {
+			let classId = '#listbox-characterviewerclothesequipped' + slot.replace(/_/g, "-");
+			$(classId).on('input change', e => {
+				const slot = e.target.id.split("equipped")[1].replace(/-/g, "_");
+				const index = e.target.value;
+
+				wikifier(`<<replace "#controls-clothes-colour-${slot}">><<characterViewerModelClothesControlsColour "${slot}">><</replace>>`);
+				
+				$(`#controls-clothes-colour-${slot} select`).on('input change', e => wikifier('<<clothesTestingImageUpdate>>'));
+			});
+		}
+		["upper","lower","under_upper","under_lower","head","face","neck","hands", "handheld","legs","feet","genitals"].forEach(slot => setupListener(slot));
+	})>>
+<</widget>>
+
+<<widget "characterViewerModelClothesControlsColour">>
+	<<if _args[0]>>
+		<<set $_item to setup.clothes[_args[0]][$characterViewer.clothesEquipped[_args[0]] or 0]>>
+		<<set $_options1 to ["Range", "Inversed Range"].concat($_item.colour_options or [])>>
+		<<set $_options2 to ["Range", "Inversed Range"].concat($_item.accessory_colour_options or [])>>
+		Primary:
+		<<set $_var to `$characterViewer.colours.${_args[0]}[0]`>>
+		<<listbox $_var autoselect>>
+			<<optionsfrom $_options1>>
+		<</listbox>>
+		| Secondary:
+		<<set $_var2 to `$characterViewer.colours.${_args[0]}[1]`>>
+		<<listbox $_var2 autoselect>>
+			<<optionsfrom $_options2>>
+		<</listbox>>
+	<</if>>
 <</widget>>
 
 <<widget "characterViewerModelClothes">>
@@ -1163,7 +1558,7 @@
 		<<elseif $characterViewer.colours[$_slot][0] is "Range">>
 			<<set _modeloptions.worn[$_slot].colour to $_colours[Math.clamp($_instanceId,0,$_colours.length - 1)]>>
 		<<elseif $characterViewer.colours[$_slot][0] is "Inversed Range">>
-			<<set _modeloptions.worn[$_slot].colour to $_colours[Math.clamp($_colours.length - $_instanceId,0,$_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].colour to $_colours[Math.clamp($_colours.length - $_instanceId - 1,0,$_colours.length - 1)]>>
 		<<else>>
 			<<set _modeloptions.worn[$_slot].colour to $characterViewer.colours[$_slot][0]>>
 		<</if>>
@@ -1172,7 +1567,7 @@
 		<<elseif $characterViewer.colours[$_slot][1] is "Range">>
 			<<set _modeloptions.worn[$_slot].acc_colour to $_acc_colours[Math.clamp($_instanceId,0,$_acc_colours.length - 1)]>>
 		<<elseif $characterViewer.colours[$_slot][1] is "Inversed Range">>
-			<<set _modeloptions.worn[$_slot].acc_colour to $_acc_colours[Math.clamp($_acc_colours.length - $_instanceId,0,$_acc_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].acc_colour to $_acc_colours[Math.clamp($_acc_colours.length - $_instanceId - 1,0,$_acc_colours.length - 1)]>>
 		<<else>>
 			<<set _modeloptions.worn[$_slot].acc_colour to $characterViewer.colours[$_slot][1]>>
 		<</if>>

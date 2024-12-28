@@ -164,9 +164,9 @@
 			<<if $_pregnancy.type is "hawk">>
 				당신은 <<trNumber $_number>> _childType 임신하고 있으며,
 				<<switch _trimester>>
-					<<case "first">>알을 낳기까지 시간이 꽤 걸릴 것이다.
-					<<case "second">>알을 낳기까지 아직 어느 정도 시간이 걸릴 것이다.
-					<<case "third">>곧 알을 낳을 수 있게 될 것이다.
+					<<case "first">>and it will be a while before you can lay <<if $_number is 1>>it<<else>>them<</if>>.
+					<<case "second">>but it will still take some time to lay <<if $_number is 1>>it<<else>>them<</if>>.
+					<<case "third">>and you'll be ready to lay <<if $_number is 1>>it<<else>>them<</if>> soon.
 				<</switch>>
 			<<else>>
 				당신은 <<if !["쌍둥이", "일란성 쌍둥이", "세쌍둥이"].includes(_childType)>><<trNumber $_number>><</if>> _childType 임신하고 있으며, 현재 임신 _trimester 이다.
@@ -376,13 +376,13 @@
 				<!--PHYSIQUE-->
 				<<set _physiqueConfig = { name : "체격", icon : "ui/sym_physique", displayType : "level", currentValue : $physique, maxValue: $physiquesize, modifier: 100, modTypes: { good: [], bad: [] },
 					states : [
-						{ requiredValue:	0,							level: 0, color: 'red',		description: '당신은 수척해져 있다.'},
-						{ requiredValue:	$physiquesize / 7,			level: 1, color: 'pink',	description: '당신은 비쩍 말랐다.'},
-						{ requiredValue:	($physiquesize / 7) * 2,	level: 2, color: 'purple',	description: '당신의 신체는 유연하고 호리호리하다.'},
-						{ requiredValue:	($physiquesize / 7) * 3,	level: 3, color: 'blue',	description: '당신의 신체는 날씬하다.'},
-						{ requiredValue:	($physiquesize / 7) * 4,	level: 4, color: 'lblue',	description: '당신의 신체는 날씬하고 탄탄하다.'},
-						{ requiredValue:	($physiquesize / 7) * 5,	level: 5, color: 'teal',	description: '당신의 신체는 탄력있고 굳건하다.'},
-						{ requiredValue:	($physiquesize / 7) * 6,	level: 6, color: 'green',	description: '당신의 신체는 탄력있고 강하다.'}
+						{ requiredValue:	0,							level: 0, color: 'red',		description:  `You are ${$player.bodyshape === "soft" ? "malnourished" : "emaciated"}.`},
+						{ requiredValue:	$physiquesize / 7,			level: 1, color: 'pink',	description: `Your body is ${$player.bodyshape === "soft" ? "squishy" : "skinny"}.`},
+						{ requiredValue:	($physiquesize / 7) * 2,	level: 2, color: 'purple',	description:  `Your body is ${$player.bodyshape === "soft" ? "soft and supple" : "lithe and slender"}.`},
+						{ requiredValue:	($physiquesize / 7) * 3,	level: 3, color: 'blue',	description:  `Your body is ${$player.bodyshape === "soft" ? "well built" : "slim"}.`},
+						{ requiredValue:	($physiquesize / 7) * 4,	level: 4, color: 'lblue',	description:  `Your body is ${$player.bodyshape === "soft" ? "sturdy" : "slim"} and athletic.`},
+						{ requiredValue:	($physiquesize / 7) * 5,	level: 5, color: 'teal',	description:  `Your body is ${$player.bodyshape === "soft" ? "robust" : "toned"} and firm.`},
+						{ requiredValue:	($physiquesize / 7) * 6,	level: 6, color: 'green',	description: `Your body is ${$player.bodyshape === "soft" ? "robust" : "toned"} and powerful.`}
 					]
 				}>>
 				<<if playerBellySize() gte 10 and playerNormalPregnancyTotal() lt 50>>
@@ -480,6 +480,25 @@
 						{ requiredValue: 95,	level: 6, color: 'red',		description: '당신은 이루 말할 수 없는 것들에 대한 욕망으로 가득하다.'}
 					]
 				}>>
+
+				<!-- Visual indicator for lewd stats being affected by alcohol -->
+				<<if $drunk gte 1>>
+					<<set _promiscuityConfig.modTypes.good.pushUnique("alcohol")>>
+					<<set _exhibitionismConfig.modTypes.good.pushUnique("alcohol")>>
+					<<set _deviancyConfig.modTypes.good.pushUnique("alcohol")>>
+				<</if>>
+
+				<!-- Visual indicator for lewd stats being affected by heat -->
+				<<if playerHeatMinArousal() gte 1>>
+					<<set _promiscuityConfig.modTypes.good.pushUnique("in heat")>>
+					<<set _deviancyConfig.modTypes.good.pushUnique("in heat")>>
+				<</if>>
+
+				<!-- Visual indicator for lewd stats being affected by rut -->
+				<<if playerRutMinArousal() gte 1>>
+					<<set _promiscuityConfig.modTypes.good.pushUnique("in rut")>>
+					<<set _deviancyConfig.modTypes.good.pushUnique("in rut")>>
+				<</if>>
 
 				<!-- MOOR LUCK, at the end so it appears at the end of the mouseover tooltip -->
 				<<if $moorLuck gt 0>>
@@ -914,122 +933,64 @@
 	<span class="gold">불안감</span>
 	<div class="description">불안감이 증가할수록 세밀한 조사가 어려워지고, 더 많은 스트레스 증가와 통제력 감소로 이어집니다. 수용할 경우 그러한 효과에 면역이 됩니다.</div>
 	<br><br>
-	<<if $insecurity_penis_tiny gte 1 and $player.penissize lte 0 and $acceptance_penis_tiny lte 999>>
-		<span class="red">불안감: 조그마한 자지</span>
-		<div class="meter">
-			<<set _percent=Math.floor(($insecurity_penis_tiny/1000)*100)>>
-			<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
-		</div>
-		<<if $acceptance_penis_tiny gte 1 and $acceptance_penis_tiny lte 999 and $player.penissize lte 0>>
-			<span class="green">수용: 조그마한 자지</span>
-			<div class="meter">
-				<<set _percent=Math.floor(($acceptance_penis_tiny/1000)*100)>>
-				<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
-			</div>
-		<</if>>
-	<</if>>
-	<<if $insecurity_penis_small gte 1 and $player.penissize is 1 and $acceptance_penis_small lte 999>>
-		<span class="red">불안감: 작은 자지</span>
+	<<set $_penisSize to setup.penisSizes[$player.penissize + 2].toUpperFirst()>>
+	<<if $player.penisExist and $insecurity_penis_small gte 1 and $player.penissize lte 1 and $acceptance_penis_small lte 999>>
+		<span class="red">Insecurity: <<print $_penisSize>> Penis</span>
 		<div class="meter">
 			<<set _percent=Math.floor(($insecurity_penis_small/1000)*100)>>
 			<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
 		</div>
-		<<if $acceptance_penis_small gte 1 and $acceptance_penis_small lte 999 and $player.penissize is 1>>
-			<span class="green">수용: 작은 자지</span>
+		<<if $acceptance_penis_small gte 1 and $acceptance_penis_small lte 999 and $player.penissize lte 1>>
+			<span class="green">Acceptance: <<print $_penisSize>> Penis</span>
 			<div class="meter">
 				<<set _percent=Math.floor(($acceptance_penis_small/1000)*100)>>
 				<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
 			</div>
 		<</if>>
 	<</if>>
-	<<if $player.gender is "m">>
-		<<if $insecurity_penis_big gte 1 and $player.penissize gte 4 and $acceptance_penis_big lte 999>>
-			<span class="red">불안감: 거대한 자지</span>
-			<div class="meter">
-				<<set _percent=Math.floor(($insecurity_penis_big/1000)*100)>>
-				<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
-			</div>
-			<<if $acceptance_penis_big gte 1 and $acceptance_penis_big lte 999 and $player.penissize gte 4>>
-				<span class="green">수용: 큰 자지</span>
-				<div class="meter">
-					<<set _percent=Math.floor(($acceptance_penis_big/1000)*100)>>
-					<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
-				</div>
-			<</if>>
-		<</if>>
-	<<else>>
-		<<if $insecurity_penis_big gte 1 and $player.penissize gte 2 and $acceptance_penis_big lte 999>>
-			<span class="red">불안감: 거대한 자지</span>
-			<div class="meter">
-				<<set _percent=Math.floor(($insecurity_penis_big/1000)*100)>>
-				<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
-			</div>
-			<<if $acceptance_penis_big gte 1 and $acceptance_penis_big lte 999 and $player.penissize gte 2>>
-				<span class="green">수용: 큰 자지</span>
-				<div class="meter">
-					<<set _percent=Math.floor(($acceptance_penis_big/1000)*100)>>
-					<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
-				</div>
-			<</if>>
-		<</if>>
-	<</if>>
-	<<if $insecurity_breasts_tiny gte 1 and $player.breastsize lte 0 and $player.gender is "f" and $acceptance_breasts_tiny lte 999>>
-		<span class="red">불안감: 평평한 가슴</span>
+	<<set $_penisSizeMin to $player.gender is "m" ? 4 : 2>>
+	<<if $player.penisExist and $insecurity_penis_big gte 1 and $player.penissize gte $_penisSizeMin and $acceptance_penis_big lte 999>>
+		<span class="red">Insecurity: <<print $_penisSize>> Penis</span>
 		<div class="meter">
-			<<set _percent=Math.floor(($insecurity_breasts_tiny/1000)*100)>>
+			<<set _percent=Math.floor(($insecurity_penis_big/1000)*100)>>
 			<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
 		</div>
-		<<if $acceptance_breasts_tiny gte 1 and $acceptance_breasts_tiny lte 999 and $player.breastsize lte 0 and $player.gender is "f">>
-			<span class="green">수용: 조그마한 가슴</span>
+		<<if $acceptance_penis_big gte 1 and $acceptance_penis_big lte 999 and $player.penissize gte $_penisSizeMin>>
+			<span class="green">Acceptance: <<print $_penisSize>> Penis</span>
 			<div class="meter">
-				<<set _percent=Math.floor(($acceptance_breasts_tiny/1000)*100)>>
+				<<set _percent=Math.floor(($acceptance_penis_big/1000)*100)>>
 				<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
 			</div>
 		<</if>>
 	<</if>>
-	<<if $insecurity_breasts_small gte 1 and $player.breastsize gte 1 and $player.breastsize lte 5 and $acceptance_breasts_small lte 999>>
-		<span class="red">불안감: 작은 가슴</span>
+	<<set $_breastSize to setup.breastsizes[$player.breastsize].toUpperFirst()>>
+	<<if $player.gender is "f" and $insecurity_breasts_small gte 1 and between($player.breastsize, 0, 4) and $acceptance_breasts_small lte 999>>
+		<span class="red">Insecurity: <<print $player.breastsize ? "$_breastSize Breasts" : "Flat Chest">></span>
 		<div class="meter">
 			<<set _percent=Math.floor(($insecurity_breasts_small/1000)*100)>>
 			<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
 		</div>
-		<<if $acceptance_breasts_small gte 1 and $acceptance_breasts_small lte 999 and $player.breastsize gte 1 and $player.breastsize lte 5>>
-			<span class="green">수용: 작은 가슴</span>
+		<<if $acceptance_breasts_small gte 1 and $acceptance_breasts_small lte 999 and between($player.breastsize, $_breastSizeMin, $_breastSizeMax)>>
+			<span class="green">Acceptance: <<print $player.breastsize ? "$_breastSize Breasts" : "Flat Chest">></span>
 			<div class="meter">
 				<<set _percent=Math.floor(($acceptance_breasts_small/1000)*100)>>
 				<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
 			</div>
 		<</if>>
 	<</if>>
-	<<if $player.gender is "f">>
-		<<if $insecurity_breasts_big gte 1 and $player.breastsize gte 8 and $acceptance_breasts_big lte 999>>
-		<span class="red">불안감: 큰 가슴</span>
+	<<set $_breastSizeMin2 to $player.gender is "m" ? 1 : 8>>
+	<<if $insecurity_breasts_big gte 1 and $player.breastsize gte $_breastSizeMin2 and $acceptance_breasts_big lte 999>>
+	<span class="red">Insecurity: <<print $_breastSize>> Breasts</span>
+		<div class="meter">
+			<<set _percent=Math.floor(($insecurity_breasts_big/1000)*100)>>
+			<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
+		</div>
+		<<if $acceptance_breasts_big gte 1 and $acceptance_breasts_big lte 999 and $player.breastsize gte $_breastSizeMin2>>
+			<span class="green">Acceptance: <<print $_breastSize>> Breasts</span>
 			<div class="meter">
-				<<set _percent=Math.floor(($insecurity_breasts_big/1000)*100)>>
-				<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
+				<<set _percent=Math.floor(($acceptance_breasts_big/1000)*100)>>
+				<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
 			</div>
-			<<if $acceptance_breasts_big gte 1 and $acceptance_breasts_big lte 999 and $player.breastsize gte 8>>
-				<span class="green">수용: 큰 가슴</span>
-				<div class="meter">
-					<<set _percent=Math.floor(($acceptance_breasts_big/1000)*100)>>
-					<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
-				</div>
-			<</if>>
-		<</if>>
-	<<else>>
-		<<if $insecurity_breasts_big gte 1 and $player.breastsize gte 6 and $acceptance_breasts_big lte 999>>
-			<span class="red">불안감: 거대한 가슴</span>
-			<div class="meter">
-				<<set _percent=Math.floor(($insecurity_breasts_big/1000)*100)>>
-				<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
-			</div>
-			<<if $acceptance_breasts_big gte 1 and $acceptance_breasts_big lte 999 and $player.breastsize gte 6>>
-				<span class="green">수용: 큰 가슴</span>
-				<div class="meter">
-					<<set _percent=Math.floor(($acceptance_breasts_big/1000)*100)>>
-					<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
-				</div>
-			<</if>>
 		<</if>>
 	<</if>>
 	<<if $insecurity_pregnancy gte 1 and $acceptance_pregnancy lte 999 and playerBellySize() gte 8>>

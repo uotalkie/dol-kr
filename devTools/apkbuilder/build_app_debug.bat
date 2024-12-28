@@ -1,5 +1,5 @@
 @echo off
-SET "PATH=%PATH%;%CD%\androidsdk\commandline-tools\latest\bin;%CD%\androidsdk\gradle\bin"
+SET "PATH=%CD%\androidsdk\commandline-tools\latest\bin;%CD%\androidsdk\gradle\bin;%PATH%"
 SET "ANDROID_HOME=%CD%\androidsdk"
 SET "ANDROID_SDK_ROOT=%ANDROID_HOME%"
 

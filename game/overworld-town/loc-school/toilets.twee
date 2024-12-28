@@ -336,7 +336,7 @@
 			<br>
 		<</if>>
 		<<if $money gte 1500>>
-			<<link [[돈을 준다고 한다 (£15)|School Toilets Clothes]]>><<set $money -= 1500>><<set $phase to 3>><</link>>
+			<<link [[Offer money (£15)|School Toilets Clothes]]>><<money -1500>><<set $phase to 3>><</link>>
 			<br>
 		<</if>>
 		<<if $speech_attitude is "bratty">>
@@ -551,7 +551,7 @@
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<set $daily.vendingMachine.used to true>>
-<<set $money -= 2000>>
+<<money -2000 "schoolCondoms">><<wearProp "condom">>
 You insert the money into the machine and a 2-pack of condoms slides into a drawer.
 <br><br>
 
@@ -596,17 +596,23 @@ You insert the money into the machine and a 2-pack of condoms slides into a draw
 You examine the vending machine.
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<lockpickicon>><<link [[자물쇠를 딴다 (0:10)|Vending Machine Sneak]]>><<pass 10>><<crimeUp 1 "petty">><</link>><<crime "petty">>
-	<br>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[자물쇠를 딴다 (0:10)|Vending Machine Sneak]]>><<handheldon>><<pass 10>><<crimeUp 1 "petty">><</link>><<crime "petty">>
+		<br>
+	<</if>>
 <<else>>
-	<span class="red">The lock looks beyond your ability to pick, it's delinquent-proof.</span><<skulduggeryrequired>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br>
 <</if>>
-<<condomicon "machine">><<link [[Smash it (0:10)|Vending Machine Smash]]>><<pass 10>><<crimeUp 5 "destruction">><<crimeUp 5 "petty">><</link>><<physiquedifficulty>> <<crimes "destruction" "petty">>
+<<condomicon "machine">><<link [[Smash it (0:10)|Vending Machine Smash]]>><<handheldon>><<pass 10>><<crimeUp 5 "destruction">><<crimeUp 5 "petty">><</link>><<physiquedifficulty>> <<crimes "destruction" "petty">>
 <br>
-<<getouticon>><<link [[뒤로|School Toilets]]>><</link>>
+<<getouticon>><<link [[뒤로|School Toilets]]>><<handheldon>><</link>>
 
 :: Vending Machine Sneak
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -620,9 +626,10 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 	<<skulduggeryskilluse>>
 <<else>>
 	<span class="blue">There's nothing more you can learn from locks this simple.</span>
+	<br><br>
 <</if>>
-<br><br>
-<<link [[가져간다|School Toilets]]>><<set $money += $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
+
+<<link [[가져간다|School Toilets]]>><<money $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
 <br>
 <<link [[그냥 둔다|School Toilets]]>><</link>>
 
@@ -643,7 +650,7 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 	<<else>>
 		You kick the machine until you hear a crack. The lock breaks and the door opens. You look inside and find <<printmoney $tip>><<if _condomsStolen>>, plus _condomsStolen condoms<</if>>.
 		<br><br>
-		<<link [[Take them and leave|School Toilets]]>><<set $money += $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
+		<<link [[Take them and leave|School Toilets]]>><<money $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
 	<</if>>
 <<else>>
 	You kick the machine until you hear a crack. You try to open the door, but the lock is stuck. You give up and decide to try another day.
@@ -795,6 +802,7 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<set $gloryholestat += 1>>
 	<<ejaculation>>
+	<<set _prop to "condom">>
 	<<tearful>> you take the condom <<he>> pushes through the hole.
 	"You'll probably need this more than me, you slut," <<he>> chirps as <<he>> walks away. <<gcondoms 1>>
 <<elseif $enemyhealth lte 0>>
@@ -810,6 +818,7 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 
 <<clotheson>>
 <<endcombat>>
+<<if _prop>><<wearProp _prop>><</if>>
 
 <<set $phase to 0>>
 <<link [[Climb out (0:01)|School Toilets]]>><<pass 1>><<unset $desperateaction>><</link>>
@@ -835,12 +844,13 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 
 <<if $seductionrating gte $seductionrequired>>
 	<!-- Passed check -->
+	<<wearProp "condom">>
 	<<He>> pauses, unable to respond. The silence is eventually broken. "E-errm, yeah, here you go." <<He>> hands you back the condoms.
 	<<gcondoms 2>>
 	<br>
 	<<if hasSexStat("promiscuity", 4)>>
 		<br>
-		<<link [[Still accept their offer|Vending Machine Proposal Sex]]>><</link>><<set $sexstart to 1>><<promiscuous3>>
+		<<link [[Still accept their offer|Vending Machine Proposal Sex]]>><</link>><<handheldon>><<set $sexstart to 1>><<promiscuous3>>
 	<</if>>
 <<else>>
 	<!-- Failed check -->

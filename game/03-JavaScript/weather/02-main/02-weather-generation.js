@@ -8,10 +8,15 @@ Weather.WeatherGeneration = (() => {
 			// Do not modify weather obj if searching for another date than the current
 			return interpolateWeather(date);
 		}
+		const currentWeather = V.weatherObj.name;
 		if (T.currentWeather === undefined) {
 			date = new DateTime(Time.date);
 			generateWeather(date);
 			T.currentWeather = interpolateWeather(date);
+		}
+
+		if (Weather.activeRenderer?.loaded.value && T.currentWeather.name !== currentWeather) {
+			$.event.trigger(":onWeatherChange");
 		}
 		return T.currentWeather;
 	}

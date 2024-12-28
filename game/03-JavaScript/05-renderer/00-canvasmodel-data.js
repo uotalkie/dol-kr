@@ -103,3 +103,177 @@ const ZIndices = {
 	tailPenisCoverOverlay: 166,
 };
 window.ZIndices = ZIndices;
+
+Renderer.Animations["sex-2f-idle"] = {
+	keyframes: [
+		{
+			frame: 0,
+			duration: 1000,
+		},
+		{
+			frame: 2,
+			duration: 1000,
+		},
+	],
+};
+
+Renderer.Animations["sex-2f-vfast"] = {
+	frames: 2,
+	duration: 80,
+};
+
+Renderer.Animations["sex-1f-idle"] = {
+	keyframes: [
+		{
+			frame: 1,
+			duration: 1000,
+		},
+	],
+};
+
+Renderer.Animations["sex-1f2-idle"] = {
+	keyframes: [
+		{
+			frame: 2,
+			duration: 1000,
+		},
+	],
+};
+
+Renderer.Animations["sex-4f-slow"] = {
+	frames: 4,
+	duration: 330,
+};
+
+Renderer.Animations["sex-4f-mid"] = {
+	frames: 4,
+	duration: 170,
+};
+
+Renderer.Animations["sex-4f-fast"] = {
+	frames: 4,
+	duration: 110,
+};
+
+Renderer.Animations["sex-4f-vfast"] = {
+	frames: 4,
+	duration: 80,
+};
+
+Renderer.Animations["machine-4f"] = {
+	frames: 4,
+	duration: 80,
+};
+
+Renderer.Animations["machine-4f-slow"] = {
+	frames: 4,
+	duration: 200,
+};
+
+Renderer.Animations["machine-4f-mid"] = {
+	frames: 4,
+	duration: 170,
+};
+
+Renderer.Animations["machine-4f-fast"] = {
+	frames: 4,
+	duration: 110,
+};
+
+Renderer.Animations["machine-4f-vfast"] = {
+	frames: 4,
+	duration: 80,
+};
+
+Renderer.Animations["machine-2f-slow"] = {
+	keyframes: [
+		{
+			frame: 0,
+			duration: 200,
+		},
+		{
+			frame: 2,
+			duration: 200,
+		},
+	],
+};
+
+Renderer.Animations["prop-4f-tank"] = {
+	frames: 4,
+	duration: 60,
+};
+
+Renderer.Animations["sex-6f-slow"] = {
+	frames: 6,
+	duration: 330,
+};
+
+Renderer.Animations["sex-6f-mid"] = {
+	frames: 6,
+	duration: 170,
+};
+
+Renderer.Animations["sex-6f-fast"] = {
+	frames: 6,
+	duration: 110,
+};
+
+Renderer.Animations["sex-6f-vfast"] = {
+	frames: 6,
+	duration: 80,
+};
+
+Renderer.Animations["sex-8f-slow"] = {
+	frames: 8,
+	duration: 110,
+};
+
+Renderer.Animations["sex-8f-mid"] = {
+	frames: 8,
+	duration: 80,
+};
+
+Renderer.Animations["sex-8f-fast"] = {
+	frames: 8,
+	duration: 60,
+};
+
+Renderer.Animations["sex-8f-vfast"] = {
+	frames: 8,
+	duration: 40,
+};
+
+Renderer.Animations["sex-10f-slow"] = {
+	frames: 10,
+	duration: 330,
+};
+
+Renderer.Animations["sex-10f-mid"] = {
+	frames: 10,
+	duration: 170,
+};
+
+Renderer.Animations["sex-10f-fast"] = {
+	frames: 10,
+	duration: 110,
+};
+
+Renderer.Animations["sex-10f-vfast"] = {
+	frames: 10,
+	duration: 70,
+};
+
+Renderer.Animations["sex-17f-slow"] = {
+	frames: 17,
+	duration: 170,
+};
+
+Renderer.Animations["sex-17f-mid"] = {
+	frames: 17,
+	duration: 110,
+};
+
+Renderer.Animations["sex-17f-fast"] = {
+	frames: 17,
+	duration: 80,
+};

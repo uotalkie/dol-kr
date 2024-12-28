@@ -2,18 +2,24 @@
 <<set $outside to 0>><<effects>><<set $lock to 400>>
 
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">이 자물쇠는 아주 따기 쉬워 보인다.</span>
-	<br><br>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">이 자물쇠는 아주 따기 쉬워 보인다.</span>
+		<br><br>
 
-	<<lockpickicon>><<link [[자물쇠를 딴다 (0:10)|Adult Shop]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+		<<lockicon "pick">><<link [[자물쇠를 딴다 (0:10)|Adult Shop]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력으로는 딸 수 없다.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
 
-<<getouticon>><<link [[떠난다|Elk Street]]>><</link>>
+<<getouticon>><<link [[떠난다|Elk Street]]>><<handheldon>><</link>>
 <br>
 
 :: Adult Shop
@@ -101,10 +107,10 @@
 		<<if C.npc.Sirris.love gt 10>>
 			<br>
 			시리스가 당신에게 원하면 집까지 태워 주겠다고 말한다.<br>
-			<<link [[시리스에게 집까지 태워 달라고 한다 (0:15)|Sydney Ride Home]]>><<adultShopClear>><<pass 15>><</link>>
+			<<homeicon>><<link [[Ride home with Sirris (0:15)|Sydney Ride Home]]>><<adultShopClear>><<pass 15>><</link>>
 		<</if>>
 	<<else>>
-		<<ind>><<link [["끝날때까지 숨어 있는다 (1:00)"|Adult Shop]]>><<pass 1 hour>><</link>>
+		<<ind>><<link [[Hide until it's over (1:00)|Adult Shop]]>><<pass 1 hour>><</link>>
 	<</if>>
 <<else>>
 	/* States */
@@ -243,7 +249,7 @@
 	/* Links */
 	<<if $adultshopclerk and $adultshopstate isnot "closed">>
 		/* work in this shop */
-		<<ind>><<link [[일한다 (1:00)|Adult Shop Clerk Job]]>><<endevent>><<pass 60>><</link>>
+		<<ind>><<link [[Work (1:00)|Adult Shop Clerk Job]]>><<endevent>><<pass 60>><<timeTrackingManual "adultShop" 1>><</link>>
 		<br>
 	<</if>>
 	<<if !$adultshopclerk and $debug is 1>>
@@ -287,7 +293,7 @@
 <br><br>
 
 <<if !$adultshopclerk>>
-	<<askicon>><<link [[도울 일이 있는지 묻는다|Adult Shop Approach Sirris Ask]]>><</link>>
+	<<socialiseicon "ask">><<link [[도울 일이 있는지 묻는다|Adult Shop Approach Sirris Ask]]>><</link>>
 	<br>
 <</if>>
 <<if $brothelVending and $brothelVending.status is "set">>
@@ -374,7 +380,7 @@
 
 
 :: Adult Shop Clerk Job
-<br>
+
 당신은 카운터 뒤에서 선반에 재고를 채우고, 성인용품을 판매하는 일을 하고 있다.
 <br><br>
 <<adultshopclerkevents>>
@@ -499,7 +505,7 @@
 <br><br>
 당신은 돈을 세서 <<nnpc_himPost Sirris>>에게 준다.
 <br><br>
-<<set $money -= _price>>
+<<money `-_price` "lube">>
 <<set $brothelVending.lube += $lubeBought>>
 <<set $brothelVending.lubeToRefill -= $lubeBought>>
 <<set $brothelVending.weeksEmpty to 0>>

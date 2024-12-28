@@ -47,6 +47,7 @@
 	<</if>>
 
 	<<if $location is "school" and Time.hour gte 17>>
+		<<unset $kylar_action>>
 		<<if $syndromekylar is 1>>
 			<<He_ nun>> <<his_ yi>> 시계를 본다. "이제 가야만 해," <<he_ ga>> 말한다. "기다리는 사람들이 있어서." <<He_ nun>> 당신을 바라본다.
 		<<elseif _kylarStatus.includes("Love")>>
@@ -58,6 +59,7 @@
 
 		<<kylaroptionsleave "manor">>
 	<<elseif $location is "school" and Time.hour isnot 12 and $schoolstate isnot "afternoon">>
+		<<unset $kylar_action>>
 		<<if _kylarStatus.includes("Love")>>
 			<<he_ nun>> <<his_ yi>> 시계를 보더니, 이제 가야한다고 말한다. "수업에 늦겠어." <<he_ nun>> 가는 길에도 당신을 어깨너머로 계속 쳐다본다.
 		<<else>>
@@ -67,6 +69,7 @@
 
 		<<kylaroptionsleave>>
 	<<elseif ($bus is "starfish" or $bus is "park") and Time.dayState isnot "day">>
+		<<unset $kylar_action>>
 		<<if $syndromekylar is 1>>
 			<<He>> looks at <<his>> watch. "I need to go," <<he>> says. "They're waiting for me." <<He>> looks at you.
 		<<elseif _kylarStatus.includes("Love")>>
@@ -87,6 +90,7 @@
 		<<link [[Pounce|Manor Kylar Pounce]]>><<npcincr Kylar love 1>><</link>><<promiscuous1>><<glove>>
 		<br>
 	<<elseif _kylarStatus.includes("Love") and C.npc.Kylar.love gte 90 and $kylar_camera is undefined>>
+		<<unset $kylar_action>>
 		Kylar looks even more anxious than usual. <<He>> stares at <<his>> feet, and shifts <<his>> weight between them. "I-I," <<he>> gulps. "I got you something." <<He>> crouches, and reaches behind a bench, pulling out a bow-tied box. <<He>> holds it out to you.
 		<br><br>
 
@@ -95,6 +99,7 @@
 		<<link [[거절한다|Kylar Gift Box Refuse]]>><<npcincr Kylar love -1>><<npcincr Kylar rage 3>><</link>><<llove>><<gksuspicion>>
 		<br>
 	<<else>>
+		<<unset $kylar_action>>
 		<<if _lewdIdea>>
 			<<if $kylarSeen.includes("home")>>
 				You remember seeing Kylar snooping around your room, as well as noticing a pair of underwear missing before that, and
@@ -108,8 +113,21 @@
 			<span class="lewd">a lewd idea strikes you.</span>
 			<br><br>
 
-			<<ind>><<link [[`Ask Kylar for ${_kylar.pronouns.his} ${$daily.kylar.underwear.simpleDesc}`|Kylar Tease Underwear]]>><<arousal 600>><<npcincr Kylar lust 3>><</link>><<promiscuous3>><<garousal>><<gglust>>
+			<<ind>><<link [[`Ask Kylar for <<his>> ${$daily.kylar.underwear.simpleDesc}`|Kylar Tease Underwear]]>><<arousal 600>><<npcincr Kylar lust 3>><</link>><<promiscuous3>><<garousal>><<gglust>>
 			<br><br>
+		<</if>>
+		<<if $bus is "kylarmanor" and $kylar_manor_secret is undefined and !$daily.kylar.manor>>
+			<<if $kylar_parents_trust gte 100>>
+				<<socialiseicon>><<link [[Tell Kylar that the manor is clean|Manor Kylar Secret]]>><<set $kylar_manor_secret to 1>><</link>>
+				<br>
+			<<elseif $kylar_parents_trust gte 1>>
+				<<socialiseicon "angry">><<link [[Have a word about the state of the manor|Manor Kylar Word]]>><<set $daily.kylar.manor to true>><</link>>
+				<br>
+			<</if>>
+		<</if>>
+		<<if $passage is "Manor Kylar Word">>
+			<<socialiseicon "ask">><<link [[Ask what happened to <<his>> parents|Manor Kylar Word 2]]>><</link>>
+			<br>
 		<</if>>
 		<<if !$daily.kylar.walkKiss and $kylar_action is "walk">>
 			<<ind>><<link [[키스한다|Kylar Walk In The Park End 2]]>><</link>><<glove>><<glust>><<llksuspicion>><<kissvirginitywarning>><<NPCvirginitywarning "Kylar" "kiss">>
@@ -154,6 +172,10 @@
 			<<sextoysicon "strap-on">><<link [[카일라에게 페니스 밴드를 선물한다|Kylar Gift Strap-on]]>><</link>><<glove>><<lksuspicion>><<gglust>><<lstress>>
 			<br>
 		<</if>>
+		<<if canGiftFood("Kylar") and $kylarenglish gte 1>>
+			<<skinicon "give">><<link [[Give Kylar food|Kylar Gifts List]]>><</link>>
+			<br>
+		<</if>>
 		<<kylaroptionsleave "leave">>
 	<</if>>
 <</widget>>
@@ -181,7 +203,7 @@
 				<<set $_dest to "School Rear Courtyard">>
 		<</switch>>
 		<<if _args[0] is "manor" and $syndromekylar is 1>>
-			<<kylarmanoricon>><<link [[_kylar.pronouns.him + " 데리고 산책한다 (0:20)"|Kylar Walk Manor]]>><</link>>
+			<<kylarmanoricon>><<link [["Walk with " + _kylar.pronouns.him + " (0:20)"|Kylar Walk Manor]]>><<pass 20>><</link>>
 			<br>
 		<</if>>
 		<<getouticon>><<link [[떠난다|$_dest]]>><<endevent>><<unset $kylar_action>><</link>>
@@ -253,12 +275,12 @@
 			<br><br>
 
 			<<He>> looks down timidly. "Say, maybe we should spend some time together? T-To practise, I mean." <<Hes>> about to say something else, but stops <<himself>>. "Just... come see me<<if $schoolstate isnot "afternoon">> after school<</if>>, alright? <span class="gold">I'll be in the rear courtyard.</span>"
-		<<elseif _kylar.love gte 90 and $spray lt $spraymax and !$daily.kylar.spray>>
-			<<set $daily.kylar.spray to true>>
+		<<elseif _kylar.love gte 90 and $spray lt $spraymax and !$weekly.kylarSpray>>
+			<<set $weekly.kylarSpray to true>>
 			"내가 너 줄려고 만든건데." <<he_ ga>> <<his_ yi>> 가방 안을 뒤지며 말한다. <<he_ nun>> 후추 스프레이 하나를 당신에게 건네준다.
 			"내가 직접 만든거야. 이 스프레이가 걸레나 변태들에게서  널 지켜줄거야." <<he_ ga>> 화사하게 웃는다.
 			<<spray 1>><<gspray>>
-
+			<<wearProp "pepperspray">>
 		<<elseif $kylar.riddle is 2>>
 			<<set $kylar.riddle to 0>>
 			"<<print either("A sphinx", "Shadow", "Plumbers", "A jester", "Blue", "The letter E", "French fries", "Leighton", "An eraser", "A snake",
@@ -383,7 +405,6 @@
 		You think about what Kylar said, and realisation dawns on you. Your <<penis>> is beautiful. Why should you care what other people say about it?
 		You've gained the
 		<<switch _acceptanceAchieved>>
-			<<case "penis_tiny">> <span class="green">Acceptance: Tiny Penis</span>
 			<<case "penis_small">> <span class="green">Acceptance: Small Penis</span>
 			<<case "penis_big">> <span class="green">Acceptance: Big Penis</span>
 		<</switch>>
@@ -1167,7 +1188,6 @@
 <</if>>
 그들은 카일라를 체포한다. 당신이 약간 소리를 내자, 그들은 당신 역시 풀어준다. 그들은 당신을 "증거"로서 연행하지는 않기로 결정한다.
 <<clothesontowel>>
-<br><br>
 
 <<person1>>
 <<if Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late">>
@@ -1388,7 +1408,7 @@
 			<<if !$daily.kylar.underwear?.desc>>
 				<<kylarRandomUnderwear>>
 			<</if>>
-			
+
 			당신은 카일라의 속옷을 보여달라고 한다. "아니면 혹시," 당신이 말한다, "안에 아무것도 안 입은 거야?"
 			<!-- Note for future writers: you COULD use $kylarStolenUnderwear here to reveal kylar is wearing the underwear they stole from the player. -->
 			<<if _kylarLower.includes("skirt")>>
@@ -1881,12 +1901,17 @@
 	결국 <<he_ 는>> 낙담한 표정으로, 당신의 품에서 빠져나간다. "여기에 더 있으면 안될 것 같아," <<he_ 가>> 말한다.<<if Time.hour gte 18 or Time.hour lte 7>> "그들이 날 기다리고 있어."<</if>> 당신은 <<if $phase isnot 2>>일어나 앉으려고 애쓰며 <</if>><<him_ 을>> 바라본다. <<His_>>의 머리카락이 <<his_>>의 얼굴에 달라붙어 있다. 당신은 손을 뻗어 머리카락을 넘겨주고, <<he_ 는>> 미소 짓는다.
 	<br><br>
 
-	<<if Time.hour lte 18 and Time.hour gte 7>>
+	<<if Time.hour lt 18 and Time.hour gte 7>>
 		<<if Weather.precipitation isnot "none">>
 			<<link [[함께 오락실로 걸어간다 (0:15)|Kylar Arcade Walk]]>><<pass 15>><</link>>
 		<br>
 		<<else>>
 			<<link [[함께 공원으로 걸어간다 (0:15)|Kylar Park Walk]]>><<pass 15>><</link>>
+			<br>
+		<</if>>
+	<<else>>
+		<<if $syndromekylar is 1>>
+			<<kylarmanoricon>><<link [["Walk to the manor together (0:10)"|Kylar Walk Manor]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -2008,7 +2033,7 @@ You snuggle under the covers with Kylar.
 <</if>>
 <br><br>
 
-<<if Time.hour lte 18 and Time.hour gte 7>>
+<<if Time.hour lt 18 and Time.hour gte 7>>
 	<<if Weather.precipitation isnot "none">>
 		<<link [[함께 오락실로 걸어간다 (0:15)|Kylar Arcade Walk]]>><<pass 15>><</link>>
 		<br>
@@ -2687,7 +2712,7 @@ You nod, and <<he>> blushes. You think <<hes>> going to turn you down, but <<he>
 			<</if>>
 			<br><br>
 		<<elseif _tf.foxEars and _tfSplit is 1>>
-			After a while, <<his>> hand brushes against your fox ears. It wiggles at <<his>> touch.
+			After a while, <<his>> hand brushes against your fox ears. One wiggles at <<his>> touch.
 			<<He>> smiles. "Are they sensitive?" For a few minutes, <<he>> scratches around your ears, blowing into them at one point.
 			<<if _tf.foxTail>>
 				Your tail swishes up and down, brushing against <<him>> on occasion.
@@ -2953,10 +2978,10 @@ You wrap an arm around Kylar's waist. <<His>> body freezes, then melts against y
 :: Kylar Give Milkshake
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You take out your milkshake and show it to Kylar. "You brought me something?" <<He>> says, looking at the creamy treat.
+You take out your milkshake and show it to Kylar. "You brought me something?" <<he>> says, looking at the creamy treat.
 <br><br>
 
-You nod and hand the cup over to Kylar. <<He>> looks delighted. You spend the next twenty minutes chatting while Kylar sips on the shake. After <<he>> finishes, Kylar stuffs the cup into their bag. You hope the remains of the shake don't spill in there.
+You nod and hand the cup over to Kylar. <<He>> looks delighted. You spend the next twenty minutes chatting while Kylar sips on the shake. After <<he>> finishes, Kylar stuffs the cup into <<his>> bag. You hope the remains of the shake don't spill in there.
 <br><br>
 <<kylaroptions>>
 
@@ -2964,10 +2989,10 @@ You nod and hand the cup over to Kylar. <<He>> looks delighted. You spend the ne
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 <<wearProp "milkshake">>
 
-You take out your milkshake and show it to Kylar. "You brought me something?" <<He>> says, looking at the creamy treat.
+You take out your milkshake and show it to Kylar. "You brought me something?" <<he>> says, looking at the creamy treat.
 <br><br>
 
-"I thought we could share it," you say. Kylar looks delighted. You spend the next twenty minutes sipping the drink and chatting. After you both finish, Kylar stuffs the cup into their bag. You hope the remains of the shake don't spill in there.
+"I thought we could share it," you say. Kylar looks delighted. You spend the next twenty minutes sipping the drink and chatting. After you both finish, Kylar stuffs the cup into <<his>> bag. You hope the remains of the shake don't spill in there.
 <br><br>
 
 <<kylaroptions>>
@@ -3013,7 +3038,7 @@ The crowd cheers. Kylar struggles free and runs through the other students, one 
 :: Kylar Walk
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-You turn and walk away. No doubt the audience were hoping you'd cause a bigger fuss.
+You turn and walk away. No doubt the audience was hoping you'd cause a bigger fuss.
 <br><br>
 
 <<link [[다음|Hallways]]>><<set $eventskip to 1>><<endevent>><</link>>
@@ -3248,11 +3273,11 @@ You raise a knee into <<his>> crotch. <<He>> yelps in surprise as you lean forwa
 	당신은 식사를 마친다. "교실에서 기다릴게," 당신이 다 먹을 즈음 <<he_ 가>> 말한다. "지각하는 거 안 좋아하거든." <<he_ 가>> 당신을 안아준다. "나랑 같이 갈래?"
 	<br><br>
 
-		<<if C.npc.Kylar.state is "active">>
-			카일라가 식당 건너편에서 그 광경을 지켜본다.
-			<<gksuspicion>><<npcincr Kylar rage 1>><<set $kylarexit to "jealous robin">>
-			<br><br>
-		<</if>>
+	<<if C.npc.Kylar.state is "active">>
+		카일라가 식당 건너편에서 그 광경을 지켜본다.
+		<<gksuspicion>><<npcincr Kylar rage 1>><<set $kylarexit to "jealous robin">>
+		<br><br>
+	<</if>>
 	<<endevent>>
 	<<historyicon>><<link [[로빈과 같이 역사수업을 들으러 간다 (0:01)|History Classroom]]>><<set $justEntered to true>><<set $withRobin to "yes">><<pass 1>><<unset $kylarexit>><</link>><br>
 	<<schoolicon "library">><<link [[도서관에 가야 할 것 같다고 한다 (0:05)|School Library]]>><<set $robinexit to "library">><<set $phase2 to "library">><<pass 5>><</link>><br>
@@ -3317,11 +3342,10 @@ You raise a knee into <<his>> crotch. <<He>> yelps in surprise as you lean forwa
 <<if $robinromance is 1>>
 	로빈은 잠시 당신을 바라보다가, <<his_>>의 식판을 내려다본다. <<He_ 는>> 일어서서 아무 말 없이 자리를 떠난다.
 	<<lllove>><<npcincr Robin love -5>><<set $withRobin to "hurt">><<if $robin.timer.hurt is 0>><<set $robin.hurtReason to "you kissing Kylar">><<set $robin.timer.hurt to 1>><</if>>
-	<br><br>
 <<else>>
 	로빈은 당신을 홀긋 쳐다보지만, <<he_ ga>> 당신이 뭘 하고 있는지 본 순간 얼굴을 붉히며 고개를 돌린다.
-	<br><br>
 <</if>>
+<br><br>
 
 <<if _npcKissVirginTemp>>
 	"그-그게 내 첫키스였어," 카일라는, <<nnpc_his_ "Kylar">>의 눈을 반짝이며 속삭인다. "내가 꿈꿔왔던 것보다도 더 좋았어.<<if $kylarenglish gte 1>> 우리가 서로를 얼마나 사랑하는지 <<he_ 가>>가 알게 돼서 너무 행복해.<</if>>"
@@ -3672,7 +3696,7 @@ You raise a knee into <<his>> crotch. <<He>> yelps in surprise as you lean forwa
 
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	"이... 멍청이가..." 휘트니가 헐떡이며, 벽에 몸을 기댄다. 관중이 웃음을 터뜨린다. 볼이 빨개진 채, <<he_ 는>> 군중 속으로 재빨리 사라진다.<<llust>><<npcincr Whitney lust -20>>
+	"You... stupid..." Whitney pants, leaning against the wall. The audience bursts into laughter. Flushed, <<he>> scrambles into the crowd.<<llust>><<npcincr Whitney lust -20>>
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -3705,7 +3729,7 @@ You raise a knee into <<his>> crotch. <<He>> yelps in surprise as you lean forwa
 		한 학생이 군중 속에서 앞으로 나와, 당신을 도와주려고 한다. 또다른 학생이 앞으로 나와, 휘트니의 다른 쪽 팔을 붙잡는다. 그들은 함께 뒤로 넘어진다.
 		<br><br>
 	<<else>>
-		휘트니는 간신히 그를 떨쳐내지만, 덕분에 당신은 결정적인 기회를 얻는다.
+		Whitney manages to throw them off, but it gives you the opportunity you need.
 		<br><br>
 	<</if>>
 	<br><br>
@@ -3870,6 +3894,7 @@ You raise a knee into <<his>> crotch. <<He>> yelps in surprise as you lean forwa
 당신은 멍하게 있는 카일라 옆에서, 식사를 재개한다. <<He_ nun>> 당신이 다 먹자 당신의 식판을 가져가고는, <<if Weather.precipitation isnot "none">>도서관<<else>>학교 뒷마당<</if>> 쪽으로 걸어간다.
 <br><br>
 
+<<endevent>>
 <<historyicon>><<link [[역사수업을 받으러 간다 (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>><br>
 <<if _kylarlocation.area is "library">>
 	<<schoolicon "library">><<link [[카일라를 따라 도서관으로 간다 (0:02)|School Library]]>><<pass 2>><</link>><br>
@@ -4031,18 +4056,18 @@ You notice <<him>> glaring at Sydney. As <<he>> sees you, <<he>> turns <<his>> a
 당신은 <<persons_>>의 <<wallet_ 을>> 살펴본다. 안쪽에는 <<moneyGain _money true true>>가 들어 있다.
 <br><br>
 
-<<endevent>>
+<<wearProp "wallet">>
 <<destinationeventend>>
 
 :: Street Kylar Help
-<<set $outside to 1>><<set $location to "town">><<effects>>
+<<set $outside to 1>><<set $location to "town">><<effects>><<wearProp "phone" 0 "mobile">>
 
 당신은 <<persons_>>의 휴대폰을 집어 들고 병원에 전화한다. 몇 분 기다린 후, 당신은 그들에게 당신의 위치를 알리고 무슨 일이 있었는지 설명한다. 그들은 구급차를 보내주기로 한다.
 <br><br>
 
-<<link [[훔친다|Street Kylar Rob]]>><</link>><<crime "thievery">>
+<<link [[훔친다|Street Kylar Rob]]>><<handheldon>><</link>><<crime "thievery">>
 <br>
-<<link [[떠난다|Street Kylar Leave]]>><</link>>
+<<link [[떠난다|Street Kylar Leave]]>><<handheldon>><</link>>
 <br>
 
 :: Street Kylar Leave
@@ -4572,7 +4597,7 @@ You see a small note near to the <<print _container.name>> with the letter "K" o
 <br><br>
 
 <<if $money gte 2000000>>
-	<<link [[연구실을 설치한다 (£20000 3:00)|Kylar Loft 2]]>><<set $money -= 2000000>><<set $loft_kylar to 1>><<set $loft_upgrade += 1>><<pass 180>><</link>>
+	<<link [[Set up lab (£20000 3:00)|Kylar Loft 2]]>><<money -2000000 "orphanageUpgrades">><<set $loft_kylar to 1>><<set $loft_upgrade += 1>><<pass 180>><</link>>
 	<br><br>
 <</if>>
 
@@ -4599,7 +4624,7 @@ You see a small note near to the <<print _container.name>> with the letter "K" o
 <br>
 
 :: Kylar Loft 3
-<<set $outside to 0>><<set $location to "home">><<effects>>
+<<set $outside to 0>><<set $location to "home">><<effects>><<wearProp "note">>
 
 <<generatey2>><<person2>><<person_ 이>> 어느 순간 살펴보러 온다. 당신은 <<him_ 을>> 아래층으로 내려 보내 다른 사람들도 불러모으게 한다. 더 많은 사람들이 도착해 문 주위로 몰려든다. 그들은 긴장한 듯 보이지만, 흥분한 것 같다.
 <br><br>
@@ -4610,13 +4635,13 @@ You see a small note near to the <<print _container.name>> with the letter "K" o
 "지시사항 목록을 작성해뒀어," 당신이 혼자 남자 카일라가 말한다. <<He_ 는>> 당신에게 쪽지를 건넨다. "어딘가에 붙여두는 게 좋을 거야." <<He_ 는>> 무언가를 기다리는 것처럼, <<his_>>의 발끝을 내려다본다.
 <br><br>
 
-<<link [[키스로 보답한다|Kylar Loft Kiss]]>><</link>><<promiscuous1>><<npcincr Kylar love 1>><<npcincr Kylar lust 1>><<glove>><<glust>><<kissvirginitywarning>><<NPCvirginitywarning "Kylar" "kiss">>
+<<link [[Reward with kiss|Kylar Loft Kiss]]>><<handheldon>><</link>><<promiscuous1>><<npcincr Kylar love 1>><<npcincr Kylar lust 1>><<glove>><<glust>><<kissvirginitywarning>><<NPCvirginitywarning "Kylar" "kiss">>
 <br>
 <<if hasSexStat("promiscuity", 3)>>
-	<<link [[음탕하게 보답한다|Kylar Loft Lewd]]>><</link>><<promiscuous3>><<npcincr Kylar love 3>><<npcincr Kylar lust 3>><<gglove>><<gglust>>
+	<<link [[Reward with lewd|Kylar Loft Lewd]]>><<handheldon>><</link>><<promiscuous3>><<npcincr Kylar love 3>><<npcincr Kylar lust 3>><<gglove>><<gglust>>
 	<br>
 <</if>>
-<<link [[감사한다|Kylar Loft Thank]]>><</link>>
+<<link [[Thank|Kylar Loft Thank]]>><<handheldon>><</link>>
 <br>
 
 :: Kylar Loft Kiss
@@ -4846,7 +4871,7 @@ The two of you continue walking.
 <br><br>
 
 <<if $money gte 10>>
-	<<link [[코인을 던진다 (£0.10)|Kylar Fountain Wish]]>><<set $money -= 10>><<trauma -3>><<set $kylar.fountainCoin to 1>><</link>><<ltrauma>>
+	<<link [[Toss a coin (£0.10)|Kylar Fountain Wish]]>><<money -10>><<trauma -3>><<set $kylar.fountainCoin to 1>><</link>><<ltrauma>>
 	<br>
 <</if>>
 <<link [[Take a coin from the fountain and toss it|Kylar Fountain Wish]]>><<set $kylar.fountainCoin to 0>><</link>>
@@ -5051,12 +5076,12 @@ After a moment, <<he>> shifts uncomfortably. "M-my love, I'm afraid I can't... u
 <br><br>
 
 <<if hasSexStat("promiscuity", 2)>>
-	<<link [["Help " + $NPCList[0].pronouns.him|School Toilets Kylar 2]]>><<set $phase to 1>><<npcincr Kylar love 1>><<npcincr Kylar lust -10>><</link>><<promiscuous2>><<glove>><<llust>>
+	<<link [[Help <<him>>|School Toilets Kylar 2]]>><<set $phase to 1>><<npcincr Kylar love 1>><<npcincr Kylar lust -10>><</link>><<promiscuous2>><<glove>><<llust>>
 <<else>>
-	<span class="blue">You aren't promiscuous enough to take things further.</span>
+	<<insufficientStat "promiscuity" "to take things further">>
 <</if>>
 <br>
-<<link [["Reject " + $NPCList[0].pronouns.his + " advances"|School Toilets Kylar 2]]>><<set $phase to 2>><<npcincr Kylar love -1>><</link>><<llove>><br>
+<<link [[Reject <<his>> advances|School Toilets Kylar 2]]>><<set $phase to 2>><<npcincr Kylar love -1>><</link>><<llove>><br>
 
 :: School Toilets Kylar 2
 <<effects>>

@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
 /* word - widget will output "a" if "a", and nothing if "n". eg - You are wearing <<a>> hat. You are wearing <<a>> shorts.
 plural - widget will output "are" if 1, and "is" if 0. eg - Your hat <<upperplural>> wet. Your shorts <<upperplural>> wet.
@@ -15,7 +16,8 @@ Warmth checklist:
 	Max warmth: 9
 */
 function initUpper() {
-	setup.clothes.upper = [
+	/** @type {ClothesItem[]} */
+	const clothing = [
 		{
 			index: 0,
 			name: "naked",
@@ -59,12 +61,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 1,
 			name: "sundress",
 			name_cap: "Sundress",
 			variable: "sundress",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -106,12 +110,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 2,
 			name: "pyjama shirt",
 			name_cap: "Pyjama shirt",
 			variable: "pjs",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -151,7 +157,6 @@ function initUpper() {
 			notuck: 0,
 			pregType: "split",
 		},
-
 		{
 			index: 3,
 			name: "towel top",
@@ -195,7 +200,6 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 4,
 			name: "t-shirt",
@@ -239,12 +243,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 5,
 			name: "school shirt",
 			name_cap: "School shirt",
 			variable: "schoolshirt",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -295,16 +301,19 @@ function initUpper() {
 			cursed: 0,
 			location: 0,
 			iconFile: "school_shirt.png",
-			accIcon: 0,
+			accIcon: "school_shirt_acc.png",
 			notuck: 0,
 			pregType: "split",
 		},
-
 		{
 			index: 6,
 			name: "plant top",
 			name_cap: "Plant top",
 			variable: "plant",
+			combat: {
+				reference: "tiefronttop",
+				mainColour: "#2d8452",
+			},
 			integrity: 10,
 			integrity_max: 10,
 			fabric_strength: 20,
@@ -344,12 +353,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 7,
 			name: "evening gown",
 			name_cap: "Evening gown",
 			variable: "eveninggown",
+			combat: {
+				reference: "sundress",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -408,12 +419,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 8,
 			name: "tank top",
 			name_cap: "Tank top",
 			variable: "tanktop",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -422,7 +435,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -452,12 +465,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 9,
 			name: "ballgown",
 			name_cap: "Ballgown",
 			variable: "ballgown",
+			combat: {
+				reference: "sundress",
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 20,
@@ -534,12 +549,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 10,
 			name: "kimono",
 			name_cap: "Kimono",
 			variable: "kimono",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -548,7 +565,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -584,12 +601,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 11,
 			name: "mini kimono",
 			name_cap: "Mini kimono",
 			variable: "kimonomini",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -598,7 +617,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -634,12 +653,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 12,
 			name: "maid dress",
 			name_cap: "Maid dress",
 			variable: "maid",
+			combat: {
+				reference: "tshirt",
+				mainColour: "#ffffff",
+			},
 			integrity: 110,
 			integrity_max: 110,
 			fabric_strength: 20,
@@ -682,12 +704,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 13,
 			name: "nun's habit",
 			name_cap: "Nun's habit",
 			variable: "nun",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#4c4c4c",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -728,12 +753,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 14,
 			name: "large towel",
 			name_cap: "Large towel",
 			variable: "towellarge",
+			combat: {
+				reference: "largetowel",
+			},
 			integrity: 10,
 			integrity_max: 10,
 			fabric_strength: 20,
@@ -773,12 +800,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 15,
 			name: "tuxedo jacket",
 			name_cap: "Tuxedo jacket",
 			variable: "tuxedo",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#2a2433",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -818,12 +848,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 16,
 			name: "blouse",
 			name_cap: "Blouse",
 			variable: "blouse",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 20,
@@ -832,7 +864,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -864,12 +896,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 17,
 			name: "babydoll",
 			name_cap: "Babydoll",
 			variable: "babydoll",
+			combat: {
+				reference: "blouse",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -878,7 +912,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 1,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -909,12 +943,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 18,
 			name: "babydoll lingerie",
 			name_cap: "Babydoll lingerie",
 			variable: "babydolllingerie",
+			combat: {
+				reference: "blouse",
+			},
 			integrity: 30,
 			integrity_max: 30,
 			fabric_strength: 20,
@@ -923,7 +959,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 1,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -954,12 +990,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 19,
 			name: "crop top",
 			name_cap: "Crop top",
 			variable: "croptop",
+			combat: {
+				reference: "tubetop",
+			},
 			integrity: 90,
 			integrity_max: 90,
 			fabric_strength: 20,
@@ -1000,12 +1038,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 20,
 			name: "classic serafuku",
 			name_cap: "Classic serafuku",
 			variable: "serafuku",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1046,12 +1086,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 21,
 			name: "tube top",
 			name_cap: "Tube top",
 			variable: "tubetop",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1092,7 +1134,6 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 22,
 			name: "turtleneck",
@@ -1136,12 +1177,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 23,
 			name: "sweater",
 			name_cap: "Sweater",
 			variable: "sweater",
+			combat: {
+				mainColour: "#fff",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -1181,12 +1224,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 24,
 			name: "oversized sweater",
 			name_cap: "Oversized sweater",
 			variable: "sweaterlarge",
+			combat: {
+				reference: "sweater",
+				mainColour: "#fff",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -1227,12 +1273,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 25,
 			name: "witch dress",
 			name_cap: "Witch dress",
 			variable: "witch",
+			combat: {
+				reference: "sundress",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -1274,12 +1322,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 26,
 			name: "vampire jacket",
 			name_cap: "Vampire jacket",
 			variable: "vampire",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -1319,12 +1369,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 27,
 			name: "slut shirt",
 			name_cap: "Slut shirt",
 			variable: "slut",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -1366,12 +1418,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 28,
 			name: "girl's sweater",
 			name_cap: "Girl's sweater",
 			variable: "pinksweater",
+			combat: {
+				reference: "sweater",
+				mainColour: "#fff",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -1412,12 +1467,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 29,
 			name: "girl's oversized sweater",
 			name_cap: "Girl's oversized sweater",
 			variable: "pinksweaterlarge",
+			combat: {
+				reference: "sweater",
+				mainColour: "#fff",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -1459,12 +1517,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 30,
 			name: "christmas shirt",
 			name_cap: "Christmas shirt",
 			variable: "christmas",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ff0000",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -1502,12 +1563,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 31,
 			name: "christmas dress",
 			name_cap: "Christmas dress",
 			variable: "christmasdress",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ff0000",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -1548,12 +1612,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 32,
 			name: "monk's habit",
 			name_cap: "Monk's habit",
 			variable: "monk",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#905424",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1594,12 +1661,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 33,
 			name: "checkered shirt",
 			name_cap: "Checkered shirt",
 			variable: "checkered",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -1639,12 +1708,16 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 34,
 			name: "belly dancer's top",
 			name_cap: "Belly dancer's top",
 			variable: "belly",
+			combat: {
+				reference: "tubetop",
+				hasSleeves: false,
+				hasBreastsAcc: false,
+			},
 			integrity: 150,
 			integrity_max: 150,
 			fabric_strength: 20,
@@ -1688,12 +1761,17 @@ function initUpper() {
 			pregType: 0,
 			mainImage: 0,
 		},
-
 		{
 			index: 35,
 			name: "straightjacket",
 			name_cap: "Straightjacket",
 			variable: "straightjacket",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#fff",
+				hasSleeves: true,
+				hasBreasts: true,
+			},
 			integrity: 300,
 			integrity_max: 300,
 			fabric_strength: 20,
@@ -1733,12 +1811,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 36,
 			name: "argyle sweater vest",
 			name_cap: "Argyle sweater vest",
 			variable: "argyle",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 130,
 			integrity_max: 130,
 			fabric_strength: 20,
@@ -1778,12 +1858,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 37,
 			name: "dress shirt",
 			name_cap: "Dress shirt",
 			variable: "dress",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -1847,12 +1929,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "split",
 		},
-
 		{
 			index: 38,
 			name: "gingham dress",
 			name_cap: "Gingham dress",
 			variable: "gingham",
+			combat: {
+				reference: "blouse",
+				hasBreasts: true,
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 20,
@@ -1861,7 +1946,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 1,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -1911,12 +1996,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 39,
 			name: "overalls",
 			name_cap: "Overalls",
 			variable: "overalls",
+			combat: {
+				reference: "blouse",
+			},
 			integrity: 180,
 			integrity_max: 180,
 			fabric_strength: 20,
@@ -1960,12 +2047,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 40,
 			name: "punk leather jacket",
 			name_cap: "Punk leather jacket",
 			variable: "blackleather",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 240,
 			integrity_max: 240,
 			fabric_strength: 20,
@@ -2027,12 +2116,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 41,
 			name: "leather jacket",
 			name_cap: "Leather jacket",
 			variable: "brownleather",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 240,
 			integrity_max: 240,
 			fabric_strength: 20,
@@ -2093,12 +2184,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 42,
 			name: "beatnik shirt",
 			name_cap: "Beatnik shirt",
 			variable: "beatnik",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ffffff",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -2137,7 +2231,6 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 43,
 			name: "cable knit turtleneck",
@@ -2181,12 +2274,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 44,
 			name: "v neck",
 			name_cap: "V neck",
 			variable: "vneck",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 90,
 			integrity_max: 90,
 			fabric_strength: 20,
@@ -2225,12 +2320,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 45,
 			name: "turtleneck jumper",
 			name_cap: "Turtleneck jumper",
 			variable: "turtleneckjumper",
+			combat: {
+				reference: "cable",
+			},
 			integrity: 250,
 			integrity_max: 250,
 			fabric_strength: 20,
@@ -2269,12 +2366,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 46,
 			name: "cheongsam",
 			name_cap: "Cheongsam",
 			variable: "cheongsam",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -2283,7 +2382,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -2317,12 +2416,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 47,
 			name: "short cheongsam",
 			name_cap: "Short cheongsam",
 			variable: "cheongsamshort",
+			combat: {
+				reference: "tanktop",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -2331,7 +2432,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -2365,7 +2466,6 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 48,
 			name: "tie-front top",
@@ -2379,7 +2479,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -2412,12 +2512,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 49,
 			name: "peacoat",
 			name_cap: "Peacoat",
 			variable: "peacoat",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 400,
 			integrity_max: 400,
 			fabric_strength: 40,
@@ -2459,12 +2562,18 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 50,
 			name: "gothic gown",
 			name_cap: "Gothic gown",
 			variable: "gothic",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+				hasSleevesAcc: false,
+				hasBreasts: true,
+				mainColour: "#262626",
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 20,
@@ -2510,12 +2619,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 51,
 			name: "gothic jacket",
 			name_cap: "Gothic jacket",
 			variable: "gothicjacket",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#272727",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -2555,12 +2667,16 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 52,
 			name: "swim shirt",
 			name_cap: "Swim shirt",
 			variable: "swimshirt",
+			combat: {
+				reference: "tshirt",
+				mainColour: "#333333",
+				sleeveColour: "#ffffff",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -2601,12 +2717,16 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 53,
 			name: "waiter's shirt",
 			name_cap: "Waiter's shirt",
 			variable: "waiter",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#4f4f4f",
+				sleeveColour: "#ffffff",
+			},
 			integrity: 130,
 			integrity_max: 130,
 			fabric_strength: 20,
@@ -2647,12 +2767,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 54,
 			name: "lederhosen",
 			name_cap: "Lederhosen",
 			variable: "leder",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ffffff",
+			},
 			integrity: 150,
 			integrity_max: 150,
 			fabric_strength: 20,
@@ -2693,12 +2816,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 55,
 			name: "karate jacket",
 			name_cap: "Karate jacket",
 			variable: "karate",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 170,
 			integrity_max: 170,
 			fabric_strength: 20,
@@ -2741,12 +2866,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 56,
 			name: "sailor shirt",
 			name_cap: "Sailor shirt",
 			variable: "sailor",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 20,
@@ -2788,12 +2916,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 57,
 			name: "short sailor shirt",
 			name_cap: "Short sailor shirt",
 			variable: "sailorshort",
+			combat: {
+				reference: "tshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -2835,12 +2966,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 58,
 			name: "foreign football shirt",
 			name_cap: "Foreign football shirt",
 			variable: "football",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 240,
 			integrity_max: 240,
 			fabric_strength: 20,
@@ -2881,12 +3014,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 59,
 			name: "gym shirt",
 			name_cap: "Gym shirt",
 			variable: "gymshirt",
+			combat: {
+				mainColour: "#ffffff",
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 20,
@@ -2902,14 +3037,14 @@ function initUpper() {
 			state_top_base: "chest",
 			plural: 0,
 			colour: 0,
-			colour_options: [],
+			colour_options: ["white"],
 			colour_combat: "white",
 			exposed: 0,
 			exposed_base: 0,
 			type: ["normal", "athletic", "school"],
 			set: "upper",
 			gender: "n",
-			femininity: 200,
+			femininity: 0,
 			warmth: 5,
 			cost: 3000,
 			description: "PE shirt from a foreign land.",
@@ -2928,12 +3063,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 60,
 			name: "cheerleading top",
 			name_cap: "Cheerleading top",
 			variable: "cheerleader",
+			combat: {
+				reference: "tanktop",
+				hasBreastsAcc: false,
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -2942,7 +3080,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -2975,12 +3113,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 61,
 			name: "hunting coat",
 			name_cap: "Hunting coat",
 			variable: "hunt",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -3021,12 +3161,17 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 62,
 			name: "letterman jacket",
 			name_cap: "Letterman jacket",
 			variable: "letterman",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+				hasSleevesAcc: false,
+				sleeveColour: "#ffffff",
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 20,
@@ -3070,12 +3215,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 63,
 			name: "racing silks",
 			name_cap: "Racing silks",
 			variable: "racing",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 20,
@@ -3117,12 +3265,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 64,
 			name: "shadbelly coat",
 			name_cap: "Shadbelly coat",
 			variable: "shadbelly",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#272727",
+			},
 			integrity: 180,
 			integrity_max: 180,
 			fabric_strength: 20,
@@ -3162,12 +3313,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 65,
 			name: "mummy top",
 			name_cap: "Mummy top",
 			variable: "mummy",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ffffff",
+			},
 			integrity: 10,
 			integrity_max: 10,
 			fabric_strength: 1,
@@ -3207,12 +3361,17 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 66,
 			name: "diving suit",
 			name_cap: "Diving suit",
 			variable: "diving",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#303030",
+				hasBreastsAcc: false,
+				sleeveColour: "primary",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 50,
@@ -3246,6 +3405,7 @@ function initUpper() {
 			accessory_colour_options: [],
 			accessory_integrity_img: 1,
 			sleeve_img: 1,
+			sleeve_colour: "primary",
 			breast_acc_img: { 0: null, 1: null, 2: 2, 3: 3, 4: 4, 5: 4, 6: 4 },
 			cursed: 0,
 			location: 0,
@@ -3256,12 +3416,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 67,
 			name: "classic sundress",
 			name_cap: "Classic sundress",
 			variable: "classicsundress",
+			combat: {
+				reference: "blouse",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -3270,7 +3432,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 1,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -3303,12 +3465,17 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 68,
 			name: "classic gothic gown",
 			name_cap: "Classic gothic gown",
 			variable: "gothicold",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+				hasSleevesAcc: false,
+				mainColour: "#262626",
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 20,
@@ -3317,7 +3484,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -3350,12 +3517,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 69,
 			name: "scout shirt",
 			name_cap: "Scout shirt",
 			variable: "scout",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 30,
@@ -3396,12 +3565,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 70,
 			name: "football shirt",
 			name_cap: "Football shirt",
 			variable: "soccer",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 30,
@@ -3442,12 +3613,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 71,
 			name: "puffer jacket",
 			name_cap: "Puffer jacket",
 			variable: "puffer",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 30,
@@ -3487,12 +3660,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 72,
 			name: "camo shirt",
 			name_cap: "Camo shirt",
 			variable: "camo",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 30,
@@ -3532,12 +3707,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 73,
 			name: "star pyjama shirt",
 			name_cap: "Star pyjama shirt",
 			variable: "pjsstar",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -3577,12 +3754,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 74,
 			name: "moon pyjama shirt",
 			name_cap: "Moon pyjama shirt",
 			variable: "pjsmoon",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -3622,12 +3801,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 75,
 			name: "catsuit",
 			name_cap: "Catsuit",
 			variable: "catsuit",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 30,
@@ -3669,12 +3850,15 @@ function initUpper() {
 			outfitPrimary: { lower: "catsuit bottoms" },
 			pregType: 0,
 		},
-
 		{
 			index: 76,
 			name: "open shoulders crop top",
 			name_cap: "Open shoulders crop top",
 			variable: "openshoulderscrop",
+			combat: {
+				reference: "tubetop",
+				hasSleeves: false,
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 15,
@@ -3683,7 +3867,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -3716,12 +3900,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 77,
 			name: "hoodie",
 			name_cap: "Hoodie",
 			variable: "hoodie",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 30,
@@ -3793,12 +3979,15 @@ function initUpper() {
 			hoodposition: "up",
 			pregType: 0,
 		},
-
 		{
 			index: 78,
 			name: "bathrobe",
 			name_cap: "Bathrobe",
 			variable: "bathrobe",
+			combat: {
+				reference: "sweater",
+				mainColour: "#ffffff",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -3840,12 +4029,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 79,
 			name: "rag top",
 			name_cap: "Rag top",
 			variable: "rag",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 10,
 			integrity_max: 10,
 			fabric_strength: 1,
@@ -3854,7 +4045,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "midriff",
 			state_base: "midriff",
 			state_top: "chest",
@@ -3884,12 +4075,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 80,
 			name: "retro top",
 			name_cap: "Retro top",
 			variable: "retro",
+			combat: {
+				reference: "tshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 1,
@@ -3943,12 +4137,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 81,
 			name: "utility vest",
 			name_cap: "Utility vest",
 			variable: "utility",
+			combat: {
+				reference: "tanktop",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -3987,12 +4183,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "split",
 		},
-
 		{
 			index: 82,
 			name: "utility vest with shirt",
 			name_cap: "Utility vest with shirt",
 			variable: "utilityshirt",
+			combat: {
+				reference: "tanktop",
+				hasBreastsAcc: false,
+			},
 			integrity: 250,
 			integrity_max: 250,
 			fabric_strength: 20,
@@ -4034,12 +4233,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 83,
 			name: "monster hoodie",
 			name_cap: "Monster hoodie",
 			variable: "monster",
+			combat: {
+				reference: "regularshirt",
+				hasSleevesAcc: false,
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -4082,12 +4284,14 @@ function initUpper() {
 			hoodposition: "up",
 			pregType: 0,
 		},
-
 		{
 			index: 84,
 			name: "keyhole dress",
 			name_cap: "Keyhole dress",
 			variable: "keyhole",
+			combat: {
+				reference: "sundress",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -4128,12 +4332,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 85,
 			name: "prison shirt",
 			name_cap: "Prison shirt",
 			variable: "prison",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ffffff",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -4166,17 +4373,20 @@ function initUpper() {
 			breast_img: { 0: null, 1: null, 2: null, 3: 3, 4: 3, 5: 5, 6: 6 },
 			cursed: 0,
 			location: 0,
-			iconFile: "",
+			iconFile: "prison_shirt.png",
 			accIcon: 0,
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 86,
 			name: "prison jumpsuit",
 			name_cap: "Prison jumpsuit",
 			variable: "jumpsuit",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ff6c00",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -4210,18 +4420,20 @@ function initUpper() {
 			breast_img: { 0: null, 1: null, 2: 2, 3: 3, 4: 3, 5: 4, 6: 4 },
 			cursed: 0,
 			location: 0,
-			iconFile: "",
+			iconFile: "prison_jumpsuit.png",
 			accIcon: 0,
 			outfitPrimary: { lower: "prison jumpsuit trousers" },
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 87,
 			name: "patient gown",
 			name_cap: "Patient gown",
 			variable: "patient",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -4262,12 +4474,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 88,
 			name: "cropped hoodie",
 			name_cap: "Cropped hoodie",
 			variable: "croppedhoodie",
+			combat: {
+				reference: "turtleneck",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 30,
@@ -4307,12 +4521,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 89,
 			name: "cow onesie",
 			name_cap: "Cow onesie",
 			variable: "cowonesie",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ffffff",
+			},
 			integrity: 300,
 			integrity_max: 300,
 			fabric_strength: 30,
@@ -4354,12 +4571,14 @@ function initUpper() {
 			hoodposition: "up",
 			pregType: 0,
 		},
-
 		{
 			index: 90,
 			name: "baseball shirt",
 			name_cap: "Baseball shirt",
 			variable: "baseball",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -4398,12 +4617,15 @@ function initUpper() {
 			accIcon: "baseball_shirt_acc.png",
 			notuck: 0,
 		},
-
 		{
 			index: 91,
 			name: "scarecrow shirt",
 			name_cap: "Scarecrow shirt",
 			variable: "scarecrow",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#5e4144",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -4446,12 +4668,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 92,
 			name: "waitress uniform",
 			name_cap: "Waitress uniform",
 			variable: "waitress",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -4506,21 +4730,23 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 93,
 			name: "split dress",
 			name_cap: "Split dress",
 			variable: "split",
+			combat: {
+				reference: "blouse",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
 			reveal: 700,
 			bustresize: 0,
 			word: "a",
-			one_piece: 1,
+			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -4566,12 +4792,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 94,
 			name: "skimpy lolita dress",
 			name_cap: "Skimpy lolita dress",
 			variable: "skimpylolita",
+			combat: {
+				reference: "sundress",
+			},
 			integrity: 70,
 			integrity_max: 70,
 			fabric_strength: 30,
@@ -4630,12 +4858,14 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 95,
 			name: "short ballgown",
 			name_cap: "Short ballgown",
 			variable: "shortballgown",
+			combat: {
+				reference: "sundress",
+			},
 			integrity: 70,
 			integrity_max: 70,
 			fabric_strength: 20,
@@ -4711,12 +4941,14 @@ function initUpper() {
 			outfitPrimary: { lower: "short ballgown skirt" },
 			notuck: 0,
 		},
-
 		{
 			index: 96,
 			name: "single breasted jacket",
 			name_cap: "Single breasted jacket",
 			variable: "singlebreasted",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -4770,12 +5002,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 97,
 			name: "double breasted jacket",
 			name_cap: "Double breasted jacket",
 			variable: "doublebreasted",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -4829,12 +5063,15 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 98,
 			name: "pink nurse dress",
 			name_cap: "Pink nurse dress",
 			variable: "pinknurse",
+			combat: {
+				reference: "tshirt",
+				mainColour: "#ff8c91",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 30,
@@ -4878,12 +5115,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 99,
 			name: "plastic nurse dress",
 			name_cap: "Plastic nurse dress",
 			variable: "plasticnurse",
+			combat: {
+				reference: "tshirt",
+				mainColour: "#ff8c91",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 30,
@@ -4927,12 +5167,16 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 100,
 			name: "transparent nurse dress",
 			name_cap: "Transparent nurse dress",
 			variable: "transparentnurse",
+			combat: {
+				reference: "tshirt",
+				mainColour: "#ff8c91",
+				hasSleeves: true,
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 30,
@@ -4975,12 +5219,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 101,
 			name: "hanfu",
 			name_cap: "Hanfu",
 			variable: "hanfu",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -5037,12 +5284,14 @@ function initUpper() {
 			notuck: 1,
 			pregType: "min",
 		},
-
 		{
 			index: 102,
 			name: "open shoulder sweater",
 			name_cap: "Open shoulder sweater",
 			variable: "openshouldersweater",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 180,
 			integrity_max: 180,
 			fabric_strength: 20,
@@ -5051,7 +5300,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -5083,12 +5332,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
-
 		{
 			index: 103,
 			name: "winter jacket",
 			name_cap: "Winter jacket",
 			variable: "winterjacket",
+			combat: {
+				reference: "regularshirt",
+				hasSleevesAcc: false,
+			},
 			integrity: 240,
 			integrity_max: 240,
 			fabric_strength: 20,
@@ -5132,12 +5384,16 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 104,
 			name: "cocoon",
 			name_cap: "Cocoon",
 			variable: "cocoon",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#fff0dc",
+				hasSleeves: true,
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 30,
@@ -5159,8 +5415,8 @@ function initUpper() {
 			exposed_base: 0,
 			type: ["normal", "bellyHide"],
 			set: "cocoon",
-			gender: "f",
-			femininity: 200,
+			gender: "n",
+			femininity: 0,
 			warmth: 5,
 			cost: 0,
 			description: "Binding.",
@@ -5179,12 +5435,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 105,
 			name: "skeleton outfit",
 			name_cap: "Skeleton outfit",
 			variable: "skele",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#303030",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -5225,12 +5484,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 106,
 			name: "classy vampire jacket",
 			name_cap: "Classy vampire jacket",
 			variable: "classyvampire",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#303030",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -5271,7 +5533,6 @@ function initUpper() {
 			notuck: 1,
 			pregType: "split",
 		},
-
 		{
 			index: 107,
 			name: "virgin killer",
@@ -5317,12 +5578,16 @@ function initUpper() {
 			notuck: 1,
 			pregType: 0,
 		},
-
 		{
 			index: 108,
 			name: "futuristic bodysuit",
 			name_cap: "Futuristic bodysuit",
 			variable: "futuresuit",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+				hasSleevesAcc: false,
+			},
 			integrity: 130,
 			integrity_max: 130,
 			fabric_strength: 30,
@@ -5369,12 +5634,15 @@ function initUpper() {
 			pregType: "min",
 			mainImage: 0,
 		},
-
 		{
 			index: 109,
 			name: "lace nightgown",
 			name_cap: "Lace nightgown",
 			variable: "lacegown",
+			combat: {
+				reference: "blouse",
+				mainColour: "#4f2837",
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 30,
@@ -5383,7 +5651,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 1,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -5420,6 +5688,9 @@ function initUpper() {
 			name: "cat hoodie",
 			name_cap: "Cat hoodie",
 			variable: "cat hoodie",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 30,
@@ -5482,6 +5753,9 @@ function initUpper() {
 			name: "ao dai",
 			name_cap: "Ao dai",
 			variable: "ao dai",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 30,
@@ -5525,6 +5799,9 @@ function initUpper() {
 			name: "school cardigan",
 			name_cap: "School cardigan",
 			variable: "schoolcardigan",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -5577,6 +5854,9 @@ function initUpper() {
 			name: "school blouse",
 			name_cap: "School blouse",
 			variable: "schoolblouse",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -5624,6 +5904,10 @@ function initUpper() {
 			name: "traditional maid dress",
 			name_cap: "Traditional maid dress",
 			variable: "traditionalmaid",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#414141",
+			},
 			integrity: 110,
 			integrity_max: 110,
 			fabric_strength: 20,
@@ -5671,6 +5955,10 @@ function initUpper() {
 			name: "Victorian maid dress",
 			name_cap: "Victorian maid dress",
 			variable: "victorianmaid",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#414141",
+			},
 			integrity: 110,
 			integrity_max: 110,
 			fabric_strength: 20,
@@ -5718,6 +6006,10 @@ function initUpper() {
 			name: "shrine maiden robes",
 			name_cap: "Shrine maiden robes",
 			variable: "shrinemaiden",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ffffff",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -5764,6 +6056,9 @@ function initUpper() {
 			name: "polo shirt",
 			name_cap: "Polo shirt",
 			variable: "polo",
+			combat: {
+				reference: "gymshirt",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -5812,6 +6107,10 @@ function initUpper() {
 			name: "colour block crop top",
 			name_cap: "Colour block crop top",
 			variable: "colour block crop",
+			combat: {
+				reference: "gymshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 110,
 			integrity_max: 110,
 			fabric_strength: 30,
@@ -5861,6 +6160,9 @@ function initUpper() {
 			name: "band t-shirt",
 			name_cap: "Band t-shirt",
 			variable: "band tee",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 110,
 			integrity_max: 110,
 			fabric_strength: 30,
@@ -5908,6 +6210,9 @@ function initUpper() {
 			name: "boxy t-shirt",
 			name_cap: "Boxy t-shirt",
 			variable: "boxy",
+			combat: {
+				reference: "tshirt",
+			},
 			integrity: 110,
 			integrity_max: 110,
 			fabric_strength: 30,
@@ -5955,6 +6260,9 @@ function initUpper() {
 			name: "virgin killer dress",
 			name_cap: "Virgin killer dress",
 			variable: "virginkillerdress",
+			combat: {
+				reference: "virginkiller",
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 30,
@@ -6001,6 +6309,9 @@ function initUpper() {
 			name: "gakuran",
 			name_cap: "Gakuran",
 			variable: "gakuran",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -6047,6 +6358,9 @@ function initUpper() {
 			name: "halter sundress",
 			name_cap: "Halter sundress",
 			variable: "haltersundress",
+			combat: {
+				reference: "blouse",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -6055,7 +6369,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 1,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -6111,6 +6425,9 @@ function initUpper() {
 			name: "leather dress",
 			name_cap: "Leather dress",
 			variable: "leatherdress",
+			combat: {
+				reference: "blouse",
+			},
 			integrity: 70,
 			integrity_max: 70,
 			fabric_strength: 30,
@@ -6155,7 +6472,7 @@ function initUpper() {
 			formfitting: 1,
 			warmth: 2,
 			cost: 13000,
-			description: "A little black dress, for making heads turn.",
+			description: "A short form-fitting dress, for making heads turn.",
 			shop: ["clothing", "adult"],
 			accessory: 0,
 			accessory_colour: 0,
@@ -6176,6 +6493,9 @@ function initUpper() {
 			name: "serafuku",
 			name_cap: "Serafuku",
 			variable: "serafuku_new",
+			combat: {
+				reference: "gymshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -6238,6 +6558,9 @@ function initUpper() {
 			name: "cable knit cardigan",
 			name_cap: "Cable knit cardigan",
 			variable: "cableknitcardigan",
+			combat: {
+				reference: "cable",
+			},
 			integrity: 150,
 			integrity_max: 150,
 			fabric_strength: 20,
@@ -6281,6 +6604,10 @@ function initUpper() {
 			name: "open shoulder lolita dress",
 			name_cap: "Open shoulder lolita dress",
 			variable: "openshoulderlolita",
+			combat: {
+				reference: "sundress",
+				hasSleevesAcc: false,
+			},
 			integrity: 70,
 			integrity_max: 70,
 			fabric_strength: 30,
@@ -6331,6 +6658,9 @@ function initUpper() {
 			name: "school sweater vest",
 			name_cap: "School sweater vest",
 			variable: "schoolvest",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6380,6 +6710,10 @@ function initUpper() {
 			name: "jingle-bell dress",
 			name_cap: "Jingle-bell dress",
 			variable: "jingledress",
+			combat: {
+				reference: "regularshirt",
+				mainColour: "#ce0d1b",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -6426,6 +6760,10 @@ function initUpper() {
 			name: "sleeveless jingle-bell dress",
 			name_cap: "Sleeveless jingle-bell dress",
 			variable: "jingledresssleeveless",
+			combat: {
+				reference: "sundress",
+				mainColour: "#ce0d1b",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -6471,6 +6809,10 @@ function initUpper() {
 			name: "jumper",
 			name_cap: "Jumper",
 			variable: "jumper",
+			combat: {
+				reference: "sweater",
+				hasSleevesAcc: false,
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6549,6 +6891,9 @@ function initUpper() {
 			name: "festive jumper",
 			name_cap: "Festive jumper",
 			variable: "jumperxmas",
+			combat: {
+				reference: "sweater",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6610,6 +6955,10 @@ function initUpper() {
 			name: "ghost jumper",
 			name_cap: "Ghost jumper",
 			variable: "jumperghost",
+			combat: {
+				reference: "sweater",
+				hasSleevesAcc: false,
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6688,6 +7037,10 @@ function initUpper() {
 			name: "heart jumper",
 			name_cap: "Heart jumper",
 			variable: "jumperheart",
+			combat: {
+				reference: "sweater",
+				hasSleevesAcc: false,
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6767,6 +7120,10 @@ function initUpper() {
 			name: "skull jumper",
 			name_cap: "Skull jumper",
 			variable: "jumperskull",
+			combat: {
+				reference: "sweater",
+				hasSleevesAcc: false,
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6846,6 +7203,9 @@ function initUpper() {
 			name: "leather crop top",
 			name_cap: "Leather crop top",
 			variable: "leathercroptop",
+			combat: {
+				reference: "tubetop",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6891,6 +7251,9 @@ function initUpper() {
 			name: "zipped leather crop top",
 			name_cap: "Zipped leather crop top",
 			variable: "leathercroptopzip",
+			combat: {
+				reference: "tubetop",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6937,6 +7300,9 @@ function initUpper() {
 			name: "leather top",
 			name_cap: "Leather top",
 			variable: "leathertop",
+			combat: {
+				reference: "tanktop",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -6983,6 +7349,9 @@ function initUpper() {
 			name: "zipped leather top",
 			name_cap: "Zipped leather top",
 			variable: "leathertopzip",
+			combat: {
+				reference: "tanktop",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -7031,6 +7400,9 @@ function initUpper() {
 			name: "cropped leather jacket",
 			name_cap: "Cropped leather jacket",
 			variable: "leathercropjacket",
+			combat: {
+				reference: "turtleneck",
+			},
 			integrity: 240,
 			integrity_max: 240,
 			fabric_strength: 20,
@@ -7097,6 +7469,11 @@ function initUpper() {
 			name: "sexy nun's habit",
 			name_cap: "Sexy nun's habit",
 			variable: "nunlewd",
+			combat: {
+				reference: "sundress",
+				mainColour: "#312737",
+				hasSleeves: false,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -7143,6 +7520,10 @@ function initUpper() {
 			name: "sexy priest's vestments",
 			name_cap: "Sexy priest's vestments",
 			variable: "monklewd",
+			combat: {
+				reference: "tshirt",
+				mainColour: "#4d4252",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -7188,6 +7569,9 @@ function initUpper() {
 			name: "waistcoat",
 			name_cap: "Waistcoat",
 			variable: "waistcoat",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -7241,6 +7625,9 @@ function initUpper() {
 			name: "lapelled waistcoat",
 			name_cap: "Lapelled waistcoat",
 			variable: "waistcoatlapel",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -7294,6 +7681,9 @@ function initUpper() {
 			name: "long waistcoat",
 			name_cap: "Long waistcoat",
 			variable: "waistcoatlong",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -7344,6 +7734,9 @@ function initUpper() {
 			name: "long lapelled waistcoat",
 			name_cap: "Long lapelled waistcoat",
 			variable: "waistcoatlonglapel",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -7395,6 +7788,10 @@ function initUpper() {
 			name: "shirt and blazer",
 			name_cap: "Shirt and blazer",
 			variable: "blazershirt",
+			combat: {
+				reference: "regularshirt",
+				hasBreastsAcc: false,
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -7447,6 +7844,9 @@ function initUpper() {
 			name: "oversized button-down",
 			name_cap: "Oversized button-down",
 			variable: "oversizedbuttondown",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -7496,6 +7896,9 @@ function initUpper() {
 			name: "button-down",
 			name_cap: "Button-down",
 			variable: "buttondown",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 160,
 			integrity_max: 160,
 			fabric_strength: 20,
@@ -7546,6 +7949,9 @@ function initUpper() {
 			name: "life vest",
 			name_cap: "Life vest",
 			variable: "lifevest",
+			combat: {
+				reference: "tanktop",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 30,
@@ -7591,6 +7997,9 @@ function initUpper() {
 			name: "harem vest",
 			name_cap: "Harem vest",
 			variable: "haremvest",
+			combat: {
+				reference: "tanktop",
+			},
 			integrity: 150,
 			integrity_max: 150,
 			fabric_strength: 20,
@@ -7680,6 +8089,10 @@ function initUpper() {
 			name: "sexy butler top",
 			name_cap: "Sexy butler top",
 			variable: "slutler",
+			combat: {
+				reference: "tanktop",
+				mainColour: "#383642",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -7688,7 +8101,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -7723,6 +8136,9 @@ function initUpper() {
 			name: "classic open shoulder lolita dress",
 			name_cap: "Classic open shoulder lolita dress",
 			variable: "openshoulderlolitaclassic",
+			combat: {
+				reference: "sundress",
+			},
 			integrity: 70,
 			integrity_max: 70,
 			fabric_strength: 30,
@@ -7771,6 +8187,9 @@ function initUpper() {
 			name: "jumpsuit",
 			name_cap: "Jumpsuit",
 			variable: "jumpsuitstylish",
+			combat: {
+				reference: "regularshirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -7831,12 +8250,15 @@ function initUpper() {
 			notuck: 0,
 			pregType: "min",
 		},
-
 		{
 			index: 156,
 			name: "ragged dress",
 			name_cap: "Ragged dress",
 			variable: "drowneddress",
+			combat: {
+				reference: "sundress",
+				mainColour: "#ffffff",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -7845,7 +8267,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 1,
 			strap: 0,
-			open: 1,
+			open: 0,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
@@ -7877,7 +8299,59 @@ function initUpper() {
 			notuck: 0,
 			pregType: 0,
 		},
+		{
+			index: 157,
+			name: "bedsheet",
+			name_cap: "Bedsheet",
+			variable: "bedsheet",
+			holdPosition: "hold",
+			combat: {
+				reference: "sundress",
+				mainColour: "#ffffff",
+			},
+			integrity: 10,
+			integrity_max: 10,
+			fabric_strength: 20,
+			reveal: 800,
+			bustresize: 0,
+			word: "a",
+			one_piece: 0,
+			strap: 0,
+			open: 1,
+			state: "waist",
+			state_base: "waist",
+			state_top: "chest",
+			state_top_base: "chest",
+			plural: 0,
+			colour: 0,
+			colour_options: ["white"],
+			colour_sidebar: 1,
+			exposed: 0,
+			exposed_base: 0,
+			type: ["costume"],
+			set: "bedsheet",
+			gender: "n",
+			femininity: 0,
+			formfitting: 1,
+			warmth: 3,
+			cost: 36000,
+			description: "Flimsy.",
+			shop: [],
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			sleeve_img: 0,
+			breast_img: { 0: null, 1: null, 2: null, 3: null, 4: null, 5: 5, 6: 5 },
+			cursed: 0,
+			location: 0,
+			iconFile: "bedsheet.png",
+			accIcon: 0,
+			outfitPrimary: { lower: "bedsheet skirt" },
+			notuck: 0,
+			pregType: 0,
+		},
 	];
+	setup.clothes.upper = clothing;
 
 	/*
 		Clothes that modders add go into this array, this should be empty in the base game at all times.

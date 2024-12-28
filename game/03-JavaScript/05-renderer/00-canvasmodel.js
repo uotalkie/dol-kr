@@ -31,82 +31,52 @@
  * are re-composed. (Source images are still cached globally under their url)
  */
 
-/**
- * @typedef {object} CanvasModelLayer
- * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit <<showlayer>>). Do not use undefined/null/0/"" to hide layer!
- * @property {string} [src] Image path. Either `src` or `srcfn` is required.
- * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
- * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
- * @property {number} [maskAlpha] Mask opacity, from 0 (invisible) to 1 (opaque, default).
- * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
- * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
- * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
- * @property {string} [compositeOperation] compositeOperation for the entire layer.
- * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
- * @property {string} [maskBlendMode] Recoloring mode for the mask. (default is "destination-in")
- * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
- * @property {string|string[]} [masksrc] Single mask image path or array of mask image paths. If present, only parts where mask(s) are opaque will be displayed.
- * @property {string} [animation] Name of animation to apply, default none.
- * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
- * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
- * @property {number} [dx] Layer X position on the image, default 0.
- * @property {number} [dy] Layer Y position on the image, default 0.
- * @property {number} [width] Layer subsprite width, default = model width.
- * @property {number} [height] Layer subsprite width, default = model height.
- * @property {object} [worn] Worn object (for clothing)
- *
- * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
- * @property {Function} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
- * @property {Function} [srcfn] (options)=>string.
- * @property {Function} [zfn] (options)=>number.
- * @property {Function} [alphafn] (options)=>number.
- * @property {Function} [maskAlphafn] (options)=>number.
- * @property {Function} [desaturatefn] (options)=>boolean.
- * @property {Function} [brightnessfn] (options)=>number.
- * @property {Function} [contrastftn] (options)=>number.
- * @property {Function} [compositeOperationfn] (options)=>(string).
- * @property {Function} [blendModefn] (options)=>(string|object).
- * @property {Function} [maskBlendModefn] (options)=>(string|object).
- * @property {Function} [blendfn] (options)=>string.
- * @property {Function} [masksrcfn] (options)=>string|string[].
- * @property {Function} [animationfn] (options)=>string.
- * @property {Function} [framesfn] (options)=>number[].
- * @property {Function} [filtersfn] (options)=>string[].
- * @property {Function} [dxfn] (options)=>number.
- * @property {Function} [dyfn] (options)=>number.
- * @property {Function} [widthfn] (options)=>number.
- * @property {Function} [heightfn] (options)=>number.
- * @property {Function} [wornfn] (options)=>object.
- */
+class CanvasModel {
+	/**
+	 * Static factory method to create/fetch a stored model.
+	 *
+	 * @param {string} id
+	 * @param {string} slot
+	 * @returns {CanvasModel}
+	 */
+	static create(id, slot) {
+		const template = Renderer.CanvasModels[id];
+		if (!template) {
+			Errors.report("Requested non-existing model " + id);
+			return new CanvasModel({
+				name: "empty",
+				width: 1,
+				height: 1,
+				layers: {},
+				frames: 1,
+				defaultOptions() {
+					console.debug("CanvasModel-defaultOptions not set.");
+				},
+				generatedOptions() {
+					return [];
+				},
+				preprocess(options) {
+					console.debug("CanvasModel-preprocess not set.");
+				},
+			});
+		}
+		if (!slot) {
+			return new CanvasModel(template);
+		}
+		let cache = Renderer.CanvasModelCaches[id];
+		if (!cache) {
+			cache = {};
+			Renderer.CanvasModelCaches[id] = cache;
+		}
+		let model = cache[slot];
+		if (model) {
+			return model;
+		}
+		model = new CanvasModel(template);
+		cache[slot] = model;
+		return model;
+	}
 
-/**
- * @typedef {object} CanvasModelOptions
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {boolean} scale Set to true to scale layers to the canvas size, if smaller.
- * @property {Object<string, CanvasModelLayer>} layers Layers (by name).
- * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
- * @property {Function} [defaultOptions] Function ()=>object returning default options.
- * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
- * @property {Function} [postprocess] Postprocessing function (options)=>void to generate temp options.
- */
-
-// Consider doing proper class inheritance
-/**
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {boolean} scale Set to true to scale layers to the canvas size, if smaller.
- * @property {Function} defaultOptions Function ()=>object returning default options.
- * @property {string[]} generatedOptions Names of generated options.
- * @property {Object<string, CanvasModelLayer>} layers Layers (by name).
- * @property {CanvasModelLayer[]} layerList Layers.
- * @property {CanvasRenderingContext2D} canvas
- */
-window.CanvasModel = class CanvasModel {
 	/**
 	 * @param {CanvasModelOptions} options
 	 */
@@ -115,6 +85,7 @@ window.CanvasModel = class CanvasModel {
 		this.width = options.width;
 		this.height = options.height;
 		this.frames = options.frames || 1;
+		this.metadata = options.metadata || {};
 		this.scale = options.scale || false;
 		if ("generatedOptions" in options) this.generatedOptions = options.generatedOptions;
 		if ("defaultOptions" in options) this.defaultOptions = options.defaultOptions;
@@ -276,6 +247,8 @@ window.CanvasModel = class CanvasModel {
 			// Reset some options
 			layer.brightness = layer.defaultOptions.brightness;
 			layer.contrast = layer.defaultOptions.contrast;
+			layer.frameDx = 0;
+			layer.frameDy = 0;
 		}
 
 		function propeval(layer, propname) {
@@ -367,7 +340,8 @@ window.CanvasModel = class CanvasModel {
 
 		return [...this.layerList, ...layers];
 	}
-};
+}
+window.CanvasModel = CanvasModel;
 
 /**
  * @type {Object<string, CanvasModelOptions>}

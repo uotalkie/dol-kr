@@ -54,9 +54,31 @@
 <</widget>>
 
 <<widget "brothelshowoptions">>
+	<<if $brothelVirginityIntro is true and $brothelVirginityState isnot "lie" and ($player.virginity.penile is true and $player.virginity.vaginal is true) and !unableTakeVirginity()>>
+		<br><br>
+		<<if $brothelVirginityState is "refuse">>
+			"Assuming you still have your virginity, we can make a great show where you lose it. Of course, you'll have to pass a virginity test first. You'll get a lot for that, will depend on how much people are willing to pay."
+			<br><br>
+		<<elseif $brothelVirginityState is "virginity">>
+			"Fans have been asking for another shot at your cherry, seeing as how you didn't let anyone have it last time," <<he>> says. "It did bring in a good crowd though. Not sure how much you'll get this time, but you'll have to let someone take your virginity."
+			<br><br>
+		<<elseif $brothelVirginityState is "chastity">>
+			"People weren't happy with you last time, nor was I. However, since you're still a virgin, people would still be willing to take your cherry," <<he>> says. You'll still get plenty, assuming you don't do something stupid, like show up in another of those damn contraptions."
+			<br><br>
+		<</if>>
+		<<unset $brothelVirginityState>>
+		Special show:
+		<br>
+		<<if hasSexStat("promiscuity", 2)>>
+			<<templeicon "virginity">><<link [[Sell your virginity|Briar's Office Virginity Show]]>><<acceptbrothelshow "virginity">><<set $phase to 0>><</link>><<promiscuous2>>
+		<<else>>
+			<span class="blue">You aren't promiscuous enough to take up <<his>> offers.</span>
+		<</if>>
+	<</if>>
+
 	<<if $promiscuity lte 54 and $deviancy lte 74 and $demon isnot 6>>
 		<br><br>
-		<span class="blue">You aren't promiscuous or deviant enough to take up any of the offers.</span>
+		<<insufficientStat "custom" "to take up any of the offers" "blue" "promiscuous or deviant">> 
 	<<elseif hasSexStat("promiscuity", 4) or hasSexStat("deviancy", 5) or $demon gte 6>>
 		<br><br>
 		Standard shows:
@@ -181,7 +203,7 @@
 		<<case 5>>
 			<span class="pink">Security are being overrun.</span>
 		<<default>>
-			<span class="red">Security have lost control! The audience surge onto the stage.</span>
+			<span class="red">Security have lost control! The audience surges onto the stage.</span>
 	<</switch>>
 <</widget>>
 
@@ -210,4 +232,36 @@
 		<</if>>
 		<<set $brothel_show_bukkake += 1>>
 	<</for>>
+<</widget>>
+
+<<widget "timeTrackingEndBrothel">>
+	<<timeTrackingEnd "brothel">><<timeTrackingEnd "brothelDanceTips">><<timeTrackingEnd "brothelShow">>
+<</widget>>
+
+<<widget "brothelvirginitybidders">>
+	<<if $numberBidder isnot undefined and $virginitytip gt $tip_add>>
+		<<set $tip_add += ($virginitytip - $tip) * 0.5>><<tipset>>
+	<</if>>
+
+	<<if $numberBidder is undefined>>
+		<<set $numberBidder to 1>>
+	<</if>>
+
+	<<if $numberBidder lte 6 and ($numberBidder lte 2 or _args[0] is undefined)>>
+		<<generatetakevirginity $numberBidder>><<personselect $numberBidder-1>><<set $lastBidder to $numberBidder-1>><<set $numberBidder += 1>>
+	<<else>>
+		<<set _bidder to $numberBidder-2>> /* $numberBidder is 2~7, $lastBidder requires 0~5, so -2 */
+		<<set _r to random(0, _bidder)>>
+
+		<<if _r is $lastBidder>>
+			<<set _r to _r % _bidder + 1>>
+		<</if>>
+
+		<<if _r is _highestBidder>>
+			<<set _r to _r % _bidder + 1>>
+		<</if>>
+
+		<<set $lastBidder to _r>>
+		<<personselect $lastBidder>>
+	<</if>>
 <</widget>>

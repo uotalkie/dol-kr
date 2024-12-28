@@ -551,6 +551,7 @@
 		<<set $NPCList[_i].state to "pursuit">>
 		<<set $NPCList[_i].distance to 2>>
 	<</for>>
+	<<set _clothesJustStolen to true>>
 	<<set $rescue to 0>>
 	<<controlloss>>
 	<<molested>>
@@ -1086,6 +1087,8 @@
 			<</if>>
 		<<case "Ivory Wraith">>
 			당신 주위의 공기가 차가워진다. 본능적으로 움직여, 당신은 뒤로 돌고 <<wraithEyes>> 눈 한 쌍이 마주 응시하고 있다는 것을 알아차린다.
+		<<case "Eden">>
+			Eden's hand grabs tightly onto the back of your neck, bringing you to a stop.
 		<<default>>
 			당신은 팔을 잡혀 뒤로 당겨져 습격자와 마주한다.			
 	<</switch>>
@@ -1119,29 +1122,47 @@
 			<<else>>
 				<<set $_stalker to "">>
 			<</if>>
-			<<if $NPCList[0].distance is 0 and $NPCList[0].state isnot "pursuit" or $stalk_end is "hide">>
+			<<set $_pcAction to (_clothesJustStolen ? "_theft" : $feetuse is "run" ? "_run" : "")>>
+			<<if $NPCList[0].distance lte 0 and $NPCList[0].state isnot "pursuit" or $stalk_end is "hide">>
 				<<if $stalk_end is "confront">>
-					<img class="stalk_3" @src="'img/misc/stalk/npc' + $_stalker + '.png'">
-					<img class="stalk_4" src="img/misc/stalk/pc.png">
+					<<if $_stalker is "_wraith">>
+						<img class="stalk_4" src="img/misc/stalk/caught_wraith.png">
+					<<elseif $feetaction is "confront">>
+						<img class="stalk_4" src="img/misc/stalk/confront_npc.png">
+					<<else>>
+						<img class="stalk_4" src="img/misc/stalk/grabbed.png">
+					<</if>>
 				<<elseif $stalk_end>>
-					<img class="stalk_4" src="img/misc/stalk/pc.png">
+					<<if $feetaction is "confront">>
+						<img class="stalk_4" src="img/misc/stalk/confront_safe_npc.png">
+					<<else>>
+						<img class="stalk_4" src="img/misc/stalk/pc.png">
+					<</if>>
 					<img class="stalk_5" @src="'img/misc/stalk/safe_npc' + $_stalker + '.png'">
 				<<else>>
-					<img class="stalk_4" src="img/misc/stalk/caught.png">
+					<<if $feetaction is "confront" and $_stalker isnot "_wraith">>
+						<img class="stalk_4" src="img/misc/stalk/confront_npc.png">
+					<<else>>
+						<img class="stalk_4" @src="'img/misc/stalk/caught' + $_stalker + '.png'">
+					<</if>>
 				<</if>>
 			<<else>>
 				<<if $NPCList[0].distance lt 4>>
 					<<if $NPCList[0].state is "pursuit">>
 						<<set _stalk_position to 4 + $NPCList[0].distance>>
-						<img @class="'stalk_' + _stalk_position" @src="'img/misc/stalk/npc' + $_stalker + '.png'">
-						<img @class="'stalk_' + _stalk_position" src="img/misc/stalk/clothes.png">
+						<<if $_stalker isnot "">>
+							<img @class="'stalk_' + _stalk_position" @src="'img/misc/stalk/npc' + $_stalker + '.png'">
+							<img @class="'stalk_' + _stalk_position" src="img/misc/stalk/clothes.png">
+						<<else>>
+							<img @class="'stalk_' + _stalk_position" src="img/misc/stalk/npc_theft.png">
+						<</if>>
 					<<elseif $stalk_end is "escaped">>
 					<<else>>
 						<<set _stalk_position to 4 - $NPCList[0].distance>>
 						<img @class="'stalk_' + _stalk_position" @src="'img/misc/stalk/npc' + $_stalker + '.png'">
 					<</if>>
 				<</if>>
-				<img class="stalk_4" src="img/misc/stalk/pc.png">
+				<img class="stalk_4" @src="'img/misc/stalk/pc' + $_pcAction + '.png'">
 			<</if>>
 		</div>
 	<</if>>

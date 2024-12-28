@@ -1,6 +1,5 @@
 /* eslint-disable no-new */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-/* global exportable */ // Not really: just a bug in unused code
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -156,11 +155,12 @@ function genderappearancecheck() {
 	}
 	/* Makeup */
 	addfemininityfromfactor(V.makeup.lipstick ? 50 : 0, "립스틱");
-	addfemininityfromfactor(V.makeup.eyeshadow ? 50 : 0, "아이섀도우");
+	addfemininityfromfactor(V.makeup.eyeshadow ? 50 : 0, "Eyeshadow");
 	addfemininityfromfactor(V.makeup.mascara ? 50 : 0, "마스카라");
+	addfemininityfromfactor(V.makeup.blusher ? 50 : 0, "Blusher");
 	/* Body structure */
 	setfemininitymultiplierfromgender(V.player.gender_body);
-	addfemininityfromfactor(T.femininity_multiplier * 200, "체형");
+	addfemininityfromfactor(T.femininity_multiplier * 200, "Body appearance");
 	addfemininityfromfactor(Math.trunc(((V.physique + V.physiquesize / 2) / V.physiquesize) * -100), "탄탄한 근육");
 	/* Behaviour */
 	setfemininitymultiplierfromgender(V.player.gender_posture);
@@ -268,7 +268,7 @@ function genderappearancecheck() {
 	/* Bottom */
 	addfemininityfromfactor(Math.trunc(V.player.bottomsize * T.bottom_visibility * 50), "엉덩이 크기 (" + Math.trunc(T.bottom_visibility * 100) + "% 확인 가능)");
 	/* Pregnant Belly */
-	if (V.sexStats === undefined || !playerBellyVisible()) {
+	if (V.sexStats === undefined || !playerBellyVisible() || V.NudeGenderDC === -1) {
 		// do glorious nothing
 	} else if (V.NudeGenderDC <= 1) {
 		addfemininityfromfactor(
@@ -443,74 +443,19 @@ function bodywritingExposureCheck(overwrite, skipRng) {
 }
 DefineMacro("bodywritingExposureCheck", bodywritingExposureCheck);
 
-/**
- * Jimmy: A potential improvement is to not wikify the hints that are appended to the ends of the links,
- *         I chose to keep this format for now to keep <<promiscuous>>, <<exhibitionist>> and <<deviant>> centralised.
- * 		   If someone wants to change those widgets, this won't need updating.
- */
-Macro.add("reqSkill", {
-	tags: ["reqE", "reqElse"],
-	reqs: [0, 1, 15, 35, 55, 75, 95],
-	handler() {
-		/* The function below (some) will immediately end and not iterate further if TRUE is returned, it will continue to iterate if FALSE is returned. */
-		this.payload.some(section => {
-			if (section.args.length === 0) {
-				/* If <<reqSkill>> has no arguments, report an error.
-				   However, if <<reqElse>> had none, print out the section as normal, no need to add skill hints to the links. */
-				if (section.name === "reqSkill") {
-					throwError(this.output, `Missing arguments for <<${section.name}>>`, `${this.source}`, exportable);
-				} else {
-					new Wikifier(this.output, section.contents);
-				}
-				return true;
-			}
-			/* Output variable to store what will be appended to EVERY link in the section. */
-			let output = "";
-			const cancel = section.args.some(arg => {
-				/* Splits up the arguments so that everything but the last character goes into type, and the last character goes into tier.
-				   If arg is "deviancy5", type would be "deviancy" and tier would be 5. */
-				const type = arg.slice(0, -1);
-				const tier = Number.parseInt(arg.slice(-1));
-				/* Check if parseInt returned an actual number, and not NaN. */
-				if (!Number.isInteger(tier)) {
-					throwError(this.output, `Invalid argument (${arg}) for <<${section.name}>> | Tier`, `${this.source}`, exportable);
-					return true;
-				}
-				switch (type) {
-					case "promiscuity":
-					case "p":
-						if (V.promiscuity < this.self.reqs[tier]) return true;
-						output += `<<promiscuous${tier}>>`;
-						return false;
-					case "exhibitionism":
-					case "e":
-						if (V.exhibitionism < this.self.reqs[tier]) return true;
-						output += `<<exhibitionist${tier}>>`;
-						return false;
-					case "deviancy":
-					case "d":
-						if (V.deviancy < this.self.reqs[tier]) return true;
-						output += `<<deviant${tier}>>`;
-						return false;
-					default:
-						throwError(this.output, `Invalid argument (${arg}) for <<${section.name}>> | Type`, `${this.source}`, exportable);
-						return true;
-				}
-			});
-			/* If cancel signals true, exit but continue next payloads. */
-			if (cancel) return false;
-			/* Final render, and insertion of elements.
-			   Renders the section defined within the block that was successful. */
-			new Wikifier(this.output, section.contents);
-			/* Renders the HTML elements that are inserted after every link. */
-			const wikiOutput = new Wikifier(null, output);
-			/* Scan through macro outfit for valid links to append hints to. */
-			jQuery(this.output).children().filter("a.link-internal, a.link-external").after(wikiOutput.output);
-			/* Successful render, no need to process anymore segments. */
-			return true;
-		});
-	},
-});
+/* Checks if PC has bodywriting or tattoos that are not visible to NPCs. */
+function bodywritingHiddenCheck(overwrite, skipRng) {
+	if (!T.hidden || overwrite) {
+		bodywritingExposureCheck(true);
+		T.bodywriting_hidden = 0;
+
+		T.hidden_writing = Object.keys(V.skin).filter(loc => V.skin[loc].writing && !T.skin_array.includes(loc));
+
+		if (T.hidden_writing.length >= 1) T.bodywriting_hidden = 1;
+	}
+	if (!skipRng) T.bodypart = T.hidden_writing.random();
+}
+DefineMacro("bodywritingHiddenCheck", bodywritingHiddenCheck);
 
 /**
  * Turns an array into a formatted list for printing.

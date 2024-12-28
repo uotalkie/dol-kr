@@ -57,10 +57,10 @@ const Skin = (() => {
 	// Constants
 	const defaultModel = ["main", "sidebar"];
 	const defaultLayer = { layers: [], slots: {} };
-	const tanningMultiplier = 9; // Increase to make the tanning function even out more sharply (as the tan level increases)
+	const tanningMultiplier = 6; // Increase to make the tanning function even out more sharply (as the tan level increases)
 	const scalingFactor = 0.033; // Decrease for slower tanning gain from sun intensity
 	const tanningLossPerMinute = 0.000695; // ~1 per day - ~100 days from 100% to 0%
-	const maxLayerGroups = 6;
+	const maxLayerGroups = 7;
 
 	// Properties
 	const cachedLayers = null;
@@ -71,7 +71,6 @@ const Skin = (() => {
 	 *
 	 * TANNING GAIN/DECAY:
 	 * - Logarithmic gain: Tanning gain slows down the higher it is.
-	 * - The logarithmic curve is based on the worn layer group at the time of tanning - so having a high value on a different group won't affect the current one.
 	 * - If the total tanning value exceeds 100, the gain will be capped at 100, and any excess will be treated as tanning loss (to all groups except the one that gets the tanning gain)
 	 * - Tanning decay is linear over time.
 	 * - If a group gains tanning during the same time - only that group won't lose tanning.
@@ -100,6 +99,7 @@ const Skin = (() => {
 			const model = Renderer.locateModel(...defaultModel);
 			const savedLayers = V.player.skin.layers;
 			const nextTime = new DateTime(Time.date);
+			let selectedLayersIndex = null;
 
 			if (!model.tanningLayers?.layers) {
 				console.warn("applyTanningGain: CanvasModel not found.");
@@ -117,8 +117,9 @@ const Skin = (() => {
 				const currentTan = getTanningValue(savedLayers);
 				const current = getCurrentLayers(model, savedLayers);
 				const selectedLayers = setLayers(savedLayers, current);
+				selectedLayersIndex = savedLayers.indexOf(selectedLayers);
 
-				const logFactorGain = 1 / Math.log1p((selectedLayers.value / 100) * tanningMultiplier + 1);
+				const logFactorGain = 1 / Math.log1p(((currentTan + accumulatedValue) / 100) * tanningMultiplier + 1);
 				let tanningGain = gainAmount * logFactorGain * scalingFactor;
 
 				// Handle tanning gain and ensure the total tanning value does not exceed 100
@@ -136,9 +137,14 @@ const Skin = (() => {
 				nextTime.addMinutes(chunkMinutes);
 			}
 
+			const trimmedLayers = savedLayers.filter(group => group.layers.length > 0);
+			selectedLayersIndex = trimmedLayers.indexOf(savedLayers[selectedLayersIndex]);
 			// Distribute lowest if layers become more than maxLayerGroups
-			if (savedLayers.length > maxLayerGroups) {
-				const lowestValueGroup = savedLayers.reduce((min, group) => (group.value < min.value ? group : min), savedLayers[0]);
+			if (trimmedLayers.length > maxLayerGroups) {
+				const lowestValueGroup = trimmedLayers.reduce(
+					(min, group, index) => (index !== selectedLayersIndex && (!min || group.value < min.value) ? group : min),
+					null
+				);
 				const index = savedLayers.indexOf(lowestValueGroup);
 				if (index !== -1) {
 					const [removedGroup] = savedLayers.splice(index, 1);
@@ -234,6 +240,10 @@ const Skin = (() => {
 		return null;
 	}
 
+	/**
+	 * @param {any[]} groups
+	 * @returns {number}
+	 */
 	function getTanningValue(groups) {
 		return groups.reduce((sum, obj) => sum + (obj.value ?? 0), 0);
 	}
@@ -273,8 +283,10 @@ const Skin = (() => {
 		const clothingModifier = Object.values(V.worn).some(item => item.type.includes("shade")) ? 0.1 : 1;
 		// sunscreen prevents tanning gains entirely
 		const sunscreenModifier = Skin.Sunscreen.isApplied() ? 0 : 1;
+		// Halved gain if gyaru
+		const skinType = ["gyaru", "ygyaru"].includes(Skin.color.natural) ? 0.3 : 1;
 
-		const result = round(sunIntensity * clothingModifier * sunscreenModifier, 2);
+		const result = round(sunIntensity * clothingModifier * sunscreenModifier * skinType, 2);
 		return {
 			sun: sunIntensity,
 			month: Weather.genSettings.months[Time.date.month - 1].sunIntensity,
@@ -283,6 +295,7 @@ const Skin = (() => {
 			dayFactor: outside ? Time.date.simplifiedDayFactor : 1,
 			clothing: clothingModifier,
 			sunscreen: sunscreenModifier,
+			type: skinType,
 			result,
 		};
 	}

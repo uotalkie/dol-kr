@@ -17,6 +17,9 @@ DefineMacro("modelprepare-player-body", function () {
 	if (V.makeup.lipstick != 0) {
 		T.modeloptions.lipstick_colour = V.makeup.lipstick;
 	}
+	if (V.makeup.blusher != 0) {
+		T.modeloptions.blusher_colour = V.makeup.blusher;
+	}
 
 	if (V.possessed) {
 		T.modeloptions.left_eye = ["haunt", "despair"].includes(V.wraith.state) ? "red possessed" : "blue possessed";
@@ -44,7 +47,7 @@ DefineMacro("modelprepare-player-body", function () {
 			██████  ██   ██ ███████ ███████
 		*/
 
-	T.modeloptions.body_type = V.options.genderBody && V.options.genderBody !== "default" ? V.options.genderBody : V.player.gender_body;
+	T.modeloptions.body_type = V.player.bodyshape || { a: "slender", f: "curvy" }[V.player.gender_body] || "classic";
 
 	apparentbreastsizecheck();
 	const breastSizeMap = {
@@ -115,6 +118,13 @@ DefineMacro("modelprepare-player-body", function () {
 		*/
 
 	T.coverBreastsWithArm = false;
+	const leftArm = setup.clothes_all_slots.some(slot => ["left_cover", "clutch", "cover_both"].includes(V.worn[slot]?.holdPosition)) ? "cover" : "idle";
+	const rightArm = setup.clothes_all_slots.some(slot => ["right_cover", "cover_both"].includes(V.worn[slot]?.holdPosition))
+		? "cover"
+		: (V.worn.handheld.name !== "naked" && !["left_cover", "idle"].includes(V.worn.handheld?.holdPosition)) ||
+		  setup.clothes_all_slots.some(slot => V.worn[slot]?.holdPosition === "hold")
+		? "hold"
+		: "idle";
 
 	if (V.leftarm !== "bound" && V.leftarm !== "grappled") {
 		if (
@@ -132,14 +142,14 @@ DefineMacro("modelprepare-player-body", function () {
 				(["pool", "lake", "beach"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3)
 			) {
 				T.coverBreasts = false;
-				T.modeloptions.arm_left = "idle";
+				T.modeloptions.arm_left = leftArm;
 			} else {
 				T.coverBreasts = true;
-				T.modeloptions.arm_left = "cover"; // might be changed back to "idle" if covering with wings
+				T.modeloptions.arm_left = "cover"; // might be changed back to leftArm if covering with wings
 			}
 		} else {
 			T.coverBreasts = false;
-			T.modeloptions.arm_left = "idle";
+			T.modeloptions.arm_left = leftArm;
 		}
 	} else {
 		T.modeloptions.arm_left = "none";
@@ -159,14 +169,15 @@ DefineMacro("modelprepare-player-body", function () {
 				V.worn.under_lower.type.includes("covered")
 			) {
 				T.coverCrotch = false;
-				T.modeloptions.arm_right = V.worn.handheld.name !== "naked" ? "hold" : "idle";
+				// "left_cover" checks included intentionally; parameter is meant to be used should there ever be a handheld item that should only use the left_cover hand position
+				T.modeloptions.arm_right = rightArm;
 			} else {
 				T.coverCrotch = true;
-				T.modeloptions.arm_right = "cover"; // might be changed back to "idle" if covering with wings/tail
+				T.modeloptions.arm_right = "cover"; // might be changed back to rightArm if covering with wings/tail
 			}
 		} else {
 			T.coverCrotch = false;
-			T.modeloptions.arm_right = V.worn.handheld.name !== "naked" ? "hold" : "idle";
+			T.modeloptions.arm_right = rightArm;
 		}
 	} else {
 		T.modeloptions.arm_right = "none";
@@ -185,16 +196,16 @@ DefineMacro("modelprepare-player-body", function () {
 		} else if (T.coverBreasts) {
 			if (!T.disabled.includes(V.transformationParts.demon.wings)) {
 				T.modeloptions.demon_wings_state = V.transformationParts.traits.flaunting === "default" ? "flaunt" : "cover";
-				T.modeloptions.arm_left = "idle";
+				T.modeloptions.arm_left = leftArm;
 			} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
 				T.modeloptions.angel_wing_right = "cover";
-				T.modeloptions.arm_left = "idle";
+				T.modeloptions.arm_left = leftArm;
 			} else if (!T.disabled.includes(V.transformationParts.fallenAngel.wings)) {
 				T.modeloptions.fallen_wing_right = "cover";
-				T.modeloptions.arm_left = "idle";
+				T.modeloptions.arm_left = leftArm;
 			} else if (!T.disabled.includes(V.transformationParts.bird.wings)) {
 				T.modeloptions.bird_wing_right = "cover";
-				T.modeloptions.arm_left = "idle";
+				T.modeloptions.arm_left = leftArm;
 			} else {
 				T.coverBreastsWithArm = true;
 			}
@@ -219,16 +230,16 @@ DefineMacro("modelprepare-player-body", function () {
 			if (!T.disabled.includes(V.transformationParts.demon.tail)) {
 				T.modeloptions.demon_tail_state = V.transformationParts.traits.flaunting === "default" ? "flaunt" : "cover";
 				T.modeloptions.cat_tail_state = "cover";
-				T.modeloptions.arm_right = V.worn.handheld.name !== "naked" ? "hold" : "idle";
+				T.modeloptions.arm_right = rightArm;
 			} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
 				T.modeloptions.angel_wing_left = "cover";
-				T.modeloptions.arm_right = V.worn.handheld.name !== "naked" ? "hold" : "idle";
+				T.modeloptions.arm_right = rightArm;
 			} else if (!T.disabled.includes(V.transformationParts.fallenAngel.wings)) {
 				T.modeloptions.fallen_wing_left = "cover";
-				T.modeloptions.arm_right = V.worn.handheld.name !== "naked" ? "hold" : "idle";
+				T.modeloptions.arm_right = rightArm;
 			} else if (!T.disabled.includes(V.transformationParts.bird.wings)) {
 				T.modeloptions.bird_wing_left = "cover";
-				T.modeloptions.arm_right = V.worn.handheld.name !== "naked" ? "hold" : "idle";
+				T.modeloptions.arm_right = rightArm;
 			}
 		}
 	}
@@ -257,7 +268,8 @@ DefineMacro("modelprepare-player-body", function () {
 			██      ██   ██  ██████ ███████
 		*/
 
-	T.modeloptions.facestyle = V.facestyle;
+	T.modeloptions.facestyle = V.facestyle || "default";
+	T.modeloptions.facevariant = V.facevariant || "default";
 	T.modeloptions.freckles = V.player.freckles === true && V.makeup.concealer !== 1;
 	T.modeloptions.ears_position = V.earsposition;
 	T.modeloptions.toast = T.toast === true;
@@ -295,7 +307,9 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.brows_position = V.browsposition;
 
 	// Mouth
-	if (V.trauma >= V.traumamax) {
+	if (V.worn.handheld.type.includes("food")) {
+		T.modeloptions.mouth = "chew";
+	} else if (V.trauma >= V.traumamax) {
 		T.modeloptions.mouth = "neutral";
 	} else if (V.pain >= 60 || V.orgasmdown >= 1 || V.possessed) {
 		T.modeloptions.mouth = "cry";
@@ -332,7 +346,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.tears = painToTearsLvl(V.pain);
 
 	/*
-			████████ ███████ ███████
+		 ████████ ███████ ███████
 			██    ██      ██
 			██    █████   ███████
 			██    ██           ██

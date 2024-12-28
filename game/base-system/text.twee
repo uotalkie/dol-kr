@@ -666,6 +666,8 @@
 				<<set _text_output to "The " + $npc[$npcrow.indexOf($index)]>>
 			<<elseif $npc.includes("Ivory Wraith")>>
 				<<set _text_output to "The pale figure">>
+			<<elseif $NPCList[$index].name_known is 0>>
+				<<set _text_output to "The " + $NPCList[$index].description>>
 			<<else>>
 				<<set _text_output to $npc[$npcrow.indexOf($index)]>>
 			<</if>>
@@ -781,7 +783,7 @@
 		<<personselect _n>>
 		<!-- NPC's name will only appear if they are selected -->
 		<<if $NPCList[_n].intro is 1>>
-			<<if $npcrow.includes(_n)>>
+			<<if $npcrow.includes(_n) and $NPCList[_n].name_known is 1>>
 				<<print $npc[$npcrow.indexOf(_n)]>>'s
 			<<else>>
 				the <<persons>>
@@ -1245,6 +1247,7 @@
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
 <<widget "pussy">><<silently>>
+	<<set _genital_state_text to "">>
 	<<if !_pussyStateDescribed>>
 		<<genitalstate "pussy">><<set _genital_state_text to _text_output>>
 	<</if>>
@@ -1429,8 +1432,12 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "combatperson">><<silently>>
-	<<if $npc_named is 1 and $description isnot "pale figure">>
-		<<set _text_output to $NPCList[$index].fullDescription>>
+	<<if $npc_named is 1>>
+		<<if $NPCList[$index].name_known is 1 and $description isnot "pale figure">>
+			<<set _text_output to $NPCList[$index].fullDescription>>
+		<<else>>
+			<<set _text_output to "the " + $description>>
+		<</if>>
 	<<elseif $NPCList[$index].name_known is 1>>
 		<<set _text_output to $NPCList[$index].name>>
 	<<elseif $enemytype is "beast">>
@@ -1451,11 +1458,19 @@
 
 <<widget "combatpersons">><<silently>>
 	<<combatperson>>
-	<<set _text_output to _text_output + "'s">>
+	<<if (_text_output?.endsWith("s") or _text_output?.endsWith("sh")) and $NPCList[$index].name_known isnot 1>>
+		<<set _text_output to _text_output + "'">>
+	<<else>>
+		<<set _text_output to _text_output + "'s">>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "combatPerson">><<silently>>
 	<<combatperson>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "combatPersons">><<silently>>
+	<<combatpersons>><<capitalise>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "genderswapPlayer">>
@@ -1534,7 +1549,7 @@
 <</widget>>
 
 <<widget "personpenis">><<silently>>
-	<<if $NPCList[0].penis isnot "none">>
+	<<if $NPCList[$index].penis isnot "none">>
 		<<set _text_output to "penis">>
 	<<else>>
 		<<set _text_output to "clit">>
@@ -1587,7 +1602,7 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "gentleman">><<silently>>
-	<<set _text_output to ($player.gender_appearance is "m"? "man" : "lady")>>
+	<<set _text_output to ($player.gender_appearance is "m"? "gentleman" : "lady")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "girlfriend">><<silently>>
@@ -1832,221 +1847,187 @@
 
 <<widget "exhibitionist">>
 	<<if $statdisable is "f">> |
-		<<set _color to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
-		<span @class="_color">노출증 _args[0]</span>
+		<<set _classList to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
+		<<set _classList += " " + getLargestSexStatModifierCssClasses("exhibitionism", _args[0])>>
+		<<if _args[0] is 6>>
+			<span @class="_classList">!Exhibitionism 6!</span>
+		<<else>>
+			<span @class="_classList">Exhibitionism _args[0]</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "exhibitionist1">>
-	<<if $statdisable is "f">> |
-		<span class="teal">노출증 1</span>
-	<</if>>
+	<<exhibitionist 1>>
 <</widget>>
 
 <<widget "exhibitionist2">>
-	<<if $statdisable is "f">> |
-		<span class="lblue">노출증 2</span>
-	<</if>>
+	<<exhibitionist 2>>
 <</widget>>
 
 <<widget "exhibitionist3">>
-	<<if $statdisable is "f">> |
-		<span class="blue">노출증 3</span>
-	<</if>>
+	<<exhibitionist 3>>
 <</widget>>
 
 <<widget "exhibitionist4">>
-	<<if $statdisable is "f">> |
-		<span class="purple">노출증 4</span>
-	<</if>>
+	<<exhibitionist 4>>
 <</widget>>
 
 <<widget "exhibitionist5">>
-	<<if $statdisable is "f">> |
-		<span class="pink">노출증 5</span>
-	<</if>>
+	<<exhibitionist 5>>
 <</widget>>
 
 <<widget "exhibitionist6">>
-	<<if $statdisable is "f">> |
-		<span class="red">!노출증 6!</span>
-	<</if>>
+	<<exhibitionist 6>>
 <</widget>>
 
 <<widget "combatexhibitionist">>
 	<<if $statdisable is "f">>
-		<<set _color to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
-		<span @class="_color">노출증 _args[0]</span>
+		<<set _classList to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
+		<<set _classList += " " + getLargestSexStatModifierCssClasses("exhibitionism", _args[0])>>
+		<<if _args[0] is 6>>
+			<span @class="_classList">!Exhibitionism 6!</span>
+		<<else>>
+			<span @class="_classList">Exhibitionism _args[0]</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "combatexhibitionist1">>
-	<<if $statdisable is "f">>
-		<span class="teal">노출증 1</span>
-	<</if>>
+	<<combatexhibitionist 1>>
 <</widget>>
 
 <<widget "combatexhibitionist2">>
-	<<if $statdisable is "f">>
-		<span class="lblue">노출증 2</span>
-	<</if>>
+	<<combatexhibitionist 2>>
 <</widget>>
 
 <<widget "combatexhibitionist3">>
-	<<if $statdisable is "f">>
-		<span class="blue">노출증 3</span>
-	<</if>>
+	<<combatexhibitionist 3>>
 <</widget>>
 
 <<widget "combatexhibitionist4">>
-	<<if $statdisable is "f">>
-		<span class="purple">노출증 4</span>
-	<</if>>
+	<<combatexhibitionist 4>>
 <</widget>>
 
 <<widget "combatexhibitionist5">>
-	<<if $statdisable is "f">>
-		<span class="pink">노출증 5</span>
-	<</if>>
+	<<combatexhibitionist 5>>
 <</widget>>
 
 <<widget "combatexhibitionist6">>
-	<<if $statdisable is "f">>
-		<span class="red">!노출증 6!</span>
-	<</if>>
+	<<combatexhibitionist 6>>
 <</widget>>
 
 <!-- Promiscuity -->
 
 <<widget "promiscuous">>
 	<<if $statdisable is "f">> |
-		<<set _color to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
-		<span @class="_color">음란도 _args[0]</span>
+		<<set _classList to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
+		<<set _classList += " " + getLargestSexStatModifierCssClasses("promiscuity", _args[0])>>
+		<<if _args[0] is 6>>
+			<span @class="_classList">!Promiscuity 6!</span>
+		<<else>>
+			<span @class="_classList">Promiscuity _args[0]</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "promiscuous1">>
-	<<if $statdisable is "f">> |
-		<span class="teal">음란도 1</span>
-	<</if>>
+	<<promiscuous 1>>
 <</widget>>
 
 <<widget "promiscuous2">>
-	<<if $statdisable is "f">> |
-		<span class="lblue">음란도 2</span>
-	<</if>>
+	<<promiscuous 2>>
 <</widget>>
 
 <<widget "promiscuous3">>
-	<<if $statdisable is "f">> |
-		<span class="blue">음란도 3</span>
-	<</if>>
+	<<promiscuous 3>>
 <</widget>>
 
 <<widget "promiscuous4">>
-	<<if $statdisable is "f">> |
-		<span class="purple">음란도 4</span>
-	<</if>>
+	<<promiscuous 4>>
 <</widget>>
 
 <<widget "promiscuous5">>
-	<<if $statdisable is "f">> |
-		<span class="pink">음란도 5</span>
-	<</if>>
+	<<promiscuous 5>>
 <</widget>>
 
 <<widget "promiscuous6">>
-	<<if $statdisable is "f">> |
-		<span class="red">!음란도 6!</span>
-	<</if>>
+	<<promiscuous 6>>
 <</widget>>
 
 <<widget "combatpromiscuous">>
-	<<if $consensual is 1 and !$promiscuityIgnore and $statdisable is "f">>
-		<<set _color to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
-		<span @class="_color"><<print ($enemytype is "man" ? "- 음란도" : "- 이상성욕")>> _args[0]</span>
+	<<if ($consensual is 1 or _args[0] is 6) and !$promiscuityIgnore and $statdisable is "f">>
+		<<set _classList to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
+		<<set $_stat to $enemytype is "man" ? "promiscuity" : "deviancy">>
+		<<set _classList += " " + getLargestSexStatModifierCssClasses($_stat, _args[0])>>
+		<<if _args[0] is 6>>
+			<span @class="_classList"><<print ($enemytype is "man" ? "- !Promiscuity 6!" : "- !Deviancy 6!")>></span>
+		<<else>>
+			<span @class="_classList"><<print ($enemytype is "man" ? "- Promiscuity" : "- Deviancy")>> _args[0]</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "combatpromiscuous1">>
-	<<if $consensual is 1 and !$promiscuityIgnore and $statdisable is "f">>
-		<span class="teal"><<print ($enemytype is "man" ? "- 음란도" : "- 이상성욕")>> 1</span>
-	<</if>>
+	<<combatpromiscuous 1>>
 <</widget>>
 
 <<widget "combatpromiscuous2">>
-	<<if $consensual is 1 and !$promiscuityIgnore and $statdisable is "f">>
-		<span class="lblue"><<print ($enemytype is "man" ? "- 음란도" : "- 이상성욕")>> 2</span>
-	<</if>>
+	<<combatpromiscuous 2>>
 <</widget>>
 
 <<widget "combatpromiscuous3">>
-	<<if $consensual is 1 and !$promiscuityIgnore and $statdisable is "f">>
-		<span class="blue"><<print ($enemytype is "man" ? "- 음란도" : "- 이상성욕")>> 3</span>
-	<</if>>
+	<<combatpromiscuous 3>>
 <</widget>>
 
 <<widget "combatpromiscuous4">>
-	<<if $consensual is 1 and !$promiscuityIgnore and $statdisable is "f">>
-		<span class="purple"><<print ($enemytype is "man" ? "- 음란도" : "- 이상성욕")>> 4</span>
-	<</if>>
+	<<combatpromiscuous 4>>
 <</widget>>
 
 <<widget "combatpromiscuous5">>
-	<<if $consensual is 1 and !$promiscuityIgnore and $statdisable is "f">>
-		<span class="pink"><<print ($enemytype is "man" ? "- 음란도" : "- 이상성욕")>> 5</span>
-	<</if>>
+	<<combatpromiscuous 5>>
 <</widget>>
 
 <<widget "combatpromiscuous6">>
-	<<if !$promiscuityIgnore and $statdisable is "f">>
-		<span class="red">!<<print ($enemytype is "man" ? "음란도" : "이상성욕")>> 6!</span>
-	<</if>>
+	<<combatpromiscuous 6>>
 <</widget>>
 
 <!-- Deviancy -->
 
-<<widget "deviant">> |
+<<widget "deviant">>
 	<<if $statdisable is "f">> |
-		<<set _color to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
-		<span @class="_color">이상성욕 _args[0]</span>
+		<<set _classList to ["","teal","lblue","blue","purple","pink","red"][_args[0]]>>
+		<<set _classList += " " + getLargestSexStatModifierCssClasses("deviancy", _args[0])>>
+		<<if _args[0] is 6>>
+			<span @class="_classList">!Deviancy 6!</span>
+		<<else>>
+			<span @class="_classList">Deviancy _args[0]</span>
+		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "deviant1">>
-	<<if $statdisable is "f">> |
-		<span class="teal">이상성욕 1</span>
-	<</if>>
+	<<deviant 1>>
 <</widget>>
 
 <<widget "deviant2">>
-	<<if $statdisable is "f">> |
-		<span class="lblue">이상성욕 2</span>
-	<</if>>
+	<<deviant 2>>
 <</widget>>
 
 <<widget "deviant3">>
-	<<if $statdisable is "f">> |
-		<span class="blue">이상성욕 3</span>
-	<</if>>
+	<<deviant 3>>
 <</widget>>
 
 <<widget "deviant4">>
-	<<if $statdisable is "f">> |
-		<span class="purple">이상성욕 4</span>
-	<</if>>
+	<<deviant 4>>
 <</widget>>
 
 <<widget "deviant5">>
-	<<if $statdisable is "f">> |
-		<span class="pink">이상성욕 5</span>
-	<</if>>
+	<<deviant 5>>
 <</widget>>
 
 <<widget "deviant6">>
-	<<if $statdisable is "f">> |
-		<span class="red">!이상성욕 6!</span>
-	<</if>>
+	<<deviant 6>>
 <</widget>>
 
 <<widget "crime">>
@@ -2251,6 +2232,14 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
+<<widget "privates">><<silently>>
+	<<outfitChecks>>
+	<<if !_bottomExposed>>
+		<<set _text_output to either("genitals", "groin", "crotch", "privates")>>
+	<<else>>
+		<<genitals>>
+	<</if>>
+<</silently>>_text_output<</widget>>
 <!--
 	Optional parameter [0] possible values:
 	0 or omitted or null - display full name of undies or full genital description
@@ -3399,12 +3388,29 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
-
 <<widget "bastard">><<silently>>
 	<<if $player.gender_appearance is "m">>
 		<<set _text_output to "bastard">>
 	<<else>>
 		<<set _text_output to "whore">>
+	<</if>>
+<</silently>>_text_output<</widget>>
+
+<<widget "cunt">><<silently>>
+	<<if $player.gender_appearance is "m">>
+		<<set _text_output to "dick">>
+	<<else>>
+		<<set _text_output to "cunt">>
+	<</if>>
+<</silently>>_text_output<</widget>>
+
+<<widget "Ladies_gentlemen">><<silently>>
+	<<if maleChance() gte 100>>
+		<<set _text_output to "Gentlemen">>
+	<<elseif maleChance() lte 0>>
+		<<set _text_output to "Ladies">>
+	<<else>>
+		<<set _text_output to "Ladies and gentlemen">>
 	<</if>>
 <</silently>>_text_output<</widget>>
 
@@ -3847,7 +3853,7 @@
 	<<elseif !_top.type.includes("naked")>>
 		올려
 	<<else>>
-		벗어
+		remove
 	<</if>>
 <</widget>>
 
@@ -3858,7 +3864,7 @@
 	<<elseif _middleOutfit is false>>
 		내려
 	<<else>>
-		벗어
+		remove
 	<</if>>
 <</widget>>
 
@@ -3869,7 +3875,7 @@
 	<<elseif !_top.type.includes("naked")>>
 		올려
 	<<else>>
-		벗어
+		removes
 	<</if>>
 <</widget>>
 
@@ -3880,7 +3886,7 @@
 	<<elseif _middleOutfit is false>>
 		내려
 	<<else>>
-		벗어
+		removes
 	<</if>>
 <</widget>>
 
@@ -3891,7 +3897,7 @@
 	<<elseif !$worn.over_upper.type.includes("naked")>>
 		올려
 	<<else>>
-		벗어
+		remove
 	<</if>>
 <</widget>>
 
@@ -3902,7 +3908,7 @@
 	<<elseif _overOutfit is false>>
 		내려
 	<<else>>
-		벗어
+		remove
 	<</if>>
 <</widget>>
 
@@ -3913,7 +3919,7 @@
 	<<elseif !$worn.over_upper.type.includes("naked")>>
 		올려
 	<<else>>
-		벗어
+		removes
 	<</if>>
 <</widget>>
 
@@ -3924,7 +3930,7 @@
 	<<elseif _overOutfit is false>>
 		내려
 	<<else>>
-		벗어
+		removes
 	<</if>>
 <</widget>>
 
@@ -4722,7 +4728,7 @@
 			<<elseif $_bgender is "f">>
 				<<set _text_output to "piggirls">>
 			<<else>>
-				<<set _text_output to "piggirls and pigboys">>
+				<<set _text_output to "pigpeople">>
 			<</if>>
 		<<else>>
 			<<set _text_output to "pigs">>
@@ -4734,7 +4740,7 @@
 			<<elseif $_bgender is "f">>
 				<<set _text_output to "doggirls">>
 			<<else>>
-				<<set _text_output to "doggirls and dogboys">>
+				<<set _text_output to "dogpeople">>
 			<</if>>
 		<<else>>
 			<<set _text_output to "dogs">>
@@ -4746,10 +4752,16 @@
 			<<elseif $_bgender is "f">>
 				<<set _text_output to "cowgirls">>
 			<<else>>
-				<<set _text_output to "cowgirls and bullboys">>
+				<<set _text_output to "cattle">>
 			<</if>>
 		<<else>>
-			<<set _text_output to "cattle">>
+			<<if $_bgender is "m">>
+				<<set _text_output to "bulls">>
+			<<elseif $_bgender is "f">>
+				<<set _text_output to "cows">>
+			<<else>>
+				<<set _text_output to "cattle">>
+			<</if>>
 		<</if>>
 	<</if>>
 	<<print _text_output>>
@@ -5386,17 +5398,19 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 
 <<widget "npcGenitalReaction">>
 	<<set $_npc to _args[0]>>
-	<<if $_npc.penis isnot "none">>
-		<<switch $_npc.penissize>>
-			<<case 4>>
-				<span class="red"> <<print setup.npcPenisRemarks["big"].random()>></span>
-			<<case 1>>
-				<span class="green"> <<print setup.npcPenisRemarks["small"].random()>></span>
-			<<default>>
-		<</switch>>
-	<</if>>
-	<<if $_npc.vagina isnot "none">>
-		<!-- Placeholder -->
+	<<if !$worn.face.type.includes("blindfold")>>
+		<<if $_npc.penis isnot "none">>
+			<<switch $_npc.penissize>>
+				<<case 4>>
+					<span class="red"> <<print setup.npcPenisRemarks["big"].random()>></span>
+				<<case 1>>
+					<span class="green"> <<print setup.npcPenisRemarks["small"].random()>></span>
+				<<default>>
+			<</switch>>
+		<</if>>
+		<<if $_npc.vagina isnot "none">>
+			<!-- Placeholder -->
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -5870,3 +5884,71 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 		});
 	<</script>>
 <</widget>>
+
+<<widget "insufficientStat">><<silently>>
+	/* Args 0-3 are Stat, Task, Color (optional), and Custom Stat (optional, only use when Stat arg is 'custom')*/
+	/* Example: <<insufficientStat "promiscuity" "to accept such an offer">> 	---------------------->	would print (in blue): 	'You are not promiscuous enough to accept such an offer'*/
+	/* Example: <<insufficientStat "deviancy" "to do as you were told" "red">> 		------------------>	would print (in red): 	'You are not deviant enough to do as you were told' */
+	/* Example: <<insufficientStat "housekeeping" "to make arrangements" "purple">> 	-------------->	would print (in purple):'You are not a skilled enough housekeeper to make arrangements' */
+	/* Example: <<insufficientStat "custom" "to be worthy" "pink" "pious or graceful">> 	---------->	would print (in pink): 	'You are not pious or graceful enough to be worthy' */
+	/* Example: <<insufficientStat "custom" "to be noticed" "green" "beautiful, alluring, or skilled">> would print (in green): 'You are not beautiful, alluring, or skilled enough to be noticed' */
+
+	<<set $_color to _args[2] ? _args[2] : "blue">>
+	<<set $_text_output to "You are not ">>
+	<<switch _args[0]>>
+		<<case "promiscuity">>
+			<<set $_text_output += "promiscuous enough">>
+		<<case "exhibitionism">>
+			<<set $_text_output += "exhibitionistic enough">>
+		<<case "deviancy">>
+			<<set $_text_output += "deviant enough">>
+		<<case "purity">>
+			<<set $_text_output += "pure enough">>
+		<<case "beauty">>
+			<<set $_text_output += "beautiful enough">>
+		<<case "physique">>
+			<<set $_text_output += "strong enough">>
+		<<case "willpower">>
+			<<set $_text_output += "strong willed enough">>
+		<<case "awareness">>
+			<<set $_text_output += "knowledgeable enough">>
+		<<case "skullduggery">>
+			<<set $_text_output += "a skilled enough thief">>
+		<<case "dancing">>
+			<<set $_text_output += "a skilled enough dancer">>
+		<<case "swimming">>
+			<<set $_text_output += "a strong enough swimmer">>
+		<<case "athletics">>
+			<<set $_text_output += "athletic enough">>
+		<<case "tending">>
+			<<set $_text_output += "a skilled enough farmer">>
+		<<case "housekeeping">>
+			<<set $_text_output += "a skilled enough housekeeper">>
+		<<case "science">>
+			<<set $_text_output += "educated enough about science">>
+		<<case "maths">>
+			<<set $_text_output += "educated enough about maths">>
+		<<case "english">>
+			<<set $_text_output += "educated enough about English">>
+		<<case "history">>
+			<<set $_text_output += "educated enough about history">>
+		<<case "submissive">>
+			<<set $_text_output += "defiant enough">>
+		<<case "trust">>
+			<<set $_text_output += "trusted enough">>
+		<<case "custom">> /* Only use this for explicitly non-standard cases, like those that need multiple stats printed */
+			<<set $_text_output +="_args[3] enough">>
+		<<default>>
+			<<set $_text_output += "lewd enough">>
+	<</switch>>
+	<<set $_text_output += " _args[1].">>
+
+	/* Throws an error if 'custom' stat input is being used incorrectly */
+	<<if _args[3] and _args[0] is not "custom">>
+		<<set $_color to "red">>
+		<<set $_text_output to "Syntax Error: Inputted custom stat '_args[3]' without using the 'custom' stat argument in the \"insufficientStat\" widget. Please report this.">>
+	<<elseif _args[0] is "custom" and !_args[3]>>
+			<<set $_color to "red">>
+		<<set $_text_output to "Syntax Error: Used 'custom' stat argument without inputing a custom stat in the \"insufficientStat\" widget. Please report this.">>
+	<</if>>
+<</silently>><<if $_text_output>><span @class="$_color"><<print $_text_output>></span><</if>><</widget>>

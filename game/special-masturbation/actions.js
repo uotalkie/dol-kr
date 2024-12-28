@@ -971,17 +971,17 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 				? '<span class="red">귓속의 슬라임이 당신의 자지를 빨도록 강요하고 있다.</span>'
 				: "당신은 스스로의 자지를 빨고 있다.";
 			if (V.selfsuckDepth === V.selfsuckLimit) {
-				result.text += `당신은 자지 전체를 입${V.selfsuckDepth >= 2 ? "과 목구멍" : ""}에 넣고 있다.`;
+				result.text += ` You have the whole thing in your mouth${V.selfsuckDepth >= 2 ? " and throat" : ""}.`;
 			} else {
 				switch (V.selfsuckDepth) {
 					case 0:
-						result.text += "당신은 귀두를 입에 넣고 있다.";
+						result.text += " You have the head in your mouth.";
 						break;
 					case 1:
-						result.text += "당신의 귀두가 입의 뒤쪽에 닿아 있다.";
+						result.text += " The head reaches the back of your mouth.";
 						break;
 					case 2:
-						result.text += "당신은 귀두를 목구멍 안에 넣고 있다.";
+						result.text += " You have the head in your throat.";
 						break;
 					default:
 						/* Max selfsuckDepth is 3 and is captured by the above condition */

@@ -1,4 +1,9 @@
+/// <reference path="model.d.ts" />
+/// <reference types="tinycolor2" />
 declare namespace Renderer {
+    export function isMaskObject(mask: string | HTMLCanvasElement | CanvasImageSource | MaskObject | undefined | null): mask is MaskObject;
+    export function isMaskOffsetObject(mask: string | HTMLCanvasElement | CanvasImageSource | MaskObject | undefined | null): mask is MaskObject;
+    export function isMaskConvertObject(mask: string | HTMLCanvasElement | CanvasImageSource | MaskObject | undefined | null): mask is MaskObject;
     export interface LayerImageLoader {
         loadImage(src: string | HTMLCanvasElement, layer: CompositeLayer, successCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, image: HTMLCanvasElement) => any, errorCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, error: any) => any): any;
     }
@@ -50,7 +55,7 @@ declare namespace Renderer {
     /**
      * Creates a cutout of color in shape of sourceImage
      */
-    export function cutout(sourceImage: CanvasImageSource, color: string, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
+    export function cutout(sourceImage: CanvasImageSource, color: string | CanvasGradient | CanvasPattern, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
     /**
      * Cuts out from base a shape in form of stencil.
      * Modifies and returns base.
@@ -59,7 +64,7 @@ declare namespace Renderer {
     /**
      * Paints sourceImage over cutout of it filled with color.
      */
-    export function composeOverCutout(sourceImage: CanvasImageSource, color: string, blendMode?: GlobalCompositeOperation, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
+    export function composeOverCutout(sourceImage: CanvasImageSource, color: string | CanvasGradient | CanvasPattern, blendMode?: GlobalCompositeOperation, canvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
     /**
      * Repeatedly fill all sub-frames of canvas with same style.
      * (Makes sense with gradient and pattern fills, to keep consistents across all sub-frames)
@@ -110,7 +115,7 @@ declare namespace Renderer {
      * In both cases, brightness is added, contrast is multiplied.
      * Returns target
      */
-    export function mergeLayerData(target: CompositeLayerSpec, source: CompositeLayerParams, overwrite?: boolean): CompositeLayerSpec;
+    export function mergeLayerData(target: Partial<CompositeLayerSpec>, source: CompositeLayerParams, overwrite?: boolean): Partial<CompositeLayerSpec>;
     export function encodeProcessing(spec: CompositeLayerSpec): string;
     export function composeLayersAgain(): void;
     export function desaturateImage(image: CanvasImageSource, resultCanvas?: CanvasRenderingContext2D, doCutout?: boolean): HTMLCanvasElement;

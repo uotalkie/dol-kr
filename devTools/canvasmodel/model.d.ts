@@ -103,6 +103,11 @@ declare interface CompositeLayerParams {
 	dx?: number;
 	dy?: number;
 	/**
+	 * Subsprite position on target canvas
+	 */
+	frameDx?: number;
+	frameDy?: number;
+	/**
 	 * Animation name
 	 */
 	animation?: string;
@@ -137,7 +142,9 @@ declare interface KeyframeSpec {
 }
 
 declare type AnimationSpec = KeyframeAnimationSpec | SimpleAnimationSpec;
+
 declare interface KeyframeAnimationSpec {
+	frameCount: number;
 	keyframes: KeyframeSpec[];
 }
 declare interface SimpleAnimationSpec {
@@ -149,9 +156,19 @@ declare interface SimpleAnimationSpec {
 }
 
 declare interface MaskObject {
-	path?: string;
+	path: string;
 	offsetX?: number;
 	offsetY?: number;
+	convert?: boolean;
+}
+
+declare interface Offset {
+	x: number;
+	y: number;
+}
+
+declare interface MaskSpec {
+	convert: boolean;
 }
 
 declare interface CompositeLayer extends CompositeLayerSpec {
@@ -167,11 +184,15 @@ declare interface CompositeLayer extends CompositeLayerSpec {
 	/**
 	 * Loaded/cached mask image
 	 */
-	mask?: CanvasImageSource | MaskObject | (CanvasImageSource | MaskObject)[];
+	mask?: CanvasImageSource | (CanvasImageSource)[];
 	/**
 	 * Offset of mask image
 	 */
-	maskOffsets?: MaskObject;
+	maskOffsets?: Offset[];
+	/**
+	 * Offset of mask image
+	 */
+	maskOptions?: MaskSpec;
 	/**
 	 * Value of `masksrc` corresponding to current `mask` (if masksrc changes mask will be reloaded)
 	 */

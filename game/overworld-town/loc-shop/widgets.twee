@@ -553,18 +553,12 @@
 	Set first argument to true to also clear caches.
  */
 <<widget "updatesidebarimg">>
-	<<if  _args[0] is undefined>>
-		<<set _args[0] to true>>
-	<</if>>
 	<<if $options.images is 1>>
 		<<if $passage is "Start">>
 			<<startingPlayerImageUpdate>>
 		<<else>>
 			<!-- SugarCube doesn't check for element validity, so I'm checking myself here, as to not force callers of this to test. -->
 			<<if elementExists("#img")>>
-				<<if _args[0] is true>>
-					<<run Renderer.clearCaches(Renderer.locateModel("main", "sidebar"))>>
-				<</if>>
 				<<replace "#img">><<canvasimg "mainCanvas">><</replace>>
 			<</if>>
 		<</if>>
@@ -586,4 +580,164 @@
 	/* Different than normal stat changes as the slime will never for the player to act */
 	<<link [[반항한다|Shopping Centre Slime Exhibitionism Defy]]>><<corruption -1>><<pain 35>><<stress 18>><<trauma 12>><<def 1>><</link>><<llcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
 	<br>
+<</widget>>
+
+<<widget "supermarket_display">>
+<<set _food_keys to Object.keys(setup.plants)>>
+
+<<for _i to 0; _i lt _food_keys.length; _i++>>
+	<<set _type to _food_keys[_i]>>
+	<<if setup.plants[_food_keys[_i]].name is "cocoa_powder" or setup.plants[_food_keys[_i]].name is "salt" or setup.plants[_food_keys[_i]].name is "sugar" or setup.plants[_food_keys[_i]].name is "vegetable_oil" or setup.plants[_food_keys[_i]].name is "red_wine" or setup.plants[_food_keys[_i]].name is "white_wine" or setup.plants[_food_keys[_i]].name is "oats" or setup.plants[_food_keys[_i]].name is "date" or setup.plants[_food_keys[_i]].name is "cherry" or setup.plants[_food_keys[_i]].name is "lime">>
+		<<tendingicon setup.plants[_food_keys[_i]].icon>>
+		<<print setup.plants[_food_keys[_i]].plural.toLocaleUpperFirst()>>
+		<br>
+		Owned: <span class="gold"><<print $plants[_type].amount>></span>
+		|
+		Supermarket stock: <span class="gold"><<print $plants[_type].supermarket>></span>
+		|
+		Price: <span class="gold">£<<print (setup.plants[_food_keys[_i]].plant_cost * 2 / 100).toFixed(2)>></span>
+		<br>
+		<<set _plant_cost to setup.plants[_food_keys[_i]].plant_cost>>
+		<<capture $plants[_type].amount>><<capture _plant_cost>><<capture $plants[_type].supermarket>>
+			<span class="no-numberify">
+				<<if Time.dayState is "night">>
+					<<if $plants[_type].supermarket gte 1>>
+						<<link [[Steal one|$passage]]>><<tending_give $plants[_type].name 1>><<crimeUp 1 "thievery">><<set $plants[_type].supermarket -= 1>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 5>>
+						| <<link [[Steal five|$passage]]>><<tending_give $plants[_type].name 5>><<crimeUp 5 "thievery">><<set $plants[_type].supermarket -= 5>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 10>>
+						| <<link [[Steal ten|$passage]]>><<tending_give $plants[_type].name 10>><<crimeUp 10 "thievery">><<set $plants[_type].supermarket -= 10>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 100>>
+						| <<link [[Steal one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<crimeUp 100 "thievery">><<set $plants[_type].supermarket -= 100>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 1>>
+						<<crime "thievery">>
+					<</if>>
+				<<else>>
+					<<if $money gte _plant_cost * 2 and $plants[_type].supermarket gte 1>>
+						<<link [[Buy one|$passage]]>><<tending_give $plants[_type].name 1>><<money `-(_plant_cost * 2)` "supermarket">><<set $plants[_type].supermarket -= 1>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 10 and $plants[_type].supermarket gte 5>>
+						| <<link [[Buy five|$passage]]>><<tending_give $plants[_type].name 5>><<money `-(_plant_cost * 10)` "supermarket">><<set $plants[_type].supermarket -= 5>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 20 and $plants[_type].supermarket gte 10>>
+						| <<link [[Buy ten|$passage]]>><<tending_give $plants[_type].name 10>><<money `-(_plant_cost * 20)` "supermarket">><<set $plants[_type].supermarket -= 10>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 200 and $plants[_type].supermarket gte 100>>
+						| <<link [[Buy one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<money `-(_plant_cost * 200)` "supermarket">><<set $plants[_type].supermarket -= 100>><</link>>
+					<</if>>
+				<</if>>
+			</span>
+		<</capture>><</capture>><</capture>>
+		<br><br>		
+	<</if>>
+<</for>>
+<hr>
+<<for _i to 0; _i lt _food_keys.length; _i++>>
+	<<set _type to _food_keys[_i]>>
+	<<if setup.plants[_food_keys[_i]].type.includes("fish")>>
+		<<tendingicon setup.plants[_food_keys[_i]].icon>>
+		<<print setup.plants[_food_keys[_i]].plural.toLocaleUpperFirst()>>
+		<br>
+		Owned: <span class="gold"><<print $plants[_type].amount>></span>
+		|
+		Supermarket stock: <span class="gold"><<print $plants[_type].supermarket>></span>
+		|
+		Price: <span class="gold">£<<print (setup.plants[_food_keys[_i]].plant_cost * 2 / 100).toFixed(2)>></span>
+		<br>
+		<<set _plant_cost to setup.plants[_food_keys[_i]].plant_cost>>
+		<<set _type to _type>>
+		<<capture $plants[_type].amount>><<capture _plant_cost>><<capture $plants[_type].supermarket>>
+			<span class="no-numberify">
+				<<if Time.dayState is "night">>
+					<<if $plants[_type].supermarket gte 1>>
+						<<link [[Steal one|$passage]]>><<tending_give $plants[_type].name 1>><<crimeUp 1 "thievery">><<set $plants[_type].supermarket -= 1>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 5>>
+						| <<link [[Steal five|$passage]]>><<tending_give $plants[_type].name 5>><<crimeUp 5 "thievery">><<set $plants[_type].supermarket -= 5>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 10>>
+						| <<link [[Steal ten|$passage]]>><<tending_give $plants[_type].name 10>><<crimeUp 10 "thievery">><<set $plants[_type].supermarket -= 10>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 100>>
+						| <<link [[Steal one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<crimeUp 100 "thievery">><<set $plants[_type].supermarket -= 100>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 1>>
+						<<crime "thievery">>
+					<</if>>
+				<<else>>
+					<<if $money gte _plant_cost * 2 and $plants[_type].supermarket gte 1>>
+						<<link [[Buy one|$passage]]>><<tending_give $plants[_type].name 1>><<money `-(_plant_cost * 2)` "supermarket">><<set $plants[_type].supermarket -= 1>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 10 and $plants[_type].supermarket gte 5>>
+						| <<link [[Buy five|$passage]]>><<tending_give $plants[_type].name 5>><<money `-(_plant_cost * 10)` "supermarket">><<set $plants[_type].supermarket -= 5>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 20 and $plants[_type].supermarket gte 10>>
+						| <<link [[Buy ten|$passage]]>><<tending_give $plants[_type].name 10>><<money `-(_plant_cost * 20)` "supermarket">><<set $plants[_type].supermarket -= 10>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 200 and $plants[_type].supermarket gte 100>>
+						| <<link [[Buy one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<money `-(_plant_cost * 200)` "supermarket">><<set $plants[_type].supermarket -= 100>><</link>>
+					<</if>>
+				<</if>>
+			</span>
+		<</capture>><</capture>><</capture>>
+		<br><br>		
+	<</if>>
+<</for>>
+<hr>
+<<for _i to 0; _i lt _food_keys.length; _i++>>
+	<<set _type to _food_keys[_i]>>
+	<<if setup.plants[_food_keys[_i]].type.includes("meat")>>
+		<<tendingicon setup.plants[_food_keys[_i]].icon>>
+		<<print setup.plants[_food_keys[_i]].plural.toLocaleUpperFirst()>>
+		<br>
+		Owned: <span class="gold"><<print $plants[_type].amount>></span>
+		|
+		Supermarket stock: <span class="gold"><<print $plants[_type].supermarket>></span>
+		|
+		Price: <span class="gold">£<<print (setup.plants[_food_keys[_i]].plant_cost * 2 / 100).toFixed(2)>></span>
+		<br>
+		<<set _plant_cost to setup.plants[_food_keys[_i]].plant_cost>>
+		<<set _type to _type>>
+		<<capture $plants[_type].amount>><<capture _plant_cost>><<capture $plants[_type].supermarket>>
+			<span class="no-numberify">
+				<<if Time.dayState is "night">>
+					<<if $plants[_type].supermarket gte 1>>
+						<<link [[Steal one|$passage]]>><<tending_give $plants[_type].name 1>><<crimeUp 1 "thievery">><<set $plants[_type].supermarket -= 1>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 5>>
+						| <<link [[Steal five|$passage]]>><<tending_give $plants[_type].name 5>><<crimeUp 5 "thievery">><<set $plants[_type].supermarket -= 5>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 10>>
+						| <<link [[Steal ten|$passage]]>><<tending_give $plants[_type].name 10>><<crimeUp 10 "thievery">><<set $plants[_type].supermarket -= 10>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 100>>
+						| <<link [[Steal one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<crimeUp 100 "thievery">><<set $plants[_type].supermarket -= 100>><</link>>
+					<</if>>
+					<<if $plants[_type].supermarket gte 1>>
+						<<crime "thievery">>
+					<</if>>
+				<<else>>
+					<<if $money gte _plant_cost * 2 and $plants[_type].supermarket gte 1>>
+						<<link [[Buy one|$passage]]>><<tending_give $plants[_type].name 1>><<money `-(_plant_cost * 2)` "supermarket">><<set $plants[_type].supermarket -= 1>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 10 and $plants[_type].supermarket gte 5>>
+						| <<link [[Buy five|$passage]]>><<tending_give $plants[_type].name 5>><<money `-(_plant_cost * 10)` "supermarket">><<set $plants[_type].supermarket -= 5>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 20 and $plants[_type].supermarket gte 10>>
+						| <<link [[Buy ten|$passage]]>><<tending_give $plants[_type].name 10>><<money `-(_plant_cost * 20)` "supermarket">><<set $plants[_type].supermarket -= 10>><</link>>
+					<</if>>
+					<<if $money gte _plant_cost * 200 and $plants[_type].supermarket gte 100>>
+						| <<link [[Buy one hundred|$passage]]>><<tending_give $plants[_type].name 100>><<money `-(_plant_cost * 200)` "supermarket">><<set $plants[_type].supermarket -= 100>><</link>>
+					<</if>>
+				<</if>>
+			</span>
+		<</capture>><</capture>><</capture>>
+		<br><br>		
+	<</if>>
+<</for>>
+<br><br>
 <</widget>>

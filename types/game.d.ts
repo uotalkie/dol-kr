@@ -72,6 +72,7 @@ declare module "twine-sugarcube" {
 		edenshopping: number;
 
 		sydney: {
+			rank: string;
 			glasses: "broken" | "glasses" | "playerbroken";
 		};
 		sydneyGlassesNotice: undefined | 1;
@@ -83,6 +84,11 @@ declare module "twine-sugarcube" {
 		wolfcavepatrol: 1;
 
 		brothelVending: {
+			condomsSold: number;
+			condomsToRefill: number;
+			total: any;
+			lubeSold: number;
+			lubeToRefill: number;
 			products: number;
 			condoms: number;
 			lube: number;
@@ -108,11 +114,24 @@ declare module "twine-sugarcube" {
 		museumduck?: 1;
 
 		pound: {
+			sneak: number;
 			compete: number;
 			tasks: any[];
 		};
 
 		farm: {
+			milking: {
+				alexNightEvent: boolean;
+				catchChance: string /* Why tf is this a string */;
+				caught: boolean;
+				dayMilking: boolean;
+			};
+			stock?: {};
+			woodland: number;
+			barn: number;
+			coop: number;
+			kennel: number;
+			still_timer: {};
 			tower_guard: boolean;
 			tower_guard_unpaid: number;
 			tower_guard_patience: number;
@@ -134,16 +153,146 @@ declare module "twine-sugarcube" {
 		world_corruption_hard: number;
 		world_corruption_soft: number;
 		world_corruption_reduced: number;
+
+		/**
+		 * Controls when mousetrap should activate or not.
+		 */
+		tempDisable: boolean;
+
+		chimera: ChimeraState;
+
+		facelayer: "back" | "front";
 	}
 
 	export interface SugarCubeSetupObject {
 		feats: FeatsSetupVariables;
+		colours: {
+			clothes: FilterMap[];
+			lipstick: FilterMap[];
+			condom: FilterMap[];
+			blusher: FilterMap[];
+			mascara: FilterMap[];
+			eyeshadow: FilterMap[];
+			eyes: FilterMap[];
+			hair: FilterMap[];
+			tentacle: FilterMap[];
+			clothes_default: Partial<CompositeLayerSpec>;
+			lipstick_default: Partial<CompositeLayerSpec>;
+			condom_default: Partial<CompositeLayerSpec>;
+			blusher_default: Partial<CompositeLayerSpec>;
+			mascara_default: Partial<CompositeLayerSpec>;
+			eyeshadow_default: Partial<CompositeLayerSpec>;
+			eyes_default: Partial<CompositeLayerSpec>;
+			hair_default: Partial<CompositeLayerSpec>;
+			clothes_map: {
+				[x: string]: FilterMap;
+			};
+			lipstick_map: {
+				[x: string]: FilterMap;
+			};
+			blusher_map: {
+				[x: string]: FilterMap;
+			};
+			condom_map: {
+				[x: string]: FilterMap;
+			};
+			mascara_map: {
+				[x: string]: FilterMap;
+			};
+			eyeshadow_map: {
+				[x: string]: FilterMap;
+			};
+			eyes_map: {
+				[x: string]: FilterMap;
+			};
+			hair_map: {
+				[x: string]: FilterMap;
+			};
+			tentacle_map: {
+				[x: string]: FilterMap;
+			};
+			hairgradients_prototypes: {
+				fringe: {
+					[x: string]: {
+						[x: string]: HairGradient;
+					};
+				};
+				sides: {
+					[x: string]: {
+						[x: string]: HairGradient;
+					};
+				};
+			};
+			sprite_prefilters: {
+				[x: string]: PrefilterMap;
+			};
+			skin_gradients: {
+				[x: string]: string[];
+			};
+			getSkinFilter(type: SkinColours, tone: number): Partial<CompositeLayerSpec>;
+			getSkinRgb(type: SkinColours, tone: number): string;
+			getSkinCSSFilter(type: SkinColours, tone: number): string;
+		};
+		hairstyles: {
+			fringe: any[];
+			sides: any[];
+		};
+		skinColor: {
+			tanLoc: string[];
+			light: SkinColourConfig;
+			medium: SkinColourConfig;
+			dark: SkinColourConfig;
+			gyaru: SkinColourConfig;
+			ylight: SkinColourConfig;
+			ymedium: SkinColourConfig;
+			ydark: SkinColourConfig;
+			ygyaru: SkinColourConfig;
+			slime: SkinColourConfig;
+			ghost: SkinColourConfig;
+		};
+		bodyliquid: BodyLiquid;
 		LocationImages: LocationImages;
 		Locations: any;
 	}
 }
 
 declare global {
+	export type SkinColoursSimple = "custom" | "light" | "medium" | "dark" | "gyaru";
+	export type SkinColours = SkinColoursSimple | "ylight" | "ymedium" | "ydark" | "ygyaru" | "slime" | "ghost";
+
+	export interface SkinColourConfig {
+		hStart: number;
+		hEnd: number;
+		sStart: number;
+		sEnd: number;
+		bStart: number;
+		bEnd: number;
+	}
+
+	export interface HairGradient {
+		gradient: string;
+		values: number[];
+		lengthFunctions: ((length: number, value: string) => string)[];
+		colors: (string | number)[][];
+	}
+
+	export interface FilterMap {
+		canvasfilter: Partial<CompositeLayerSpec>;
+		csstext: string;
+		name: string;
+		name_cap: string;
+		variable: string;
+		natural?: boolean;
+		lens?: boolean;
+		dye?: boolean;
+	}
+
+	export interface PrefilterMap {
+		brightness: number;
+		contrast: number;
+		desaturate: boolean;
+	}
+
 	export interface FeatsSetupVariables {
 		[x: string]: FeatObject;
 	}
@@ -158,6 +307,18 @@ declare global {
 		pregnancyLockable?: boolean;
 		pregnancySillyLockable?: boolean;
 		softLockable?: boolean;
+	}
+
+	export interface ChimeraState {
+		demoncat?: {
+			tail?: boolean;
+		};
+		demoncow?: {
+			horns?: boolean;
+		};
+		demonharpy?: {
+			wings?: boolean;
+		};
 	}
 }
 

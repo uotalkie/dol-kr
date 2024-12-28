@@ -2,16 +2,22 @@
 
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">자물쇠를 따기 쉬워 보인다.</span>
-	<br><br>
-	<<lockpickicon>><<link [[자물쇠를 딴다 (0:10)|Hairdressers]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">자물쇠를 따기 쉬워 보인다.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[자물쇠를 딴다 (0:10)|Hairdressers]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">잠금장치는 당신이 해제할 수 있는 능력 이상인 것 같다.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<getouticon>><<link [[떠난다|Shopping Centre]]>><</link>>
+<<getouticon>><<link [[떠난다|Shopping Centre]]>><<handheldon>><</link>>
 
 :: Hairdressers
 
@@ -56,14 +62,14 @@
 		<</if>>
 		<<if $exposed lte 1 and Time.dayState isnot "night" and Time.hour isnot 21>>
 			<<if $money gte 800>>
-				<<hairdressericon "gel">> <<link [[헤어 젤을 구매한다 (£8)|Hairdressers Gel]]>><<set $money -= 800>><<set $hairgelBottles += 1>><</link>>
+				<<hairdressericon "gel">> <<link [[Purchase hair gel (£8)|Hairdressers Gel]]>><<money -800 "hairdressers">><<set $hairgelBottles += 1>><</link>> Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
 				<br>
 			<<else>>
 				<<hairdressericon "gel">> <span class="blue">당신은 헤어 젤이나 성장약을 구매할 돈이 없다.</span>
 				<br>
 			<</if>>
 			<<if $money gte 5000>>
-				<<hairdressericon "hairspray">> <<link [[모발 성장약을 구매한다 (£50)|Hairdressers Gel]]>><<set $money -= 5000>><<set $sexStats.pills.pills["Hair Growth Formula"].owned += 3>><<set $sexStats.pills.boughtOnce to true>><<set $phase to 1>><</link>>
+				<<hairdressericon "hairspray">> <<link [[Purchase hair growth formula (£50)|Hairdressers Gel]]>><<money -5000 "hairdressers">><<set $sexStats.pills.pills["Hair Growth Formula"].owned += 3>><<set $sexStats.pills.boughtOnce to true>><<set $phase to 1>><</link>> | Owned: <span class="gold"><<=  $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
 				<br>
 			<<elseif $money gte 800>>
 				<<hairdressericon "hairspray">> <span class="blue">당신은 모발 성장약을 구매할 돈이 없다.</span>
@@ -332,7 +338,7 @@
 	<<if _sydneyPresent>>
 		<<if (!_cancel or _currentCost gt 0) and $money gte _currentCost>>
 			<<link [[계속한다|Sydney Hairdressers Session]]>>
-				<<set $money -= _currentCost>>
+				<<money `-_currentCost` "hairdressers">>
 			<</link>>
 		<<elseif $money lt _currentCost>>
 			당신은 미용사에게 줄 돈이 충분하지 않다.
@@ -352,7 +358,7 @@
 			투톤 머리 염색을 위해서는 당신은 서로 다른 두 색상을 선택해야만 한다.
 		<<elseif _currentCost gt 0>>
 			<<link [[미용사에게 요금을 낸다|Hairdressers Session]]>>
-				<<set $money -= _currentCost>>
+				<<money `-_currentCost` "hairdressers">>
 			<</link>>
 		<</if>>
 		<br><br>
@@ -387,10 +393,10 @@
 	<<if $browsDyeOption is "removeDye">>
 		<<if _pass gt 0>>
 			그러고 나서 <<he_ nun>> 당신에게 머리를 뒤로 젖혀달라고 요구한다. <<He_ ga>> 인공적인 화학물질 냄새가 나는 액체를 당신의 눈썹에 바른다. 미용사가 당신의 눈썹을 비누 같은 화장지로 닦고 세수시켜 주는 것으로 그 작업을 마무리한다.
-			<<He_ nun>> 거울을 당신에게 가져와 당신의 눈썹이 원래 색인 <<trColour $naturalhaircolour "으로">>_trResult 돌아온 것을 확인시켜준다.
+			<<He>> brings up a mirror for you to see your eyebrows back in their natural $naturalhaircolour colour.
 		<<else>>
 			<<He_ ga>> 인공적인 화학물질 냄새가 나는 액체를 당신의 눈썹에 바른다. 미용사가 당신의 눈썹을 비누 같은 화장지로 닦고 세수시켜 주는 것으로 그 작업을 마무리한다.
-			<<He_ nun>> 거울을 당신에게 가져와 당신의 눈썹이 원래 색인 <<trColour $naturalhaircolour "으로">>_trResult 돌아온 것을 확인시켜준다.
+			<<He>> brings up a mirror for you to see your eyebrows back in their natural $naturalhaircolour colour.
 		<</if>>
 		<br><br>
 		<<set $makeup.browscolour to clone($naturalhaircolour)>>

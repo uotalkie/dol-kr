@@ -61,11 +61,7 @@
 			<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>
 		<</button>>
 	</span>
-	<<if $daily.corruptionSlimeClothes is undefined and $earSlime.corruption gte 10>>
-		<<set _baseCorruption to (($earSlime.corruption / 2) + ($earSlime.growth / 2))>>
-		<<set $daily.corruptionSlimeClothes to random(_baseCorruption * 5, _baseCorruption * 25) - currentSkillValue('willpower')>>
-	<</if>>
-	<<set _unavailableItems to !!$daily.corruptionSlimeClothes or ($earSlime.forcedCommando and $earSlime.forcedCommando gt 0) or ($earSlime.forcedDressing and $earSlime.forcedDressing.days) or playerBellySize() gte 12>>
+	<<set _unavailableItems to !!earSlimeCorruptionClothes() or ($earSlime.forcedCommando and $earSlime.forcedCommando gt 0) or ($earSlime.forcedDressing and $earSlime.forcedDressing.days) or playerBellySize() gte 12>>
 	<<if _unavailableItems>>
 		<label><<checkbox "$shopClothingFilter.availableOnly" false true autocheck>> 사용하지 못하는 물건을 숨긴다</label>
 	<<else>>
@@ -96,7 +92,7 @@
 			(!_outfits and (x.outfitPrimary is undefined or Object.keys(x.outfitPrimary).every(secSlot => !secSlot.includes("lower")))))
 		and (_shopNameFilter is '' or x.name.includes(_shopNameFilter.toLowerCase()))
 		and (!V.shopClothingFilter.availableOnly or !(
-			(setup.clothingLayer.torso.includes(V.clothingShopSlot) and x.reveal < Math.clamp(V.daily.corruptionSlimeClothes, 0, 500) and !x.type.includesAny("school", "event")) or
+			(setup.clothingLayer.torso.includes(V.clothingShopSlot) and x.reveal < earSlimeCorruptionClothes() and !x.type.includesAny("school", "event")) or
 			(V.earSlime.forcedDressing and V.earSlime.forcedDressing.days gt 0 and x.gender isnot V.earSlime.forcedDressing.type and x.gender isnot "n" and !x.type.includesAny("event")) or
 			(playerBellySize() >= 12 and x.type.includes("constricting"))
 		))
@@ -305,25 +301,23 @@
 						<img src="img/misc/icon/lock.png" class="clothing-locked">
 					<<else>>
 						<<if _item.colour_options.length gt 0>>
-							<<if $shopDefaults.colourItems is "random">>
-								<<set _item.colour to _item.colour_options.random()>>
-							<<elseif $shopDefaults.colourItems is "default" and _item.colour_options.includes($shopDefaults.color)>>
+							<<if $shopDefaults.colourItems is "default" and _item.colour_options.includes($shopDefaults.color)>>
 								<<set _item.colour to $shopDefaults.color>>
 								<<if $shopDefaults.color is "custom">>
 									<<set _item.colourCustom = _colCustomPrimary>>
 								<</if>>
+							<<else>>
+								<<set _item.colour to _item.colour_options.random()>>
 							<</if>>
 						<</if>>
 						<<if _item.accessory_colour_options.length gt 0>>
-							<<if $shopDefaults.colourItems is "random">>
-								<<set _item.accessory_colour to _item.accessory_colour_options.random()>>
-							<<elseif $shopDefaults.colourItems is "default" and _item.accessory_colour_options.includes($shopDefaults.secColor)>>
+							<<if $shopDefaults.colourItems is "default" and _item.accessory_colour_options.includes($shopDefaults.secColor)>>
 								<<set _item.accessory_colour to $shopDefaults.secColor>>
 								<<if $shopDefaults.secColor is "custom">>
 									<<set _item.accessory_colourCustom to _colCustomSecondary>>
 								<</if>>
-							<<else>> /* clothing not available with selected acc colour */
-								<<set _item.accessory_colour to 0>>
+							<<else>>
+								<<set _item.accessory_colour to _item.accessory_colour_options.random()>>
 							<</if>>
 						<</if>>
 						<<clothingicon _item $_realSlot>>
@@ -535,7 +529,7 @@
 		<<if $earSlime.forcedCommando and $earSlime.forcedCommando gt 0 and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower)) and !_temp_choice.type.includesAny("swim", "dance", "naked")>>
 			<span class="red">귓속의 슬라임이 당신에게 속옷을 입지 말라고 했기 때문에 <<trClothes _realSlot _temp_choice.name "name" "을">>_trResult 입어보거나 구입하는 것을 허락하지 않는다.</span>
 			<br>
-		<<elseif _slimeSlots.includes($clothingShopSlot) and $daily.corruptionSlimeClothes and _temp_choice.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 500) and !_temp_choice.type.includesAny("school","event")>>
+		<<elseif _slimeSlots.includes($clothingShopSlot) and _temp_choice.reveal lt earSlimeCorruptionClothes() and !_temp_choice.type.includesAny("school","event")>>
 			<span class="red">귓속의 슬라임이 <<trClothes _realSlot _temp_choice.name "name" "을">>_trResult 입어보거나 구입하는 것을 허락하지 않는다.</span>
 			<br>
 		<<elseif $earSlime.forcedDressing and $earSlime.forcedDressing.days and _item.gender isnot $earSlime.forcedDressing.type and _item.gender isnot "n" and !_item.type.includesAny("event")>>
@@ -545,7 +539,7 @@
 				<span class="red">귓속의 슬라임이 적절하지 않은 부위라서 <<trClothes _realSlot _temp_choice.name "name" "을">>_trResult 입어보거나 구입하는 것을 허락하지 않는다.</span>
 				<br>
 				<<set _wearingBlocked to true>>
-			<<elseif _slimeSlots.includes($clothingShopSlot) and $daily.corruptionSlimeClothes and _temp_choice.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 500) and (_temp_choice.type.includesAny("school") and !Time.schoolDay) and !_temp_choice.type.includesAny("event")>>
+			<<elseif _slimeSlots.includes($clothingShopSlot) and _temp_choice.reveal lt earSlimeCorruptionClothes() and (_temp_choice.type.includesAny("school") and !Time.schoolDay) and !_temp_choice.type.includesAny("event")>>
 				<span class="red">귓속의 슬라임이 오늘 당신이 수업이 없기 때문에 <<trClothes _realSlot _temp_choice.name "name" "을">>_trResult 입어보거나 구입하는 것을 허락하지 않는다.</span>
 				<br>
 				<<set _wearingBlocked to true>>
@@ -699,7 +693,7 @@
 								<<link "옷을 사서 입는다">>
 									<<clothingReset _realSlot>>
 									<<shopbuyv2 _realSlot "buy" "wear" _realIndex>>
-									<<set $money -= getClothingCost(_temp_choice,$clothingShopSlot)>>
+									<<money `-getClothingCost(_temp_choice,$clothingShopSlot)` "clothes">>
 									<<if $shopDefaults.disableReturn is "false">>
 										<<unset $clothes_choice>>
 									<</if>>
@@ -801,7 +795,7 @@
 				<<if $money >= _clothingCost * $buyMultiple and _spaceLeft >= $buyMultiple>>
 					<<clothingReset _realSlot>>
 					<<shopbuyv2 _realSlot "buy" "send" _realIndex $buyMultiple>>
-					<<set $money -= _clothingCost * $buyMultiple>>
+					<<money `-_clothingCost * $buyMultiple` "clothes">>
 					<<if $shopDefaults.disableReturn is false>>
 						<<unset $clothes_choice>>
 					<</if>>
@@ -1195,7 +1189,7 @@
 						<</if>>
 					<</for>>
 					<<if _slot is "handheld">>
-						<<set _modeloptions.arm_right to "hold">>
+						<<set _modeloptions.arm_right to _itemData?.holdPosition is "right_cover" ? "cover" : _itemData?.holdPosition is "idle" ? "idle" : "hold">>
 					<</if>>
 
 				<<rendermodel "canvas-mannequin">>

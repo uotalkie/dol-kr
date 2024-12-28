@@ -1,3 +1,165 @@
+:: Combat Demo Preparation
+
+<<set $demo to $demo or {
+	type: "human",
+	position: "missionary",
+	consent: true,
+	debug: true,
+}>>
+
+<<endcombat>>
+
+Configure setup for the combat system:<br><br>
+
+Type:
+<div>
+	<label><<radiobutton "$demo.type" "human" autocheck>> Human</label>
+	<label><<radiobutton "$demo.type" "animal" autocheck>> Bestial</label>
+</div>
+
+Consent:
+<div>
+	<label><<radiobutton "$demo.consent" true autocheck>> Consensual</label>
+	<label><<radiobutton "$demo.consent" false autocheck>> Non-con</label>
+</div>
+
+Debugging:
+<div>
+	<label><<radiobutton "$demo.debug" true autocheck>> Enabled</label>
+	<label><<radiobutton "$demo.debug" false autocheck>> Disabled</label>
+</div>
+
+<div id="combat-setup">
+	<<combatsetup>>
+</div>
+
+<<combatdemotools>>
+
+<br>
+<<link [[Start|Combat Demo]]>><<set $sexstart to 1>><</link>>
+<br>
+<<link [[Editor|Canvas Combat Editor]]>><<set $sexstart to 1>><</link>>
+<br><br>
+<<link [[Bedroom|Bedroom]]>><</link>>
+<br>
+<<link [[Clothing store|Shopping Centre Top]]>><</link>>
+<br>
+<<link [[Forest store|Forest Shop]]>><</link>>
+
+:: Combat Demo
+
+<<set $demo to $demo or {
+	type: "human",
+	position: "missionary",
+	consent: true,
+	debug: true,
+}>>
+
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<div class="combat-init">
+		<<switch $demo.type>>
+			<<case "human">>
+				<p class="text-muted">Man init</p>
+				<<maninit>>
+			<<case "bestial">>
+				<p class="text-muted">Beast init</p>
+				<<beastCombatInit>>
+		<</switch>>
+		<<if $demo.consent>>
+			<<consensual>>
+			<<set $consensual to 1>>
+		<<else>>
+			<<molested>>
+			<<set $consensual to 0>>
+		<</if>>
+		<<set $position to $demo.position>>
+	</div>
+<</if>>
+
+<<if $demo.type is "tentacles">>
+	<div class="combat-state">
+		<p class="text-muted">State tentacles</p>
+		<<statetentacles>>
+	</div>
+<</if>>
+
+<div class="combat-effects">
+	<p class="text-muted">Effects</p>
+	<<effects>>
+</div>
+<div class="combat-effectsman">
+	<p class="text-muted">Effects man</p>
+	<<effectsman>>
+</div>
+<div class="combat-man">
+	<<switch $demo.type>>
+		<<case "human">>
+			<p class="text-muted">Man</p>
+			<<man>>
+		<<case "bestial">>
+			<p class="text-muted">Beast</p>
+			<<beast>>
+	<</switch>>
+</div>
+
+<<if $demo.type.includes("human")>>
+	<div class="combat-state">
+		<p class="text-muted">State man</p>
+		<<stateman>>
+	</div>
+<</if>>
+<div class="combat-actions">
+	<p class="text-muted">Animate combat</p>
+	<<animateCombat>>
+</div>
+<div class="combat-actions">
+	<p class="text-muted">Actions man</p>
+	<<actionsman>>
+</div>
+<span id="next"><<link [[다음|$passage]]>><</link>></span><<nexttext>>
+<<link [[Bedroom|Bedroom]]>>
+	<<endcombatdemo>>
+<</link>>
+<br><br>
+
+<<combatdemotools>>
+<br>
+
+<<if $demo.consent>>
+	<<link [[Set to Rape|$passage]]>>
+		<<set $demo.consent to false>>
+		<<endcombat>>
+		<<set $sexstart to 1>>
+	<</link>>
+<<else>>
+	<<link [[Set to Consensual|$passage]]>>
+		<<set $demo.consent to true>>
+		<<endcombat>>
+		<<set $sexstart to 1>>
+	<</link>>
+<</if>>
+<br><br>
+
+<<if $position isnot "wall">>
+	<<link [[Set to missionary|$passage]]>>
+		<<set $demo.position to "missionary">>
+		<<endcombat>>
+		<<set $sexstart to 1>>
+	<</link>> |
+	<<link [[Set to doggy|$passage]]>>
+		<<set $demo.position to "doggy">>
+		<<endcombat>>
+		<<set $sexstart to 1>>
+	<</link>> |
+	<<link [[Dont set position|$passage]]>>
+		<<set $demo.position to 0>>
+		<<endcombat>>
+		<<set $sexstart to 1>>
+	<</link>> |
+	<br><br>
+<</if>>
+
 :: CanvasModel Example
 <<link [[Bedroom]]>><</link>>
 <hr>
@@ -21,3 +183,254 @@
 
 <!-- Editor hooks to "last model" -->
 <<canvasModelEditor>>
+
+:: Combat Demo Widgets [widget]
+
+<<widget "animateCombat">>
+	<<if !$options.images or !$options.combatImages>>
+		<<exit>>
+	<</if>>
+	<<if $position is "stalk">>
+		<<exit>>
+	<</if>>
+
+	<<if $debug>>
+		<<addLayerDialog>>
+	<</if>>
+
+	<<canvasCombatEditor>>
+
+	<!-- Centres the inner grid -->
+	<div class="d-flex flex-row flex-centre flex-wrap">
+		<!-- Organises canvas windows into a grid -->
+		<div class="combat-grid d-grid">
+
+			<div class="combat-centre">
+				<!-- Top row - Contains miniture viewports -->
+				<div class="combat-close d-flex flex-row justify-content-center">
+					<div class="combat-close-chest">
+						<<selectmodel "combatCloseChest" "divCloseChest">>
+						<<animatemodel "">>
+					</div>
+					<div class="combat-close-penis">
+						<<selectmodel "combatClosePenis" "divClosePenis">>
+						<<animatemodel "">>
+					</div>
+					<div class="combat-close-vagina">
+						<<selectmodel "combatCloseVagina" "divCloseVagina">>
+						<<animatemodel "">>
+					</div>
+					<div class="combat-close-arse">
+						<<selectmodel "combatCloseArse" "divCloseArse">>
+						<<animatemodel "">>
+					</div>
+				</div>
+		
+				<!-- Main canvas container. -->
+				<div class="combat-main d-flex justify-content-center position-relative">
+
+					<<setup-multi-canvas "combatMain" "combatMainPc" "combatMainPc0">>
+
+					<<for $_npcIndex, $_npc range $NPCList>>
+						<<if CombatRenderer.npcTypes.includes($_npc.type)>>
+							<<set _metadata to { index: $_npcIndex }>>
+							<<add-multi-canvas "combatMain" "combatMainNpc" `"combatMainNpc" + $_npcIndex` _metadata>>
+						<</if>>
+					<</for>>
+
+					<<add-multi-canvas "combatMain" "combatMainSwarm" "combatMainSwarm0">>
+
+					<<reset-multi-canvas "combatMain">>
+					<<start-multi-canvas-rendering "combatMain">>
+
+					<<set _animspeed to NpcCombatMapper.getNpcAnimationSpeed()>>
+				</div>
+			</div>
+
+			<<if XrayCombatMapper.isPcBlowjobVisible()>>
+				<div class="combat-xray-penis">
+					<<selectmodel "combatXrayPenis" "divXrayPenis">>
+					<<animatemodel "w-100 mw-256">>
+				</div>
+			<</if>>
+
+			<<if XrayCombatMapper.isPcVaginaVisible()>>
+				<div class="combat-xray-vagina">
+					<<selectmodel "combatXrayVagina" "divXrayVagina">>
+					<<animatemodel "w-100 mw-256">>
+				</div>
+			<</if>>
+
+			<<if XrayCombatMapper.isPcAnusVisible()>>
+				<div class="combat-xray-arse">
+					<<selectmodel "combatXrayArse" "divXrayArse">>
+					<<animatemodel "w-100 mw-256">>
+				</div>
+			<</if>>
+
+		</div>
+	</div>
+	<<if $debug>>
+		<<set _crOverrides to {}>>
+		<<set _options to T.multiCombatModels.combatMain.models.combatMainPc0.options>>
+		<div class="combat">
+			<<bindCombatDebugControls>>
+			<details>
+				<summary class="d-flex flex-row justify-content-between">
+					<span>Layers</span>
+					<<if CombatEditor.layersChecked>>
+						<input type="checkbox" name="layers" checked />
+					<<else>>
+						<input type="checkbox" name="layers" />
+					<</if>>
+				</summary>
+				<div @class="'combat-layers ' + (CombatEditor.layersChecked ? 'show-first' : '')">
+					<<addLayerElements>>
+				</div>
+			</details>
+			<details>
+				<summary>Main options</summary>
+				<label class="d-inline-flex flex-column">
+					Position:
+					<<listbox "$position" autoselect>>
+						<<optionsfrom setup.positions>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.legFrontPosition to PlayerCombatMapper.mapPcToLegFrontPosition(_options)>>
+				<label class="d-inline-flex flex-column">
+					Front leg:
+					<<listbox "_crOverrides.legFrontPosition" autoselect>>
+						<<optionsfrom setup.legPositions>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.legBackPosition to PlayerCombatMapper.mapPcToLegBackPosition(_options)>>
+				<label class="d-inline-flex flex-column">
+					Back leg:
+					<<listbox "_crOverrides.legBackPosition" autoselect>>
+						<<optionsfrom setup.legPositions>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.animFrames to PlayerCombatMapper.getPcAnimationFrameCount(_options)>>
+				<label class="d-inline-flex flex-column">
+					Frames:
+					<<listbox "_crOverrides.animFrames" autoselect>>
+						<<option "4" 4>>
+						<<option "2" 2>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.animSpeed to PlayerCombatMapper.getPcAnimationSpeed(_options)>>
+				<label class="d-inline-flex flex-column">
+					Speed:
+					<<listbox "_crOverrides.animSpeed" autoselect>>
+						<<option "VFast" "vfast">>
+						<<option "Fast" "fast">>
+						<<option "Mid" "mid">>
+						<<option "Slow" "slow">>
+						<<option "Idle" "idle">>
+					<</listbox>>
+				</label>
+			</details>
+
+			<details>
+				<summary>Clothing options</summary>
+				<div class="d-grid grid-auto-2 gap-1">
+					<<for _slot range Object.keys($worn)>>
+						<<set _wornSetup to CombatRenderer.getClothingSetupBySlot(_slot)>>
+						<<set _source to CombatRenderer.getSourceClothing(_slot, _wornSetup)>>
+						<<set _worn to $worn[_slot]>>
+						<<capture _worn, _wornSetup, _source>>
+							<div class="d-flex flex-column border rounded justify-content-space-between p-1">
+								<label class="d-flex flex-row justify-content-space-between">
+									<<= _slot>>
+								</label>
+								<label class="d-flex flex-row justify-content-space-between">
+									<<= _wornSetup.name_cap>>
+								</label>
+								<label class="d-flex flex-row justify-content-space-between">
+									<<= _source.variable>>
+								</label>
+								<label class="d-flex flex-row justify-content-space-between">
+									State:
+									<<listbox "_worn.state" autoselect>>
+										<<optionsfrom setup.clothingStates>>
+									<</listbox>>
+								</label>
+							</div>
+						<</capture>>
+					<</for>>
+				</div>
+			</details>
+		</div>
+	<</if>>
+<</widget>>
+
+<<widget "endcombatdemo">>
+	<<run delete $demo>>
+	<<endcombat>>
+<</widget>>
+
+<<widget "combatsetup">>
+	<div class="d-flex flex-horizontal flex-wrap gap-2 my-2">
+		<<for _i = 0; _i lt $NPCList.length; _i++>>
+			<<set _npc to $NPCList[_i]>>
+			<<if _npc.type eq null>>
+				<<continue>>
+			<</if>>
+			<<capture _npc>>
+				<div class="p-2 border border-primary">
+					Type: <<- _npc.type>>
+					Sex: <<- _npc.gender>>
+					Appearance: <<- _npc.pronoun>>
+				</div>
+			<</capture>>
+		<</for>>
+	</div>
+
+	<div class="d-flex flex-vertical">
+		<<button "Add human">>
+			<<generateNPC `$NPCList.countWith(a => a.type) + 1`>>
+			<<replace "#combat-setup">>
+				<<combatsetup>>
+			<</replace>>
+		<</button>>
+		<<listbox "_animalType" autoselect>>
+			<<optionsfrom $BeastList>>
+		<</listbox>>
+		<<button `"Set " + _animalType`>>
+			<<beastNEWinit `$NPCList.countWith(a => a.type) + 1` _animalType>>
+			<<replace "#combat-setup">>
+				<<combatsetup>>
+			<</replace>>
+		<</button>>
+		<<button "Clear">>
+			<<endevent>>
+			<<replace "#combat-setup">>
+				<<combatsetup>>
+			<</replace>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "combatdemotools">>
+	Tools:
+	<div>
+		<div id="tools-random-peek">
+			Next random: <<- State.prng.peek(1)>>
+		</div>
+		<<button "Randomly shift RNG">>
+			<<script>>
+				const iterations = Math.trunc(Math.random() * 1000);
+				for (let index = 0; index < iterations; index++) {
+					State.random();
+				}
+			<</script>>
+			<<replace "#tools-random-peek">>
+				Next random: <<- State.prng.peek(1)>>
+			<</replace>>
+		<</button>>
+	</div>
+<</widget>>

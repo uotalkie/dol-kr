@@ -366,9 +366,11 @@ function hairdressersResetAlt() {
 DefineMacro("hairdressersResetAlt", hairdressersResetAlt);
 
 function browsDyeReset() {
-	jQuery(document).on("change", "#listbox-browsdyeoption", function (e) {
-		Wikifier.wikifyEval("<<replace #browsColourPreview>><<browsColourPreview>><</replace>>");
-	});
+	$(() =>
+		jQuery(document).on("change", "#listbox-browsdyeoption", function (e) {
+			Wikifier.wikifyEval("<<replace #browsColourPreview>><<browsColourPreview>><</replace>>");
+		})
+	);
 }
 DefineMacro("browsDyeReset", browsDyeReset);
 
@@ -543,6 +545,22 @@ function toTitleCase(str) {
 	});
 }
 window.toTitleCase = toTitleCase;
+
+function camelCaseToTitle(str) {
+	return str.replace(/([A-Z])/g, " $1").toUpperFirst();
+}
+window.camelCaseToTitle = camelCaseToTitle;
+
+function toCamelCase(str) {
+	return str
+		.split(/[ _-]/g)
+		.map((str, index) => {
+			if (index) return str.toLocaleUpperFirst();
+			return str;
+		})
+		.join("");
+}
+window.toCamelCase = toCamelCase;
 
 function numbersBetween(start, end, step = 1) {
 	return Array.from({ length: (end - start) / step + 1 }, (_, i) => start + i * step);
@@ -1320,7 +1338,7 @@ window.currentSkillValue = currentSkillValue;
 /**
  * @param {string} input
  */
-function hasSexStatMapper(input) {
+function sexStatNameMapper(input) {
 	switch (input) {
 		case "p":
 		case "promiscuity":
@@ -1338,29 +1356,93 @@ function hasSexStatMapper(input) {
 	}
 	return null;
 }
-window.hasSexStatMapper = hasSexStatMapper;
+window.sexStatNameMapper = sexStatNameMapper;
+
+/**
+ * @param {number} statValue
+ */
+function drunkSexStatModifier(statValue) {
+	if (V.drunk === 0) return 0;
+
+	const maxValue = 40; // The maximum value of the curve.
+	const valueAdjust = Math.clamp(maxValue - Math.floor(statValue / 4), 0, maxValue); // The curve is less effective with higher base stat.
+	const growthRate = 3; // How fast the curve grows as the drunk value increases.
+	const midpoint = 500; // Needs to be half of the max drunk value.
+	const shifter = 0.85; // Decreases this value to make lower drunk values give higher results and higher drunk values give lower results.
+	const drunkMod = (V.drunk - midpoint) / 500; // Adjusts the drunk values to be scaled correctly with the equation and max stat value.
+	const denominator = 1 + shifter * Math.E ** (-1 * growthRate * drunkMod);
+
+	return Math.floor(valueAdjust / denominator);
+}
+window.drunkSexStatModifier = drunkSexStatModifier;
+
+/**
+ * Returns the modifier for a sexStat based on heat/rut/minArousal and the stat provided.
+ *
+ * @param {string} input
+ * @returns {number}
+ */
+function heatRutSexStatModifier(input) {
+	const maxMinArousal = 5000; // Maximum value for minArousal.
+	const minArousal = Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, maxMinArousal);
+	if (minArousal === 0) return 0;
+
+	const statName = sexStatNameMapper(input);
+	if (statName == null) {
+		Errors.report(`[heatRutSexStatModifier]: input '${statName}' null.`, {
+			Stacktrace: Utils.GetStack(),
+			statName,
+		});
+		return 0;
+	}
+
+	if (statName === "exhibitionism") return 0;
+
+	const maxHeatRutSexStatModifier = 40; // Maximum modifier for sexStat() from minArousal.
+	const heatRutSexStatModifierExponent = 0.6; // Lower to raise the final modifier at lower levels of minArousal.
+	const heatRutSexStatModifier = (maxHeatRutSexStatModifier / maxMinArousal ** heatRutSexStatModifierExponent) * minArousal ** heatRutSexStatModifierExponent;
+
+	if (statName === "promiscuity") {
+		return Math.floor(heatRutSexStatModifier * 0.75);
+	} else {
+		return Math.floor(heatRutSexStatModifier);
+	}
+}
+window.heatRutSexStatModifier = heatRutSexStatModifier;
 
 /**
  * @param {string} input
  * @param {number} required
+ * @param {boolean} modifiers
  */
-function hasSexStat(input, required) {
-	const stat = hasSexStatMapper(input);
-	if (stat == null) {
-		Errors.report(`[hasSexStat]: input '${stat}' null.`, {
+function hasSexStat(input, required, modifiers = true) {
+	const statName = sexStatNameMapper(input);
+	// check if stat name is valid.
+	if (statName == null) {
+		Errors.report(`[hasSexStat]: input '${statName}' null.`, {
 			Stacktrace: Utils.GetStack(),
-			stat,
+			statName,
 		});
 		return false;
 	}
-	const statValue = V[stat];
+	let statValue = V[statName];
+	// check if value of stat is valid.
 	if (!Number.isFinite(statValue)) {
-		Errors.report(`[hasSexStat]: sex stat '${stat}' unknown.`, {
+		Errors.report(`[hasSexStat]: sex stat '${statName}' unknown.`, {
 			Stacktrace: Utils.GetStack(),
-			stat,
+			statName,
 		});
 		return false;
 	}
+	if (modifiers) {
+		// modify effective stat value based on inebriation.
+		statValue += drunkSexStatModifier(statValue);
+
+		// modify effective stat value based on heat/rut/minArousal.
+		statValue += heatRutSexStatModifier(statName);
+	}
+	statValue = Math.clamp(statValue, 0, 100);
+
 	switch (required) {
 		case 6:
 			/* self-destructive, extreme actions, like leglocking a rapist unprotected or provoking a group for no sane benefit. */
@@ -1383,7 +1465,7 @@ function hasSexStat(input, required) {
 		default:
 			Errors.report(`[hasSexStat]: sex stat requirement outside of possible value range: '${required}' (must be between 1 and 6!).`, {
 				Stacktrace: Utils.GetStack(),
-				stat,
+				statName,
 				required,
 			});
 			return false;
@@ -1525,6 +1607,136 @@ function checkTFparts() {
 	return tfParts;
 }
 window.checkTFparts = checkTFparts;
+
+/*
+	Might be good to convert the whole TF mechanic, including `transformationStateUpdate` to something like below at some point.
+	Part of the transformationParts is unsued right now, but its to account for this potential.
+*/
+function validateTransformations() {
+	const transformationParts = [
+		{
+			level: "wolf",
+			build: "wolfbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "cheeks", tfRequired: 2, default: "hidden" },
+				{ name: "ears", tfRequired: 4 },
+				{ name: "pubes", tfRequired: 4, default: V.pbdisable === "f" ? "default" : "hidden" },
+				{ name: "pits", tfRequired: 4, default: V.pbdisable === "f" ? "default" : "hidden" },
+				{ name: "tail", tfRequired: 6 },
+			],
+			traits: [{ name: "fangs", tfRequired: 2 }],
+		},
+		{
+			level: "cat",
+			build: "catbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "ears", tfRequired: 4 },
+				{ name: "tail", tfRequired: 6 },
+				{ name: "heterochromia", tfRequired: 7 },
+			],
+			traits: [
+				{ name: "fangs", tfRequired: 2 },
+				{ name: "sharpEyes", tfRequired: 2 },
+			],
+		},
+		{
+			level: "cow",
+			build: "cowbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "horns", tfRequired: 2 },
+				{ name: "ears", tfRequired: 4 },
+				{ name: "tail", tfRequired: 6 },
+			],
+			traits: [],
+		},
+		{
+			nameOveride: "bird",
+			level: "harpy",
+			build: "birdbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "eyes", tfRequired: 2 },
+				{ name: "malar", tfRequired: 2 },
+				{ name: "tail", tfRequired: 4 },
+				{ name: "plumage", tfRequired: 4 },
+				{ name: "wings", tfRequired: 6 },
+				{ name: "pubes", tfRequired: 6, default: V.pbdisable === "f" ? "default" : "hidden" },
+			],
+			traits: [
+				{ name: "sharpEyes", tfRequired: 2 },
+				{ name: "mateForLife", tfRequired: 3 },
+			],
+		},
+		{
+			level: "fox",
+			build: "foxbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "ears", tfRequired: 4 },
+				{ name: "cheeks", tfRequired: 5 },
+				{ name: "tail", tfRequired: 6 },
+			],
+			traits: [
+				{ name: "fangs", tfRequired: 2 },
+				{ name: "sharpEyes", tfRequired: 2 },
+				{ name: "mateForLife", tfRequired: 3 },
+			],
+		},
+		{
+			level: "angel",
+			build: "angelbuild",
+			type: "specialTransform",
+			parts: [
+				{ name: "halo", tfRequired: 4 },
+				{ name: "wings", tfRequired: 6 },
+			],
+			traits: [],
+		},
+		{
+			level: "fallen",
+			build: "fallenbuild",
+			type: "specialTransform",
+			parts: [
+				{ name: "halo", tfRequired: 2 },
+				{ name: "wings", tfRequired: 2 },
+			],
+			traits: [],
+		},
+		{
+			level: "demon",
+			build: "demonbuild",
+			type: "specialTransform",
+			parts: [
+				{ name: "horns", tfRequired: 2 },
+				{ name: "tail", tfRequired: 4 },
+				{ name: "wings", tfRequired: 6 },
+			],
+			traits: [],
+		},
+	];
+	transformationParts.forEach(tf => {
+		const tdLevel = V[tf.level];
+		const name = tf.nameOveride || tf.level;
+		tf.parts.forEach(part => {
+			if (tdLevel >= part.tfRequired && V.transformationParts[name][part.name] === "disabled") {
+				V.transformationParts[name][part.name] = part.default || "default";
+			} else if (tdLevel < part.tfRequired && V.transformationParts[name][part.name] !== "disabled") {
+				V.transformationParts[name][part.name] = "disabled";
+			}
+		});
+		tf.traits.forEach(trait => {
+			if (tdLevel >= trait.tfRequired && V.transformationParts.traits[trait.name] === "disabled") {
+				V.transformationParts.traits[trait.name] = trait.default || "default";
+			} else if (tdLevel < trait.tfRequired && V.transformationParts.traits[trait.name] !== "disabled") {
+				V.transformationParts.traits[trait.name] = "disabled";
+			}
+		});
+	});
+}
+DefineMacro("validateTransformations", validateTransformations);
 
 // prettier-ignore
 function getSexesFromRandomGroup() {
@@ -2115,6 +2327,18 @@ function earSlimeMakingMundaneRequests() {
 }
 window.earSlimeMakingMundaneRequests = earSlimeMakingMundaneRequests;
 
+function earSlimeCorruptionClothes() {
+	if (!numberOfEarSlime()) return 0;
+	if (!V.daily.corruptionSlimeClothes) {
+		const baseCorruption = V.earSlime.corruption + V.earSlime.growth;
+		// Reduced from the origonal equivalent of *2.5 and *12.5, still want it to have SOME effect, but this should hopefully soften it enough
+		V.daily.corruptionSlimeClothes = Math.clamp(random(baseCorruption, baseCorruption * 5) - currentSkillValue("willpower"), 0, 1000);
+	}
+	const cap = ["prison", "asylum"].includes(V.location) ? 1000 : 500;
+	return Math.clamp(V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0), 0, cap);
+}
+window.earSlimeCorruptionClothes = earSlimeCorruptionClothes;
+
 function fixIntegrityUpdater() {
 	Object.entries(V.worn).forEach(([slot, item]) => fixIntegrityMax(slot, item));
 	Object.entries(V.store).forEach(([slot, items]) => items.forEach(item => fixIntegrityMax(slot, item)));
@@ -2142,6 +2366,40 @@ function fixIntegrityUpdater() {
 	Object.entries(V.carried).forEach(([slot, item]) => fixIntegrityMax(slot, item));
 }
 window.fixIntegrityUpdater = fixIntegrityUpdater;
+
+// Set plots to watered if it rains
+// Temporary solution until a rework
+$(document).on(":onWeatherChange", () => {
+	if (V.daily?.plotsRain || Weather.precipitation !== "rain") return;
+	V.daily.plotsRain = true;
+	Object.entries(V.plots).forEach(([location, plots]) => {
+		// Don't water greenhouse plants from rain - disabled for now
+		// if (location === "garden" && V.alex_greenhouse === 3) return;
+		plots.forEach(plot => (plot.water = 1));
+	});
+});
+
+// Temporary until a rework
+// Apparently the sugarcube <<script>> parser don't parse the following correctly - so made it a function instead
+function tendingDay() {
+	Object.entries(V.plots).forEach(([location, plots]) => {
+		let irrigation = location === "farm" ? V.farm.irrigation || 0 : 0;
+
+		plots.forEach(plot => {
+			// Growth check
+			if (plot.stage >= 1 && (plot.water === 1 || plot.bed === "water")) {
+				plot.days += 1;
+				if (plot.days >= setup.plants[plot.plant].days * ((plot.stage + 1) / 5)) {
+					plot.stage += 1;
+				}
+			}
+
+			// Rain check moved to event in ingame.js
+			plot.water = irrigation >= 1 ? (irrigation--, 1) : 0;
+		});
+	});
+}
+window.tendingDay = tendingDay;
 
 /**
  * @param {string} slot
@@ -2171,3 +2429,48 @@ function formatMoney(amount) {
 }
 window.formatMoney = formatMoney;
 DefineMacro("formatmoney", money => formatMoney(money));
+
+function unableTakeVirginity(virginity) {
+	if (!virginity) {
+		if (V.player.penisExist && V.player.vaginaExist) {
+			return unableTakeVirginity("penile") || unableTakeVirginity("vaginal");
+		} else if (V.player.penisExist) {
+			return unableTakeVirginity("penile");
+		} else if (V.player.vaginaExist) {
+			return unableTakeVirginity("vaginal");
+		}
+	}
+
+	switch (virginity) {
+		case "penile":
+			return (
+				V.analdisable !== "f" &&
+				((V.cbchance === 0 && V.dgchance === 100) ||
+					(maleChance() === 100 && V.cbchance === 0) ||
+					(maleChance() === 0 && V.dgchance === 100) ||
+					(maleChance() === 100 && V.cbchance === 100 && V.straponchance === 100) ||
+					(maleChance() === 0 && V.dgchance === 0 && V.straponchance === 100))
+			);
+		case "vaginal":
+			return (
+				V.straponchance === 0 &&
+				((V.cbchance === 100 && V.dgchance === 0) || (maleChance() === 100 && V.cbchance === 100) || (maleChance() === 0 && V.dgchance === 0))
+			);
+		default:
+			return false;
+	}
+}
+window.unableTakeVirginity = unableTakeVirginity;
+
+function canGiftFood(npc) {
+	let amount = 0;
+
+	Object.values(setup.plants).forEach(plants => {
+		if (plants.type === "food" && V.plants[plants.name] && V.plants[plants.name].amount > 0) {
+			amount++;
+		}
+	});
+
+	return V.daily.giftedFood[npc] === undefined && amount > 0;
+}
+window.canGiftFood = canGiftFood;

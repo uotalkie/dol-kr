@@ -1,5 +1,6 @@
 :: School Lockers
 <<set $outside to 0>><<schooleffects>><<effects>><<set $lock to 0>>
+<<handheldon 1>>
 
 학교 사물함은 따기 쉬운 걸로 악명높지만, 고맙게도, 아직까지 당신의 물건은 한 번도 누군가 훔쳐간 적이 없다.
 <<if ["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
@@ -21,21 +22,28 @@
 
 <<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
 	<<if currentSkillValue('skulduggery') gte $lock>>
-		<<lockpickicon>><<link [[사물함을 딴다 (0:15)|School Lockers Sneak]]>><<pass 15>><<crimeUp 30 "petty">><</link>><<crime "petty">>
-		<br>
+		<<if $leftarm is "bound" and $rightarm is "bound">>
+			You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+			<br><br>
+		<<else>>
+			<<lockicon "pick">><<link [[Break into a locker (0:15)|School Lockers Sneak]]>><<handheldon>><<pass 15>><<crimeUp 30 "petty">><</link>><<crime "petty">>
+			<br>
+		<</if>>
 	<</if>>
 <</if>>
-<<getouticon>><<link [[떠난다 (0:01)|Hallways]]>><<pass 1>><</link>>
+<<getouticon>><<link [[떠난다 (0:01)|Hallways]]>><<handheldon>><<pass 1>><</link>>
 <br>
 
 :: School Lockers Sneak
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<wearProp "lockpick">>
 당신은 성공적으로 자물쇠를 딴다.
 
 <<if $skulduggery lt 100>>
 	<<skulduggeryskilluse>><<skulduggery 5>>
 <<else>>
 	<span class="blue">이렇게 간단한 자물쇠에서 배울 수 있는 것은 아무것도 없다.</span>
+	<br><br>
 <</if>>
 <<cleareventpool>>
 <<if $condomLvl gt 1>>
@@ -43,57 +51,59 @@
 		당신은 책 몇 권 뒤에 끼어있는 콘돔을 발견했다.
 		<br><br>
 
-		<<link [[가져간다|School Lockers Condom Steal]]>><<crimeUp 2 "petty">><</link>><<crime "petty">>
+		<<link [[가져간다|School Lockers Condom Steal]]>><<handheldon>><<crimeUp 2 "petty">><</link>><<crime "petty">>
 		<br>
-		<<link [[망가뜨린다|School Lockers Condom Sabotage]]>><<arousal 20>><<trauma -20>><</link>><<garousal>><<llltrauma>><<promiscuous1>>
+		<<link [[Sabotage it|School Lockers Condom Sabotage]]>><<handheldon>><<arousal 20>><<trauma -20>><</link>><<garousal>><<llltrauma>><<promiscuous1>>
 		<br>
-		<<link [[떠난다|School Lockers]]>><</link>>
+		<<link [[떠난다|School Lockers]]>><<handheldon>><</link>>
 		<br>
 	<</addinlineevent>>
 <</if>>
 <<addinlineevent "Bus Fare" 0.3>>
+	<<wearProp "silver coin">>
 	<<moneyGainDisplay 6 true true>> 어치의 동전이 굴러다닌다. 버스비일 것이다.
 	<br><br>
 
-	<<link [[가져간다|School Lockers]]>><<crimeUp 1 "petty">><<set $money += _money_gain>><</link>><<crime "petty">>
+	<<link [[가져간다|School Lockers]]>><<handheldon>><<crimeUp 1 "petty">><<money _money_gain>><</link>><<crime "petty">>
 	<br>
-	<<link [[떠난다|School Lockers]]>><</link>>
+	<<link [[떠난다|School Lockers]]>><<handheldon>><</link>>
 	<br>
 <</addinlineevent>>
 <<addinlineevent "PensPencils" 0.2>>
 	사물함 안에는 흥미를 가질만한 것이 없다. 펜과 연필 몇 자루만이 굴러다닌다.
 	<br><br>
 
-	<<link [[떠난다|School Lockers]]>><</link>>
+	<<link [[떠난다|School Lockers]]>><<handheldon>><</link>>
 	<br>
 <</addinlineevent>>
 <<addinlineevent "SmolMonies" 0.2>>
+	<<wearProp "wallet">>
 	조금 뒤져보니 <<moneyGainDisplay 30 true true>>가 나온다.
 	<br><br>
 
-	<<link [[가져간다|School Lockers]]>><<crimeUp 5 "petty">><<set $money += _money_gain>><</link>><<crime "petty">>
+	<<link [[가져간다|School Lockers]]>><<handheldon>><<crimeUp 5 "petty">><<money _money_gain>><</link>><<crime "petty">>
 	<br>
-	<<link [[떠난다|School Lockers]]>><</link>>
+	<<link [[떠난다|School Lockers]]>><<handheldon>><</link>>
 	<br>
 <</addinlineevent>>
 <<addinlineevent "Worthless" 0.4>>
 	당신은 내용물을 뒤져보나, 가치가 있을만한 것은 찾지 못한다.
 	<br><br>
 
-	<<link [[떠난다|School Lockers]]>><</link>>
+	<<link [[떠난다|School Lockers]]>><<handheldon>><</link>>
 	<br>
 <</addinlineevent>>
 <<addinlineevent "Caught" 0.3>>
 	<<generatey1>>내용물을 뒤지고 있자니 뒤에서 목소리가 들려온다. "야, 그거 내 사물함이잖아!" 목소리는 <<person1>><<personPost "의">> 것이다. 당신의 행동에 몹시 화가 난 것 같다.
 	<br><br>
-	<<link [[사과한다|School Lockers Apology]]>><<status -10>><</link>><<lcool>>
+	<<link [[Apologise|School Lockers Apology]]>><<status -10>><<handheldon>><</link>><<lcool>>
 	<br>
-	<<link [[거짓말한다|School Lockers Lie]]>><<detention 3>><</link>><<gdelinquency>>
+	<<link [[Lie|School Lockers Lie]]>><<detention 3>><<handheldon>><</link>><<gdelinquency>>
 	<br>
-	<<link [[싸운다|School Lockers Fight]]>><<set $fightstart to 1>><</link>>
+	<<link [[싸운다|School Lockers Fight]]>><<set $fightstart to 1>><<handheldon>><</link>>
 	<br>
 <</addinlineevent>>
-<<if C.npc.Kylar.init is 1 >> 
+<<if C.npc.Kylar.init is 1 >>
 	<<addinlineevent "KylarLocker" 0.015>>
 		<<if C.npc.Kylar.state is"prison">>
 			<br><br>
@@ -103,7 +113,7 @@
 			<br><br>
 			The first thing you see is your own face, staring back up at you from a piece of paper. The sight makes you jump back in surprise. <<gstress>><<stress 10>>
 			<br><br>
-			Calming yourself, you step closer to examine the locker and realise it's Kylar's shrine, consisting of a lewd statuette with a pencil portrait of your face taped to its head. Flowers circle the base and several portraits dot the sides of the locker, each depicting you in excruciating detail. You're not sure when they were drawn. 
+			Calming yourself, you step closer to examine the locker and realise it's Kylar's shrine, consisting of a lewd statuette with a pencil portrait of your face taped to its head. Flowers circle the base and several portraits dot the sides of the locker, each depicting you in excruciating detail. You're not sure when they were drawn.
 			<<if isLoveInterest("Kylar")>>
 				<br><br>
 				You gently close <<nnpc_his "Kylar">> locker and step away, unwilling to steal from your <<print C.npc.Kylar.pronoun is "f" ? "girlfriend" : "boyfriend">>.
@@ -112,10 +122,10 @@
 		<</if>>
 		You close the locker.
 		<br><br>
-		<<link [[다음|School Lockers]]>><</link>>
+		<<link [[다음|School Lockers]]>><<handheldon>><</link>>
 	<</addinlineevent>>
 <</if>>
-<<if C.npc.Whitney.init is 1 >> 
+<<if C.npc.Whitney.init is 1 >>
 	<<addinlineevent "WhitneyLocker" 0.015>>
 		<<if C.npc.Whitney.state is "dungeon">>
 			<br><br>
@@ -127,19 +137,19 @@
 			Opening the door, a wave of stale air hits you, making you wince. Inside the locker is a mess of wrappers, crumpled up paper, and stray cigarettes. Tucked against the back is a discarded homework assignment covered in doodles and chicken scratch. Even with the smudged lead, you can clearly make out the name "Whitney" at the top.
 			<br><br>
 			<<if isLoveInterest("Whitney")>>
-				 You cast a quick glance around and close the locker hurriedly. No sense in provoking Whitney’s temper.
+				You cast a quick glance around and close the locker hurriedly. No sense in provoking Whitney's temper.
 			<<else>>
 				You close the locker.
 			<</if>>
 		<</if>>
 		<br><br>
-		<<link [[다음|School Lockers]]>><</link>>
+		<<link [[다음|School Lockers]]>><<handheldon>><</link>>
 	<</addinlineevent>>
 <</if>>
-<<if C.npc.Robin.init is 1 >> 
+<<if C.npc.Robin.init is 1 >>
 	<<addinlineevent "RobinLocker" 0.015>>
 		<br><br>
-		The interior of the locker is surprisingly bare. There's little in the way of decoration and the only items inside are a few short pencils and a binder you instantly recognize as Robin's. The sheer bareness of the locker heavily reminds you of Robin's own room back at the orphanage.
+		The interior of the locker is surprisingly bare. There's little in the way of decoration and the only items inside are a few short pencils and a binder you instantly recognise as Robin's. The sheer bareness of the locker heavily reminds you of Robin's own room back at the orphanage.
 		<br><br>
 		<<if isLoveInterest ("Robin")>>
 			With a small smile at the reminder of your <<print C.npc.Robin.pronoun is "f" ? "girlfriend" : "boyfriend">>, you close the locker.
@@ -147,12 +157,13 @@
 			You close the locker.
 		<</if>>
 		<br><br>
-		<<link [[떠난다|School Lockers]]>><</link>>
+		<<link [[떠난다|School Lockers]]>><<handheldon>><</link>>
 	<</addinlineevent>>
 <</if>>
-<<if C.npc.Sydney.init is 1 >> 
+<<if C.npc.Sydney.init is 1 >>
 	<<addinlineevent "SydneyLocker" 0.015>>
 		<br><br>
+		<<wearProp "pen">>
 		As soon as you open the door, something clatters to the floor. You crouch down to pick it up; it's a red pen with the cap still firmly attached. A quick scan of the locker reveals dozens more neatly stacked into boxes against the walls of the lockers, alongside textbooks and a small umbrella. A cross hangs at the back and you realise the locker likely belongs to Sydney.
 		<br><br>
 		<<if isLoveInterest ("Sydney")>>
@@ -161,7 +172,7 @@
 			You close the locker.
 		<</if>>
 		<br><br>
-		<<link [[떠난다|School Lockers]]>><</link>>
+		<<link [[떠난다|School Lockers]]>><<handheldon>><</link>>
 	<</addinlineevent>>
 <</if>>
 <<runeventpool>>
@@ -263,6 +274,7 @@
 
 :: School Lockers Condom Steal
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<wearProp "condom">>
 당신은 재빠르게 콘돔을 호주머니에 넣는다. 당신이 사물함 주인보다 그게 더 필요할 것이다. <<gcondoms 1>>
 <br><br>
 
@@ -271,6 +283,7 @@
 
 :: School Lockers Condom Sabotage
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<wearProp "condom">>
 당신은 사물함 안에서 작은 핀을 발견하고는, 그 끝으로 콘돔에 작은 구멍을 뚫어 놓는다. <<promiscuity1>>
 
 <<link [[다음|School Lockers]]>><</link>>

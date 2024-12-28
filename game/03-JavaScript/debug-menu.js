@@ -122,10 +122,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Roll Over`, stayOnPassageFn],
-			widgets: [() => `<<set $position to ` + (V.position === "doggy" ? "doggy" : "missionary") + `>>`],
-			condition() {
-				return V.position === "doggy" || V.position === "missionary" ? 1 : 0;
-			},
+			widgets: [
+				() => {
+					V.position = V.position === "doggy" ? "missionary" : "doggy";
+				},
+			],
 		},
 		{
 			link: [`Replay current passage with new RNG`, ""],
@@ -534,6 +535,10 @@ setup.debugMenu.eventList = {
 			widgets: [`<<endcombat>>`],
 		},
 		{
+			link: [`Virginity Show Test`, `Virginity Show Test`],
+			widgets: [],
+		},
+		{
 			link: [`Eels Swarm Me`, `Sea Eels`],
 			widgets: [`<<endcombat>>`, `<<set $molestationstart to 1>>`],
 		},
@@ -670,12 +675,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Great Hawk Hunt Capture`, `Moor`],
-			widgets: [
-				`<<set $moor to 50>>`,
-				`<<set $eventskip to 1>>`,
-				`<<moor_hunt_start>>`,
-				`<<set $moor_hunt to 10>>`,
-			],
+			widgets: [`<<set $moor to 50>>`, `<<set $eventskip to 1>>`, `<<moor_hunt_start>>`, `<<set $moor_hunt to 10>>`],
 		},
 		{
 			link: [`Police Pillory Start`, `Police Pillory Start`],
@@ -911,6 +911,10 @@ setup.debugMenu.eventList = {
 		{
 			link: ["Fox", "Meadow Cave Sex"],
 			widgets: ["<<endcombat>>", "<<beastNEWinit 1 'fox'>>", "<<person1>>", "<<set $sexstart to 1>>"],
+		},
+		{
+			link: ["Bear", "Forest Bear Molestation"],
+			widgets: ["<<endcombat>>", "<<beastNEWinit 1 'bear'>>", "<<person1>>", "<<set $molestationstart to 1>>"],
 		},
 		{
 			text_only: "\n\nTurn beast into: ",
@@ -1260,7 +1264,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Money`, stayOnPassageFn],
-			widgets: [`<<set $money += 500000>>`],
+			widgets: [`<<money 500000 "debug">>`],
 		},
 		{
 			link: [`Grow hair`, stayOnPassageFn],
@@ -1551,7 +1555,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Drench me`, stayOnPassageFn],
-			widgets: [`<<set $upperwet to 200>>`, `<<set $lowerwet to 200>>`, `<<set $underupperwet to 200>>`, `<<set $underlowerwet to 200>>`],
+			widgets: [`<<upperwet 200>>`, `<<lowerwet 200>>`, `<<underupperwet 200>>`, `<<underlowerwet 200>>`],
 		},
 		{
 			link: [`Drench over-outfit only`, stayOnPassageFn],
@@ -1559,11 +1563,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Drench middle-outfit only`, stayOnPassageFn],
-			widgets: [`<<set $upperwet to 200>>`, `<<set $lowerwet to 200>>`],
+			widgets: [`<<upperwet 200>>`, `<<lowerwet 200>>`],
 		},
 		{
 			link: [`Drench under-outfit only`, stayOnPassageFn],
-			widgets: [`<<set $underupperwet to 200>>`, `<<set $underlowerwet to 200>>`],
+			widgets: [`<<underupperwet 200>>`, `<<underlowerwet 200>>`],
 		},
 		{
 			link: [`Soak me in water`, stayOnPassageFn],
@@ -1689,8 +1693,9 @@ window.changeBorderColor = changeBorderColor;
 // const categories = ["debugEventsMain", "debugEventsCharacter", "debugEventsEvents"];
 const categories2 = ["debugMain", "debugCharacter", "debugEvents", "debugFavourites", "debugAdd"];
 
-function researchEvents(defaultValue) {
+function researchEvents(defaultValue, event) {
 	$(function () {
+		if (event != null) event.preventDefault();
 		let needle = defaultValue != null ? defaultValue : document.getElementById("searchEvents").value;
 		const eventsList = [
 			document.getElementById("debugEventsMain").getElementsByTagName("div"),

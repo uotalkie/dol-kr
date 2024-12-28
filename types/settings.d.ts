@@ -76,6 +76,9 @@ declare module "twine-sugarcube" {
 declare global {
 	export interface DolSettingsOptions {
 		debugdisable: "f" | "t";
+		silhouetteEnabled: boolean;
+		bodywritingImages: boolean;
+		combatAnimations: boolean;
 	}
 }
 

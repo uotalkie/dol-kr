@@ -34,19 +34,25 @@
 
 		/* convert game version to numeric value for use in <<backComp>> */
 		<<set _version to (V.saveVersions?.last()?.match(/\d+/g) || [0]).map(Number).reduce((acc, num, index) => acc + num * Math.pow(100, 3 - index), 0)>>
+		/* preserve prng so updater code won't alter which events are picked, don't forget to restore it
+			it needs to use $ instead of _ because pre-weather save update code runs Engine.play() and that destroys temp variables
+			and probably causes some other bad effects. honestly, version updater needs a major update itself. */
+		<<set $prngpull to State.prng.pull>>
 		<<backComp>>
 
 		<<updatehistorycontrols>>
 		<<set _preventUpdate to true>> /*prevent rewriting autosaves */
 		<<set _saveLoaded to true>>
 		<<set Time.set()>>
-		
+
 		<<setFont>>
 		<<run zoom($options.zoom)>>
 		<<run syncFavourites()>>
 		<<run initCustomLenses()>>	/* push custom eyelenses inside setup.colours.eyes; on every load/refresh it needs to be done. */
 		<<run syncDebugAddedEvents()>>
 		<<run toggleConfirmDialogUponTabClose()>> /* enable/disable confirm dialog when user tries to close browser tab. based on V.options.confirmDialogUponTabClose */
+		<<set State.prng.pull to $prngpull>> /* restore prng */
+		<<unset $prngpull>>
 	<</if>>
 
 	/* Variables that you need to check on every passage */

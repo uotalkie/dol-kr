@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites.
 
 Warmth checklist:
@@ -12,7 +13,8 @@ Warmth checklist:
 	Max warmth: 3
 */
 function initUnderLower() {
-	setup.clothes.under_lower = [
+	/** @type {ClothesItem[]} */
+	const clothing = [
 		{
 			index: 0,
 			name: "naked",
@@ -63,6 +65,9 @@ function initUnderLower() {
 			name_cap: "Plain panties",
 			name_simple: "panties",
 			variable: "plainpanties",
+			combat: {
+				renderType: "shorts",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -109,6 +114,9 @@ function initUnderLower() {
 			name_cap: "Bikini bottoms",
 			name_simple: "bikini bottoms",
 			variable: "bikini",
+			combat: {
+				renderType: "shorts",
+			},
 			integrity: 20,
 			integrity_max: 20,
 			fabric_strength: 20,
@@ -128,7 +136,7 @@ function initUnderLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["swim", "tanLines"],
+			type: ["swim"],
 			anal_shield: 0,
 			set: "under_lower",
 			gender: "f",
@@ -155,6 +163,9 @@ function initUnderLower() {
 			name_cap: "Lace panties",
 			name_simple: "panties",
 			variable: "lacepanties",
+			combat: {
+				reference: "bikini",
+			},
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 15,
@@ -201,6 +212,10 @@ function initUnderLower() {
 			name_cap: "Briefs",
 			name_simple: "undies",
 			variable: "briefs",
+			combat: {
+				reference: "plainpanties",
+				accessory: false,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -249,6 +264,9 @@ function initUnderLower() {
 			name_cap: "Chastity belt",
 			name_simple: "chastity belt",
 			variable: "chastitybelt",
+			combat: {
+				reference: "naked",
+			},
 			integrity: 2000,
 			integrity_max: 2000,
 			fabric_strength: 15,
@@ -294,6 +312,9 @@ function initUnderLower() {
 			name_cap: "School swimsuit bottom",
 			name_simple: "swimsuit",
 			variable: "schoolswimsuit",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -313,7 +334,7 @@ function initUnderLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["swim", "school", "tanLines"],
+			type: ["swim", "school"],
 			anal_shield: 0,
 			set: "school swimsuit",
 			warmth: 1,
@@ -340,6 +361,9 @@ function initUnderLower() {
 			name_cap: "School swim shorts",
 			name_simple: "swim shorts",
 			variable: "schoolswimshorts",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -360,7 +384,7 @@ function initUnderLower() {
 			anus_exposed: 0,
 			anus_exposed_base: 0,
 			no_aside: 1,
-			type: ["swim", "school", "tanLines"],
+			type: ["swim", "school"],
 			anal_shield: 0,
 			set: "under_lower",
 			gender: "m",
@@ -388,6 +412,9 @@ function initUnderLower() {
 			name_cap: "Leotard bottom",
 			name_simple: "leotard",
 			variable: "leotard",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -436,6 +463,9 @@ function initUnderLower() {
 			name_simple: "leotard",
 			variable: "unitard",
 			oldVariable: [{ name: "full body leotard bottom", variable: "leotardfull" }],
+			combat: {
+				reference: "longjohns",
+			},
 			integrity: 140,
 			integrity_max: 140,
 			fabric_strength: 20,
@@ -483,6 +513,9 @@ function initUnderLower() {
 			name_cap: "Skimpy leotard bottom",
 			name_simple: "leotard",
 			variable: "leotardskimpy",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 20,
@@ -529,6 +562,9 @@ function initUnderLower() {
 			name_cap: "Foreign school swimsuit bottom",
 			name_simple: "swimsuit",
 			variable: "schoolswimsuitj",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -548,7 +584,7 @@ function initUnderLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["swim", "school", "tanLines"],
+			type: ["swim", "school"],
 			anal_shield: 0,
 			set: "foreign school swimsuit",
 			gender: "f",
@@ -575,6 +611,9 @@ function initUnderLower() {
 			name_cap: "Swimsuit bottom",
 			name_simple: "swimsuit",
 			variable: "swimsuit",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 20,
@@ -621,6 +660,9 @@ function initUnderLower() {
 			name_cap: "Bunny leotard bottom",
 			name_simple: "leotard",
 			variable: "leotardbunny",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -668,6 +710,9 @@ function initUnderLower() {
 			name_cap: "Boyshorts",
 			name_simple: "undies",
 			variable: "boyshorts",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -714,6 +759,9 @@ function initUnderLower() {
 			name_cap: "Catgirl panties",
 			name_simple: "panties",
 			variable: "catgirlpanties",
+			combat: {
+				reference: "bikini",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -759,6 +807,9 @@ function initUnderLower() {
 			name_cap: "G-string",
 			name_simple: "g-string",
 			variable: "gstring",
+			combat: {
+				reference: "thong",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -803,6 +854,9 @@ function initUnderLower() {
 			name_cap: "Crotchless panties",
 			name_simple: "panties",
 			variable: "crotchlesspanties",
+			combat: {
+				reference: "thong",
+			},
 			integrity: 50,
 			integrity_max: 50,
 			fabric_strength: 20,
@@ -848,6 +902,9 @@ function initUnderLower() {
 			name_cap: "Microkini bottom",
 			name_simple: "swimsuit",
 			variable: "microkini",
+			combat: {
+				reference: "highmicrokini",
+			},
 			integrity: 30,
 			integrity_max: 30,
 			fabric_strength: 20,
@@ -893,6 +950,9 @@ function initUnderLower() {
 			name_cap: "Speedo",
 			name_simple: "speedo",
 			variable: "speedo",
+			combat: {
+				reference: "thong",
+			},
 			integrity: 50,
 			integrity_max: 50,
 			fabric_strength: 20,
@@ -938,6 +998,10 @@ function initUnderLower() {
 			name_cap: "Striped panties",
 			name_simple: "panties",
 			variable: "stripedpanties",
+			combat: {
+				reference: "bikini",
+				accessory: false,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -985,6 +1049,9 @@ function initUnderLower() {
 			name_cap: "Loincloth",
 			name_simple: "loincloth",
 			variable: "loincloth",
+			combat: {
+				reference: "thong",
+			},
 			integrity: 80,
 			integrity_max: 80,
 			fabric_strength: 10,
@@ -1030,6 +1097,9 @@ function initUnderLower() {
 			name_cap: "Thong",
 			name_simple: "thong",
 			variable: "thong",
+			combat: {
+				renderType: "shorts",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -1075,6 +1145,9 @@ function initUnderLower() {
 			name_cap: "Classic plain panties",
 			name_simple: "panties",
 			variable: "classicplainpanties",
+			combat: {
+				reference: "thong",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -1121,6 +1194,9 @@ function initUnderLower() {
 			name_cap: "Classic bikini bottoms",
 			name_simple: "bikini bottoms",
 			variable: "classicbikini",
+			combat: {
+				reference: "thong",
+			},
 			integrity: 20,
 			integrity_max: 20,
 			fabric_strength: 20,
@@ -1140,7 +1216,7 @@ function initUnderLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["swim", "tanLines"],
+			type: ["swim"],
 			anal_shield: 0,
 			set: "under_lower",
 			gender: "f",
@@ -1167,6 +1243,9 @@ function initUnderLower() {
 			name_cap: "Classic lace panties",
 			name_simple: "panties",
 			variable: "classiclacepanties",
+			combat: {
+				reference: "bikini",
+			},
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 15,
@@ -1213,6 +1292,9 @@ function initUnderLower() {
 			name_cap: "Classic briefs",
 			name_simple: "undies",
 			variable: "classicbriefs",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -1260,6 +1342,9 @@ function initUnderLower() {
 			name_cap: "Classic school swimsuit bottom",
 			name_simple: "swimsuit",
 			variable: "classicschoolswimsuit",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -1279,7 +1364,7 @@ function initUnderLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["swim", "school", "tanLines"],
+			type: ["swim", "school"],
 			anal_shield: 0,
 			set: "classic school swimsuit",
 			warmth: 2,
@@ -1306,6 +1391,10 @@ function initUnderLower() {
 			name_cap: "Jockstrap",
 			name_simple: "jockstrap",
 			variable: "jockstrap",
+			combat: {
+				reference: "thong",
+				accessory: false,
+			},
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -1352,6 +1441,9 @@ function initUnderLower() {
 			name_cap: "Boxers",
 			name_simple: "boxers",
 			variable: "boxers",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1398,6 +1490,9 @@ function initUnderLower() {
 			name_cap: "Long johns",
 			name_simple: "long johns",
 			variable: "longjohns",
+			combat: {
+				renderType: "trousers",
+			},
 			integrity: 150,
 			integrity_max: 150,
 			fabric_strength: 20,
@@ -1444,6 +1539,9 @@ function initUnderLower() {
 			name_cap: "School swim bottoms",
 			name_simple: "swimsuit bottoms",
 			variable: "schoolswimbottoms",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 70,
 			integrity_max: 70,
 			fabric_strength: 20,
@@ -1489,6 +1587,9 @@ function initUnderLower() {
 			name_cap: "Cow panties",
 			name_simple: "panties",
 			variable: "cow",
+			combat: {
+				renderType: "skirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -1533,6 +1634,10 @@ function initUnderLower() {
 			name_cap: "Strap-on",
 			name_simple: "strap-on",
 			variable: "straponlower",
+			combat: {
+				accessory: false,
+				renderType: "strapon",
+			},
 			integrity: 2000,
 			integrity_max: 2000,
 			fabric_strength: 30,
@@ -1579,6 +1684,9 @@ function initUnderLower() {
 			name_cap: "Strap-on horse cock",
 			name_simple: "strap-on",
 			variable: "straponhorse",
+			combat: {
+				reference: "straponlower",
+			},
 			integrity: 2000,
 			integrity_max: 2000,
 			fabric_strength: 30,
@@ -1625,6 +1733,9 @@ function initUnderLower() {
 			name_cap: "Strap-on knotted cock",
 			name_simple: "strap-on",
 			variable: "straponknotted",
+			combat: {
+				reference: "straponlower",
+			},
 			integrity: 2000,
 			integrity_max: 2000,
 			fabric_strength: 30,
@@ -1671,6 +1782,9 @@ function initUnderLower() {
 			name_cap: "Strap-on studded cock",
 			name_simple: "strap-on",
 			variable: "straponstudded",
+			combat: {
+				reference: "straponlower",
+			},
 			integrity: 2000,
 			integrity_max: 2000,
 			fabric_strength: 30,
@@ -1710,13 +1824,15 @@ function initUnderLower() {
 			accIcon: 0,
 			size: 3,
 		},
-
 		{
 			index: 37,
 			name: "see-through swim bottoms",
 			name_cap: "See-through swim bottoms",
 			name_simple: "swimsuit bottoms",
 			variable: "seethroughswimsuit",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 30,
@@ -1764,6 +1880,9 @@ function initUnderLower() {
 			name_cap: "Shibari ropes bottom",
 			name_simple: "bondage ropes",
 			variable: "shibari",
+			combat: {
+				reference: "naked",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 30,
@@ -1810,6 +1929,9 @@ function initUnderLower() {
 			name_cap: "Highwaisted microkini bottom",
 			name_simple: "swimsuit",
 			variable: "highmicrokini",
+			combat: {
+				renderType: "shorts",
+			},
 			integrity: 30,
 			integrity_max: 30,
 			fabric_strength: 20,
@@ -1856,6 +1978,9 @@ function initUnderLower() {
 			name_cap: "Turtleneck leotard bottom",
 			name_simple: "leotard",
 			variable: "leotardturtleneck",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1903,6 +2028,9 @@ function initUnderLower() {
 			name_cap: "Tie side bikini bottoms",
 			name_simple: "bikini bottoms",
 			variable: "tiesidebikini",
+			combat: {
+				reference: "highmicrokini",
+			},
 			integrity: 15,
 			integrity_max: 15,
 			fabric_strength: 20,
@@ -1922,7 +2050,7 @@ function initUnderLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["swim", "tanLines"],
+			type: ["swim"],
 			anal_shield: 0,
 			set: "under_lower",
 			gender: "f",
@@ -1948,6 +2076,9 @@ function initUnderLower() {
 			name_cap: "Vintage lace panties",
 			name_simple: "panties",
 			variable: "lacepantiesold",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 15,
@@ -1993,6 +2124,10 @@ function initUnderLower() {
 			name_cap: "Denim panties",
 			name_simple: "panties",
 			variable: "janties",
+			combat: {
+				reference: "plainpanties",
+				accessory: false,
+			},
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 15,
@@ -2038,6 +2173,10 @@ function initUnderLower() {
 			name_cap: "Denim thong",
 			name_simple: "thong",
 			variable: "jhong",
+			combat: {
+				reference: "thong",
+				accessory: false,
+			},
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,
@@ -2083,6 +2222,9 @@ function initUnderLower() {
 			name_cap: "Latex leotard bottom",
 			name_simple: "leotard",
 			variable: "latexleotard",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -2129,6 +2271,9 @@ function initUnderLower() {
 			name_cap: "Leather leggings",
 			name_simple: "leggings",
 			variable: "leatherleggings",
+			combat: {
+				reference: "plainpanties",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -2172,6 +2317,7 @@ function initUnderLower() {
 			accIcon: 0,
 		},
 	];
+	setup.clothes.under_lower = clothing;
 
 	/*
 		Clothes that modders add go into this array, this should be empty in the base game at all times.

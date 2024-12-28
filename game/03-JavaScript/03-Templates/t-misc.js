@@ -155,7 +155,7 @@ Template.add("gwylanItem", () =>
 Template.add("sin", () => {T.trResult = either("오만", "분노", "질투", "음욕", "탐욕", "인색", "나태"); getPostNum(T.trResult); return T.trResult;});
 
 /* ?chatter1 */
-Template.add("chatter1",() => 
+Template.add("chatter1", () =>
 	either(
 		"잘 생각해보면, 사실 우리 둘 다 여기에 없는 거야.",
 
@@ -175,14 +175,14 @@ Template.add("chatter1",() =>
 
 		"우리 학교 식당 음식이 꽤 괜찮더라. 내 소소한 낙이야.",
 
-		"아, 세상의 비애를 모르는 애벌레가 될 수 있다면, 얼마나 좋을까.", 
+		"Oh, to be a caterpillar, unaware of the woes of the world.",
 
 		"누가 오징어처럼, 마치, 촉수 같은 것이 달린 고래를 봤다고 하더라고. 오징어랑 고래가 마침내 그들의 차이를 이겨내고 같이 한 판 떴다고 생각해?"
 	)
 );
 
 /* ?chatter2 */
-Template.add("chatter2",() => 
+Template.add("chatter2", () =>
 	either(
 		"왜 내가 너같은 애랑 친구먹고 있는 걸까?",
 
@@ -203,7 +203,7 @@ Template.add("chatter2",() =>
 		"접근금지 신청을 해야겠어. 이번엔, 진짜로.",
 
 		"너 좀 어디에 처박아두면 안되냐?",
-		
+
 		"나무처럼 가만히 있다가 겨울에는 좀 죽어주면 안되겠냐?"
 	)
 );

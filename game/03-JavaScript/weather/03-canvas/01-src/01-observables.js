@@ -56,20 +56,18 @@ Weather.Observables = (() => {
 		Object.entries(setup.WeatherBindings).forEach(([key, config]) => {
 			observables[key].subscribe(value => {
 				if (value === undefined) return;
-				if (config.layers.includes("all")) {
-					scheduler.scheduleUpdate("all", async () => {
-						Weather.Tooltips.skybox();
-						Weather.sky.updateOrbits();
-						Weather.sky.drawLayers();
-					});
-				} else {
-					config.layers.forEach(layer => {
-						scheduler.scheduleUpdate(layer, async draw => {
+				config.layers.forEach(layer => {
+					scheduler.scheduleUpdate(layer, async draw => {
+						if (layer === "all") {
+							Weather.Tooltips.skybox();
+							Weather.sky.updateOrbits();
+							Weather.sky.drawLayers();
+						} else {
 							await Weather.sky.layers.get(layer).init();
 							if (!draw) Weather.sky.drawLayers(layer);
-						});
+						}
 					});
-				}
+				});
 			});
 		});
 	};

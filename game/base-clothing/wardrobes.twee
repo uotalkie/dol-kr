@@ -132,10 +132,6 @@
 		<</if>>
 		/*Prevent equip when the ear slime doesn't allow it*/
 		<<if _slimePrevent.includes(_slot) and $wardrobeOption is "wear" and $earSlime.corruption gte 10>>
-			<<if $daily.corruptionSlimeClothes is undefined>>
-				<<set _baseCorruption to (($earSlime.corruption / 2) + ($earSlime.growth / 2))>>
-				<<set $daily.corruptionSlimeClothes to random(_baseCorruption * 5, _baseCorruption * 25) - currentSkillValue('willpower')>>
-			<</if>>
 			<<if $earSlime.forcedCommando isnot undefined and (_slot is "under_lower" or (_item.outfitPrimary and _item.outfitPrimary.under_lower and !["broken","split"].includes(_item.outfitPrimary.under_lower)))>>
 				<<if _item.type.includes("naked") or (_earSlimeEnableSwimwear and _item.type.includes("swim")) or (_earSlimeEnableDancewear and _item.type.includes("dance"))>>
 				<<elseif $earSlime.forcedCommando gt 0>>
@@ -145,7 +141,7 @@
 				<<else>>
 					<<run delete $earSlime.forcedCommando>>
 				<</if>>
-			<<elseif ((["prison", "asylum"].includes($location) and _item.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 1000)) or (_item.reveal lt Math.clamp($daily.corruptionSlimeClothes, 0, 500)) and !(_item.type.includesAny("school") and Time.schoolDay)) and !_item.type.includesAny("event")>>
+			<<elseif _item.reveal lt earSlimeCorruptionClothes() and !(!["prison", "asylum"].includes($location) and _item.type.includesAny("school") and Time.schoolDay) and !_item.type.includesAny("event")>>
 				<span class="red">귓속의 슬라임이 허가하지 않아 <<trClothes _slot _item.name "name" "을">>_trResult 입을 수가 없다.</span>
 				<br>
 				<<continue>>
@@ -897,7 +893,7 @@
 			<<clothingicon _wornItem _wardrobe_list>>
 			<<print "<<trClothes _wardrobe_list _wornItemData.name>>_trResult">>
 			<<if _wornItem.colour isnot 0>>
-				<span @class="_wornItem.colour"><<trColour _wornItem.colour>>(_trResult)</span>
+				<span @class="_wornItem.colour.replace(' ','-')">(_wornItem.colour)</span>
 			<</if>>
 			<<if _wornItem.outfitPrimary isnot undefined>>
 				<<set _keys to Object.keys(_wornItem.outfitPrimary)>>
@@ -1002,7 +998,7 @@
 
 				<</if>>
 				<<if _item.colour isnot 0>>
-					<span @class="_selectedWardrobe[_wardrobe_list][_i].colour"><<trColour _item.colour>>(_trResult)</span>
+					<span @class="_selectedWardrobe[_wardrobe_list][_i].colour.replace(' ','-')">(_item.colour)</span>
 				<</if>>
 				<<if _item.outfitPrimary isnot undefined>>
 					<<set _keys to Object.keys(_item.outfitPrimary)>>
@@ -1192,7 +1188,7 @@
 			<</if>>
 			<li class="no-numberify">/*<<clothingicon _item>>*/<<wearlink_norefresh setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)].name_cap _i _wear>>
 			<<if _selectedWardrobe[_wardrobe_list][_i].colour isnot 0>>
-				<span @class="_selectedWardrobe[_wardrobe_list][_i].colour"><<trColour _item.colour>>(_trResult)</span>
+				<span @class="_selectedWardrobe[_wardrobe_list][_i].colour.replace(' ','-')">(_item.colour)</span>
 			<</if>>
 			<<wardrobeintegrity _item _wardrobe_list>>
 			</li>
@@ -1822,7 +1818,7 @@
 	<</for>>
 <</for>>
 운전기사가 <<printmoney `_value + 5000`>>를 두고 상자를 가져간다.
-<<set $money += Math.floor(_value + 5000)>>
+<<money `Math.floor(_value + 5000)` "tailor">>
 <br><br>
 <<link [[계속|$wardrobeReturnLink]]>>
 	<<unset $wardrobeReturnLink>>
@@ -1926,7 +1922,7 @@
 	<</for>>
 <</for>>
 <<if _value gt 5000>>
-	<<set $money -= _value - 5000>>
+	<<money `-_value - 5000` "tailor">>
 	운전기사가 상자와 <<printmoney `_value - 5000`>>를 들고간다.
 <<else>>
 	운전기사가 상자를 들고간다.

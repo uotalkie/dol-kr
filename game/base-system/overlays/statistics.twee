@@ -2,22 +2,40 @@
 <<widget "statistics">>
 	<<foldout false "_virginitiesFoldout">>
 		<span class="gold">순결</span>
+		<<run ["vaginal", "penile", "anal", "oral", "handholding", "kiss"].forEach(type => {
+			if ($player.virginity[type] is true) {
+				T[type + "VirginityColour"] = "gold";
+			} else if (setup.loveInterestNpc.includes($player.virginity[type])) {
+				T[type + "VirginityColour"] = "lewd";
+				if ($player.virginityDetails and $player.virginityDetails?.[type]?.consensual is false) T[type + "VirginityColour"] = "red";
+			} else if ($player.virginityDetails and $player.virginityDetails?.[type]?.consensual isnot undefined) {
+				T[type + "VirginityColour"] = $player.virginityDetails?.[type]?.consensual ? "green" : "red";
+			} else {
+				T[type + "VirginityColour"] = "";
+			}
+		})>>
 		<<if $player.vaginaExist or $player.virginity.vaginal isnot true>>
-			<<trVirginity $player.virginity.vaginal>>보지 처녀: <<print ($player.virginity.vaginal is true ? "존재" : ($player.virginity.vaginal is false ? "뺏어간 이 불명" : _trResult + "에게 빼앗김"))>>
+			Vaginal virginity: <span @class="_vaginalVirginityColour"><<print ($player.virginity.vaginal is true ? "Present" : "Taken by " + ($player.virginity.vaginal is false ? "unknown" : $player.virginity.vaginal))>></span>
+			<<virginityToolTip $player.virginityDetails.vaginal $player.virginity.vaginal "pc" "vaginal">>
 			<br>
 		<</if>>
 		<<if $player.penisExist or $player.virginity.penile isnot true>>
-			<<trVirginity $player.virginity.penile>>자지 동정: <<print ($player.virginity.penile is true ? "존재" : ($player.virginity.penile is false ? "뺏어간 이 불명" : _trResult + "에게 빼앗김"))>>
+			Penile virginity: <span @class="_penileVirginityColour"><<print ($player.virginity.penile is true ? "Present" : "Taken by " + ($player.virginity.penile is false ? "unknown" : $player.virginity.penile))>></span>
+			<<virginityToolTip $player.virginityDetails.penile $player.virginity.penile "pc" "penile">>
 			<br>
 		<</if>>
 
-		<<trVirginity $player.virginity.anal>>항문 처녀: <<print ($player.virginity.anal is true ? "존재" : ($player.virginity.anal is false ? "뺏어간 이 불명" : _trResult + "에게 빼앗김"))>>
+		Anal virginity: <span @class="_analVirginityColour"><<print ($player.virginity.anal is true ? "Present" : "Taken by " + ($player.virginity.anal is false ? "unknown" : $player.virginity.anal))>></span>
+		<<virginityToolTip $player.virginityDetails.anal $player.virginity.anal "pc" "penile">>
 		<br>
-		<<trVirginity $player.virginity.oral>>입 처녀: <<print ($player.virginity.oral is true ? "존재" : ($player.virginity.oral is false ? "뺏어간 이 불명" : _trResult + "에게 빼앗김"))>>
+		Oral virginity: <span @class="_oralVirginityColour"><<print ($player.virginity.oral is true ? "Present" : "Taken by " + ($player.virginity.oral is false ? "unknown" : $player.virginity.oral))>></span>
+		<<virginityToolTip $player.virginityDetails.oral $player.virginity.oral "pc" "oral">>
 		<br>
-		<<trVirginity $player.virginity.handholding>>손 순결: <<print ($player.virginity.handholding is true ? "존재" : ($player.virginity.handholding is false ? "뺏어간 이 불명" : _trResult + "에게 빼앗김"))>>
+		Handholding virginity: <span @class="_handholdingVirginityColour"><<print ($player.virginity.handholding is true ? "Present" : "Taken by " + ($player.virginity.handholding is false ? "unknown" : $player.virginity.handholding))>></span>
+		<<virginityToolTip $player.virginityDetails.handholding $player.virginity.handholding "pc" "handholding">>
 		<br>
-		<<trVirginity $player.virginity.kiss>>첫 키스: <<print ($player.virginity.kiss is true ? "존재" : ($player.virginity.kiss is false ? "뺏어간 이 불명" : _trResult + "에게 빼앗김"))>>
+		First kiss: <span @class="_kissVirginityColour"><<print ($player.virginity.kiss is true ? "Present" : "Taken by " + ($player.virginity.kiss is false ? "unknown" : $player.virginity.kiss))>></span>
+		<<virginityToolTip $player.virginityDetails.kiss $player.virginity.kiss "pc" "kiss">>
 		<br>
 		<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 			<<trVirginity $player.virginity.temple>>사원의 서약: <<print ($player.virginity.temple is true ? "깨지지 않음" : ($player.virginity.temple is false ? "깨뜨린 이 불명" : _trResult + "에게 깨짐"))>>
@@ -35,12 +53,25 @@
 		<br>
 
 		<!-- For each individual virginity type, the number is named and unnamed combined, but the list of names has unnamed npcs filtered out. -->
-		<<set _vaginalNamed to $virginTaken.vaginal.filter(name => $NPCNameList.indexOf(name) isnot -1)>>
-		<<set _penileNamed to $virginTaken.penile.filter(name => $NPCNameList.indexOf(name) isnot -1)>>
-		<<set _analNamed to $virginTaken.anal.filter(name => $NPCNameList.indexOf(name) isnot -1)>>
-		<<set _oralNamed to $virginTaken.oral.filter(name => $NPCNameList.indexOf(name) isnot -1)>>
-		<<set _handholdingNamed to $virginTaken.handholding.filter(name => $NPCNameList.indexOf(name) isnot -1)>>
-		<<set _kissNamed to $virginTaken.kiss.filter(name => $NPCNameList.indexOf(name) isnot -1)>>
+		<<run ["vaginal", "penile", "anal", "oral", "handholding", "kiss"].forEach((virginity) => {
+			const virginityNamed = `${virginity}Named`;
+			T[virginityNamed] = []; /* _vaginalNamed, _penileNamed, ... */
+			for (const name of V.virginTaken[virginity]) {
+				if (!V.NPCNameList.includes(name)) continue;
+				const details = C.npc[name].virginityDetails?.[virginity];
+				let colour = '';
+				if (setup.loveInterestNpc.includes(name) && (!details || details.consensual !== false)) {
+					colour = "lewd";
+				} else if (details && details.consensual != null) {
+					colour = details.consensual ? "green" : "red";
+				}
+				const nameText = `<span class="${colour}">${name}</span>`;
+				const detailsArg = details
+					? `\`C.npc['${name}'].virginityDetails.${virginity}\`` 
+					: '';
+				T[virginityNamed].push(`${nameText}<<virginityToolTip ${detailsArg} ${name} "npc" ${virginity}>>`);
+			}
+		})>>
 
 		보지 순결: $virginTaken.vaginal.length<<trNPCVirginity _vaginalNamed>><<print (_vaginalNamed.length gte 1 ? ", 포함된 자: " + _trResult : "")>>
 		<br>
@@ -67,11 +98,13 @@
 		매춘한 횟수: $prostitutionstat번
 		<br>
 		<<if $gamemode isnot "soft">>
-		강제로 매춘한 횟수: $forcedprostitutionstat번
-		<br>
+			강제로 매춘한 횟수: $forcedprostitutionstat번
+			<br>
 		<</if>>
-		부두에서 일한 시간: $dockhours시간
-		<br>
+		<<if statChange.timeTrackingTotal("docks")>>
+			Hours worked on the docks: <<print statChange.timeTrackingTotal("docks")>>
+			<br>
+		<</if>>
 		카페에서 판매한 빵: $bunstat개
 		<br>
 		가장 많이 생산한 "크림"의 양: <<print parseFloat($creamstat.toFixed(1))>> mL
@@ -452,6 +485,40 @@
 		<br><br>
 	<</foldout>>
 
+	<<foldout false "_moneyFoldout">>
+		<span class="gold">Money</span>
+		Notes <mouse class="tooltip linkBlue">(?)<span>Adding too many extra colums may make it harder to read on some devices. Many of these were not tracked at all before version '0.5.2.x' and so will be inaccurate.<<if Object.keys($timeStats).length>> Hour rates cannot be easily used to track every state and so most will just be "N/A".<</if>></span></mouse>
+		<br>
+		<<set [_moneyKeys, _moneyStats, _moneyStatsTotal] to moneyStatsProcess(clone($moneyStats))>>
+		<<if $moneyStatsSnapshot?.money>>
+			<<set [_moneySnapshotKeys, _moneyStatsSnapshot, _moneyStatsSnapshotTotal] to moneyStatsProcess(clone($moneyStatsSnapshot.money))>>
+		<</if>>
+		<div id="moneyStatsDiv">
+			<<moneyStats>>
+		</div>
+		<<if $debug is 1>>
+			<<link "Reset Stats (Debug)">>
+				<<set $moneyStats to {}>>
+				<<set $timeStats to {}>>
+				<<unset $moneyStatsSnapshot>>
+				<<unset _showSnapshot>>
+				<<set [_moneyKeys, _moneyStats, _moneyStatsTotal] to moneyStatsProcess(clone($moneyStats))>>
+				<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+			<</link>>
+		<</if>>
+	<</foldout>>
+
+	<<if $badEndStats.length>>
+		<<foldout false "_badEndFoldout">>
+			<span class="gold">Bad Ends</span>
+			Notes <mouse class="tooltip linkBlue">(?)<span>Adding too many extra colums may make it harder to read on some devices. These were not tracked at all before version '0.5.2.x' and so will be inaccurate. If a bad end stays in progress but you have clearly ended the bad end, please report it as a bug with your save.</span></mouse>
+			<br>
+			<div id="badEndStatsDiv">
+				<<badEndStats>>
+			</div>
+		<</foldout>>
+	<</if>>
+
 	<<foldout false "_miscFoldout">>
 		<span class="gold">기타</span>
 		<<if $gamemode isnot "soft">>
@@ -491,6 +558,8 @@
 		<br>
 		빠진 수학 수업: $schoolLessonsMissed.maths회
 		<br>
+		Housekeeping lessons missed: $schoolLessonsMissed.housekeeping
+		<br>
 		빠진 영어 수업: $schoolLessonsMissed.english회
 		<br>
 		빠진 역사 수업: $schoolLessonsMissed.history회
@@ -517,7 +586,7 @@
 			먹은 럴커 수: $bird.lurkersEaten마리
 			<br>
 		<</if>>
-		베일리에게 지불한 총 금액: <<printmoney $baileyPaidStat true>>
+		Total paid to Bailey: <<printmoney `$moneyStats.baileyRent?.spent or 0`>>
 		<mouse class="tooltip linkBlue">(?)<span>'0.4.5.X' 버전 및 그 이전의 내용은 포함되지 않습니다</span></mouse>
 		<br>
 		<<if $baileyRefusedToPayTotal>>
@@ -800,6 +869,10 @@
 				부두 평판: <<print Math.trunc($dockstatus)>>
 				<br>
 			<</if>>
+			<<if $pound and $pound.progress gte 1>>
+				Stray dog contentment: <<print Math.trunc($stray_happiness)>>
+				<br>
+			<</if>>
 			섹스 명성: <<print Math.trunc($fame.sex)>>
 			<br>
 			매춘 명성: <<print Math.trunc($fame.prostitution)>>
@@ -952,7 +1025,7 @@
 					<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
 						<<if $_vPregnancy.fetus[_i] isnot undefined>>
 							<<if $_vPregnancy.fetus[_i].fertilised>>
-								질 슬롯 <<=_i+1>>에는 <<putpost $_vPregnancy.fetus[_i].stats.gender>> <<trCreature "all" $_vPregnancy.fetus[_i].creature "이">>_trResult 임신되어 있다.
+								Vaginal slot <<=_i+1>> is pregnant with a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature.
 								<<if $_vPregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
 									<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_vPregnancy.fetus[_i].daysLeft is 0>>
 										의사 하퍼가 곧 당신의 출산을 도울 수 있을 것이다.
@@ -970,10 +1043,10 @@
 								<</if>>
 								<br>
 							<<else>>
-								질 슬롯 <<=_i+1>>에는 <<putpost $_vPregnancy.fetus[_i].stats.gender>> <<trCreature "all" $_vPregnancy.fetus[_i].creature "의">>_trResult 알이 있으며 수정이 가능하다.<br>
+								Vaginal slot <<=_i+1>> has a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature egg ready to be fertilised.<br>
 							<</if>>
 						<<else>>
-							질 슬롯 <<=_i+1>>에는 현재 아무것도 없다.<br>
+							Vaginal slot <<=_i+1>> is empty.<br>
 						<</if>>
 					<</for>>
 				<<else>>
@@ -981,7 +1054,7 @@
 						다른 종류의 질 임신을 하고 있어 기생충의 숙주가 될 수가 없다.
 					<<else>>
 						<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
-							질 슬롯 <<=_i+1>>에는 현재 아무것도 없다.<br>
+							Vaginal slot <<=_i+1>> is empty.<br>
 						<</for>>
 					<</if>>
 				<</if>>
@@ -1133,9 +1206,9 @@
 
 <<widget "statisticsTimeCompare">><<silently>>
 	<<if $statFreeze is true>>
-		상태가 고정되어 있는 동안에는 사용할 수 없음
+		<<set $_text_output to "Not avaliable when stats are being frozen">>
 	<<elseif $args[0]>>
-		<<set _difference to new DateTime($args[0]).compareWith(Time.date)>>
+		<<set _difference to new DateTime($args[0]).compareWith($args[1] or Time.date)>>
 		<<set $_text_output to "">>
 		<<if _difference.years>>
 			<<set $_text_output += `${_difference.years} 년${_difference.years gt 1 ? "" : ""}`>>
@@ -1156,13 +1229,617 @@
 			<<if $_text_output>><<set $_text_output += ", ">><</if>>
 			<<set $_text_output += `${_difference.minutes} 분${_difference.minutes gt 1 ? "" : ""}`>>
 		<</if>>
-		<<if !$_text_output>>
+		<<if $args[1] and !$_text_output>>
+			<<set $_text_output += "no difference">>
+		<<elseif !$_text_output>>
 			<<set $_text_output += "최근">>
 		<<else>>
 			<<set $_text_output += " 전">>
 		<</if>>
 	<<else>>
 		<<set $_text_output to "그런 적 없음">>
+	<</if>>
+<</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "moneyStats">>
+	<<set $_moneyStats to (_showSnapshot is "show" ? clone(_moneyStatsSnapshot) : clone(_moneyStats))>>
+	<<set $_moneyKeys to (_showSnapshot is "show" ? clone(_moneySnapshotKeys) : clone(_moneyKeys))>>
+	<<set $_moneyTotal to (_showSnapshot is "show" ? clone(_moneyStatsSnapshotTotal) : clone(_moneyStatsTotal))>>
+	<<link `$moneyStatsSnapshot ? "Re-create Snapshot" : "Create Snapshot"`>>
+		<<set $moneyStatsSnapshot to {
+			date: Time.date.timeStamp,
+			money: clone(V.moneyStats),
+			time: clone(V.timeStats),
+		}>>
+		<<set [_moneySnapshotKeys, _moneyStatsSnapshot, _moneyStatsSnapshotTotal] to moneyStatsProcess(clone($moneyStatsSnapshot.money))>>
+		<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+	<</link>>
+	<<if $moneyStatsSnapshot>>
+		| <<link "Clear Snapshot">>
+			<<unset $moneyStatsSnapshot>>
+			<<unset _showSnapshot>>
+			<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+		<</link>>
+	<</if>>
+	<br><br>
+	<<link `_moneyStatsDetailed ? "Reduce details" : "Expand details"`>>
+		<<set _moneyStatsDetailed to !_moneyStatsDetailed>>
+		<<set [_moneyKeys, _moneyStats, _moneyStatsTotal] to moneyStatsProcess(clone($moneyStats))>>
+		<<if $moneyStatsSnapshot?.money>>
+			<<set [_moneySnapshotKeys, _moneyStatsSnapshot, _moneyStatsSnapshotTotal] to moneyStatsProcess(clone($moneyStatsSnapshot.money))>>
+		<</if>>
+		<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+	<</link>> |
+	<span @class="_moneyStatsCount ? 'goldLink' : ''">
+		<<link `_moneyStatsCount ? "Hide Counts" : "Show Counts"`>>
+			<<set _moneyStatsCount to !_moneyStatsCount>>
+			<<if !_moneyStatsCount and _moneyStatsSorting?.includes("Count")>><<unset _moneyStatsSorting>><</if>>
+			<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+		<</link>>
+	</span> |
+	<span @class="_moneyStatsAverages ? 'goldLink' : ''">
+		<<link `_moneyStatsAverages ? "Hide Averages" : "Show Averages"`>>
+			<<set _moneyStatsAverages to !_moneyStatsAverages>>
+			<<if !_moneyStatsAverages and _moneyStatsSorting?.includes("Average")>><<unset _moneyStatsSorting>><</if>>
+			<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+		<</link>>
+	</span> |
+	<span @class="_moneyStatsDate ? 'goldLink' : ''">
+		<<link `_moneyStatsDate ? "Hide Dates" : "Show Dates"`>>
+			<<set _moneyStatsDate to !_moneyStatsDate>>
+			<<if !_moneyStatsDate and _moneyStatsSorting?.includes("Date")>><<unset _moneyStatsSorting>><</if>>
+			<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+		<</link>>
+	</span> |
+	<<if Object.keys($timeStats).length>>
+		<span @class="_moneyStatsHourRates ? 'goldLink' : ''">
+			<<link `_moneyStatsHourRates ? "Hide Hour Rates" : "Show Hour Rates"`>>
+				<<set _moneyStatsHourRates to !_moneyStatsHourRates>>
+				<<if !_moneyStatsHourRates and _moneyStatsSorting?.includes("Hour Rates")>><<unset _moneyStatsSorting>><</if>>
+				<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+			<</link>>
+		</span>
+	<</if>>
+	<<if $moneyStatsSnapshot>>
+		||
+		<span @class="_showSnapshot is 'show' ? 'goldLink' : ''">
+			<<link `_showSnapshot is "show" ? "Hide Snapshot" : "Show Snapshot"`>>
+				<<if _showSnapshot is "show">>
+					<<unset _showSnapshot>>
+				<<else>>
+					<<set _showSnapshot to "show">>
+				<</if>>
+				<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+			<</link>>
+		</span>
+		|
+		<span @class="_showSnapshot is 'compare' ? 'goldLink' : ''">
+			<<link `_showSnapshot is "compare" ? "Hide Snapshot" : "Compare Snapshot"`>>
+				<<if _showSnapshot is "compare">>
+					<<unset _showSnapshot>>
+				<<else>>
+					<<set _showSnapshot to "compare">>
+				<</if>>
+				<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+			<</link>>
+		</span>
+	<</if>>
+	<<if _moneyStatsSorting>>
+		| <<link "Reset Sorting">>
+			<<unset _moneyStatsSorting>>
+			<<replace "#moneyStatsDiv">><<moneyStats>><</replace>>
+		<</link>>
+		<<run $_moneyKeys.sort((a, b) => {
+			if (_moneyStatsSorting.includes("Desc")) {
+				const tempSwap = clone(a);
+				a = clone(b);
+				b = tempSwap;
+			}
+			switch(_moneyStatsSorting.replace("Desc","")) {
+				case "Source":
+					if (a.toUpperCase() < b.toUpperCase()) return -1;
+					return 1;
+					break;
+				case "Earned":
+					return ($_moneyStats[b].earned || 0) - ($_moneyStats[a].earned || 0);
+				case "Spent":
+					return ($_moneyStats[b].spent || 0) - ($_moneyStats[a].spent || 0);
+				case "Earned Count":
+					return ($_moneyStats[b].earnedCount || 0) - ($_moneyStats[a].earnedCount || 0);
+				case "Earned Average":
+					return ($_moneyStats[b].earned / $_moneyStats[b].earnedCount || 0) - ($_moneyStats[a].earned / $_moneyStats[a].earnedCount || 0);
+				case "Hour Rates":
+					return (statChange.timeTrackingTotal(b) ? $_moneyStats[b].earned / statChange.timeTrackingTotal(b) : 0) - (statChange.timeTrackingTotal(a) ? $_moneyStats[a].earned / statChange.timeTrackingTotal(a) : 0);
+				case "Spent Count":
+					return ($_moneyStats[b].spentCount || 0) - ($_moneyStats[a].spentCount || 0);
+				case "Spent Average":
+					return ($_moneyStats[b].spent / $_moneyStats[b].spentCount || 0) - ($_moneyStats[a].spent / $_moneyStats[a].spentCount || 0);
+				case "Date":
+					return (Math.max($_moneyStats[b].earnedTimeStamp || 0, $_moneyStats[b].spentTimeStamp || 0)) - (Math.max($_moneyStats[a].earnedTimeStamp || 0, $_moneyStats[a].spentTimeStamp || 0));
+			}
+		})>>
+	<</if>>
+	<table class="statsTable">
+		<thead>
+			<tr>
+				<th scope="col"><<moneyStatsTitle "Source">></th>
+				<th scope="col"><<moneyStatsTitle "Spent">></th>
+				<<if _moneyStatsAverages>>
+					<th scope="col"><<moneyStatsTitle "Spent Average">></th>
+				<</if>>
+				<<if _moneyStatsCount>>
+					<th scope="col"><<moneyStatsTitle "Spent Count">></th>
+				<</if>>
+				<th scope="col"><<moneyStatsTitle "Earned">></th>
+				<<if _moneyStatsAverages>>
+					<th scope="col"><<moneyStatsTitle "Earned Average">></th>
+				<</if>>
+				<<if _moneyStatsCount>>
+					<th scope="col"><<moneyStatsTitle "Earned Count">></th>
+				<</if>>
+				<<if _moneyStatsHourRates>>
+					<th scope="col"><<moneyStatsTitle "Hour Rates">></th>
+				<</if>>
+				<<if _moneyStatsDate>>
+					<th scope="col"><<moneyStatsTitle "Date">></th>
+				<</if>>
+			</tr>
+		</thead>
+		<<if _showSnapshot is "show">><<set _timeTrackingSnapshotOveride to true>><</if>>
+		<<for $_key range $_moneyKeys>>
+			<<if $_moneyStats[$_key].earned or $_moneyStats[$_key].spent>>
+				<tbody class="stat">
+					<td data-label="Source"><<moneyStatsNames $_key>></td>
+					<td data-label="Spent" @class="$_moneyStats[$_key].spent ? '' : 'mobileHidden'">
+						<<if $_moneyStats[$_key].spent>>
+							<<printmoney `$_moneyStats[$_key].spent or 0` "red">>
+							<<moneyStatsCompare $_key "spent">>
+						<<else>>
+							<span class="dash">-</span>
+						<</if>>
+					</td>
+					<<if _moneyStatsAverages>>
+						<td data-label="Spent Average" @class="$_moneyStats[$_key].spent ? '' : 'mobileHidden'">
+							<<if $_moneyStats[$_key].spent>>
+								<<printmoney `$_moneyStats[$_key].spent / $_moneyStats[$_key].spentCount or 0` "red">>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+					<<if _moneyStatsCount>>
+						<td data-label="Spent Count" @class="$_moneyStats[$_key].spent ? '' : 'mobileHidden'">
+							<<if $_moneyStats[$_key].spentCount>>
+								<<print $_moneyStats[$_key].spentCount>>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+					<td data-label="Earned" @class="$_moneyStats[$_key].earned ? '' : 'mobileHidden'">
+						<<if $_moneyStats[$_key].earned>>
+							<<printmoney `$_moneyStats[$_key].earned or 0`>>
+							<<moneyStatsCompare $_key "earned">>
+						<<else>>
+							<span class="dash">-</span>
+						<</if>>
+					</td>
+					<<if _moneyStatsAverages>>
+						<td data-label="Earned Average" @class="$_moneyStats[$_key].earned ? '' : 'mobileHidden'">
+							<<if $_moneyStats[$_key].earned>>
+								<<printmoney `$_moneyStats[$_key].earned / $_moneyStats[$_key].earnedCount or 0`>>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+					<<if _moneyStatsCount>>
+						<td data-label="Earned Count" @class="$_moneyStats[$_key].earned ? '' : 'mobileHidden'">
+							<<if $_moneyStats[$_key].earnedCount>>
+								<<print $_moneyStats[$_key].earnedCount>>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+					<<if _moneyStatsHourRates>>
+						<td data-label="Hour Rates">
+							<<if statChange.timeTrackingTotal($_key)>>
+								<<printmoney `$_moneyStats[$_key].earned / statChange.timeTrackingTotal($_key)`>>
+								<<moneyStatsCompareHourly $_key>>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+					<<if _moneyStatsDate>>
+						<td data-label="Date"><<moneyStatsDate $_moneyStats[$_key].spentTimeStamp $_moneyStats[$_key].earnedTimeStamp>></td>
+					<</if>>
+				</tbody>
+			<</if>>
+		<</for>>
+		<<unset _timeTrackingSnapshotOveride>>
+		<tbody class="total">
+			<td data-label="Source">Total</td>
+			<td data-label="Spent">
+				<<printmoney $_moneyTotal.spent "red">>
+				<<if _showSnapshot is "compare">>
+					<<print "+<<printmoney `(_moneyStatsTotal.spent or 0) - (_moneyStatsSnapshotTotal.spent or 0)` 'white'>>">>
+				<<else>>
+					<<moneyStatsCompare "total" "spent">>
+				<</if>>
+			</td>
+			<<if _moneyStatsAverages>>
+				<td data-label="Spent Average"><<printmoney `$_moneyTotal.spent / $_moneyTotal.spentCount or 0` "red">></td>
+			<</if>>
+			<<if _moneyStatsCount>>
+				<td data-label="Spent Count"><<print $_moneyTotal.spentCount>></td>
+			<</if>>
+			<td data-label="Earned">
+				<<printmoney $_moneyTotal.earned>>
+				<<if _showSnapshot is "compare">>
+					<<print "+<<printmoney `(_moneyStatsTotal.earned or 0) - (_moneyStatsSnapshotTotal.earned or 0)` 'white'>>">>
+				<<else>>
+					<<moneyStatsCompare "total" "earned">>
+				<</if>>
+			</td>
+			<<if _moneyStatsAverages>>
+				<td data-label="Earned Average"><<printmoney `$_moneyTotal.earned / $_moneyTotal.earnedCount or 0`>></td>
+			<</if>>
+			<<if _moneyStatsCount>>
+				<td data-label="Earned Count"><<print $_moneyTotal.earnedCount>></td>
+			<</if>>
+			<<if _moneyStatsHourRates>>
+				<td data-label="Hour Rates">-</td>
+			<</if>>
+			<<if _moneyStatsDate>>
+				<td data-label="Date"><<moneyStatsDate $_moneyTotal.spentTimeStamp $_moneyTotal.earnedTimeStamp>></td>
+			<</if>>
+		</tbody>
+		<<if _showSnapshot>>
+			<tfoot>
+				<tr>
+					<td colspan="3">
+						<<set _snapShotDate to new DateTime($moneyStatsSnapshot.date)>>
+						Snapshot from: 
+						<<switch $options.dateFormat>>
+							<<case "en-US">>
+								<<print _snapShotDate.month>>/<<print _snapShotDate.day>>/<<print _snapShotDate.year>>
+							<<case "zh-CN">>
+								<<print _snapShotDate.year>>/<<print _snapShotDate.month>>/<<print _snapShotDate.day>>
+							<<default>>
+								<<print _snapShotDate.day>>/<<print _snapShotDate.month>>/<<print _snapShotDate.year>>
+						<</switch>>
+						- <<ampm _snapShotDate.hour _snapShotDate.minute>>
+						<br>
+						Snapshot age: <<statisticsTimeCompare $moneyStatsSnapshot.date>>
+					</td>
+				</tr>
+			</tfoot>
+		<</if>>
+	</table>
+<</widget>>
+
+<<widget "moneyStatsNames">><<silently>>
+	<<switch _args[0]>>
+		<<case "cafeWaiter">><<set $_text_output to $player.gender_appearance is "m" ? "Cafe Waiter" : "Cafe Waitress">>
+		<<case "partyDanceTips">><<set $_text_output to "Party Dance Job Tips">>
+		<<case "danubeDanceTips">><<set $_text_output to "Danube Dance Job Tips">>
+		<<default>><<set $_text_output to camelCaseToTitle(_args[0])>>
+	<</switch>>
+<</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "moneyStatsTitle">><<silently>>
+	<<if _moneyStatsSorting is _args[0]>>
+		<<set $_text_output to ` <<link "${_args[0]}&#x25B2;">><<set _moneyStatsSorting to "${_args[0]}Desc">><<replace "#moneyStatsDiv">><<moneyStats>><</replace>><</link>>`>>
+	<<elseif  _moneyStatsSorting is _args[0] + "Desc">>
+		<<set $_text_output to ` <<link "${_args[0]}&#x25BC;">><<unset _moneyStatsSorting>><<replace "#moneyStatsDiv">><<moneyStats>><</replace>><</link>>`>>
+	<<else>>
+		<<set $_text_output to ` <<link "${_args[0]}">><<set _moneyStatsSorting to "${_args[0]}">><<replace "#moneyStatsDiv">><<moneyStats>><</replace>><</link>>`>>
+	<</if>>
+<</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "moneyStatsCompare">><<silently>>
+	<<if _args[0] and _args[1] and _showSnapshot is "compare">>
+		<<set $_amount to (_moneyStats[_args[0]][_args[1]] or 0) - (_moneyStatsSnapshot[_args[0]] ? _moneyStatsSnapshot[_args[0]][_args[1]] || 0 : 0)>>
+		<<set $_text_output to `+<<printmoney ${$_amount} "white">>`>>
+	<</if>>
+<</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "moneyStatsCompareHourly">><<silently>>
+	<<if _args[0] and _showSnapshot is "compare">>
+		<<if statChange.timeTrackingTotal(_args[0]) and _moneyStats[_args[0]]?.earned and _moneyStatsSnapshot[_args[0]]?.earned>>
+			<<set $_current to _moneyStats[_args[0]].earned / statChange.timeTrackingTotal(_args[0])>>
+			<<set _timeTrackingSnapshotOveride to true>>
+			<<if statChange.timeTrackingTotal(_args[0])>>
+				<<set $_previous to _moneyStatsSnapshot[_args[0]].earned / statChange.timeTrackingTotal(_args[0])>>
+				<<set $_amount to $_current - $_previous>>
+				<<set $_text_output to `${$_amount gt 0 ? "+" : ""}<<printmoney ${$_amount} ${$_amount lt 0 ? "red" : "white"}>>`>>
+			<</if>>
+			<<unset _timeTrackingSnapshotOveride>>
+		<</if>>
+	<</if>>
+<</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "moneyStatsDate">><<silently>>
+	<<if _args[0] or _args[1]>>
+		<<set $_time to new DateTime(Math.max(_args[0] or 0, _args[1] or 0))>>
+		<<switch $options.dateFormat>>
+			<<case "en-US">>
+				<<set $_text_output to `<<print $_time.month>>/<<print $_time.day>>/<<print $_time.year>>`>>
+			<<case "zh-CN">>
+				<<set $_text_output to `<<print $_time.year>>/<<print $_time.month>>/<<print $_time.day>>`>>
+			<<default>>
+				<<set $_text_output to `<<print $_time.day>>/<<print $_time.month>>/<<print $_time.year>>`>>
+		<</switch>>
+		<<set $_text_output += ` - <<ampm $_time.hour $_time.minute>>`>>
+	<<else>>
+		<<set $_text_output to `<span class="dash">-</span>`>>
+	<</if>>
+<</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "virginityToolTip">><<silently>>
+	<<if _args[0]?.timestamp and _args[1] isnot true>>
+		<<set $_time to new DateTime(_args[0].timestamp)>>
+		<<switch $options.dateFormat>>
+			<<case "en-US">>
+				<<set $_text_output to `Taken on: ${$_time.month}/${$_time.day}/${$_time.year}`>>
+			<<case "zh-CN">>
+				<<set $_text_output to `Taken on: ${$_time.year}/${$_time.month}/${$_time.day}`>>
+			<<default>>
+				<<set $_text_output to `Taken on: ${$_time.day}/${$_time.month}/${$_time.year}`>>
+		<</switch>>
+		<<set $_text_output += ` - ${ampm($_time.hour, $_time.minute)}<br>How recent: <<c>><<statisticsTimeCompare _args[0].timestamp>><</c>>`>>
+		<<set $_linkColour to "linkBlue">>
+		<<if _args[0].consensual isnot undefined>>
+			<<set $_text_output += `<br>Consensual: ${_args[0].consensual ? "True" : "False"}`>>
+			<<set $_linkColour to _args[0].consensual ? "green" : "red">>
+		<</if>>
+		<<if _args[0].position>>
+			<<set $_text_output += `<br>Sex Position: ${_args[0].position.toUpperFirst()}`>>
+		<</if>>
+		<<if _args[0].playerPenisSize>>
+			<<set $_penisSize to ["Micro", "Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
+			<<set $_text_output += `<br>Penis size: ${$_penisSize[_args[0].playerPenisSize + 2]}`>>
+		<<elseif _args[0].npcPenisSize>>
+			<<set $_penisSize to ["Tiny", "Average", "Thick", "Huge", "Colossal"]>>
+			<<if !_args[0].npcPenisdesc or !["knotted", "spiked", "strange","equine","avian","bovine","arachnid"].includes(_args[0].npcPenisdesc)>>
+				<<set $_text_output += `<br>Penis size${_args[0].npcPenisSize2 ? "s" : ""}: ${$_penisSize[_args[0].npcPenisSize - 1]}`>>
+				<<if _args[0].npcPenisSize2>>
+					<<set $_text_output += ` and ${$_penisSize[_args[0].npcPenisSize2 - 1]}`>>
+				<</if>>
+			<<else>>
+				<<set $_text_output += `<br>Penis${_args[0].npcPenisSize2 ? "es" : ""}: ${$_penisSize[_args[0].npcPenisSize - 1]} ${_args[0].npcPenisdesc}`>>
+				<<if _args[0].npcPenisSize2>>
+					<<set $_text_output += ` and ${$_penisSize[_args[0].npcPenisSize2 - 1]} ${_args[0].npcPenisdesc2}`>>
+				<</if>>
+			<</if>>
+		<</if>>
+		<<switch _args[0].passage>>
+			<<case "Tutorial">><<set $_special to "Didn't know how to scream">>
+			<<case "Brothel Show Virginity Sex">><<set $_special to "Sold to the highest bidder">>
+			<<case "Brothel Show Virginity Rape">><<set $_special to "Stolen from the highest bidder">>
+			<<case "Sydney Temple Pure Sex">>
+				<<if _args[2] is 'npc' and setup.loveInterestNpc.includes(_args[1])>>
+					<<set $_special to "Given to <<nnpc_his _args[1]>> promised">>
+				<<else>>
+					<<set $_special to "Given to your promised">>
+				<</if>>
+			<<case "Sydney Temple Corrupt Sex">><<set $_special to "Defiled in the temple">>
+			<<case "Estate Cards Sex">><<set $_special to "Gambled away">>
+			<<case "Underground Robin Kiss Intro">>
+				<<set $_special to "Taken when collared together">>
+			<<case "Underground Robin Kiss Molestation">>
+				/* This expected this detail to be only visible for the player's virginity */
+				<<if _args[2] is "pc">>
+					<<set $_sameTime to "">>
+					<<set $_asRobins to "">>
+					<<set $_eachOther to "Robin">>
+					<<set $_otherVirginity to C.npc.Robin?.virginityDetails?.[_args[3]]?.passage is "Underground Robin Kiss Molestation" ? _args[3] : undefined>>
+					<<if !$_otherVirginity>>
+						<<set $_otherVirginity to C.npc.Robin?.virginityDetails?.vaginal?.passage is "Underground Robin Kiss Molestation" ? "vaginal" : (C.npc.Robin?.virginityDetails?.anal?.passage is "Underground Robin Kiss Molestation" ? "anal" : undefined)>>
+					<</if>>
+					<<if $_otherVirginity>>
+						<<if Math.abs(_args[0]?.timestamp - C.npc.Robin.virginityDetails[$_other].timestamp) lte 1000>>
+							<<set $_sameTime to "at the same time ">>
+						<<else>>
+							<<set $_sameTime to "in a similar situation ">>
+						<</if>>
+						<<set $_asRobins to `as Robin's ${$_otherVirginity is _args[3] ? "" : ($_otherVirginity + " virginity ")}`>>
+						<<set $_eachOther to "each other">>
+					<</if>>
+					<<set $_special to `Taken ${$_sameTime}${$_asRobins}while kissing ${$_eachOther}`>>
+				<</if>>
+			<<case "Moor Phallus Plant Masturbation">>
+				<<set $_special to "Driven mad with pleasure">>
+			<<default>>
+				<<if _args[0].npcPenisSize gte 5>>
+					<<set $_special to `${_args[3] is "vaginal" ? "Broken" : "Taken"} in the most brutal of ways`>>
+				<<elseif _args[0].npcPenisSize2 isnot undefined>>
+					<<set $_special to "Two for the price of one">>
+				<</if>>
+		<</switch>>
+		<<if $_special>><<set $_text_output += `<div class="lewd">Special: ${$_special}</div>`>><</if>>
+		<<if setup.loveInterestNpc.includes(_args[1]) and $_linkColour isnot "red">>
+			<<set $_linkColour to "lewd">>
+		<</if>>
+	<</if>>
+<</silently>><<if $_text_output>> <mouse @class="'tooltip ' + $_linkColour">(?)<span><<print $_text_output>></span></mouse><</if>>
+<</widget>>
+
+<<widget "badEndStats">>
+	<<set $_badEndStats to clone($badEndStats)>>
+	<<run $_badEndStats.forEach(badEnd => {
+		if (badEnd.reasonStart and setup.badEndReasonText[badEnd.reasonStart]) badEnd.reasonStart = setup.badEndReasonText[badEnd.reasonStart];
+		if (badEnd.reasonEnd and setup.badEndReasonText[badEnd.reasonEnd]) badEnd.reasonEnd = setup.badEndReasonText[badEnd.reasonEnd];
+	})>>
+	<span @class="_badEndStatsHowLongAgo ? 'goldLink' : ''">
+		<<link `_badEndStatsTimeSince ? "Hide How Long Ago" : "Show How Long Ago"`>>
+			<<set _badEndStatsHowLongAgo to !_badEndStatsHowLongAgo>>
+			<<if !_badEndStatsHowLongAgo>><<unset _badEndStatsHowLongAgo>><</if>>
+			<<replace "#badEndStatsDiv">><<badEndStats>><</replace>>
+		<</link>>
+	</span> |
+	<span @class="_badEndStatsReasonStart ? 'goldLink' : ''">
+		<<link `_badEndStatsReasonStart ? "Hide Start Reason" : "Show Start Reason"`>>
+			<<set _badEndStatsReasonStart to !_badEndStatsReasonStart>>
+			<<if !_badEndStatsReasonStart>><<unset _badEndStatsReasonStart>><</if>>
+			<<replace "#badEndStatsDiv">><<badEndStats>><</replace>>
+		<</link>>
+	</span> |
+	<span @class="_badEndStatsReasonEnd ? 'goldLink' : ''">
+		<<link `_badEndStatsReasonEnd ? "Hide End Reason" : "Show End Reason"`>>
+			<<set _badEndStatsReasonEnd to !_badEndStatsReasonEnd>>
+			<<if !_badEndStatsReasonEnd>><<unset _badEndStatsReasonEnd>><</if>>
+			<<replace "#badEndStatsDiv">><<badEndStats>><</replace>>
+		<</link>>
+	</span>
+	<<if _badEndStatsSorting>>
+		| <<link "Reset Sorting">>
+			<<unset _badEndStatsSorting>>
+			<<replace "#badEndStatsDiv">><<badEndStats>><</replace>>
+		<</link>>
+		<<run $_badEndStats.sort((a, b) => {
+			if (_badEndStatsSorting.includes("Desc")) {
+				const tempSwap = clone(a);
+				a = clone(b);
+				b = tempSwap;
+			}
+			switch(_badEndStatsSorting.replace("Desc","")) {
+				case "Bad End":
+					if (a.source.toUpperCase() < b.source.toUpperCase()) return -1;
+					return 1;
+				case "Started":
+					return (b.trackedStart || 0) - (a.trackedStart || 0);
+				case "Ended": case "Time since it ended":
+					return (b.trackedEnd || 0) - (a.trackedEnd || 0);
+				case "Duration":
+					return ((b.trackedEnd || 0) - b.trackedStart) - ((a.trackedEnd || 0) - a.trackedStart);
+				case "Start Reason":
+					if ((a.reasonStart || "").toUpperCase() < (b.reasonStart || "").toUpperCase()) return -1;
+					return 1;
+				case "End Reason":
+					if ((a.reasonEnd || "").toUpperCase() < (b.reasonEnd || "").toUpperCase()) return -1;
+					return 1;
+			}
+		})>>
+	<</if>>
+
+	<table class="statsTable">
+		<thead>
+			<tr>
+				<th scope="col"><<badEndStatsTitle "Bad End">></th>
+				<th scope="col"><<badEndStatsTitle "Started">></th>
+				<th scope="col"><<badEndStatsTitle "Ended">></th>
+				<th scope="col"><<badEndStatsTitle "Duration">></th>
+				<<if _badEndStatsHowLongAgo>>
+					<th scope="col"><<badEndStatsTitle "How Long Ago">></th>
+				<</if>>
+				<<if _badEndStatsReasonStart>>
+					<th scope="col"><<badEndStatsTitle "Start Reason">></th>
+				<</if>>
+				<<if _badEndStatsReasonEnd>>
+					<th scope="col"><<badEndStatsTitle "End Reason">></th>
+				<</if>>
+			</tr>
+		</thead>
+			<<for $_badEnd range $_badEndStats>>
+				<tbody class="stat">
+					<td data-label="Bad End">
+						<<print $_badEnd.source>>
+						<<if $_badEnd.notesStart or $_badEnd.notesEnd>>
+							<<set $_includesError to $_badEnd?.notesStart?.includes("Not correctly tracked") or $_badEnd?.notesEnd?.includes("Not correctly tracked")>>
+							<mouse @class="'tooltip ' + ($_includesError ? 'red' : 'linkBlue')">(?)<span>
+								<<if $_badEnd.notesStart>><<print $_badEnd.notesStart>><</if>>
+								<<if $_badEnd.notesEnd>>
+									<<if $_badEnd.notesStart>><hr><</if>>
+									<<print $_badEnd.notesEnd>>
+								<</if>>
+							</span></mouse>
+						<</if>>
+					</td>
+					<td data-label="Started">
+						<<set $_time to new DateTime($_badEnd.trackedStart)>>
+						<<switch $options.dateFormat>>
+							<<case "en-US">>
+								Started: $_time.month/$_time.day/$_time.year
+							<<case "zh-CN">>
+								Started: $_time.year/$_time.month/$_time.day
+							<<default>>
+								Started: $_time.day/$_time.month/$_time.year
+						<</switch>>
+					</td>
+					<td data-label="Ended">
+						<<if $_badEnd.trackedEnd>>
+							<<set $_time2 to new DateTime($_badEnd.trackedEnd)>>
+							<<switch $options.dateFormat>>
+								<<case "en-US">>
+									Ended: $_time2.month/$_time2.day/$_time2.year
+								<<case "zh-CN">>
+									Ended: $_time2.year/$_time2.month/$_time2.day
+								<<default>>
+									Ended: $_time2.day/$_time2.month/$_time2.year
+							<</switch>>
+						<<else>>
+							<span class="dash"></span>
+						<</if>>
+					</td>
+					<td data-label="Duration">
+						<<if $_badEnd.trackedEnd>>
+							<<statisticsTimeCompare $_time $_time2>>
+						<<else>>
+							In progress
+						<</if>>
+					</td>
+					<<if _badEndStatsHowLongAgo>>
+						<td data-label="How Long Ago">
+							<<if $_badEnd.trackedEnd>>
+								<<statisticsTimeCompare $_time2>>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+					<<if _badEndStatsReasonStart>>
+						<td data-label="Start Reason">
+							<<if setup.badEndReasonText[$_badEnd.reasonStart] isnot undefined>>
+								<<print setup.badEndReasonText[$_badEnd.reasonStart] or '<span class="dash">-</span>'>>
+							<<elseif $_badEnd.reasonStart>>
+								<<print $_badEnd.reasonStart>>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+					<<if _badEndStatsReasonEnd>>
+						<td data-label="End Reason">
+							<<if setup.badEndReasonText[$_badEnd.reasonEnd] isnot undefined>>
+								<<print setup.badEndReasonText[$_badEnd.reasonEnd] or '<span class="dash">-</span>'>>
+							<<elseif $_badEnd.reasonEnd>>
+								<<print $_badEnd.reasonEnd>>
+							<<else>>
+								<span class="dash">-</span>
+							<</if>>
+						</td>
+					<</if>>
+				</tbody>
+			<</for>>
+	</table>
+<</widget>>
+
+<<widget "badEndStatsTitle">><<silently>>
+	<<if _badEndStatsSorting is _args[0]>>
+		<<set $_text_output to ` <<link "${_args[0]}&#x25B2;">><<set _badEndStatsSorting to "${_args[0]}Desc">><<replace "#badEndStatsDiv">><<badEndStats>><</replace>><</link>>`>>
+	<<elseif  _badEndStatsSorting is _args[0] + "Desc">>
+		<<set $_text_output to ` <<link "${_args[0]}&#x25BC;">><<unset _badEndStatsSorting>><<replace "#badEndStatsDiv">><<badEndStats>><</replace>><</link>>`>>
+	<<else>>
+		<<set $_text_output to ` <<link "${_args[0]}">><<set _badEndStatsSorting to "${_args[0]}">><<replace "#badEndStatsDiv">><<badEndStats>><</replace>><</link>>`>>
 	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>>
 <</widget>>

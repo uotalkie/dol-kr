@@ -4,6 +4,7 @@
 	<<set $player.gender to "f">>
 	<<set $player.sex to "f">>
 	<<set $player.gender_body to "a">>
+	<<set $player.bodyshape to "classic">>
 	<<set $player.ballsExist to false>>
 	<<set $player.freckles to false>>
 	<<set $player.breastsize to 0>>
@@ -13,6 +14,8 @@
 	<<set $breastsensitivity to 1>>
 	<<set $bottomsensitivity to 1>>
 	<<set $genitalsensitivity to 1>>
+	<<set $facestyle to "default">>
+	<<set $facevariant to "default">>
 	<<set $eyeselect to "purple">>
 	<<set $hairselect to "red">>
 	<<set $hairlength to 200>>
@@ -645,6 +648,7 @@
 		<<set $feats.pregnancySillyLocked to true>>
 	<</if>>
 	<<updatehistorycontrols>>
+	<<presets _namedNpcPreset "save">>
 	<<initnpcgender>>
 	<<updatePersistentNPCs>>
 	<<hirsuteHideCheck>>
@@ -655,13 +659,6 @@
 	/* Updates the npc's in case $incompletePregnancyDisable has been changed by the player */
 	<<npcPregnancyUpdater>>
 
-	/* this never worked as intended
-	<!-- check if specified face style is installed -->
-	<img id="testImage" class="hidden" @src="'img/face/' + $facestyle + '/base.png'">
-	<<if $facestyle is "" or isImageOk("#testImage")>>
-		<<set $facestyle = "default">>
-	<</if>>
-	*/
 	<!-- Init shop mannequin gender -->
 	<<if $mannequinHasPenis is undefined>>
 		<<set $mannequinHasPenis to $player.penisExist>>
@@ -805,6 +802,7 @@
 
 			<div class="settingsToggleItem">
 				<span class="gold">네임드 NPC 성별</span>
+				<mouse class="tooltip linkBlue">(?)<span>Setting applies as you save changes.</span></mouse>
 				<br>
 				<<if _namedNpcPreset is undefined>><<set _namedNpcPreset to "namedNpcDefaultGender">><</if>>
 				<label>전부 남성 <<radiobutton "_namedNpcPreset" "namedNpcAllMaleGender" autocheck>></label> |
@@ -871,40 +869,21 @@
 		<div class="settingsToggleItem">
 		<span class="gold">무작위화:</span><br>
 			<<link "플레이어 캐릭터 모습">><<presets "randomize" "characterSettings" `randomizeSettings('characterAppearance')`>><</link>>
-			<mouse class="tooltip linkBlue">(?)<span>플레이어 캐릭터의 모습을 무작위로 선택하며, 머리카락, 눈, 피부색, 성별과 몸 부위의 크기를 포함합니다. 신체 크기, 체형, 성기, 기본 피부색은 게임 시작 후에는 변경할 수 없습니다.</span></mouse>
+			<mouse class="tooltip linkBlue">(?)<span>Randomises the player character's appearance, including hair, eyes, skin colour, gender, and body part sizes. Body size, gender appearance, genitalia, and base skin colour cannot be changed after starting the game.</span></mouse>
 		<br>
 		</div>
 		<div class="settingsToggleItem">
 		<<if StartConfig.enableImages is true>>
-			<span class="gold">사이드바에서 캐릭터 미리보기:</span><br> <label>겉옷 숨김 <<checkbox "_showClothes" true false autocheck>></label> <label>속옷 숨김 <<checkbox "_showUnderwear" true false autocheck>></label>
-			<mouse class="tooltip linkBlue">(?)<span>'플레이어와 NPC의 피부색 시각적으로 표현' 기능을 옵션 메뉴의 성능 탭에서 활성화해야 정상적으로 게임 플레이 중에 피부색을 볼 수 있습니다.</span></mouse>
+			<span class="gold">Character sidebar preview:</span><br> <label>Hide Clothes <<checkbox "_showClothes" true false autocheck>></label> | <label>Hide Underwear <<checkbox "_showUnderwear" true false autocheck>></label>
 			<br>
-			<<if $debug is 1>>
-				<span class="gold">이미지</span>
-				<label><div class="settingsToggleBig"><div style="display: inline-flex;">
-				얼굴 스타일
-				<div style="margin-left: 1em;"><<textbox "$facestyle" $facestyle>></div></div>
-				<div class="description">이 설정은 기본 얼굴 외의 다른 얼굴 스타일을 설치했을 때에만 작동합니다.</div>
-				<<script>>jQuery(document).ready(() => { jQuery('#textbox-facestyle').css('width', '100%').css('min-width', 'unset').css('height', '0.75em'); });<</script>>
-				</div></label>
-				<br>
-			<</if>>
 		<</if>>
 		</div>
 	</div>
 	<hr>
+
 	<div class="settingsGrid">
 		<div class="settingsHeader">
 			신체
-		</div>
-
-		<div class="settingsToggleItem">
-			<span class="gold">신체 크기:</span><br>
-			<label>조그마함 <<radiobutton "$bodysize" 0 autocheck>></label> |
-			<label>작음 <<radiobutton "$bodysize" 1 autocheck>></label> |
-			<label>평범함 <<radiobutton "$bodysize" 2 autocheck>></label> |
-			<label>큼 <<radiobutton "$bodysize" 3 autocheck>></label>
-			<mouse class="tooltip linkBlue">(?)<span>몸이 작을 수록 인카운터 중에 가할 수 있는 피해량이 적어져, 저항이 힘들어집니다.</span></mouse>
 		</div>
 
 		<div class="settingsToggleItem">
@@ -917,10 +896,33 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			<span class="gold">체형:</span><br>
-			<label>남성적 <<radiobutton "$player.gender_body" "m" autocheck>></label> |
-			<label>여성적 <<radiobutton "$player.gender_body" "f" autocheck>></label> |
-			<label>중성적 <<radiobutton "$player.gender_body" "a" autocheck>></label>
+			<span class="gold">신체 크기:</span><br>
+			<label>조그마함 <<radiobutton "$bodysize" 0 autocheck>></label> |
+			<label>작음 <<radiobutton "$bodysize" 1 autocheck>></label> |
+			<label>평범함 <<radiobutton "$bodysize" 2 autocheck>></label> |
+			<label>Large <<radiobutton "$bodysize" 3 autocheck>></label><br>
+			<span class="small-description">Larger sizes have higher max physique and damage output.</span>
+		</div>
+
+		<div class="settingsToggleItem">
+			<span class="gold">Gender appearance:</span><br>
+			<label class="blue">Masculine <<radiobutton "$player.gender_body" "m" autocheck>></label> |
+			<label class="pink">Feminine <<radiobutton "$player.gender_body" "f" autocheck>></label> |
+			<mouse class="tooltip purple">Androgynous<span>Has no effect on gender appearance.</span></mouse> <<radiobutton "$player.gender_body" "a" autocheck>>
+			<br>
+			<span class="small-description">Influences how others perceive you. Has no visual effect.
+			Clothing and other factors will also affect your perceived gender.</span>
+		</div>
+
+		<div class="settingsToggleItem">
+			<span class="gold">Body shape:</span><br>
+			<label>Classic <<radiobutton "$player.bodyshape" "classic" autocheck>></label> |
+			<label>Slender <<radiobutton "$player.bodyshape" "slender" autocheck>></label> |
+			<label>Curvy <<radiobutton "$player.bodyshape" "curvy" autocheck>></label> |
+			<label>Soft <<radiobutton "$player.bodyshape" "soft" autocheck>></label>
+			<br>
+			<span class="small-description">Purely cosmetic. Does not influence your perceived gender.
+			You may change this later in the mirror menu.</span>
 		</div>
 
 		<<if $debug is 1>>
@@ -930,15 +932,6 @@
 				<label>보지 <<radiobutton "$player.sex" "f" autocheck>></label>
 			</div>
 		<</if>>
-
-		<div class="settingsToggleItem">
-			<span data-target="player.gender" data-disabledif="V.player.gender==='f'">
-			<span class="gold">자지 크기 - 가능할 경우:</span><br>
-			<label>조그마함 <<radiobutton "$player.penissize" 0 autocheck>></label> |
-			<label>작음 <<radiobutton "$player.penissize" 1 autocheck>></label> |
-			<label>평범함 <<radiobutton "$player.penissize" 2 autocheck>></label>
-			</span>
-		</div>
 
 		<div class="settingsToggleItem">
 			<span class="gold">가슴 크기:</span><br>
@@ -958,6 +951,15 @@
 		</div>
 
 		<div class="settingsToggleItem">
+			<span data-target="player.gender" data-disabledif="V.player.gender==='f'">
+			<span class="gold">자지 크기 - 가능할 경우:</span><br>
+			<label>조그마함 <<radiobutton "$player.penissize" 0 autocheck>></label> |
+			<label>작음 <<radiobutton "$player.penissize" 1 autocheck>></label> |
+			<label>평범함 <<radiobutton "$player.penissize" 2 autocheck>></label>
+			</span>
+		</div>
+
+		<div class="settingsToggleItem">
 			<span data-target="player.gender" data-disabledif="V.player.gender!=='h'">
 			<span class="gold">고환 - 후타나리인 경우에만 적용:</span><br>
 			<label>있음 <<radiobutton "$player.ballsExist" true autocheck>></label> |
@@ -968,7 +970,88 @@
 
 	<hr>
 
-	<<sizeLimitsSettings>>
+	<div class="settingsGrid">
+		<div class="settingsHeader">
+			머리
+		</div>
+		<div id="settingsFaceStyle" class="settingsToggleItem">
+			<span class="gold">Face style:</span><br>
+			<<if setup.faceStyleOptions.length gt 1>>
+				<<for _styleName, _styleValue range setup.faceStyleOptions>>
+				<<capture _styleName, _styleValue>>
+					<span @id="'link-'+_styleValue.replace(/ /g,'-')" @class="(_styleValue is $facestyle ? 'selected' : '')">
+					<<silently>><<set _text_output to _styleName>><<capitalise>><</silently>>
+					<<link _text_output>>
+						<<removeclass `'#link-'+$facestyle.replace(/ /g,'-')` "selected">>
+						<<set $facestyle to _styleValue>>
+						<<set $facevariant to "default">>
+						<<addclass `'#link-'+$facestyle.replace(/ /g,'-')` "selected">>
+						<<replace "#settingsFaceVariantRadios">><<faceVariantSettings>><</replace>>
+						<<updatesidebarimg true>>
+					<</link>> |
+					</span>
+				<</capture>>
+				<</for>>
+			<<else>>
+				There are no additional face styles on this version.
+			<</if>>
+		</div>
+		<div id="settingsFaceVariants" class="settingsToggleItem">
+			<span class="gold">Demeanour:</span>
+			<mouse class = "tooltip-small linkBlue">
+				(?)<span>You may change this setting later on from the Visual Settings menu.</span>
+			</mouse>
+			<br>
+			<div id="settingsFaceVariantRadios">
+				<<faceVariantSettings>>
+			</div>
+		</div>
+		<div class="settingsToggleItemWide">
+			<span class="gold">Natural eye colour:</span><br>
+			<label><span class="purple">보라</span> <<radiobutton "$eyeselect" "purple" autocheck>></label> |
+			<label><span class="blue">짙은 파랑</span> <<radiobutton "$eyeselect" "dark blue" autocheck>></label> |
+			<label><span class="lblue">밝은 파랑</span> <<radiobutton "$eyeselect" "light blue" autocheck>></label> |
+			<label><span class="tangerine">호박색</span> <<radiobutton "$eyeselect" "amber" autocheck>></label> |
+			<label><span class="brown">적갈색</span> <<radiobutton "$eyeselect" "hazel" autocheck>></label> |
+			<label><span class="green">초록</span> <<radiobutton "$eyeselect" "green" autocheck>></label> |
+			<label><span class="lime-green">라임 초록</span> <<radiobutton "$eyeselect" "lime green" autocheck>></label> |
+			<label><span class="red">빨강</span> <<radiobutton "$eyeselect" "red" autocheck>></label> |
+			<label><span class="pink">분홍</span> <<radiobutton "$eyeselect" "pink" autocheck>></label> |
+			<label><span class="grey">회색</span> <<radiobutton "$eyeselect" "grey" autocheck>></label> |
+			<label><span class="light-grey">옅은 회색</span> <<radiobutton "$eyeselect" "light grey" autocheck>></label> |
+			<label><span>무작위</span> <<radiobutton "$eyeselect" "random" autocheck>></label>
+		</div>
+		<div class="settingsToggleItemWide">
+			<span class="gold">Natural hair colour:</span><br>
+			<label><span class="red">빨강</span> <<radiobutton "$hairselect" "red" autocheck>></label> |
+			<label><span class="black">흑옥색</span> <<radiobutton "$hairselect" "jetblack" autocheck>></label> |
+			<label><span class="black">검정</span> <<radiobutton "$hairselect" "black" autocheck>></label> |
+			<label><span class="brown">갈색</span> <<radiobutton "$hairselect" "brown" autocheck>></label> |
+			<label><span class="softbrown">연한 갈색</span> <<radiobutton "$hairselect" "softbrown" autocheck>></label> |
+			<label><span class="lightbrown">밝은 갈색</span> <<radiobutton "$hairselect" "lightbrown" autocheck>></label> |
+			<label><span class="burntorange">번트 오렌지</span> <<radiobutton "$hairselect" "burntorange" autocheck>></label> |
+			<label><span class="gold">금발</span> <<radiobutton "$hairselect" "blond" autocheck>></label> |
+			<label><span class="softblond">연한 금색</span> <<radiobutton "$hairselect" "softblond" autocheck>></label> |
+			<label><span class="platinum">백금색</span> <<radiobutton "$hairselect" "platinumblond" autocheck>></label> |
+			<label><span class="ashy">애쉬 블론드</span> <<radiobutton "$hairselect" "ashyblond" autocheck>></label> |
+			<label><span class="strawberry">스트로베리 블론드</span> <<radiobutton "$hairselect" "strawberryblond" autocheck>></label> |
+			<label><span class="tangerine">생강색</span> <<radiobutton "$hairselect" "ginger" autocheck>></label> |
+			<label><span>무작위</span> <<radiobutton "$hairselect" "random" autocheck>></label>
+		</div>
+		<div class="settingsToggleItem">
+			<span class="gold">머리카락 길이:</span><br>
+			<label>귀까지 <<radiobutton "$hairlength" 0 autocheck>></label> |
+			<label>목까지 <<radiobutton "$hairlength" 200 autocheck>></label> |
+			<label>가슴까지 <<radiobutton "$hairlength" 400 autocheck>></label>
+		</div>
+		<div class="settingsToggleItem">
+			<span class="gold">주근깨:</span><br>
+			<label>있음 <<radiobutton "$player.freckles" true autocheck>></label> |
+			<label>없음 <<radiobutton "$player.freckles" false autocheck>></label> |
+			<label>무작위 <<radiobutton "$player.freckles" "random" autocheck>></label>
+		</div>
+	</div>
+
 	<hr>
 
 	<div class="settingsGrid">
@@ -1006,56 +1089,7 @@
 
 	<hr>
 
-	<div class="settingsGrid">
-		<div class="settingsHeader">
-			머리
-		</div>
-		<div class="settingsToggleItemWide">
-			<span class="gold">눈 색:</span><br>
-			<label><span class="purple">보라</span> <<radiobutton "$eyeselect" "purple" autocheck>></label> |
-			<label><span class="blue">짙은 파랑</span> <<radiobutton "$eyeselect" "dark blue" autocheck>></label> |
-			<label><span class="lblue">밝은 파랑</span> <<radiobutton "$eyeselect" "light blue" autocheck>></label> |
-			<label><span class="tangerine">호박색</span> <<radiobutton "$eyeselect" "amber" autocheck>></label> |
-			<label><span class="brown">적갈색</span> <<radiobutton "$eyeselect" "hazel" autocheck>></label> |
-			<label><span class="green">초록</span> <<radiobutton "$eyeselect" "green" autocheck>></label> |
-			<label><span class="lime-green">라임 초록</span> <<radiobutton "$eyeselect" "lime green" autocheck>></label> |
-			<label><span class="red">빨강</span> <<radiobutton "$eyeselect" "red" autocheck>></label> |
-			<label><span class="pink">분홍</span> <<radiobutton "$eyeselect" "pink" autocheck>></label> |
-			<label><span class="grey">회색</span> <<radiobutton "$eyeselect" "grey" autocheck>></label> |
-			<label><span class="light-grey">옅은 회색</span> <<radiobutton "$eyeselect" "light grey" autocheck>></label> |
-			<label><span>무작위</span> <<radiobutton "$eyeselect" "random" autocheck>></label>
-		</div>
-		<div class="settingsToggleItemWide">
-			<span class="gold">머리카락 색:</span><br>
-			<label><span class="red">빨강</span> <<radiobutton "$hairselect" "red" autocheck>></label> |
-			<label><span class="black">흑옥색</span> <<radiobutton "$hairselect" "jetblack" autocheck>></label> |
-			<label><span class="black">검정</span> <<radiobutton "$hairselect" "black" autocheck>></label> |
-			<label><span class="brown">갈색</span> <<radiobutton "$hairselect" "brown" autocheck>></label> |
-			<label><span class="softbrown">연한 갈색</span> <<radiobutton "$hairselect" "softbrown" autocheck>></label> |
-			<label><span class="lightbrown">밝은 갈색</span> <<radiobutton "$hairselect" "lightbrown" autocheck>></label> |
-			<label><span class="burntorange">번트 오렌지</span> <<radiobutton "$hairselect" "burntorange" autocheck>></label> |
-			<label><span class="gold">금발</span> <<radiobutton "$hairselect" "blond" autocheck>></label> |
-			<label><span class="softblond">연한 금색</span> <<radiobutton "$hairselect" "softblond" autocheck>></label> |
-			<label><span class="platinum">백금색</span> <<radiobutton "$hairselect" "platinumblond" autocheck>></label> |
-			<label><span class="ashy">애쉬 블론드</span> <<radiobutton "$hairselect" "ashyblond" autocheck>></label> |
-			<label><span class="strawberry">스트로베리 블론드</span> <<radiobutton "$hairselect" "strawberryblond" autocheck>></label> |
-			<label><span class="tangerine">생강색</span> <<radiobutton "$hairselect" "ginger" autocheck>></label> |
-			<label><span>무작위</span> <<radiobutton "$hairselect" "random" autocheck>></label>
-		</div>
-		<div class="settingsToggleItem">
-			<span class="gold">머리카락 길이:</span><br>
-			<label>귀까지 <<radiobutton "$hairlength" 0 autocheck>></label> |
-			<label>목까지 <<radiobutton "$hairlength" 200 autocheck>></label> |
-			<label>가슴까지 <<radiobutton "$hairlength" 400 autocheck>></label>
-		</div>
-		<div class="settingsToggleItem">
-			<span class="gold">주근깨:</span><br>
-			<label>있음 <<radiobutton "$player.freckles" true autocheck>></label> |
-			<label>없음 <<radiobutton "$player.freckles" false autocheck>></label> |
-			<label>무작위 <<radiobutton "$player.freckles" "random" autocheck>></label>
-		</div>
-	</div>
-
+	<<sizeLimitsSettings>>
 	<hr>
 
 	<div class="settingsGrid">
@@ -1326,8 +1360,9 @@
 				<label>기술 이름만 표시 <<radiobutton "$checkstyle" "skillname" autocheck>></label>
 				<br>
 				<label>
-				<<checkbox "$statdisable" "f" "t" autocheck>> <mouse class = "tooltip linkBlue">능력치 표시 않음<span>능력치 표시 않음 기능을 활성화한 채로 플레이하는 것은 당신의 능력치가 변화했을 때나, 특정 이벤트를 성공시키는 데 필요한 기술이 무엇인가에 대해 아무 알림도 받지 않겠다는 것을 의미합니다. 직감에 의지해 살아남으세요. <i class="red normal"><br>초심자에게는 추천하지 않습니다. 이것은 실험적인 기능이며, 미래에 바뀌거나 삭제될 수 있습니다.</i></span></mouse>
+				<<checkbox "$statdisable" "f" "t" autocheck>> <mouse class = "tooltip linkBlue">Enable blind stats<span>Playing with blind stats enabled means that you'll receive no indication when your stats change, what skills are required to succeed in certain events, or be alerted to situational dangers. Survive on your intuition. <i class="red normal"><br>Not recommended for beginners. This is an experimental feature and may be changed or removed in the future.</i></span></mouse>
 				</label>
+				<br>
 			</div>
 
 			<div class="settingsToggleItemWide">
@@ -2259,6 +2294,14 @@
 	</div>
 <</widget>>
 
+<<widget "faceVariantSettings">>
+	<<set _variants = Object.entries(setup.faceVariantOptions[$facestyle])>>
+	<<for _i, _variant range _variants>>
+		<label><<= _variant[0]>> <<radiobutton "$facevariant" _variant[1] autocheck>></label>
+		<<= _i < _variants.length - 1 ? "|" : "">>
+	<</for>>
+<</widget>>
+
 <<widget "npcSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsToggleIndent">
@@ -2743,13 +2786,14 @@
 :: Attitudes
 <<attitudes>>
 <<set $attitudesControl.showGoldLink to "false">>
-<br><br>
-<<link [[확인|$attitudesExitPassage]]>>
-	<<unset $attitudesExitPassage>>
-	<<run DefaultActions.save(T.defaultActions)>>
-	<<if $LIChanged>>
-		<<unset $LIChanged>>
-		<<set $stress += 2000>><<set $trauma += 600>>
-	<</if>>
-<</link>>
+<div class="settingsGrid">
+	<<button [[Confirm|$attitudesExitPassage]]>>
+		<<unset $attitudesExitPassage>>
+		<<run DefaultActions.save(T.defaultActions)>>
+		<<if $LIChanged>>
+			<<unset $LIChanged>>
+			<<set $stress += 2000>><<set $trauma += 600>>
+		<</if>>
+	<</button>>
+</div>
 <br>

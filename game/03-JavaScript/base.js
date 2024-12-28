@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable jsdoc/require-description-complete-sentence */
 // adjust mousetrap behavior, see mousetrap.js
 Mousetrap.prototype.stopCallback = function (e, element, combo) {
@@ -165,7 +166,7 @@ window.wetnessKeyword = wetnessKeyword;
 
 /**
  * Returns an optional wetness prefix for the article of clothing.
- 
+
  * @param {string} slot clothing article slot used
  * @returns {string} printable integrity prefix
  */
@@ -569,7 +570,7 @@ window.mobBtnShow = mobBtnShow;
  * Options with a higher weight have a higher chance of being chosen.
  *
  * @param {Array} options Each option is an array where the first item is a value, and the second item is its weight.
- * @param {Object} [rngInstance] Optional rngInstance. Otherwise it uses State.random.
+ * @param {object} [rngInstance] Optional rngInstance. Otherwise it uses State.random.
  * @returns {*} The selected item
  * @example
  *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3]));  // Relative probability for these will be: apple: 16.67%, banana: 33.33%, cherry: 50%
@@ -674,7 +675,7 @@ Macro.add("icon", {
 		if (!V.options.images) return;
 		const name = typeof this.args[0] === "string" ? this.args[0] : "error";
 		const iconImg = document.createElement("img");
-		iconImg.className = "icon" + (this.args.includes("infront") ? " infront" : "");
+		iconImg.className = "icon" + (this.args.includes("infront") ? " infront" : "") + (this.args.includes("flip") ? " flip" : "");
 		iconImg.src = "img/misc/icon/" + name;
 		this.output.append(iconImg);
 		// append a whitespace for compatibility with old icon behavior
@@ -743,5 +744,48 @@ window.carriedClear = carriedClear;
 Macro.add("carriedClear", {
 	handler() {
 		carriedClear(this.args[0]);
+	},
+});
+
+// create text map link
+Macro.add("tml", {
+	handler() {
+		// name of the linked location
+		const target = this.args[0];
+
+		const link = document.createElement("a");
+		link.classList.add("no-numberify");
+		link.title = target;
+		// shorten street names to the first two letters
+		link.text = target.includes("Street") ? ` ${target.slice(0, 2)} ` : "─┼─";
+
+		let type = "locked";
+		if (target === V.passage) type = "current";
+		else if (V.possessed && target === V.nextPassageCheck) type = "possessed next";
+		else if (V.map.available[V.passage].includes(target) || V.debug) type = V.possessed ? "possessed" : "normal";
+		switch (type) {
+			case "current":
+				link.id = "currentLoc";
+				link.title += " (you are here)";
+				break;
+			case "possessed next":
+				link.classList.add("nextLink");
+				link.title += " (0:05)";
+				link.onclick = () => Engine.play(V.nextPassage);
+				break;
+			case "possessed":
+				link.title += " (0:05)";
+				link.onclick = () => Engine.play(V.nextPassage);
+				break;
+			case "normal":
+				link.title += " (0:05)";
+				link.onclick = () => mapMove(target);
+				break;
+			case "locked":
+				link.classList.add("lockedLoc");
+				break;
+		}
+
+		this.output.append(link);
 	},
 });

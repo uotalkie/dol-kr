@@ -101,6 +101,17 @@ Macro.add("canvasColoursEditor", {
 				exportPrefix: "setup.colours.mascara = ",
 				exportSuffix: ";",
 			},
+			{
+				name: "Blusher",
+				colours: setup.colours.blusher,
+				default: setup.colours.blusher_default,
+				setVars(variable) {
+					V.makeup.blusher = variable;
+					redrawImg();
+				},
+				exportPrefix: "setup.colours.blusher = ",
+				exportSuffix: ";",
+			},
 		];
 		elechildren(
 			this.output,
@@ -659,6 +670,7 @@ Macro.add("canvasModelEditor", {
 		const lipstickColourOptions = [...Object.keys(setup.colours.lipstick_map), "", "custom"];
 		const eyeshadowColourOptions = [...Object.keys(setup.colours.eyeshadow_map), "", "custom"];
 		const mascaraColourOptions = [...Object.keys(setup.colours.mascara_map), "", "custom"];
+		const blusherColourOptions = [...Object.keys(setup.colours.blusher_map), "", "custom"];
 		elechild(
 			this.output,
 			element("div", [
@@ -844,6 +856,7 @@ Macro.add("canvasModelEditor", {
 						selectOption("lipstick_colour", lipstickColourOptions),
 						selectOption("eyeshadow_colour", eyeshadowColourOptions),
 						selectOption("mascara_colour", mascaraColourOptions),
+						selectOption("blusher_colour", blusherColourOptions),
 
 						optionCategory("Misc"),
 						booleanOption("upper_tucked"),

@@ -3988,13 +3988,6 @@
 		<<set $englishPlay to "none">>
 	<</if>>
 
-	<!-- v0.3.13.5 disable combat animations on mobile due to system breakdown.-->
-	<!-- ToDo: Canvas, revert in future update when combat is updated to canvas renderer -->
-	<<if Browser.isMobile.any() and $options.combatAnimations is true and $combatFix is undefined>>
-		<<set $combatFix to 1>>
-		<<set $options.combatAnimations to false>>
-	<</if>>
-
 	<<if $debugdisable isnot undefined>>
 		<<set $options.debugdisable to $debugdisable>>
 		<<unset $debugdisable>>
@@ -4346,7 +4339,7 @@
 	<</if>>
 
 	<!-- Fixing broken transformation stuff -->
-	<<if $tfFIX is undefined or $tfFIX lte 1>>
+	<<if $tfFIX is undefined or $tfFIX lte 2>>
 		<<if $tfFIX is undefined>>
 			<!-- V0.4.0.5 repair transformationParts object after damage from mid-prayer room or nightmare saves -->
 			<<if $transformationParts.fox is undefined>>
@@ -4415,7 +4408,11 @@
 			<</if>>
 		<</if>>
 
-		<<set $tfFIX to 2>>
+		/* <!-- 0.5.3.0 Clear invalid transformation parts */
+		<<if $tfFIX is undefined or $tfFIX lte 2>>
+			<<validateTransformations>>
+		<</if>>
+		<<set $tfFIX to 3>>
 	<</if>>
 
 	<!-- V0.4.0.5 Old saves with untyped named NPCs -->
@@ -4980,8 +4977,7 @@
 		<<unset $shopListMax>>
 	<</if>>
 
-	<<if $baileyPaidStat is undefined>>
-		<<set $baileyPaidStat to 0>>
+	<<if $baileyRefusedToPayTotal is undefined>>
 		/* Dupicate stats are intentional to use as a potential gameplay mode */
 		<<set $baileyRefusedToPayTotal to 0>>
 		<<set $baileyRefusedToPayTotalStat to 0>>
@@ -5363,7 +5359,8 @@
 		<<set $custom_eyecolours to _newEyecolours>>
 	<</if>>
 
-	<!-- 0.5.2.0, converting NPC seen variables to arrays -->
+	<!-- 0.5.2.0 -->
+	<!-- Converting NPC seen variables to arrays -->
 	<<if $remy_seen isnot undefined>>
 		<<set $remySeen to []>>
 		<<set $remySeen.pushUnique($remy_seen)>>
@@ -5404,6 +5401,9 @@
 		<<if $winterLakeTalk gte 3>>
 			<<set $nikiSeen.pushUnique("winter")>>
 		<</if>>
+	<</if>>
+	<<if C.npc.Niki.init is 1 and $nikiSeen is undefined>>
+		<<set $nikiSeen to []>>
 	<</if>>
 
 	<!-- Disabled the npc compressor -->
@@ -5456,16 +5456,6 @@
 		<<set $objectVersion.npcCompressorDisable to 2>>
 	<</if>>
 
-	<<if Browser.isMobile.any() is true and $mobileZoomFix is undefined>>
-		<<if $options.zoom is 100>>
-			<<set $mobileZoomFix to 1>>
-			<<set $options.zoom to 75>>
-			<<run zoom($options.zoom)>>
-		<<else>>
-			<<set $mobileZoomFix to 1>>
-		<</if>>
-	<</if>>
-
 	<!-- Fix for named npcs whose gender could be changed by the randomizer -->
 	<<if !$objectVersion.npcPregnancyGenderChange>>
 		<<initnpcgender>>
@@ -5473,7 +5463,323 @@
 	<</if>>
 
 	<!-- 0.5.2.5 Temporarily disabling the toggle to fix bleached PCs in combat -->
-	<<if $options?.tanImgEnabled is false>>
+	<<if $options?.tanImgEnabled isnot true>>
 		<<set $options.tanImgEnabled to true>>
 	<</if>>
+
+	<<if $moneyStats is undefined>>
+		<<set $moneyStats to {
+			cheats: { earned: 0, earnedCount: 1 },
+			startingMoney: { earned: 500, earnedCount: 1 },
+		}>>
+		<<if $farm>>
+			<<if $farm.wall gte 1>><<money -350000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.wall gte 2>><<money -1000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.wall gte 3>><<money -2500000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.wall gte 4>><<money -500000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.tower gte 1>><<money -2000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.tower gte 2>><<money -500000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.woodland gte 1>><<money -1000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.woodland gte 2>><<money -2000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.woodland gte 3>><<money -5000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.kennel gte 1>><<money -1500000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.barn gte 1>><<money -500000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.barn gte 2>><<money -2000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.stable gte 1>><<money -2000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.coop gte 1>><<money -200000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.coop gte 2>><<money -500000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.parasitebarn gte 1>><<money -500000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.parasitebarn gte 2>><<money -2000000 "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if $farm.irrigation gte 1>><<money `-500000 * $farm.irrigation` "farmUpgrades" { recordOnly: true }>><</if>>
+			<<if C.npc.Alex?.pregnancy.nursery>><<money -300000 "farmUpgrades" { recordOnly: true }>><</if>>
+		<</if>>
+		<<if $loft_river>><<money -2000000 "orphanageUpgrades" { recordOnly: true }>><</if>>
+		<<if $loft_kylar>><<money -2000000 "orphanageUpgrades" { recordOnly: true }>><</if>>
+		<<if $mason_pond gte 3>><<money -600000 "orphanageUpgrades" { recordOnly: true }>><</if>>
+		<<if $loft_whitney gte 6>><<money -200000 "orphanageUpgrades" { recordOnly: true }>><</if>>
+		<<if $estatePersistent>>
+			<<money `$estatePersistent.totalBetMoneyMade or 0` "blackjack" { recordOnly: true }>>
+			<<money `-$estatePersistent.totalBetMoneyLost or 0` "blackjack" { recordOnly: true }>>
+			<<money `-$estatePersistent.totalMoneyConfiscated or 0` "blackjack" { recordOnly: true }>>
+			<<money `$estatePersistent.totalTipMoneyMade or 0` "blackjack" { recordOnly: true }>>
+		<</if>>
+		<<money `-$baileyPaidStat or 0` "baileyRent" { recordOnly: true }>>
+		<<unset $baileyPaidStat>>
+		<<if $museumAntiques.antiques>>
+			<<set _museumAntiquesAmount to 0>>
+			<<run Object.entries($museumAntiques.antiques).forEach(([name, status]) => {
+				if (["museum", "stolen", "recovered"].includes(status)) {
+					switch(name) {
+						case "antiquecopperring":
+							T.museumAntiquesAmount += 500;
+							break;
+						case "antiquecoppercoin":
+						case "antiquerustedcutlass":
+							T.museumAntiquesAmount += 1000;
+							break;
+						case "antiquestrangefetish":
+						case "antiquewoodenfigurine":
+							T.museumAntiquesAmount += 1500;
+							break;
+						case "antiquesilvercoin":
+						case "antiqueforestarrow":
+						case "antiquebox":
+						case "antiqueislandarrow":
+						case "antiqueteacaddy":
+							T.museumAntiquesAmount += 2000;
+							break;
+						case "antiquechocolate":
+							T.museumAntiquesAmount += 2500;
+							break;
+						case "antiquesilverring":
+							T.museumAntiquesAmount += 3000;
+							break;
+						case "antiqueforestdagger":
+						case "antiquewoodenmask":
+						case "antiqueforestdagger":
+							T.museumAntiquesAmount += 4000;
+							break;
+						case "antiquebullet":
+						case "antiquesilverbrooch":
+						case "antiquetrilobitefossil":
+						case "antiquetrashcup":
+						case "antiqueswordcane":
+						case "antiquecoppercompass":
+						case "antiquecandlestick":
+						case "antiquedildo":
+							T.museumAntiquesAmount += 5000;
+							break;
+						case "antiquegrenade":
+							T.museumAntiquesAmount += 8000;
+							break;
+						case "antiquegoldcoin":
+						case "antiqueforestgem":
+						case "antiqueshell":
+						case "antiquetrashburner":
+						case "antiquehorn":
+							T.museumAntiquesAmount += 10000;
+							break;
+						case "antiquebrassstatuette":
+						case "antiquecutlass":
+							T.museumAntiquesAmount += 12000;
+							break;
+						case "antiqueminesign":
+							T.museumAntiquesAmount += 14000;
+							break;
+						case "antiquecrystal":
+						case "antiquewatch":
+							T.museumAntiquesAmount += 20000;
+							break;
+						case "antiquesilverdagger":
+							T.museumAntiquesAmount += 24000;
+							break;
+						case "antiqueivorystatuette":
+						case "antiquegoldnecklace":
+						case "antiquegoldbrooch":
+						case "antiqueobsidiandisc":
+							T.museumAntiquesAmount += 50000;
+							break;
+						case "antiquecoralring":
+							T.museumAntiquesAmount += 80000;
+							break;
+						case "antiquesilvercrown":
+						case "antiquestonetalisman":
+							T.museumAntiquesAmount += 120000;
+							break;
+						case "antiquehourglass":
+							T.museumAntiquesAmount += 140000;
+							break;
+						case "antiquewhitecrystal":
+						case "antiqueivorynecklace":
+						case "antiquegoldchastitybelt":
+						case "antiquediamond":
+							T.museumAntiquesAmount += 200000;
+							break;
+						case "antiquesilvercompass":
+							T.museumAntiquesAmount += 220000;
+							break;
+						case "antiquegoldring":
+						case "antiquesilvermask":
+							T.museumAntiquesAmount += 300000;
+							break;
+						case "antiqueleathermap":
+							T.museumAntiquesAmount += 400000;
+							break;
+						case "antiquegoldcompass":
+							T.museumAntiquesAmount += 500000;
+							break;
+						case "antiquebell":
+							T.museumAntiquesAmount += 1000000;
+							break;
+					}
+				}
+			})>>
+			/* Estimate a reasonable minimum value */
+			<<set _filteredAntiques to Object.values($museumAntiques.antiques).filter(status => ["museum", "stolen", "recovered"].includes(status)).length>>
+			<<if $museumAntiques.museumCount - _filteredAntiques gt 0>>
+				<<set _museumAntiquesAmount += ($museumAntiques.museumCount - _filteredAntiques) * 5000>>
+			<</if>>
+			<<money _museumAntiquesAmount "museumAntique" { recordOnly: true }>>
+		<</if>>
+		<<if $bunstat gt 0>>
+			<<set _bunMoney to 0>>
+			<<set _bunMoney += (5000 * 0.2) * Math.min($bunstat, 50)>>
+			<<if $bunstat gt 50>>
+				<<set _bunMoney += (10000 * 0.2) * Math.min($bunstat - 50, 200)>>
+			<<elseif $bunstat gt 250 and $bun_cut is 0.2>>
+				<<set _bunMoney += (10000 * 0.2) * ($bunstat - 250)>>
+			<</if>>
+			/* Assumes the player didn't get perfect numbers from here */
+			<<if $bunstat gt 250>>
+				<<set _bunMoney += (10000 * 0.3) * Math.min($bunstat - 250, 200)>>
+			<<elseif $bunstat gt 450 and $bun_cut is 0.3 and $bun_value is 10000>>
+				<<set _bunMoney += (10000 * 0.3) * ($bunstat - 450)>>
+			<</if>>
+			<<if $bunstat gt 450 and $bun_value gte 15000>>
+				<<set _bunMoney += (15000 * 0.3) * ($bunstat - 450)>>
+			<</if>>
+			<<money _bunMoney "cafeChef" { recordOnly: true }>>
+		<</if>>
+		<<set $_earnedTotal to 0>>
+		<<set $_spentTotal to 0>>
+		<<run Object.values(V.moneyStats).forEach(stat => {
+			if (stat.earned) _earnedTotal += stat.earned;
+			if (stat.spent) _spentTotal += stat.spent;
+		})>>
+		<<set $_earnedTotal += $_spentTotal>>
+		<<if $money gt $_earnedTotal>>
+			<<money `$money - $_earnedTotal` "notTracked" { recordOnly: true }>>
+		<</if>>
+	<</if>>
+	<<if $timeStats is undefined>>
+		<<set $timeStats to {}>>
+		<<if $dockhours>>
+			<<timeTrackingManual "docks" $dockhours>>
+			<<unset $dockhours>>
+		<</if>>
+		<<if $adultshopcontribution>>
+			<<timeTrackingManual "adultShop" $adultshopcontribution>>
+		<</if>>
+	<</if>>
+	/* Money Name corrections */
+	<<set _moneyIncorrectKeys to ["brothal", "brothalShow"]>>
+	<<if Object.keys($moneyStats).includesAny(_moneyIncorrectKeys)>>
+		<<set _moneyFixedKeys to ["brothel", "brothelShow"]>>
+		<<run _moneyIncorrectKeys.forEach((key, index) => {
+			if ($moneyStats[key]) {
+				$moneyStats[_moneyFixedKeys[index]] to clone($moneyStats[key]);
+				delete $moneyStats[key];
+			}
+		})>>
+	<</if>>
+
+	<!-- Setting the default face variant value for existing PCs -->
+	<<if $facevariant is undefined>>
+		<<set $facevariant to "default">>
+	<</if>>
+
+	<!-- Updating old characters to keep using their chosen body sprite -->
+	<<if $player.bodyshape is undefined>>
+		<<set _map to {
+			"m": "classic",
+			"f": "curvy",
+			"a": "slender"
+		}>>
+		<<set $player.bodyshape to _map[$player.gender_body]>>
+	<</if>>
+
+	/* Police hack caught */
+	<<if $police_delete is undefined>>
+		<<set $police_delete to 0>>
+	<</if>>
+
+	/* Setup object for bad end tracking */
+	<<if !$badEndStats>>
+		<<set $badEndStats to []>>
+	<</if>>
+
+	<!-- 0.5.3.0; re-enable combat animations on mobile on any save that had it disabled by versionupdate previously.-->
+	<!-- The code that set the combatfix var has been removed.-->
+	<<if Browser.isMobile.any() and $options.combatAnimations is false and $combatFix is 1>>
+		<<unset $combatFix>>
+		<<set $options.combatAnimations to true>>
+	<</if>>
+
+	<<unset $mobileZoomFix>>
+
+	<!-- 0.5.3.0; option to disable text effect from drunk and heat/rut lewd options-->
+	<<if $options.textAnimations is undefined>>
+		<<set $options.textAnimations to true>>
+	<</if>>
+
+	<!-- Insecurity Rework -->
+	<<if $insecurity_breasts_tiny isnot undefined or $insecurity_penis_tiny isnot undefined>>
+		<<set $insecurity_breasts_small to Math.max($insecurity_breasts_small, $insecurity_breasts_tiny)>>
+		<<set $acceptance_breasts_small to Math.max($acceptance_breasts_small, $acceptance_breasts_tiny)>>
+		<<if $player.gender isnot "f">>
+			<<set $insecurity_breasts_big to Math.max($insecurity_breasts_big, $insecurity_breasts_small)>>
+			<<set $acceptance_breasts_big to Math.max($acceptance_breasts_big, $acceptance_breasts_small)>>
+			<<set $insecurity_breasts_small to 0>>
+			<<set $acceptance_breasts_small to 0>>
+		<</if>>
+
+		<<set $insecurity_penis_small to Math.max($insecurity_penis_small, $insecurity_penis_tiny)>>
+		<<set $acceptance_penis_small to Math.max($acceptance_penis_small, $acceptance_penis_tiny)>>
+
+		<<unset $insecurity_breasts_tiny>>
+		<<unset $acceptance_breasts_tiny>>
+		<<unset $insecurity_penis_tiny>>
+		<<unset $acceptance_penis_tiny>>
+	<</if>>
+
+	<!-- New Makeup Category -->
+	<<if $makeup.owned.blusher is undefined>>
+		<<set $makeup.owned.blusher = []>>
+		<<set $makeup.blusher = 0>>
+	<</if>>
+	<!-- 0.5.3.0 makes sure $plants is defined on all saves, and stocks supermarket-->
+	<<if $plants["salt"] is undefined>>
+		<<set _food_keys to Object.keys(setup.plants)>>
+		<<for _i to 0; _i lt _food_keys.length; _i++>>
+			<<set $_type to _food_keys[_i]>>
+			<<if $plants[$_type] is undefined>>
+				<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": 0}>>
+			<<elseif $plants[$_type].name is undefined>>
+				<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": $plants[$_type].amount}>>
+			<</if>>
+		<</for>>
+		<<supermarketWeekly>>
+	<</if>>
+
+	<<if $schoolLessonsMissed.housekeeping is undefined>>
+		<<set $schoolLessonsMissed.housekeeping to 0>>
+	<</if>>
+
+	<!-- 0.5.3.0 make sure named NPCs have .name_known property -->
+	<<if C.npc.Robin.name_known isnot 1>>
+		<<for _i to 0; _i lt $NPCName.length; _i++>>
+			<<switch $NPCName[_i].nam>>
+				<<case "Eden">>
+					<<if $hunterintro is 1>>
+						<<set $NPCName[_i].name_known to 1>>
+					<<else>>
+						<<set $NPCName[_i].name_known to 0>>
+					<</if>>
+				<<default>>
+					<<set $NPCName[_i].name_known to 1>>
+			<</switch>>
+		<</for>>
+	<</if>>
+	<!-- 0.5.3.0 giftedFood $daily variable -->
+	<<if $daily.giftedFood is undefined>>
+		<<set $daily.giftedFood to {}>>
+	<</if>>
+    <!-- 0.5.3.1 makes sure the related $plants names use _ rather than spaces as they get used as object keys -->
+    <<if $plants.cheese_and_crackers.name is "cheese and crackers">>
+        <<run ["cheese_and_crackers", "choc_chip_cookie", "spaghetti_bolognese", "porridge"].forEach(key => $plants[key].name to key)>>
+        <<set $plants.porridge.plural to "servings of porridge">>
+        <<set $plants.chips.plural to "packets of chips">>
+        <<set $plants.yorkshire_pudding.plural to "yorkshire puddings">>
+        <<set $plants.choc_chip_cookie.plural to "chocolate chip cookies">>
+    <</if>>
 <<init_customSetting>><</widget>>

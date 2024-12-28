@@ -32,9 +32,9 @@
 	<<generate1>><<set $NPCList[0].virginity.penile to false>><<set $NPCList[0].virginity.vaginal to false>>당신은 <<person1>><<person_ i>> 당신을 보고 있는 걸 알아챈다. <<He_ nun>> 조금 멀리서 모래사장에서 놀고 있는 <<his_ yi>> 아이들과 함께 온 것으로 보인다. <<He_ nun>> 당신과 눈이 마주치자 시선을 돌린다.
 	<br><br>
 
-	<<link [[시선을 돌린다|Beach]]>><<set $eventskip to 1>><<endevent>><</link>>
-	<br>
 	<<link [[다가간다|Beach Day Encounter]]>><<set $phase to 0>><</link>>
+	<br>
+	<<link [[시선을 돌린다|Beach]]>><<set $eventskip to 1>><<endevent>><</link>>
 	<br>
 <</widget>>
 
@@ -223,13 +223,107 @@
 	<<if hasSexStat("promiscuity", 3)>>
 		<<link [[승낙한다|Beach Exhibit Molestation]]>><<set $phase to 1>><<set $sexstart to 1>><</link>>
 		<br>
-	<</if>>
-	<<if $promiscuity lte 34 and $uncomfortable.prostituting is false>>
+	<<elseif $uncomfortable.prostituting is false>>
 		<<link [[내키지 않는 듯 승낙한다|Beach Exhibit Molestation]]>><<set $desperateaction to 2>><<set $phase to 1>><<set $sexstart to 1>><</link>>
 		<br>
 	<</if>>
 	<<link [[거절한다|Beach Exhibit Molestation]]>><<set $phase to 0>><<set $molestationstart to 1>><</link>>
 	<br>
+<</widget>>
+
+<<widget "removebeachlower">><<silently>>
+	<<if _args[0] is 1>>
+		<<set $_pulltense to "pulls">>
+	<<elseif _args[0] is 2>>
+		<<set $_pulltense to "pulling">>
+	<<else>>
+		<<set $_pulltense to "pull">>
+	<</if>>
+
+	/* This should include cases for every lower clothing in the types Town, Beach, Warm,
+	schoolSwim, and Cold. Essentially, everything an NPC on the beach can be wearing,
+	according to the "Beach" case for the widget "generateNPCClothes" */
+	<<switch $NPCList[$index].clothes.lower.name>>
+		<<case "shorts" "trousers" "tracksuit bottoms" "slacks" "jeans" "khakis" "swim shorts" "board shorts" "boyshorts" "jorts" "sweatpants" "school swim shorts">>
+			<<set $_text_output to "$_pulltense down <<his>> $NPCList[$index].clothes.lower.name">>
+		<<case "bikini bottoms" "microkini bottoms" "school swimsuit bottoms">>
+			<<set $_text_output to "$_pulltense aside <<his>> $NPCList[$index].clothes.lower.name">>
+		<<case "sundress skirt" "skirt" "miniskirt">>
+			<<set $_text_output to "$_pulltense up <<his>> $NPCList[$index].clothes.lower.name">>
+		<<default>>
+			<<if $pronoun is "f">>
+				<<set $_text_output to "$_pulltense aside <<his>> bikini bottoms">>
+			<<else>>
+				<<set $_text_output to "$_pulltense down <<his>> shorts">>
+			<</if>>
+	<</switch>>
+<</silently>><<print $_text_output>><</widget>>
+
+<<widget "removesbeachlower">>
+	<<removebeachlower 1>>
+<</widget>>
+
+<<widget "removingbeachlower">>
+	<<removebeachlower 2>>
+<</widget>>
+
+<<widget "asktomeasurephallus">>
+	<<if $speech_attitude is "meek">>
+		<<set $_requestA to [
+			"You can't help but feel awkward making this request.",
+			"You can already feel a blush rising before you even speak.",
+			"You can't look <<him>> in the eye. Not with a request like this."
+		]>>
+		<<set $_requestB to [
+			"\"C-could I measure your <<personpenis>> with this tape?\" you ask.",
+			"\"I-is it okay if I use this tape to measure your <<personpenis>>?\" you ask.",
+			"\"W-would it be okay if I measured your <<personpenis>> with this tape?\" you ask."
+		]>>
+		<<set $_requestC to [
+			"\"I'm doing a science project.\"",
+			"\"It's for my science project.\"",
+			"\"I need data for my science project.\""
+		]>>
+
+		<<print either($_requestA)>> <<print either($_requestB)>> <<print either($_requestC)>>
+	<<elseif $speech_attitude is "bratty">>
+		<<set $_requestA to [
+			"\"Let me measure your <<personpenis>>,\" you say.",
+			"\"I'm gonna measure your <<personpenis>>,\" you say.",
+			"\"Want to get your <<personpenis>> measured?\" you ask."
+		]>>
+		<<set $_requestB to [
+			"\"For science.\"",
+			"\"I need data for my science project.\"",
+			"\"In the pursuit of science, of course.\""
+		]>>
+
+		<<print either($_requestA)>> <<print either($_requestB)>>
+	<<else>>
+		<<set $_requestA to [
+			"\"Hello,\" you say.",
+			"\"Excuse me,\" you say.",
+			"\"Hi there,\" you say with a little wave."
+		]>>
+		<<set $_requestB to [
+			"\"Could I measure your <<personpenis>> for my science project?\"",
+			"\"Would you be willing to let me measure your <<personpenis>>? I'm doing a science project.\"",
+			"\"I'm doing a science project for school. Can I measure your <<personpenis>> with this tape?\""
+		]>>
+
+		<<print either($_requestA)>> <<print either($_requestB)>>
+	<</if>>
+	<<promiscuity3>>
+<</widget>>
+
+<<widget "recievephallusdata">>
+	<<set $sciencephallus += 1>>
+	<<if $NPCList[$index].penis isnot "none">>
+		<<set $sciencephalluspenis += 1>>
+	<<else>>
+		<<set $sciencephallusclit += 1>>
+	<</if>>
+	<span class="gold">You can add the <<personpenis>> measurement you took to your project in your room or the school library.</span>
 <</widget>>
 
 :: Widgets Events Beach [widget]
@@ -266,6 +360,200 @@
 	<</if>>
 <</widget>>
 
+<<widget "eventsbeachphallus">>
+	<<cleareventpool>>
+	<<generate1>><<person1>>You scan the beach for people wearing skimpy swimsuits, or who otherwise look like they will agree to your request.
+	<br><br>
+	/* Note: This conditional is intended to be identical to the conditional that gatekeeps the [Find participant for phallus project] link in :: Beach */
+	<<if $scienceproject is "ongoing" and $sciencephallusknown is 1 and $sciencephallus lt 10 and Time.dayState isnot "night" and Weather.precipitation is "none" and $exposed lte 0>>
+		<<addinlineevent "beach_phallus_flex">>
+			<<generatep2>>You see a <<person>> showing off <<his>> body, trying to impress a <<person2>><<person>>. It isn't working.
+			<br><br>
+			<<person1>>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Flex]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_pair">>
+			<<generatep2>>You see a <<fullGroup>> holding hands.
+			<br><br>
+			<<person1>>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Pair]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_beggar">>
+			You see a <<person>> moving between different groups and individuals, asking for money.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Beggar]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_shy">>
+			You see a <<person>> sitting alone on the sand.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Shy]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_scan">>
+			You see a <<person>> scanning the beach with one hand shielding <<his>> eyes from the sun.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Scan]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_insecurity">>
+			You see a <<person>> sitting by <<himself>>, a bit away from the crowds.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Insecurity]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_confidence">>
+			You see a <<person>> lounging at a picnic table.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Confidence]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_horizon">>
+			You see a <<person>> standing ankle deep in the surf, staring out at the horizon.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Horizon]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_wading">>
+			<<npcClothesType $NPCList[$index] "beach">>
+			You see a <<person>> floating on <<his>> back in the shallows.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Wading]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_birdwatcher">>
+			You see a <<person>> up on one of the bluffs.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Birdwatcher]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_prude">>
+			You see a <<person>> sitting alone, seemingly enjoying the wind.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Prude]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_old">>
+			You see an older <<personsimple>> taking a walk down by the shore.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Old]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<if $bestialitydisable is "f">> /* Don't know how to forcefully spawn a monster, so it's not suitable for non-beastiality content */
+			<<addinlineevent "beach_phallus_dog">>
+				/* SevenSeriousShadows: Okay, so what I'm doing here is a little convoluted, so let me explain.
+				To generate a beast, you either need <<beastNEWinit>> which REQUIRES there to be no existing NPCs generated,
+				or you use <<generateBEAST>> to do it how you would normally use a <<generate2>>, <<generate3>>, etc..
+
+				If you use <<beastNEWinit>> and then generate any humans afterwards, any <<bhim>>, <<bhis>>, etc. calls will
+				break, because they use $enemyno index to target the correct beast NPC. If there are humans, that index is now
+				suddenly pointing at the wrong beast or (as in this case) at a human. On the other hand, if you have humans
+				already generated and then use <<generateBEAST>>, then any <<beasttype>> calls will break, since <<beasttype>>
+				assumes all beasts are generated at $NPCList[0], which in this case they are not.
+
+				The conclusion is that if you try to generate a human-beast hybrid scene, either <<bhim>> or <<beasttype>> will
+				break, unavoidably. This, to use a technical term, is fucking annoying.
+
+				You can use <<bhim 0-5>> and <<beasttype 0>> as needed to get around each error, but that's not the main issue
+				in this scene. My issue is that I want the PC to fuck the beast and NOT the humans, which mean the beast needs
+				to be in $NPCList[0]. So I either have to use <<beastNEWinit>>, or I need to use <<saveNPC>> and <<loadNPC>> to
+				perform musical chairs with the $NPCList when it comes time to fuck the beast.
+
+				Since I use far more <<beasttype>> calls than <<bhim>> calls and have no love for musical chairs, I've decided
+				that I'll let <<bhim>> be broken in this scene, and just use <<bhim 0>> as required. Until this gets reworked,
+				this is my best option.
+
+				So in case you were wondering what ungodly crimes againt code I'm doing with Beach Phallus Dog, now you know. */
+
+				<<clearnpc>><<beastNEWinit 1 dog>><<generate2>>
+				You see a <<person2>><<person>> walking <<his>> <<beasttype>> along the beach.
+				<br><br>
+				<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Dog]]>><</link>><<promiscuous3>>
+				<br>
+			<</addinlineevent>>
+		<</if>>
+
+		<<addinlineevent "beach_phallus_masturbator">>
+			You see a <<person>> partially out of sight as <<he>> reclines in the sand.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Masturbator]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_jogger">>
+			<<npcClothesName $NPCList[$index] "townTrack">>
+			You see a <<person>> in a tracksuit jogging along the shore.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Jogger]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_blogger">>
+			<<clearnpc>><<generatey1>>
+			You see a <<person1>><<person>> taking selfies by the shore, <<his>> back to the ocean.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Blogger]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_friends">>
+			<<generate2>>
+			You see a <<fullGroup>> chatting under an umbrella.
+			<br><br>
+			<<person1>>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Friends]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_drinker">>
+			You see a <<person>> nursing a beer bottle on a bench.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Drinker]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_police">>
+			<<clearnpc>><<generatePolice 1>>
+			You see a police officer loitering nearby.
+			<br><br>
+			<<person1>>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Police]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<addinlineevent "beach_phallus_swimmer">>
+			<<npcClothesType $NPCList[$index] "beach">>
+			You see a <<person>> swimming close to shore, moving parallel to the beach.
+			<br><br>
+			<<socialiseicon "ask">><<link [[Ask to measure <<personpenis>>|Beach Phallus Swimmer]]>><</link>><<promiscuous3>>
+			<br>
+		<</addinlineevent>>
+
+		<<runeventpool>>
+		<<investigateicon>><<link [[다른 사람을 찾는다 (0:15)|Beach Phallus]]>><<endevent>><<pass 15>><</link>>
+		<br>
+	<<else>>
+		You don't see anyone you could approach.
+		<br><br>
+	<</if>>
+	<<getouticon>><<link [[Stop|Beach]]>><<pass 10>><<endevent>><</link>>
+	<br>
+<</widget>>
+
 :: Widgets Passout Beach [widget]
 
 <<widget "passoutbeach">>
@@ -276,7 +564,7 @@
 			<<pregnancyPassout "sea">>
 		<</if>>
 	<<else>>
-		<<link [[모든 게 깜깜해진다...->Passout Beach]]>><</link>>
+		<<link [[Everything fades to black...|Passout Beach]]>><</link>>
 	<</if>>
 <</widget>>
 

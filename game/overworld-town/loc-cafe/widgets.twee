@@ -21,20 +21,18 @@
 	<</addinlineevent>>
 <</if>>
 <<addinlineevent "chef_thief" 0.7>>
-		<<generatey1>><<person1>>
 		문이 끼익거리는 소리가 들려온다.
 		<<if random(1, 1000) gte $skulduggery>>
 			뭔지 보려고 고개를 돌리나, <span class="red">별다른 것은 보이지 않는다.</span>
 			<br><br>
-			<<endevent>>
-
 			<<chefwork>>
 		<<else>>
+			<<generatey1>><<person1>>
 			최대한 눈에 띄지 않으려 하며, 당신은 소리가 들려온 쪽을 흘낏 쳐다본다. 처음에는 별다른 것이 보이지 않는다. <span class="green">곧 손 하나가 테이블 밑에서 튀어나오더니,</span> 빵 하나를 낚아채가는 것이 보인다.
 			<br><br>
-			<<link [[개입한다|Chef Thief Intervene]]>><</link>>
+			<<link [[개입한다|Chef Thief Intervene]]>><<handheldon>><</link>>
 			<br>
-			<<link [[무시한다|Chef Thief Ignore]]>><</link>>
+			<<link [[무시한다|Chef Thief Ignore]]>><<handheldon>><</link>>
 			<br>
 		<</if>>
 		<</addinlineevent>>
@@ -42,8 +40,6 @@
 		<<npc Sam>><<person1>>샘이 확인하러 온다. 당신은 결국 몇 분간 잡담을 나눈다. 곧 홀에서 뭔가 부서지는 소리가 나면서 <<hisPost "의">> 이목을 끈다.
 		<<lstress>><<stress -6>><<ltrauma>><<trauma -6>>
 		<br><br>
-
-		<<endevent>>
 
 		<<chefwork>>
 <</addinlineevent>>
@@ -56,14 +52,11 @@
 			당신이 사인을 하러 손을 내밀자, <<hePost "은">> 당신의 팔을 붙잡는다. 그러고는 당신을 가까이 끌어당긴다.
 			<br><br>
 
-			<<link [[다음|Chef Work Rape]]>><<set $molestationstart to 1>><</link>>
+			<<link [[다음|Chef Work Rape]]>><<handheldon>><<set $molestationstart to 1>><</link>>
 			<br>
 		<<else>>
 			당신은 종이에 사인한다. <<HePost "은">> 감사인사를 하고는 들어온 길로 다시 나간다.
 			<br><br>
-
-			<<endevent>>
-
 			<<chefwork>>
 		<</if>>
 <</addinlineevent>>
@@ -155,10 +148,10 @@
 	<br><br>
 
 	<<if $chef_job is "special">>
-		<<link [[다음|Chef Work Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<<link [[다음|Chef Work Masturbation]]>><<handheldon>><<set $masturbationstart to 1>><</link>>
 		<br>
 	<<else>>
-		<<link [[다음|Chef Work Regular]]>><</link>>
+		<<link [[다음|Chef Work Regular]]>><<handheldon>><</link>>
 		<br>
 	<</if>>
 <</widget>>
@@ -174,7 +167,8 @@
 	노동 가치: £10
 	<br>
 	전체 수입: <span class="gold">£<<print (_bun_money / 100)>></span>
-	<<set $money += _bun_money>>
+	<<money 1000 "cafeChef">>
+	<<money `_bun_money - 1000` "cafeBuns">>
 	<<set $bunstat += _buns_sold>>
 	<br>
 	의심:
@@ -186,7 +180,7 @@
 	<<if $options.images is 1>>
 		<<set _buns_sold to Math.clamp(_buns_sold, 0, 200)>>
 		<<for _i to 0; _i lt _buns_sold; _i++>>
-			<<icon "food_creambun.png">>
+			<<foodicon "creambun">>
 		<</for>>
 		<br><br>
 	<</if>>
@@ -268,7 +262,7 @@
 		모르는 사람들에게 대놓고 <<undiesPost "을">> 볼 수 있게 노출하자 매우 당황스러우나, 거기서 느껴지는 <<print ["난처함", "굴욕감", "취약함", "노출감"].pluck()>>에도 불구하고 당신은 더더욱 탐닉하게 된다.
 	<<else>>
 		모르는 사람들에게 대놓고 <<undiesPost "을">> 볼 수 있게 노출하자 당신은 <<print ["흥분된다", "신이 난다", "발정한다", "스릴이 느껴진다", "꼴린다", "음란한 기분이 든다"].pluck()>>.
-		<<if $assertiveaction is "trauma">> 참 짓궂기도 하지. <<trauma -2>><<ltrauma>> <</if>>
+		<<if $assertiveaction is "trauma">> You're so naughty. <<trauma -2>><<ltrauma>><<if $phase isnot 4>><br><br><</if>><</if>>
 	<</if>>
 
 	<<switch $phase>>
@@ -312,43 +306,47 @@
 	<<switch $daily.earSlimeOceanBreezeCafeEat>>
 		<<case "coffee">>
 			<<link [[_linkName|Cafe Coffee]]>>
-				<<set $daily.cafeEaten to 1>><<set $money -= 200>><<tiredness -4>><<pass 2>>
+				<<set $daily.cafeEaten to 1>><<money -200 "cafe">><<tiredness -4>><<pass 2>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -9>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>><<ltiredness>>
 		<<case "winter ale">>
 			<<link [[_linkName|Cafe Eat]]>>
-				<<set $daily.cafeEaten to 1>><<set $phase to "winter ale">><<set $money -= 700>><<alcohol 100>><<pass 10>>
+				<<set $daily.cafeEaten to 1>><<set $phase to "winter ale">><<money -700 "cafe">><<alcohol 100>><<pass 10>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -12>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>><<galcohol>>
 		<<case "fruity ale">>
 			<<link [[_linkName|Cafe Eat]]>>
-				<<set $daily.cafeEaten to 1>><<set $phase to "fruity ale">><<set $money -= 700>><<alcohol 60>><<pass 10>>
+				<<set $daily.cafeEaten to 1>><<set $phase to "fruity ale">><<money -700 "cafe">><<alcohol 60>><<pass 10>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -12>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>><<galcohol>>
 		<<case "shandy">>
 			<<link [[_linkName|Cafe Eat]]>>
-				<<set $daily.cafeEaten to 1>><<set $phase to "shandy">><<set $money -= 700>><<alcohol 40>><<pass 10>>
+				<<set $daily.cafeEaten to 1>><<set $phase to "shandy">><<money -700 "cafe">><<alcohol 40>><<pass 10>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -12>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>><<galcohol>>
 		<<case "autumn ale">>
 			<<link [[_linkName|Cafe Eat]]>>
-				<<set $daily.cafeEaten to 1>><<set $phase to "autumn ale">><<set $money -= 700>><<alcohol 80>><<pass 10>>
+				<<set $daily.cafeEaten to 1>><<set $phase to "autumn ale">><<money -700 "cafe">><<alcohol 80>><<pass 10>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -12>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>><<galcohol>>
 		<<case "fruit salad">>
 			<<link [[_linkName|Cafe Eat]]>>
-				<<set $daily.cafeEaten to 1>><<set $phase to "fruit salad">><<set $money -= 500>><<pass 20>>
+				<<set $daily.cafeEaten to 1>><<set $phase to "fruit salad">><<money -500 "cafe">><<pass 20>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -12>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>>
 		<<case "pancake">>
 			<<link [[_linkName|Cafe Pancakes]]>>
-				<<set $daily.cafeEaten to 1>><<set $money -= 1000>><<tiredness -6>><<pass 20>>
+				<<set $daily.cafeEaten to 1>><<money -1000 "cafe">><<tiredness -6>><<pass 20>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<lstress>><</if>><<ltiredness>>
 		<<case "deluxe cream bun">>
 			<<link [[_linkName|Cafe Cream Bun]]>>
-				<<set $daily.cafeEaten to 1>><<transform cat 1>><<set $money -= 5000>><<pass 20>>
+				<<set $daily.cafeEaten to 1>><<transform cat 1>><<money -5000 "cafe">><<pass 20>>
 				<<if _linkName is "복종한다">><<corruption 1>><<pain -4>><<stress -24>><<trauma -12>><<sub 2>><</if>>
 			<</link>><<if _linkName is "복종한다">><<gcorruption>><<lpain>><<lltrauma>><<llstress>><</if>>
 	<</switch>>
+<</widget>>
+
+<<widget "timeTrackingEndCafe">>
+	<<timeTrackingEnd "cafe">><<timeTrackingEnd "cafeWaiter">><<timeTrackingEnd "cafeChef">><<timeTrackingEnd "cafeBuns">>
 <</widget>>

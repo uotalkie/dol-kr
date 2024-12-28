@@ -8,41 +8,37 @@
 		const settings = $.extend(
 			{
 				margin: 2, // Default margin before overflow
-				defaultSize: 16,
 			},
 			options
 		);
 
-		function resizeFont(container, contWidth, totalTextWidth, maxFontSize) {
-			if (totalTextWidth + settings.margin > contWidth) {
-				const fontSize = (((contWidth - settings.margin) * maxFontSize) / totalTextWidth).toFixed(2);
-				container.css("font-size", fontSize + "px");
-			}
-		}
-
 		return this.each(function () {
 			const container = $(this);
-
 			const resizeHandler = () => {
-				setTimeout(() => {
-					const contWidth = container.innerWidth();
-					let totalTextWidth = 0;
+				if (!container.data("originalSize")) {
+					container.data("originalSize", parseFloat(container.css("font-size")));
+				}
+				const originalSize = container.data("originalSize");
+				container.css("font-size", originalSize + "px");
 
-					container.children().each(function () {
-						totalTextWidth += $(this)[0].scrollWidth;
-					});
+				const contWidth = container.innerWidth();
+				let totalTextWidth = 0;
 
-					if (totalTextWidth === 0) {
-						totalTextWidth = container[0].scrollWidth;
-					}
+				container.children().each(function () {
+					totalTextWidth += $(this)[0].scrollWidth;
+				});
 
-					const maxFontSize = parseInt(container.css("font-size"));
-					resizeFont(container, contWidth, totalTextWidth, maxFontSize);
-				}, 0);
+				if (totalTextWidth === 0) {
+					totalTextWidth = container[0].scrollWidth;
+				}
+
+				const desiredFontSize = ((contWidth - settings.margin) * originalSize) / totalTextWidth;
+				const newFontSize = Math.min(desiredFontSize, originalSize).toFixed(2);
+				container.css("font-size", newFontSize + "px");
 			};
 
-			$(window).on("load resize", resizeHandler);
-			resizeHandler();
+			$(window).on("resize", $.debounce(100, resizeHandler));
+			setTimeout(resizeHandler, 0);
 		});
 	};
 })(jQuery);

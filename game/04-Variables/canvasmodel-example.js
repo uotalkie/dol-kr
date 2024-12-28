@@ -324,37 +324,3 @@ Renderer.CanvasModels.sexdemo = {
 		},
 	},
 };
-
-Renderer.Animations["sex-8f-slow"] = {
-	frames: 8,
-	duration: 330,
-};
-Renderer.Animations["sex-8f-mid"] = {
-	frames: 8,
-	duration: 170,
-};
-Renderer.Animations["sex-8f-fast"] = {
-	frames: 8,
-	duration: 110,
-};
-Renderer.Animations["sex-8f-vfast"] = {
-	frames: 8,
-	duration: 80,
-};
-
-Renderer.Animations["sex-6f-slow"] = {
-	frames: 6,
-	duration: 330,
-};
-Renderer.Animations["sex-6f-mid"] = {
-	frames: 6,
-	duration: 170,
-};
-Renderer.Animations["sex-6f-fast"] = {
-	frames: 6,
-	duration: 110,
-};
-Renderer.Animations["sex-6f-vfast"] = {
-	frames: 6,
-	duration: 80,
-};

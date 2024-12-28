@@ -1,5 +1,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable jsdoc/require-description-complete-sentence */
+/* globals hasSexStat, sexStatNameMapper, heatRutSexStatModifier, drunkSexStatModifier */
+
 function overlayShowHide(elementId) {
 	const div = document.getElementById(elementId);
 	if (div != null) {
@@ -222,7 +224,7 @@ function settingsNudeGenderAppearance() {
 		switch (val) {
 			case -1:
 				text =
-					"NPC들은 성별을 파악할 때 생식기를 <span class='blue inline-colour'>무시할</span> 것입니다. <span class='purple inline-colour'>몇몇 플레이어 묘사와 성별 묘사 설정보다 우선합니다.</span> <span class='red inline-colour'>크로스드레싱 경고를 비활성합니다.</span>";
+					"NPCs <span class='blue inline-colour'>ignore</span> genitals when perceiving gender. <span class='purple inline-colour'>Overrides some gender appearance modifiers, including the femininity factor of pregnant bellies. Player descriptions will match the behaviour chosen in the bedroom mirror.</span> <span class='red inline-colour'>Disables crossdressing warnings. NPCs will still judge gender based on your manner of dress.</span>";
 				break;
 			case 0:
 				text = "NPC들은 당신의 성별을 파악할 때 당신의 생식기를 <span class='blue inline-colour'>무시할</span> 것입니다.";
@@ -805,6 +807,211 @@ function sensitivityString(value) {	/* Todo: 현재 이 위젯은 치트메뉴�
 	if (value >= 2.5) return "민감함";	// "tender"
 	if (value >= 1.5) return "섬세함";	// "receptive"
 	return "평범함";	// "normal"
-};
+}
 
 window.sensitivityString = sensitivityString;
+
+function moneyStatsProcess(stats) {
+	const keys = [];
+	Object.entries(stats).forEach(([type, value]) => {
+		if (!T.moneyStatsDetailed) {
+			let compressTo;
+			if (type.includes("DanceTip")) {
+				compressTo = "danceTips";
+			} else if (type.includes("DanceJob")) {
+				compressTo = "danceJobs";
+			} else if (type.includes("Prostitution")) {
+				compressTo = "prostitution";
+			} else {
+				switch (type) {
+					case "libraryBooks":
+					case "schoolProject":
+					case "schoolCondoms":
+					case "schoolStimulant":
+					case "schoolPoolParty":
+						compressTo = "school";
+						break;
+					case "bus":
+						compressTo = "town";
+						break;
+					case "avery":
+					case "bailey":
+					case "baileyRent":
+					case "robin":
+					case "sydney":
+					case "whitney":
+						compressTo = "peopleOfInterest";
+						break;
+					case "hairdressers":
+					case "tailor":
+					case "clothes":
+					case "sexToys":
+					case "tattoo":
+					case "furniture":
+					case "cosmetics":
+					case "supermarket":
+						compressTo = "shopping";
+						break;
+					case "flatsCanal":
+					case "flatsCleaning":
+					case "flatsHookah":
+						compressTo = "flats";
+						break;
+					case "cafeWaiter":
+					case "cafeChef":
+					case "cafeBuns":
+						compressTo = "cafe";
+						break;
+					case "brothelShow":
+					case "brothelVendingMachine":
+					case "brothelCondoms":
+						compressTo = "brothel";
+						break;
+					case "hospitalPaternityTest":
+					case "hospitalPenisReduction":
+					case "hospitalPenisEnlargement":
+					case "hospitalBreastReduction":
+					case "hospitalBreastEnlargement":
+					case "hospitalParasiteRemoval":
+					case "hospitalParasitesSold":
+						compressTo = "hospital";
+						break;
+					case "pharmacyCondoms":
+					case "pharmacyCream":
+					case "pharmacyPills":
+					case "pharmacyPregnancyTest":
+						compressTo = "pharmacy";
+						break;
+					case "museumAntique":
+						compressTo = "museum";
+						break;
+					case "pubAlcohol":
+						compressTo = "pub";
+						break;
+					case "dockWage":
+						compressTo = "docks";
+						break;
+					case "stripClubBartender":
+					case "stripClubDancer":
+						compressTo = "stripClub";
+						break;
+				}
+			}
+
+			if (compressTo) {
+				if (!stats[compressTo]) {
+					stats[compressTo] = { earned: 0, earnedCount: 0, spent: 0, spentCount: 0 };
+				}
+				if (value.earned) {
+					stats[compressTo].earned = (stats[compressTo].earned || 0) + value.earned;
+					stats[compressTo].earnedCount = (stats[compressTo].earnedCount || 0) + value.earnedCount;
+					stats[compressTo].earnedTimeStamp = Math.max(0, stats[compressTo].earnedTimeStamp || 0, value.earnedTimeStamp || 0);
+				}
+				if (value.spent) {
+					stats[compressTo].spent = (stats[compressTo].spent || 0) + value.spent;
+					stats[compressTo].spentCount = (stats[compressTo].spentCount || 0) + value.spentCount;
+					stats[compressTo].spentTimeStamp = Math.max(0, stats[compressTo].spentTimeStamp || 0, value.spentTimeStamp || 0);
+				}
+				delete stats[type];
+				keys.pushUnique(compressTo);
+				return;
+			}
+		}
+		keys.pushUnique(type);
+	});
+	const total = { earned: 0, earnedCount: 0, spent: 0, spentCount: 0 };
+	Object.values(stats).forEach(stat => {
+		if (stat.earned) total.earned += stat.earned;
+		if (stat.earnedCount) total.earnedCount += stat.earnedCount;
+		if (stat.spent) total.spent += stat.spent;
+		if (stat.spentCount) total.spentCount += stat.spentCount;
+
+		if (stat.earnedTimeStamp) total.earnedTimeStamp = Math.max(stat.earnedTimeStamp, total.earnedTimeStamp || 0);
+		if (stat.spentTimeStamp) total.spentTimeStamp = Math.max(stat.spentTimeStamp, total.spentTimeStamp || 0);
+	});
+
+	return [keys, stats, total];
+}
+window.moneyStatsProcess = moneyStatsProcess;
+
+/**
+ * If hasSexStat() modifiers are allowing the player to see an aditional option, return the css class for the largest individual modifier.
+ * If the modifiers are not high enough to show a new option, don't return a class.
+ * Passing in 0 or nothing for requiredLevel returns the classes for the largest modifier regardless of if the player is being shown an aditional option.
+ *
+ * Returns the sexStat Modifer CSS classes drunk-text / jitter-text and the level of the effect (drunk-1, jitter-2...)
+ *
+ * When text animations are turned off, this will only return drunk-text or jitter-text without the animation level.
+ *
+ * @param {string} input
+ * @param {number} requiredLevel
+ */
+function getLargestSexStatModifierCssClasses(input, requiredLevel = 0) {
+	const statName = sexStatNameMapper(input);
+	// check if stat name is valid.
+	if (statName == null) {
+		Errors.report(`[getLargestSexStatModifierCssClasses]: input '${statName}' null.`, {
+			Stacktrace: Utils.GetStack(),
+			statName,
+		});
+		return "";
+	}
+
+	const drunkSexStatModifierValue = drunkSexStatModifier(V[statName]);
+	const heatRutSexStatModifierValue = heatRutSexStatModifier(statName);
+
+	// If there is a modifier, and either requiredLevel is 0 or the modifiers put the player up a level of the sexStat.
+	if (
+		drunkSexStatModifierValue + heatRutSexStatModifierValue > 0 &&
+		(requiredLevel === 0 || (!hasSexStat(statName, requiredLevel, false) && hasSexStat(statName, requiredLevel, true)))
+	) {
+		const modifiers = [
+			{ value: drunkSexStatModifierValue, class: "drunk" },
+			{ value: heatRutSexStatModifierValue, class: "jitter" },
+		];
+
+		// Gets the largest modifier.
+		const largestModifier = modifiers.reduce((max, current) => (current.value > max.value ? current : max), modifiers[0]);
+
+		// Gets the base class for effect.
+		let modifierClasses = `${largestModifier.class}-text`;
+
+		if (V.options.textAnimations) {
+			// Sets the animation based on how large the modifier is.
+			if (largestModifier.value > 20) {
+				modifierClasses += ` ${largestModifier.class}-3`;
+			} else if (largestModifier.value > 10) {
+				modifierClasses += ` ${largestModifier.class}-2`;
+			} else {
+				modifierClasses += ` ${largestModifier.class}-1`;
+			}
+
+			modifierClasses += ` animation-offset-${Math.floor(Math.random() * 10)}`;
+		}
+
+		return modifierClasses;
+	} else {
+		return "";
+	}
+}
+window.getLargestSexStatModifierCssClasses = getLargestSexStatModifierCssClasses;
+
+/**
+ * Used to display the drunk text, with with animations if enabled, otherwise just the glow effect.
+ *
+ * @returns {string}
+ */
+function basicDrunkCss() {
+	return V.options.textAnimations ? "drunk-text drunk-1" : "drunk-text";
+}
+window.basicDrunkCss = basicDrunkCss;
+
+/**
+ * Used to display the jitter text, with with animations if enabled, otherwise just the glow effect.
+ *
+ * @returns {string}
+ */
+function basicJitterCss() {
+	return V.options.textAnimations ? "jitter-text drunk-1" : "jitter-text";
+}
+window.basicJitterCss = basicJitterCss;

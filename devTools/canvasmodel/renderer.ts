@@ -8,6 +8,12 @@ namespace Renderer {
 		return performance.now()
 	};
 
+	function getUniqueCanvas(image: HTMLCanvasElement): HTMLCanvasElement {
+		let copy = createCanvas(image.width, image.height);
+		copy.drawImage(image, 0, 0);
+		return copy.canvas;
+	}
+
 	function rescaleImageToCanvasHeight(scale: boolean, image: HTMLImageElement, targetHeight: number): HTMLCanvasElement {
 		const aspectRatio = image.width / image.height;
 		const scaledWidth = scale ? targetHeight * aspectRatio : image.width;
@@ -16,6 +22,21 @@ namespace Renderer {
 		i2.imageSmoothingEnabled = false;
 		i2.drawImage(image, 0, 0, scaledWidth, scaledHeight);
 		return i2.canvas;
+	}
+
+	export function isMaskObject(mask: string | HTMLCanvasElement | CanvasImageSource | MaskObject | undefined | null): mask is MaskObject {
+		const maskObj = mask as MaskObject;
+		return maskObj != undefined && maskObj.path !== undefined;
+	}
+
+	export function isMaskOffsetObject(mask: string | HTMLCanvasElement | CanvasImageSource | MaskObject | undefined | null): mask is MaskObject {
+		const maskObj = mask as MaskObject;
+		return maskObj != undefined && maskObj.path !== undefined && (maskObj.offsetX !== undefined || maskObj.offsetY !== undefined);
+	}
+
+	export function isMaskConvertObject(mask: string | HTMLCanvasElement | CanvasImageSource | MaskObject | undefined | null): mask is MaskObject {
+		const maskObj = mask as MaskObject;
+		return maskObj != undefined && maskObj.path !== undefined && maskObj.convert !== undefined;
 	}
 
 	export interface LayerImageLoader {
@@ -49,7 +70,7 @@ namespace Renderer {
 	export let ImageLoader: LayerImageLoader = DefaultImageLoader;
 
 	export interface RendererListener {
-		error?: (error: Error, context:any) => any;
+		error?: (error: Error, context: any) => any;
 
 		composeLayers?: (layers: CompositeLayer[]) => any;
 		loaded?: (layer: string, src: string) => any;
@@ -67,7 +88,7 @@ namespace Renderer {
 		keyframeRender?: (spec: string, cacheHit: boolean, cacheRenderTime: number) => any;
 		animationStop?: () => any;
 	}
-	function rendererError(listener:RendererListener, error:Error, context?:any) {
+	function rendererError(listener: RendererListener, error: Error, context?: any) {
 		if (listener && listener.error) {
 			listener.error(error, context);
 		} else {
@@ -93,7 +114,7 @@ namespace Renderer {
 	 */
 	export let pixelSize: number = 1;
 
-	export function emptyLayerFilter():CompositeLayerParams {
+	export function emptyLayerFilter(): CompositeLayerParams {
 		return {
 			desaturate: false,
 			blend: "",
@@ -106,12 +127,12 @@ namespace Renderer {
 	/**
 	 * 0 -> "#000000", 0.5 -> "#808080", 1.0 -> "#FFFFFF"
 	 */
-	export function gray(value:number): string {
+	export function gray(value: number): string {
 		value = Math.min(1, Math.max(0, value));
-		value = Math.round(value*255);
+		value = Math.round(value * 255);
 		let s = value.toString(16);
 		if (value < 16) s = '0' + s;
-		return '#'+s+s+s;
+		return '#' + s + s + s;
 	}
 
 	export function createCanvas(w: number, h: number, fill?: string): CanvasRenderingContext2D {
@@ -138,14 +159,14 @@ namespace Renderer {
 	/**
 	 * Free to use CanvasRenderingContext2D (to create image data, gradients, patterns)
 	 */
-	export const globalC2D = createCanvas(1,1);
+	export const globalC2D = createCanvas(1, 1);
 
 	/**
 	 * Creates a cutout of color in shape of sourceImage
 	 */
 	export function cutout(
 		sourceImage: CanvasImageSource,
-		color: string,
+		color: string | CanvasGradient | CanvasPattern,
 		canvas: CanvasRenderingContext2D = createCanvas(sourceImage.width as number, sourceImage.height as number)
 	): CanvasRenderingContext2D {
 		let sw = sourceImage.width as number;
@@ -174,7 +195,7 @@ namespace Renderer {
 	 */
 	export function composeOverCutout(
 		sourceImage: CanvasImageSource,
-		color: string,
+		color: string | CanvasGradient | CanvasPattern,
 		blendMode: GlobalCompositeOperation = 'multiply',
 		canvas: CanvasRenderingContext2D = createCanvas(sourceImage.width as number, sourceImage.height as number)
 	): CanvasRenderingContext2D {
@@ -203,8 +224,8 @@ namespace Renderer {
 		canvas.fillRect(0, 0, frameWidth, frameHeight);
 		if (pixelSize > 1) {
 			// downscale, redraw on temp canvas, then draw again
-			const tw = Math.floor(frameWidth/pixelSize),
-				th = Math.floor(frameHeight/pixelSize);
+			const tw = Math.floor(frameWidth / pixelSize),
+				th = Math.floor(frameHeight / pixelSize);
 			const tmpcanvas = createCanvas(tw, th);
 			tmpcanvas.imageSmoothingEnabled = false
 			canvas.imageSmoothingEnabled = false
@@ -219,20 +240,20 @@ namespace Renderer {
 				0, 0, frameWidth, frameHeight
 			);
 		}
-		for (let i = 1; i<frameCount; i++) {
+		for (let i = 1; i < frameCount; i++) {
 			canvas.drawImage(canvas.canvas,
 				0, 0, frameWidth, frameHeight,
-				i*frameWidth, 0, frameWidth, frameHeight);
+				i * frameWidth, 0, frameWidth, frameHeight);
 		}
 	}
 
-	export let Patterns:Dict<CanvasPattern> = {};
+	export let Patterns: Dict<CanvasPattern> = {};
 	/**
 	 * CanvasPattern generator/provider.
 	 * Default implementation looks up in the Renderer.Patterns object, can be replaced to accept complex object
 	 * and generate custom pattern.
 	 */
-	export let PatternProvider: (spec: string|object)=>(CanvasPattern|null) = (spec)=>{
+	export let PatternProvider: (spec: string | object) => (CanvasPattern | null) = (spec) => {
 		if (typeof spec === 'string' && spec in Patterns) return Patterns[spec];
 		return null;
 	};
@@ -253,15 +274,15 @@ namespace Renderer {
 				);
 				break;
 			default:
-				throw new Error("Invalid gradient type: "+spec.gradient);
+				throw new Error("Invalid gradient type: " + spec.gradient);
 		}
-		if (spec.colors.length < 2) throw new Error("Invalid gradient stops: "+JSON.stringify(spec.colors));
+		if (spec.colors.length < 2) throw new Error("Invalid gradient stops: " + JSON.stringify(spec.colors));
 		for (let i = 0; i < spec.colors.length; i++) {
 			let stop = spec.colors[i];
-			let offset:number, color:string;
+			let offset: number, color: string;
 			if (typeof stop === 'string') {
 				color = stop;
-				offset =  i/(spec.colors.length-1);
+				offset = i / (spec.colors.length - 1);
 			} else {
 				offset = stop[0];
 				color = stop[1];
@@ -284,7 +305,7 @@ namespace Renderer {
 			sourceImage.height as number
 		)
 	): CanvasRenderingContext2D {
-		let fw = (sourceImage.width as number)/frameCount;
+		let fw = (sourceImage.width as number) / frameCount;
 		fillFrames(fillStyle, targetCanvas, frameCount, fw, 'source-over');
 
 		targetCanvas.globalCompositeOperation = blendMode;
@@ -413,7 +434,7 @@ namespace Renderer {
 	 * In both cases, brightness is added, contrast is multiplied.
 	 * Returns target
 	 */
-	export function mergeLayerData(target: CompositeLayerSpec, source: CompositeLayerParams, overwrite: boolean = false): CompositeLayerSpec {
+	export function mergeLayerData(target: Partial<CompositeLayerSpec>, source: CompositeLayerParams, overwrite: boolean = false): Partial<CompositeLayerSpec> {
 		for (let k of Object.keys(source)) {
 			if (k === 'brightness' && 'brightness' in target) {
 				if (typeof target.brightness === 'object' && typeof source.brightness === 'number') {
@@ -555,9 +576,9 @@ namespace Renderer {
 	}
 
 	export function adjustBrightness(image: CanvasImageSource,
-	                                 brightness: number,
-	                                 resultCanvas?: CanvasRenderingContext2D,
-	                                 doCutout: boolean = true): HTMLCanvasElement {
+		brightness: number,
+		resultCanvas?: CanvasRenderingContext2D,
+		doCutout: boolean = true): HTMLCanvasElement {
 		if (brightness > 0) {
 			const value = gray(brightness);
 			// color-dodge by X% gray adjusts levels 0%-(100-X)% to 0%-100%
@@ -567,7 +588,7 @@ namespace Renderer {
 			// return composeUnderCutout(image, value, 'screen').canvas;
 		} else {
 			// multiply by X% gray adjusts levels 0%-100% to 0%-X%
-			const value = gray(1+brightness);
+			const value = gray(1 + brightness);
 			return compose(false, doCutout, image, value, 'multiply', resultCanvas).canvas;
 			// Other option:
 			// color-burn by X% gray adjusts levels (100-X)%-100% to 0%-100%
@@ -575,16 +596,16 @@ namespace Renderer {
 	}
 
 	export function adjustLevels(image: CanvasImageSource,
-	                             /**
-	                              * scale factor, 1 - no change, >1 - higher contrast, <1 - lower contrast.
-	                              */
-	                             factor: number,
-	                             /**
-	                              * shift, 0 - no change, >0 - brighter, <0 - darker
-	                              */
-	                             shift: number,
-	                             resultCanvas?: CanvasRenderingContext2D
-	                             ): HTMLCanvasElement {
+		/**
+		 * scale factor, 1 - no change, >1 - higher contrast, <1 - lower contrast.
+		 */
+		factor: number,
+		/**
+		 * shift, 0 - no change, >0 - brighter, <0 - darker
+		 */
+		shift: number,
+		resultCanvas?: CanvasRenderingContext2D
+	): HTMLCanvasElement {
 		if (factor >= 1) {
 			/*
 			 color-dodge ( color, X ) = color / (1 - X) ; 0..(1-X) -> 0..1, (1-X) and brighter become white
@@ -606,13 +627,13 @@ namespace Renderer {
 			 multiply ( color, X ) = color * X ; 0..1 -> 0..X
 			 screen ( color, Y ) = 1 - (1 - color) * (1 - Y) ; 0..1 -> Y..1
 			 screen ( multiply ( color, X ), Y ) = 1 - (1 - color * X ) * (1 - Y)
-			                                     = Y     + color * X*(1-Y)
-			                                     = shift + color * factor
+												 = Y     + color * X*(1-Y)
+												 = shift + color * factor
 			 solving for (X, Y):
 			 Y = shift
 			 X = factor/(1-shift)
 			 */
-			const x = factor/(1-shift);
+			const x = factor / (1 - shift);
 			const y = shift;
 			const c1 = compose(false, false, image, gray(x), 'multiply');
 			const c2 = compose(false, false, c1.canvas, gray(y), 'screen');
@@ -621,13 +642,13 @@ namespace Renderer {
 	}
 
 	export function adjustContrast(image: CanvasImageSource,
-	                               factor: number,
-	                               resultCanvas?: CanvasRenderingContext2D
+		factor: number,
+		resultCanvas?: CanvasRenderingContext2D
 	): HTMLCanvasElement {
 		/*
 		 contrast is scale by F with origin at 0.5
 		*/
-		const shift = 0.5*(1-factor);
+		const shift = 0.5 * (1 - factor);
 		return adjustLevels(image, factor, shift, resultCanvas);
 	}
 
@@ -638,7 +659,7 @@ namespace Renderer {
 		resultCanvas?: CanvasRenderingContext2D
 	): HTMLCanvasElement {
 		// = adjustContrast (color + brightness, contrast)
-		const shift = brightness*contrast + 0.5*(1-contrast);
+		const shift = brightness * contrast + 0.5 * (1 - contrast);
 		return adjustLevels(image, contrast, shift, resultCanvas);
 	}
 
@@ -653,7 +674,7 @@ namespace Renderer {
 		needsCutout: boolean;
 
 		// extra properties are allowed
-		[index:string]: any;
+		[index: string]: any;
 	}
 
 	/**
@@ -661,23 +682,23 @@ namespace Renderer {
 	 * All steps are stored in RenderingPipeline array, and can be changed externally
 	 */
 	export interface RenderingStep {
-		name:string;
+		name: string;
 
 		/**
 		 * Return true if this step has to be performed
 		 */
-		condition(layer:CompositeLayer, context: RenderPipelineContext):boolean;
+		condition(layer: CompositeLayer, context: RenderPipelineContext): boolean;
 
 		/**
 		 * Rendering function, returns resulting image.
 		 */
-		render(image:CanvasImageSource,
-		                 layer:CompositeLayer,
-		                 context: RenderPipelineContext
+		render(image: CanvasImageSource,
+			layer: CompositeLayer,
+			context: RenderPipelineContext
 		): HTMLCanvasElement;
 	}
 
-	const RenderingStepDesaturate:RenderingStep = {
+	const RenderingStepDesaturate: RenderingStep = {
 		name: "desaturate",
 
 		condition(layer: CompositeLayer, context: Renderer.RenderPipelineContext): boolean {
@@ -690,7 +711,7 @@ namespace Renderer {
 		}
 	};
 
-	const RenderingStepPrefilter:RenderingStep = {
+	const RenderingStepPrefilter: RenderingStep = {
 		name: "prefilter",
 		condition(layer: CompositeLayer, context: Renderer.RenderPipelineContext): boolean {
 			return layer.prefilter && layer.prefilter !== "none";
@@ -702,7 +723,7 @@ namespace Renderer {
 
 	};
 
-	const RenderingStepBrightness:RenderingStep = {
+	const RenderingStepBrightness: RenderingStep = {
 		name: "brightness",
 		condition(layer: CompositeLayer, context: Renderer.RenderPipelineContext): boolean {
 			return typeof layer.brightness === 'number' && layer.brightness !== 0;
@@ -788,30 +809,61 @@ namespace Renderer {
 		name: "mask",
 
 		condition(layer: CompositeLayer, context: Renderer.RenderPipelineContext): boolean {
-			return !!layer.mask;
+		  return !!layer.mask;
 		},
 
 		render(image: HTMLCanvasElement, compositeLayer: CompositeLayer, renderContext: Renderer.RenderPipelineContext): HTMLCanvasElement {
 			const maskCanvas = Renderer.ensureCanvas(image).getContext('2d');
+			// If convert is true, forget about the rest, can't be asked to integrate it atm. Rushed for time.
+			function processConvertStep(image: HTMLCanvasElement, layer: CompositeLayer, parentCtx: Renderer.RenderPipelineContext): HTMLCanvasElement | undefined {
+				let maskImg = layer.mask;
+				// No need to support arrays of masks yet. Can be done later.
+				if (Array.isArray(maskImg)) {
+					if (maskImg.length === 0) {
+						return;
+					}
+					maskImg = maskImg[0];
+				}
+				if (!layer.maskOptions?.convert) {
+					return;
+				}
+				// Our mask should be a proper CanvasImageSource by this point.
+				const ctx = Renderer.createCanvas(image.width, image.height);
+				ctx.fillStyle = "#fff";
+				ctx.fillRect(0, 0, image.width, image.height);
+				ctx.globalCompositeOperation = "destination-in";
+				ctx.drawImage(maskImg, 0, 0, image.width, image.height);
+				// Our ctx should be prepared for the final cutout
+				return Renderer.cutoutFrom(maskCanvas, ctx.canvas, layer.maskBlendMode).canvas;
+			}
+
+			const stepOne = processConvertStep(image, compositeLayer, renderContext)
+			if (stepOne) {
+				return stepOne;
+			}
+
 			let finalMask = compositeLayer.mask;
 
-			if (Array.isArray(compositeLayer.mask)) {
-				const combinedCtx = Renderer.createCanvas(image.width, image.height);
-				compositeLayer.mask.forEach((maskItem, index) => {
-					const offset = compositeLayer.maskOffsets[index] || { x: 0, y: 0 };
-					combinedCtx.drawImage(maskItem, offset.x, offset.y);
-				});
-				finalMask = combinedCtx.canvas;
-			} else if (compositeLayer.maskOffsets[0]?.x || compositeLayer.maskOffsets[0]?.y) {
-				const offsetCtx = Renderer.createCanvas(image.width, image.height);
-				const offset = compositeLayer.maskOffsets[0] || { x: 0, y: 0 };
-				offsetCtx.drawImage(compositeLayer.mask as CanvasImageSource, offset.x, offset.y);
-				finalMask = offsetCtx.canvas;
-			}
-			maskCanvas.globalAlpha = compositeLayer.maskAlpha;
-			return Renderer.cutoutFrom(maskCanvas, finalMask as CanvasImageSource, compositeLayer.maskBlendMode as GlobalCompositeOperation).canvas;
+		  if (Array.isArray(compositeLayer.mask)) {
+			const combinedCtx = Renderer.createCanvas(image.width, image.height);
+			combinedCtx.fillStyle = '#ffffff';
+			combinedCtx.fillRect(0, 0, image.width, image.height);
+			compositeLayer.mask.forEach((maskItem, index) => {
+			  const offset = compositeLayer.maskOffsets[index] || { x: 0, y: 0 };
+			  combinedCtx.globalCompositeOperation = 'destination-in';
+		  combinedCtx.drawImage(maskItem, offset.x, offset.y);
+			});
+			finalMask = combinedCtx.canvas;
+		  } else if (compositeLayer.maskOffsets[0]?.x || compositeLayer.maskOffsets[0]?.y) {
+			const offsetCtx = Renderer.createCanvas(image.width, image.height);
+			const offset = compositeLayer.maskOffsets[0] || { x: 0, y: 0 };
+			offsetCtx.drawImage(compositeLayer.mask as CanvasImageSource, offset.x, offset.y);
+			finalMask = offsetCtx.canvas;
+		  }
+		  maskCanvas.globalAlpha = compositeLayer.maskAlpha;
+		  return Renderer.cutoutFrom(maskCanvas, finalMask as CanvasImageSource, compositeLayer.maskBlendMode as GlobalCompositeOperation).canvas;
 		}
-	}
+	  }
 
 	const RenderingStepCutout: RenderingStep = {
 		name: "cutout",
@@ -848,7 +900,7 @@ namespace Renderer {
 	) {
 		let context: RenderPipelineContext = {
 			layer: layer,
-			image: layer.image!!,
+			image: getUniqueCanvas(layer.image!!),
 			needsCutout: false,
 			rects: rects,
 			listener: listener
@@ -877,15 +929,15 @@ namespace Renderer {
 		dy: number;
 	}
 	function calcLayerRects(layer: CompositeLayer,
-	                        layerImageWidth: number,
-	                        targetWidth: number,
-	                        targetHeight: number,
-	                        frameCount: number): LayerRects {
+		layerImageWidth: number,
+		targetWidth: number,
+		targetHeight: number,
+		frameCount: number): LayerRects {
 		const frameWidth = targetWidth / frameCount;
 		const subspriteWidth = layer.width || frameWidth;
 		const subspriteHeight = layer.height || targetHeight;
-		const dx = layer.dx || 0;
-		const dy = layer.dy || 0;
+		const dx = (layer.dx || 0) + (layer.frameDx || 0);
+		const dy = (layer.dy || 0) + (layer.frameDy || 0);
 		const subspriteFrameCount = layerImageWidth / subspriteWidth;
 		return {
 			width: targetWidth,
@@ -900,8 +952,8 @@ namespace Renderer {
 		}
 	}
 	export function composeProcessedLayer(layer: CompositeLayer,
-	                                      targetCanvas: CanvasRenderingContext2D,
-	                                      rects: LayerRects) {
+		targetCanvas: CanvasRenderingContext2D,
+		rects: LayerRects) {
 		const image = layer.cachedImage;
 		targetCanvas.filter = 'none';
 		if (typeof layer.alpha === 'number') {
@@ -912,7 +964,7 @@ namespace Renderer {
 		targetCanvas.save();
 		targetCanvas.globalCompositeOperation = layer.compositeOperation ?? "source-over";
 
-		const {frameWidth, frameCount, subspriteWidth, subspriteHeight, subspriteFrameCount, dx, dy} = rects;
+		const { frameWidth, frameCount, subspriteWidth, subspriteHeight, subspriteFrameCount, dx, dy } = rects;
 		if (rects.subspriteFrameCount === frameCount && !layer.frames) {
 			targetCanvas.drawImage(image, dx, dy);
 		} else {
@@ -928,9 +980,9 @@ namespace Renderer {
 	}
 
 	export function composeLayers(targetCanvas: CanvasRenderingContext2D,
-	                              layerSpecs: CompositeLayerSpec[],
-	                              frameCount: number,
-	                              listener: RendererListener) {
+		layerSpecs: CompositeLayerSpec[],
+		frameCount: number,
+		listener: RendererListener) {
 		lastCall = [targetCanvas, layerSpecs, frameCount, listener];
 		const t0 = millitime();
 		// Sort layers by z-index, then array index
@@ -941,7 +993,7 @@ namespace Renderer {
 			)
 			.map((layer, i) => {
 				if (isNaN(layer.z)) {
-					console.error("Layer "+(layer.name||layer.src)+" has z-index NaN")
+					console.error("Layer " + (layer.name || layer.src) + " has z-index NaN")
 					layer.z = 0;
 				}
 				return [layer, i] as [CompositeLayerSpec, number];
@@ -994,7 +1046,7 @@ namespace Renderer {
 					listener.composition(name, targetCanvas.canvas);
 				}
 			}
-	
+
 			if (listener && listener.renderingDone) listener.renderingDone(millitime() - t1);
 		}
 
@@ -1004,7 +1056,7 @@ namespace Renderer {
 				if (imageIsLoading === true) return;
 				if (layer.show !== false && !layer.image) return;
 				if (layer.masksrc && !layer.mask) return;
-				if((Array.isArray(layer.masksrc) && layer.masksrc.length < 1) && !layer.mask) return;
+				if ((Array.isArray(layer.masksrc) && layer.masksrc.length < 1) && !layer.mask) return;
 			}
 			if (listener && listener.loadingDone) listener.loadingDone(millitime() - t0, layersLoaded);
 			try {
@@ -1018,7 +1070,7 @@ namespace Renderer {
 			ImageLoader.loadImage(
 				layer.src,
 				layer,
-				(src, layer, image)=>{
+				(src, layer, image) => {
 					layersLoaded++;
 					if (listener && listener.loaded) {
 						listener.loaded(layer.name || 'unnamed', src as string);
@@ -1048,22 +1100,28 @@ namespace Renderer {
 				if (layer.masksrc == null) return;
 				layer.masksrc = [layer.masksrc];
 			}
-		
-			const masksLoaded: (HTMLCanvasElement)[] = [];
+
+			const masksLoaded: (HTMLImageElement | HTMLCanvasElement)[] = [];
 			let masksToLoad = layer.masksrc.length;
-		
+
 			layer.masksrc.forEach((src, index) => {
+				let imgSrc = src.toString();
+				let convert = false;
+				if (isMaskObject(src)) {
+					imgSrc = src.path;
+					convert = !!src.convert;
+				}
 				ImageLoader.loadImage(
-					src,
+					imgSrc,
 					layer,
 					(src, layer, image) => {
 						masksLoaded[index] = image;
 						masksToLoad--;
-		
+
 						if (!(src instanceof HTMLCanvasElement)) {
 							ImageCaches[src] = image as HTMLCanvasElement;
 						}
-		
+
 						if (masksToLoad === 0) {
 							layer.mask = masksLoaded.length === 1 ? masksLoaded[0] : masksLoaded;
 							layer.cachedMaskSrc = layer.masksrc;
@@ -1104,25 +1162,36 @@ namespace Renderer {
 				}
 			}
 
-			layer.maskOffsets = [] as MaskObject;
-			
+			layer.maskOffsets = [] as Offset[];
+			layer.maskOptions = {
+				convert: false,
+			};
+
 			if (Array.isArray(layer.masksrc)) {
 				layer.masksrc = layer.masksrc
 					.map(item => {
-						if (item?.path) {
+						if (isMaskConvertObject(item)) {
+							layer.maskOptions.convert = item.convert;
+						}
+						if (isMaskOffsetObject(item)) {
 							layer.maskOffsets.push({ x: item.offsetX || 0, y: item.offsetY || 0 });
 							return item.path;
 						}
 						return item;
 					})
 					.filter(value => value != null);
-		
+
 				if (layer.masksrc.length === 0 || layer.masksrc.every(value => value == null)) {
 					layer.masksrc = null;
 				}
-			} else if (layer.masksrc?.path) {
-				layer.maskOffsets.push({ x: layer.masksrc.offsetX || 0, y: layer.masksrc.offsetY || 0 });
-				layer.masksrc = layer.masksrc.path;
+			} else {
+				if (isMaskConvertObject(layer.masksrc)) {
+					layer.maskOptions.convert = layer.masksrc.convert;
+				}
+				if (isMaskOffsetObject(layer.masksrc)) {
+					layer.maskOffsets.push({ x: layer.masksrc.offsetX || 0, y: layer.masksrc.offsetY || 0 });
+					layer.masksrc = layer.masksrc.path;
+				}
 			}
 
 			let needMask = !!layer.masksrc;
@@ -1215,7 +1284,7 @@ namespace Renderer {
 		model.redraw();
 	}
 
-	export function clearCaches(model: { layerList: CompositeLayerSpec[]}) {
+	export function clearCaches(model: { layerList: CompositeLayerSpec[] }) {
 		ImageCaches = {};
 		ImageErrors = {};
 		invalidateLayerCaches(model.layerList);
@@ -1252,17 +1321,17 @@ namespace Renderer {
 	 *
 	 * Can be overridden to auto-generate animations, for example.
 	 */
-	export let AnimationProvider: (layer:CompositeLayerSpec)=>(AnimationSpec|undefined) =
-			layer=>Animations[layer.animation];
+	export let AnimationProvider: (layer: CompositeLayerSpec) => (AnimationSpec | undefined) =
+		layer => Animations[layer.animation];
 
 	/**
 	 * Animatable properties of KeyframeSpec and CompositeLayer
 	 */
-	export const AnimatableProps = ["alpha","show","blend","brightness","contrast","dx","dy"];
+	export const AnimatableProps = ["alpha", "show", "blend", "brightness", "contrast", "dx", "dy"];
 	export function animateLayers(targetCanvas: CanvasRenderingContext2D,
-	                              layerSpecs: CompositeLayerSpec[],
-	                              listener: RendererListener,
-	                              autoStop: boolean = true): AnimatingCanvas {
+		layerSpecs: CompositeLayerSpec[],
+		listener: RendererListener,
+		autoStop: boolean = true): AnimatingCanvas {
 		lastAnimateCall = [targetCanvas, layerSpecs, listener, autoStop];
 		const keyframeCaches: Dict<CanvasRenderingContext2D> = {};
 
@@ -1305,7 +1374,7 @@ namespace Renderer {
 								keyframes: []
 							};
 							for (let i = 0; i < frames; i++) {
-								spec.keyframes.push({frame: i, duration: duration});
+								spec.keyframes.push({ frame: i, duration: duration });
 							}
 						} else {
 							for (let kf of spec.keyframes) {
@@ -1342,7 +1411,7 @@ namespace Renderer {
 					scheduleNextKeyframe(animation);
 					if (listener && listener.keyframe) listener.keyframe(animation.name, animation.keyframeIndex, animation.keyframe);
 				}
-				compose().catch((e)=>{if (e) console.error(e)});
+				compose().catch((e) => { if (e) console.error(e) });
 			},
 			stop() {
 				if (!this.playing) return;
@@ -1359,7 +1428,7 @@ namespace Renderer {
 			invalidateCaches,
 			time: 0,
 			redraw() {
-				compose().catch((e)=>{if (e) console.error(e)});
+				compose().catch((e) => { if (e) console.error(e) });
 			}
 		}
 
@@ -1386,7 +1455,7 @@ namespace Renderer {
 						delete schedule[t1];
 						animatingCanvas.time = Math.max(t1, animatingCanvas.time);
 						for (let task of tasks) task();
-						compose().catch((e)=>{if (e) console.error(e)});
+						compose().catch((e) => { if (e) console.error(e) });
 					} catch (e) {
 						rendererError(listener, e);
 					}
@@ -1402,8 +1471,18 @@ namespace Renderer {
 
 		function applyKeyframe(keyframe: KeyframeSpec, layer: CompositeLayer) {
 			layer.frames = [keyframe.frame];
-			for (let ap of AnimatableProps) {
-				if (ap in keyframe) layer[ap] = keyframe[ap];
+			for (const ap of AnimatableProps) {
+				if (ap in keyframe) {
+					if (ap === "dx") {
+						layer.frameDx = keyframe.dx;
+						continue;
+					}
+					if (ap === "dy") {
+						layer.frameDy = keyframe.dy;
+						continue;
+					}
+					layer[ap] = keyframe[ap];
+				}
 			}
 		}
 
@@ -1418,7 +1497,7 @@ namespace Renderer {
 			if (listener && listener.keyframe) listener.keyframe(animation.name, animation.keyframeIndex, animation.keyframe);
 		}
 
-		function stopCheck():boolean {
+		function stopCheck(): boolean {
 			if (autoStop && animatingCanvas.time > 0 && !(document.body.contains(targetCanvas.canvas))) {
 				/* the canvas was removed from DOM. we exclude frame 0 because it might not yet be added */
 				animatingCanvas.stop();
@@ -1431,8 +1510,8 @@ namespace Renderer {
 				return Promise.reject();
 			}
 			animatingCanvas.busy = true;
-			return new Promise((resolve,reject)=>{
-				requestAnimationFrame(()=>{
+			return new Promise((resolve, reject) => {
+				requestAnimationFrame(() => {
 					animatingCanvas.busy = false;
 					try {
 						doCompose0();

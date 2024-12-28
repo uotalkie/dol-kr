@@ -25,6 +25,8 @@
 	당신은 황무지 위로 높이 날아올라, 당신의 날카로운 눈으로 아래 땅을 훑어본다. 당신의 날개는 빨리 지치고, 당신은 숨을 돌리기 위해 언덕 위에 착륙한다.
 <<case "hobble">>
 	당신은 울퉁불퉁한 황무지에서, 넘어지지 않도록 조심하며 절뚝절뚝 걷는다.
+<<case "horse">>
+	The <<beasttype>> easily gallops through the treacherous moor.
 <<default>>
 	당신은 황무지에 있다.
 <</switch>>
@@ -114,6 +116,24 @@
 		<<eventsmoorlow>>
 	<</if>>
 <<else>>
+	<<if $moormove is "horse">>
+		<<if $moor gte 100>>
+			<<link [[Hop off|Moor Horse Riding]]>><<set $phase to 3>><</link>>
+			<br>
+		<<else>>
+			<<set $horseDifficulty += 50>>
+			<<set _difficultyMax to $horseDifficulty*2>>
+			<<link [[Keep your steed calm|Moor Horse Riding]]>><<set $phase to 0>><</link>><<tendingdifficulty $horseDifficulty _difficultyMax>>
+			<br>
+			<<link [[Get a better grip with your thighs|Moor Horse Riding]]>><<set $phase to 1>><</link>><<skill_difficulty `currentSkillValue("thighskill")` "Thigh Skill" $horseDifficulty _difficultyMax>>
+			<br>
+			<<link [[Just try to stay on|Moor Horse Riding]]>><<set $phase to 2>><</link>><<athleticsdifficulty $horseDifficulty _difficultyMax>>
+			<br>
+			<<link [[Hop off|Moor Horse Riding]]>><<set $phase to 3>><</link>>
+			<br>
+		<</if>>
+		<<exit>>
+	<</if>>
 	<<if $arousal gte $arousalmax>>
 		<<orgasmLocation "moor">>
 	<</if>>
@@ -230,7 +250,7 @@
 <<if $treasure_map is 1>>
 	<span class="gold">당신이 찾은 보물 지도가 당신을 여기로 안내했다.</span>
 	<br><br>
-	<<getouticon "dig">><<link [[보물을 찾아 땅을 판다 (2:00)|Castle Treasure]]>><<pass 120>><<unset $treasure_map>><<tiredness 6>><</link>><<gtiredness>>
+	<<getouticon "dig">><<link [[Dig for treasure (2:00)|Castle Treasure]]>><<handheldon 1>><<pass 120>><<unset $treasure_map>><<tiredness 6>><</link>><<gtiredness>>
 	<br>
 <</if>>
 <<if $bird and $bird.upgrades and $bird.upgrades.snare gte 1>>
@@ -238,20 +258,20 @@
 	<<if $bird.lurkerSnareState is "captured">>
 		<span class="green">럴커 하나가 로프 안에서 발버둥치고 있다.</span>
 		<br>
-		<<birdicon "snare_lurker">><<link [[가져간다|Castle]]>><<set $bird.materials.lurkers++>><<set $bird.lurkerSnareState to "empty">><</link>>
+		<<birdicon "snare_lurker">><<link [[Take|Castle]]>><<handheldon 1>><<wearProp "lurker">><<set $bird.materials.lurkers++>><<set $bird.lurkerSnareState to "empty">><</link>>
 		<br>
 	<<elseif $bird.lurkerSnareState is "empty">>
 		<span class="purple">그것은 비어 있다.</span> <<birdicon "snare">>
 		<br>
 		<<if $bird.materials.junk gte 1>>
-			<<birdicon "junk">><<link [[반짝이는 쓰레기를 미끼로 사용한다 (0:02)|Castle]]>><<pass 2>><<set $bird.materials.junk-->><<set $bird.lurkerSnareState to "ready">><</link>>
+			<<birdicon "junk">><<link [[Use shiny junk as bait (0:02)|Castle]]>><<handheldon 1>><<wearProp "junk">><<pass 2>><<set $bird.materials.junk-->><<set $bird.lurkerSnareState to "ready">><</link>>
 			<br>
 		<</if>>
 		<<for _valuable, _amount range $bird.materials.valuables>>
 			<<if _amount lt 1 or _valuable is "wallet">><<continue>><</if>>
 			<<set _shiny to true>>
 			<<capture _valuable>>
-				<<birdicon _valuable>><<silently>><<putpost _valuable "을">><</silently>><<link [[_trResult + " 미끼로 사용한다 (0:02)"|Castle]]>><<pass 2>><<set $bird.materials.valuables[_valuable]-->><<set $bird.lurkerSnareState to "ready">><</link>>
+				<<birdicon _valuable>><<link [["Use " + _valuable + " as bait (0:02)"|Castle]]>><<handheldon 1>><<wearProp _valuable>><<pass 2>><<set $bird.materials.valuables[_valuable]-->><<set $bird.lurkerSnareState to "ready">><</link>>
 				<br>
 			<</capture>>
 		<</for>>
@@ -266,17 +286,17 @@
 	<br>
 <</if>>
 <<if $harpy gte 6 and $syndromebird is 1 and $birdFly gte 1>>
-	<<glideicon>><<link [[가장 높은 탑으로 날아간다 (0:02)|Castle Fly]]>><<bird_pass 2>><</link>><<flight_text>>
+	<<glideicon>><<link [[Fly to the tallest tower (0:02)|Castle Fly]]>><<handheldon 1>><<bird_pass 2>><</link>><<flight_text>>
 	<br>
 <<elseif $syndromebird is 1>>
 	<<npc "Great Hawk">>
 	당신의 <<beasttype_ un>> 당신을 집에 데려다 줄 수 있다.
 	<<endevent>>
 	<br><br>
-	<<glideicon>><<link [[부른다|Castle Call]]>><</link>>
+	<<glideicon>><<link [[Call|Castle Call]]>><<handheldon 1>><</link>>
 	<br>
 <</if>>
-<<getouticon>><<link [[떠난다|Moor]]>><<set $moor to 100>><</link>>
+<<getouticon>><<link [[떠난다|Moor]]>><<set $moor to 100>><<handheldon 1>><</link>>
 <br>
 
 :: Castle Fly
@@ -543,7 +563,7 @@
 		<<ind>><<link [[승낙한다|Moor Box Naked]]>><</link>><<exhibitionist4>>
 		<br>
 	<<else>>
-		<span class="blue">당신은 이런 제안을 받아들일 수 있을 정도로 음란하지 않다.</span> <i>아마 당신이 옷을 입고 있다면 <<his_ yi>> 요구는 좀 더 합리적일 것이다.</i>
+		<<insufficientStat "exhibitionism" "to do such a thing">> <i>Perhaps if you dressed <<his>> request would be more reasonable.</i>
 		<br><br>
 	<</if>>
 	<<getouticon>><<link [[떠난다|Moor]]>><<endevent>><<set $eventskip to 1>><</link>>
@@ -578,14 +598,14 @@
 			<<skinicon "strip">><<link [[그것들을 벗는다|Moor Box Undies]]>><</link>><<exhibitionist5>>
 			<br>
 		<<else>>
-			<<himPost>>에게 당신의 <<underbottoms_ rul>> 주면 당신의 몸을 가려주는 것은 아무것도 남지 않게 된다. <span class="blue">당신은 그럴 수 있을 만큼 음란하지 않다.</span>
+			Giving <<him>> your <<underbottoms>> will leave you with nothing to cover with. <<insufficientStat "exhibitionism" "to do that">>
 		<</if>>
 	<<elseif $worn.upper.type.includes("naked") and ($player.gender_appearance is "f" or $player.gender is "f")>>
 		<<if hasSexStat("exhibitionism", 4)>>
 			<<skinicon "strip">><<link [[그것들을 벗는다|Moor Box Undies]]>><</link>><<exhibitionist4>>
 			<br>
 		<<else>>
-			<<himPost>>에게 당신의 <<trClothes "under_upper" $worn.under_upper.name "name" "을">>_trResult 주면 당신의 상반신을 가려주는 것은 아무것도 남지 않게 된다. <span class="blue">당신은 그럴 수 있을 만큼 음란하지 않다.</span>
+			Giving <<him>> your $worn.under_upper.name will leave you topless. <<insufficientStat "exhibitionism" "to do that">>
 			<br><br>
 		<</if>>
 	<<else>>
@@ -606,36 +626,42 @@
 	<<flaunting>> 당신은 <<person_ ul>> 마주한다. <<He_ nun>> <<genitals_ rul>> 주시하고 있다.
 <</if>>
 <<exhibitionism4>>
-<<if $player.penisExist and $player.vaginaExist>>
-	"둘 다라고?" <<he_ ga>> 묻는다. "오늘은 운이 좋은 날이네. 카메라가 없다는 게 아쉬울 따름이야."
-<<elseif $player.penisExist>>
-	<<if $player.gender_appearance is "f">>
-		"정말 놀랄 수 밖에 없는 일이네," <<he_ ga>> 말한다.
-		<<if $player.penissize gte 4>>
-			"그리고 상당히 크구나. 카메라가 없다는 게 아쉬울 따름이야."
-		<<elseif $player.penissize lte 1>>
-			"여기서는 잘 보이지 않지만 말이야."
-		<<else>>
-
-		<</if>>
-	<<else>>
-		"훌륭한 자지네," <<he_ ga>> 말한다.
-		<<if $player.penissize gte 4>>
-			"엄청 크구나. 카메라가 없다는 게 아쉬울 따름이야."
-		<<elseif $player.penissize lte 1>>
-			"여기서 겨우 보이는 수준이지만 말야." <<He_ nun>> 웃는다.
-		<<else>>
-
-		<</if>>
-	<</if>>
+<<if playerChastity("hidden")>>
+	"Well shit." <<He>> frowns, clearly disappointed. "I can't see a damn thing."
 <<else>>
-	<<if $player.gender_appearance is "m">>
-		"정말 놀랄 수 밖에 없는 일이네," <<he_ ga>> 말한다.
+	<<if $player.penisExist and $player.vaginaExist>>
+		"둘 다라고?" <<he_ ga>> 묻는다. "오늘은 운이 좋은 날이네. 카메라가 없다는 게 아쉬울 따름이야."
+	<<elseif $player.penisExist>>
+		<<if $player.gender_appearance is "f">>
+			"정말 놀랄 수 밖에 없는 일이네," <<he_ ga>> 말한다.
+			<<if $player.penissize gte 4>>
+				"그리고 상당히 크구나. 카메라가 없다는 게 아쉬울 따름이야."
+				<<insecurity "penis_big" 1>><<ginsecurity "penis_big">>
+			<<elseif $player.penissize lte 1>>
+				"여기서는 잘 보이지 않지만 말이야."
+				<<insecurity "penis_small" 1>><<ginsecurity "penis_small">>
+			<<else>>
+			<</if>>
+		<<else>>
+			"훌륭한 자지네," <<he_ ga>> 말한다.
+			<<if $player.penissize gte 4>>
+				"엄청 크구나. 카메라가 없다는 게 아쉬울 따름이야."
+				<<insecurity "penis_big" 1>><<ginsecurity "penis_big">>
+			<<elseif $player.penissize lte 1>>
+				"여기서 겨우 보이는 수준이지만 말야." <<He_ nun>> 웃는다.
+				<<insecurity "penis_small" 1>><<ginsecurity "penis_small">>
+			<<else>>
+			<</if>>
+		<</if>>
 	<<else>>
-		"훌륭한 보지네," <<he_ ga>> 말한다.
+		<<if $player.gender_appearance is "m">>
+			"정말 놀랄 수 밖에 없는 일이네," <<he_ ga>> 말한다.
+		<<else>>
+			"훌륭한 보지네," <<he_ ga>> 말한다.
+		<</if>>
 	<</if>>
+	<br>
 <</if>>
-<br>
 
 <<if $leftarm is "bound" and $rightarm is "bound">>
 	당신은 스스로를 가리면서, 당신의 손을 내민다.
@@ -676,7 +702,7 @@
 	<<link [[보여준다|Moor Box Show]]>><</link>><<exhibitionist4>>
 	<br>
 <<else>>
-	<span class="blue">당신은 낯선 사람에게 알몸을 보여줄만큼 음란하지 않다.</span>
+	<<insufficientStat "exhibitionism" "to expose yourself to a stranger">>
 	<br><br>
 <</if>>
 
@@ -704,8 +730,10 @@
 		"정말 놀랄 수 밖에 없는 일이네," <<he_ ga>> 말한다.
 		<<if $player.penissize gte 4>>
 			"그리고 상당히 크구나. 카메라가 없다는 게 아쉬울 따름이야."
+			<<insecurity "penis_big" 1>><<ginsecurity "penis_big">>
 		<<elseif $player.penissize lte 1>>
 			"여기서는 잘 보이지 않지만 말이야."
+			<<insecurity "penis_small" 1>><<ginsecurity "penis_small">>
 		<<else>>
 
 		<</if>>
@@ -713,8 +741,10 @@
 		"훌륭한 자지네," <<he_ ga>> 말한다.
 		<<if $player.penissize gte 4>>
 			"엄청 크구나. 카메라가 없다는 게 아쉬울 따름이야."
+			<<insecurity "penis_big" 1>><<ginsecurity "penis_big">>
 		<<elseif $player.penissize lte 1>>
 			"여기서 겨우 보이는 수준이지만 말야." <<He_ nun>> 웃는다.
+			<<insecurity "penis_small" 1>><<ginsecurity "penis_small">>
 		<<else>>
 
 		<</if>>

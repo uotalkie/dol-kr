@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites.
 
 Warmth checklist:
@@ -13,12 +14,16 @@ Warmth checklist:
 	Max warmth: 3
 */
 function initHands() {
-	setup.clothes.hands = [
+	/** @type {ClothesItem[]} */
+	const clothing = [
 		{
 			index: 0,
 			name: "naked",
 			name_cap: "Naked",
 			variable: "naked",
+			state: 0,
+			state_base: 0,
+			warmth: 0,
 			integrity: 0,
 			integrity_max: 0,
 			fabric_strength: 0,
@@ -29,7 +34,6 @@ function initHands() {
 			colour_options: [],
 			type: ["naked"],
 			gender: "n",
-			warmth: 0,
 			cost: 0,
 			description: "naked",
 			shop: [],
@@ -49,6 +53,8 @@ function initHands() {
 			name: "fingerless gloves",
 			name_cap: "Fingerless gloves",
 			variable: "fingerlessgloves",
+			state: 0,
+			state_base: 0,
 			integrity: 50,
 			integrity_max: 50,
 			fabric_strength: 20,
@@ -82,6 +88,8 @@ function initHands() {
 			name: "mittens",
 			name_cap: "Mittens",
 			variable: "mittens",
+			state: 0,
+			state_base: 0,
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -115,6 +123,8 @@ function initHands() {
 			name: "arm warmers",
 			name_cap: "Arm warmers",
 			variable: "armwarmers",
+			state: 0,
+			state_base: 0,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -149,6 +159,11 @@ function initHands() {
 			name: "lace arm warmers",
 			name_cap: "Lace arm warmers",
 			variable: "lacewarmers",
+			combat: {
+				boundable: true,
+			},
+			state: 0,
+			state_base: 0,
 			integrity: 30,
 			integrity_max: 30,
 			fabric_strength: 15,
@@ -177,12 +192,13 @@ function initHands() {
 			leftImage: 1,
 			rightImage: 1,
 		},
-
 		{
 			index: 5,
 			name: "long leather gloves",
 			name_cap: "Long leather gloves",
 			variable: "longleathergloves",
+			state: 0,
+			state_base: 0,
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -234,6 +250,11 @@ function initHands() {
 			name: "cheerleader gloves",
 			name_cap: "Cheerleader gloves",
 			variable: "pompoms",
+			combat: {
+				reference: "fingerlessgloves",
+			},
+			state: 0,
+			state_base: 0,
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -268,6 +289,8 @@ function initHands() {
 			name: "gold bracelets",
 			name_cap: "Gold bracelets",
 			variable: "gold",
+			state: 0,
+			state_base: 0,
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -301,6 +324,8 @@ function initHands() {
 			name: "cow sleeves",
 			name_cap: "Cow sleeves",
 			variable: "cow",
+			state: 0,
+			state_base: 0,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -333,6 +358,12 @@ function initHands() {
 			name: "work gloves",
 			name_cap: "Work gloves",
 			variable: "workgloves",
+			combat: {
+				reference: "longleathergloves",
+				mainColour: "#8c4c00",
+			},
+			state: 0,
+			state_base: 0,
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -365,6 +396,13 @@ function initHands() {
 			name: "sexy nun's gloves",
 			name_cap: "Sexy nun's gloves",
 			variable: "nunlewd",
+			combat: {
+				reference: "armwarmers",
+				mainColour: "#2f2534",
+				accColour: "#2f2534",
+			},
+			state: 0,
+			state_base: 0,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -397,6 +435,11 @@ function initHands() {
 			name: "wrist cuffs",
 			name_cap: "Wrist cuffs",
 			variable: "wristcuffs",
+			combat: {
+				reference: "gold",
+			},
+			state: 0,
+			state_base: 0,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -429,6 +472,11 @@ function initHands() {
 			name: "gold shackles",
 			name_cap: "Gold shackles",
 			variable: "goldshackles",
+			combat: {
+				reference: "gold",
+			},
+			state: 0,
+			state_base: 0,
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
@@ -457,6 +505,7 @@ function initHands() {
 			rightImage: 1,
 		},
 	];
+	setup.clothes.hands = clothing;
 
 	/*
 		Clothes that modders add go into this array, this should be empty in the base game at all times.

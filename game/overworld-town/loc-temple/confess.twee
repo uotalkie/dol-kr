@@ -127,8 +127,8 @@
 	성전과 그 신앙에 대한 의구심을 <<him_ gwa>> 나눈다.
 <</if>>
 
-<<if _wraithEvent and $wraithIntro>>
-	<<pass 30>>
+<<if _wraithEvent and $wraithIntro and !$daily.wraithConfess>>
+	<<pass 30>><<set $daily.wraithConfess to true>>
 	<br><br>
 	<<if $world_corruption_soft gte 100>>
 		"<span class="wraith">의심하는 것은 당연한 일이야, <<pcpetname_ iyo "Wraith">>,</span>"
@@ -188,6 +188,7 @@
 		<<case "Jordan">>
 			"의심은 영혼의 가장 큰 도전입니다. 모든 사람은 의심을 경험합니다. 그러나 의심은 약하지요. 믿음은 더 강합니다." <<He_ ga>> 자신감 있고 우아하게 말한다.
 		<<case "Sydney">>
+			<<run $sydneySeen.pushUnique("self-sabotage")>>
 			"의심은 자기 파괴일 뿐입니다. 당신은 의심의 여지가 없다는 것을 항상 기억하세요." <<He_ yi>> 대답은 희망적으로 들리며 당신을 돕고 싶어하는 게 분명하다.
 		<<case "Confessor">>
 			<<He_ ga>> 낮은 웃음소리를 내며 노련하지만 지친 어조로 말한다.
@@ -240,7 +241,7 @@
 <br><br>
 
 <<if hasSexStat("promiscuity", 3)>>
-	<<link [[$NPCList[0].pronouns.him + " 보면 당신이 유혹을 느낀다고 말한다"|Temple Confess Self Temptation Goad]]>><</link>><<promiscuous3>>
+	<<link [[Tell <<him>> that you are tempted by <<him>>|Temple Confess Self Temptation Goad]]>><</link>><<promiscuous3>>
 	<br>
 	<<link [[계속한다|Temple Confess Self End]]>><</link>>
 	<br>
@@ -457,7 +458,7 @@
 			"죄가 너무 많습니다. 아무리 죄 많은 사람도 회개할 수 있으니 걱정하지 마세요." <<him_ ga>>  서 있는 소리가 들리고, 나무 칸막이에 십자가 모양을 그리는 <<his_ yi>> 실루엣이 보인다. "나는 말로 당신을 용서한다. 하지만 당신은 여전히 행동으로 자신을 용서해야 한다." <<he_ ga>> 연습된 어조로 말한다.
 			<br><br>
 
-			"행동만이 진정한 용서로 이끌 수 있습니다. 당신은 자신을 개선하기 위해 노력해야 합니다. 그럼에도 불구하고 당신은... 독특한 케이스입니다. 당신은 아직 고백할 것이 많은 것 같으니 곧 돌아오세요."
+			"Only actions can lead you to true forgiveness. You must work to improve yourself. Even then, you are a... unique case. Please return soon, I feel you still have much to confess."
 			<br><br>
 
 			<<link [[다음|Temple Confess Self End Alone]]>><</link>>
@@ -607,7 +608,7 @@
 			"죄가 너무 많습니다. 아무리 죄 많은 사람도 회개할 수 있으니 걱정하지 마십시오." <<him_ ga>> 서 있는 소리가 들리고, 나무 칸막이에 십자가 모양을 그리는 <<his_ yi>> 실루엣이 보인다. "나는 말로 당신을 용서한다. 하지만 당신은 여전히 행동으로 자신을 용서해야 한다." <<he_ ga>> 연습된 어조로 말한다.
 			<br><br>
 
-			"행동만이 진정한 용서로 이끌 수 있습니다. 당신은 자신을 개선하기 위해 노력해야 합니다. 그럼에도 불구하고 당신은... 독특한 케이스입니다. 당신은 아직 고백할 것이 많은 것 같으니 곧 돌아오세요."
+			"Only actions can lead you to true forgiveness. You must work to improve yourself. Even then, you are a... unique case. Please return soon, I feel you still have much to confess."
 			<br><br>
 
 			<<link [[다음|Temple Confess Self End Alone]]>><</link>>
@@ -861,7 +862,7 @@
 		<<if _sydneyStatus.includes("corrupt")>>
 			"타락의 길로 빠지기 쉽다는 것은... 저도 잘 알고 있습니다. 그리고 돌아오는 것은 훨씬 더 어렵습니다. 쉽지 않을 테니 싸워야 할 것입니다."
 		<<else>>
-			"순결의 길을 유지하려면 끊임없는 경계가 필요합니다. 작은 실수도 눈사태로 이어질 수 있습니다. 당신을 위해 기도하겠습니다."
+			"Staying on the path of purity requires constant vigilance. Even small slips can lead to an avalanche. I will keep you in my prayers."
 		<</if>>
 		<br><br>
 
@@ -1389,7 +1390,11 @@
 <<if Time.hour gte 6 and Time.hour lt 22>>
 	<<if $exposed gte 1>>
 		위쪽 선반에서 수건 몇 장을 가져온다.
-		<<towelup>>
+		<<dry_full>>
+		<<silently>><<exposure>><</silently>>
+		<<if $exposed gte 1>>
+			<<towelup>>
+		<</if>>
 		<br><br>
 	<</if>>
 
@@ -1409,10 +1414,22 @@
 <</if>>
 
 :: Temple Confess
-<<set $outside to 0>><<set $location to "temple">><<sydneySchedule>><<temple_effects>><<effects>>
+<<set $outside to 0>><<set $location to "temple">><<sydneySchedule>><<temple_effects>><<effects>><<rngWraith>>
 <<set $confessionsTaken = ($confessionsTaken || 0) + 1>>
-다른 쪽 문이 열리는 소리가 들리고 참회자가 인사를 한다.
-"어서 오십시오. 죄를 용서받을 수 있도록 죄를 드러내십시오." 향에 불을 붙이고 평소와 다른 어조로 최선을 다해 말한다.
+<<if _wraithEvent and $wraithIntro and !$daily.wraithConfess>>
+	<<set _wraithConfess to true>><<set $daily.wraithConfess to true>><<set $attendant to "wraith">><<set _noOptions to true>>
+	You hear the other door open. Before you can greet your penitent, you feel a cold wind blow. It steals your breath.
+
+	<<if $demon gte 6 and $wraith.state isnot "haunt">>
+		You can almost feel what is on the other side of the booth. All that separates you are misunderstandings.
+	<</if>>
+	<br><br>
+		
+	"Welcome. Lay your sins bare, so they may be forgiven," you say. You do your best to keep your voice even. When you go to light the incense, the flame flickers out no matter how many times you try.
+<<else>>
+	다른 쪽 문이 열리는 소리가 들리고 참회자가 인사를 한다.
+	"어서 오십시오. 죄를 용서받을 수 있도록 죄를 드러내십시오." 향에 불을 붙이고 평소와 다른 어조로 최선을 다해 말한다.
+<</if>>
 <br><br>
 
 <<cleareventpool>>
@@ -1430,7 +1447,7 @@
 	<</addinlineevent>>
 	<<addinlineevent "confession_corrupt_3" 0.7>>
 		<<generate1>><<person1>><<set $attendant to "corrupt_3">>
-		그들은 불안해하며 자리에 앉는다. <<personsimple_ yi>> 목소리가 당신을 맞이한다. "신을 화나게 한 것 같아 두렵습니다." <<he_ ga>> 말한다.
+		They sit down. A <<personsimple>>'s anxious voice greets you. "I fear I've angered God," <<he>> says.
 		<br><br>
 
 		잠시 침묵한 후, <<him_ ga>> 자세히 설명하도록 유도한다.
@@ -1623,20 +1640,16 @@
 <<addinlineevent "confession_sinner_generic_forgive" 3>>
 	<<generate1>><<person1>><<set $attendant to "sinner_generic_forgive">>
 	그들이 앉는다. <<personsimple_ yi>> 목소리가 당신을 맞이한다.
-	<<set _sinPoolForgive to [
-		`"제가 죄를 지었으니 용서해주세요, <<sisterPost>>님. 이웃의 배우자를 탐하였습니다."`,
-		`"제가 죄를 지었으니 용서해주세요, <<sisterPost>>님. 이웃을 탐하였습니다."`,
+	<<set _sinPoolForgive to [		
+		`"Forgive me, <<sister>>, for I have sinned. I have coveted my <<print either("neighbour","neighbour's spouse","friend's spouse")>>."`,
 		`"제가 죄를 지었으니 용서해주세요, <<sisterPost>>님. 내기에서 졌고, 벌거벗은 채로 마을을 가로질렀습니다."`,
 		`"제가 죄를 지었으니 용서해주세요, <<sisterPost>>님. 몇 주 동안 배우자 몰래 스트립 클럽에 다녀왔어요."`,
 		`"제가 죄를 지었으니 용서해주세요, <<sisterPost>>님. 전... 동네 매춘업소에서 마음껏 즐겼어요."`,
 		`"전 문제가 있습니다. 미친 듯이 도박을 했습니다."`,
-		`"제가 죄를 지었으니 용서해주세요, <<sisterPost>>님. 이웃에 대해 불순한 생각을 가졌습니다."`,
-		`"친한 친구에 대해 불순한 생각을 가진 저를 용서해주십시오, <<sisterPost>>님."`,
-		`"여기 성직자들에 대해 불순한 생각을 가진 저를 용서해주십시오, <<sisterPost>>님."`,
+		`"Forgive me, <<sister>>, for I've had impure thoughts about <<print either("my neighbour","a close friend","the clergy here")>>."`,
 		`"많은 사람들에 대해 불순한 생각을 가진 저를 용서해주십시오, <<sisterPost>>님."`,
 		`"유혹에 빠진 저를 용서해주십시오, <<sisterPost>>님."`,
-		`"동료들에게 속임수를 쓴 저를 용서해주십시오, <<sisterPost>>님."`,
-		`"동료들에게 나쁜말을 한 저를 용서해주십시오, <<sisterPost>>님."`,
+		`"Forgive me, <<sister>>, for I have sown <<print either("deceit","unkind words")>> amongst my peers."`,
 	]>>
 	<<set _sinForgive to _sinPoolForgive.pluck()>>
 	<<print _sinForgive>>
@@ -1650,14 +1663,14 @@
 		`"배우자에 대해 불충한 생각을 한 저를 용서해주십시오, <<sisterPost>>님."`,
 		`"친구의 범죄 행위를 외면한 저를 용서해주십시오, <<sisterPost>>님."`,
 		`"좀도둑질을 한 저를 용서해주십시오, <<sisterPost>>님."`,
-		`"동네 카페에서 내버려둔 돈을 훔친 저를 용서해주십시오, <<sisterPost>>님."`,
-		`"친구에게서 도둑질을 한 저를 용서해주십시오, <<sisterPost>>님. 전... 그들보다 뭔가를 더 받을 자격이 있다고 생각했습니다. 질투가 났습니다."`,
+		`"Forgive me, <<sister>>. I stole some money that I found lying unattended at the local <<print either("spa","markets","cafe","arcade","pub")>>."`,
+		`"Forgive me, <<sister>>, for I have stolen from a <<print either("neighbour","friend","co-worker")>>. I... I felt like I deserved something more than they did. I was jealous."`,
 	]>>
-	<<if $bestialitydisable is false>>
+	<<if $bestialitydisable is "f">>
 		<<set _sinPoolRepent.push(
-			`"제 강아지에 대한 불순한 생각을 한 저를 용서해주십시오, <<sisterPost>>님."`,
-			`"짐승을 사람처럼 눕힌 저를 용서해주십시오, <<sisterPost>>님."`,
-			)>>
+			`"Forgive me, <<sister>>, for I've had impure thoughts about... my <<print either("","friend's","neighbour's")>> <<print either("dog","cat")>>."`,
+			`"Forgive me, <<sister>>, for I have sinned. I have laid with a beast as though it were a human."`,
+		)>>
 	<</if>>
 	<<set _sinRepent to _sinPoolRepent.pluck()>>
 	<<print _sinRepent>>
@@ -1727,6 +1740,65 @@
 	]>>
 	<<set _templeSin to _templeSinPool.pluck()>>
 	<<print _templeSin>>
+<</addinlineevent>>
+
+<!-- Temple penitents post-punishment (varies) -->
+<<addinlineevent "confession_temple_punished_faithful" 1>>
+	<<generateTemple 1>><<person1>><<set $attendant to "punished_1">>
+	They sit down. A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, for I have sinned," <<he>> says. "I have doubted the faith." You hear <<him>> fidget.
+	<br><br>
+
+	<<He>> dissolves into sobbing. You wait uncomfortably. After a last sniffle, <<he>> continues. <<His>> voice sounds stronger.
+	"There was a-an incident. I broke my vow, and then I was purified. It was the process of purification that made me doubt, <<sister>>. I endured unspeakable horrors to earn forgiveness. It's my fault, of course, but..."
+	<br><br>
+
+	<<He>> cuts <<himself>> off. You see <<his>> hand press up against the small metal shutter. A part of you wants to hold it, but you resist.
+	"I can only pray that I am forgiven," <<he>> says. "It has to be enough. If all of that wasn't enough, if I am not free of sin, then what was the point? Please, <<sister>>. Tell me that I'm pure."
+<</addinlineevent>>
+<<addinlineevent "confession_temple_punished_disillusioned" 1>>
+	<<generateTemple 1>><<person1>><<set $attendant to "punished_2">>
+	You hear a dry chuckle from the other side. A <<personsimple>>'s voice greets you. "Funny. I used to say that." There's a beat of silence. "<<Sister>>, I have sinned, but I do not ask for your forgiveness. I think your forgiveness is a crock of shit, to be honest."
+	<<He>> hurries on without waiting for your response. "I mean, I did everything I was supposed to. I practised the faith. I took confessions. I even went door to door and begged for donations."
+	<br><br>
+
+	<<He>> sighs. "But when I lay with someone I loved in sacred union, they said I broke my vow. I was punished, <<sister>>. I won't tell you the things they did to me. I don't think I could bear to utter such filth here, even after all I've been through."
+	<br><br>
+
+	More silence. It stretches so long and thin that you think it will snap and let something in. A wave of relief comes over you when <<he>> starts to speak again. "I really only came here to tell someone that I was leaving. My beloved and I are going to go where we can love each other freely. No walls between us. I just wish...
+	<<if $grace gte 100>>
+		I wish I had your devotion, <<sister>>."
+	<<elseif $grace gte 50>>
+		I wish I was as strong as you, <<sister>>."
+	<<else>>
+		I wish I wasn't the only one who feels this way. Can you understand me, <<sister>>?"
+	<</if>>
+<</addinlineevent>>
+<<if $world_corruption_soft gte 50>>
+	<<addinlineevent "confession_temple_punished_vowbreaker" 1>>
+		<<generatev1>><<person1>><<set $attendant to "punished_3">>
+		They sit down. A <<personsimple>>'s voice greets you, and <<he>> wastes no time. "Forgive me, <<sister>>, for I have broken my vow."
+		<br><br>
+
+		"You must be purified-" you begin.<br>
+		"Wait!" <<he>> says. "Before you summon the specialists, please listen to my story. That's why you're here, isn't it?"<br>
+		You hesitate, your hand gripping the rope. You let it go. <<He>> sighs in relief.
+		<br><br>
+
+		"I was a good initiate, and an even better <<monk>>. I did everything asked of me. But I was raped on my way home from my duties. I never saw the face of my attacker, and I doubt I ever will. I dreaded the examination for weeks. For good reason, because I failed." <<He>> laughs. "Then they set me up to be raped again. Imagine how that feels, <<sister>>. To be raped, and as punishment for someone else's crime, raped again."
+		<br><br>
+
+		There's the rustling of clothes as <<he>> shifts. "I'm recording it this time. They can't keep getting away with it. I'll show the world, and then they'll be shut down." <<He>> takes a deep breath. "Thank you for listening, <<sister>>. I'm ready now."
+	<</addinlineevent>>
+<</if>>
+<<addinlineevent "confession_temple_punished_vessel" 1>>
+	<<generateTemple 1>><<person1>><<set $attendant to "punished_corrupt">>
+	They sit down. A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, but I have sinned. I have gone through the temple's purification. At first, it was fine. I understood. But the more I thought about it, the more I questioned it. Why would such acts of violence purify me, if that was what corrupted me?"
+	<br><br>
+
+	<<He>> chuckles. "But then I realised. I was taking the corruption of others into myself. I was making a difference. So I broke my vow again. And again." <<His>> voice grows louder. "And it was good, and I was good for being a vessel for corruption. But it's become too much. I wake up screaming at night. I feel sick when I look at myself in the mirror. I haven't been able to eat. I can't think of anything but how much I don't want to do this anymore."
+	<br><br>
+
+	"I can feel all of this corruption welling up inside of me. It's eating at me like acid, leaving holes in my faith. I think something is trying to use me to enter this world." <<He>> starts to cry. "I don't want to let It in, <<sister>>! I don't want to be the reason It wins! Please, you have to help me before it's too late."
 <</addinlineevent>>
 
 <!-- Other/Special penitents -->
@@ -1818,6 +1890,37 @@
 			<br>
 		<</addinlineevent>>
 	<</if>>
+	<<if $templePromised is "Sydney" and $sydneySeen.includes("punishment")>>
+		<<addinlineevent "confession_sydney_doubt" 1>>
+			<<npc Sydney>><<person1>><<set $attendant to "sydney_doubt">>
+			<<set $daily.sydneyConfession to true>>
+			<<if $sydneySeen.includes("confessionRevealed")>>
+				<span class="blue">문틀을 세 번 두드리는 소리가 들린다.</span>
+			<</if>>
+			A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, for I have sinned," <<he>> says.
+
+			<<if _sydneyStatus.includes("corrupt")>>
+				"I've got doubts. I'm promised to someone, and we get to... do it, whenever we want because of it. But if either of us break our vows with someone else, we'll both get punished. I get that happening if we cheat on each other willingly. But what happens if either of us is assaulted? This town is full of holes, and there are many eager to reach through them to harm others."
+				<br><br>
+
+				<<if $awarelevel gte 2>>You think you know what <<he>> means.<<else>>You wonder what <<he>> means by holes.<</if>>
+				<br><br>
+
+				"This has been making me doubt my faith," <<he>> continues. "Am I putting it in the right place? I think I am, but, <<sister>>, I admit that I've become confused. It's not fair that <<pshe>> has to endure punishment for someone else's sin, let alone me." <<He>> pauses. "Fuck, that was selfish. I guess I still have some growing to do."
+			<<else>>
+				"I... I can't believe I've been thinking about this." <<He>> takes a deep breath. "I have been promised to someone. My beloved. We can be in-intimate with each other because of that. If either of us breaks our vow with someone else, though, we are punished. At least we're punished together, right? But..."
+				<br><br>
+
+				There's a catch in <<his>> voice. It's subtle, but in this small space, you hear it. "But what if my b-beloved is assaulted?" <<he>> asks. "Please forgive me for saying this, <<sister>>, but it seems so unfair to punish <<pher>> for that." The words pour out in a flood. You feel <<his>> doubt pushing against your lips to force its way in. <<stress 3>><<gstress>>
+				<br><br>
+
+				"It isn't as if <<pshe>> asked for it. Yes, maybe <<pshe>> shouldn't put <<pherself>> in a situation where <<pshe>> could get attacked, but what if <<pshe>> does everything right and it still happens? How is it fair or right to punish <<pher>> for that? And why should I be punished alongside <<pher>>?" <<He>> pauses. "Oh, that sounds so selfish. I guess I'll need to ask forgiveness for that too."
+			<</if>>
+			<br><br>
+
+			<<He>> sighs. "<<Sister>>, what should I do?"
+		<</addinlineevent>>
+	<</if>>
 <</if>>
 
 <<if ($museumhorse is 1 or $museumduck is 1) and !$weekly.winterConfession and C.npc.Winter.init is 1 and $confessionsTaken gte 5>>
@@ -1849,6 +1952,21 @@
 		<<link [[네|Temple Confess Jordan Yes]]>><</link>>
 		<br>
 		<<link [[아니오|Temple Confess Jordan No]]>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<!-- Must be last. -->
+<<if _wraithConfess>>
+	<<cleareventpool>>
+	<<addinlineevent "confession_wraith" 1000>>
+		Water trickles through the metal grate.
+		<br><br>
+
+		"<span class="wraith">Those drowned can only speak the sea.</span>"
+		<br><br>
+
+		<span class="wraith"><<link [[Confess|Temple Confess Wraith]]>><</link>></span>
 		<br>
 	<</addinlineevent>>
 <</if>>
@@ -2093,6 +2211,29 @@
 		<br><br>
 
 		"오, 감사합니다, 정말 감사합니다. <<sisterPost>>님! 다신 어기지않겠습니다!" <<He_ ga>> 고해성사를 마치고 고해실을 나간다. <<grace -2>><<lgrace>><<stress -12>><<llstress>>
+	<<case "punished_1">>
+		<br><br>
+		"Forgiven," <<he>> says. <<His>> relief is palpable. "Yes. I am forgiven, but I must work on forgiving myself. Thank you, <<sister>>. Thank you!"
+		<br><br>
+
+		<<He>> leaves the confessional. You feel a warm glow in your chest. <<grace 1>><<stress -2>><<ggrace>><<lstress>>
+	<<case "punished_2">>
+		<br><br>
+
+		<<He>> laughs. It almost sounds like a sob. "It's all bullshit," <<he>> says. "Goodbye, <<sister>>. I hope they are kinder to you than they were to me."
+		<br><br>
+
+		<<He>> exits the confessional, leaving you <<if $temple_arcade_known or $sydneySeen?.includes("punishment")>>with your own memories of the temple's punishments<<else>>to ponder the meaning of <<his>> words<</if>>. <<stress 3>><<gstress>>
+	<<case "punished_3">>
+		<br><br>
+
+		<<He>> stays silent for a moment. "Your faith is strong, <<sister>>. I envy you. I don't think I can forgive. But maybe I can forget."
+		<br><br>
+
+		<<He>> leaves the confessional, but not before pushing <<his>> recorder through the small metal chute. <<stress -3>><<lstress>>
+	<<case "punished_corrupt">>
+		<br><br>
+		"I don't deserve to be forgiven!" <<he>> shouts. "I have to do my duty! If you can't help me, I'll find someone who can!" <<He>> rushes from the confessional, shouting all the while. <<grace -2>><<lgrace>>
 	<<case "sydney_promised">>
 		"당신이 서약에 묶여 있다면 당신은 죄를 짓지 않은 것이다. 당신은 거룩한 의식을 통해 예외가 된 것이다."
 		<br><br>
@@ -2108,6 +2249,23 @@
 		<br><br>
 
 		당신은 안도의 한숨을 듣는다. "감사합니다, <<sisterPost>>님." <<He_ ga>> 고해성사를 마치고 고해실을 나간다. <<grace 1>><<ggrace>><<npcincr "Sydney" love 3>><<glove "Sydney">>
+	<<case "sydney_doubt">>
+		<<run statusCheck("Sydney")>>
+		"Doubts are normal. To doubt is human, to know all is divine. You are not lost so long as you do not let your doubts consume you. Forgive yourself, <<nnpc_brother "Sydney">>, as I forgive you."
+		<br><br>
+
+		<<if _sydneyStatus.includes("corrupt")>>
+			"And if my doubts do consume me?" <<he>> challenges. "What then, <<sister>>? Will I still be forgiven?"
+			<br><br>
+
+			"Yes," you say with confidence. "For you are loved by God<<if isLoveInterest("Sydney")>> and your beloved<</if>>, and that love will keep you from straying. I'm sure of it."
+			<br><br>
+
+			<<He>> is silent for a long time. "Huh. That's not what I expected you to say. I've... No one has ever really had that kind of faith in me before. Thank you, <<sister>>."
+		<<else>>
+			"Human," <<he>> echoes. "I am just a <<personsimple>>, that's true. I guess I thought I should be above such things. Thank you for reminding me that I'm not."
+		<</if>>
+		<<He>> exits the confessional. You sneak a look through your door. <<He>> looks at peace. <<grace 1>><<npcincr Sydney love 2>><<ggrace>><<glove>>
 	<<case "winter">>
 		"이렇게 취약한 순간에는 생각을 억제하기가 어렵습니다. 이 학생에게 이 문제에 대해 이야기해 보세요."
 		<br><br>
@@ -2276,10 +2434,10 @@
 		"다른 방법이라고요? 내가 안 해봤을 것 같아? 내가 선택의 여지가 있을 것 같아? 넌 절대 이해 못 해."
 		<br><br>
 
-		<<link [[$NPCList[0].pronouns.him + " 향해 당신도 고아라고 말한다"|Temple Confess Repent Orphan Tell]]>><<grace -2>><<hope 2>><<reb 2>><</link>>
+		<<link [[Tell <<him>> you're an orphan too|Temple Confess Repent Orphan Tell]]>><<grace -2>><<hope 2>><<reb 2>><</link>>
 		<br>
 		<<if $trauma gte 4000 or $uncomfortable.prostituting is false>>
-			<<link [[$NPCList[0].pronouns.him + " 야단친다"|Temple Confess Repent Orphan Snap]]>><<trauma -12>><<grace -4>><<hope -1>><<reb 4>><</link>>
+			<<link [[Snap at <<him>>|Temple Confess Repent Orphan Snap]]>><<trauma -12>><<grace -4>><<hope -1>><<reb 4>><</link>>
 			<br>
 		<</if>>
 		<<link [[아무말도 하지 않는다|Temple Confess Repent Orphan Silent]]>><</link>>
@@ -2336,6 +2494,29 @@
 		<br><br>
 
 		"무...물론이죠. 사과드립니다." <<His_ yi>> 목소리는 두려움으로 가득 차 있다. <<He_ ga>> 소심하게 고해성사를 마치고 나간다.
+	<<case "punished_1">>
+		<br><br>
+		"Of course," <<he>> says. "I'm not forgiven yet. How could I be? The doubt still lingers. Thank you, <<sister>>. I will work harder. I will be worthy of the Temple. I will."
+		<br><br>
+
+		<<He>> repeats <<his>> last two words as <<he>> exits the confessional. It sounds like a desperate hymn. <<stress 3>><<gstress>>
+	<<case "punished_2">>
+		The words feel hollow. <<stress 3>><<gstress>>
+		<br><br>
+
+		"Yeah," <<he>> says. "Somehow, I knew you'd say that. It's what <<nnpc_he "Jordan">> taught us, isn't it? Stay safe, <<sister>>. <<if $temple_arcade_known or $sydneySeen?.includes("punishment")>>You know what happens to those that step outside the faith.<<else>>There are things about this temple that you don't know.<</if>>"
+		<br><br>
+
+		<<He>> exits the confessional, leaving you feeling uncertain of your judgement. <<stress 3>><<awareness 2>><<gstress>><<gawareness>>
+	<<case "punished_3">>
+		<br><br>
+
+		"It's them that need to repent," <<he>> says. "I'm doing what needs to be done. You'll see. It's for the greater good." <<He>> leaves the confessional. You wonder if <<he>> will return to try again. <<stress 3>><<gstress>>
+	<<case "punished_corrupt">>
+		<br><br>
+
+		"Have you even been listening to me?" <<he>> asks. "<<Sister>>, I am meant to be a vessel for corruption. I can't repent. There are some evils that must be contained." <<He>> exits the confessional before you can respond. <<grace -2>><<awareness 2>><<lgrace>><<gawareness>>
+
 	<<case "sydney_promised">>
 		"약속의 의식을 남용하지 마십시오. 당신과 당신의 사랑하는 사람을 타락시킬 위험이 있습니다."
 		<br><br>
@@ -2351,6 +2532,21 @@
 		<br><br>
 
 		잠깐의 침묵이 있다. "당신이 맞습니다, <<sisterPost>>님. 전 너무 바보같았어요. 감사합니다." <<He_ ga>> 고해성사를 마치고 비틀거리며 고해실을 나간다. <<grace 1>><<ggrace>><<npcincr "Sydney" love -8>><<lllove "Sydney">>
+	<<case "sydney_doubt">>
+		<<run statusCheck("Sydney")>>
+		<<if $sydneySeen.includes("self-sabotage")>>
+			"A wise <<monk>> once told me that doubt is self-sabotage," you say. "Repent for hurting yourself, and forgiveness will follow."
+		<<else>>
+			"You are stronger than your doubts," you say. "Repent for questioning the faith, and you will be forgiven."
+		<</if>>
+		<br><br>
+
+		<<if _sydneyStatus.includes("corrupt")>>
+			"I guess I knew that," <<he>> says. "It's still nice to hear from someone else. Thanks, <<sister>>. I'll try to remember that."
+		<<else>>
+			"You're right," <<he>> says. "Of course you are. Thank you so much, <<sister>>, for keeping me on the right path."
+		<</if>>
+		<<He>> exits the confessional. <<grace 1>><<npcincr Sydney love 2>><<ggrace>><<glove>>
 	<<case "winter">>
 		"교사와 학생 사이의 유대감은 전문성을 유지해야 한다. 조심하세요."
 		<br><br>
@@ -2422,6 +2618,7 @@
 <<if !$daily.contritions>>
 	<<set $daily.contritions to 0>>
 <</if>>
+<<wearProp "pen">>
 종이 더미에서 종이와 펜 중 하나를 집어 금속 셔터에 끼워 넣는다.
 "정정하려면 나중에 당사에 다시 방문해야 합니다. 여기에 성명과 주소를 적어 주세요. 전문가가 정정을 도와드릴 것입니다."
 <br><br>
@@ -2508,15 +2705,40 @@
 	<<case "temple_4" "temple_5">>
 		"물론이죠, <<sisterPost>>님. 어떤 식으로든 다시 순수해질 거예요." <<He_ nun>> 이름을 적고 고해소를 나간다. <<grace -2>><<lgrace>>
 	<<case "temple_6">>
-		"그...그래요. 정화." <<His_ yi>> 목소리는 두려움으로 가득 차 있다. <<He_ nun>> 이름을 적고 소심하게 고해소를 나간다.	<<grace -2>><<lgrace>>
+		"R...right. Purification." <<His>> voice is full of dread. <<He>> writes <<his>> name and exits the confessional sheepishly. <<grace -2>><<lgrace>>
+	<<case "punished_1">>
+		There's a horrible silence. "I..." <<His>> voice breaks. "Is this where they got th-those people? Does it all come from within? I-I can't do this. I won't, faith or not."
+		<br><br>
+
+		<<He>> rushes from the confessional without writing <<his>> name. <<grace -2>><<lgrace>>
+	<<case "punished_2">>
+		There's a tense silence. "You know what the temple does with these names, right?" <<He>> scoffs. "Doesn't matter. I shouldn't have expected anything else. Goodbye, <<sister>>. If you're smart, you'll leave too."
+		<br><br>
+
+		<<He>> exits the confessional. You sit in the silence. <<stress 3>><<gstress>>
+	<<case "punished_3">>
+		You hear <<him>> shudder. "Yeah," <<he>> says slowly. "I could record it from the other side. That's not a bad idea." <<He>> writes <<his>> name on the paper and leaves. <<grace -2>><<lgrace>>
+	<<case "punished_corrupt">>
+		"No, you simpleton," <<he>> says angrily. "I am meant to take in their corruption, not put more in the world! I suppose I'll return when there is a more competent confessor." <<He>> leaves in a huff. <<grace -2>><<lgrace>>
 	<<case "sydney_promised" "sydney_romance" "sydney_love">>
 		"뭐? 난 서약을 어긴 적 없어. 지금...? 아니, 됐어 좋은 하루 되세요, <<sisterPost>>님." <<He_ ga>> 고해성사를 마치고 고해실을 나간다. <<grace -2>><<lgrace>>
+	<<case "sydney_doubt">>
+		<<run statusCheck("Sydney")>>
+		<<if _sydneyStatus.includes("corrupt")>>
+			"Not a chance. I haven't broken my vow, so I've got no reason to make amends."
+		<<else>>
+			"I don't think..." <<He>> trails off. "I mean, no. I haven't broken my vow, and neither has my beloved. We don't need to be purified."
+		<</if>>
+		You hear <<him>> shuffle as <<he>> stands.
+		<br><br>
+
+		"My beloved and I can withstand any test thrown at us. Our faith will drown our doubts. Thank you for being an example of everything the temple isn't, <<sister>>." <<He>> exits the confessional. You sneak a look through your door. <<He>> looks angry. <<grace -4>><<stress 3>><<llgrace>><<gstress>>
 	<<case "winter">>
 		"이게 뭐죠? 이건 익명으로 해야 하는데요. 실수한 것 같네요." <<He_ nun>> 천천히 고해실을 나간다. <<grace -2>><<lgrace>>
 	<<default>>
-	<br><br>
+		<br><br>
 
-	"감사합니다, <<sisterPost>>님." <<He_ ga>> 고해성사를 마치고 고해실을 나간다. <<grace 1>><<ggrace>>
+		"감사합니다, <<sisterPost>>님." <<He_ ga>> 고해성사를 마치고 고해실을 나간다. <<grace 1>><<ggrace>>
 <</switch>>
 <br><br>
 
@@ -2525,7 +2747,7 @@
 	<<set $daily.contritions to 0>>
 <</if>>
 
-<<link [[다음|Temple Confess Start]]>><<endconfession>><</link>>
+<<link [[다음|Temple Confess Start]]>><<handheldon>><<endconfession>><</link>>
 <br>
 
 :: Temple Confess Purify
@@ -2585,6 +2807,50 @@
 
 		"안 돼! 안 돼! 제발!" <<His_ yi>> 문이 열린다. "제 잘못이 아니에요! 제발!"
 		<<if $temple_confessor_intro>>고해성사자들이<<else>>전문가들이<</if>> <<him_ rul>> 데려간다. <<grace 2>><<ggrace>><<stress 12>><<ggstress>><<trauma 6>><<gtrauma>>
+	<<case "punished_1">>
+		<<if $temple_confessor_intro>>
+			"Your doubt disgusts me. You must be purified. Please exit the booth and do not resist."
+		<<else>>
+			"당신은 정화되어야 합니다. 전문가들을 소환하겠습니다. 고해소에서 나가서 협조해 주십시오."
+		<</if>>
+		줄을 당겨 종을 울린다.
+		<br><br>
+
+		"Oh," <<he>> says, <<his>> voice oddly flat. "Right. I should have known that my faith was weak. Will this fix me? Will this fix me? Will this fix me?"
+		<br><br>
+
+		<<He>> repeats <<his>> question as the <<if $temple_confessor_intro>>confessors<<else>>specialists<</if>> lead <<him>> away. Soon <<his>> voice fades into the distance. The silence that follows is worse. <<grace -2>><<trauma 3>><<lgrace>><<gtrauma>>
+	<<case "punished_2">>
+		<<if $temple_confessor_intro>>
+			"당신은 정화되어야 합니다. 저항하지 말고 고해소에서 나가주세요."
+		<<else>>
+			"당신은 정화되어야 합니다. 전문가들을 소환하겠습니다. 고해소에서 나가서 협조해 주십시오."
+		<</if>>
+		줄을 당겨 종을 울린다.
+		<br><br>
+
+		"No!" <<he>> screams. The confessional shakes. "No, you can't do this to me! I won't go through it again! Please, <<sister>>, you don't understand, they're going to-"
+		<<His>> voice cuts off with a grunt. You hear <<him>> being dragged away. It sounds like <<hes>> crying. <<grace -2>><<stress 6>><<trauma 12>><<lgrace>><<gstress>><<ggtrauma>>
+	<<case "punished_3">>
+		<<if $temple_confessor_intro>>
+			"As you wish. You will be purified. Please exit the booth and do not resist."
+		<<else>>
+			"As you wish. You will be purified. I will summon the specialists. Please exit the booth and cooperate with them."
+		<</if>>
+		줄을 당겨 종을 울린다.
+		<br><br>
+
+		Before the <<if $temple_confessor_intro>>confessors<<else>>specialists<</if>> lead <<him>> away, they speak to each other in voices too low for you to make out. <<He>> cries out. "No, you can't take my recorder! That's mine! Give it back! Wait, please!" <<His>> pleas fall on deaf ears. All except for your own. <<grace 1>><<stress 3>><<trauma 6>><<ggrace>><<gstress>><<gtrauma>>
+	<<case "punished_corrupt">>
+		<<if $temple_confessor_intro>>
+			"당신은 정화되어야 합니다. 저항하지 말고 고해소에서 나가주세요."
+		<<else>>
+			"당신은 정화되어야 합니다. 전문가들을 소환하겠습니다. 고해소에서 나가서 협조해 주십시오."
+		<</if>>
+		줄을 당겨 종을 울린다.
+		<br><br>
+
+		"No, I'm too full!" <<he>> says. "If I let any more in, It will win. You're in league with It, you're letting It win!" <<He>> tries to fight the <<if $temple_confessor_intro>>confessors<<else>>specialists<</if>>, but they eventually subdue <<him>>. <<He>> screams as <<hes>> dragged away. <<gstress>><<stress 3>><<world_corruption "soft" 1>>
 	<<default>>
 		<<if $temple_confessor_intro>>
 			"당신은 정화되어야 합니다. 저항하지 말고 고해소에서 나가주세요."
@@ -2680,7 +2946,20 @@
 	<<case "sinner_generic_rapist">>
 		<<set _accepted to true>>
 		"지금 장난하는 거예요? 아니, 진심이지?" <<He_ ga>> 따른다.
-	<<case "sydney_promised" "sydney_romance">>
+	<<case "punished_1">>
+		<<set _accepted to true>>
+		You hear <<him>> breathing. "If this is how I will be forgiven," <<he>> says at last. "I'll do anything, <<sister>>. Even if it means I have to endure this again."
+	<<case "punished_2">>
+		"Oh, <<Sister>>," <<he>> says with genuine sorrow. "I can't believe..." <<He>> stops. "No, I can believe they would do this. I'm so sorry. I'm so, so sorry."
+		<br><br>
+
+		<<He>> leaves the confessional in a hurry. You fix your clothing and sit back down. <<His>> words make you feel sad, though you don't know why. <<stress 3>><<gstress>>
+	<<case "punished_3">>
+		"Even the confessors are in on it?" <<he>> says. "That's so fucked up. This whole place is fucked. I'm out." <<He>> leaves the confessional, slamming the door so hard the whole thing rattles. <<stress 3>>
+	<<case "punished_corrupt">>
+		<<set _accepted to true>>
+		"Yes, yes," <<he>> says. "Oh, <<sister>>, yes, thank you. Please empty me so I may take in more."
+	<<case "sydney_promised" "sydney_romance" "sydney_doubt">>
 		<<set _noOptions to true>>
 		<<run statusCheck("Sydney")>>
 		<<if _sydneyStatus.includes("corrupt")>>
@@ -2693,7 +2972,7 @@
 
 		<<link [[자신을 드러낸다|Temple Confess Purge Sydney]]>><</link>>
 		<br>
-		<<link [[ $NPCList[0].pronouns.he + " 나가게 둔다"|Temple Confess Start]]>><<endconfession>><</link>>
+		<<link [[Let <<him>> leave|Temple Confess Start]]>><<endconfession>><</link>>
 		<br>
 	<<case "sydney_love">>
 		"뭐..뭐? 그렇게 하면 안 될 것 같은데, 난... 못하겠어! 미안해!" <<He_ ga>> 고해소를 나간다. <<grace -2>><<lgrace>><<npcincr "Sydney" purity -2>><<lspurity>>
@@ -2869,29 +3148,41 @@
 		<<link [[다음|Temple Confess Sydney Sex]]>><<set $speechdisable to 0>><</link>>
 		<br>
 	<<else>>
-		<<if $NPCList[0].vagina.includes("mouth")>>
+		<<set _sydtext to "Sydney">>
+		<<if $neckuse is "hand">>
+			<<if $NPCList[0].lefthand is "throat">>
+				<<set $NPCList[0].lefthand to 0>>
+			<</if>>
+			<<if $NPCList[0].righthand is "throat">>
+				<<set $NPCList[0].righthand to 0>>
+			<</if>>
+			Sydney releases your <<if $mouthuse>>neck<<else>>neck.<</if>>
+			<<set _sydtext to " and">>
+			<<set $neckuse to 0>>
+		<</if>>
+		<<if $NPCList[0].vagina.toString().includes("facesit") or ($NPCList[0].vagina.toString().includes("mouth") and $NPCList[0].vagina isnot "othermouth")>>
 			<<set $NPCList[0].vagina to 0>>
 			<<set $NPCList[0].location.genitals to 0>>
-			시드니는 당신의 입에서 멀어진다.
-		<<elseif $NPCList[0].penis.includes("mouth")>>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].penis.toString().includes("mouth") and $NPCList[0].penis isnot "othermouth">>
 			<<set $NPCList[0].penis to 0>>
 			<<set $NPCList[0].location.genitals to 0>>
-			시드니는 당신의 입에서 멀어진다.
-		<<elseif $mouthuse is "kiss" and $NPCList[0].mouth is "kiss">>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].mouth.toString().includes("kiss")>>
 			<<set $NPCList[0].mouth to 0>>
 			<<set $NPCList[0].location.head to 0>>
-			시드니가 키스를 멈춘다.
+			_sydtext pulls out of the kiss.
 		<<elseif $mouthuse is "breasts">>
 			<<set $NPCList[0].chest to 0>>
 			<<set $NPCList[0].location.head to 0>>
-			<<if $NPCList[0].lefthand is "head_breasts" or $NPCList[0].lefthand is "head_nipples">>
+			<<if [$NPCList[0].lefthand].includesAny("head_breasts", "head_nipples")>>
 				<<set $NPCList[0].lefthand to 0>>
 			<</if>>
-			<<if $NPCList[0].righthand is "head_breasts" or $NPCList[0].righthand is "head_nipples">>
+			<<if [$NPCList[0].righthand].includesAny("head_breasts", "head_nipples")>>
 				<<set $NPCList[0].righthand to 0>>
 			<</if>>
-			시드니는 당신의 입에서 멀어진다.
-		<<else>>
+			_sydtext withdraws from your mouth.
+		<<elseif _sydtext is "Sydney">>
 			시드니가 멈춘다.
 		<</if>>
 		<<set $mouthuse to 0>><<set $mouthstate to 0>><<set $mouthaction to 0>><<set $head to 0>>
@@ -2954,6 +3245,7 @@
 			<<if !$daily.contritions>>
 				<<set $daily.contritions to 0>>
 			<</if>>
+			<<wearProp "pen">>
 			종이 더미에서 종이 한 장을 꺼내려고 손을 뻗는다. 힘을 주지만 시드니가 가로막고 있어 손이 닿지 않는다. <<He_ ga>> 하나를 가져다 주더니,  <<his_ yi>> 옷에서 빨간 펜을 꺼낸다. 그 펜을 금속 셔터에 밀어 넣는다.
 			<br><br>
 
@@ -2988,12 +3280,22 @@
 	<</switch>>
 	<br><br>
 
-	<<link [[다음|Temple Confess Sydney Sex]]>><<set $speechdisable to 0>><</link>>
+	<<link [[다음|Temple Confess Sydney Sex]]>><<handheldon>><<set $speechdisable to 0>><</link>>
 	<br>
 <<else>>
 	<<set $enemyanger to -10>>
 	<<temple_effects>><<effects>>
 	<<effectsman>>
+	<<if $neckuse is "hand" and $timer is 4>>
+		<<set _neckused to 1>>
+		<<if $NPCList[0].lefthand is "throat">>
+			<<set $NPCList[0].lefthand to 0>>
+		<</if>>
+		<<if $NPCList[0].righthand is "throat">>
+			<<set $NPCList[0].righthand to 0>>
+		<</if>>
+		<<set $neckuse to 0>>
+	<</if>>
 	<<man>>
 	<<if _sound is 1>>
 		<<set $sydneyConfession.Sound++>>
@@ -3011,28 +3313,33 @@
 		<<set $speechdisable to 1>>
 		<span class="red">다른 문이 열린다.</span> 둘 다 얼어붙고 시드니가 <<his_ yi>> 입을 가립니다.
 		<br><br>
-		<<if $NPCList[0].vagina.includes("mouth")>>
+		<<set _sydtext to "Sydney">>
+		<<if _neckused>>
+			<<set _sydtext to "<<He>>">>
+			Sydney releases your neck. <<gaspair>>
+		<</if>>
+		<<if $NPCList[0].vagina.toString().includes("facesit") or ($NPCList[0].vagina.toString().includes("mouth") and $NPCList[0].vagina isnot "othermouth")>>
 			<<set $NPCList[0].vagina to 0>>
 			<<set $NPCList[0].location.genitals to 0>>
-			시드니는 당신의 입에서 멀어진다.
-		<<elseif $NPCList[0].penis.includes("mouth")>>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].penis.toString().includes("mouth") and $NPCList[0].penis isnot "othermouth">>
 			<<set $NPCList[0].penis to 0>>
 			<<set $NPCList[0].location.genitals to 0>>
-			시드니는 당신의 입에서 멀어진다.
-		<<elseif $mouthuse is "kiss" and $NPCList[0].mouth is "kiss">>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].mouth.toString().includes("kiss")>>
 			<<set $NPCList[0].mouth to 0>>
 			<<set $NPCList[0].location.head to 0>>
-			시드니가 키스를 멈춘다.
+			_sydtext pulls out of the kiss.
 		<<elseif $mouthuse is "breasts">>
 			<<set $NPCList[0].chest to 0>>
 			<<set $NPCList[0].location.head to 0>>
-			<<if $NPCList[0].lefthand is "head_breasts" or $NPCList[0].lefthand is "head_nipples">>
+			<<if [$NPCList[0].lefthand].includesAny("head_breasts", "head_nipples")>>
 				<<set $NPCList[0].lefthand to 0>>
 			<</if>>
-			<<if $NPCList[0].righthand is "head_breasts" or $NPCList[0].righthand is "head_nipples">>
+			<<if [$NPCList[0].righthand].includesAny("head_breasts", "head_nipples")>>
 				<<set $NPCList[0].righthand to 0>>
 			<</if>>
-			시드니는 당신의 입에서 멀어진다.
+			_sydtext withdraws from your mouth.
 		<</if>>
 		<<set $mouthuse to 0>><<set $mouthstate to 0>><<set $mouthaction to 0>><<set $head to 0>>
 		<<switch _sydneyArousal>>
@@ -3340,6 +3647,147 @@
 <<link [[다음|Temple Confess Start]]>><<endconfession>><</link>>
 <br>
 
+:: Temple Confess Wraith
+<<temple_effects>><<effects>><<rainWraith>>
+
+A voice starts to speak. "My faith led me to suffer. I begged my brothers and sisters for aid as the water rose to my head. They turned their backs to me and became shadows. I know they heard me. Could they not feel my lungs burning for air, or the cold rush of water dousing my life? What of the binds around my limbs that yet entomb me in my own demise? Where were they?" 
+<br><br>
+
+You realise that your lips are forming the words as you listen. It's no longer clear who's speaking and who's listening.
+<<if $wraith.state is "haunt">>The voice distorts. "Where were you, <<pcpetname "Wraith">>?"<</if>>
+<br><br>
+
+The voice stops. It awaits its answer. The water rises up to your hips. <<stress 6>><<trauma 12>><<gstress>><<ggtrauma>>
+<br><br>
+
+<span class="wraith"><<link[[Forgive|Temple Confess Wraith Result]]>><<set $phase to 0>><</link>></span>
+<br>
+<span class="wraith"><<link[[Repent|Temple Confess Wraith Result]]>><<set $phase to 1>><</link>></span>
+<br>
+<span class="wraith"><<link[[Contrition|Temple Confess Wraith Result]]>><<set $phase to 2>><</link>></span>
+<br>
+<span class="wraith"><<link[[Purge|Temple Confess Wraith Result]]>><<set $phase to 3>><</link>></span>
+<br>
+<span class="wraith"><<link[[Ring the bell|Temple Confess Wraith Result]]>><<set $phase to 4>><</link>></span>
+<br>
+
+:: Temple Confess Wraith Result
+<<temple_effects>><<effects>>
+<<switch $phase>>
+	<<case 0>>
+		<<if $angel gte 6 or ($confessionsTaken gte 10 and $grace gte 25)>>
+			You stand and draw a shape you have never seen before against the seal of confession. Your hand burns.
+			<<if $wraith.state is "haunt">>
+				"You can never be forgiven by word or action,"
+			<<else>>
+				"You cannot be forgiven by word. Action is your only choice,"
+			<</if>>
+			you say with confidence.
+		<<elseif $speech_attitude is "meek">>
+			<<if $wraith.state is "haunt">>
+				"Y-you can't be forgiven,"
+			<<else>>
+				"You h-have to e-earn forgiveness,"
+			<</if>>
+			you whisper.
+		<<elseif $speech_attitude is "bratty">>
+			<<if $wraith.state is "haunt">>
+				"You'll never be forgiven,"
+			<<else>>
+				"Words won't forgive you. Only actions will,"
+			<</if>>
+			you say.
+		<<else>>
+			<<if $wraith.state is "haunt">>
+				"You won't be forgiven so easily,"
+			<<else>>
+				"You won't be forgiven until you act on your wrongs,"
+			<</if>>
+			you say.
+		<</if>>
+		<br><br>
+
+		"<span class="wraith">Speak the sea,</span>" the voice says.
+	<<case 1>>
+		<<if $angel gte 6 or ($confessionsTaken gte 10 and $grace gte 25)>>
+			You stand and draw a shape you have never seen before against the seal of confession. Your hand burns.
+			<<if $wraith.state is "haunt">>
+				"Repentance won't save you,"
+			<<else>>
+				"Repent through action,"
+			<</if>>
+			you say with confidence.
+		<<elseif $speech_attitude is "meek">>
+			<<if $wraith.state is "haunt">>
+				"T-there is no r-repenting,"
+			<<else>>
+				"Y-you must repent through your a-actions,"
+			<</if>>
+			you say.
+		<<elseif $speech_attitude is "bratty">>
+			<<if $wraith.state is "haunt">>
+				"It's meaningless to repent now,"
+			<<else>>
+				"You can still undo the damage you caused if you repent,"
+			<</if>>
+			you say.
+		<<else>>
+			<<if $wraith.state is "haunt">>
+				"There's no salvation in repenting,"
+			<<else>>
+				"Your only hope is to repent,"
+			<</if>>
+			you say.
+		<</if>>
+		<br><br>
+
+		"<span class="wraith">Take the apple. Smash it. Try to piece it back together,</span>" the voice says.
+	<<case 2>>
+		You grab one of the pieces of paper and a pen from the stack and slip them through the metal shutter. It shrivels into glowing purple dust on the other side.
+		<<if $wraith.state is "haunt">>
+			"You can't make amends. Please write your full name and address here. The specialist will find you when the moon is red."
+		<<else>>
+			"The specialist can't help you make amends. You must do that yourself."
+		<</if>>
+		<br><br>
+
+		"<span class="wraith">How do you restore a broken heart?</span>" the voice asks.
+	<<case 3>>
+		"I name myself <span class="red">corrupted</span>." You remove your clothes, position yourself against the seal, and open the small metal shutter. "You will take my corruption into yourself, <<if $wraith.state is "haunt">>but I will never be forgiven<<else>>and I will be on the path to forgiveness<</if>>."
+		<br><br>
+
+		"<span class="wraith">Light reflects. Darkness absorbs. We are reflections.</span>"
+	<<default>>
+		"I must face my crime. I will exit the booth and won't resist." You pull the rope and ring the bell. Instead of its usual sound, you hear a familiar melody.
+		<br><br>
+
+		"<span class="wraith">Legends begin with a stolen glance.</span>"
+<</switch>>
+<br><br>
+
+The water surges upwards, covering your head before you can react. You hold your breath for as long as you can. Instinct overrides logic, forcing you to open your mouth and let the water rush in.
+<br><br>
+
+<<link [[다음|Temple Confess Wraith End]]>><</link>>
+<br>
+
+:: Temple Confess Wraith End
+<<temple_effects>><<effects>>
+You wake some time later, alone. Water drips from your hair and soaks into your clothes.
+<<silently>><<water>><<effectswater>><<exposure>><<covered>><</silently>>
+Doubts assail you,
+<<if $demon gte 6>>
+	but you think you understand. <<awareness 5>><<gawareness>>
+<<elseif $angel gte 6>>
+	but the purity within you burns them away.
+<<else>>
+	and you are left to face them alone.
+<</if>>
+<br><br>
+
+<<link [[다음|Temple Confess Start]]>><<endconfession>><</link>>
+<br>
+
 :: Temple Confess Purge Sex
 
 <<if $sexstart is 1>>
@@ -3392,6 +3840,8 @@
 			"요-용서해 주셔서 감사합니다, <<sisterPost>>님..." <<He_ ga>> 수줍은 듯 옷을 입고 고해소를 떠난다.
 		<<case "sinner_generic_rapist">>
 			"당신은... 당신은 내 끔찍한 생각에 빠져들게 했어요. 난 전보다 더 나빠졌어요!" <<He_ ga>> 빠르게 옷을 입고 고해소를 떠난다.
+		<<case "punished_1">>
+			"Was this enough? Am I forgiven? Am I pure?" <<he>> asks. "Am I pure? Am I pure?" <<He>> continues to ask as <<he>> gets dressed and leaves. You wonder if anyone is listening to <<his>> prayer. <<stress 3>><<gstress>>
 		<<default>>
 			"요-용서해 주셔서 감사합니다, <<sisterPost>>님..." <<He_ ga>> 수줍은 듯 옷을 입고 고해소를 떠난다.
 	<</switch>>
@@ -3480,6 +3930,8 @@
 				무거운 숨소리가 들린다. "드디어! 끝났다! 당신에게 빚을 졌어, 인형 같은 아이야." <<He_ ga>> 옷을 입고 떠난다.
 			<<case "corrupt_9">>
 				"아, 좋은 배출이었어. 고마워요, 친애하는 <<sisterPost>>님." <<He_ ga>> 옷을 입고 떠난다.
+			<<case "punished_corrupt">>
+				<<He>> cries out in rapture. "You are a blessing," <<he>> says. <<His>> voice shakes with tearful relief. "<<Sister>>, the holes are gone. You have restored my faith. Thank you. Thank you." <<He>> dresses and leaves.
 			<<default>>
 				"아, 좋은 배출이었어. 고마워요, 친애하는 <<sisterPost>>님." <<He_ ga>> 옷을 입고 떠난다.
 		<</switch>>
@@ -3570,7 +4022,7 @@
 
 		<<link [[더 빼낸다|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [[$NPCList[0].pronouns.him + " 놓아준다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
+		<<link [[Let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
 		<br>
 	<<case 3>>
 		당신은 <<he_ ga>> 도망가지 못하도록 한다. <span class="lewd">당신은 더 빼낸다.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3578,7 +4030,7 @@
 
 		<<link [[빼낸다|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [[$NPCList[0].pronouns.him + " 놓아주려고 시도한다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
+		<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
 		<br>
 	<<case 4>>
 		<<He_ ga>> 멀어지려고 한다. <span class="lewd">고해성사의 인장은 <<him_ ul>> 놓아주지 않을 것이다. <<him_ yi>> 죄를 제거한다.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3586,7 +4038,7 @@
 
 		<<link [[흡수!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [[$NPCList[0].pronouns.him + " 놓아주려고 시도한다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
+		<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
 		<br>
 	<<case 5>>
 		<<He_ ga>> 다시 사정한다. <span class="lewd"><<him_ yi>> 죄를 제거한다.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3594,7 +4046,7 @@
 
 		<<link [[정화한다!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [[$NPCList[0].pronouns.him + " 놓아주려고 시도한다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
+		<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
 		<br>
 	<<case 6>>
 		<<He_ ga>> 다시 사정한다. <span class="lewd"><<him_ rul>> 정화한다.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3633,7 +4085,7 @@
 
 			<<link [[더 빼낸다|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [[$NPCList[0].pronouns.him + " 놓아준다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
+			<<link [[Let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
 			<br>
 		<<case 3>>
 			당신은 <<he_ ga>> 도망가지 못하도록 한다. <span class="lewd">당신은 더 빼낸다.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3641,7 +4093,7 @@
 
 			<<link [[흡수한다|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [[$NPCList[0].pronouns.him + " 놓아주려고 시도한다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
+			<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
 			<br>
 		<<case 4>>
 			<<He_ ga>> 멀어지려고 한다. <span class="lewd">고해성사의 인장은 <<him_ ul>> 놓아주지 않을 것이다. <<him_ yi>> 죄를 제거한다.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3649,7 +4101,7 @@
 
 			<<link [[흡수!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [[$NPCList[0].pronouns.him + " 놓아주려고 시도한다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
+			<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
 			<br>
 		<<case 5>>
 			<<He_ ga>> 다시 사정한다. <span class="lewd"><<him_ yi>> 죄를 제거한다.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3657,7 +4109,7 @@
 
 			<<link [[정화한다!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [[$NPCList[0].pronouns.him + " 놓아주려고 시도한다"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
+			<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
 			<br>
 		<<case 6>>
 			<<He_ ga>> 다시 사정한다. <span class="lewd"><<him_ rul>> 정화한다.</span> <<ggrace>><<purity -5>><<lpurity>>

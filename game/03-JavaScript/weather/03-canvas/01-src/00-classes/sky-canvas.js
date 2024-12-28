@@ -206,7 +206,7 @@ Weather.Renderer.Sky = class {
 	}
 
 	get skyDisabled() {
-		return V.location === "tentworld"; //todo move to Weather
+		return V.location === "tentworld"; // todo move to Weather
 	}
 
 	setMoonPhase() {

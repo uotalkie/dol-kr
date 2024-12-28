@@ -1,9 +1,37 @@
 :: Test
 <<set $location to "pirate_ship">><<set $outside to 0>><<effects>>
 <<endcombat>><<set $options.historyControls to true>><<set $options.maxStates to 20>>
+<<for _key range setup.plants>>
+    <<set _prop to _key.handheld>>
+    <<wearProp _prop>>
+<</for>>
 
-<<link [[Test]]>><</link>>
+<<link [[Avery Cards Quinn Offered]]>><</link>>
 <br><br>
+<<bottoms>>
+
+<<link [[Supermarket]]>><</link>>
+<br>
+<<link [[Kitchen]]>><</link>>
+<br>
+<<link [[Orphanage Loft]]>><<set $loft_river to 1>><</link>>
+<br>
+<<link [[Hallways]]>><</link>>
+<br>
+<<link [[Eden Kitchen]]>><</link>>
+<br>
+<<link [[Farm Kitchen]]>><</link>>
+<br>
+<<link [[Soup Kitchen]]>><</link>>
+<br>
+
+/*<<set _food_keys to Object.keys(setup.plants)>>
+<<for _i to 0; _i lt _food_keys.length; _i++>>
+	<<set _food to _food_keys[_i]>>
+	<<if setup.plants[_food].type is "food">>
+		<<wearProp setup.plants[_food].handheld>>
+	<</if>>
+<</for>>*/
 
 
 
@@ -14,7 +42,7 @@
 <</if>>
 <<nnpc_he Robin>>
 
-<<link [["Ask " + $NPCList[0].pronouns.him + " how " + $NPCList[0].pronouns.he + " gets in and out"|Prison Wren Ask 2]]>><</link>>
+<<link [[Ask <<him>> how <<he>> gets in and out|Prison Wren Ask 2]]>><</link>>
 
 <<run Furniture.set('owlplushie', 'owlplushie', {
 	name	: 'owl plushie',
@@ -503,24 +531,30 @@ Text detailing your seduction attempt.
 문이 굳게 잠겨 있다.
 <br><br>
 
-	<<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
-	<br><br>
-
-	<<lockpickicon>><<link [[Break in (0:05)|Elk Compound Interior]]>><<pass 5>><<crimeUp 10 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
 	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">이 자물쇠는 따기 쉬워 보인다.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Break in (0:05)|Elk Compound Interior]]>><<handheldon>><<pass 5>><<crimeUp 10 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
 	<span class="red">이 자물쇠는 당신의 자물쇠따기 능력으로는 딸 수 없다.</span><<skulduggeryrequired>>
 	<br><br>
-	<</if>>
+<</if>>
 
 You successfully pick the lock and enter the building.
 <<set $compoundcentre to 1>><<set $compoundalarm += 1>>
 
 <<if $skulduggery lt 400>>
-<<skulduggeryskilluse>>
+    <<skulduggeryskilluse>>
 <<else>>
-<span class="blue">이렇게 간단한 자물쇠에서 배울 수 있는 것은 아무것도 없다.</span>
+    <span class="blue">이렇게 간단한 자물쇠에서 배울 수 있는 것은 아무것도 없다.</span>
+	<br><br>
 <</if>>
 
 :: Template for a widget that outputs text based on character's state
@@ -954,7 +988,7 @@ Number of active machines: <<print $machine.number>><br>
 	Phallic machine health: <<print $machine.vaginal.health>><br>
 	Phallic machine hack: <<print $machine.vaginal.hack>><br>
 	Phallic machine ammo: <<print $machine.vaginal.ammo>><br>
-	Phallic machine speed: <<print $machine.vaginal.speed>><br>
+	Phallic machine speed: <<print $machine.speed>><br>
 <</if>>
 <br>
 <<if $machine.anal>>
@@ -963,7 +997,7 @@ Number of active machines: <<print $machine.number>><br>
 	Small phallic machine health: <<print $machine.anal.health>><br>
 	Small phallic machine hack: <<print $machine.anal.hack>><br>
 	Small phallic machine ammo: <<print $machine.anal.ammo>><br>
-	Small phallic machine speed: <<print $machine.anal.speed>><br>
+	Small phallic machine speed: <<print $machine.speed>><br>
 <</if>>
 <br>
 <<if $machine.arm_chains>>
@@ -1248,7 +1282,7 @@ $kylar_camera = 7: Camera left.
 		The slime wants you to have fun with more than an individual.
 	<<elseif hasSexStat("promiscuity", 3)>>
 		<<link [[Private room|Brothel Private]]>><<set $phase to 0>><<set $enemyno to 1>><<set $enemynomax to 1>><<unset $corruptionDancing>><</link>><<promiscuous3>>
-	<<elseif $promiscuity lte 34 and $uncomfortable.prostituting is false>>
+	<<elseif $uncomfortable.prostituting is false>>
 		<<link [[Private room|Brothel Private]]>><<set $phase to 0>><<set $enemyno to 1>><<set $enemynomax to 1>><<unset $corruptionDancing>><<set $desperateaction to 1>><</link>><<promiscuous3>>
 		<br>
 	<</if>>
@@ -1271,9 +1305,9 @@ $kylar_camera = 7: Camera left.
 <<elseif $danceevent is 0>>
 	<<if $corruptionDancing isnot undefined>>
 		The slime in your ear is forcing you.
-	<<elseif $exposed gte 2 and $exhibitionism lte 74>>
+	<<elseif $exposed gte 2 and !hasSexStat("exhibitionism", 5)>>
 		<<link [[도망친다|Brothel Dressing Room]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>>
-	<<elseif $exposed gte 1 and $exhibitionism lte 34>>
+	<<elseif $exposed gte 1 and !hasSexStat("exhibitionism", 3)>>
 		<<link [[도망친다|Brothel Dressing Room]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>>
 	<<else>>
 		<<link [[그만둔다|Brothel]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>>
@@ -1285,9 +1319,9 @@ $kylar_camera = 7: Camera left.
 <<elseif $danceevent is "finish">>
 	<<link [[다음|Beach Party]]>><<clotheson>><<endevent>><</link>>
 <<elseif $danceevent is 0>>
-	<<if $exposed gte 2 and $exhibitionism lte 74>>
+	<<if $exposed gte 2 and !hasSexStat("exhibitionism", 5)>>
 		<<link [[도망친다|Changing Room]]>><<clotheson>><<endevent>><</link>>
-	<<elseif $exposed gte 1 and $exhibitionism lte 34>>
+	<<elseif $exposed gte 1 and !hasSexStat("exhibitionism", 3)>>
 		<<link [[도망친다|Changing Room]]>><<clotheson>><<endevent>><</link>>
 	<<else>>
 		<<link [[그만둔다|Beach Party]]>><<clotheson>><<endevent>><</link>>

@@ -67,6 +67,8 @@
 <<widget "rentduerobin">>
 	<<set $_robinInRoom to _args[0]>>
 	<<npc Bailey>><<person1>>
+	<<set $baileyRefusedToPayTotal += $rentmoney + ($babyRent || 0)>>
+	<<set $baileyRefusedToPayTotalStat += $rentmoney + ($babyRent || 0)>>
 
 	"돈 낼 시간이야," <<HePost "이">> 말한다.
 	<<if $baileydefeatedchain gte 3>>
@@ -228,8 +230,7 @@
 <</widget>>
 
 <<widget "rentpay">>
-	<<set $money -= $rentmoney + ($babyRent or 0)>>
-	<<set $baileyPaidStat += $rentmoney + ($babyRent or 0)>>
+	<<money `-$rentmoney + ($babyRent or 0)` "baileyRent">>
 	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>> <!-- note: clamping to 1 is intentional -->
 	<<rentmod>>
 
@@ -332,6 +333,7 @@
 		<<link [[다음 (0:30)|Eden Cabin]]>><<pass 30>><</link>>
 		<br>
 	<<else>>
+		<<badEndTracking "Eden" { reason: "soldBailey" }>>
 		<<if $hunterintro is 1>>
 			"널 다시 되찾을 줄 알았어."
 		<<else>>
@@ -470,7 +472,7 @@
 		<<link [[다음|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<<else>>
-		<<link [[다음->Hospital front]]>><<pass 10>><<endevent>><</link>>
+		<<link [[다음|Hospital front]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -544,6 +546,8 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 
 :: Rent Refuse Robin
 <<effects>><<set $baileypaychain to 0>>
+<<set $baileyRefusedToPayTotal += $rentmoney + ($babyRent || 0)>>
+<<set $baileyRefusedToPayTotalStat += $rentmoney + ($babyRent || 0)>>
 
 <<if $speech_attitude is "bratty">>
 	You stare at <<him>> in defiance. "I'm not paying you. I don't care what you do to me, but leave Robin out of this."
@@ -718,8 +722,10 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 	당신은 긴 터널에 끌려가기 전에 종이가 바스락거리는 소리를 듣는다.
 	<br><br>
 	<<if _robinIsPresent>>
+		<<badEndTracking "Underground Dungeon" { reason: "soldBaileyRobin" }>>
 		<<link [[다음|Underground Intro]]>><<set $baileySold to true>><<endevent "phaseless">><<set $phase to 1>><</link>>
 	<<else>>
+		<<badEndTracking "Underground Dungeon" { reason: "soldBailey" }>>
 		<<link [[다음|Underground Intro]]>><<set $baileySold to true>><</link>>
 	<</if>>
 	<br>

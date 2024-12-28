@@ -486,14 +486,16 @@ function sexShopOnGiftClick(index) {
 	}
 	V.NPCName[recipient].sextoys[item.name].push(obj);
 	/* withdraw money from player */
-	V.money -= item.cost + 15 * 100;
+	statChange.money(-(item.cost + 15 * 100), "sexToys");
 
 	/* update sidebar money */
 	updateSideBarMoney();
 
 	/* fade in/out bought green text indicator */
 	if (document.getElementById("ssmGiftButton")) {
-		document.getElementById("ssmGiftButton").outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">구입했다!</span>`;
+		document.getElementById(
+			"ssmGiftButton"
+		).outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">Bought!</span>`;
 	}
 	document.getElementById("recipientList").remove();
 	document.getElementById("spanGift").remove();
@@ -540,7 +542,7 @@ function sexShopOnBuyClick(index, inSexShop = true, colour, costsMoney = true) {
 	if (Array.isArray(obj.colour)) obj.colour = obj.colour[random(0, obj.colour.length)];
 	V.player.inventory.sextoys[item.name].push(obj);
 	/* withdraw money from player */
-	if (costsMoney) V.money -= item.cost;
+	if (costsMoney) statChange.money(-item.cost, "sexToys");
 	if (inSexShop) {
 		/* update sidebar money */
 		updateSideBarMoney();
@@ -550,7 +552,9 @@ function sexShopOnBuyClick(index, inSexShop = true, colour, costsMoney = true) {
 			.getElementsByClassName("ssm_already_owned")[0].innerHTML = `<span class="ssm_owned_text ssm_fade_in">소유함</span>`;
 		/* fade in/out bought green text indicator */
 		if (document.getElementById("ssmBuyButton")) {
-			document.getElementById("ssmBuyButton").outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">구입했다!</span>`;
+			document.getElementById(
+				"ssmBuyButton"
+			).outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">Bought!</span>`;
 		}
 		if (sexShopOnBuyClick.counter === "off") {
 			sexShopOnBuyClick.counter = setTimeout(function () {

@@ -2,6 +2,10 @@
 
 <<set $outside to 0>><<set $location to "strip_club">><<effects>>
 
+<<if $stripclubdancingintro>>
+	<<timeTrackingEndStripclub>>
+<</if>>
+
 당신은 콘누다투스 가의 스트립 클럽에 있다. <<if Time.dayState isnot "day" and Time.dayState isnot "dawn">>몇 개의 무대들이 큰 방에 점점이 설치되어 있고, 댄서들이 그들의 업무를 하고있다. 두 명의 문지기가 입구 근처에 서서, 엄숙한 표정으로 손님들을 관찰하고 있다. 이 공간은 보안이 엄중하다.<</if>>
 <br><br>
 
@@ -81,18 +85,20 @@
 
 	<<if Time.dayState isnot "dawn" and Time.dayState isnot "day" and $stripclubintro is 1>>
 		<<if $stripclubbartendingintro isnot 1>>
-			<<askicon>><<link [[바텐더 직업에 대해 문의한다|Strip Club Management]]>><</link>>
+			<<socialiseicon "ask">><<link [[Enquire about the bartending job|Strip Club Management]]>><</link>>
 			<br>
 		<</if>>
 		<<if $stripclubdancingintro isnot 1>>
-			<<askicon>><<link [[댄서 직업에 대해 문의한다|Strip Club Management]]>><<set $phase to 1>><</link>>
+			<<socialiseicon "ask">><<link [[Enquire about the dancing job|Strip Club Management]]>><<set $phase to 1>><</link>>
 			<br>
 		<</if>>
 	<</if>>
 	<<if $bartendaction is undefined>><<set $bartendaction to "normal">><</if>>/*For the radiobutton variable that determines the PC's attitude while working.*/
 		<<if Time.dayState isnot "dawn" and Time.dayState isnot "day" and $stripclubbartendingintro is 1>>
 			<<foodicon "beerbottle">>
-			<<link [[바텐더로 일한다 (1:00)|Strip Club Bartending]]>><<pass 30>><</link>>
+			<<link [[Work as a bartender (1:00)|Strip Club Bartending]]>>
+				<<timeTrackingStart "stripClub">><<timeTrackingStart "stripClubBartender">><<pass 30>>
+			<</link>>
 			<<if $bartendaction is "normal">>
 				| <label>평범하게 일한다 <<radiobutton "$bartendaction" "normal" checked>></label>
 			<<else>>
@@ -111,7 +117,10 @@
 			<br>
 		<</if>>
 		<<if Time.dayState isnot "dawn" and Time.dayState isnot "day" and $stripclubdancingintro is 1>>
-			<<brothelicon "stage">><<link [[댄서로 일한다 (0:05)|Strip Club Dancing]]>><<danceinit>><<set $dancing to 1>><<set $venuemod to 1>><<stress -4>><<tiredness 4>><<set $dancelocation to "club">><</link>><<lstress>><<gtiredness>>
+			<<brothelicon "stage">><<link [[Work as a dancer (0:05)|Strip Club Dancing]]>>
+				<<timeTrackingStart "stripClub">><<timeTrackingStart "stripClubDancer">><<timeTrackingStart "stripClubDanceTips">>
+				<<danceinit>><<set $dancing to 1>><<set $venuemod to 1>><<stress -4>><<tiredness 4>><<set $dancelocation to "club">>
+			<</link>><<lstress>><<gtiredness>>
 			<br>
 			<<shopicon "clothing">><<link [[분장실 (0:01)|Strip Club Dressing Room]]>><<pass 1>><</link>>
 			<br>
@@ -145,6 +154,10 @@
 :: Strip Club Dressing Room
 
 <<effects>><<set $outside to 0>><<set $location to "strip_club">>
+
+<<if $stripclubdancingintro>>
+	<<timeTrackingEndStripclub>>
+<</if>>
 
 당신은 스트립 클럽의 분장실에 있다. <<if Time.dayState isnot "day" and Time.dayState isnot "dawn">>거기엔 거울이 몇 개 있고, 직원들이 거울을 보며 그들의 머리와 화장을 고치고 있다.<</if>>
 <br><br>
@@ -183,9 +196,10 @@
 
 당신은 곤혹해 하는 문지기를 지나, 밖을 훔쳐본다. 밖은 <<if Time.dayState is "night">>어두워져,<<else>>어두워 지고 있고,<</if>> 네온사인 불빛이 거리를 밝힌다. 아무래도 눈에 띄지 않고 나가는 것은 힘들어 보이지만, 당신은 그런 것쯤은 신경쓰지 않는다. <<flaunting>> 당신은 밖으로 나간다. <<covered>>
 <<if $daily.ex.day isnot 1>>
-<<set $daily.ex.day to 1>><<exhibitionism2>>
+    <<set $daily.ex.day to 1>>
+	<<exhibitionism2>>
 <<else>>
-<br><br>
+    <br><br>
 <</if>>
 
 <<if $rng gte 51>>
@@ -210,9 +224,10 @@
 
 당신은 곤혹해 하는 문지기를 지나 밖을 훔쳐본다. 밖은 <<if Time.dayState is "night">>어두워져,<<else>>어두워 지고 있고,<</if>> 네온사인 불빛이 거리를 밝힌다. 아무래도 눈에 띄지 않고 나가는 것은 힘들어 보이지만, 당신은 그런 것쯤은 신경쓰지 않는다. <<flaunting>> 당신은 밖으로 나간다. <<covered>>
 <<if $daily.ex.day isnot 1>>
-<<set $daily.ex.day to 1>><<exhibitionism2>>
+    <<set $daily.ex.day to 1>>
+	<<exhibitionism2>>
 <<else>>
-<br><br>
+    <br><br>
 <</if>>
 
 <<if $rng gte 51>>
@@ -270,7 +285,7 @@
 <<if $stress gte $stressmax>>
 	<<passoutshop>>
 <<else>>
-	<<bathroomicon "shower">><<link [[샤워한다 (0:20)->Strip Club Shower]]>><<strip>><<pass 20>><<stress -1>><<set $hygiene to 0>><</link>><<lstress>>
+	<<bathroomicon "shower">><<link [[Have a shower (0:20)|Strip Club Shower]]>><<strip>><<pass 20>><<stress -1>><<set $hygiene to 0>><</link>><<lstress>>
 	<br><br>
 	<<getouticon>><<link [[클럽으로 돌아간다 (0:01)|Strip Club]]>><<pass 1>><</link>>
 	<br>
@@ -285,7 +300,7 @@
 <<skinicon "masturbate">><<link [[자위한다|Strip Club Shower Masturbation]]>><<handheldon>><<set $masturbationstart to 1>><</link>>
 <br>
 
-<<getouticon>><<link [[나간다->Strip Club Bathroom]]>><<clotheson>><</link>>
+<<getouticon>><<link [[나간다|Strip Club Bathroom]]>><<clotheson>><</link>>
 <br>
 
 :: Strip Club Lock
@@ -294,18 +309,23 @@
 푯말이 걸려있다. "오픈 시간은 <<ampm 18 00>>"
 <br><br>
 
-	<<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">이 자물쇠는 쉽게 딸 수 있을 것 같다.</span>
-	<br><br>
-
-	<<lockpickicon>><<link [[자물쇠를 딴다 (0:10)|Strip Club]]>><<pass 10>><<crimeUp 10 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
 	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">이 자물쇠는 쉽게 딸 수 있을 것 같다.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[자물쇠를 딴다 (0:10)|Strip Club]]>><<handheldon>><<pass 10>><<crimeUp 10 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
 	<span class="red">이 자물쇠는 당신의 능력 밖인 것 같다.</span><<skulduggeryrequired>>
 	<br><br>
-	<</if>>
+<</if>>
 
-<<getouticon>><<link [[떠난다|Connudatus Street]]>><</link>>
+<<getouticon>><<link [[떠난다|Connudatus Street]]>><<handheldon>><</link>>
 <br>
 
 :: Strip Club Management
@@ -387,7 +407,7 @@
 <</if>>
 
 :: Strip Club Bartending
-<<set $outside to 0>><<set $location to "strip_club">><<effects>>
+<<set $outside to 0>><<set $location to "strip_club">><<effects>><<wearProp "tray">>
 
 당신은 손님들에게 비싼 음료와 간식을 제공하는 일을 한다. <<if $drinksservedstat is 0>>이런 일을 하는 것은 처음이다. 다행히도 다른 직원들이 기꺼이 당신에게 요령을 알려준다.<<elseif $drinksservedstat lte 500>>전에 해보긴 했지만, 당신은 여전히 경험이 부족해 일을 망치지 않도록 다른 직원에게 의지해야 한다.<<elseif $drinksservedstat lte 10000>>당신은 이 일에 꽤 능숙하다.<<else>>당신은 바텐더의 달인처럼 잔을 채운다.<</if>>
 <br><br>
@@ -403,7 +423,7 @@
 		<br><br>
 	<<elseif $rng gte 96>>
 		<<if $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked")>>
-			<<generate1>><<person1>>바니복을 입은 종업원이 카운터에서 맥주 쟁반을 집어든다. <<He_ nun>> 능글맞게 당신을 바라보며, 몸을 기울인다. 당신은 <<his_ yi>> 시선이 당신의 <<nudityPost "에">> 닿는 것을 느낀다.<<nudityPostend>> "그럴 줄 알았어," <<He_ ga>> 말한다. "카운터에 좀 가려지긴 했지만, 네 움직임을 보면 아래가 벌거벗었다는 걸 알 수 있지."
+			<<generate1>><<person1>>A server in a bunny costume picks up a tray of beers from the counter. <<He>> gives you a sly look, then leans over. You feel <<his>> eyes on your <<nudity>>. "Thought so," <<he>> says. "The counter might be in the way, but I can tell you're naked below the waist by the way you carry yourself."
 			<br><br>
 			"좋은 생각이야." 더듬으려는 손님을 막으며, <<his_ yi>> 말이 이어진다. "그러면 더 많은 팁을 벌 수 있으니까."
 			<<endevent>>
@@ -443,7 +463,7 @@
 <<eventsbartendinglisten>>
 <<else>>
 
-몇몇 손님들은 당신을 눈여겨보지만, 대부분은 댄서들에게 정신이 팔려있다.<<tipreceive>>
+Some patrons eye you up, but they're mostly distracted by the dancers. <<tipreceive "stripClubBartender">>
 <br><br>
 
 <<link [[다음|Strip Club]]>><<endevent>><<pass 30>><</link>>
@@ -528,7 +548,7 @@
 
 	<<elseif $rng gte 31>>
 
-	<<generate1>><<person1>><<person_ i>> 당신에게 팁을 남긴다. <<tipreceive>>
+	<<generate1>><<person1>>A <<person>> leaves you a tip. <<tipreceive "stripClubBartender">>
 	<br><br>
 
 	<<link [[다음|Strip Club]]>><<endevent>><<pass 30>><</link>>
@@ -627,7 +647,7 @@
 		<<link [[아무에게도 말하지 않는다|Bartending Listen Darryl Refuse]]>><</link>>
 		<br>
 	<<else>>
-		당신의 귀에 흥미로운 것은 들리지 않는다. 몇몇 손님들은 당신을 눈여겨보지만, 그들 중 대부분은 댄서들에게 정신이 팔려 있다. <<tipreceive>>
+		You don't hear anything interesting. Some patrons eye you up, but they're mostly distracted by the dancers. <<tipreceive "stripClubBartender">>
 		<br><br>
 
 		<<link [[다음|Strip Club]]>><<endevent>><<pass 30>><</link>>
@@ -635,62 +655,63 @@
 	<</if>>
 <</widget>>
 
+<<widget "timeTrackingEndStripclub">>
+	<<timeTrackingEnd "stripClub">><<timeTrackingEnd "stripClubBartender">><<timeTrackingEnd "stripClubDancer">><<timeTrackingEnd "stripClubDanceTips">>
+<</widget>>
+
 :: Strip Club Bartending Flash
 <<set $outside to 0>><<set $location to "strip_club">><<effects>>
 
 <<if $phase is 0>>
 	<<if $rng gte 21>>
-<<person_ un>> 낙담한 것 같다. "네 맘대로 해." <<He_ nun>> 클럽을 떠난다. <<tipreceive>>
-<br><br>
+        The <<person>> looks dejected. "Suit yourself." <<He>> leaves the club.<<tipreceive>>
 	<<else>>
-"그건 부탁이 아니었어." <<He_ nun>> 카운터를 가로 질러 달려와 당신의 어깨를 붙잡는다. <<He_ ga>> 다음에 무엇을 할 것인지 알아차리기 전에, 경비원이 <<him_ ul>> 바닥에 제압한다. <<He_ nun>> 빠르게 그 장소에서 쫓겨났지만, 당신의 심장은 여전히 거세게 뛴다.
-<<controlloss>><<molested>> <<gtrauma>><<gstress>><<garousal>><<trauma 1>><<stress 1>><<arousal 100>>
+        "그건 부탁이 아니었어." <<He_ nun>> 카운터를 가로 질러 달려와 당신의 어깨를 붙잡는다. <<He_ ga>> 다음에 무엇을 할 것인지 알아차리기 전에, 경비원이 <<him_ ul>> 바닥에 제압한다. <<He_ nun>> 빠르게 그 장소에서 쫓겨났지만, 당신의 심장은 여전히 거세게 뛴다.
+        <<controlloss>><<molested>> <<gtrauma>><<gstress>><<garousal>><<trauma 1>><<stress 1>><<arousal 100>>		
 	<</if>>
+	<br><br>
 
 <<elseif $phase is 1>>
-
-당신은 빙글 돌며 당신의 자태를 뽐낸다. <<person_ i>> 환호하며,작은 무대를 눈으로 즐긴다. 만족하며, <<He_ nun>> 당신에게 팁을 남긴다.
-<<tipreceive>><<exhibitionism1>>
+    당신은 빙글 돌며 당신의 자태를 뽐낸다. <<person_ i>> 환호하며,작은 무대를 눈으로 즐긴다. 만족하며, <<He_ nun>> 당신에게 팁을 남긴다.
+    <<tipreceive>><<exhibitionism1>>
 
 <<elseif $phase is 2>>
 
 	<<if $worn.upper.open is 1>>
-		당신은 당신의 <<worn_upper_name_ ul>> 끌어 내려, 당신의 <<breasts_ rul>> 드러낸다. 당신의 얼굴이 달아오르기 시작하는 것이 느껴진다.
+		You pull down your $worn.upper.name, revealing your <<breasts>>.
 	<<else>>
-		당신은 당신의 <<worn_upper_name_ ul>> 끌어 올려, 당신의 <<breasts_ rul>> 내보인다. 당신의 얼굴이 달아오르기 시작하는 것이 느껴진다.
+		You lift up your $worn.upper.name, displaying your <<breasts>>.
 	<</if>>
-	<<person_ i>> 환호하며 <<his_ yi>> 잔을 당신에게 치켜 든다. 만족하며, <<He_ nun>> 팁을 남긴다.
+	You feel your face begin to heat up. The <<person>> cheers and raises <<his>> glass to you. Satisfied, <<he>> leaves a tip.
 	<<tipreceive>>
 	<br><br>
 
 	<<if $player.gender is $player.gender_appearance>>
-		남자가 가슴을 드러내는 것은 외설적이라고 여겨지지 않음에도 불구하고, 돈에 의해 하게 되자 당신은 당황스러움과 함께 취약해지는 것 같은 기분을 느낀다. 당신은 재빨리 가슴을 가린다. <<exhibitionism2>>
+		Despite it not being considered obscene for guys to display their chests, doing so on demand for money leaves you feeling flustered and vulnerable.
 	<<else>>
-		사람들은 당신을 남자라고 생각함에도 불구하고, 당신의 <<breasts_ rul>> 공공장소에서 내보이는 것은 여전히 죄책감을 느끼게 한다. 당신은 재빨리 가슴을 가린다.
-		<<exhibitionism2>>
+		Despite everyone thinking you're a guy, displaying your <<breasts>> in public like this still fills you with a guilty thrill.
 	<</if>>
+	You cover up quickly.<<exhibitionism2>>
 
 <<elseif $phase is 3>>
 
 	<<if $worn.upper.open is 1>>
-	당신은 당신의 <<worn_upper_name_ ul>> 끌어 내려, 당신의 <<breasts_ rul>> 드러낸다. 당신의 얼굴이 달아오르기 시작하는 것이 느껴진다.
+	    당신은 당신의 <<worn_upper_name_ ul>> 끌어 내려, 당신의 <<breasts_ rul>> 드러낸다. 당신의 얼굴이 달아오르기 시작하는 것이 느껴진다.
 	<<else>>
-	당신은 당신의 <<worn_upper_name_ ul>> 끌어 올려, 당신의 <<breasts_ rul>> 내보인다. 당신의 얼굴이 달아오르기 시작하는 것이 느껴진다.
+	    당신은 당신의 <<worn_upper_name_ ul>> 끌어 올려, 당신의 <<breasts_ rul>> 내보인다. 당신의 얼굴이 달아오르기 시작하는 것이 느껴진다.
 	<</if>>
 	<<person_ i>> 환호하며 <<his_ yi>> 잔을 당신에게 치켜 든다. 만족하며, <<He_ nun>> 팁을 남긴다.
 	<<tipreceive>>
 	<br><br>
 
 	<<if $player.gender is $player.gender_appearance or ($player.penisExist and $player.vaginaExist)>>
-	이 곳이 스트립 클럽임에도 불구하고, 실제로 자신을 공개적으로 내보이자 당신은 흥분과 당혹감으로 가득 찬다. 당신은 너무 많은 시선이 모이기 전에, 재빨리 가슴을 가린다.
-	<<exhibitionism4>>
+	    이 곳이 스트립 클럽임에도 불구하고, 실제로 자신을 공개적으로 내보이자 당신은 흥분과 당혹감으로 가득 찬다. 당신은 너무 많은 시선이 모이기 전에, 재빨리 가슴을 가린다.
 	<<else>>
-	남자의 가슴을 노출하는 건 보통 큰 일이 아니다. 그러나 손님들은 당신이 남자라는 사실을 모르고 있다. 당신의 맨살이 드러날 때의 그들의 굶주린 표정이 그 사실을 아주 명확히 보여준다. 더 이상 노출되기 전에, 당신은 재빨리 가슴을 가린다.
-	<<exhibitionism4>>
+	    남자의 가슴을 노출하는 건 보통 큰 일이 아니다. 그러나 손님들은 당신이 남자라는 사실을 모르고 있다. 당신의 맨살이 드러날 때의 그들의 굶주린 표정이 그 사실을 아주 명확히 보여준다. 더 이상 노출되기 전에, 당신은 재빨리 가슴을 가린다.
 	<</if>>
+	<<exhibitionism4>>
 
 <</if>>
-<br><br>
 
 <<link [[다음|Strip Club]]>><<endevent>><<pass 30>><</link>>
 
@@ -786,28 +807,28 @@
 <<set $outside to 0>><<set $location to "strip_club">><<effects>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
-<<ejaculation>>
-<<person_ un>> 이 곳이 어디인지도 잊어버린 것처럼 눈을 깜빡인다. <<He_ nun>> 몸을 일으키고는 비틀거린다. 경비원들이 <<him_ ul>> 억류하기 전까지 <<He_ nun>> 그리 멀리 가지 못한다.
-<br><br>
-<<clotheson>>
-<<endcombat>>
+	<<ejaculation>>
+	<<person_ un>> 이 곳이 어디인지도 잊어버린 것처럼 눈을 깜빡인다. <<He_ nun>> 몸을 일으키고는 비틀거린다. 경비원들이 <<him_ ul>> 억류하기 전까지 <<He_ nun>> 그리 멀리 가지 못한다.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
 
 <<elseif $enemyhealth lte 0>>
 
-당신은 그럭저럭 <<him_ ul>> 때려눕힌다. <<He_ nun>> 일어서기 위해 안간힘을 썼지만, 그 사이 당신은 안전한 곳으로 물러난다. 경비원이 도착하여 즉시 <<him_ ul>> 억류한다.
-<br><br>
+	당신은 그럭저럭 <<him_ ul>> 때려눕힌다. <<He_ nun>> 일어서기 위해 안간힘을 썼지만, 그 사이 당신은 안전한 곳으로 물러난다. 경비원이 도착하여 즉시 <<him_ ul>> 억류한다.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
 <<else>>
 
-<<set $rescued += 1>>
-<<His_ yi>> 양 어깨가 붙잡혀 당신에게서 들어올려진다. 경비원이 출구로 <<him_ ul>> 끌고 나가자 당신은 안도의 한숨을 내쉰다.
-<br><br>
+	<<set $rescued += 1>>
+	<<His_ yi>> 양 어깨가 붙잡혀 당신에게서 들어올려진다. 경비원이 출구로 <<him_ ul>> 끌고 나가자 당신은 안도의 한숨을 내쉰다.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
 <</if>>
 

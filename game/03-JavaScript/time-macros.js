@@ -112,8 +112,22 @@ Macro.add("clock", {
 function schoolTerm() {
 	if (Time.schoolTerm) {
 		const date = Time.nextSchoolTermEndDate; trMonth(date.monthName); const month = T.trResult; trDaysOfWeek(date.weekDayName); const weekDayName = T.trResult;
+		const currentTimeStamp = Time.date.timeStamp;
 		if (date.year === Time.year && date.month === Time.month && date.day === Time.monthDay) {
-			if (date.timeStamp > Time.date.timeStamp) return "학기는 오늘 끝난다.";
+			if (date.timeStamp > currentTimeStamp) {
+				return "School term finishes today.";
+			} else {
+				const nextDate = Time.getNextSchoolTermStartDate(date.addDays(1));
+				return (
+					"School term has finished. Next term starts on " +
+					nextDate.weekDayName +
+					" the " +
+					ordinalSuffixOf(nextDate.day) +
+					" of " +
+					nextDate.monthName +
+					"."
+				);
+			}
 		} else {
 			return "학기는 " + month + " " + date.day +"일 " + weekDayName + "에  끝난다.";
 		}

@@ -117,16 +117,35 @@
 	누군가가 당신의 이런 모습을 보게 될 거란 생각이 머릿속에서 떠나지 않는다. 당신은 서둘러 당신의 방으로 돌아간다.
 	<br><br>
 	<<link [[다음|Bedroom]]>><</link>>
+<<elseif !$weekly.gardenBirdRobin and Weather.precipitation is "none" and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lte 25 and C.npc.Robin.dom lte 60 and $rng gte 81>>
+	<<set $weekly.gardenBirdRobin to true>>
+
+	<<npc Robin>><<person1>>
+	Stepping into the fenced garden, your eyes land on someone. <span class="gold">It's Robin.</span>
+	<br><br>
+	<<He>> sits cross-legged, <<his>> hand held out in front of <<him>>. A small brown and orange bird stands on <<his>> finger, looking around. <<His>> eyes are locked onto the bird. You think <<he>> hasn't yet noticed you.
+	<br><br>
+
+	<<link [[Stay put|Robin Bird Visit]]>><<set $phase to 0>><</link>>
+	<br>
+	<<link [[Sneak closer|Robin Bird Visit]]>><<set $phase to 1>><</link>><<set $skulduggerydifficulty to 400>><<skulduggerydifficulty>>
+	<br>
+	<<link [[Scare the bird|Robin Bird Visit]]>><<set $phase to 2>><</link>>
+	<br>
+	<<if $cat gte 6>>
+		<<link [[Pounce on Robin|Robin Bird Visit]]>><<set $phase to 3>><</link>><<cat>>
+		<br>
+	<</if>>
 <<elseif !$weekly.gardenVoyeur and Time.dayState is "night" and $rng gte 81>>
 
-<<set $weekly.gardenVoyeur to true>>
+	<<set $weekly.gardenVoyeur to true>>
 
-당신은 화단을 조용히 지나가다가, 어두컴컴한 구석에서, 희미한 이상한 소리를 듣는다.
-<br><br>
+	당신은 화단을 조용히 지나가다가, 어두컴컴한 구석에서, 희미한 이상한 소리를 듣는다.
+	<br><br>
 
-<<link [[조사한다|Garden Voyeurism Investigate]]>><</link>>
-<br>
-<<link [[무시한다|Garden Voyeurism Ignore]]>><</link>>
+	<<link [[조사한다|Garden Voyeurism Investigate]]>><</link>>
+	<br>
+	<<link [[무시한다|Garden Voyeurism Ignore]]>><</link>>
 <<else>>
 
 	<<if Time.hour gte 7 and Time.hour lt 20 and Weather.precipitation is "rain">>
@@ -148,41 +167,30 @@
 		<br>
 	<</if>>
 
-	<<if $exposed gte 2>>
-		<<if Time.dayState is "night">>
-			<<if hasSexStat("exhibitionism", 4)>>
-				<<fenceicon>><<link [[울타리를 넘는다 (0:05)|Garden Fence Naked Night]]>><<pass 5>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist4>><</if>>
-				<br>
-			<</if>>
-		<<else>>
-			<<if hasSexStat("exhibitionism", 5)>>
-				<<fenceicon>><<link [[울타리를 넘는다 (0:05)|Garden Fence Naked Day]]>><<pass 5>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist5>><</if>>
-				<br>
-			<</if>>
-		<</if>>
-	<<elseif $exposed gte 1>>
-		<<if Time.dayState is "night">>
-			<<if hasSexStat("exhibitionism", 2)>>
-				<<fenceicon>><<link [[울타리를 넘는다 (0:05)|Garden Fence Undies Night]]>><<pass 5>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist2>><</if>>
-				<br>
-			<</if>>
-		<<else>>
-			<<if hasSexStat("exhibitionism", 3)>>
-				<<fenceicon>><<link [[울타리를 넘는다 (0:05)|Garden Fence Undies Day]]>><<pass 5>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist3>><</if>>
-				<br>
+	<<if $exposed gte 1>>
+		<<set _ex to ($exposed >= 2 ? (Time.dayState == "night" ? 4 : 5) : (Time.dayState == "night" ? 2 : 3))>>
+		<<if hasSexStat("exhibitionism", _ex)>>
+			<<fenceicon>><<link [[Climb the fence (0:05)|Garden Fence]]>><<pass 5>><</link>>
+			<<if $daily.ex.fence isnot 1>>
+				<<switch _ex>>
+					<<case 2>>
+						<<exhibitionist2>>
+					<<case 3>>
+						<<exhibitionist3>>
+					<<case 4>>
+						<<exhibitionist4>>
+					<<case 5>>
+						<<exhibitionist5>>
+				<</switch>>
 			<</if>>
 		<</if>>
+		<br>
 	<<else>>
-		<<if $tutorial is 0 and $debug is 0>>
-			<<fenceicon>><<link [[울타리를 넘는다 (0:01)|Domus Street]]>><<pass 1>><</link>>
-			<br>
-		<<else>>
-			<<fenceicon>><<link [[울타리를 넘는다 (0:01)|Residential alleyways]]>><<pass 1>><</link>>
-			<br>
-		<</if>>
+		<<fenceicon>><<link [[Climb the fence (0:01)|Garden Fence]]>><<pass 1>><</link>>
+		<br>
 	<</if>>
 
-	<<main_hall_icon>><<link [[중앙 복도 (0:01)->Orphanage]]>><<pass 1>><</link>>
+	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
 	<br>
 
 <</if>>
@@ -344,81 +352,57 @@ You decide not to investigate the source of the noise; you have your own things 
 
 <<link [[다음|Garden]]>><<endevent>><</link>>
 
-:: Garden Fence Naked Night
+:: Garden Fence
 <<effects>>
 
-이렇게 깜깜할 때 누가 당신을 볼 수 있을까 싶긴 하지만, 아무튼 당신은 낮은 자세로 수풀 사이를 옮겨다닌다. 당신은 슬며시 울타리 위로 올라가 너머를 슬쩍 본다. 고아원 뒤편으로 골목길이 뻗어 있다. 골목길은 어둡고 아무도 없지만, 그럼에도 울타리를 넘어가는 상상은 당신의 몸에 전율을 일으킨다.
-<br><br>
+<<if $exposed gte 1>>
+	<<if Time.dayState is "night">>
+		You doubt anyone could see you in the dark, but you keep low between the bushes regardless. You creep up to the fence, and peek over.
+	<<else>>
+		You dash between bushes, making sure there's no one ahead before moving on.
+	<</if>>
+	An alley runs behind the orphanage. It's <<if Time.dayState is "night">>dark and<</if>> deserted, but the thought of climbing over makes you quiver regardless.
+	<br><br>
+	당신의 <<lewdnessPost "을">> 드러낸 채로 고아원을 숨어 다니고 있는 것과는 별개로, 적어도 여기는 표면적으로라도 안전하다. 하지만 바깥에는 안전 따위는 없다.
+	<br><br>
+	당신은 당신의 어깨 너머를 돌아보며 누군가가 당신을 보고 있지 않다는 것을 확인한 후, 몸을 울타리 너머로 넘긴다. 당신은 반대편에 착지한다. 가슴 속에서 심장이 두방망이질한다.
 
-당신의 <<lewdnessPost "을">> 드러낸 채로 고아원을 숨어 다니고 있는 것과는 별개로, 적어도 여기는 표면적으로라도 안전하다. 하지만 바깥에는 안전 따위는 없다.
-<br><br>
-
-당신은 당신의 어깨 너머를 돌아보며 누군가가 당신을 보고 있지 않다는 것을 확인한 후, 몸을 울타리 너머로 넘긴다. 당신은 반대편에 착지한다. 가슴 속에서 심장이 두방망이질한다.
-
-<<if $daily.ex.fence isnot 1>><<set $daily.ex.fence to 1>><<exhibitionism4>><<else>><br><br><</if>>
-
-<<link [[다음|Residential alleyways]]>><</link>>
-<br>
-
-:: Garden Fence Undies Night
-<<effects>>
-
-이렇게 깜깜할 때 누가 당신을 볼 수 있을까 싶긴 하지만, 아무튼 당신은 낮은 자세로 수풀 사이를 옮겨다닌다. 당신은 슬며시 울타리 위로 올라가 너머를 슬쩍 본다. 고아원 뒤편으로 골목길이 뻗어 있다. 골목길은 어둡고 아무도 없지만, 그럼에도 울타리를 넘어가는 상상은 당신의 몸에 전율을 일으킨다.
-<br><br>
-
-당신의 <<lewdnessPost "을">> 드러낸 채로 고아원을 숨어 다니고 있는 것과는 별개로, 적어도 여기는 표면적으로라도 안전하다. 하지만 바깥에는 안전 따위는 없다.
-<br><br>
-
-당신은 당신의 어깨 너머를 돌아보며 누군가가 당신을 보고 있지 않다는 것을 확인한 후, 몸을 울타리 너머로 넘긴다. 당신은 반대편에 착지한다. 가슴 속에서 심장이 두방망이질한다.
-
-<<if $daily.ex.fence isnot 1>><<set $daily.ex.fence to 1>><<exhibitionism2>><<else>><br><br><</if>>
+	<<if $daily.ex.fence isnot 1>>
+		<<set $daily.ex.fence to 1>>
+		<<if $exposed gte 2>>
+			<<if Time.dayState is "night">>
+				<<exhibitionism4>>
+			<<else>>
+				<<exhibitionism5>>
+			<</if>>
+		<<else>>
+			<<if Time.dayState is "night">>
+				<<exhibitionism2>>
+			<<else>>
+				<<exhibitionism3>>
+			<</if>>
+		<</if>>
+	<<else>>
+		<br><br>
+	<</if>>
+<<elseif $cat gte 6>>
+	You hop over the fence with unmatched elegance, landing on all fours in the alley behind the orphanage.
+	<br><br>
+<<else>>
+	You climb over the fence into the alley behind the orphanage.
+	<br><br>
+<</if>>
 
 <<if $tutorial is 0 and $debug is 0>>
-	<<generate1>><<person1>>조심했음에도 불구하고, 당신은 지나가던 <<person_ gwa>> 부딪힌다. <<He_ nun>> 비틀거리며 화난 눈길을 보내오지만, 당신을 보자 <<his_ yi>> 분노는 색욕으로 바뀐다. "너처럼 귀여운 아이는 본 적이 없어! 이리 와."
+	<<generate1>><<person1>><<= $exposed gte 1 ? "Despite being so careful, you" : "You">> bump into a <<person>> passing by. <<He>> staggers back and looks at you with anger, but <<his>> rage turns to lechery as <<he>> beholds you. "You're the cutest thing I've seen all week! Come 'ere."
 	<br><br>
+
 	<<link [[다음|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Residential alleyways">><</link>>
+	<br>
 <<else>>
 	<<link [[다음|Residential alleyways]]>><</link>>
+	<br>
 <</if>>
-<br>
-
-:: Garden Fence Naked Day
-<<effects>>
-
-당신은 움직이기 전에 앞에 아무도 없는 것을 확인하고는 수풀 사이를 뛰어 옮겨다닌다. 고아원 뒤편으로 골목길이 뻗어 있다. 골목길에는 아무도 없지만, 그럼에도 울타리를 넘어가는 상상은 당신의 몸에 전율을 일으킨다.
-<br><br>
-
-당신의 <<lewdnessPost "을">> 드러낸 채로 고아원을 숨어 다니고 있는 것과는 별개로, 적어도 여기는 표면적으로라도 안전하다. 하지만 바깥에는 안전 따위는 없다.
-<br><br>
-
-당신은 당신의 어깨 너머를 돌아보며 누군가가 당신을 보고 있지 않다는 것을 확인한 후, 몸을 울타리 너머로 넘긴다. 당신은 반대편에 착지한다. 가슴 속에서 심장이 두방망이질한다.
-
-<<if $daily.ex.fence isnot 1>><<set $daily.ex.fence to 1>><<exhibitionism5>><<else>><br><br><</if>>
-
-<<link [[다음|Residential alleyways]]>><</link>>
-<br>
-
-:: Garden Fence Undies Day
-<<effects>>
-
-당신은 움직이기 전에 앞에 아무도 없는 것을 확인하고는 수풀 사이를 뛰어 옮겨다닌다. 고아원 뒤편으로 골목길이 뻗어 있다. 골목길에는 아무도 없지만, 그럼에도 울타리를 넘어가는 상상은 당신의 몸에 전율을 일으킨다.
-<br><br>
-
-당신의 <<lewdnessPost "을">> 드러낸 채로 고아원을 숨어 다니고 있는 것과는 별개로, 적어도 여기는 표면적으로라도 안전하다. 하지만 바깥에는 안전 따위는 없다.
-<br><br>
-
-당신은 당신의 어깨 너머를 돌아보며 누군가가 당신을 보고 있지 않다는 것을 확인한 후, 몸을 울타리 너머로 넘긴다. 당신은 반대편에 착지한다. 가슴 속에서 심장이 두방망이질한다.
-
-<<if $daily.ex.fence isnot 1>><<set $daily.ex.fence to 1>><<exhibitionism3>><<else>><br><br><</if>>
-
-<<if $tutorial is 0 and $debug is 0>>
-	<<generate1>><<person1>>조심했음에도 불구하고, 당신은 지나가던 <<person_ gwa>> 부딪힌다. <<He_ nun>> 비틀거리며 화난 눈길을 보내오지만, 당신을 보자 <<his_ yi>> 분노는 색욕으로 바뀐다. "너처럼 귀여운 아이는 본 적이 없어! 이리 와."
-	<br><br>
-	<<link [[다음|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Residential alleyways">><</link>>
-<<else>>
-	<<link [[다음|Residential alleyways]]>><</link>>
-<</if>>
-<br>
 
 :: Garden Flowers
 
@@ -503,7 +487,7 @@ You decide not to investigate the source of the noise; you have your own things 
 
 :: Garden Flowers Seeds
 
-<<effects>>
+<<effects>><<wearProp "daisy">>
 
 당신은 뭔가 기를 수 있는 것을 찾아 잔디 틈이나 수풀 아래, 나무둥치 옆을 샅샅이 뒤진다.
 <br><br>
@@ -519,7 +503,7 @@ You decide not to investigate the source of the noise; you have your own things 
 	<<headwear 47>>
 <</if>>
 
-<<link [[다음|Garden Flowers]]>><</link>>
+<<link [[다음|Garden Flowers]]>><<handheldon>><</link>>
 <br>
 
 :: Bask Call

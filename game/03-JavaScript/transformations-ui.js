@@ -60,6 +60,23 @@ const TransformationsInterface = (() => {
 		};
 	}
 
+	// Hide the colour picker unless TF parts are checked
+	function colourPickerVisibility() {
+		const menuWarning = document.querySelector(".menuWarning");
+		const menuContent = document.querySelector(".menuContent");
+		const checkboxes = document.querySelectorAll('input[name="colour-selector"]');
+
+		const isVisible = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+		if (isVisible) {
+			menuWarning.classList.add("hidden");
+			menuContent.classList.remove("hidden");
+		} else {
+			menuWarning.classList.remove("hidden");
+			menuContent.classList.add("hidden");
+		}
+	}
+
 	function generateColourSquares(options) {
 		const output = document.createDocumentFragment();
 		if (Array.isArray(options)) {
@@ -97,6 +114,7 @@ const TransformationsInterface = (() => {
 		checkbox.name = "colour-selector";
 		checkbox.value = "value";
 		checkbox.dataset.target = target;
+		checkbox.addEventListener("change", colourPickerVisibility);
 
 		output.append(checkbox);
 		return output;

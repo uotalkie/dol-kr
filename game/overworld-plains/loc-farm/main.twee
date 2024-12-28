@@ -85,14 +85,14 @@
 		<br>
 	<</if>>
 	<<if $exposed lte 0>>
-		<<if Time.dayState is "night">>
-			<<farmicon "horse">><<link [[승마 학교|Riding School Lock]]>><</link>>
+		<<if Time.hour is $closinghour>>
+			<span class="blue">Horses are being stabled at the riding school as it closes for the day.</span>
 			<br>
-		<<elseif Time.hour is $closinghour>>
-			승마 학교가 문을 닫으면서 말들이 마구간으로 옮겨지고 있다.
-			<br><br>
+		<<elseif Time.dayState is "night">>
+			<<steedicon>><<link [[Riding school|Riding School Lock]]>><</link>>
+			<br>
 		<<else>>
-			<<farmicon "horse">><<link [[승마 학교 (0:01)|Riding School]]>><<pass 1>><</link>>
+			<<steedicon>><<link [[Riding school (0:01)|Riding School]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -510,7 +510,7 @@
 		<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 			<span class="blue">당신의 배 속에 아기가 있다는 걸 알면서도 술을 마실 수는 없다.</span>
 		<<else>>
-			<<link [[마신다|Farm Stage 4]]>><<set $phase to 0>><<stress -6>><<set $farm_stage to 4>><<set $farm.clearing to 100>><<wearProp "beerbottle">><</link>><<lstress>>
+			<<link [[마신다|Farm Stage 4]]>><<set $phase to 0>><<stress -6>><<set $farm_stage to 4>><<set $farm.clearing to 100>><<wearProp "beer bottle">><</link>><<lstress>>
 		<</if>>
 		<br>
 		<<link [[거절한다|Farm Stage 4]]>><<set $phase to 1>><<set $farm_stage to 4>><<set $farm.clearing to 100>><</link>>
@@ -568,7 +568,7 @@
 	"끝났어." <<he_ ga>> 말한다. "마지막 밭이야. 우리가 농장을 복구했어."
 	<br><br>
 
-	<<He_ nun>> 농가 현관에 털썩 앉아서, 당신을 바라본다. "나 혼자서는 할 수 없었을 거야. 만약 <<if $pronoun is "m">>아빠가<<else>>엄마가<</if>> 그 일이 얼마나 위험한지 알았다면-" <<he_ nun>> 시선을 돌린다. "나는 부모님 없이도 할 수 있다는 걸 증명하고 싶었어. 난 이제 증명할 수 있어."
+	<<He>> slumps to the farmhouse porch, and looks at you. "I couldn't have done it alone. If <<if $pronoun is "m">>dad<<else>>mum<</if>> had known how dangerous it was-" <<He>> looks away. "I wanted to prove I could do it without them. Now I have."
 	<br><br>
 
 	<<He_ ga>> 일어선다. "부모님께 말해야겠어. 지금 당장." <<He_ nun>> 농가 안으로 사라진다.
@@ -1156,7 +1156,7 @@
 <<farm_fight_options>>
 
 :: Farm Fight
-<<effects>>
+<<effects>><<handheldon>>
 
 <<switch $farm_fight.action>>
 <<case "breasts" "chest">>
@@ -1167,7 +1167,7 @@
 	<<else>>
 		<span class="lewd"><<breasts_ rul>> 노출한다.</span>
 	<</if>>
-	당신은 유리창을 두드렸지만, 깡패들은 이미 알렉스 쪽으로 돌아서고 있다.
+	You tap on the glass for good measure, but thugs are already turning away from Alex. <<incgbreastinsecurity>>
 	<br><br>
 
 	<<if $farm_fight.stage gte 5>>
@@ -1202,15 +1202,23 @@
 		<span class="lewd"><<genitals_ rul>> 노출한다.</span>
 	<</if>>
 	깡패들은 당신에게 추파를 던지느라 모든 것을 내팽개친다.
+	<<if $player.penisExist>>
+		<<if $player.penissize gte 3>>
+			<<insecurity "penis_big" 1>><<ginsecurity "penis_big">>
+		<<else>>
+			<<insecurity "penis_small" 1>><<ginsecurity "penis_small">>
+		<</if>>
+	<</if>>
 	<br><br>
 
 	<<if $farm_fight.stage gte 5>>
 		<span class="green">알렉스는 <<person6>><<persons_ yi>> 손아귀에서 벗어나,</span> <<nnpc_himself_ wa "Alex">> 추파를 던지는 깡패들 사이에 약간 거리를 둔다.
 		<br><br>
 	<<else>>
-		<span class="green">그들은 추파를 던지기 바빠서 알렉스가 거리를 벌리고, 더 많은 폭행에 <<person1>>대비하는 것을 눈치채지 못한다.</span>
+		<span class="green">They're too busy ogling to notice Alex gain distance, readying <<person1>><<himself>> for more violence.</span>
 	<</if>>
 <<case "hammer">>
+	<<wearProp "hammer" 0 "basic">>
 	<<physiquedifficulty 5000 15000 no_text>>
 	<<if $physiqueSuccess is 1>>
 		당신은 망치로 문을 쾅쾅 내려친다. <span class="green">당신이 내리칠 때마다 나무가 쪼개진다.</span>
@@ -1223,11 +1231,13 @@
 	<</if>>
 	<<set $farm_fight.weapon to "hammer">>
 <<case "unscrew">>
+	<<wearProp "screwdriver">>
 	밖에서의 공격으로 손을 안정시키기는 어려우나, 나사 중 하나를 제거하는 데 성공한다.
 	<br><br>
 	<<set $farm_fight.weapon to "screwdriver">>
 	<<set $farm_fight.screws -= 1>>
 <<case "science">>
+	<<wearProp "chainsaw">>
 	<<if currentSkillValue('science') gte random(1, 700)>>
 		당신은 기계톱을 조사해, 돌릴 수 있는 뚜껑을 찾는다. 당신은 그것을 열어본다. 내부는 비어있다. <span class="green">기계톱에는 연료가 필요하다.</span>
 		<br><br>
@@ -1241,6 +1251,7 @@
 	<<set $farm_fight.chainsaw to 2>>
 	<br><br>
 <<case "chainsaw">>
+	<<wearProp "chainsaw">>
 	당신이 줄을 당기자, 톱이 회전한다. 당신이 다시 한 번 줄을 당기자, 톱날이 윙윙거리며 시동이 걸린다. 그 <<person2>><<person_ un>> 걱정스러운 시선을 헛간에 던진다.
 	<br><br>
 
@@ -1267,19 +1278,17 @@
 <<if $farm_fight.screws lte 0>>
 	마지막 나사가 바닥에 달그락거리며 떨어지고, 문이 활짝 열리며, 잠긴 해치만이 문 틀에 고정되어 있다. <span class="red">타는 냄새가 당신 코를 찌른다.</span>
 	<br><br>
-	<<link [[다음|Farm Fight End]]>><</link>>
+	<<link [[다음|Farm Fight End]]>><<handheldon>><</link>>
 	<br>
 <<elseif $farm_fight.door lte 0>>
 	<<if $farm_fight.weapon is "chainsaw">>
 		당신은 남은 나무를 발로 차서 부수고, 지나간다.
-		<br><br>
 	<<elseif $farm_fight.weapon is "hammer">>
 		마지막 일격으로, 당신은 문의 한쪽 구석을 박살낸다. 당신은 손을 뻗어, 해치를 열고, 문을 발로 차서 연다. <span class="red">타는 냄새가 당신 코를 찌른다.</span>
-		<br><br>
 	<<else>>
 		마지막 일격으로, 당신의 주먹이 나무를 부수며 뚫고 나간다. 당신은 해치를 찾아, 잠금을 풀고, 문을 발로 차서 연다. <span class="red">타는 냄새가 당신 코를 찌른다.</span>
-		<br><br>
 	<</if>>
+	<br><br>
 	<<link [[다음|Farm Fight End]]>><</link>>
 	<br>
 <<else>>
@@ -1318,10 +1327,6 @@
 <</if>>
 
 
-
-
-
-
 :: Farm Fight Search Shelf
 <<effects>>
 
@@ -1333,9 +1338,9 @@
 
 
 :: Farm Fight Search Toolbox
-<<effects>>
+<<effects>><<wearProp "toolbox">>
 
-당신은 도구 상자를 휙 연다. 잘 채워져 있지만, 그 중에서도 두 가지 도구가 눈길을 끈다. <span class="green">큰 망치와, 스크류 드라이버.</span> 당신은 망치로 문을 세게 내려칠 수 있다. 또한 당신은 스크류 드라이버를 이용해, 문의 나사를 제거해서 열 수도 있다.
+You flip open the toolbox. It's well stocked, but two items draw your attention. <span class="green">A large hammer, and a screwdriver.</span> You could bash the door down with the hammer. You could also remove the door's screws and open it that way.
 <br><br>
 
 <<link [[다음|Farm Fight]]>><</link>>
@@ -1360,7 +1365,7 @@
 <br>
 
 :: Farm Fight Search Sheet
-<<effects>>
+<<effects>><<wearProp "chainsaw">>
 
 시트 아래에 벽에 기대어진 무언가가 있다. 시트를 치우자 <span class="green">기계톱이 있다.</span>
 <br><br>
@@ -1427,7 +1432,7 @@
 
 	"이 <<girl_ un>> 끈질긴 타입이군." 그 <<person2>><<person_ i>> 말한다. "어쩌면 레미가 <<phimPost>>에게 일을 시킬 수도 있을 거야."
 	<br>
-	"아니지," 그 <<person3>><<person_ i>> 가까이 다가오며 덧붙인다. "우리가 손대고 나면 <<phim_ un>> 걷지도 못할 텐데."
+	"Nah," the <<person3>><<person>> adds, closing in. "This one won't be able to walk once we're done with <<phim>>."
 	<br><br>
 
 <</if>>
@@ -1546,7 +1551,7 @@
 
 :: Farm Fight End 3
 <<set $outside to 0>><<effects>>
-<<pass 5>>
+<<pass 5>><<handheldon>>
 냄새가 점점 심해진다.
 <<person1>>
 <<if $farm_fight.stage gte 9>>
@@ -1696,7 +1701,7 @@
 
 "넌 그럴 자격이 있어" 알렉스가 말한다. "그렇게 큰 집은 아니지만, <span class="gold">네가 여기서 머물 공간 정도는 있어.</span>"
 <br><br>
-알렉스는 망설이며 입을 연다. "이제부터 밭들을 관리할 수 있겠어? 난 그걸," <<he_ nun>> 자신의 차를 다 마신다. "난 그 꼴을 또 보고 싶지는 않아. 그럴 수는 없어."
+Alex hesitates. "Could you handle the fields from now on? I don't-" <<he>> finishes <<his>> tea. "I don't want to look at them. I can't."
 <br><br>
 
 
@@ -1762,59 +1767,58 @@
 <<dontHideForNow>><<shavestrip>>
 <<wearProp "razor">>
 당신은 옷을 벗고, 당신의 <<genitals_ ul>> 본다.
-<br>
-<<if $worn.genitals.name is "chastity belt" or $worn.genitals.name is "gold chastity belt">>
-벨트가 몸에 딱 붙어있어, 면도칼이 음부에 도달하는 것은 거의 불가능해 보인다.
-<br>
-<<link [[옷을 입는다->Farm Shed]]>><<clotheson>><<dontHideRevert>><</link>>
-<br>
-<<else>>
-<<if $worn.genitals.name is "chastity cage">>
-당신의 자지는 정조대 우리 안에 갇혀있다. 그 주위를 면도하는 것은 까다롭겠지만, 큰 문제가 되지는 않는다.
-<br>
+<br><br>
+<<if playerChastity("hidden")>>
+	벨트가 몸에 딱 붙어있어, 면도칼이 음부에 도달하는 것은 거의 불가능해 보인다.
+	<br><br>
+	<<link [[Dress up|Farm Shed]]>><<clotheson>><<dontHideRevert>><</link>>
+	<br>
+<</if>>
+<<if playerChastity("cage")>>
+	Your penis is <<if $worn.genitals.name is "chastity parasite">>sealed inside the parasite<<else>>locked inside the cage<</if>>. Shaving around it will be a bit more tricky, but that's not a big deal.
+	<br><br>
 <</if>>
 <<if $pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2>>
-	<<link [[깨끗이 면도한다 (0:15)->Farm shave clean]]>><<pass 15>><<arousal 100>><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pblevelballs to 0>><<set $pbgrowthballs to 0>><<set $pbstrip to 0>><<set $makeup.pbcolour to 0>><</link>>
+	<<shavestyleicon 'clean'>><<link [[Shave clean (0:15)|Farm shave clean]]>><<pass 15>><<arousal 100>><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pblevelballs to 0>><<set $pbgrowthballs to 0>><<set $pbstrip to 0>><<set $makeup.pbcolour to 0>><</link>>
 	<br>
 <</if>>
 <<if $pblevel gte 5 or $pbstrip gte 2 or ($pbstrip is 1 and $pblevel gte 2)>>
-	<<link [[활주로를 만든다 (0:15)->Farm shave strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "깔끔한 활주로로">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 1>><</link>>
+	<<shavestyleicon 'strip'>><<link [[Form a landing strip (0:15)|Farm shave strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "neat landing strip">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 1>><</link>>
 	<br>
 <</if>>
 <<if $pblevel gte 5 or $pbstrip gte 3 or ($pbstrip gte 2 and $pblevel gte 2)>>
-	<<link [[하트를 만든다 (0:15)->Farm shave strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "귀여운 하트 모양으로">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 2>><</link>>
+	<<shavestyleicon 'heart'>><<link [[Form a heart (0:15)|Farm shave strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "cute heart shape">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 2>><</link>>
 	<br>
 <</if>>
 <<if $pblevel gte 5 or $pbstrip gte 4 or ($pbstrip gte 3 and $pblevel gte 2)>>
-	<<link [[삼각형을 만든다 (0:15)->Farm shave strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "깔끔한 삼각형으로">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 3>><</link>>
+	<<shavestyleicon 'triangle'>><<link [[Form a triangle (0:15)|Farm shave strip]]>><<pass 15>><<arousal 100>><<set $pbstripName to "neat triangle">><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 3>><</link>>
 	<br>
 <</if>>
 <<if $player.ballsExist is true>>
 	<<if $pblevel gte 2 or $pbstrip gte 1>>
-		<<link [[음부만 면도한다 (0:10)->Farm shave pubis]]>><<pass 10>><<arousal 50>><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 0>><<if $pblevelballs is 0>><<set $makeup.pbcolour to 0>><</if>><</link>>
+		<<shavestyleicon 'clean'>><<link [[Shave only pubis (0:10)|Farm shave pubis]]>><<pass 10>><<arousal 50>><<set $pblevel to 0>><<set $pbgrowth to 0>><<set $pbstrip to 0>><<if $pblevelballs is 0>><<set $makeup.pbcolour to 0>><</if>><</link>>
 		<br>
 	<</if>>
 	<<if $pblevelballs gte 3>>
-		<<link [[불알만 면도한다 (0:05)->Farm shave balls]]>><<pass 5>><<arousal 50>><<set $pblevelballs to 0>><<set $pbgrowthballs to 0>><<if $pblevel is 0 and $pbstrip is 0>><<set $makeup.pbcolour to 0>><</if>><</link>>
+		<<shavestyleicon 'balls'>><<link [[Shave only balls (0:05)|Farm shave balls]]>><<pass 5>><<arousal 50>><<set $pblevelballs to 0>><<set $pbgrowthballs to 0>><<if $pblevel is 0 and $pbstrip is 0>><<set $makeup.pbcolour to 0>><</if>><</link>>
 		<br>
 	<</if>>
 <</if>>
 <<if $pblevel gt 5 or $pblevelballs gt 5>>
-	<<link [[짧게 자른다 (0:10)->Farm shave trim]]>><<pass 10>><<arousal 100>>
-		<<if $pblevel gte 5>>
-			<<set $pblevel to 5>><<set $pbgrowth to 7>><<set $pbstrip to 0>>
-		<</if>>
-		<<if $pblevelballs gte 5>>
-			<<set $pblevelballs to 5>><<set $pbgrowthballs to 10>>
-		<</if>>
+	<<shavestyleicon 'trim'>><<link [[Trim short (0:10)|Farm shave trim]]>><<pass 10>><<arousal 100>>
+	<<if $pblevel gte 5>>
+		<<set $pblevel to 5>><<set $pbgrowth to 7>><<set $pbstrip to 0>>
+	<</if>>
+	<<if $pblevelballs gte 5>>
+		<<set $pblevelballs to 5>><<set $pbgrowthballs to 10>>
+	<</if>>
 	<</link>>
 	<br>
 <</if>>
-<<if $worn.genitals.name isnot "chastity belt">>
-	<<link [[음모를 염색한다|Farm Dye]]>><</link>><br>
+<<if !playerChastity("hidden")>>
+	<<cosmeticsicon "dyes">><<link [[Dye pubic hair|Farm Dye]]>><</link>><br>
 <</if>>
-<<link [[아무것도 하지 않는다|Farm Shed]]>><<clotheson>><<dontHideRevert>><</link>>
-<</if>>
+<<refuseicon>><<link [[Don't shave anything|Farm Shed]]>><<clotheson>><<dontHideRevert>><</link>>
 
 :: Farm shave clean
 <<effects>>
@@ -1862,13 +1866,14 @@
 <<link [[다음|Farm Shed]]>><<clotheson>><<dontHideRevert>><</link>>
 
 :: Farm Dye
-<<effects>><<wearProp "hairdye">>
+<<effects>>
 
 <<set _ownedColours = $makeup.owned.hairdye.filter(x => x.count > 0)>>
 <<if _ownedColours.length == 0>>
 	당신은 염색약을 가지고 있지 않다. 아마 화장품 가게에 가서 몇 개 구매할 수 있을 것이다.
 	<br>
 <<else>>
+	<<wearProp "hairdye">>
 	무슨 색으로 하겠습니까?<br>
 	<<set _choice = _ownedColours[0].colour>>
 	<<for _i, _item range _ownedColours>>
@@ -1895,13 +1900,14 @@
 
 :: Farm Shower
 <<set $outside to 0>><<effects>>
-<<strip>>
+<<strip>><<wearProp "soap">>
 당신은 옷을 벗고, 뽀득뽀득 소리가 날 때까지 깨끗하게 씻는다.<<wash>>
 <br><br>
 
 <<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 <<if $danger gte (9900 - ($allure / 2)) and Time.dayState isnot "night">>
 	<<npc Alex>><<person1>>
+	<<set $genderknown.pushUnique("Alex")>>
 	<<if random(1, 2) is 2>>
 		당신은 문이 삐걱거리며 열리는 소리를 들었고, 빛이 흘러 들어온다. <<covered>> 알렉스다. <<He_ nun>> 시선을 돌리지만, <<his_ yi>> 눈은 다시 당신에게로 스쳐 돌아가며, 흘끗 쳐다본다.<<gstress>><<stress 6>>
 		<br><br>
@@ -1922,7 +1928,7 @@
 		<br><br>
 
 		<<He_ nun>> 잠시 후 문을 닫아, 당신의 사생활을 지켜준다.
-		<<if $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6>>
+		<<if $player.penisExist and ($player.penissize lte 1 or $player.penissize is 4) and random(0,9) gte 6 and !playerChastity()>>
 			<<if $player.penissize lte 1>>
 				"엄청 <<EZsmall>> <<penis_ yeot>>네," <<he_ nun>> 문을 다 닫고 중얼거린다. 당신은 당신의 <<penis_ rul>> 내려다보며 당혹감에 얼굴을 붉힌다.
 			<<elseif $player.penissize is 4>>
@@ -1930,10 +1936,8 @@
 			<</if>>
 
 			<<incgpenisinsecurity>>
-			<br><br>
-		<<else>>
-			<br><br>
 		<</if>>
+		<br><br>
 
 		<<link [[다음|Farm Work]]>><<clotheson>><<endevent>><</link>>
 		<br>
@@ -1975,10 +1979,12 @@
 	<br><br>
 
 	<<if hasSexStat("promiscuity", 2)>>
-		<<link [[허락한다|Farm Shower Sex]]>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<gdom>><<glove>>
-		<br>
+		<<link [[Allow|Farm Shower Sex]]>><<handheldon>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<gdom>><<glove>>
+	<<else>>
+		<<insufficientStat "promiscuity" "to accept">>
 	<</if>>
-	<<link [[밀친다|Farm Shower Shove]]>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
+	<br>
+	<<link [[Shove|Farm Shower Shove]]>><<handheldon>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
 	<br>
 <<else>>
 	알렉스는 머뭇거리다가 문을 닫는다. 당신은 몸을 말리기 위해 헛간을 가로지른다.
@@ -2125,14 +2131,14 @@
 <<He_ nun>> 당혹스러운 갈망으로 바라보고 있다.
 <br><br>
 
-<<link [[씻겨달라고 한다|Farm Shower Invite]]>><<npcincr Alex lust 5>><</link>><<exhibitionist4>><<gglust>>
+<<link [[Invite to wash you|Farm Shower Invite]]>><<handheldon>><<npcincr Alex lust 5>><</link>><<exhibitionist4>><<gglust>>
 <br>
-<<link [[끝낸다|Farm Shower Finish]]>><</link>>
+<<link [[Finish|Farm Shower Finish]]>><<handheldon>><</link>>
 <br>
 
 
 :: Farm Shower Invite
-<<effects>>
+<<effects>><<wearProp "sponge">>
 
 <<if $speech_attitude is "meek">>
 	"나-나 좀 씻겨줄래?" 당신은 스펀지를 든 채 알렉스에게 묻는다. "손이 닿지 않는 부분이 있어."
@@ -2154,10 +2160,10 @@
 	<br><br>
 
 	<<if hasSexStat("promiscuity", 2)>>
-		<<link [[허락한다|Farm Shower Sex]]>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
+		<<link [[Allow|Farm Shower Sex]]>><<handheldon>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
 		<br>
 	<</if>>
-	<<link [[밀친다|Farm Shower Shove]]>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
+	<<link [[Shove|Farm Shower Shove]]>><<handheldon>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
 	<br>
 <<else>>
 	당신은 돌아서서, <<himPost>>에게 당신의 몸 앞쪽도 씻을 수 있게 한다. 이미 당신은 깨끗해졌지만, 그냥 지나치기엔 기분이 너무 좋다. <<He_ nun>> 스펀지가 당신의 <<genitals_ ul>> 지나갈 때 숨을 혹 참는다. <<ggarousal>><<arousal 1200>>
@@ -2169,18 +2175,18 @@
 		<br><br>
 
 		<<if hasSexStat("promiscuity", 2)>>
-			<<link [[허락한다|Farm Shower Sex]]>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
+			<<link [[Allow|Farm Shower Sex]]>><<handheldon>><<set $sexstart to 1>><<npcincr Alex dom 1>><<npcincr Alex love 1>><</link>><<promiscuous2>><<gdom>><<glove>>
 			<br>
 		<</if>>
-		<<link [[밀친다|Farm Shower Shove]]>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
+		<<link [[Shove|Farm Shower Shove]]>><<handheldon>><<npcincr Alex dom -1>><<npcincr Alex love -1>><</link>><<llove>><<ldom>>
 		<br>
 	<<else>>
 
 		<<if hasSexStat("promiscuity", 2)>>
-			<<link [[유혹한다|Farm Shower Seduce]]>><<npcincr Alex love 1>><</link>><<promiscuous2>><<glove>>
+			<<link [[유혹한다|Farm Shower Seduce]]>><<handheldon>><<npcincr Alex love 1>><</link>><<promiscuous2>><<glove>>
 			<br>
 		<</if>>
-		<<link [[끝낸다|Farm Shower Finish]]>><</link>>
+		<<link [[Finish|Farm Shower Finish]]>><<handheldon>><</link>>
 		<br>
 	<</if>>
 
@@ -2491,11 +2497,53 @@
 <<if $phials_stored gte 2>>
 	탁자 밑에 완성된 최음제 <<trNumber $phials_stored>> 병이 있다.
 	<br><br>
-	<<symbol "lust">><<link [[전부 가져간다 (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
-	<br>
 <<elseif $phials_stored is 1>>
 	탁자 밑에 완성된 최음제 한 병이 있다.
 	<br><br>
+<</if>>
+
+<<if $temple_rank is "monk" and !$farm_aphrodisiac_corruption_reaction and $phials_stored gte 1>>
+	<<set $farm_aphrodisiac_corruption_reaction to true>>
+
+	You look at the <<= $phials_stored is 1 ? "phial" : "phials">><<if $lurkers_stored gte 1>> and the <<= $lurkers_stored is 1 ? "creature" : "creatures">> in the <<= $lurkers_stored is 1 ? "cage" : "cages">><</if>>, and a sense of dread seizes you.
+	<br><br>
+	<<if $world_corruption_soft gte 75>>
+		<span class="pink">A lost arm.</span>
+		<br><br>
+		Your mind flashes back to the pyre, the visions you saw within.
+		<br><br>
+		<span class="pink">A broken wing.</span>
+		<br><br>
+		You recall the malevolent scythe you saw sweeping across the town, tearing holes in your reality. Holes much too small to let its wielder pass through.
+		<br><br>
+		<span class="pink">A single missing feather.</span>
+		<br><br>
+		But not too small to prevent something else from wriggling through.
+		<br><br>
+		Your eyes fall upon <<if $lurkers_stored gte 1>>the <<= $lurkers_stored is 1 ? "creature" : "creatures">> in the <<= $lurkers_stored is 1 ? "cage" : "cages">>, and<</if>> the <<= $phials_stored is 1 ? "phial" : "phials">> of glowing purple liquid, and your heart squeezes in your chest.
+		<br><br>
+		<span class="purple">The taint spreads.</span>
+		<br><br>
+	<<elseif $world_corruption_soft gte 25>>
+		You look towards the cages<<if $lurkers_stored gte 1>> and the <<= $lurkers_stored is 1 ? "creature" : "creatures">> within<</if>>, and your hand instinctively goes to your <<= $temple_weapon>>. Jordan's words, from when you first received it, come back to you: "There are cracks all over this town, where these things squirm through. It is why the temple is here. And why we learn to fight."
+		<br><br>
+		<<if $lurkers_stored gte 1>>
+			The <<= $lurkers_stored is 1 ? "creature rattles its cage" : "creatures rattle their cages">>, but <<= $lurkers_stored is 1 ? "is" : "are">> unable to escape.
+		<<else>>
+			The cages are empty for now, but you can't help but feel a prickling sensation on the back of your neck.
+		<</if>>
+		The <<= $phials_stored is 1 ? "phial" : "phials">> of purple liquid <<= $phials_stored is 1 ? "glows" : "glow">> gently on the tabletop, but the sight makes your blood run cold. <span class="purple">You aren't sure selling stuff made from those creatures is a good idea.</span>
+		<br><br>
+	<<else>>
+		You frown at the <<if $lurkers_stored gte 1>><<= $lurkers_stored is 1 ? "creature" : "creatures">> in the <<= $lurkers_stored is 1 ? "cage" : "cages">>, and the<</if>> glowing purple liquid on the tabletop. Alex said Remy was making a lot of money from the stuff, and you know <<nnpc_he Alex>> hopes to do the same. Still, knowing the source of this stuff, you can't help but feel uneasy about the idea of producing it. <span class="purple">Something tells you selling it might make things harder for the temple.</span>
+		<br><br>
+	<</if>>
+<</if>>
+
+<<if $phials_stored gte 2>>
+	<<symbol "lust">><<link [[전부 가져간다 (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
+	<br>
+<<elseif $phials_stored is 1>>
 	<<symbol "lust">><<link [[가져간다 (0:01)|Farm Work]]>><<pass 1>><<set $phials_held += $phials_stored>><<set $phials_stored to 0>><</link>>
 	<br>
 <<else>>
@@ -2778,7 +2826,7 @@
 <br>
 <<if $farm.stock.truffles gte 1>>
 	<<set _farm_stocked to true>>
-	<<tendingicon "truffles">><<link [[가져간다|Farm Stock]]>><<wearProp "truffle">><<tending_give truffle $farm.stock.truffles>><<set $farm.stock.truffles to 0>><</link>>
+	<<tendingicon "truffle">><<link [[Take|Farm Stock]]>><<wearProp "truffle">><<tending_give truffle $farm.stock.truffles>><<set $farm.stock.truffles to 0>><</link>>
 	<br>
 <</if>>
 <br>
@@ -2786,7 +2834,7 @@
 <br>
 <<if $farm.stock.eggs gte 1>>
 	<<set _farm_stocked to true>>
-	<<tendingicon "eggs">><<link [[가져간다|Farm Stock]]>><<wearProp "bird egg">><<tending_give chicken_egg $farm.stock.eggs>><<set $farm.stock.eggs to 0>><</link>>
+	<<tendingicon "egg">><<link [[Take|Farm Stock]]>><<wearProp "egg" 0 "chicken">><<tending_give chicken_egg $farm.stock.eggs>><<set $farm.stock.eggs to 0>><</link>>
 	<br>
 <</if>>
 <br>
@@ -2794,26 +2842,24 @@
 <br>
 <<if $farm.stock.milk gte 1>>
 	<<set _farm_stocked to true>>
-	<<tendingicon "milk">><<link [[가져간다|Farm Stock]]>><<wearProp "milk bottle">><<tending_give bottle_of_milk $farm.stock.milk>><<set $farm.stock.milk to 0>><</link>>
+	<<tendingicon "milk">><<link [[Take|Farm Stock]]>><<wearProp "milk bottle" 0 "milk">><<tending_give bottle_of_milk $farm.stock.milk>><<set $farm.stock.milk to 0>><</link>>
 	<br>
 <</if>>
 <br>
 
 <<if _farm_stocked is true>>
-	<<tendingicon>>
+	<<tendingicon "basket">>
 	<<link [[전부 가져간다|Farm Cottage]]>>
 		<<if $farm.stock.truffles gte 1>>
-			<<wearProp "truffle">>
 			<<tending_give truffle $farm.stock.truffles>><<set $farm.stock.truffles to 0>>
 		<</if>>
 		<<if $farm.stock.eggs gte 1>>
-			<<wearProp "bird egg">>
 			<<tending_give chicken_egg $farm.stock.eggs>><<set $farm.stock.eggs to 0>>
 		<</if>>
 		<<if $farm.stock.milk gte 1>>
-			<<wearProp "milk bottle">>
 			<<tending_give bottle_of_milk $farm.stock.milk>><<set $farm.stock.milk to 0>>
 		<</if>>
+		<<wearProp "basket">>
 	<</link>>
 	<br>
 <</if>>

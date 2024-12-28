@@ -1,8 +1,10 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
 /* word - widget will output "a" if "a", and nothing if "n". eg - You are wearing <<a>> hat. You are wearing <<a>> shorts.
 plural - widget will output "are" if 1, and "is" if 0. eg - Your hat <<upperplural>> wet. Your shorts <<upperplural>> wet. */
 function initOverUpper() {
-	setup.clothes.over_upper = [
+	/** @type {ClothesItem[]} */
+	const clothing = [
 		{
 			index: 0,
 			name: "naked",
@@ -43,7 +45,6 @@ function initOverUpper() {
 			accIcon: 0,
 			mainImage: 0,
 		},
-
 		{
 			index: 1,
 			name: "froggy coat",
@@ -88,7 +89,6 @@ function initOverUpper() {
 			accIcon: 0,
 			outfitPrimary: { over_lower: "froggy skirt", over_head: "froggy hood" },
 		},
-
 		{
 			index: 2,
 			name: "cream",
@@ -132,6 +132,7 @@ function initOverUpper() {
 			accIcon: 0,
 		},
 	];
+	setup.clothes.over_upper = clothing;
 
 	/*
 		Clothes that modders add go into this array, this should be empty in the base game at all times.

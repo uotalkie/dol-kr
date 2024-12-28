@@ -884,7 +884,7 @@ function effects() {
 		}
 
 		if (V.fallenangelmessage) {
-			sWikifier('<span class="red">당신은 어두운 존재가 당신의 피부를 할퀴는 느낌이 든다.</span> <<gstress>>');
+			sWikifier('<span class="red">You feel a dark presence clawing at your skin.</span> <<gstress>>');
 			V.stress += V.stressmax;
 			delete V.fallenangelmessage;
 		}
@@ -940,6 +940,8 @@ function effects() {
 						? `과 클리토리스 주위에 형성되었다. 그것은 이제 당신 자신의 자지가 된 것 같은 ${looks}`
 						: `새 기생충이 당신의 클리토리스 주위에 형성되었고, 자지와 비슷한 ${looks}`;
 				}
+			}
+			if (parasiteMessage) {
 				sWikifier(`<span class="blue">만족스러운 따뜻함이 당신을 채운다. ${parasiteMessage}.</span>`);
 				element("span", `당신은 ${parasiteCount > 1 ? "그것들이" : "그것이"} 당신 귓속의 슬라임에서 온 것이라는 것을 알고 있다.`);
 				if (V.earSlimePenisParasite && V.earSlimePenisParasite !== 1) {
@@ -948,10 +950,10 @@ function effects() {
 				if (V.earSlimeClitParasite && V.earSlimeClitParasite !== 1) {
 					element("span", `클리토리스 위에 있었던 ${trParasite(V.earSlimeClitParasite, '은')} 그것이 다 자라자 곧 떨어져 버린다.`, "red");
 				}
-				delete V.earSlimebreastsParasite;
-				delete V.earSlimePenisParasite;
-				delete V.earSlimeClitParasite;
 			}
+			delete V.earSlimebreastsParasite;
+			delete V.earSlimePenisParasite;
+			delete V.earSlimeClitParasite;
 		}
 
 		if (V.penisslimebrokenchastitymessage) {

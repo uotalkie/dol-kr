@@ -7,54 +7,58 @@
 
 :: Balloon Purchase
 <<effects>>
-	<<if $balloonStand.owner is "angry" and ["hot drink","cold drink"].includes($phase)>>
-		The <<person>> regards you for a long moment before sighing. "Sure," <<he>> says, sounding resigned. "Look, I'm sorry for losing my cool. It was kind of a dick move to start selling my own drinks after promising to help, but to be fair, you hurt me after you promised to get me off. I don't like being angry, though. We're good, right?"
-		<br><br>
-		<<He>> has a point. You nod. "We're good."
-		<<set $balloonStand.owner to "appeased">>
-	<<else>>
-		<<set _sir to $player.gender_appearance is 'f' ? 'miss' : 'sir'>>
-		"<<print $balloonStand.owner is "angry" ? "Sure, whatever," : either("Certainly,", "Right away, _sir,", "Sure thing,", "Coming right up,", "Absolutely!")>>" the <<person>> says.
-	<</if>>
+<<if $balloonStand.owner is "angry" and ["hot drink","cold drink"].includes($phase)>>
+	The <<person>> regards you for a long moment before sighing. "Sure," <<he>> says, sounding resigned. "Look, I'm sorry for losing my cool. It was kind of a dick move to start selling my own drinks after promising to help, but to be fair, you hurt me after you promised to get me off. I don't like being angry, though. We're good, right?"
 	<br><br>
-	<<switch $phase>>
-		<<case "popcorn">>
-			<<He>> scoops out some freshly-popped popcorn. The bag's still warm when <<he>> hands it to you.
-			<<set $daily.ex.popcorn to ($daily.ex.popcorn or 0) + 1>>
-			<<wearProp "popcorn">>
+	<<He>> has a point. You nod. "We're good."
+	<<set $balloonStand.owner to "appeased">>
+<<else>>
+	<<set _sir to $player.gender_appearance is 'f' ? 'miss' : 'sir'>>
+	"<<print $balloonStand.owner is "angry" ? "Sure, whatever," : either("Certainly,", "Right away, _sir,", "Sure thing,", "Coming right up,", "Absolutely!")>>" the <<person>> says.
+<</if>>
+<br><br>
+<<switch $phase>>
+	<<case "popcorn">>
+		<<He>> scoops out some freshly-popped popcorn. The bag's still warm when <<he>> hands it to you.
+		<<set $daily.ex.popcorn to ($daily.ex.popcorn or 0) + 1>>
+		<<wearProp "popcorn">>
 
-			<<if $daily.ex.popcorn is 2 and $balloonStand.owner isnot "angry">>
-				"You must be hungry," <<he>> says. <<print playerBellyVisible() ? `"I suppose you are eating for two." <<He>> smiles, glancing affectionately at your baby bump.` : `"Not getting enough to eat at home?" <<His>> brow creases momentarily, but <<he>> quickly shakes it off.`>>
-			<<elseif $daily.ex.popcorn is 3>>
-				"Gotta save some for the other customers, so I'm gonna have to cut you off after this." <<print $balloonStand.owner is "angry" ? "<<His>> voice is curt" : "<<He>> gives you an apologetic smile">>.
-			<</if>>
-		<<default>>
-			<<set $daily.ex.balloonDrink to ($daily.ex.balloonDrink or 0) + 1>>
-			<<set _prop to $phase is "cold drink" ? "lemonade" : $phase is "hot cider" ? "hot cider" : "hot cocoa">>
-			<<wearProp _prop>>
+		<<if $daily.ex.popcorn is 2 and $balloonStand.owner isnot "angry">>
+			"You must be hungry," <<he>> says. <<print playerBellyVisible() ? `"I suppose you are eating for two." <<He>> smiles, glancing affectionately at your baby bump.` : `"Not getting enough to eat at home?" <<His>> brow creases momentarily, but <<he>> quickly shakes it off.`>>
+		<<elseif $daily.ex.popcorn is 3>>
+			"Gotta save some for the other customers, so I'm gonna have to cut you off after this." <<print $balloonStand.owner is "angry" ? "<<His>> voice is curt" : "<<He>> gives you an apologetic smile">>.
+		<</if>>
+	<<default>>
+		<<set $daily.ex.balloonDrink to ($daily.ex.balloonDrink or 0) + 1>>
+		<<set _prop to $phase is "hot cider" ? "cider" : "cocoa">>
+		<<if $phase is "cold drink">>
+			<<wearProp "lemonade">>
+		<<else>>
+			<<wearProp "travel cup" 0 _prop>>
+		<</if>>
 
-			<<set _drink to $phase is "cold drink" ? "glass of ice-cold <<seasonal_beverage>>. The plastic cup swelters in your hand" : "a cup of steaming <<seasonal_beverage>>. The paper cup warms your hands">>
-			<<He>> pours you a _drink.
+		<<set _drink to $phase is "cold drink" ? "glass of ice-cold <<seasonal_beverage>>. The plastic cup swelters in your hand" : "a cup of steaming <<seasonal_beverage>>. The paper cup warms your hands">>
+		<<He>> pours you a _drink.
 
-			<<if $daily.ex.balloonDrink is 2>>
-				"Thirsty, eh?" <<he>> says. "<<print playerBellyVisible() ? "Guess you gotta keep that little one hydrated" : "Glad to see you're staying hydrated">>." <<He>> smiles at you.
-			<<elseif $daily.ex.balloonDrink is 3>>
-				"Gotta save some for the other customers, so I'm gonna have to cut you off after this." <<He>> gives you an apologetic smile.
-			<</if>>
-	<</switch>>
-	"<<print $balloonStand.owner is "angry" ? "There you go. Get lost." : either("Good to see you, love.", "Have a great rest of your day now.", "Thanks for your custom.", "Enjoy!")>>"
-	<br><br>
-	<<switch $phase>>
-		<<case "popcorn">>
-			<<link [[Eat the popcorn (0:15)|Balloon Consume]]>><<set $phase to $balloonStand.robin.status is "help needed" ? "ask_eat" : "popcorn">><<trauma -3>><</link>><<ltrauma>><br>
-			<<if $balloonStand.robin.status is "help needed">>
-				<<link [[Save it for later|Balloon Consume]]>><<set $phase to "ask">> <<set $popcorn += 1>><<handheldon>><</link>><br>
-			<<else>>
-				<<link [[Save it for later|Beach]]>><<set $eventskip to 1>><<set $popcorn += 1>><<endevent>><</link>>
-			<</if>>
-		<<default>>
-			<<link [[Take a sip (0:15)|Balloon Consume]]>><<stress -9>><<pass 15>><</link>><<lstress>><br>
-	<</switch>>
+		<<if $daily.ex.balloonDrink is 2>>
+			"Thirsty, eh?" <<he>> says. "<<print playerBellyVisible() ? "Guess you gotta keep that little one hydrated, too" : "Glad to see you're staying hydrated">>." <<He>> smiles at you.
+		<<elseif $daily.ex.balloonDrink is 3>>
+			"Gotta save some for the other customers, so I'm gonna have to cut you off after this." <<He>> gives you an apologetic smile.
+		<</if>>
+<</switch>>
+"<<print $balloonStand.owner is "angry" ? "There you go. Get lost." : either("Good to see you, love.", "Have a great rest of your day now.", "Thanks for your custom.", "Enjoy!")>>"
+<br><br>
+<<switch $phase>>
+	<<case "popcorn">>
+		<<link [[Eat the popcorn (0:15)|Balloon Consume]]>><<set $phase to $balloonStand.robin.status is "help needed" ? "ask_eat" : "popcorn">><<trauma -3>><</link>><<ltrauma>><br>
+		<<if $balloonStand.robin.status is "help needed">>
+			<<link [[Save it for later|Balloon Consume]]>><<set $phase to "ask">> <<set $popcorn += 1>><<handheldon>><</link>><br>
+		<<else>>
+			<<link [[Save it for later|Beach]]>><<set $eventskip to 1>><<set $popcorn += 1>><<endevent>><</link>>
+		<</if>>
+	<<default>>
+		<<link [[Take a sip (0:15)|Balloon Consume]]>><<stress -9>><<pass 15>><</link>><<lstress>><br>
+<</switch>>
 
 :: Balloon Consume
 <<effects>>
@@ -113,7 +117,7 @@
 			<br>
 		<</if>>
 		<<if $money gte 30000>>
-			<<link [[Bribe (£300)|Balloon Convince]]>><<set $phase to "bribe">><<set $money -= 30000>><</link>>
+			<<link [[Bribe (£300)|Balloon Convince]]>><<set $phase to "bribe">><<money -30000 "bribe">><</link>>
 		<</if>>
 
 	<<case "sabotage">>
@@ -147,7 +151,7 @@
 		You talk at length about the virtues of Robin's <<print Time.season is "winter" ? "hot chocolate" : "lemonade">>. For good measure, you spin up a sob story about Robin's history as an orphan.
 		<br><br>
 		<<if $englishSuccess>>
-			"You'd really be helping <<person2>><<him>> out, <<person1>><<sir>>," you say, eyes wide and earnest. "<<person2>><<Hes>> a good person, and <<he>> just needs someone to cut <<him>> a break for once. And it will be a two-way street, I assure you. <<He>>'ll happily send customers your way as well. Plus, think of all the good karma you'll be racking up, helping an unfortunate orphan get a leg up in this cruel world!"
+			"You'd really be helping <<person2>><<him>> out, <<person1>><<sir>>," you say, eyes wide and earnest. <<person2>>"<<Hes>> a good person, and <<he>> just needs someone to cut <<him>> a break for once. And it will be a two-way street, I assure you. <<He>>'ll happily send customers your way as well. Plus, think of all the good karma you'll be racking up, helping an unfortunate orphan get a leg up in this cruel world!"
 			<br><br>
 			The <<person1>><<person>> looks moved by your passionate words. <<balloonRobinHelped>>
 			<br><br>
@@ -384,7 +388,7 @@ The <<personsimple>> chats up a customer, doing <<his>> best to keep <<his>> voi
 You take your leave and let the <<person>> finish setting up <<his>> stall.
 <br><br>
 <<if getRobinLocation() is "beach">>
-	<<npc Robin 2>><<person2>>
+	<<clearsinglenpc 0>>
 	<<balloonRobinIntro>>
 <<else>>
 	<<link [[다음|Beach]]>><<set $eventskip to 1>><<endevent>><</link>>
@@ -464,7 +468,7 @@ You take your leave and let the <<person>> finish setting up <<his>> stall.
 	<<if $balloonStand.freeDrink>>
 		<<set $balloonStand.freeDrink to false>>
 		<<switch Time.season>>
-			<<case "winter" "autumn">><<set _cold to "hot">><<wearProp "mug">>
+			<<case "winter" "autumn">><<set _cold to "hot">><<wearProp "travel cup" 0 "cocoa">>
 			<<default>><<set _cold to "ice-cold">><<wearProp "lemonade">>
 		<</switch>>
 
@@ -508,7 +512,7 @@ You take your leave and let the <<person>> finish setting up <<his>> stall.
 			<span class="blue">You can only carry three bags of <<foodicon "popcorn">>popcorn at once.</span>
 		<<elseif $money gte 600 and $daily.ex.popcorn lt 3>>
 			<br>
-			<<foodicon "popcorn">><<link [[Buy popcorn (0:02 £6)|Balloon Purchase]]>><<set $money -= 600>><<set $phase to "popcorn">><<pass 2>><</link>>
+			<<foodicon "popcorn">><<link [[Buy popcorn (0:02 £6)|Balloon Purchase]]>><<money -600>><<set $phase to "popcorn">><<pass 2>><</link>>
 		<</if>>
 		<<if $balloonStand.robin.status is "sabotaged" and $money gte 300 and !($daily.ex.balloonDrink gte 3)>>
 			<<switch Time.season>>
@@ -518,7 +522,7 @@ You take your leave and let the <<person>> finish setting up <<his>> stall.
 				<<default>><<set _drink to "hotcider">><<set _phase to "hot cider">>
 			<</switch>>
 			<br>
-			<<foodicon _drink>><<link [[Buy something to drink (0:02 £3)|Balloon Purchase]]>><<set $money -= 300>><<set $phase to _phase>><<pass 2>><</link>>
+			<<foodicon _drink>><<link [[Buy something to drink (0:02 £3)|Balloon Purchase]]>><<money -300>><<set $phase to _phase>><<pass 2>><</link>>
 		<</if>>
 		<<if $balloonStand.robin.status is "convince" and !$daily.ex.balloonConvince>>
 			<br>
@@ -608,11 +612,11 @@ You take your leave and let the <<person>> finish setting up <<his>> stall.
 
 <<widget "balloonRobinTalk">>
 	<<if $balloonStand.robin.status is "helped" and $balloonStand.robin.talked is false and $robin.timer.customer is 0>>
-		<br><br>
 		"I don't know if you've noticed, but I've been getting so many more customers lately!" <<He>> looks pleased, if a bit flustered. "I don't know what's causing it, but... wow!"
+		<br>
 	<<elseif $balloonStand.robin.status is "sabotaged" and $balloonStand.robin.talked is false and $robin.timer.customer is 0>>
-		<br><br>
 		"You know, I haven't been getting a lot of customers lately." <<His>> expression clouds over. "That stall <<print getRobinLocation() is "beach" ? "over there started selling lemonade" : "on the beach with the popcorn and balloons started selling <<seasonal_beverage>>">>..." <<He>> sighs. "I wish I knew why."
+		<br>
 	<</if>>
 <</widget>>
 
