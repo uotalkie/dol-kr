@@ -180,6 +180,11 @@ build:release_apk:
     echo "Modifying build_app.js to use custom version (commenting out original version)"
     sed -i 's/const version = versionData.match/\/\/ const version = versionData.match/g' scripts/build_app.js
     sed -i 's/configData.getroot().attrib.version = version/\/\/ configData.getroot().attrib.version = version/g' scripts/build_app.js
+  
+  # Fix build_app.js to check read is ESM or old version
+  - |
+    echo "Modifying build_app.js to check read is ESM or not"
+    sed -i "s/const read = require('read');/const _read = require('read'); const read = typeof _read === 'function' ? _read : _read.read;/g" scripts/build_app.js
 
   # Fix package.json for cordova version
   # - |
@@ -237,7 +242,7 @@ build:new_apk:release:
     - |
       echo "Building release apk"
       cd $CI_PROJECT_DIR/devTools/apkbuilder
-      chmod +x build_app_release.sh && ./build_app_release.sh
+      chmod +x build_app_release.sh && SKIP_PASSWORD=1 ./build_app_release.sh
 
   artifacts:
     name: dol-kr-new-apk-release
