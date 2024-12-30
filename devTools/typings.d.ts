@@ -13,7 +13,7 @@ declare var random: any;
 // Add our extensions
 interface ObjectConstructor {
     hasOwn(object: any, property: any): boolean;
-    deepMerge(objects: any): object;
+    deepMerge(...objects): object;
     find(objects: any): object;
 }
 interface NumberConstructor {

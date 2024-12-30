@@ -6,6 +6,11 @@
 /* Wallpaper */
 <<set _furniture to $furniture.bedroom>>
 <<if _furniture.wallpaper>>
+	<br>
+	<<set _premadeWall to ["vines", "tentacles", "plainwhite", "cowgirls", "cow_girls", "hearts", "trees", "crosses"].includes(_furniture.wallpaper.name)>>
+	<<set _wallpaper to _premadeWall ? "wallpaper_" + _furniture.wallpaper.name + ".png" : ['dol', 'degrees of lewdity'].some(e => _furniture.wallpaper.name.toLowerCase().includes(e)) ? "wallpaper_dol.png" : "wallpaper_custom.png">>
+
+	<<furnitureicon _wallpaper>>
 	<<switch _furniture.wallpaper.name>>
 		<<case "vines">>
 			음란한 초록 덩굴들이 벽에서 꿈틀대고 있다. 
@@ -23,7 +28,7 @@
 			벽지 색이 하얀색과 검정색을 오가며 물결처럼 그라데이션을 이루고 있다. 이 무늬는 뭔가 음란한 의미가 있는 걸까?
 		<<case "hearts">>
 			분홍색 하트가 벽을 덮고 있다.
-		<<case "cowgirls">>
+		<<case "cowgirls" "cow_girls">>
 			암소 소녀들이 벽에서 춤을 추고 있다.
 		<<case "trees">>
 			초록 나무들이 당신에게 숲에 있는 기분을 느끼게 하고 있다.
@@ -31,7 +36,7 @@
 			금색 십자가가 벽을 덮고 있다.
 		<<default>> /* Custom */
 			<<trFurniture _furniture.wallpaper.name "name">>_trResult 그림이 벽을 덮고 있다.
-			<<if ['dol', 'degrees of lewdity'].some(e => _furniture.wallpaper.name === e)>>
+			<<if _wallpaper is "wallpaper_dol.png">>
 				왜인지, 친숙한 기분이 든다.
 			<<elseif _furniture.wallpaper.name.startsWith('&lt;&lt')>>
 				<span class="black">당신은 치트를 쓰다가 걸린 것 같은 기분이 든다.</span>
@@ -85,19 +90,22 @@
 	<</switch>>
 <</if>>
 
-<<set _poster to Furniture.get('poster')>>
 <<if _furniture.poster>>
+	<<set _premadePoster to ["cowgirl", "cow_girl", "cat", "puppy"].includes(_furniture.poster.name)>>
+	<<set _poster to _premadePoster ? "poster_" + _furniture.poster.name + ".png" : ['dol', 'degrees of lewdity'].some(e => _furniture.poster.name.toLowerCase().includes(e)) ? "poster_dol.png" : "poster.png">>
 	<br>
+
+	<<furnitureicon _poster>>
 	<<switch _furniture.poster.name>>
-		<<case "cowgirl">>
-			<<furnitureicon _poster.iconFile>>암소 소녀 포스터가 벽에 걸려 있다.
+		<<case "cowgirl" "cow_girl">>
+			암소 소녀 포스터가 벽에 걸려 있다.
 		<<case "cat">>
-			<<furnitureicon _poster.iconFile>>고양이 포스터가 벽에 걸려 있다. 그 아래 적힌 글은, "거기 매달려 있어!"
+			고양이 포스터가 벽에 걸려 있다. 그 아래 적힌 글은, "거기 매달려 있어!"
 		<<case "puppy">>
-			<<furnitureicon _poster.iconFile>>강아지 포스터가 벽에 걸려 있다.
+			강아지 포스터가 벽에 걸려 있다.
 		<<default>> /* Custom */
-			<<furnitureicon _poster.iconFile>><<trFurniture _furniture.poster.name "name">>_trResult 포스터가 벽에 걸려 있다.
-			<<if ['dol', 'degrees of lewdity'].some(e => _furniture.poster.name === e)>>
+			<<trFurniture _furniture.poster.name "name">>_trResult 포스터가 벽에 걸려 있다.
+			<<if _poster is "poster_dol.png">>
 				당신은 이상하게 친숙한 느낌이 든다.
 			<<elseif _furniture.poster.name.startsWith('&lt;&lt;')>>
 				<span class="black">당신은 치트를 쓰다가 걸린 것 같은 기분이 든다.</span>
@@ -208,7 +216,7 @@
 <</if>>
 
 <<if _bed.type.includes("comfy")>>
-	<<furnitureicon _bed.iconFile>><<link [[침대에서 자위한다|Home Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<<skinicon "masturbate">><<link [[침대에서 자위한다|Home Masturbation]]>><<set $masturbationstart to 1>><</link>>
 	<br>
 <</if>>
 
@@ -1332,8 +1340,8 @@
 <br><br>
 <<tearful>> 당신은 욕조에서 나온다.
 <br><br>
-<<endevent>>
-<<link [[다음|Bath Finish]]>><<clotheson>><</link>>
+
+<<link [[다음|Bath Finish]]>><<endevent>><</link>>
 
 :: Bath Ask
 <<effects>><<set $location to "home">><<set $outside to 0>>
@@ -1357,13 +1365,15 @@
 	<<telltalepenissize>>
 <</if>>
 <br><br>
-<<endevent>>
+
 <<tearful>> 당신은 욕조에서 나온다.
 <br><br>
-<<link [[다음|Bath Finish]]>><</link>>
+<<link [[다음|Bath Finish]]>><<endevent>><</link>>
 
 :: Bath Molestation
 <<if $molestationstart is 1>>
+	/* clear soap prop and any reequipped handheld items */
+	<<handheldon>><<handheldstrip>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
@@ -1417,15 +1427,17 @@
 
 :: Bath Sex
 <<if $sexstart is 1>>
-<<set $sexstart to 0>>
-<<consensual>>
-<<set $consensual to 1>>
-<<neutral 1>>
-<<maninit>>
-<<set $enemytrust += 100>>
-<<enable_rescue>>
-당신은 일어난다. 그들의 눈이 커진다. 당신은 <<person2>><<personPost>>의 목덜미를 잡아채고는 <<hePost "을">> 가까이 잡아당긴다.<<person1>>
-<<promiscuity5>>
+	/* clear soap prop and any reequipped handheld items */
+	<<handheldon>><<handheldstrip>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+	<<enable_rescue>>
+	당신은 일어난다. 그들의 눈이 커진다. 당신은 <<person2>><<personPost>>의 목덜미를 잡아채고는 <<hePost "을">> 가까이 잡아당긴다.<<person1>>
+	<<promiscuity5>>
 <</if>>
 
 <<effects>>
@@ -1512,7 +1524,7 @@
 <<link [[다음|Bath Finish]]>><</link>>
 
 :: Bath
-<<effects>><<set $location to "home">><<set $outside to 0>>
+<<effects>><<set $location to "home">><<set $outside to 0>><<wearProp "soap">>
 <<run statusCheck("Kylar")>>
 <<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 <<if getRobinLocation() is "bath" and C.npc.Robin.trauma lt 40 and $halloween isnot 1>>
@@ -1590,7 +1602,7 @@
 		<br><br>
 		<<link [[비명지른다|Bath Scream]]>><</link>>
 		<br>
-		<<link [[나가라고 한다|Bath Ask]]>><</link>>
+		<<link [[나가달라고 한다|Bath Ask]]>><</link>>
 		<br>
 		<<if hasSexStat("exhibitionism", 5)>>
 			<<link [[보게 내버려 둔다 (0:05)|Bath Watch]]>><<pass 5>><</link>><<exhibitionist5>>
@@ -1620,8 +1632,7 @@
 			<br><br>
 		<</if>>
 
-		<<link [[끝낸다->Bath Finish]]>><</link>>
-		<<endevent>>
+		<<link [[끝낸다->Bath Finish]]>><<endevent>><</link>>
 	<</if>>
 
 <<elseif C.npc.Kylar.init is 1 and C.npc.Kylar.state isnot "prison" and $weekly.kylarBathroom isnot 1 and $rng gte 70 and (Time.dayState is "dusk" or Time.dayState is "night") and _kylarStatus.includes("Love") and _kylarStatus.includes("Lust") and $kylarenglish gte 1 and $kylarBodywriting is 1>>
@@ -1642,7 +1653,7 @@
 
 <<getouticon>><<link [[나간다->Bath Finish]]>><</link>>
 <br>
-<<ind>><<link [[자위한다|Bath Masturbation]]>><<set $masturbationstart to 1>><</link>>
+<<skinicon "masturbate">><<link [[자위한다|Bath Masturbation]]>><<set $masturbationstart to 1>><</link>>
 <</if>>
 
 :: Kylar Bath Help
@@ -1712,6 +1723,8 @@ Once finished, you look back up to Kylar. <<His>> eyes lock onto your body. A lo
 <<run statusCheck("Kylar")>>
 
 <<if $sexstart is 1>>
+	/* clear soap prop and any reequipped handheld items */
+	<<handheldon>><<handheldstrip>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
@@ -1801,9 +1814,11 @@ Once finished, you look back up to Kylar. <<His>> eyes lock onto your body. A lo
 
 :: Bath Finish
 <<effects>><<set $location to "home">><<set $outside to 0>>
+/* clear soap prop and any reequipped handheld items */
+<<handheldon>><<handheldstrip>>
 
 <<if Weather.wetness > 0.5>>
-	당신의 옷은 흠뻑 젖어, 물방울이 당신에게서 바닥 위로 뚝뚝 떨어진다.
+	당신의 옷은 흠뻑 젖는다. 물방울이 당신에게서 바닥 위로 뚝뚝 떨어진다.
 <<else>>
 	피부가 아직 축축하다.
 <</if>>
@@ -2842,15 +2857,15 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 <</if>>
 
 <<if Time.dayState is "day">>
-	<<link [[계속한다 (0:20)|Nude Bask]]>><<set $stress -= 10>><<pass 20>><</link>><<lstress>><<run tanningGainOutput(Weather.getTanningFactor().result, 10)>>
+	<<baskicon>><<link [[계속한다 (0:20)|Nude Bask]]>><<set $stress -= 10>><<pass 20>><</link>><<lstress>><<run Skin.tanningGainOutput(Skin.getTanningFactor().result, 10)>>
 	<br>
-	<<link [[자위한다|Nude Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<<skinicon "masturbate">><<link [[자위한다|Nude Masturbation]]>><<set $masturbationstart to 1>><</link>>
 	<br>
-	<<link [[그만 한다|Garden]]>><<clotheson>><</link>>
+	<<refuseicon>><<link [[그만둔다|Garden]]>><<clotheson>><</link>>
 <<else>>
 	해가 지붕 밑으로 사라져간다.
 	<br><br>
-	<<link [[옷을 입는다|Garden]]>><<clotheson>><</link>>
+	<<dressasyouwereicon>><<link [[옷을 입는다|Garden]]>><<clotheson>><</link>>
 <</if>>
 
 :: Widget Passout Home [widget]
@@ -2866,6 +2881,8 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 <<effects>>
 
 <<if $molestationstart is 1>>
+	/* clear soap prop and any reequipped handheld items */
+	<<handheldon>><<handheldstrip>>
 	<<set $molestationstart to 0>>
 	<<molested>>
 	<<controlloss>>
@@ -2909,7 +2926,6 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 마지막 남은 물 한 방울까지 욕조에서 빠져나가며, 슬라임을 함께 데려간다. <<tearful>> 당신은 욕조에서 나온다.
 <br><br>
 
-<<clotheson>>
 <<endcombat>>
 
 <<link [[다음|Bath Finish]]>><</link>>
@@ -3058,7 +3074,7 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 :: Mirror
 <<effects>>
 
-<<link [[물러선다|Bedroom]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
+<<bedicon>><<link [[물러난다|Bedroom]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
 <br>
 
 <<mirror>>
@@ -3071,7 +3087,7 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 <<if $previousPassage is undefined>>
 	<<set $previousPassage = "Bedroom">>
 <</if>>
-<<link [[물러선다|$previousPassage]]>><<unset $mirrorMenu>><<unset $simpleMirror>><<unset $bodywritingSet>><<postMirror>><</link>>
+<<ind>><<link [[물러난다|$previousPassage]]>><<handheldon>><<unset $mirrorMenu>><<unset $simpleMirror>><<unset $bodywritingSet>><<postMirror>><</link>>
 <br>
 
 <<mirror>>
@@ -3101,18 +3117,22 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 <<bHePost "은">> 호기심이 생긴 듯 당신의 다리 사이로 들어와 <<genitalsPost "을">> 바라본다. <<bHePost "은">> 살짝 냄새를 맡아보더니, 핥기 시작한다. 마치 <<bhis_ yi>> 혀가 거친 것을 알기라도 한듯, <<bHe_ nun>> 살살 핥는다. <<if playerChastity()>><<bhisPost "의">> 날렵한 혀에 <<worn_genitals_name_ i>> 제 역할을 하지 못한다.<</if>><<deviancy1>>
 
 <<if $arousal gte ($arousalmax / 5) * 4>>
-<<arousal 2000 "genitals">>
-당신은 누운 채로 <<bhisPost "의">> 귀를 어루만지며, 당신에게 쾌감을 주는 걸 내버려 둔다. <<bHePost "이">> 음란한 부위에 열중하는 동안 절정감이 점차 커지는게 느껴진다.
-<br><br>
+	<<arousal 2000 "genitals">>
+	당신은 누운 채로 <<bhisPost "의">> 귀를 어루만지며, 당신에게 쾌감을 주는 걸 내버려 둔다. <<bHePost "이">> 음란한 부위에 열중하는 동안 절정감이 점차 커지는게 느껴진다.
+	<br><br>
 
-<<orgasm>>
+	<<orgasm>>
 
-<<beasttypePost "은">> 당신이 풀 위에서 절정에 몸부림치는 동안 새어나오는 액체를 핥는 걸 목표 삼아 열의를 기울인다. 경련이 진정되는 동안, <<beasttypePost "은">> 약간의 액체를 코에 묻힌 채로 뭔가 다른 걸 하러 떠나간다.
-<br><br>
+	<<if $femaleclimax is 1>>
+		<<beasttype_ un>> 액체가 나오지 않는다는 것에 실망한 것 처럼 보였고, 무언가 할 만한 다른 것을 찾아 다른 곳으로 떠난다.
+	<<else>>
+		<<beasttypePost "은">> 당신이 풀 위에서 절정에 몸부림치는 동안 새어나오는 액체를 핥는 걸 목표 삼아 열의를 기울인다. 경련이 진정되는 동안, <<beasttypePost "은">> 약간의 액체를 코에 묻힌 채로 뭔가 다른 걸 하러 떠나간다.
+	<</if>>
+	<br><br>
 
 <<else>>
-당신은 누운 채로 <<bhisPost "의">> 귀를 어루만지며, 당신에게 쾌감을 주는 걸 내버려 둔다. <<bHePost "은">> 곧 흥미를 잃었는지 당신에게서 떠나가, 다시 덤불 속으로 돌아간다.
-<br><br>
+	당신은 누운 채로 <<bhisPost "의">> 귀를 어루만지며, <<beasttype_ i>> 당신에게 쾌감을 주는 걸 내버려 둔다. <<bHePost "은">> 곧 흥미를 잃었는지 당신에게서 떠나가, 다시 덤불 속으로 돌아간다.
+	<br><br>
 <</if>>
 
 <<link [[다음|Nude Bask]]>><<clearNPC nude_cat>><<endevent>><</link>>
@@ -3288,7 +3308,7 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 <</if>>
 <<link [[옷을 벗는다 (0:02)|Orphanage Hacker Strip]]>><<stress 1>><<pass 2>><<if $pubfame and $pubfame.intro lte 2>><<set $pubfame.intro to 3>><</if>><<if $pub_hack_job lte 2>><<set $pub_hack_job to 3>><</if>><<undress "mickey">><</link>><<gstress>>
 <br>
-<<link [[거절한다|Orphanage Hacker Strip Refuse]]>><<if $pubfame and $pubfame.intro lte 2>><<set $pubfame.intro to 2>><</if>><<if $pub_hack_job lte 2>><<set $pub_hack_job to 3>><</if>><</link>>
+<<link [[거절한다|Orphanage Hacker Strip Refuse]]>><<if $pubfame and $pubfame.intro lte 2>><<set $pubfame.intro to 2>><</if>><<if $pub_hack_job lte 2>><<set $pub_hack_job to 2>><</if>><</link>>
 
 :: Orphanage Hacker Strip Refuse
 <<set $outside to 0>><<set $location to "town">><<effects>>
@@ -3378,6 +3398,7 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 <</if>>
 
 <<shavestrip>>
+<<wearProp "razor">>
 당신은 옷을 벗고, 당신의 <<genitalsPost "을">> 본다.
 <br>
 <<if $worn.genitals.name is "chastity belt" or $worn.genitals.name is "gold chastity belt">>
@@ -3487,6 +3508,7 @@ No soldier is a match for your unstoppable onslaught. Cheater.
 	당신은 염색약을 가지고 있지 않다. 아마 화장품 가게에 가서 몇 개 구매할 수 있을 것이다.
 	<br>
 <<else>>
+	<<handheldon>><<wearProp "hairdye">>
 	무슨 색으로 하겠습니까?
 	<br>
 	<<set _choice = _ownedColours[0].colour>>

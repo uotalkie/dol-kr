@@ -66,7 +66,11 @@ function playerBellySize(pregnancyOnly = false) {
 		// The '+ 5' inflates the pregnancy belly size, meaning that the early stages of pregnancy will have no belly size increase due to it being reduced by the '- 5'
 		bellySize += Math.clamp(pregnancyProgress * Math.clamp(maxSize + 5, 0, 24 + 5) - 5, 0, 24);
 	}
-	if (!V.statFreeze && V.daily.bloated && !pregnancyOnly) bellySize += Math.clamp(V.daily.bloated, 1, 2);
+	if (!V.statFreeze && !pregnancyOnly) {
+		if (V.daily.bloated) bellySize += Math.clamp(V.daily.bloated, 1, 2);
+		if (V.parasite.tummy.name === "urchin") bellySize += 2;
+		if (V.parasite.tummy.name === "slime") bellySize -= 2;
+	}
 
 	return Math.floor(Math.clamp(bellySize, 0, 24));
 }

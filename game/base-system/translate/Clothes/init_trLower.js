@@ -337,7 +337,7 @@ function init_trLower()
         {
             index: 37,
             name: "belly dancer's bottoms",
-            name_ko: "벨리 댄서 하의",
+            name_ko: "밸리 댄서 하의",
             variable: "belly",
             description: "이국적이고, 보기보다 튼튼하다.",
             post: 1

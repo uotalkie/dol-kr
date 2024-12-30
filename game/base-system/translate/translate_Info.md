@@ -1303,6 +1303,12 @@
     ```
 
     ```
+    <<friendPost>>
+        <<friend>>의 대체 위젯.
+        + <<charlesPost>>와 용도 및 방식 같음. 생략
+    ```
+
+    ```
     <<wifePost>>
         <<wife>>의 대체 위젯. <<WifePost>> 로도 사용가능.
         + <<charlesPost>>와 용도 및 방식 같음. 생략
@@ -1781,6 +1787,13 @@
         e.g.
         <<changingRoomGenderPost "을">>               // 남학생들을
     ```
+
+   ```
+    <<your_bird_textPost>>
+        <<your_bird_text>>의 대체 위젯. 조사를 붙일 수 있다.
+       + <<charlesPost>>와 용도 및 방식 같음. 생략
+    ```
+
 
 * outfitNamePost
     ```
@@ -3000,6 +3013,18 @@
         + 여우. <<pShePost>>와 용도 및 방식 같음. 생략
     ```
 
+* overworld-town/loc-flats/widgets.twee
+    ```
+    <<hookah_master>>
+        + 물담배 가게 주인. <<pShePost>>와 용도 및 방식 같음. 생략
+    ```
+
+* overworld-plains/loc-riding/widgets.twee
+    ```
+    <<steed_text>> <<steed_he>> <<steed_He>> <<steed_him>> <<steed_his>> <<steed_type>>
+        + 말들. <<pShePost>>와 용도 및 방식 같음. 생략
+    ```
+
 * overworld-town/loc-school/school-project-widgets.twee
     ```
     <<sterlingTitle>> <<sterlingFather>> <<sterlingSir>> <<taylorSon>> <<taylorSibling>> <<cassBoy>>
@@ -3159,7 +3184,8 @@
 		```
 	- bodyPost 계열
 		```
-		<<breasts_ (조사)>>, <<breastssimple_ (조사)>>, <<bellyDescription_ (조사)>>, <<nipple_ (조사)>>, <<nipples_ (조사)>>, <<bottom_ (조사)>>, <<pussy_ (조사)>>, <<genitals_ (조사)>>, <<genitalsandbreasts_ (조사)>>,
+		<<breasts_ (조사)>>, <<breastssimple_ (조사)>>, <<bellyDescription_ (조사)>>, <<chest_ (조사)>>, <<chestsimple_ (조사)>>, <<nipple_ (조사)>>, <<nipples_ (조사)>>, <<bottom_ (조사)>>, 
+		<<pussy_ (조사)>>, <<genitals_ (조사)>>, <<genitalsandbreasts_ (조사)>>,
 		<<clit_ (조사)>>, <<penis_ (조사)>>, <<penisSimple_ (조사)>>, <<glans_ (조사)>>, <<testicles_ (조사)>>, <<testicle_ (조사)>>, <<hand_ (조사)>>, <<mouth_ (조사)>>,  
 		<<npcPenis_ (조사)>>, <<npcPenisSimple_ (조사)>>, <<npcVagina_ (조사)>>, <<npcAnus_ (조사)>>, <<npcGenitals_ (조사)>>, 
 		```
@@ -3192,7 +3218,7 @@
 		```
 	- otherPost 계열
 		```
-		<<charles_ (조사)>>, <<theowner_ (조사)>>, <<someone_ (조사)>>, <<spouse_ (조사)>>, <<father_ (조사)>>, <<Father_ (조사)>>, <<mummy_ (조사)>>, <<Mummy_ (조사)>>, 
+		<<charles_ (조사)>>, <<theowner_ (조사)>>, <<someone_ (조사)>>, <<someones_ (조사)>>,  <<their_ (조사)>>, <<spouse_ (조사)>>, <<father_ (조사)>>, <<Father_ (조사)>>, <<mummy_ (조사)>>, <<Mummy_ (조사)>>, 
 		<<girl_ (조사)>>, <<lady_ (조사)>>, <<gentleman_ (조사)>>, <<girls_ (조사)>>, <<girlfriend_ (조사)>>, <<friend_ (조사)>>, <<wife_ (조사)>>, <<Wife_ (조사)>>, 
 		<<sister_ (조사)>>, <<Sister_ (조사)>>, <<sister_npc_ (조사)>>, <<Sister_npc_ (조사)>>,
 		<<victimgirl_ (조사)>>, <<victimgirls_ (조사)>>, <<lass_ (조사)>>, <<gender_ (조사)>>, <<bitch_ (조사)>>, <<bitch_pirate_ (조사)>>, <<whore_ (조사)>>, <<slut_ (조사)>>, <<semen_ (조사)>>, <<prostate_ (조사)>>, 
@@ -3204,7 +3230,7 @@
 		<<handtool_ (조사)>>, <<lefttool_ (조사)>>, <<righttool_ (조사)>>, <<pcpetname_ (조사)>>, <<pcPetname_ (조사)>>, 
 		<<struggle_appendage_ (조사)>>, <<plant_details_ (조사)>>, <<Plant_details_ (조사)>>, <<tower_creature_text_ (조사)>>, <<pound_text_ (조사)>>,
 		<<kylar_pet_name_ (조사)>>, <<virgin_ (조사)>>, <<getfluidsfromgroup_ (조사)>>, <<condomDesc_ (조사)>>, <<office_manager_ (조사)>>, <<temple_title_ (조사)>>, <<temple_Title_ (조사)>>, <<changingRoomGender_ (조사)>>,
-		<<someones_ (조사)>>,  <<their_ (조사)>>, 
+		<<your_bird_text_ (조사)>>, 
 		```
 	
 	- outfitNamePost 계열

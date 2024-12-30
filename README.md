@@ -1,19 +1,19 @@
-# Degrees of Lewdity í•œêµ­ì–´ ë²ˆì—­íŒì— ëŒ€í•˜ì—¬
+# Degrees of Lewdity ÇÑ±¹¾î ¹ø¿ªÆÇ¿¡ ´ëÇÏ¿©
 
-ì´ ë²ˆì—­ë³¸ì€ Vrelnirì˜ Degrees of Lewdity (https://vrelnir.blogspot.com/) ê²Œìž„ ì›ë³¸ì„ ì›ë³¸ì˜ CC-BY-NC-SA ë¼ì´ì„¼ìŠ¤ì— ì˜ê±° ë™ì¼ì¡°ê±´ìœ¼ë¡œ ì•„ì¹´ë¼ì´ë¸Œ DOL ì±„ë„ (https://arca.live/b/dolgame)ì—ì„œ ë²ˆì—­ì¤‘ì¸ ë²ˆì—­ë³¸ìž…ë‹ˆë‹¤.
+ÀÌ ¹ø¿ªº»Àº VrelnirÀÇ Degrees of Lewdity (https://vrelnir.blogspot.com/) °ÔÀÓ ¿øº»À» ¿øº»ÀÇ CC-BY-NC-SA ¶óÀÌ¼¾½º¿¡ ÀÇ°Å µ¿ÀÏÁ¶°ÇÀ¸·Î ¾ÆÄ«¶óÀÌºê DOL Ã¤³Î (https://arca.live/b/dolgame)¿¡¼­ ¹ø¿ªÁßÀÎ ¹ø¿ªº»ÀÔ´Ï´Ù.
 
-ì´ ë²ˆì—­ë³¸ì„ ê¸°ë°˜ìœ¼ë¡œ í•˜ëŠ” 2ì°¨ì €ìž‘ë¬¼ì€ CC-BY-NC-SA ë¼ì´ì„¼ìŠ¤ë¥¼ ë”°ë¥´ëŠ” ì´ìƒ ìžìœ ë¡­ê²Œ ê³µìœ (ë°°í¬ ë“±) ë° ë³€ê²½í•˜ì‹¤ ìˆ˜ ìžˆìŠµë‹ˆë‹¤.
+ÀÌ ¹ø¿ªº»À» ±â¹ÝÀ¸·Î ÇÏ´Â 2Â÷ÀúÀÛ¹°Àº CC-BY-NC-SA ¶óÀÌ¼¾½º¸¦ µû¸£´Â ÀÌ»ó ÀÚÀ¯·Ó°Ô °øÀ¯(¹èÆ÷ µî) ¹× º¯°æÇÏ½Ç ¼ö ÀÖ½À´Ï´Ù.
 
-1. BY - ì›ë³¸ê³¼ ë²ˆì—­ë³¸ì˜ ì €ìž‘ìž (ì¶œì²˜)ê°€ ëª…ê¸°ë˜ì–´ì•¼ í•©ë‹ˆë‹¤.
-2. NC - ë¹„ì˜ë¦¬ ëª©ì ìœ¼ë¡œë§Œ ì´ìš© ê°€ëŠ¥í•©ë‹ˆë‹¤.
-3. SA - ì›ë³¸ê³¼ ë™ì¼í•œ CC-BY-NC-SA ë¼ì´ì„¼ìŠ¤ë¥¼ ì ìš©í•˜ì—¬ì•¼ í•©ë‹ˆë‹¤.
+1. BY - ¿øº»°ú ¹ø¿ªº»ÀÇ ÀúÀÛÀÚ (ÃâÃ³)°¡ ¸í±âµÇ¾î¾ß ÇÕ´Ï´Ù.
+2. NC - ºñ¿µ¸® ¸ñÀûÀ¸·Î¸¸ ÀÌ¿ë °¡´ÉÇÕ´Ï´Ù.
+3. SA - ¿øº»°ú µ¿ÀÏÇÑ CC-BY-NC-SA ¶óÀÌ¼¾½º¸¦ Àû¿ëÇÏ¿©¾ß ÇÕ´Ï´Ù.
 
-## ì°¸ê³ 
-- ì›ë³¸ì˜ CC-BY-NC-SA ë¼ì´ì„¼ìŠ¤ (ì˜ë¬¸): ì´ ë²ˆì—­ë³¸ì—ë„ í¬í•¨ë˜ì–´ ìžˆëŠ” LICENSE íŒŒì¼ì„ ì°¸ì¡°
-- CC-BY-NC-SA ë¼ì´ì„¼ìŠ¤ í•œê¸€ë²ˆì—­ë³¸: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.ko
-- CC-BY-NC-SA ë¼ì´ì„¼ìŠ¤ ê¶Œë¦¬ í•œê¸€ë²ˆì—­ë³¸: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko
+## Âü°í
+- ¿øº»ÀÇ CC-BY-NC-SA ¶óÀÌ¼¾½º (¿µ¹®): ÀÌ ¹ø¿ªº»¿¡µµ Æ÷ÇÔµÇ¾î ÀÖ´Â LICENSE ÆÄÀÏÀ» ÂüÁ¶
+- CC-BY-NC-SA ¶óÀÌ¼¾½º ÇÑ±Û¹ø¿ªº»: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.ko
+- CC-BY-NC-SA ¶óÀÌ¼¾½º ±Ç¸® ÇÑ±Û¹ø¿ªº»: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko
 
-ì´ ì•„ëž˜ë¶€í„°ëŠ” ì›ë³¸ì˜ README.md ì˜ ë‚´ìš©ì´ ì´ì–´ì§‘ë‹ˆë‹¤.
+ÀÌ ¾Æ·¡ºÎÅÍ´Â ¿øº»ÀÇ README.md ÀÇ ³»¿ëÀÌ ÀÌ¾îÁý´Ï´Ù.
 ---------------------------------------
 # Degrees of Lewdity
 

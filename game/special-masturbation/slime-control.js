@@ -28,7 +28,7 @@ function masturbationSlimeControl() {
 
 	if (
 		(V.leftaction === "mpenisstop" && !(V.mouth === "mpenis" && V.selfsuckDepth === V.penisHeight)) ||
-		["mvaginastop", "manusstop", "mchastityparasitestop"].includes(V.leftaction)
+		["mvaginastop", "manusstop", "mchastityparasitestop", "mbreaststop"].includes(V.leftaction)
 	) {
 		if (alternateForcedActions.includes("selfImpreg")) {
 			disableArmActions = true;
@@ -165,7 +165,8 @@ function masturbationSlimeControl() {
 						V.earSlime.focus === "pregnancy" &&
 						V.player.breastsize < V.breastsizemax &&
 						V.canSelfSuckPenis &&
-						V.worn.genitals.name === "chastity parasite"
+						V.worn.genitals.name === "chastity parasite" &&
+						V[armAction] === "slime"
 					) {
 						V[armAction] = "mchest";
 					} else if (
@@ -176,7 +177,7 @@ function masturbationSlimeControl() {
 						(!playerChastity("penis") || V.worn.genitals.name === "chastity parasite")
 					) {
 						V[armAction] = V.worn.genitals.name === "chastity parasite" ? "mchastityparasiteentrance" : "mpenisentrance";
-					} else if (arm === "right" && V.earSlime.focus === "pregnancy" && V.player.breastsize < V.breastsizemax) {
+					} else if (arm === "right" && V.earSlime.focus === "pregnancy" && V.player.breastsize < V.breastsizemax && V[armAction] === "slime") {
 						V[armAction] = "mchest";
 					} else if (
 						arm === "right" &&
@@ -191,6 +192,7 @@ function masturbationSlimeControl() {
 					) {
 						V[armAction] = "manusentrance";
 					} else if (V[armAction] === "slime") {
+						if (V.player.breastsize >= 3 && random(0, 100) <= 10) V[armAction] = "mbreasthold";
 						V[armAction] = "mchest";
 					}
 					break;
@@ -226,6 +228,13 @@ function masturbationSlimeControl() {
 					break;
 				case "mvaginafist":
 					V[armAction] = "mvaginafist";
+					break;
+				case "mbreast":
+					if (random(0, 100) >= 50 - V.earSlime.defyCooldown * 5 && !V.bugsinside) {
+						V[armAction] = "mbreastpinch";
+					} else {
+						V[armAction] = "mbreastfondle";
+					}
 					break;
 				case "manusentrance":
 					if (([0, "manus"].includes(V.anususe) && random(0, 100) > 50) || V[armAction] === "manus") {
@@ -368,6 +377,8 @@ function masturbationSlimeControl() {
 					V.mouthaction = V.worn.genitals.name === "chastity parasite" ? "mchastityparasiteentrance" : "mpenisentrance";
 				} else if (V.canSelfSuckVagina && V.vaginause === 0 && V.fingersInVagina === 0) {
 					V.mouthaction = "mvaginaentrance";
+				} else if (V.player.breastsize >= 8 && (V.leftarm === "mbreasthold" || V.rightarm === "mbreasthold")) {
+					V.mouthaction = "mbreastentrance";
 				}
 				break;
 			case "mpenisentrance":
@@ -386,6 +397,13 @@ function masturbationSlimeControl() {
 				break;
 			case "mchastityparasiteentrance":
 				V.mouthaction = "mchastityparasitelick";
+				break;
+			case "mbreast":
+				if (random(0, 100) >= 20) {
+					V.mouthaction = "mbreastsuck";
+				} else {
+					V.mouthaction = "mbreastlick";
+				}
 				break;
 			case "mvaginaentrance":
 				if (random(0, 100) >= 50 && !V.parasite.clit.name) {

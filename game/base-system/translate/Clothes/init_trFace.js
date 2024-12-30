@@ -184,7 +184,7 @@ function init_trFace()
         {
             index: 20,
             name: "belly dancer's veil",
-            name_ko: "벨리댄서의 베일",
+            name_ko: "밸리댄서의 베일",
             variable: "belly",
             post: 2,
             description: "이국적이고 유혹적이다."

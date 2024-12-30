@@ -584,6 +584,15 @@ function init_trHead()
             post: 0,
             description: "귀중한 누군가에게 받은 선물."
         },
+
+        {
+            index: 63,
+            name: "classic lolita headband",
+            name_ko: "클래식 로리타 머리띠",
+            variable: "lolitaold",
+            post: 1,
+            description: "머리카락을 뒤로 모아준다."
+        },
 	];
 }
 window.init_trHead = init_trHead;

@@ -9,7 +9,7 @@ setup.WeatherTemperature = {
 	},
 	dayMultiplier: 1.5, // Multiplier on day calculations
 	seasonMultiplier: 2, // Multiplier on season calculations
-	precipitationEffect: 1.5, // Effect on temperature, in degrees - per precipitationIntensity
+	precipitationEffect: -1.5, // Effect on temperature, in degrees - per precipitationIntensity
 	maxDiurnalVariation: 6.5, // Max temperature difference between day and night (if 0 overcast)
 	minDiurnalVariation: 2.25, // Min temperature difference between day and night (if 1 overcast)
 	snow: {

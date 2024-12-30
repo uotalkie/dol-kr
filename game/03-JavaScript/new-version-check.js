@@ -55,32 +55,3 @@ function handleVersionResponse(response) {
 		}
 	}
 }
-
-/*
-Deprecated widget
-<<widget "newversionnotification">>
-	<div id="new-version-notification" class="no-numberify">
-		New version is available! Degrees of Lewdity $newVersionData.version was released
-		<<print $newVersionData.hours >= 24 ? $newVersionData.days + " days" : $newVersionData.hours + " hours">> ago.
-
-		<div class="new-version-notification-buttons">
-			<a class="btn-update" href="https://vrelnir.blogspot.com" target="_blank">UPDATE!</a>
-
-			<div class="div-link btn-update">
-				<<link "Remind later">>
-					<<unset $newVersionData>>
-					<<run $('#new-version-notification').hide()>>
-				<</link>>
-			</div>
-			<div class="div-link btn-update">
-				<<link "Skip update">>
-					<<set $newVersionDismissed = true>>
-					<<unset $newVersionData>>
-					<<run $('#new-version-notification').hide()>>
-				<</link>>
-			</div>
-		</div>
-	</div>
-	<<run $(() => { linkifyDivs('#new-version-notification'); })>>
-<</widget>>
-*/

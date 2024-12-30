@@ -24,6 +24,8 @@ Weather.Renderer.Sky = class {
 		this.mainLayer.element.width = this.settings.size[0];
 		this.mainLayer.element.height = this.settings.size[1];
 
+		this.rng = new PRNG();
+
 		if (this.resizable) {
 			// Only trigger the resize event if the actual element is resized
 			new ResizeObserver(e => {

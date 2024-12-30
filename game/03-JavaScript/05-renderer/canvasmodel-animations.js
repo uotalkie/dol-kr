@@ -600,3 +600,14 @@ Renderer.Animations.VaginalCumDripVeryFast = {
 		{ frame: 11, duration: 100 },
 	],
 };
+Renderer.Animations.coinFlip = {
+	keyframes: [
+		{ frame: 0, duration: 1000 },
+		{ frame: 1, duration: 100 },
+		{ frame: 2, duration: 100 },
+		{ frame: 3, duration: 100 },
+		{ frame: 4, duration: 100 },
+		{ frame: 5, duration: 100 },
+		{ frame: 6, duration: 500 },
+	],
+};

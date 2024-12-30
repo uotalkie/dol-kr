@@ -7,6 +7,7 @@ function trinit_colorList()
 			"twotoned" : "투톤 색조",
 			"ghost" : "유령같은 반투명색",
 			"no" : "빡빡",
+			"original" : "원래 색",
 
 			/* setup.colours.hair (04-Variables/colours.js) */
 			"random" : "랜덤",
@@ -18,7 +19,7 @@ function trinit_colorList()
 			"softblond" : "부드러운 금발",
 			"platinumblond" : "백금색",
 			"golden" : "황금색",
-			"ashyblond" : "에쉬 블론드",
+			"ashyblond" : "애쉬 블론드",
 			"strawberryblond" : "스트로베리 블론드",
 			"darkbrown" : "짙은 갈색",
 			"brown" : "갈색",

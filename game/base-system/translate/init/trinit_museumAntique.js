@@ -101,11 +101,11 @@ function trinit_museumAntique()
 				post: 0
 			},
 			"Rusted Cutlass": {
-				koName: "녹슨 단검",
+				koName: "녹슨 커틀라스 검",
 				post: 0
 			},
 			"Cutlass": {
-				koName: "단검",
+				koName: "커틀라스 검",
 				post: 0
 			},
 			"Leather Map": {
@@ -173,8 +173,8 @@ function trinit_museumAntique()
 				post: 0
 			},
 			"White Crystal": {
-				koName: "하얀 크리스탈",
-				post: 2
+				koName: "하얀 수정",
+				post: 0
 			},
 			"Bailey Sign": {
 				koName: "베일리 광산 간판",
@@ -185,8 +185,8 @@ function trinit_museumAntique()
 				post: 0
 			},
 			"Wooden Mask": {
-				koName: "나무 마스크",
-				post: 1
+				koName: "나무 가면",
+				post: 0
 			},
 			"Trilobite Fossil": {
 				koName: "삼엽충 화석",
@@ -205,7 +205,7 @@ function trinit_museumAntique()
 				post: 2
 			},
 			"Chocolate": {
-				koName: "초콜렛",
+				koName: "초콜릿",
 				post: 0
 			},
 			"Tea Caddy": {

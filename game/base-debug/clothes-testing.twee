@@ -276,17 +276,10 @@
 	<<unset $characterViewer>>
 	<<unset $lastPassage>>
 	<<removeclass "#passages" "debugPassages">>
-	<<set $options.tanImgEnabled to clone($gameTanImgSetting)>>
-	<<unset $gameTanImgSetting>>
-	<<tanned 0 "ignoreCoverage">>
 <</link>>
 
 :: clothesTestingImageGenerate [widget]
 <<widget "clothesTestingImageUpdate">>
-	<<set $characterViewer.skinColour.style to {
-		body:skinColor($options.tanImgEnabled, $characterViewer.skinColour.range,setup.skinColor[$characterViewer.skinColour.type]),
-		mouth:skinColor($options.tanImgEnabled, $characterViewer.skinColour.range,setup.skinColor[$characterViewer.skinColour.type])
-	}>>
 	<<replace #images>>
 		<<clothesTestingImageGenerateAll>>
 	<</replace>>
@@ -325,9 +318,6 @@
 	<label>Feminine <<radiobutton "$characterViewer.bodyState.bodytype" 2 autocheck>></label> |
 	<br><br>
 	<span class="gold">Skin Colour</span>
-	<br>
-	<label>Enable <<radiobutton "$options.tanImgEnabled" true autocheck>></label> |
-	<label>Disable <<radiobutton "$options.tanImgEnabled" false autocheck>></label> |
 	<br>
 	Reddish:
 	<label>Light <<radiobutton "$characterViewer.skinColour.type" "light" autocheck>></label> |
@@ -1055,7 +1045,7 @@
 	<<characterViewerModelClothes $_id "feet">>
 	<<characterViewerModelClothes $_id "genitals">>
 
-	<<if _modeloptions.worn_handheld>>
+	<<if _modeloptions.worn.handheld.index>>
 		<<set _modeloptions.arm_right to "hold">>
 	<<else>>
 		<<run delete _modeloptions.arm_right>>
@@ -1158,9 +1148,9 @@
 
 	<<set $_item to setup.clothes[$_slot][$characterViewer.clothesEquipped[$_slot]]>>
 	<<if $_item and $characterViewer.clothesEquipped[$_slot] isnot 0 and $_item.name isnot "naked">>
-		<<set _modeloptions["worn_" + $_slot] to $characterViewer.clothesEquipped[$_slot]>>
+		<<set _modeloptions.worn[$_slot].index to $characterViewer.clothesEquipped[$_slot]>>
 		<<if ["over_upper","over_lower","upper","lower","under_upper","under_lower","genitals"].includes($_slot)>>
-			<<set _modeloptions["worn_" + $_slot + "_integrity"] to $characterViewer.clothesIntegrity[$_slot]>>
+			<<set _modeloptions.worn[$_slot].integrity to $characterViewer.clothesIntegrity[$_slot]>>
 		<</if>>
 
 		<<set $_colours to $_item.colour_options>>
@@ -1169,27 +1159,27 @@
 		<<run $_acc_colours.delete("custom")>>
 
 		<<if !Array.isArray($_colours) or $_colours.length is 0>>
-			<<set _modeloptions["worn_" + $_slot + "_colour"] to "">>
+			<<set _modeloptions.worn[$_slot].colour to "">>
 		<<elseif $characterViewer.colours[$_slot][0] is "Range">>
-			<<set _modeloptions["worn_" + $_slot + "_colour"] to $_colours[Math.clamp($_instanceId,0,$_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].colour to $_colours[Math.clamp($_instanceId,0,$_colours.length - 1)]>>
 		<<elseif $characterViewer.colours[$_slot][0] is "Inversed Range">>
-			<<set _modeloptions["worn_" + $_slot + "_colour"] to $_colours[Math.clamp($_colours.length - $_instanceId,0,$_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].colour to $_colours[Math.clamp($_colours.length - $_instanceId,0,$_colours.length - 1)]>>
 		<<else>>
-			<<set _modeloptions["worn_" + $_slot + "_colour"] to $characterViewer.colours[$_slot][0]>>
+			<<set _modeloptions.worn[$_slot].colour to $characterViewer.colours[$_slot][0]>>
 		<</if>>
 		<<if !Array.isArray($_acc_colours) or $_acc_colours.length is 0>>
-			<<set _modeloptions["worn_" + $_slot + "_acc_colour"] to "">>
+			<<set _modeloptions.worn[$_slot].acc_colour to "">>
 		<<elseif $characterViewer.colours[$_slot][1] is "Range">>
-			<<set _modeloptions["worn_" + $_slot + "_acc_colour"] to $_acc_colours[Math.clamp($_instanceId,0,$_acc_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].acc_colour to $_acc_colours[Math.clamp($_instanceId,0,$_acc_colours.length - 1)]>>
 		<<elseif $characterViewer.colours[$_slot][1] is "Inversed Range">>
-			<<set _modeloptions["worn_" + $_slot + "_acc_colour"] to $_acc_colours[Math.clamp($_acc_colours.length - $_instanceId,0,$_acc_colours.length - 1)]>>
+			<<set _modeloptions.worn[$_slot].acc_colour to $_acc_colours[Math.clamp($_acc_colours.length - $_instanceId,0,$_acc_colours.length - 1)]>>
 		<<else>>
-			<<set _modeloptions["worn_" + $_slot + "_acc_colour"] to $characterViewer.colours[$_slot][1]>>
+			<<set _modeloptions.worn[$_slot].acc_colour to $characterViewer.colours[$_slot][1]>>
 		<</if>>
 	<<else>>
-		<<set _modeloptions["worn_" + $_slot] to 0>>
-		<<set _modeloptions["worn_" + $_slot + "_colour"] to "">>
-		<<set _modeloptions["worn_" + $_slot + "_acc_colour"] to "">>
+		<<set _modeloptions.worn[$_slot].index to 0>>
+		<<set _modeloptions.worn[$_slot].colour to "">>
+		<<set _modeloptions.worn[$_slot].acc_colour to "">>
 	<</if>>
 <</widget>>
 

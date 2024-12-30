@@ -18,22 +18,6 @@
 	<</if>>
 	<br><br>
 	<<switch $phase>>
-		<<case "hot drink" "cold drink">>
-			<<set $daily.ex.balloonDrink to ($daily.ex.balloonDrink or 0) + 1>>
-			<<set _prop to $phase is "cold drink" ? "lemonade" : "cocoa">>
-			<<wearProp _prop>>
-
-			<<set _drink to $phase is "hot drink" ?
-			"a cup of steaming <<seasonal_beverage>>. The paper cup warms your hands" :
-			"glass of ice-cold <<seasonal_beverage>>. The plastic cup swelters in your hand">>
-			<<He>> pours you a _drink.
-
-			<<if $daily.ex.balloonDrink is 2>>
-				"Thirsty, eh?" <<he>> says. "<<print playerBellyVisible() ? "Guess you gotta keep that little one hydrated" : "Glad to see you're staying hydrated">>." <<He>> smiles at you.
-			<<elseif $daily.ex.balloonDrink is 3>>
-				"Gotta save some for the other customers, so I'm gonna have to cut you off after this." <<He>> gives you an apologetic smile.
-			<</if>>
-
 		<<case "popcorn">>
 			<<He>> scoops out some freshly-popped popcorn. The bag's still warm when <<he>> hands it to you.
 			<<set $daily.ex.popcorn to ($daily.ex.popcorn or 0) + 1>>
@@ -44,12 +28,23 @@
 			<<elseif $daily.ex.popcorn is 3>>
 				"Gotta save some for the other customers, so I'm gonna have to cut you off after this." <<print $balloonStand.owner is "angry" ? "<<His>> voice is curt" : "<<He>> gives you an apologetic smile">>.
 			<</if>>
+		<<default>>
+			<<set $daily.ex.balloonDrink to ($daily.ex.balloonDrink or 0) + 1>>
+			<<set _prop to $phase is "cold drink" ? "lemonade" : $phase is "hot cider" ? "hot cider" : "hot cocoa">>
+			<<wearProp _prop>>
+
+			<<set _drink to $phase is "cold drink" ? "glass of ice-cold <<seasonal_beverage>>. The plastic cup swelters in your hand" : "a cup of steaming <<seasonal_beverage>>. The paper cup warms your hands">>
+			<<He>> pours you a _drink.
+
+			<<if $daily.ex.balloonDrink is 2>>
+				"Thirsty, eh?" <<he>> says. "<<print playerBellyVisible() ? "Guess you gotta keep that little one hydrated" : "Glad to see you're staying hydrated">>." <<He>> smiles at you.
+			<<elseif $daily.ex.balloonDrink is 3>>
+				"Gotta save some for the other customers, so I'm gonna have to cut you off after this." <<He>> gives you an apologetic smile.
+			<</if>>
 	<</switch>>
 	"<<print $balloonStand.owner is "angry" ? "There you go. Get lost." : either("Good to see you, love.", "Have a great rest of your day now.", "Thanks for your custom.", "Enjoy!")>>"
 	<br><br>
 	<<switch $phase>>
-		<<case "hot drink" "cold drink">>
-			<<link [[Take a sip (0:15)|Balloon Consume]]>><<stress -9>><<pass 15>><</link>><<lstress>><br>
 		<<case "popcorn">>
 			<<link [[Eat the popcorn (0:15)|Balloon Consume]]>><<set $phase to $balloonStand.robin.status is "help needed" ? "ask_eat" : "popcorn">><<trauma -3>><</link>><<ltrauma>><br>
 			<<if $balloonStand.robin.status is "help needed">>
@@ -57,16 +52,18 @@
 			<<else>>
 				<<link [[Save it for later|Beach]]>><<set $eventskip to 1>><<set $popcorn += 1>><<endevent>><</link>>
 			<</if>>
+		<<default>>
+			<<link [[Take a sip (0:15)|Balloon Consume]]>><<stress -9>><<pass 15>><</link>><<lstress>><br>
 	<</switch>>
 
 :: Balloon Consume
 <<effects>>
 
 <<switch $phase>>
-	<<case "hot drink">>You take a careful sip, careful not to scald your tongue. The <<seasonal_beverage>> is rich <<print Time.season is "winter" ? "and creamy" : "with spices">>, and you can feel the stress melting away.
 	<<case "cold drink">>You take a sip. The <<seasonal_beverage>> is <<print Time.season is "spring" ? "pleasantly fruity" : "tart">> and refreshing, and you can feel the stress melting away.
 	<<case "popcorn" "park" "ask_eat">>You pop a handful of popcorn into your mouth. It's buttery and salty, and it brings back nostalgic memories of trips to the cinema.
 	<<case "ask">>You fold over the top of the bag so popcorn doesn't spill everywhere before pocketing it.<<handheldon>>
+	<<default>>You take a careful sip, careful not to scald your tongue. The <<seasonal_beverage>> is rich <<print Time.season is "winter" ? "and creamy" : "with spices">>, and you can feel the stress melting away.
 <</switch>>
 <br><br>
 <<if ["ask","ask_eat"].includes($phase)>>
@@ -515,10 +512,10 @@ You take your leave and let the <<person>> finish setting up <<his>> stall.
 		<</if>>
 		<<if $balloonStand.robin.status is "sabotaged" and $money gte 300 and !($daily.ex.balloonDrink gte 3)>>
 			<<switch Time.season>>
-				<<case "winter">><<set _drink to "hotcocoa">><<set _phase to "hot drink">>
+				<<case "winter">><<set _drink to "hotcocoa">><<set _phase to "hot cocoa">>
 				<<case "spring">><<set _drink to "strawberrylemonade">><<set _phase to "cold drink">>
 				<<case "summer">><<set _drink to "lemonade">><<set _phase to "cold drink">>
-				<<default>><<set _drink to "hotcider">><<set _phase to "hot drink">>
+				<<default>><<set _drink to "hotcider">><<set _phase to "hot cider">>
 			<</switch>>
 			<br>
 			<<foodicon _drink>><<link [[Buy something to drink (0:02 £3)|Balloon Purchase]]>><<set $money -= 300>><<set $phase to _phase>><<pass 2>><</link>>
@@ -576,7 +573,7 @@ You take your leave and let the <<person>> finish setting up <<his>> stall.
 	<<set _lemonade to Time.season is "winter" ? "hot chocolate" : "lemonade">>
 	<<set _stall to Time.season is "winter" ? "A <<person1>><<personsimple>> at the beach" : "That <<person1>><<personsimple>> over there">>
 
-	Robin's mouth gapes for a few minutes. "You... did that for me?"
+	Robin's mouth gapes for a few seconds. "You... did that for me?"
 	<br><br>
 	"Of course I did," you say. "You're my _boyfriend."
 	<br><br>
