@@ -766,7 +766,7 @@ Macro.add("tml", {
 		switch (type) {
 			case "current":
 				link.id = "currentLoc";
-				link.title += " (you are here)";
+				link.title += " (현위치)";
 				break;
 			case "possessed next":
 				link.classList.add("nextLink");

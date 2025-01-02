@@ -495,7 +495,7 @@ function sexShopOnGiftClick(index) {
 	if (document.getElementById("ssmGiftButton")) {
 		document.getElementById(
 			"ssmGiftButton"
-		).outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">Bought!</span>`;
+		).outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">구입했다!</span>`;
 	}
 	document.getElementById("recipientList").remove();
 	document.getElementById("spanGift").remove();
@@ -554,7 +554,7 @@ function sexShopOnBuyClick(index, inSexShop = true, colour, costsMoney = true) {
 		if (document.getElementById("ssmBuyButton")) {
 			document.getElementById(
 				"ssmBuyButton"
-			).outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">Bought!</span>`;
+			).outerHTML = `<span class="ssm_buy_button ssm_fade_in" id="ssmBuyButton" style="color:#97de97">구입했다!</span>`;
 		}
 		if (sexShopOnBuyClick.counter === "off") {
 			sexShopOnBuyClick.counter = setTimeout(function () {

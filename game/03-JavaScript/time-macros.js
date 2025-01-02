@@ -115,24 +115,24 @@ function schoolTerm() {
 		const currentTimeStamp = Time.date.timeStamp;
 		if (date.year === Time.year && date.month === Time.month && date.day === Time.monthDay) {
 			if (date.timeStamp > currentTimeStamp) {
-				return "School term finishes today.";
+				return "학기는 오늘 끝난다.";
 			} else {
 				const nextDate = Time.getNextSchoolTermStartDate(date.addDays(1));
 				return (
-					"School term has finished. Next term starts on " +
-					nextDate.weekDayName +
-					" the " +
-					ordinalSuffixOf(nextDate.day) +
-					" of " +
-					nextDate.monthName +
-					"."
+					"이번 학기는 끝났다. 다음 학기는 " +
+					trMonth(nextDate.monthName) +
+					" " +
+					nextDate.day +
+					"일 " +
+					trDaysOfWeek(nextDate.weekDayName) +
+					"에 시작한다."
 				);
 			}
 		} else {
-			return "학기는 " + month + " " + date.day +"일 " + weekDayName + "에  끝난다.";
+			return "학기는 " + month + " " + date.day +"일 " + weekDayName + "에 끝난다.";
 		}
 	}
 	const date = Time.nextSchoolTermStartDate; trMonth(date.monthName); const month = T.trResult; trDaysOfWeek(date.weekDayName); const weekDayName = T.trResult;
-	return "학기는 " + month + " " + date.day +"일 " + weekDayName + "에  시작한다.";
+	return "학기는 " + month + " " + date.day +"일 " + weekDayName + "에 시작한다.";
 }
 DefineMacroS("schoolterm", schoolTerm);

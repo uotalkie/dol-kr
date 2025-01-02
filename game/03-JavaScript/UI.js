@@ -224,7 +224,7 @@ function settingsNudeGenderAppearance() {
 		switch (val) {
 			case -1:
 				text =
-					"NPCs <span class='blue inline-colour'>ignore</span> genitals when perceiving gender. <span class='purple inline-colour'>Overrides some gender appearance modifiers, including the femininity factor of pregnant bellies. Player descriptions will match the behaviour chosen in the bedroom mirror.</span> <span class='red inline-colour'>Disables crossdressing warnings. NPCs will still judge gender based on your manner of dress.</span>";
+					"NPC들은 성별을 파악할 때 생식기를 <span class='blue inline-colour'>무시할</span> 것입니다. <span class='purple inline-colour'>임신한 배에 의한 여성적인 요소를 포함한 몇몇 성별 묘사 설정보다 우선합니다. 플레이어 묘사는 침실 거울에서 선택한 묘사에 맞춰질 것 입니다.</span> <span class='red inline-colour'>크로스드레싱 경고를 비활성합니다. 그렇더라도 NPC들은 당신의 옷차림에 기반하여 당신의 성별을 파악할 것입니다.</span>";
 				break;
 			case 0:
 				text = "NPC들은 당신의 성별을 파악할 때 당신의 생식기를 <span class='blue inline-colour'>무시할</span> 것입니다.";

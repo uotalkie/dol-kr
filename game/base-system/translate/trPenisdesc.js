@@ -68,7 +68,7 @@ function trPenisdesc(penisdesc, post, sep)
 		{
 			const trPenisAdj = {"thick":"두꺼운","hefty":"굵은","big":"큰","large":"큼지막한","veiny":"핏줄 선","meaty":"두툼한",	/* 3 */
 								"massive":"거대한","huge":"커다란","humongous":"무지막지한","immense":"어마어마한","gigantic":"대형","enormous":"엄청난",	/* 4+ */
-								"tiny":"조그마한", "pathetic":"한심한", "little":"자그마한", "small":"작은", "mini":"미니", "micro":"마이크로",	/* 1 */
+								"tiny":"조그마한", "pathetic":"한심한", "little":"자그마한", "small":"작은", "mini":"아주 작은", "micro":"정말 작은",	/* 1 */
 								"knotted":"혹이 달린","spiked":"뾰족한","strange":"이상한","equine":"말", "avian": "새", "bovine": "소", "arachnid": "거미"};
 			if (trPenisAdj[tempArray[0]] === undefined)
 				T.trResult = `<span class='red'>에러: trPenisdesc: trPenisAdj에 ${tempArray[0]} 키가 없음 : ${penisdesc}</span>`;

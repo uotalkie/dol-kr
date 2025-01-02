@@ -101,6 +101,7 @@ function trinit_colorList()
 			"steel": "철색",
 			"bluesteel": "강청색",
 			"bronze": "청동색",
+			"rosegold": "로즈골드색",
 			"gold": "금색",
 			"silver": "은색",
 			"sterlingsilver": "순은색",
@@ -139,6 +140,9 @@ function trinit_colorList()
 			/*"black" : "검은색",*/
 			"blackwaterproof" : "검은색 (방수)",
 			"black(waterproof)" : "검은색 (방수)",
+			
+			/* setup.colours.blusher */
+			"rosypink" : "로지핑크색",
 
 			/* setup.colours.condom */
 			"lblue" : "연한 파란색",
