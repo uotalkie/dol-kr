@@ -72,7 +72,7 @@ Weather.WeatherGeneration = (() => {
 			return currentKeyPoint.value;
 		}
 
-		currentKeyPoint = currentKeyPoint ?? { timestamp: currentTimeStamp, value: nextKeyPoint.value };
+		currentKeyPoint ??= { timestamp: currentTimeStamp, value: nextKeyPoint.value };
 
 		const current = Weather.genSettings.weatherTypes[currentKeyPoint.value];
 		const next = Weather.genSettings.weatherTypes[nextKeyPoint.value];
@@ -117,7 +117,7 @@ Weather.WeatherGeneration = (() => {
 		).types;
 
 		// Randomly choose one type if there are multiple options with the same int value
-		const chosenType = closestTypes[random(0, closestTypes.length - 1)];
+		const chosenType = closestTypes[Weather.activeRenderer.rng.randomInt(0, closestTypes.length - 1)];
 		const newObj = createObjectByType(chosenType);
 
 		V.weatherObj.name = chosenType.name;
@@ -188,7 +188,10 @@ Weather.WeatherGeneration = (() => {
 				return exceptionDate().dayDifference(date) === 0;
 			});
 
-			const numKeyPoints = random(Math.max(minKeyPointsPerDay - exceptions.length, 0), Math.max(maxKeyPointsPerDay - exceptions.length, 0));
+			const numKeyPoints = Weather.activeRenderer.rng.randomInt(
+				Math.max(minKeyPointsPerDay - exceptions.length, 0),
+				Math.max(maxKeyPointsPerDay - exceptions.length, 0)
+			);
 			const dayKeypoints = [];
 
 			// Add two keypoints. One for start and one for after the duration
@@ -208,7 +211,7 @@ Weather.WeatherGeneration = (() => {
 
 				while (!isValid) {
 					const timeWindow = 24 * 60 - timeApart;
-					time = random(timeApart, timeWindow);
+					time = Weather.activeRenderer.rng.randomInt(timeApart, timeWindow);
 					timestamp = new DateTime(date.year, date.month, date.day, Math.floor(time / 60), time % 60).timeStamp;
 
 					isValid = !dayKeypoints.some(rt => rt.timestamp <= timestamp && timestamp <= rt.timestamp);
@@ -233,7 +236,7 @@ Weather.WeatherGeneration = (() => {
 			return [index, weight];
 		});
 
-		return weightedRandom(...options);
+		return weightedRandom(...options, Weather.activeRenderer.rng);
 	}
 
 	return Object.create({

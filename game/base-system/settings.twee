@@ -91,8 +91,8 @@
 	<<set $condomUseChanceCon to 83>>
 	<<set $multipleWardrobes to "isolated">>
 	<<set $tending_yield_factor to 5>>
-
 	<<set $notifyUpdate = true>>
+	<<set _tan to 0>>
 
 	<<startingPlayerImageReset>>
 <<init_customSetting>><</widget>>
@@ -142,8 +142,6 @@
 	<</switch>>
 	<<run settingsDisableElement()>>
 <</widget>>
-
-<<widget "fa-icon">><span @class="'fa-icon fa-' + _args.raw" alt="' + _args.raw + '"></span><</widget>>
 
 <<widget "startOptionsComplexityButton">>
 	<div @class="_selectedStart is _args[1] ? 'gold buttonStartSelected' : 'buttonStart'" >
@@ -630,9 +628,6 @@
 <</widget>>
 
 <<widget "settingsExitFunction">>
-	<<if $settingsExitPassage is "Start2">>
-		<<setSkinColorBase>>
-	<</if>>
 	<<if !$ironmanmode>>
 		<<set $cheatdisable to $cheatdisabletoggle>>
 	<</if>>
@@ -654,7 +649,6 @@
 	<<updatePersistentNPCs>>
 	<<hirsuteHideCheck>>
 	<<generateTipsList>>
-	<<tanned 0 "ignoreCoverage">>
 	<<if $player.freckles is "random">>
 		<<set $player.freckles to (random(1, 5) is 1)>>
 	<</if>>
@@ -975,7 +969,6 @@
 	<hr>
 
 	<<sizeLimitsSettings>>
-
 	<hr>
 
 	<div class="settingsGrid">
@@ -984,31 +977,30 @@
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">붉게:</span><br>
-			<label>연하게 <<radiobutton "$skinColor.natural" "light" autocheck>></label> |
-			<label>중간 <<radiobutton "$skinColor.natural" "medium" autocheck>></label> |
-			<label>짙게 <<radiobutton "$skinColor.natural" "dark" autocheck>></label> |
-			<label>갸루 <<radiobutton "$skinColor.natural" "gyaru" autocheck>></label>
+			<label>연하게 <<radiobutton "$player.skin.color" "light" autocheck>></label> |
+			<label>중간 <<radiobutton "$player.skin.color" "medium" autocheck>></label> |
+			<label>짙게 <<radiobutton "$player.skin.color" "dark" autocheck>></label> |
+			<label>갸루 <<radiobutton "$player.skin.color" "gyaru" autocheck>></label>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">노랗게:</span><br>
-			<label>연하게 <<radiobutton "$skinColor.natural" "ylight" autocheck>></label> |
-			<label>중간 <<radiobutton "$skinColor.natural" "ymedium" autocheck>></label> |
-			<label>짙게 <<radiobutton "$skinColor.natural" "ydark" autocheck>></label> |
-			<label>갸루 <<radiobutton "$skinColor.natural" "ygyaru" autocheck>></label>
+			<label>연하게 <<radiobutton "$player.skin.color" "ylight" autocheck>></label> |
+			<label>중간 <<radiobutton "$player.skin.color" "ymedium" autocheck>></label> |
+			<label>짙게 <<radiobutton "$player.skin.color" "ydark" autocheck>></label> |
+			<label>갸루 <<radiobutton "$player.skin.color" "ygyaru" autocheck>></label>
 		</div>
 		<div class="settingsToggleItemWide">
 			<div class="numberslider-inline">
-			<label><span class="gold">초기 선탠 수치:</span> <<numberslider "$skinColor.range" $skinColor.range 0 100 1>></label>
+			<label><span class="gold">초기 선탠 수치:</span>
+			<<numberslider "_tan" _tan 0 100 1 {
+				onInputChange: value => {
+					 Skin.color.setTan(value);
+					 Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
+				},
+				value: v => `${v}%`
+			}>>
+			</label>
 			</div>
-			<<if StartConfig.enableImages is true>>
-				<<link "색상 미리보기">>
-					<<replace #test>>
-						<<print '<div style="height: 30px; width: 50px; background-color: red; filter: '
-						+skinColor(true, $skinColor.range, setup.skinColor[$skinColor.natural])+';"></div>'>>
-					<</replace>>
-				<</link>> (근사치)
-				<div id="test">/*<<print '<div style="height: 30px; width: 50px; background-color: red; filter: '+skinColor($options.tanImgEnabled, $skinColor.range,setup.skinColor[$skinColor.natural])+';"></div>'>>*/</div>
-			<</if>>
 		</div>
 	</div>
 
@@ -1141,7 +1133,7 @@
 			/*<br>
 			<label>원예가 <<radiobutton "$background" "greenthumb" autocheck>> - 작물 수확량이 증가하고 비료를 사용하면 썩지 않습니다. 비료를 하나 가지고 시작합니다.</label>*/
 			<br>
-			<label><mouse class="tooltip"><span class="lewd">식물 애호가</span> <<radiobutton "$background" "plantlover" autocheck>> - 식물들은 당신에게는 전부입니다.<span class="green">당신은 꿀에 중독되어 있습니다. 당신은 미약과 술에 더 영향을 많이 받습니다. 식물사람들과 식물 기반 촉수를 만나기 위해 더 이상 환각이 필요하지 않습니다. 당신은 관리 기술에 추가 보너스를 받지만, 당신의 트라우마가 증가합니다.</span></mouse>
+			<label><mouse class="tooltip"><span class="lewd">식물 애호가</span> <<radiobutton "$background" "plantlover" autocheck>> - 식물들은 당신에게는 전부입니다.<span class="green">당신은 꿀에 중독되어 있습니다. 당신은 미약과 술에 더 영향을 많이 받습니다. 식물사람들과 식물 기반 촉수를 만나기 위해 더 이상 환각이 필요하지 않습니다. 당신은 트라우마가 증가함에 따라, 관리 기술에 추가 보너스를 받습니다.</span></mouse>
 			</label>
 			/*<br>
 			 Keep last, in 'widget "variablesStart2"' be sure to add any new traits to the array after if '$background is "random"'
@@ -1760,7 +1752,7 @@
 				<<checkbox "$forcedcrossdressingdisable" "t" "f" autocheck>> 강제된 크로스드레싱 활성화
 			</label>
 		</div>
-		
+
 		<div class="settingsToggleItem">
 			<label>
 				<<checkbox "$ruinedorgasmdisable" "t" "f" autocheck>> 루인드 오르가즘 활성화
@@ -2229,7 +2221,6 @@
 			<span class="bold">
 				<<link [[캐릭터 뷰어|Clothes Testing]]>>
 					<<set $lastPassage to $passage>>
-					<<set $gameTanImgSetting to clone($options.tanImgEnabled)>>
 				<</link>>
 			</span>
 			- 캐릭터 스프라이트를 갖고 놀 수 있습니다.
@@ -2344,14 +2335,14 @@
 						new Wikifier(null, '<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>');
 					});
 
-					T.keys = {};
-					T.keyNames = [];
+					T.npcKeys = {};
+					T.npcKeyNames = [];
 					const allowed_npcs = ["steed", "guard", "inmate", "panty_thief", "school_nurse", "tower_creature", "pinch", "black_dog", "hacker", "bishop", "bishop_right_hand", "bishop_left_hand"];
 					Object.keys(V.per_npc).forEach(k => {
 						for (const j of allowed_npcs){
 							if (k.includes(j)){
-								T.keyNames.push(k);
-								T.keys[k.toUpperFirst().replace(/_/g, ' ')] = k;
+								T.npcKeyNames.push(k);
+								T.npcKeys[k.toUpperFirst().replace(/_/g, ' ')] = k;
 								break
 							}
 						}
@@ -2359,7 +2350,7 @@
 					T.perNPCLock = true;
 				}
 			>>
-			<<if T.keyNames and T.keyNames.length>>
+			<<if T.npcKeyNames and T.npcKeyNames.length>>
 				<hr>
 				<div id="perNPCSettingsMenu">
 					<<perNPCSettingsMenu>>
@@ -2473,8 +2464,7 @@
 			</span>
 		</div>
 		<<if V.NPCName[T.npcId].pregnancy.type>>
-			<div class="settingsToggleItem">
-				<br><br>
+			<div class="settingsToggleItemWide">
 				이 NPC는 현재 임신중입니다. 임신중에는 몇몇 설정은 변경할 수 없습니다.
 			</div>
 		<</if>>
@@ -2600,7 +2590,7 @@
 	<span class="gold">지속성 NPC 설정 (Persistent; 더 나은 번역이 있으면 수정할 것):</span>
 	<br>
 	<<listbox "_pNPCId" autoselect>>
-		<<optionsfrom _keys>>
+		<<optionsfrom _npcKeys>>
 	<</listbox>>
 	<<switch _pNPCId>>
 		<<case "scarred_inmate">>
@@ -2614,15 +2604,15 @@
 				<<clearsinglenpc 0>>
 			<</if>>
 	<</switch>>
-	<<set _index to _keyNames.indexOf(_pNPCId)>>
+	<<set _npcIndex to _npcKeyNames.indexOf(_pNPCId)>>
 	| <<link "이전">>
-		<<set _index to (_index is 0 ? _keyNames.length - 1 : --_index)>>
-		<<set _pNPCId to _keyNames[_index]>>
+		<<set _npcIndex to (_npcIndex is 0 ? _npcKeyNames.length - 1 : --_npcIndex)>>
+		<<set _pNPCId to _npcKeyNames[_npcIndex]>>
 		<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
 	<</link>> |
 	<<link "다음">>
-		<<set _index++>>
-		<<set _pNPCId to _keyNames[_index]>>
+		<<set _npcIndex++>>
+		<<set _pNPCId to _npcKeyNames[_npcIndex]>>
 		<<replace #perNPCSettingsMenu>><<perNPCSettingsMenu>><</replace>>
 	<</link>>
 	<br><br>

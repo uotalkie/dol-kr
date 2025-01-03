@@ -405,7 +405,7 @@ function featsPointsMenuReset() {
 DefineMacroS("featsPointsMenuReset", featsPointsMenuReset);
 
 function startingPlayerImageReset() {
-	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv .macro-numberslider,#settingsDiv .macro-checkbox", () => {
+	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv ,#settingsDiv .macro-checkbox", () => {
 		Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
 	});
 	return "";
@@ -1549,16 +1549,42 @@ window.getSexesFromRandomGroup = getSexesFromRandomGroup;
  * Example: $drugged goes higher than 500, but we want the bar to become red at 500, so we call this function as getColourClassFromPercentage($drugged / 5).
  *
  * @param {number} percentage The percentage of the desired bar colour.
+ * @param {string} stat Stat name, to determine whether or not the bar should use inverted colours (green for min, red for max).
  * @returns {string} Colour name to use.
  */
-function getColourClassFromPercentage(percentage) {
-	if (percentage <= 0) return "green";
-	if (percentage < 20) return "teal";
-	if (percentage < 40) return "lblue";
+function getColourClassFromPercentage(percentage, stat) {
+	const inverted = ![
+		"pain",
+		"arousal",
+		"tiredness",
+		"stress",
+		"trauma",
+		"drugged",
+		"hallucinogen",
+		"drunk",
+		"awareness",
+		"sex",
+		"prostitution",
+		"rape",
+		"bestiality",
+		"pregnancy",
+		"impreg",
+		"promiscuity",
+		"exhibitionism",
+		"delinquency",
+		"deviancy",
+		"corruption",
+		"crime",
+		"aggro",
+		"rage",
+	].includes(stat);
+	if (percentage <= 0) return inverted ? "red" : "green";
+	if (percentage < 20) return inverted ? "pink" : "teal";
+	if (percentage < 40) return inverted ? "purple" : "lblue";
 	if (percentage < 60) return "blue";
-	if (percentage < 80) return "purple";
-	if (percentage < 100) return "pink";
-	return "red";
+	if (percentage < 80) return inverted ? "lblue" : "purple";
+	if (percentage < 100) return inverted ? "teal" : "pink";
+	return inverted ? "green" : "red";
 }
 window.getColourClassFromPercentage = getColourClassFromPercentage;
 
@@ -2130,3 +2156,18 @@ function fixIntegrityMax(slot, value) {
 	value.integrity_max = setupClothing.integrity_max;
 }
 window.fixIntegrityMax = fixIntegrityMax;
+
+function formatMoney(amount) {
+	const integerPart = Math.floor(amount / 100);
+	let formattedAmount = Math.abs(integerPart).toLocaleString("en-GB");
+	if (Math.abs(integerPart) <= 9999) {
+		const decimalPart = amount % 100;
+		if (decimalPart) {
+			formattedAmount += "." + ("0" + Math.floor(Math.abs(decimalPart))).slice(-2);
+		}
+	}
+	T.printmoney = (amount >= 0 ? "" : "-") + "£" + formattedAmount;
+	return T.printmoney;
+}
+window.formatMoney = formatMoney;
+DefineMacro("formatmoney", money => formatMoney(money));

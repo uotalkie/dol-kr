@@ -117,7 +117,7 @@ function masturbationActions() {
 			V.masturbationorgasmsemen++;
 		}
 		fragment.append(wikifier("purity", -1));
-		if (V.corruptionMasturbation) V.corruptionMasturbationCount--;
+		if (V.corruptionMasturbation && V.corruptionMasturbationCount) V.corruptionMasturbationCount--;
 	}
 	fragment.append(wikifier("pass", 10, "seconds"));
 	V.secondsSpentMasturbating += 10;
@@ -227,7 +227,14 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 					});
 				}
 			}
-			if (V.awareness >= 100) {
+			if (V.awareness >= 200 && V.player.breastsize >= 3) {
+				result.options.push({
+					action: "mbreasthold",
+					text: `${V[otherArm + "arm"] === "mbreasthold" ? " 반대쪽" : ""} 가슴을 잡는다`,
+					colour: "sub",
+					otherElements: "<<combataware 3>>",
+				});
+			} else if (V.awareness >= 100) {
 				result.options.push({
 					action: "mchest",
 					text: "가슴을 애무한다",
@@ -446,6 +453,27 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				colour: "sub",
 			});
 			result.options.push(stop("mvaginastopdildo"));
+			break;
+		case "mbreasthold":
+			result.text = `당신은 <<hand_ ro '${arm}'>> 당신의 ${(arm == 'left'? "왼쪽" : "오른쪽")} 가슴을 잡고 있다.`;
+			result.options.push({
+				action: "mbreastfondle",
+				text: "가슴을 애무한다",
+				colour: "sub",
+			});
+			if (
+				breastsExposed() &&
+				(V.masochism >= 100 || (V.corruptionMasturbation && actiondefault === "mbreastpinch")) &&
+				V.mouth !== "mbreast" &&
+				!V.bugsinside
+			) {
+				result.options.push({
+					action: "mbreastpinch",
+					text: "젖꼭지를 꼬집는다",
+					colour: "sub",
+				});
+			}
+			result.options.push(stop("mbreaststop"));
 			break;
 		case "manusentrance":
 			result.text = `당신은 <<hand_ ro '${arm}'>> 항문을 희롱하고 있다.`;
@@ -771,7 +799,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 	return result;
 }
 
-function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed }) {
+function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, breastsExposed }) {
 	const result = {
 		text: "",
 		options: [],
@@ -799,6 +827,17 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed }) 
 	const hasAphrodisiac = !!listUniqueCarriedSextoys().find(item => item.type.includes("aphrodisiacpill"));
 
 	switch (V.mouth) {
+		case "disabled":
+			result.text = "당신은 입으로 아무것도 하지 않고 있다.";
+			if (V.awareness >= 200 && hasAphrodisiac) {
+				result.options.push({
+					action: "maphropill",
+					text: "미약을 삼킨다",
+					otherElements: "<<combataware 3>>",
+				});
+			}
+			result.options.push(rest());
+			break;
 		case 0:
 			result.text = "당신은 입으로 아무것도 하지 않고 있다.";
 			if (V.awareness >= 200) {
@@ -806,6 +845,20 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed }) 
 					result.options.push({
 						action: "maphropill",
 						text: "미약을 삼킨다",
+						otherElements: "<<combataware 3>>",
+					});
+				}
+				if (
+					breastsExposed() &&
+					(V.leftarm === "mbreasthold" || V.rightarm === "mbreasthold") &&
+					V.player.breastsize >= 8 &&
+					!V.parasite.nipples.name &&
+					!V.bugsinside
+				) {
+					result.options.push({
+						action: "mbreastentrance",
+						text: `당신의 ${V.leftarm === "mbreasthold" && V.rightarm === "mbreasthold" ? "양쪽 " : ""}젖꼭지를 입 안에 넣는다`,
+						colour: "sub",
 						otherElements: "<<combataware 3>>",
 					});
 				}
@@ -990,6 +1043,20 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed }) 
 			});
 			result.options.push({
 				action: "mdildosuck",
+				text: "빤다",
+				colour: "sub",
+			});
+			result.options.push(rest());
+			break;
+		case "mbreast":
+			result.text = `당신의 ${V.leftarm === "mbreastmouthhold" && V.rightarm === "mbreastmouthhold" ? "<<nipples_ nun>>" : "<<nipple_ un>>"} 당신의 입 안에 있다.`;
+			result.options.push({
+				action: "mbreastlick",
+				text: "핥는다",
+				colour: "sub",
+			});
+			result.options.push({
+				action: "mbreastsuck",
 				text: "빤다",
 				colour: "sub",
 			});

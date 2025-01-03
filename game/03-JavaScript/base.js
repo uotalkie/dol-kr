@@ -143,6 +143,58 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
 }
 
 /**
+ * Creates and returns a keyword describing the wetness of a clothing article.
+ *
+ * @param {string} slot clothing article slot used
+ * @returns {string} condition key word ("drenched"|"torn|"frayed"|"full")
+ */
+
+function wetnessKeyword(slot) {	/* Todo: 현재 이 위젯은 치트메뉴에서만 사용하는 것 같은데 다른 곳에서 사용되는 경우가 생기면 trintegrityKeyword 처럼 따로 분리할 것 */
+	const i = V[`${slot.replace("_", "")}wet`];
+	if (i >= 100) {
+		return "흠뻑 젖음";	// "drenched"
+	} else if (i >= 80) {
+		return "젖음";	// "wet"
+	} else if (i >= 50) {
+		return "축축함";	// "damp"
+	} else {
+		return "말랐음";	// "dry"
+	}
+}
+window.wetnessKeyword = wetnessKeyword;
+
+/**
+ * Returns an optional wetness prefix for the article of clothing.
+ 
+ * @param {string} slot clothing article slot used
+ * @returns {string} printable integrity prefix
+ */
+function wetnessWord(slot) {
+	const kw = wetnessKeyword(slot);
+	if (!kw) return "";
+	let colorClass;
+	switch (kw) {
+		case "말랐음":
+			colorClass = "green";
+			break;
+		case "축축함":
+			colorClass = "teal";
+			break;
+		case "젖음":
+			colorClass = "purple";
+			break;
+		case "흠뻑 젖음":
+			colorClass = "red";
+			break;
+		default:
+			colorClass = ""; // default without color
+	}
+	return `<span class="${colorClass}">${kw.trim()}</span> `;
+}
+window.wetnessWord = wetnessWord;
+DefineMacroS("wetnessWord", wetnessWord);
+
+/**
  * Creates and returns the keyword describing the integrity of a clothing article.
  *
  * @param {object} worn clothing article, State.variables.worn.XXXX
@@ -280,6 +332,39 @@ function faceintegrity() {
 	return integrityWord(V.worn.face, "face");
 }
 DefineMacroS("faceintegrity", faceintegrity);
+
+/**
+ * @param {number} wetnessValue
+ */
+function getWetStage(wetnessValue) {
+	if (wetnessValue >= 100) return 3;
+	if (wetnessValue >= 80) return 2;
+	if (wetnessValue >= 40) return 1;
+	return 0;
+}
+
+/**
+ * Updates the wetstage for the given "wet" variable and the sidebar image to reflect the changes
+ *
+ * @param {string} wetVar
+ * @param {number} wetnessValue
+ */
+function cheatsShowWetness(wetVar, wetnessValue) {
+	V[wetVar + "stage"] = getWetStage(wetnessValue);
+	wikifier("<<updatesidebarimg false>>");
+}
+window.cheatsShowWetness = cheatsShowWetness;
+
+/**
+ * @param {string} id the slider's full id
+ * @param {number} value
+ */
+function cheatsUpdateSlider(id, value) {
+	const slider = $(id);
+	if (!slider.length) return;
+	slider.val(value).trigger("change");
+}
+window.cheatsUpdateSlider = cheatsUpdateSlider;
 
 /**
  * @param {object} worn clothing article, State.variables.worn.XXXX
@@ -484,14 +569,22 @@ window.mobBtnShow = mobBtnShow;
  * Options with a higher weight have a higher chance of being chosen.
  *
  * @param {Array} options Each option is an array where the first item is a value, and the second item is its weight.
+ * @param {Object} [rngInstance] Optional rngInstance. Otherwise it uses State.random.
  * @returns {*} The selected item
  * @example
  *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3]));  // Relative probability for these will be: apple: 16.67%, banana: 33.33%, cherry: 50%
+ *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3], rngInstance));  // Optional rngInstance
  */
 function weightedRandom(...options) {
 	if (!Array.isArray(options) || options.length === 0) {
 		throw new Error("Options must be a non-empty array.");
 	}
+
+	let rngInstance;
+	if (options[options.length - 1] instanceof PRNG) {
+		rngInstance = options.pop();
+	}
+
 	let totalWeight = 0;
 	const processedOptions = options.map(([value, weight]) => {
 		if (typeof weight !== "number") {
@@ -501,7 +594,7 @@ function weightedRandom(...options) {
 		return [value, totalWeight];
 	});
 
-	const random = State.random() * totalWeight;
+	const random = (rngInstance ? rngInstance.random() : State.random()) * totalWeight;
 	for (const [value, cumulativeWeight] of processedOptions) {
 		if (cumulativeWeight >= random) {
 			return value;

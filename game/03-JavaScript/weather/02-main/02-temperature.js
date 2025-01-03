@@ -183,7 +183,7 @@ Weather.Temperature = (() => {
 	}
 
 	function calculateDayModifier(date) {
-		const factor = Weather.sky?.orbitals?.sun.getFactor(date) ?? 0;
+		const factor = Weather.activeRenderer?.orbitals?.sun.getFactor(date) ?? 0;
 		return factor * getWeatherModifier();
 	}
 
@@ -296,7 +296,7 @@ Weather.Temperature = (() => {
 
 		const temperatureRange = Weather.genSettings.months[date.month - 1].temperatureRange;
 		const daysInMonth = DateTime.getDaysOfMonthFromYear(date.year)[date.month - 1];
-		const numberOfKeyPoints = random(minDays - 1, maxDays - 1);
+		const numberOfKeyPoints = Weather.activeRenderer.rng.randomInt(minDays - 1, maxDays - 1);
 		const keyPoints = new Map();
 		let extremeKeyPoints = calculateBinomial(Weather.genSettings.months[date.month - 1].extremeChance, maxExtremes);
 
@@ -304,20 +304,20 @@ Weather.Temperature = (() => {
 		const lowerDiff = temperatureRange.average[0] - temperatureRange.extreme[0];
 		const upperDiff = temperatureRange.extreme[1] - temperatureRange.average[1];
 		const chanceBelow = lowerDiff / (lowerDiff + upperDiff);
-		const extremeDirection = State.random() < chanceBelow ? -1 : 1;
+		const extremeDirection = Weather.activeRenderer.rng.random() < chanceBelow ? -1 : 1;
 
 		// Add exceptions to the key points
 		setup.WeatherExceptions.filter(exception => {
 			const exceptionDate = exception.date();
 			return exception.temperature && exceptionDate.year === date.year && exceptionDate.month === date.month;
 		}).forEach(exception => {
-			const temperature = boundedRandom(exception.temperature, 1);
+			const temperature = boundedRandom(exception.temperature, 1, 1, Weather.activeRenderer.rng);
 			keyPoints.set(exception.date().day - 1, temperature);
 		});
 
 		while (keyPoints.size < numberOfKeyPoints) {
 			// Generate random days within the month ensuring they are spaced according to the configured minimum time apart
-			const randomDay = random(timeApart, daysInMonth - timeApart);
+			const randomDay = Weather.activeRenderer.rng.randomInt(timeApart, daysInMonth - timeApart);
 
 			// Ensure new day is sufficiently far from existing key points (and not an exception)
 			if (Array.from(keyPoints.keys()).every(kp => Math.abs(kp - randomDay) >= timeApart)) {
@@ -348,7 +348,7 @@ Weather.Temperature = (() => {
 	}
 
 	function getRandomTemperature([minTemp, maxTemp]) {
-		return randomFloat(minTemp, maxTemp);
+		return Weather.activeRenderer.rng.randomFloat(minTemp, maxTemp);
 	}
 
 	/*

@@ -3,7 +3,7 @@ function trinit_furniture()
 	if (!setup.trFurniture)
 	{
 		setup.trFurniture = {
-			/* TODO: 번역, 관련 위젯 제작 */
+			/* 03-Javascript/furniture.js furnitureInit() */
 		
 			/* ------------- CHAIRS ------------- */
 			'chair': {
@@ -248,6 +248,80 @@ function trinit_furniture()
 				koName: "백지 벽지",
 				post: 1,
 				description: "이 벽지에는 현재 아무 내용이 없다.",
+			},
+			
+			/* overworld-town/loc-shop/furniture.twee _availableHangings */
+			"vines": {
+				name: "vines",
+				koName: "덩굴",
+				post: 2,
+				description: "",
+			},
+			"tentacles": {
+				name: "tentacles",
+				koName: "촉수",
+				post: 1,
+				description: "",
+			},
+			"plainwhite": {
+				name: "plainwhite",
+				koName: "평범한 하얀색",
+				post: 0,
+				description: "",
+			},
+			"cowgirls": {
+				name: "cowgirls",
+				koName: "암소 소녀들",
+				post: 2,
+				description: "",
+			},
+			"cow_girls": {
+				name: "cow_girls",
+				koName: "암소 소녀들",
+				post: 2,
+				description: "",
+			},
+			"hearts": {
+				name: "hearts",
+				koName: "하트들",
+				post: 2,
+				description: "",
+			},
+			"trees": {
+				name: "trees",
+				koName: "나무들",
+				post: 2,
+				description: "",
+			},
+			"crosses": {
+				name: "crosses",
+				koName: "십자가들",
+				post: 2,
+				description: "",
+			},
+			"cowgirl": {
+				name: "cowgirl",
+				koName: "암소 소녀",
+				post: 1,
+				description: "",
+			},
+			"cow_girl": {
+				name: "cow_girl",
+				koName: "암소 소녀",
+				post: 1,
+				description: "",
+			},
+			"cat": {
+				name: "cat",
+				koName: "고양이",
+				post: 1,
+				description: "",
+			},
+			"puppy": {
+				name: "puppy",
+				koName: "강아지",
+				post: 1,
+				description: "",
 			},
 		};
 		let trNameIndex = {};

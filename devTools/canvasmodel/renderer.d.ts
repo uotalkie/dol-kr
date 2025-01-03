@@ -1,6 +1,6 @@
 declare namespace Renderer {
     export interface LayerImageLoader {
-        loadImage(src: string, layer: CompositeLayer, successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement | HTMLCanvasElement) => any, errorCallback: (src: string, layer: CompositeLayer, error: any) => any): any;
+        loadImage(src: string | HTMLCanvasElement, layer: CompositeLayer, successCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, image: HTMLCanvasElement) => any, errorCallback: (src: string | HTMLCanvasElement, layer: CompositeLayer, error: any) => any): any;
     }
     export const DefaultImageLoader: LayerImageLoader;
     export let ImageLoader: LayerImageLoader;
@@ -55,7 +55,7 @@ declare namespace Renderer {
      * Cuts out from base a shape in form of stencil.
      * Modifies and returns base.
      */
-    export function cutoutFrom(base: CanvasRenderingContext2D, stencil: CanvasImageSource): CanvasRenderingContext2D;
+    export function cutoutFrom(base: CanvasRenderingContext2D, stencil: CanvasImageSource, operation?: GlobalCompositeOperation): CanvasRenderingContext2D;
     /**
      * Paints sourceImage over cutout of it filled with color.
      */
@@ -94,11 +94,12 @@ declare namespace Renderer {
      */
     export function composeUnderRect(sourceImage: CanvasImageSource, color: string, blendMode?: GlobalCompositeOperation, targetCanvas?: CanvasRenderingContext2D): CanvasRenderingContext2D;
     export let ImageCaches: {
-        [index: string]: HTMLImageElement;
+        [index: string]: HTMLCanvasElement;
     };
     export let ImageErrors: {
         [index: string]: boolean;
     };
+    export let imageIsLoading: boolean;
     /**
      * Switch between compose(Over|Under)(Rect|Cutout)
      */
@@ -215,11 +216,17 @@ declare namespace Renderer {
         stop(): void;
     }
     export function refresh(model: {
+        canvas: HTMLCanvasElement;
         layerList: CompositeLayerSpec[];
         redraw: () => void;
     }): void;
+    export function clearCaches(model: {
+        layerList: CompositeLayerSpec[];
+    }): void;
     export function invalidateLayerCaches(layers: CompositeLayer[]): void;
     export function animateLayersAgain(): any;
+    export function getAnimatingCanvas(targetCanvas: CanvasRenderingContext2D): AnimatingCanvas | undefined;
+    export function getAnimatingCanvases(): WeakMap<CanvasRenderingContext2D, AnimatingCanvas> | undefined;
     export let Animations: Dict<AnimationSpec>;
     /**
      * Animation spec provider; default implementation is look up in Renderer.Animations by layer's `animation` property.
