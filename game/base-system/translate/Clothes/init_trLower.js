@@ -978,7 +978,7 @@ function init_trLower()
             name: "wide leg trousers",
             name_ko: "나팔바지",
             variable: "wide leg trousers",
-            description: "복고풍.",
+            description: "복고풍이다.",
             post: 1
         },		
 

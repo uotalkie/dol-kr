@@ -61,6 +61,11 @@ function trClothes(part, name, mode, post, sep)
 			sextoyPost(name, mode, post, sep);
 		else if (part == "all")
 			trSearchClothes(name, mode, post, sep);
+		else if (mode[0] == 'p')	// pattern
+		{
+			let found = setup.trClothes.handheld.pattern[name];
+			T.trResult = (found? found : "");
+		}
 		else if (!setup.trClothes[part])
 			T.trResult = `에러: trClothes: ${part}라는 부위가 잘못되었습니다`;
 		else

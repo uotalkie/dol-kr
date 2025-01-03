@@ -47,6 +47,7 @@ const EasyPostMacroList = [
 	{ name: "worn_feet_name_", orig_name: "worn_feet_name", is_print: 0},
 	{ name: "worn_genitals_name_", orig_name: "worn_genitals_name", is_print: 0},
 	{ name: "worn_handheld_name_", orig_name: "worn_handheld_name", is_print: 0},
+	{ name: "worn_handheld_pattern_", orig_name: "worn_handheld_pattern", is_print: 0},
 	{ name: "worn_hands_name_", orig_name: "worn_hands_name", is_print: 0},
 	{ name: "worn_head_name_", orig_name: "worn_head_name", is_print: 0},
 	{ name: "worn_legs_name_", orig_name: "worn_legs_name", is_print: 0},
@@ -185,6 +186,8 @@ const EasyPostMacroList = [
 
 	// <<crotch_ rul>> = <<crotch>>를 
 	{ name: "crotch_", orig_name: "crotchPost", is_print: 0},
+
+	{ name: "privates_", orig_name: "privatesPost", is_print: 0},
 
 	// <<undies_ rul>> = <<undies>>를 
 	{ name: "undies_", orig_name: "undiesPost", is_print: 0},
@@ -618,6 +621,8 @@ const EasyPostMacroList = [
 
 	// <<getfluidsfromgroup_ un>> = <<getfluidsfromgroupPost>>는 
 	{ name: "getfluidsfromgroup_", orig_name: "getfluidsfromgroupPost", is_print: 0},
+
+	{ name: "Ladies_gentlemen_", orig_name: "Ladies_gentlemenPost", is_print: 0},
 
 	{ name: "condomDesc_", orig_name: "condomDescPost", is_print: 0},
 

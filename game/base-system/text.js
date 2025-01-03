@@ -602,7 +602,7 @@ statDisplay.create("ggghistory", () => {
 	return result;
 });
 
-statDisplay.create("lhousekeeping", () => statDisplay.statChange("Housekeeping", -1, "red"));
+statDisplay.create("lhousekeeping", () => statDisplay.statChange("정리정돈", -1, "red"));
 statDisplay.create("ghousekeeping", (amount, silent = false) => {
 	if (amount === undefined || V.housekeeping < amount) {
 		return statDisplay.statChange("정리정돈", 1, "green");

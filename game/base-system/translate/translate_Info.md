@@ -19,8 +19,9 @@
     ```
     <<trClothes>>
         <<trClothes *part *clothes_name>>
-        <<trClothes *part *clothes_name *name post "sep">>
-        <<trClothes *part *clothes_name *[desc | description]>>
+        <<trClothes *part *clothes_name "name" post "sep">>
+        <<trClothes *part *clothes_name "desc">>
+		<<trClothes *part *handheld_pattern "pattern">>
 		trClothes(*part, *clothes_name, *mode, post, sep)
 
         옷의 이름이나 설명을 번역한다.
@@ -31,6 +32,7 @@
         - *clothes_name: 옷의 이름
         - *name: 옷의 이름을 출력한다.
         - *desc , description: 옷의 설명을 출력한다.
+		- *handheld_pattern "pattern": handheld 인 경우 pattern 옵션에서 pattern을 번역한다.
 
         선택사항
         - post: 번역결과의 뒤에 조사를 붙인다.
@@ -763,6 +765,12 @@
     ```
     <<crotchPost>>
         <<crotch>>의 대체 위젯.
+        + <<undertopPost>>와 용도 및 방식 같음. 생략
+    ```
+
+    ```
+    <<privatesPost>>
+        <<privates>>의 대체 위젯.
         + <<undertopPost>>와 용도 및 방식 같음. 생략
     ```
 
@@ -1733,6 +1741,16 @@
      ```
     <<bastardPost>>
         + <<bastard>>의 대체 위젯. <<charlesPost>>와 용도 및 방식 같음. 생략
+    ```
+
+     ```
+    <<cuntPost>>
+        + <<cunt>>의 대체 위젯. <<charlesPost>>와 용도 및 방식 같음. 생략
+    ```
+
+     ```
+    <<Ladies_gentlemenPost>>
+        + <<Ladies_gentlemen>>의 대체 위젯. <<charlesPost>>와 용도 및 방식 같음. 생략
     ```
 
    ```
@@ -3175,6 +3193,7 @@
 		```
 		<<worn_(착용부위)_name_ (조사)>> 시리즈. 옵션으로 "sep" 인자를 받도록 함
 		<<worn_(착용부위)_name>> 시리즈. 조사 없이 이름만 가져오게 함
+		<<worn_handheld_pattern>>, <<worn_handheld_pattern_ (조사)>>
 		<<worn_under_lower_name_simple>>, <<worn_under_lower_name_simple_ (조사)>>. <<worn_under_lower_name>> 과 기본적으로 같음
 		NOTE: 플레이어가 착용중인 buttplug 는 butt_plug, 플레이어가 착용중인 strap-on 은 under_lower 부위
 		```
@@ -3198,7 +3217,7 @@
 		```
 	- clothesPost 계열
 		```
-		<<undertop_ (조사)>>, <<groin_ (조사)>>, <<crotch_ (조사)>>, <<undies_ (조사)>>, <<bottoms_ (조사)>>, <<underbottoms_ (조사)>>, <<top_ (조사)>>, 
+		<<undertop_ (조사)>>, <<groin_ (조사)>>, <<crotch_ (조사)>>, <<privates_ (조사)>>, <<undies_ (조사)>>, <<bottoms_ (조사)>>, <<underbottoms_ (조사)>>, <<top_ (조사)>>, 
 		<<topaside_ (조사)>>, <<breastsaside_ (조사)>>, <<bottomaside_ (조사)>>, <<outfit_ (조사)>>, <<underoutfit_ (조사)>>, <<lewdness_ (조사)>>, <<nudity_ (조사)>> (문장 끝에 <<nudityPostend>>를 반드시 넣을것), 
 		<<allTops_ (조사)>>, <<allBottoms_ (조사)>>, <<allTopsUnderwear_ (조사)>>, <<allBottomsUnderwear_ (조사)>>, <<exposedupper_ (조사)>>, <<exposedlower_ (조사)>>, 
 		<<dress_ (조사)>>, <<skirt_ (조사)>>, <<panties_ (조사)>>, <<bra_ (조사)>>, <<npcClothesText_ (조사)>>, 
@@ -3229,7 +3248,7 @@
 		<<pheat_ (조사)>>, <<wolf_cave_plural_ (조사)>>, <<wolf_cave_singular_ (조사)>>, <<beast_jaws_text_ (조사)>>, <<beast_Jaws_text_ (조사)>>, <<beast_teeth_text_ (조사)>>,
 		<<handtool_ (조사)>>, <<lefttool_ (조사)>>, <<righttool_ (조사)>>, <<pcpetname_ (조사)>>, <<pcPetname_ (조사)>>, 
 		<<struggle_appendage_ (조사)>>, <<plant_details_ (조사)>>, <<Plant_details_ (조사)>>, <<tower_creature_text_ (조사)>>, <<pound_text_ (조사)>>,
-		<<kylar_pet_name_ (조사)>>, <<virgin_ (조사)>>, <<getfluidsfromgroup_ (조사)>>, <<condomDesc_ (조사)>>, <<office_manager_ (조사)>>, <<temple_title_ (조사)>>, <<temple_Title_ (조사)>>, <<changingRoomGender_ (조사)>>,
+		<<kylar_pet_name_ (조사)>>, <<virgin_ (조사)>>, <<Ladies_gentlemen_ (조사)>>, <<getfluidsfromgroup_ (조사)>>, <<condomDesc_ (조사)>>, <<office_manager_ (조사)>>, <<temple_title_ (조사)>>, <<temple_Title_ (조사)>>, <<changingRoomGender_ (조사)>>,
 		<<your_bird_text_ (조사)>>, 
 		```
 	
