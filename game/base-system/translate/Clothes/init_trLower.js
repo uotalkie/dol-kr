@@ -1281,7 +1281,7 @@ function init_trLower()
         {
            index: 142,
            name: "bedsheet skirt",
-           name_ko: "침대시트 스커트",
+           name_ko: "침대보 스커트",
            variable: "bedsheet",
            description: "조잡하다.",
            post: 1
