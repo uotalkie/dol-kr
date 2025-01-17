@@ -1122,7 +1122,7 @@ function init_trUpper()
             name: "leather dress",
             name_ko: "가죽 드레스",
             variable: "leatherdress",
-            description: "사람들이 돌아보게 만드는, 조금 작은 검정 드레스.",
+            description: "사람들이 돌아보게 만드는, 조금 짧고 몸에 딱 맞는 드레스.",
             post: 1
         },
 
@@ -1420,6 +1420,14 @@ function init_trUpper()
            name_ko: "누더기 드레스",
            variable: "drowneddress",
            description: "당신의 시대보다 조금 이전 스타일이다.",
+           post: 1
+        },
+        {
+           index: 157,
+           name: "bedsheet",
+           name_ko: "침대보",
+           variable: "bedsheet",
+           description: "조잡하다.",
            post: 1
         },
 	];

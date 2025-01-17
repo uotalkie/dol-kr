@@ -1278,6 +1278,14 @@ function init_trLower()
            description: "당신의 시대보다 조금 이전 스타일이다.",
            post: 1
         },
+        {
+           index: 142,
+           name: "bedsheet skirt",
+           name_ko: "침대시트 스커트",
+           variable: "bedsheet",
+           description: "조잡하다.",
+           post: 1
+        },
 	];
 }
 window.init_trLower = init_trLower;
