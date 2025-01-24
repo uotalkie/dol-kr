@@ -1226,7 +1226,7 @@ const statChange = (() => {
 		if (lastBadEnd && !lastBadEnd.trackedEnd) {
 			badEndTracking(lastBadEnd.source, {
 				reason: "unknown",
-				notes: `Not tracked in passage ${V.passage}, likely from an error`,
+				notes: `아마 에러로 인하여, ${V.passage} 경로에서 추적되지 않음`,
 			});
 		}
 
@@ -1250,7 +1250,7 @@ const statChange = (() => {
 		if (!lastBadEnd || lastBadEnd.source !== source || lastBadEnd.trackedEnd) {
 			badEndTracking(source, {
 				reason: "unknown",
-				notes: `Not correctly tracked in passage ${V.passage}, ${V.badEndStats.length ? "likely from an error" : "likely from loading an old save"}`,
+				notes: `${V.badEndStats.length ? "아마 에러로 인하여" : "아마 예전 세이브를 불러온 것으로 인하여"}, ${V.passage} 경로에서 제대로 추적되지 않음`,
 			});
 			lastBadEnd = V.badEndStats.last();
 		}

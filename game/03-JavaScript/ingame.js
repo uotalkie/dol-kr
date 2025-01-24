@@ -547,7 +547,7 @@ function toTitleCase(str) {
 window.toTitleCase = toTitleCase;
 
 function camelCaseToTitle(str) {
-	return str.replace(/([A-Z])/g, " $1").toUpperFirst();
+	return str.replace(/([A-Z])/g, " $1").replace(/\./g, " ").toUpperFirst();
 }
 window.camelCaseToTitle = camelCaseToTitle;
 
