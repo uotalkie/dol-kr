@@ -5,6 +5,7 @@ function trinit_plants()
 		setup.trPlants = [
 				{
 					name: "red_rose",
+					singular: "red_rose",
 					plural: "red roses",
 					name_ko: "붉은 장미",
 					post:1,
@@ -14,6 +15,7 @@ function trinit_plants()
 
 				{
 					name: "white_rose",
+					singular: "white_rose",
 					plural: "white roses",
 					name_ko: "백장미",
 					post:1,
@@ -23,6 +25,7 @@ function trinit_plants()
 
 				{
 					name: "orchid",
+					singular: "orchid",
 					plural: "orchids",
 					name_ko: "난초",
 					post:1,
@@ -32,6 +35,7 @@ function trinit_plants()
 
 				{
 					name: "daisy",
+					singular: "daisy",
 					plural: "daisies",
 					name_ko: "데이지",
 					post:1,
@@ -41,6 +45,7 @@ function trinit_plants()
 
 				{
 					name: "tulip",
+					singular: "tulip",
 					plural: "tulips",
 					name_ko: "튤립",
 					post:0,
@@ -50,6 +55,7 @@ function trinit_plants()
 
 				{
 					name: "lotus",
+					singular: "lotus",
 					plural: "lotus",
 					name_ko: "연꽃",
 					post:0,
@@ -59,6 +65,7 @@ function trinit_plants()
 
 				{
 					name: "lily",
+					singular: "lily",
 					plural: "lilies",
 					name_ko: "백합",
 					post:0,
@@ -68,6 +75,7 @@ function trinit_plants()
 
 				{
 					name: "poppy",
+					singular: "poppy",
 					plural: "poppies",
 					name_ko: "양귀비",
 					post:1,
@@ -77,6 +85,7 @@ function trinit_plants()
 				
 				{
 					name: "apple",
+					singular: "apple",
 					plural: "apples",
 					name_ko: "사과",
 					post:1,
@@ -86,6 +95,7 @@ function trinit_plants()
 
 				{
 					name: "orange",
+					singular: "orange",
 					plural: "oranges",
 					name_ko: "오렌지",
 					post:1,
@@ -95,6 +105,7 @@ function trinit_plants()
 
 				{
 					name: "banana",
+					singular: "banana",
 					plural: "bananas",
 					name_ko: "바나나",
 					post:1,
@@ -104,6 +115,7 @@ function trinit_plants()
 
 				{
 					name: "lemon",
+					singular: "lemon",
 					plural: "lemons",
 					name_ko: "레몬",
 					post:0,
@@ -113,6 +125,7 @@ function trinit_plants()
 
 				{
 					name: "blood_lemon",
+					singular: "blood_lemon",
 					plural: "blood lemons",
 					name_ko: "블러드 레몬",
 					post:0,
@@ -122,6 +135,7 @@ function trinit_plants()
 
 				{
 					name: "pear",
+					singular: "pear",
 					plural: "pears",
 					name_ko: "배",
 					post:1,
@@ -131,6 +145,7 @@ function trinit_plants()
 
 				{
 					name: "strawberry",
+					singular: "strawberry",
 					plural: "strawberries",
 					name_ko: "딸기",
 					post:1,
@@ -140,6 +155,7 @@ function trinit_plants()
 
 				{
 					name: "peach",
+					singular: "peach",
 					plural: "peaches",
 					name_ko: "복숭아",
 					post:1,
@@ -149,6 +165,7 @@ function trinit_plants()
 
 				{
 					name: "plum",
+					singular: "plum",
 					plural: "plums",
 					name_ko: "자두",
 					post:1,
@@ -158,6 +175,7 @@ function trinit_plants()
 
 				{
 					name: "mushroom",
+					singular: "mushroom",
 					plural: "mushrooms",
 					name_ko: "버섯",
 					post:0,
@@ -167,6 +185,7 @@ function trinit_plants()
 
 				{
 					name: "wolfshroom",
+					singular: "wolfshroom",
 					plural: "wolfshrooms",
 					name_ko: "늑대 버섯",
 					post:0,
@@ -176,6 +195,7 @@ function trinit_plants()
 
 				{
 					name: "wild_honeycomb",
+					singular: "wild_honeycomb",
 					plural: "wild honeycombs",
 					name_ko: "야생 벌집",
 					post:0,
@@ -185,6 +205,7 @@ function trinit_plants()
 
 				{
 					name: "wild_carrot",
+					singular: "wild_carrot",
 					plural: "carrots",
 					name_ko: "야생 당근",
 					post: 0,
@@ -194,6 +215,7 @@ function trinit_plants()
 
 				{
 					name: "onion",
+					singular: "onion",
 					plural: "onions",
 					name_ko: "양파",
 					post: 1,
@@ -203,6 +225,7 @@ function trinit_plants()
 
 				{
 					name: "garlic_bulb",
+					singular: "garlic_bulb",
 					plural: "garlic bulbs",
 					name_ko: "마늘",
 					post: 2,
@@ -212,6 +235,7 @@ function trinit_plants()
 
 				{
 					name: "potato",
+					singular: "potato",
 					plural: "potatoes",
 					name_ko: "감자",
 					post: 1,
@@ -221,6 +245,7 @@ function trinit_plants()
 
 				{
 					name: "strange_flower",
+					singular: "strange_flower",
 					plural: "strange flowers",
 					name_ko: "이상한 꽃",
 					post: 0,
@@ -230,6 +255,7 @@ function trinit_plants()
 
 				{
 					name: "truffle",
+					singular: "truffle",
 					plural: "truffles",
 					name_ko: "송로버섯",
 					post: 0,
@@ -239,6 +265,7 @@ function trinit_plants()
 
 				{
 					name: "bottle_of_milk",
+					singular: "bottle_of_milk",
 					plural: "bottles of milk",
 					name_ko: "우유를 넣은 병",
 					post: 0,
@@ -248,6 +275,7 @@ function trinit_plants()
 
 				{
 					name: "egg",
+					singular: "egg",
 					plural: "eggs",
 					name_ko: "계란",
 					post: 0,
@@ -257,6 +285,7 @@ function trinit_plants()
 
 				{
 					name: "chicken_egg",
+					singular: "chicken_egg",
 					plural: "chicken eggs",
 					name_ko: "계란",
 					post: 0,
@@ -266,6 +295,7 @@ function trinit_plants()
 
 				{
 					name: "bottle_of_breast_milk",
+					singular: "bottle_of_breast_milk",
 					plural: "bottles of breast milk",
 					name_ko: "모유를 넣은 병",
 					post: 0,
@@ -275,6 +305,7 @@ function trinit_plants()
 
 				{
 					name: "bottle_of_semen",
+					singular: "bottle_of_semen",
 					plural: "bottles of semen",
 					name_ko: "정액을 넣은 병",
 					post: 0,
@@ -284,6 +315,7 @@ function trinit_plants()
 
 				{
 					name: "cabbage",
+					singular: "cabbage",
 					plural: "cabbages",
 					name_ko: "양배추",
 					post: 1,
@@ -293,6 +325,7 @@ function trinit_plants()
 
 				{
 					name: "turnip",
+					singular: "turnip",
 					plural: "turnips",
 					name_ko: "순무",
 					post: 1,
@@ -302,6 +335,7 @@ function trinit_plants()
 
 				{
 					name: "broccoli",
+					singular: "broccoli",
 					plural: "broccoli",
 					name_ko: "브로콜리",
 					post: 1,
@@ -311,6 +345,7 @@ function trinit_plants()
 
 				{
 					name: "ghostshroom",
+					singular: "ghostshroom",
 					plural: "ghostshrooms",
 					name_ko: "유령버섯",
 					post: 0,
@@ -320,6 +355,7 @@ function trinit_plants()
 
 				{
 					name: "blackberry",
+					singular: "blackberry",
 					plural: "blackberries",
 					name_ko: "블랙베리",
 					post: 1,
@@ -329,6 +365,7 @@ function trinit_plants()
 
 				{
 					name: "carnation",
+					singular: "carnation",
 					plural: "carnations",
 					name_ko: "카네이션",
 					post: 0,
@@ -338,6 +375,7 @@ function trinit_plants()
 
 				{
 					name: "bird_egg",
+					singular: "bird_egg",
 					plural: "bird eggs",
 					name_ko: "새 알",
 					post: 2,
@@ -347,15 +385,7 @@ function trinit_plants()
 
 				{
 					name: "baby_bottle_of_breast_milk",
-					plural: "baby bottles of breast milk",
-					name_ko: "모유를 넣은 젖병",
-					post: 0,
-					unit_ko: "병",
-					unit_post:0,
-				},
-
-				{
-					name: "baby bottle of breast milk",	/* .singular로 _ 없는 표현이 있어 추가: 필요시 통합할것 */
+					singular: "baby bottle of breast milk",
 					plural: "baby bottles of breast milk",
 					name_ko: "모유를 넣은 젖병",
 					post: 0,
@@ -365,6 +395,7 @@ function trinit_plants()
 
 				{
 					name: "plumeria",
+					singular: "plumeria",
 					plural: "plumerias",
 					name_ko: "플루메리아",
 					post:1,
@@ -374,14 +405,7 @@ function trinit_plants()
 
 				{
 					name: "oyster_pearl",
-					plural: "oyster pearls",
-					name_ko: "진주",
-					post:1,
-					unit_ko: "개",
-					unit_post:1,
-				},
-				{
-					name: "oyster pearl",	/* .singular로 _ 없는 표현이 있어 추가: 필요시 통합할것 */
+					singular: "oyster pearl",
 					plural: "oyster pearls",
 					name_ko: "진주",
 					post:1,
