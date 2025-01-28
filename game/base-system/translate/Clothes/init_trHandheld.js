@@ -540,7 +540,7 @@ function init_trHandheld()
 		{
 			index: 67,
 			name: "stuffing",
-			name_ko: "속",
+			name_ko: "스터핑",
 			variable: "stuffing",
 			post: 0,
 			description: "직접 만든 음식이다.",
@@ -2387,7 +2387,7 @@ function init_trHandheld()
 		{
 			index: 298,
 			name: "chilli pepper",
-			name_ko: "칠리 페퍼",
+			name_ko: "고추",
 			variable: "chilli pepper",
 			post: 1,
 			description: "요리에 사용된다.",
@@ -2635,7 +2635,7 @@ function init_trHandheld()
 		{
 			index: 329,
 			name: "cheesy cauliflower",
-			name_ko: "치즈가 들어간 콜리플라워",
+			name_ko: "콜리플라워 치즈",
 			variable: "cauliflower cheese",
 			post: 1,
 			description: "직접 만든 음식이다.",
@@ -2930,8 +2930,8 @@ function init_trHandheld()
 		/* 64. plate of biscuits */
 		"jammie dodger": {name_ko : "제이미 다저스 "},
 		"shortbread": {name_ko : "쇼트브레드 "},
-		"rich": {name_ko : "두꺼운 "},
-		"melting moment": {name_ko : "얇은 "},
+		"rich": {name_ko : "리치 "},
+		"melting moment": {name_ko : "멜팅 모먼트 "},
 		/* 66. cake */
 		"carrot": {name_ko : "당근 "},
 		"sponge": {name_ko : "스폰지 "},
@@ -3016,15 +3016,15 @@ function init_trHandheld()
 		//"open": {name_ko : "열려있는 "},
 		"hot": {name_ko : "뜨거운 "},
 		/* 297. raw meat */
-		"beef": {name_ko : "쇠"},
+		"beef": {name_ko : "소"},
 		"pork": {name_ko : "돼지"},
 		"liver": {name_ko : "간 "},
 		"chicken": {name_ko : "닭"},
 		/* 301. biscuit */
 		//"jammie dodger": {name_ko : "제이미 다저스 "},
 		//"shortbread": {name_ko : "쇼트브레드 "},
-		//"rich": {name_ko : "두꺼운 "},
-		//"melting moment": {name_ko : "얇은 "},
+		//"rich": {name_ko : "리치 "},
+		//"melting moment": {name_ko : "멜팅 모먼트 "},
 		/* 305. raw fish */
 		"cod": {name_ko : "대구 "},
 		"haddock": {name_ko : "해덕 "},

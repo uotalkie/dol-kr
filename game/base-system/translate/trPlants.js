@@ -3,9 +3,7 @@ function trPlants(plantname, type, post, sep)
 	if (!setup.trPlants)
 		trinit_plants();
 
-    let trTemp = setup.trPlants.find(function(select){
-            if(select.name == plantname || select.plural == plantname){return true;
-            }});
+    let trTemp = setup.trPlants.nameIndex[plantname];
 
     if (!trTemp)
 	{
@@ -13,17 +11,17 @@ function trPlants(plantname, type, post, sep)
 	}
     else
 	{
-        if (type === "name")
+        if (type[0] === "n" || type[0] === "s")	// name | singular
 		{
             T.trResult = trTemp.name_ko;
 			trPost(trTemp.post, post, sep);
 		}
-        else if (type === "plural")
+        else if (type[0] === "p")	//	plural
 		{
-            T.trResult = trTemp.name_ko+"들";
-			trPost(2, post, sep);
+            T.trResult = trTemp.name_ko; // T.trResult = trTemp.name_ko+"들";
+			trPost(trTemp.post, post, sep); // trPost(2, post, sep);
 		}
-        else if (type === "unit")
+        else if (type[0] === "u")	// unit
 		{
             T.trResult = trTemp.unit_ko;
 			trPost(trTemp.unit_post, post, sep);
@@ -32,15 +30,15 @@ function trPlants(plantname, type, post, sep)
 		{
 			sep = post;
 			post = type;
-            if(trTemp.name == plantname)
+            if(trTemp.name == plantname || trTemp.singular == plantname)
 			{
                 T.trResult = trTemp.name_ko;
 				trPost(trTemp.post, post, sep);
             }
 			else
 			{
-                T.trResult = trTemp.name_ko+"들";
-				trPost(2, post, sep);
+				T.trResult = trTemp.name_ko; // T.trResult = trTemp.name_ko+"들";
+				trPost(trTemp.post, post, sep); // trPost(2, post, sep);
             }
         }
     }

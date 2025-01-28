@@ -1,9 +1,9 @@
 :: Widgets Kitchen [widget]
 
-<<widget "kitchen_display">>
+<<widget "kitchen_display">><<set $_trDisplayName to {"ingredients":"재료", "savouries":"조미료", "sweets":"사탕류", "drinks":"음료"}>>
 <<set _recipe_known to false>>
 <details class="kitchenInventory journal">
-	<summary class="journal"><<print _args[0].toLocaleUpperFirst()>></summary>
+	<summary class="journal"><<print $_trDisplayName[_args[0]]>></summary>
     <<set _food_keys to Object.keys(setup.plants)>>
 	<div class="m-2">
 		<<for _i to 0; _i lt _food_keys.length; _i++>>
@@ -18,29 +18,29 @@
 			<</if>>
 			<<if $plants[_food].recipe is true and _recipe_go is true>>
 				<div class="kitchen-recipe-box">
-					<div class="recipe-text"><<tendingicon setup.plants[_food].icon>><<print _food.toLocaleUpperFirst().replace(/_/g," ")>></div>
-					Owned: <span class="gold"><<print $plants[_food].amount>></span>
+					<div class="recipe-text"><<tendingicon setup.plants[_food].icon>><<print trPlants(_food, "name")>></div>
+					재고: <span class="gold"><<print $plants[_food].amount>> <<print trPlants(_food, "unit")>></span>
 					<br>
-					Time: <span class="gold"><<print setup.plants[_food].days>></span> minute<<if setup.plants[_food].days isnot 1>>s<</if>>
+					시간: <span class="gold"><<print setup.plants[_food].days>></span> 분
 					<br>
-					Result: <span class="gold"><<print setup.plants[_food].multiplier>></span>
-					<<= setup.plants[_food].multiplier gte 2 ? setup.plants[_food].plural : setup.plants[_food].singular>>
+					결과: <span class="gold"><<print setup.plants[_food].multiplier>> <<print trPlants(_food, "unit")>></span>의
+					<<= setup.plants[_food].multiplier gte 2 ? trPlants(setup.plants[_food].plural, "plural") : trPlants(setup.plants[_food].singular, "singular")>>
 					<br>
-					Ingredients (available):
+					재료 (남은 양):
 					<<unset _ingredients_available>><<unset _ingredients_blocked>>
 					<<for _e to 0; _e lt setup.plants[_food].ingredients.length; _e++>>
 						<<set _ingredient to setup.plants[_food].ingredients[_e]>>
-						<<print _ingredient.toLocaleUpperFirst().replace(/_/g," ")>>
+						<<print trPlants(_ingredient, "name")>>
 						<<if _food_keys.includes(_ingredient)>>
 							<<tendingicon setup.plants[_ingredient].icon>>
 						<<else>>
-							<span class="red">Ingredient missing, perhaps misspelled?</span>
+							<span class="red">재료가 존재하지 않습니다, 어쩌면 오타?</span>
 						<</if>>
 						<<if Object.keys($plants).includes(_ingredient)>>
 							<<if _ingredients_supplied.includes(_ingredient)>>
 								<span class="gold">(∞)</span>
 							<<else>>
-								<span class="gold">(<<print $plants[_ingredient].amount>>)</span>
+								<span class="gold">(<<print $plants[_ingredient].amount>> <<print trPlants(_ingredient, "unit")>>)</span>
 							<</if>>
                             <<if $plants[_ingredient].amount gte 1 or _ingredients_supplied.includes(_ingredient)>>
                                 <<if $bus is "orphanage_kitchen" and !_ingredients_exceptions.includes(_ingredient) and !_ingredients_supplied.includes(_ingredient)>>
@@ -50,17 +50,17 @@
                                 <<set _ingredients_available to false>>
                             <</if>>
 						<<else>>
-							<span class="red">Problem detected.</span>
+							<span class="red">문제가 발생했습니다.</span>
 						<</if>>
 						<<= _e lt setup.plants[_food].ingredients.length - 1 ? "|" : "">>
 					<</for>>
                     <br>
                     <<if $tiredness gte C.tiredness.max>>
-                        <span class="purple">You're too tired to cook!</span>
+                        <span class="purple">당신은 요리하기에는 너무 지쳤다!</span>
                     <<elseif _ingredients_available is false>>
-                        <span class="purple">You do not have all the required ingredients.</span>
+                        <span class="purple">필요한 재료가 부족합니다.</span>
                     <<elseif _ingredients_blocked is true>>
-                        <span class="purple">Some required ingredients are banned by Bailey.</span>
+                        <span class="purple">베일리 때문에 몇몇 필요한 재료를 사용할 수 없습니다.</span>
                     <<else>>
                         <<capture _food>>
                             <<link [[만든다|$passage]]>><<make_recipe _food>><</link>>
@@ -80,7 +80,7 @@
 
 <<widget "learn_recipe">>
     <<if $plants[_args[0]].recipe isnot true>>
-        <span class="gold">You have learned how to make <<print _args[0].replace(/_/g," ")>>!</span>
+        <span class="gold">당신은 <<print trPlants(_args[0], "name", "을")>> 만드는 방법을 익혔다!</span>
         <<tendingicon setup.plants[_args[0]].icon>>
     <</if>>
     <<set $plants[_args[0]].recipe to true>>
@@ -139,11 +139,11 @@
 <<widget "ingredients_supplied">>
     <<set _ingredients_supplied to []>>
     <<if _args[0]>>
-        The kitchen has plenty of the following ingredients in stock:
+		주방에는 다음 재료가 가득 준비되어 있다:
         <br>
         <<for _i to 0; _i lt _args.length; _i++>>
             <<set _ingredients_supplied.push(_args[_i])>>
-            <<print _args[_i].toLocaleUpperFirst().replace(/_/g," ")>>
+			<<print trPlants(_args[_i], "name")>>
             <<tendingicon setup.plants[_args[_i]].icon>>
 			<<= _i lt _args.length - 1 ? "|" : "">>
         <</for>>
@@ -159,8 +159,8 @@
     <</if>>
 <</widget>>
 
-<<widget "food_list">>
-	<summary class="journal"><<print _args[0].toLocaleUpperFirst()>></summary>
+<<widget "food_list">><<set $_trDisplayName to {"savouries":"조미료", "sweets":"사탕류", "drinks":"음료"}>>
+	<summary class="journal"><<print $_trDisplayName[_args[0]]>></summary>
     <<set _food_keys to Object.keys(setup.plants)>>
     <<for _i to 0; _i lt _food_keys.length; _i++>>
         <<set _food to _food_keys[_i]>>
@@ -174,14 +174,14 @@
         <</if>>
         <<if $plants[_food].recipe is true and _recipe_go is true>>
         <div class="kitchen-recipe-box">
-            <div class="recipe-text"><<tendingicon setup.plants[_food].icon>><<print _food.toLocaleUpperFirst().replace(/_/g," ")>></div>
-            Number owned: <<print $plants[_food].amount>>
+            <div class="recipe-text"><<tendingicon setup.plants[_food].icon>><<print trPlants(_food, "name")>></div>
+            현재 가지고 있는 양: <<print $plants[_food].amount>> <<print trPlants(_food, "unit")>>
             <br>
             <<if _ingredients_available isnot false>>
                 <<capture _food>>
                     <br>
                     <<if $tiredness gte C.tiredness.max>>
-                        <span class="purple">You're too tired to cook!</span>
+                        <span class="purple">당신은 요리하기에는 너무 지쳤다!</span>
                     <<else>>
                         <<link [[만든다|$passage]]>><<make_recipe _food>><</link>>
                     <</if>>
@@ -192,7 +192,7 @@
         <</if>>
     <</for>>
     <<if _recipe_known is false>>
-        <span class="blue">You know no recipes!</span> <span class="gold">You can learn them from the housekeeping class at school.</span>
+        <span class="blue">당신은 어떤 조리법도 알고 있지 않다!</span> <span class="gold">학교의 정리정돈 수업에서 조리법을 배울 수 있습니다.</span>
     <</if>>
 <</widget>>
 
@@ -252,12 +252,12 @@
         <<if setup.plants[_food].type is "food">>
             <<if $plants[_food].amount gte 1>>
                 <<set _food_gift_found to true>>
-                <label><<tendingicon setup.plants[_food].icon>><<print _food.toLocaleUpperFirst().replace(/_/g," ")>> (<<print $plants[_food].amount>>) <<radiobutton "$gift" setup.plants[_food] checked>></label> |
+                <label><<tendingicon setup.plants[_food].icon>><<print trPlants(_food, "name")>> (<<print $plants[_food].amount>> <<print trPlants(_food, "unit")>>) <<radiobutton "$gift" setup.plants[_food] checked>></label> |
             <</if>>
         <</if>>
     <</for>>
     <<if _food_gift_found isnot true>>
-        You don't have any homemade food to gift.
+		당신은 선물로 줄 직접 만든 음식을 가지고 있지 않다.
     <</if>>
     <br><br>
 <</widget>>
