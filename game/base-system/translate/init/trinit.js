@@ -1120,6 +1120,14 @@ function trinit_handtoolList()
 				ko: "염색약",
 				post: 0
 			},
+			"blusher" : {
+				ko: "연지",
+				post: 1
+			},
+			"concealer" : {
+				ko: "컨실러",
+				post: 1
+			},
 			
 			/* combat-spank */
 			"paddle" : {

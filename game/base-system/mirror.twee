@@ -765,14 +765,14 @@
 	<hr>
 	<div class="settingsGrid">
 
-		<div class="settingsHeader">Facial Settings</div>
+		<div class="settingsHeader">얼굴 설정</div>
 		<div id="visualsFaceStyle" class="settingsToggleItem">
-			<span class="gold bold">Face style:</span><br>
+			<span class="gold bold">얼굴 스타일:</span><br>
 			<<faceStyleOptions>>
 		</div>
 
 		<div id="visualsFaceVariants" class="settingsToggleItem">
-			<span class="gold bold">Demeanour:</span>
+			<span class="gold bold">표정:</span>
 			<br>
 			<div id="visualsFaceVariantRadios">
 				<<faceVariantOptions>>
@@ -1089,7 +1089,7 @@
 		<<link [[양손을 묶는다|$passage]]>>
 			<<set $mirrorMenu to "skin">>
 			<<bind>>
-		<</link>><span class="black"> (Will destroy handheld items.)</span>
+		<</link>><span class="black"> (들고다니는 물건을 들고있다면 파괴될 것입니다.)</span>
 		<br/>
 		<<print Object.values(setup.bodywriting).length>>개의 알려진 신체 낙서가 있습니다.
 	<</if>>
@@ -1104,7 +1104,7 @@
 		<<for _i to 0; _i lt _keys.length; _i++>>
 			<<capture _i _keys>>
 				<div @id="'link-'+_keys[_i].replace(/ /g,'-')" @class="(_keys[_i] is $bodywritingSet ? 'no-numberify bodywritingSelected' : 'no-numberify bodywriting')">
-				<<button _keys[_i]>>
+				<<trBodyWritingCategory _keys[_i]>><<button _trResult>>
 					<<removeclass `'#link-'+$bodywritingSet.replace(/ /g,'-')` "bodywritingSelected">>
 					<<addclass `'#link-'+$bodywritingSet.replace(/ /g,'-')` "bodywriting">>
 					<<set $bodywritingSet to clone(_keys[_i])>>
@@ -1122,14 +1122,14 @@
 	</div>
 	<div class="skinMenu">
 		<label data-target="options.images" data-disabledif="V.options.images===0">
-			<<checkbox "$options.bodywritingImages" false true autocheck>> Enable bodywriting images
+			<<checkbox "$options.bodywritingImages" false true autocheck>> 낙서 이미지 활성화
 		</label>
 	</div>
 <</widget>>
 
 <<widget "bodywritingMenu">>
 	<<if Object.keys(_bodyWritingOptions[$bodywritingSet]).length gt 0>>
-		<span class="gold bold">Add Bodywriting:</span>
+		<span class="gold bold">신체낙서 추가:</span>
 		<br>
 		<<set _bodyPartOptions to {}>>
 		<<if _args[0] isnot undefined>>
@@ -1197,7 +1197,7 @@
 			이 외에 어디에 광고를 쓸 수 있을지 잘 모르겠다.
 		<</if>>
 	<<else>>
-		You have not unlocked any bodywriting options for this category yet.
+		아직 이 종류의 낙서를 아무것도 해금시키지 않았습니다.
 	<</if>>
 <</widget>>
 
@@ -1836,14 +1836,14 @@
 
 	<<set _items = $makeup.owned[_itemType].filter(x => x.count > 0)>>
 	<<if $makeup.owned[_itemType].length == 0>>
-		<<cosmeticsicon _itemType>> You don't own any _itemType.
+		당신은 <<handtoolPost _itemType "을">> 가지고 있지 않다.
 	<<elseif _items.length == 0>>
-		You ran out of _itemType.
+		<<handtoolPost _itemType "이">> 다 떨어졌다.
 		<br>
 	<</if>>
 	<<if _items.length != 0 or $makeup[_itemType] != 0>>
 		<<cosmeticsicon _itemType>>
-		<span class="gold bold"><<= _itemType.toUpperFirst()>>:</span>
+		<span class="gold bold"><<handtoolPost _itemType>>:</span>
 		<<if $makeup[_itemType] != 0>>
 			<<capture _itemType>>
 			<span class="no-numberify">
@@ -1867,7 +1867,7 @@
 				<span @class="$makeup[_itemType] == _item.colour ? 'makeupWorn' : 'makeupItem'">
 					<<capture _item, _itemType>>
 						<<set _name to
-						`_item.colour <span @class="_itemType+'-'+_item.colour.replace(/ /g, '-')"><span class="colour-sample"></span></span>
+						`${trColour(_item.colour)} <span @class="_itemType+'-'+_item.colour.replace(/ /g, '-')"><span class="colour-sample"></span></span>
 						× _item.count`>>
 						<<button _name>>
 							<<handheldon>>
@@ -1897,22 +1897,22 @@
 	<<mirroricon>><<link "뒤로">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 	<div class="settingsGrid">
-		<div class="settingsHeader">Makeup</div>
+		<div class="settingsHeader">화장</div>
 		<<set _makeup to []>>
 		<<if $makeup.lipstick isnot 0>>
-			<<run _makeup.push($makeup.lipstick + " lipstick")>>
+			<<run _makeup.push(trColour($makeup.lipstick) + " 립스틱")>><<set $_ul to "을">>
 		<</if>>
 		<<if $makeup.eyeshadow isnot 0>>
-			<<run _makeup.push($makeup.eyeshadow + " eyeshadow")>>
+			<<run _makeup.push(trColour($makeup.eyeshadow) + " 아이섀도우")>><<set $_gwa to ($_ul eq "을"?"과":"와")>><<set $_ul to "를">>
 		<</if>>
 		<<if $makeup.blusher isnot 0>>
-			<<run _makeup.push($makeup.blusher + " blusher")>>
+			<<run _makeup.push(trColour($makeup.blusher) + " 연지")>><<set $_gwa to ($_ul eq "을"?"과":"와")>><<set $_ul to "를">>
 		<</if>>
 		<<if $makeup.mascara isnot 0>>
-			<<run _makeup.push($makeup.mascara + " mascara")>>
+			<<run _makeup.push(trColour($makeup.mascara) + " 마스카라")>><<set $_gwa to ($_ul eq "을"?"과":"와")>><<set $_ul to "를">>
 		<</if>>
 		<<if $makeup.concealer is 1>>
-			<<run _makeup.push("concealer")>>
+			<<run _makeup.push("컨실러")>><<set $_gwa to ($_ul eq "을"?"과":"와")>><<set $_ul to "를">>
 		<</if>>
 		<<set _makeupNames to ["lipstick","eyeshadow","mascara","blusher","browscolour","eyelenses"]>>
 		<<set _makeupData to ["lipstick","eyeshadow","mascara","blusher","hairdye","eyelenses"]>>
@@ -1921,14 +1921,14 @@
 
 		<div class="settingsToggleItemWide">
 			<<if _makeup.length gt 0>>
-				You are wearing <<=_makeup.reduce( (a, b, i, array) => a + ( i < array.length - 1 ? ', ' : (array.length > 2 ? ', and ' : ' and ') ) + b)>>.
+				당신은 <<=_makeup.reduce( (a, b, i, array) => a + ( i < array.length - 1 ? ', ' : (array.length > 2 ? ', 그리고 ' : $_gwa + ' ') ) + b) + $_ul>> 사용하고 있다.
 			<<else>>
-				You are not wearing any makeup.
+				당신은 어떤 화장도 하고 있지 않다.
 			<</if>>
 
 			<<if _ownsMakeup or _makeup.length gt 0 or $player.freckles == true>>
 				<br><br>
-				Makeup:
+				화장:
 			<</if>>
 			<<if _removableMakeup>>
 				<<link [[전부 지운다|$passage]]>>
@@ -1940,7 +1940,7 @@
 					<<set $makeup.mascara_running to 0>>
 				<</link>>
 				<<if _makeup.includes("concealer")>>
-					<mouse class="tooltip linkBlue">(?)<span>Will not remove concealer.</span></mouse>
+					<mouse class="tooltip linkBlue">(?)<span>컨실러는 지울 수 없습니다.</span></mouse>
 				<</if>>
 				 |
 			<</if>>
@@ -1978,7 +1978,7 @@
 			<<if $player.freckles == true>>
 				<<if _ownsMakeup>>|<</if>>
 				<<if $makeup.concealer == 0>>
-					<<link "Hide freckles with concealer">>
+					<<link "주근깨를 컨실러로 숨긴다">>
 						<<set $makeup.concealer = 1>>
 						<<run Engine.show()>>
 					<</link>>
@@ -2021,9 +2021,9 @@
 			<<mirrorMakeupPart "blusher">>
 		</div>
 		<div class="settingsToggleItemWide">
-			<span class="gold bold">New Makeup Preset</span>
+			<span class="gold bold">새 화장 세트</span>
 			<br>
-			Saves the makeup you currently have equipped.
+			현재 사용하고 있는 화장 세트를 저장합니다.
 			<br>
 			<<textbox "_newPresetName" "">>
 			<br>
@@ -2045,35 +2045,35 @@
 				<<if $makeup.owned.eyelenses.length == 0 and $makeup.owned.custom_eyelenses.length == 0>>
 					당신은 콘택트 렌즈를 가지고 있지 않다.
 				<<else>>
-					<span class="gold bold">Contact Lenses:</span>
+					<span class="gold bold">콘택트 렌즈:</span>
 					<<if $makeup.eyelenses.left != 0 || $makeup.eyelenses.right != 0>>
 						<span class="no-numberify">
-							<<link "지운다">>
+							<<link "착용하지 않는다">>
 								<<set $makeup.eyelenses = { left: 0, right: 0 }>>
 								<<run Engine.show()>>
 							<</link>>
 						</span>
 						<br>
-						You are wearing
+						당신은
 						<<if $makeup.eyelenses.left is $makeup.eyelenses.right>>
-							<<= $makeup.eyelenses.left>> contacts.
+							<<= trColour($makeup.eyelenses.left)>> 콘택트 렌즈를 착용하고 있다.
 						<<elseif $makeup.eyelenses.left != 0 and  $makeup.eyelenses.right != 0>>
-							<<= $makeup.eyelenses.left>> contacts in your left eye and <<= $makeup.eyelenses.right>> contacts in your right eye.
+							<<= trColour($makeup.eyelenses.left)>> 콘택트 렌즈를 왼쪽 눈에 착용하고 있고 <<= trColour($makeup.eyelenses.right)>> 콘택트 렌즈를 오른쪽 눈에 착용하고 있다.
 						<<else>>
-							<<set _lens to $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $makeup.eyelenses.right>>
-							<<set _eye to $makeup.eyelenses.left != 0 ? "left" : "right">>
-							<<= _lens>> contacts in your <<= _eye>> eye. Your  <<= _eye is "left" ? "right" : "left">> eye is your natural <<= _eye is "left" ? $rightEyeColour : $leftEyeColour>> colour.
+							<<set _lens to $makeup.eyelenses.left != 0 ? trColour($makeup.eyelenses.left) : trColour($makeup.eyelenses.right)>>
+							<<set _eye to $makeup.eyelenses.left != 0 ? "왼쪽" : "오른쪽">>
+							<<= _lens>> 콘택트 렌즈를 <<= _eye>> 눈에 착용하고 있다. 당신의  <<= _eye is "왼쪽" ? "오른쪽" : "왼쪽">> 눈은 당신의 원래 색인 <<= _eye is "left" ? trColour($rightEyeColour) : trColour($leftEyeColour)>> 색이다.
 						<</if>>
 					<<else>>
 						<br>
-						You are not wearing any contact lenses.
+						당신은 콘택트 렌즈를 착용하고 있지 않다.
 					<</if>>
 					<br><br>
 
-					Put contacts in:
-					<label><<radiobutton "_contact_eye_selected" "Both" checked>> Both eyes</label> |
-					<label><<radiobutton "_contact_eye_selected" "Left eye">> Left eye</label> |
-					<label><<radiobutton "_contact_eye_selected" "Right eye">> Right eye</label>
+					콘택트 렌즈를 착용한다:
+					<label><<radiobutton "_contact_eye_selected" "Both" checked>> 양쪽 눈</label> |
+					<label><<radiobutton "_contact_eye_selected" "Left eye">> 왼쪽 눈</label> |
+					<label><<radiobutton "_contact_eye_selected" "Right eye">> 오른쪽 눈</label>
 					<br>
 					<div class="makeupList no-numberify capitalize">
 						<<for _i, _colour range $makeup.owned.eyelenses>>
@@ -2083,7 +2083,7 @@
 							<span class="makeupItem">
 								<<capture _colour>>
 									<<set _contactName to
-									`_colour <span @class="'eye-'+_colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-eyes left-"></span></span>`>>
+									`${trColour(_colour)} <span @class="'eye-'+_colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-eyes left-"></span></span>`>>
 
 									<<button _contactName>>
 										<<handheldon 1>>
@@ -2111,7 +2111,7 @@
 								<<capture _colour _background_colour>>
 									<<set _colourSpaced to window.colorNameTranslate(_colour, "spaced name")>>
 									<<set _customName to
-									`_colourSpaced [C] <span class="eye-custom"><span @style="'background:'+_background_colour" class="colour-sample"></span></span>`>>
+									`${trColour(_colourSpaced)} [C] <span class="eye-custom"><span @style="'background:'+_background_colour" class="colour-sample"></span></span>`>>
 
 									<<button _customName>>
 										<<if _contact_eye_selected == "Both">>
@@ -2135,33 +2135,33 @@
 				<<cosmeticsicon "dyes">>
 				<<set _dyes = $makeup.owned.hairdye.filter(x => x.count > 0)>>
 				<<if _dyes.length == 0>>
-					You have no hair dye to dye your eyebrows with.
+					당신은 눈썹 염색을 할 염료가 없다.
 				<<else>>
-					<span class="gold bold">Eyebrow Colour:</span>
+					<span class="gold bold">눈썹 색상:</span>
 					<br>
 					<<if $mirror_eyebrow_dye is true>>
 						<<handheldon 1>>
 						<<wearProp "hairdye">>
 						<<unset $mirror_eyebrow_dye>>
-						You open up the box with <<= setup.colours.hair_map[$browsDyeOption].name>> dye and prepare the mixture. Using a small brush, you carefully apply the dye to your eyebrows. You wait several minutes for the dye to set and hope you didn't mess up anything.
+						당신은 <<= trColour(setup.colours.hair_map[$browsDyeOption].name)>> 염색약 상자를 열고 혼합물을 준비한다. 작은 브러쉬를 사용하여, 당신은 눈썹에 조심스럽게 염색약을 바른다. 당신은 염색약이 굳을 때까지 몇 분 정도 기다리면서 망치지 않았기를 바란다.
 						<<set $makeup.owned.hairdye.find(x => x.colour == $browsDyeOption).count -= 1>><<set $makeup.browscolour = $browsDyeOption>><<unset $browsDyeOption>>
 						<hr>
 					<</if>>
 
 					<<if $makeup.browscolour != 0>>
-						Your brows are coloured with <<hairmapcolourtext $makeup.browscolour>> hair dye. Visit a hairdresser to restore them to their natural <<hairmapcolourtext $naturalhaircolour>> colour.
+						당신의 눈썹은 <<hairmapcolourtext $makeup.browscolour>> 염색약으로 물들여져 있다. 당신의 원래 <<hairmapcolourtext $naturalhaircolour>> 눈썹으로 돌려놓으려면 미용실을 방문하자.
 					<<else>>
-						Your brows are their natural <<hairmapcolourtext $naturalhaircolour>> colour.
+						당신의 눈썹색은 자연스러운 <<hairmapcolourtext $naturalhaircolour "이다">>.
 					<</if>>
 					<br><br>
-					Dying your eyebrows will take <span class="gold">0:15</span> minutes.
+					당신의 눈썹을 염색하려면 <span class="gold">0:15</span>분이 걸린다.
 					<br>
 					<div class="makeupList no-numberify capitalize">
 						<<for _i to 0; _i lt _dyes.length; _i++>>
 							<<if $makeup.browscolour is _dyes[_i].colour or $naturalhaircolour is _dyes[_i].colour>>
 								<<continue>>
 							<</if>>
-							<<set _displayName = (_dyes[_i].colour in setup.colours.hair_map ? setup.colours.hair_map[_dyes[_i].colour].name : _dyes[_i].colour.charAt(0).toUpperCase() + _dyes[_i].colour.slice(1)) + " ×" + _dyes[_i].count + " ">>
+							<<set _displayName = (_dyes[_i].colour in setup.colours.hair_map ? trColour(setup.colours.hair_map[_dyes[_i].colour].name) : trColour(_dyes[_i].colour)) + " ×" + _dyes[_i].count + " ">>
 							<<set _dyeName to _displayName + `<span @class="'hair-' + _dyes[_i].colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-hair colour-hair"></span>`>>
 							<<capture _dyes, _i>>
 								<<button _dyeName>>
@@ -2185,15 +2185,15 @@
 	<<for $_label, $_value range _presetChosen>>
 		<<switch $_label>>
 			<<case "browscolour">>
-				Eyebrow Dye: <<makeupPresetsItem "hairdye" $_value>>
+				눈썹 염색: <<makeupPresetsItem "hairdye" $_value>>
 			<<case "lipstick">>
 				립스틱: <<makeupPresetsItem $_label $_value>>
 			<<case "eyeshadow">>
-				Eyeshadow: <<makeupPresetsItem $_label $_value>>
+				아이섀도우: <<makeupPresetsItem $_label $_value>>
 			<<case "mascara">>
 				마스카라: <<makeupPresetsItem $_label $_value>>
 			<<case "blusher">>
-				Blusher: <<makeupPresetsItem $_label $_value>>
+				연지: <<makeupPresetsItem $_label $_value>>
 			<<case "eyelenses">>
 				콘택트 렌즈: <<makeupPresetsItem $_label $_value>>
 		<</switch>>
@@ -2233,25 +2233,25 @@
 <<widget "makeupPresetsItem">>
 	<<if _args[0] isnot undefined and _args[1] isnot undefined>>
 		<<if _args[1] is 0 and _args[0] is "hairdye">>
-			<span class="green">Natural</span>
+			<span class="green">자연스러운 색상</span>
 		<<elseif _args[1] is 0>>
-			None
+			<<if _args[0] is "eyelenses">>뺀다<<else>>지운다<</if>>
 		<<else>>
 			<<if _args[0] is "eyelenses">>
 				<<if _args[1].left == 0 && _args[1].right == 0>>
-					None
+					뺀다
 				<<elseif _args[1].left == _args[1].right>>
-					<span class="green"><<print _args[1].left.toUpperFirst()>> (Owned)</span>
+					<span class="green"><<print trColour(_args[1].left)>> (가지고 있음)</span>
 				<<else>>
-					<span class="green"><<print _args[1].left.toUpperFirst() + "(Left), " + _args[1].right.toUpperFirst()+" (Right)">></span>
+					<span class="green"><<print trColour(_args[1].left) + " (왼쪽), " + trColour(_args[1].right)+" (오른쪽)">></span>
 				<</if>>
 			<<else>>
 				<<for $_i to 0; $_i lt $makeup.owned[_args[0]].length; $_i++>>
 					<<if $makeup.owned[_args[0]][$_i].colour is _args[1]>>
 						<<if $makeup.owned[_args[0]][$_i].count gt 0>>
-							<span class="green"><<print _args[1].toUpperFirst()>> (<<print "×"+$makeup.owned[_args[0]][$_i].count>>)</span>
+							<span class="green"><<print trColour(_args[1])>> (<<print "×"+$makeup.owned[_args[0]][$_i].count>>)</span>
 						<<else>>
-							<span class="red"><<print _args[1].toUpperFirst()>> (× 0)</span>
+							<span class="red"><<print trColour(_args[1])>> (× 0)</span>
 						<</if>>
 						<<break>>
 					<</if>>
