@@ -3,6 +3,8 @@ function trPlants(plantname, type, post, sep)
 	if (!setup.trPlants)
 		trinit_plants();
 
+	if (!type) type = "";
+	
     let trTemp = setup.trPlants.nameIndex[plantname];
 
     if (!trTemp)

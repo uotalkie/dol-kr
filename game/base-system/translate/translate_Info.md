@@ -2936,6 +2936,23 @@
 
 * base-system/text.twee
     ```
+    <<hairmapcolourtext>>
+		<<hairmapcolourtext *colour post "sep">>
+		
+		머리색을 번역한다.
+		
+		필수사항
+		- *colour: 원본 hairmapcolourtext의 인수
+		
+        선택사항
+        - post: 번역결과의 뒤에 조사를 붙인다.
+        - sep: 조사를 분리하여 저장한다.
+
+        e.g.
+        <<hairmapcolourtext "blue" "으로">>             // "파란색으로"
+    ```
+
+    ```
     <<npcHairColour>>
 		<<npcHairColour *npcID post "sep">>
 		

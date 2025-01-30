@@ -155,12 +155,12 @@ function genderappearancecheck() {
 	}
 	/* Makeup */
 	addfemininityfromfactor(V.makeup.lipstick ? 50 : 0, "립스틱");
-	addfemininityfromfactor(V.makeup.eyeshadow ? 50 : 0, "Eyeshadow");
+	addfemininityfromfactor(V.makeup.eyeshadow ? 50 : 0, "아이섀도우");
 	addfemininityfromfactor(V.makeup.mascara ? 50 : 0, "마스카라");
-	addfemininityfromfactor(V.makeup.blusher ? 50 : 0, "Blusher");
+	addfemininityfromfactor(V.makeup.blusher ? 50 : 0, "연지");
 	/* Body structure */
 	setfemininitymultiplierfromgender(V.player.gender_body);
-	addfemininityfromfactor(T.femininity_multiplier * 200, "Body appearance");
+	addfemininityfromfactor(T.femininity_multiplier * 200, "신체 모습");
 	addfemininityfromfactor(Math.trunc(((V.physique + V.physiquesize / 2) / V.physiquesize) * -100), "탄탄한 근육");
 	/* Behaviour */
 	setfemininitymultiplierfromgender(V.player.gender_posture);
