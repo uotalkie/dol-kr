@@ -3074,7 +3074,8 @@
 	```
 	camelCaseToTitle()
 		<<moneyGain>> 등에서 쓰임. 한글에는 대소문자가 없어서 "."을 띄어쓰기 용도로 사용하도록 함
-		(ex. <<moneyGain 5 false false `"튜토리얼.남자"`>> // "튜토리얼 남자" 에게서 5파운드를 얻었다고 기록됨
+		(ex. <<moneyGain 5 false false "튜토리얼.남자">> // "튜토리얼 남자" 에게서 5파운드를 얻었다고 기록됨)
+		* 주의: moneyGain 혹은 money 에 추가로 붙는 기록은 대부분 번역해야 하지만 "prostitution" 만은 번역하지 말것 (내부에서 자동으로 번역됨)
 	```
 
 * base-system/text.twee
