@@ -2411,6 +2411,28 @@
 		
 	```
 
+* trMoneySource
+    ```
+    <<trMoneySource>>
+        <<trMoneySource *source post "sep">>
+		trMoneySource(source, post, sep)
+
+        돈의 출처를 번역한다.
+        
+        필수사항
+        - *source: 번역할 돈의 출처
+
+        선택사항
+        - post: 번역결과의 뒤에 조사를 붙인다.
+        - sep: 조사를 분리하여 저장한다.
+
+        note
+			돈의 출처는 <<money>>, <<tipreceive>> 에서 지정되며 CamelCase(대소문자를 사용해 띄어쓰기를 표현하는 방법)로 입력된다.
+			따라서 CamelCase를 푼 각 단어를 trMoneySources 에 등록해야 번역이 된다. 만약 단어별로 나누지 못하는 경우 (ex. "peopleOfInterest")
+			ambiguousWords 에 등록하면 한 단어로 치환시키므로 전체를 한 단어로 해서 등록하면 된다 (ex. "peopleofinterest")
+			번역결과는 빈칸을 무시하기 때문에 빈칸 대신에 .을 사용해 빈칸을 나타내어야 한다. (ex. "관심이.있는.사람들") camelCaseToTitle 참조.
+    ```
+
 * trMuseumAntique
     ```
     <<trMuseumAntique>>
@@ -3074,8 +3096,7 @@
 	```
 	camelCaseToTitle()
 		<<moneyGain>> 등에서 쓰임. 한글에는 대소문자가 없어서 "."을 띄어쓰기 용도로 사용하도록 함
-		(ex. <<moneyGain 5 false false "튜토리얼.남자">> // "튜토리얼 남자" 에게서 5파운드를 얻었다고 기록됨)
-		* 주의: moneyGain 혹은 money 에 추가로 붙는 기록은 대부분 번역해야 하지만 "prostitution" 만은 번역하지 말것 (내부에서 자동으로 번역됨)
+		* trMoneySource 참조
 	```
 
 * base-system/text.twee

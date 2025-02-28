@@ -1065,27 +1065,27 @@ const statChange = (() => {
 			V.money += amount;
 		}
 		if (!source || source === "prostitution") {
-			const mod = source === "prostitution" ? "에서.매춘" : "";
+			const mod = source === "prostitution" ? "Prostitution" : "";
 			switch (V.location) {
 				case "farm":
 				case "alex_farm":
 				case "alex_cottage":
-					source = "농장" + mod;
+					source = "farm" + mod;
 					break;
 				case "dance_studio":
-					source = "무용.학원" + mod;
+					source = "danceStudio" + mod;
 					break;
 				case "moor":
 				case "bog":
 				case "castle":
 				case "tower":
-					source = "황무지" + mod;
+					source = "moor" + mod;
 					break;
 				case "riding_school":
-					source = "승마.학교" + mod;
+					source = "ridingSchool" + mod;
 					break;
 				case "strip_club":
-					source = "스트립.클럽" + mod;
+					source = "stripClub" + mod;
 					break;
 				case "forest":
 				case "lake":
@@ -1097,11 +1097,11 @@ const statChange = (() => {
 				case "catacombs":
 				case "churchyard":
 				case "sepulchre":
-					source = "숲" + mod;
+					source = "forest" + mod;
 					break;
 				case "dilapidated_shop":
 				case "adult_shop":
-					source = "성인용품점" + mod;
+					source = "adultShop" + mod;
 					break;
 				case "town":
 				case "home":
@@ -1118,26 +1118,26 @@ const statChange = (() => {
 				case "beech":
 				case "sea":
 				case "kylarmanor":
-					source = "도시" + mod;
+					source = "town" + mod;
 					break;
 				case "studio":
-					source = "사진.스튜디오" + mod;
+					source = "photoStudio" + mod;
 					break;
 				case "pirate_ship":
-					source = "해적선" + mod;
+					source = "pirates" + mod;
 					break;
 				case "school":
 				case "school_rear_courtyard":
 				case "pool":
-					source = "학교" + mod;
+					source = "school" + mod;
 					break;
 				case "office":
 				case "office_building":
 				case "officeBuilding":
-					source = "사무실" + mod;
+					source = "office" + mod;
 					break;
 				case "canal":
-					source = "아파트.옆.수로" + mod;
+					source = "flatsCanal" + mod;
 					break;
 				default:
 					source = V.location + mod;
@@ -1145,7 +1145,7 @@ const statChange = (() => {
 			}
 		}
 
-		if (!source) source = "불명"; // Should be unreachable, but there just in case
+		if (!source) source = "unknown"; // Should be unreachable, but there just in case
 		// eslint-disable-next-line no-undef
 		source = toCamelCase(source);
 
