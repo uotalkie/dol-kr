@@ -20,7 +20,7 @@ function masturbationAudience() {
 		}
 		if (V.npc[npc - 1]) {
 			sWikifier(
-				`<span class="lewd"><<person${npc}>>You can feel <<combatpersons>> eyes${V.masturbationAudience > 1 ? ", alongside others," : ""} on you.${
+				`<span class="lewd"><<person${npc}>>당신은 <<combatperson_ yi>> 눈길이${V.masturbationAudience > 1 ? ", 다른 사람들과 같이," : ""} 당신을 향하고 있다는 것을 느낀다.${
 					audienceMutual && V.masturbationAudience <= 6
 						? ` <<He_ nun>> 당신의 움직임을${V.mouth === 0 || V.mouth === "disabled" ? " " : "일부 "} 따라하고 있다.`
 						: ""

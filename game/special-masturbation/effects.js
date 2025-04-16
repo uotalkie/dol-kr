@@ -3786,7 +3786,7 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			wikifier("arousal", 500, "anal");
 			wikifier("drugs", 10);
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
-				fragment.append(span("You roughly ride the plant, rubbing it as quickly as you can. It's unlike anything you've felt before."));
+				fragment.append(span("당신은 거칠게 그 식물에 올라타, 그것에 가능한 빠르게 비벼댄다. 그것은 당신이 이전에 느꼈던 것들과는 다르다."));
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 				fragment.append(
 					span(`당신은${V.player.penisExist ? " 그것으로 당신의 전립선을 찌르려 시도하면서," : ""} 그 식물에 올라타 움직인다. 그것은 당신이 이전에 느꼈던 것들과는 다르다.`)
