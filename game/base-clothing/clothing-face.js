@@ -1087,7 +1087,7 @@ function initFace() {
 			fabric_strength: 20,
 			reveal: 1,
 			word: "an",
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,

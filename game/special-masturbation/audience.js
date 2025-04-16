@@ -266,7 +266,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 			resultArray.push(`"이봐, 더 세게 쥐어짜 보라고."`);
 			if (V.masturbationAudience >= 4) {
 				resultArray.push(
-					`"<<pshe_ ga>> <<pherself_ ul>> 얼마나 빨리 문질러대는지 보라고."`,
+					`"Look how fast <<pshes>> stroking <<pherself>>."`,
 					`"그거 기분 좋아? 내 말은, 네 자지를 모두들 앞에서 만지는 것 말야."`,
 					`"쿠퍼액이 좀 떨어지는 것이 보이는 것 같은데."`,
 					`"바로 그거야, 모두에게 네가 어떻게 자위하는 지 보여주라고."`

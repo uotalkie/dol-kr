@@ -880,6 +880,8 @@ function moneyStatsProcess(stats) {
 					case "pharmacyCream":
 					case "pharmacyPills":
 					case "pharmacyPregnancyTest":
+					case "pharmacyBreastPump":
+					case "pharmacyAfterPill":
 						compressTo = "pharmacy";
 						break;
 					case "museumAntique":

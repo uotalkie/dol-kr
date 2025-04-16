@@ -50,6 +50,8 @@ declare module "twine-sugarcube" {
 		outfit: {
 			[x in ClothedSlots]: string;
 		}[];
+		lowerwetstage: number;
+		underlowerwetstage: number;
 	}
 
 	export interface SugarCubeSetupObject {
@@ -150,7 +152,6 @@ declare global {
 		 */
 		exposed?: 0 | 1 | 2;
 		plural: number;
-		exposed: number;
 		exposed_base?: number;
 		vagina_exposed?: number;
 		vagina_exposed_base?: number;

@@ -112,6 +112,7 @@ declare interface CompositeLayerParams {
 	 */
 	animation?: string;
 	scale?: boolean;
+	worn?: object;
 }
 declare interface CompositeLayerSpec extends CompositeLayerParams {
 	name?: string;

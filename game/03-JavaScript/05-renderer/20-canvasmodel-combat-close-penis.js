@@ -64,7 +64,7 @@ const combatClosePenis = {
 				return `${options.src}penis/${options.position}/${options.pcPenis}.png`;
 			},
 			showfn(options) {
-				const concealed = V.worn.genitals.type.includes("hidden") || V.worn.genitals.name === "chastity parasite";
+				const concealed = (V.worn.genitals.type.includes("hidden") || V.worn.genitals.name === "chastity parasite") && !window.playerHasStrapon();
 				return !!options.showPenis && !concealed;
 			},
 			animationfn(options) {

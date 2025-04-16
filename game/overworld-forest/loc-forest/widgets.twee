@@ -523,7 +523,7 @@
 				<br><br>
 
 				<<if currentSkillValue('tending') gte 800>>
-					<<ind>><<link [[벌집을 수확한다 (0:20)|Forest Honey Pick]]>><<pass 20>><</link>><<tendingdifficulty 800 1100>>
+					<<tendingicon "wild_honeycomb">><<link [[Harvest honeycomb (0:20)|Forest Honey Pick]]>><<pass 20>><</link>><<tendingdifficulty 800 1100>>
 					<br>
 				<<else>>
 					<span class="blue">야생의 벌집을 수확하려면 관리 스킬이 더 높아야 합니다.</span>
@@ -706,7 +706,7 @@
 <</widget>>
 
 <<widget "forestrock">>
-	<<if $worn.feet.type.includes("naked")>>
+	<<if $worn.feet.type.includes("naked") or $worn.feet.type.includes("shackle")>>
 		맨발로 딱딱하고 거친 바위를 밟는다. 그다지 아프지는 않지만 충격으로 인해 당신은 발을 헛디디고, 양치류 사이로 굴러 떨어진다.
 		<<gstress>><<gpain>><<stress 6>><<pain 6>>
 		<br><br>
@@ -862,7 +862,7 @@
 				    <<else>>
 					    <<bHe_ nun>> 당신의 배를 쳐다보고 낑낑거린다. 당신은 인간 아기를 임신한 채로는 동굴로 돌아갈 수 없다.
 				    <</if>>
-			    <<else>>				    
+			    <<else>>
 				    <<if $monster is 1>>
 					    "<<pPackbrother_ nun>> 아직 인간 새끼를 임신하고 있어!" <<bhe_ ga>> 짖는다. "떠나, 당장!"
 				    <<else>>
@@ -1000,7 +1000,7 @@
 						<<if C.npc.Eden.lust gte 60>>
 							매듭을 풀기 시작한. <<HePost "은">> 그러다가 잠시 멈춘다.
 							<br><br>
-							"그나저나, 우리 먼저 재미 좀 봤으면 하는데, 너도 괜찮겠지?" <<He_ ga>> 당신에게 미소지으며 <<his_ yi>> 바지 지퍼를 내린다.
+							"We should have some fun first, though, don't you agree?" <<He>> smiles down at you as <<he>> unzips <<his>> pants.
 							<br><br>
 
 							<<link [[에덴이 <<his_ yi>> 바지를 내리는 것을 도와준다|Forest Eden Snare Oral]]>><<set $phase to 0>><<npcincr Eden love 1>><<npcincr Eden dom 1>><<sub 1>><</link>><<glove>><<gdom>>
@@ -1086,22 +1086,26 @@
 <<widget "cabintime">>
 	<<switch Time.hour>>
 		<<case 6>>
-			<<pass 1 hour>><<tiredness -12>>
+			<<set _night_length to 1>>
 		<<case 5>>
-			<<pass 2 hours>><<tiredness -24>>
+			<<set _night_length to 2>>
 		<<case 4>>
-			<<pass 3 hours>><<tiredness -36>>
+			<<set _night_length to 3>>
 		<<case 3>>
-			<<pass 4 hours>><<tiredness -48>>
+			<<set _night_length to 4>>
 		<<case 2>>
-			<<pass 5 hours>><<tiredness -60>>
+			<<set _night_length to 5>>
 		<<case 1>>
-			<<pass 6 hours>><<tiredness -72>>
+			<<set _night_length to 6>>
 		<<case 0>>
-			<<pass 7 hours>><<tiredness -84>>
+			<<set _night_length to 7>>
 		<<case 23>>
-			<<pass 8 hours>><<tiredness -96>>
+			<<set _night_length to 8>>
 	<</switch>>
+	<<pass _night_length hours>>
+	<<if not _args[0]>> /* passing time but not sleeping */
+		<<tiredness _night_length*(-12)>>
+	<</if>>
 <</widget>>
 
 <<widget "passoutforest">>
@@ -1578,6 +1582,8 @@
 	<<if _args[0] is "river">>
 		<<He_ ga>> 당신의 팔을 잡고 당신을 물 밖으로 끌어낸다.
 	<</if>>
+	/* Prevents towelup when the player has clothes */
+	<<silently>><<clotheson>><</silently>>
 	<<if $exposed gte 1>>
 		<<He_ ga>> 당신 자신의 몸을 <<if _args[0] is "river">>말리고 <</if>>가릴 수 있게 오래된 타올을 몇 장 건네준다.<<towelup>>
 	<</if>>
@@ -1588,7 +1594,7 @@
 		<<He_ nun>> 당신 나이쯤 되어 보이고, 칙칙한 갈색 머리에 주근깨가 있다. "나는 보기보다 나이가 많단다," <<he_ nun>> 마치 당신의 마음을 읽는 것처럼 말한다. "나는 그윌란이라고 해. 만나서 반가워."
 		<br><br>
 
-		"나는 숲 변두리에 가게를 하나 가지고 있는데," <<he_ ga>> 말한다. "너도 쉽게 찾을거야. 나는 장사를 하고 있는데-" <<he_ nun>> 잠시 멈칫한다. "우리 <<if $pronoun is "m">>할아버지가<<else>>할머니가<</if>> 장사를 하고 있는데-" 다시 한번 말을 멈춘다. "나는 거기서 잡동사니를 팔고 있어. 일반적인 상점에서는 찾아볼 수 없는 물건들이지. 심지어 나조차도 어떤 재고가 있는지 모른단다!" <<He_ nun>> 자랑스러운 듯 말한다.
+		"I have a shop right by the outskirts of the forest," <<he>> says. "You can't miss it. I sell-" <<He>> pauses. "My grand<<father>> sells-" Another pause. "I sell knick-knacks there. Things you won't find in normal shops. Even I don't know what I have in stock!" <<He>> sounds proud.
 	<<elseif $gwylan_aborted gte 1>>
 		<<gwylanRescueApology>>
 	<</if>>

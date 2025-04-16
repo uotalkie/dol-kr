@@ -1723,13 +1723,17 @@
 	Optional parameter [0] possible values:
 	0 or omitted or null - display chastity, virginity, arousal, and pubes
 	1 - omit chastity, display virginity, arousal, and pubes
-	2 - omit chastity, virginity, arousal, and pubes
+	2 - omit chastity, virginity, arousal, sensitivity, and pubes
  -->
 <<widget "genitals">><<silently>>
 	<<if playerChastity("hidden") and !_args[0] and _chastityBreak isnot 1>>
 		<<set _text_output to $worn.genitals.name>>
 	<<else>>
-		<<genitalsensitivity>>
+		<<if _args[0] is 2>>
+			<<set _text_output to "">>
+		<<else>>
+			<<genitalsensitivity>>
+		<</if>>
 		<<if $player.penisExist>>
 			<<if $worn.genitals.name is "chastity parasite">>
 				<<set _text_output += "sealed ">>
@@ -2471,7 +2475,7 @@
 	<<set $_torn = []>>
 	<<set $_topIntegrity = _top ? _top.integrity -= $stripintegrity : 1>>
 	<<set $_bottomIntegrity = _bottom ? _bottom.integrity -= $stripintegrity : 1>>
-	<<set $_bottomUnderIntegrity = _bottomUnder ? _bottomUnder.integrity -= $stripintegrity : 1>>
+	<<set $_bottomUnderIntegrity = _bottomUnder && _skirtExposed ? _bottomUnder.integrity -= $stripintegrity : 1>>
 	<<if $_topIntegrity lte 0>>
 		<<run $_torn.push(topNamePost())>>
 		<<set $_plural = _top.plural || 0>>
@@ -2729,7 +2733,7 @@
 	<<elseif $worn.under_lower.exposed gte 1 and $worn.lower.exposed gte 2 and $worn.over_lower.exposed gte 1 and $player.gender_appearance is "m" and $player.gender is "m">>
 		<<set _text_output to '<span class="lewd">exposed _genitals</span>'>>
 	<<elseif $worn.over_upper.exposed gte 1 and $worn.upper.exposed gte 2 and $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1 and !$worn.under_upper.type.includes("covered")>>
-		<<if $player.penisExist and $player.vaginaExist>>
+		<<if $player.penisExist and $player.vaginaExist and !playerChastity()>>
 			<<set _text_output to '<span class="lewd">exposed _undertop, _genitals</span>'>>
 		<<else>>
 			<<set _text_output to '<span class="lewd">exposed _undertop and _genitals</span>'>>
@@ -4209,7 +4213,7 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "cursedtext">>
-	<<if (_args[0] or _args[1]) is "collar">>
+	<<if _args[0] is "collar" or _args[0] is "collar with leash">>
 		<span class="blue">경찰이 도와줄 수 있을지도 모른다.</span>
 	<<elseif (_args[0] or _args[1]) is "chastity belt">>
 		<span class="blue">사원에서 도와줄 수 있을지도 모른다.</span>
@@ -5948,7 +5952,7 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 		<<set $_color to "red">>
 		<<set $_text_output to "Syntax Error: Inputted custom stat '_args[3]' without using the 'custom' stat argument in the \"insufficientStat\" widget. Please report this.">>
 	<<elseif _args[0] is "custom" and !_args[3]>>
-			<<set $_color to "red">>
+		<<set $_color to "red">>
 		<<set $_text_output to "Syntax Error: Used 'custom' stat argument without inputing a custom stat in the \"insufficientStat\" widget. Please report this.">>
 	<</if>>
 <</silently>><<if $_text_output>><span @class="$_color"><<print $_text_output>></span><</if>><</widget>>

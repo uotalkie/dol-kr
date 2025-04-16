@@ -1,6 +1,9 @@
-:: Widgets Plant Objects [widget]
-<<widget "init_plant_objects">>
-	<<set _plants to {
+/* globals Dict, PlantSetup */
+// @ts-check
+
+function initPlants() {
+	/** @type {Dict<PlantSetup>} */
+	const plants = {
 		red_rose: {
 			index: 0,
 			name: "red_rose",
@@ -13,10 +16,10 @@
 			days: 14,
 			multiplier: 1,
 			special: [],
-			season: ["spring","autumn"],
+			season: ["spring", "autumn"],
 			ingredients: [],
-			icon: "red_rose.png"
-			},
+			icon: "red_rose.png",
+		},
 
 		white_rose: {
 			index: 1,
@@ -30,10 +33,10 @@
 			days: 14,
 			multiplier: 1,
 			special: [],
-			season: ["spring","autumn"],
+			season: ["spring", "autumn"],
 			ingredients: [],
-			icon: "white_rose.png"
-			},
+			icon: "white_rose.png",
+		},
 
 		orchid: {
 			index: 2,
@@ -49,8 +52,8 @@
 			special: [],
 			season: ["summer"],
 			ingredients: [],
-			icon: "orchid.png"
-			},
+			icon: "orchid.png",
+		},
 
 		daisy: {
 			index: 3,
@@ -64,10 +67,10 @@
 			days: 7,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn"],
+			season: ["spring", "summer", "autumn"],
 			ingredients: [],
-			icon: "daisy.png"
-			},
+			icon: "daisy.png",
+		},
 
 		tulip: {
 			index: 4,
@@ -83,8 +86,8 @@
 			special: [],
 			season: ["autumn"],
 			ingredients: [],
-			icon: "tulip.png"
-			},
+			icon: "tulip.png",
+		},
 
 		lotus: {
 			index: 5,
@@ -98,10 +101,10 @@
 			days: 5,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "lotus.png"
-			},
+			icon: "lotus.png",
+		},
 
 		lily: {
 			index: 6,
@@ -115,10 +118,10 @@
 			days: 10,
 			multiplier: 1,
 			special: [],
-			season: ["spring","autumn"],
+			season: ["spring", "autumn"],
 			ingredients: [],
-			icon: "lily.png"
-			},
+			icon: "lily.png",
+		},
 
 		poppy: {
 			index: 7,
@@ -132,10 +135,10 @@
 			days: 8,
 			multiplier: 1,
 			special: [],
-			season: ["spring","autumn"],
+			season: ["spring", "autumn"],
 			ingredients: [],
-			icon: "poppy.png"
-			},
+			icon: "poppy.png",
+		},
 
 		apple: {
 			index: 8,
@@ -149,10 +152,10 @@
 			days: 7,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "apple.png"
-			},
+			icon: "apple.png",
+		},
 
 		orange: {
 			index: 9,
@@ -166,10 +169,10 @@
 			days: 6,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "orange.png"
-			},
+			icon: "orange.png",
+		},
 
 		banana: {
 			index: 10,
@@ -183,10 +186,10 @@
 			days: 9,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "banana.png"
-			},
+			icon: "banana.png",
+		},
 
 		lemon: {
 			index: 11,
@@ -200,10 +203,10 @@
 			days: 12,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "lemon.png"
-			},
+			icon: "lemon.png",
+		},
 
 		blood_lemon: {
 			index: 12,
@@ -217,10 +220,10 @@
 			days: 20,
 			multiplier: 1,
 			special: ["aphrodisiac"],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "blood_lemon.gif"
-			},
+			icon: "blood_lemon.gif",
+		},
 
 		pear: {
 			index: 13,
@@ -234,10 +237,10 @@
 			days: 10,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "pear.png"
-			},
+			icon: "pear.png",
+		},
 
 		strawberry: {
 			index: 14,
@@ -251,10 +254,10 @@
 			days: 14,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "strawberry.png"
-			},
+			icon: "strawberry.png",
+		},
 
 		peach: {
 			index: 15,
@@ -268,10 +271,10 @@
 			days: 8,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "peach.png"
-			},
+			icon: "peach.png",
+		},
 
 		plum: {
 			index: 16,
@@ -285,10 +288,10 @@
 			days: 10,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "plum.png"
-			},
+			icon: "plum.png",
+		},
 
 		mushroom: {
 			index: 17,
@@ -302,10 +305,10 @@
 			days: 14,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "mushroom.png"
-			},
+			icon: "mushroom.png",
+		},
 
 		wolfshroom: {
 			index: 18,
@@ -319,10 +322,10 @@
 			days: 21,
 			multiplier: 1,
 			special: ["aphrodisiac"],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "wolfshroom.png"
-			},
+			icon: "wolfshroom.png",
+		},
 
 		wild_honeycomb: {
 			index: 19,
@@ -336,10 +339,10 @@
 			days: 7,
 			multiplier: 1,
 			special: ["large"],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "wild_honeycomb.png"
-			},
+			icon: "wild_honeycomb.png",
+		},
 
 		wild_carrot: {
 			index: 20,
@@ -353,10 +356,10 @@
 			days: 10,
 			multiplier: 3,
 			special: [],
-			season: ["spring","summer","autumn"],
+			season: ["spring", "summer", "autumn"],
 			ingredients: [],
-			icon: "carrot.png"
-			},
+			icon: "carrot.png",
+		},
 
 		onion: {
 			index: 21,
@@ -370,10 +373,10 @@
 			days: 12,
 			multiplier: 3,
 			special: [],
-			season: ["spring","autumn"],
+			season: ["spring", "autumn"],
 			ingredients: [],
-			icon: "onion.png"
-			},
+			icon: "onion.png",
+		},
 
 		garlic_bulb: {
 			index: 22,
@@ -389,8 +392,8 @@
 			special: [],
 			season: ["autumn"],
 			ingredients: [],
-			icon: "garlic.png"
-			},
+			icon: "garlic.png",
+		},
 
 		potato: {
 			index: 23,
@@ -404,10 +407,10 @@
 			days: 7,
 			multiplier: 4,
 			special: [],
-			season: ["spring","autumn","winter"],
+			season: ["spring", "autumn", "winter"],
 			ingredients: [],
-			icon: "potato.png"
-			},
+			icon: "potato.png",
+		},
 
 		strange_flower: {
 			index: 24,
@@ -421,10 +424,10 @@
 			days: 28,
 			multiplier: 1,
 			special: ["aphrodisiac"],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "strange_flower.png"
-			},
+			icon: "strange_flower.png",
+		},
 
 		truffle: {
 			index: 25,
@@ -438,10 +441,10 @@
 			days: 28,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "truffle.png"
-			},
+			icon: "truffle.png",
+		},
 
 		bottle_of_milk: {
 			index: 26,
@@ -455,10 +458,10 @@
 			days: 1,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "milk.png"
-			},
+			icon: "milk.png",
+		},
 
 		chicken_egg: {
 			index: 27,
@@ -472,10 +475,10 @@
 			days: 1,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "egg.png"
-			},
+			icon: "egg.png",
+		},
 
 		bottle_of_breast_milk: {
 			index: 28,
@@ -489,10 +492,10 @@
 			days: 1,
 			multiplier: 1,
 			special: ["large"],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "breastmilk.png"
-			},
+			icon: "breastmilk.png",
+		},
 
 		bottle_of_semen: {
 			index: 29,
@@ -506,10 +509,10 @@
 			days: 1,
 			multiplier: 1,
 			special: ["large"],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "semenbottle.png"
-			},
+			icon: "semenbottle.png",
+		},
 
 		cabbage: {
 			index: 30,
@@ -523,10 +526,10 @@
 			days: 8,
 			multiplier: 3,
 			special: [],
-			season: ["spring","winter"],
+			season: ["spring", "winter"],
 			ingredients: [],
-			icon: "cabbage.png"
-			},
+			icon: "cabbage.png",
+		},
 
 		turnip: {
 			index: 31,
@@ -540,10 +543,10 @@
 			days: 12,
 			multiplier: 2,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "turnip.png"
-			},
+			icon: "turnip.png",
+		},
 
 		broccoli: {
 			index: 32,
@@ -557,10 +560,10 @@
 			days: 10,
 			multiplier: 3,
 			special: [],
-			season: ["spring","autumn"],
+			season: ["spring", "autumn"],
 			ingredients: [],
-			icon: "broccoli.png"
-			},
+			icon: "broccoli.png",
+		},
 
 		ghostshroom: {
 			index: 33,
@@ -574,10 +577,10 @@
 			days: 14,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "ghostshroom.png"
-			},
+			icon: "ghostshroom.png",
+		},
 
 		blackberry: {
 			index: 34,
@@ -591,10 +594,10 @@
 			days: 10,
 			multiplier: 10,
 			special: ["small"],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "blackberry.png"
-			},
+			icon: "blackberry.png",
+		},
 
 		carnation: {
 			index: 35,
@@ -610,8 +613,8 @@
 			special: [],
 			season: ["autumn"],
 			ingredients: [],
-			icon: "carnation.png"
-			},
+			icon: "carnation.png",
+		},
 
 		bird_egg: {
 			index: 36,
@@ -625,10 +628,10 @@
 			days: 1,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "bird_egg.png"
-			},
+			icon: "bird_egg.png",
+		},
 
 		baby_bottle_of_breast_milk: {
 			index: 37,
@@ -643,10 +646,10 @@
 			days: 1,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "babybottle.png"
-			},
+			icon: "babybottle.png",
+		},
 
 		plumeria: {
 			index: 38,
@@ -662,8 +665,8 @@
 			special: [],
 			season: ["spring", "summer", "autumn"],
 			ingredients: [],
-			icon: "plumeria.png"
-			},
+			icon: "plumeria.png",
+		},
 
 		oyster_pearl: {
 			index: 39,
@@ -681,7 +684,7 @@
 			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
 			icon: "oyster_pearl.png",
-			},
+		},
 
 		bread: {
 			index: 40,
@@ -695,11 +698,11 @@
 			type: "food",
 			days: 20,
 			multiplier: 1,
-			special: ["vegan",],
+			special: ["vegan"],
 			season: [],
 			ingredients: ["flour", "salt", "vegetable_oil"],
-			icon: "bread.png"
-			},
+			icon: "bread.png",
+		},
 
 		flour: {
 			index: 41,
@@ -716,8 +719,8 @@
 			special: [],
 			season: [],
 			ingredients: ["wheat"],
-			icon: "flour.png"
-			},
+			icon: "flour.png",
+		},
 
 		salt: {
 			index: 42,
@@ -734,8 +737,8 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "salt.png"
-			},
+			icon: "salt.png",
+		},
 
 		vegetable_oil: {
 			index: 43,
@@ -752,8 +755,8 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "vegetable_oil.png"
-			},
+			icon: "vegetable_oil.png",
+		},
 
 		pizza: {
 			index: 44,
@@ -771,8 +774,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["bread", "tomato", "garlic_bulb", "cheese"],
-			icon: "pizza.png"
-			},
+			icon: "pizza.png",
+		},
 
 		tomato: {
 			index: 45,
@@ -787,10 +790,10 @@
 			days: 10,
 			multiplier: 4,
 			special: [],
-			season: ["summer","autumn"],
+			season: ["summer", "autumn"],
 			ingredients: [],
-			icon: "tomato.png"
-			},
+			icon: "tomato.png",
+		},
 
 		cheese: {
 			index: 46,
@@ -808,12 +811,13 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["bottle_of_milk"],
-			icon: "cheese.png"
-			},
+			icon: "cheese.png",
+		},
 
 		macaroni_cheese: {
 			index: 47,
 			name: "macaroni_cheese",
+			recipe_name: "macaroni and cheese",
 			singular: "serving of macaroni and cheese",
 			plural: "servings of macaroni and cheese",
 			plant_cost: 800,
@@ -826,8 +830,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["bottle_of_milk", "cheese", "flour", "pasta", "salt"],
-			icon: "macaroni_cheese.png"
-			},
+			icon: "macaroni_cheese.png",
+		},
 
 		pasta: {
 			index: 48,
@@ -844,8 +848,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["flour", "chicken_egg", "vegetable_oil", "salt"],
-			icon: "pasta.png"
-			},
+			icon: "pasta.png",
+		},
 
 		cauliflower_cheese: {
 			index: 49,
@@ -862,12 +866,13 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["cauliflower", "cheese", "garlic_bulb", "bottle_of_milk"],
-			icon: "cauliflower_cheese.png"
-			},
+			icon: "cauliflower_cheese.png",
+		},
 
 		wheat: {
 			index: 50,
 			name: "wheat",
+			seed_name: "wheat",
 			singular: "cup of wheat",
 			plural: "cups of wheat",
 			plant_cost: 10,
@@ -878,10 +883,10 @@
 			days: 9,
 			multiplier: 5,
 			special: [],
-			season: ["spring","summer","autumn"],
+			season: ["spring", "summer", "autumn"],
 			ingredients: [],
-			icon: "wheat.png"
-			},
+			icon: "wheat.png",
+		},
 
 		prawn_bisque: {
 			index: 51,
@@ -898,8 +903,8 @@
 			special: ["seafood"],
 			season: [],
 			ingredients: ["prawn", "onion", "garlic_bulb", "vegetable_oil", "cream", "lemon"],
-			icon: "prawn_bisque.png"
-			},
+			icon: "prawn_bisque.png",
+		},
 
 		cream: {
 			index: 52,
@@ -916,12 +921,13 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "cream.png"
-			},
+			icon: "cream.png",
+		},
 
 		chelsea_bun: {
 			index: 53,
 			name: "chelsea_bun",
+			recipe_name: "chelsea buns",
 			singular: "chelsea bun",
 			plural: "chelsea buns",
 			plant_cost: 200,
@@ -935,8 +941,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["flour", "salt", "butter", "sugar", "bottle_of_milk", "honey"],
-			icon: "chelsea_bun.png"
-			},
+			icon: "chelsea_bun.png",
+		},
 
 		honey: {
 			index: 54,
@@ -953,8 +959,8 @@
 			special: [],
 			season: [],
 			ingredients: ["wild_honeycomb"],
-			icon: "honey.png"
-			},
+			icon: "honey.png",
+		},
 
 		butter: {
 			index: 55,
@@ -971,8 +977,8 @@
 			special: [],
 			season: [],
 			ingredients: ["bottle_of_milk"],
-			icon: "butter.png"
-			},
+			icon: "butter.png",
+		},
 
 		naan_bread: {
 			index: 56,
@@ -989,12 +995,13 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["bottle_of_milk", "flour", "vegetable_oil", "chicken_egg", "salt"],
-			icon: "naan_bread.png"
-			},
+			icon: "naan_bread.png",
+		},
 
 		pastry: {
 			index: 57,
 			name: "pastry",
+			recipe_name: "pastries",
 			singular: "piece of pastry",
 			plural: "pieces of pastry",
 			plant_cost: 150,
@@ -1007,8 +1014,8 @@
 			special: [],
 			season: [],
 			ingredients: ["butter", "flour", "salt"],
-			icon: "pastry.png"
-			},
+			icon: "pastry.png",
+		},
 
 		quiche: {
 			index: 58,
@@ -1025,8 +1032,8 @@
 			special: [],
 			season: [],
 			ingredients: ["pastry", "bottle_of_milk", "chicken_egg", "bacon", "cheese", "tomato"],
-			icon: "quiche.png"
-			},
+			icon: "quiche.png",
+		},
 
 		bacon: {
 			index: 59,
@@ -1043,8 +1050,8 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "bacon.png"
-			},
+			icon: "bacon.png",
+		},
 
 		mince_pie: {
 			index: 60,
@@ -1061,8 +1068,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["pastry", "blackberry", "sugar"],
-			icon: "mince_pie.png"
-			},
+			icon: "mince_pie.png",
+		},
 
 		sugar: {
 			index: 61,
@@ -1079,12 +1086,13 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "sugar.png"
-			},
+			icon: "sugar.png",
+		},
 
 		sausage_roll: {
 			index: 62,
 			name: "sausage_roll",
+			recipe_name: "sausage rolls",
 			singular: "sausage roll",
 			plural: "sausage rolls",
 			plant_cost: 150,
@@ -1097,8 +1105,8 @@
 			special: [],
 			season: [],
 			ingredients: ["pastry", "salt", "sausage", "chicken_egg", "lemon"],
-			icon: "sausage_roll.png"
-			},
+			icon: "sausage_roll.png",
+		},
 
 		sausage: {
 			index: 63,
@@ -1115,12 +1123,13 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "sausage.png"
-			},
+			icon: "sausage.png",
+		},
 
 		potato_pancake: {
 			index: 64,
 			name: "potato_pancake",
+			recipe_name: "potato pancakes",
 			singular: "potato pancake",
 			plural: "potato pancakes",
 			plant_cost: 100,
@@ -1133,12 +1142,13 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["potato", "onion", "chicken_egg", "vegetable_oil"],
-			icon: "potato_pancake.png"
-			},
+			icon: "potato_pancake.png",
+		},
 
 		onion_bhaji: {
 			index: 65,
 			name: "onion_bhaji",
+			recipe_name: "onion bhajis",
 			singular: "onion bhaji",
 			plural: "onion bhajis",
 			plant_cost: 100,
@@ -1151,15 +1161,15 @@
 			special: ["vegan", "spicy"],
 			season: [],
 			ingredients: ["flour", "onion", "chilli_pepper"],
-			icon: "onion_bhaji.png"
-			},
+			icon: "onion_bhaji.png",
+		},
 
 		chilli_pepper: {
 			index: 66,
 			name: "chilli_pepper",
 			singular: "chilli pepper",
 			plural: "chilli peppers",
-			plant_cost: 60,
+			plant_cost: 80,
 			difficulty: 1,
 			handheld: "chilli pepper",
 			bed: "earth",
@@ -1167,14 +1177,15 @@
 			days: 22,
 			multiplier: 6,
 			special: [],
-			season: ["summer","autumn"],
+			season: ["summer", "autumn"],
 			ingredients: [],
-			icon: "chilli_pepper.png"
-			},
+			icon: "chilli_pepper.png",
+		},
 
 		samosa: {
 			index: 67,
 			name: "samosa",
+			recipe_name: "samosas",
 			singular: "samosa",
 			plural: "samosas",
 			plant_cost: 60,
@@ -1187,8 +1198,8 @@
 			special: ["vegetarian", "spicy"],
 			season: [],
 			ingredients: ["pastry", "potato", "chilli_pepper", "lemon"],
-			icon: "samosa.png"
-			},
+			icon: "samosa.png",
+		},
 
 		sweet_and_sour_chicken: {
 			index: 68,
@@ -1205,8 +1216,8 @@
 			special: ["spicy"],
 			season: [],
 			ingredients: ["chicken", "vegetable_oil", "pepper", "sugar", "onion"],
-			icon: "sweet_and_sour_chicken.png"
-			},
+			icon: "sweet_and_sour_chicken.png",
+		},
 
 		chicken: {
 			index: 69,
@@ -1223,8 +1234,8 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "chicken.png"
-			},
+			icon: "chicken.png",
+		},
 
 		pepper: {
 			index: 70,
@@ -1239,10 +1250,10 @@
 			days: 15,
 			multiplier: 4,
 			special: [],
-			season: ["spring","summer","winter"],
+			season: ["spring", "summer", "winter"],
 			ingredients: [],
-			icon: "pepper.png"
-			},
+			icon: "pepper.png",
+		},
 
 		kedgeree: {
 			index: 71,
@@ -1259,8 +1270,8 @@
 			special: ["seafood"],
 			season: [],
 			ingredients: ["haddock", "rice", "chicken_egg", "butter", "vegetable_oil", "lemon", "cream"],
-			icon: "kedgeree.png"
-			},
+			icon: "kedgeree.png",
+		},
 
 		rice: {
 			index: 72,
@@ -1275,10 +1286,10 @@
 			days: 26,
 			multiplier: 20,
 			special: [],
-			season: ["spring","summer","autumn"],
+			season: ["spring", "summer", "autumn"],
 			ingredients: [],
-			icon: "rice.png"
-			},
+			icon: "rice.png",
+		},
 
 		haddock: {
 			index: 73,
@@ -1295,8 +1306,8 @@
 			special: [],
 			season: ["summer", "autumn"],
 			ingredients: [],
-			icon: "haddock.png"
-			},
+			icon: "haddock.png",
+		},
 
 		honeyed_pork: {
 			index: 74,
@@ -1313,8 +1324,8 @@
 			special: ["carnivore"],
 			season: [],
 			ingredients: ["pork", "salt", "honey", "chicken_egg"],
-			icon: "honeyed_pork.png"
-			},
+			icon: "honeyed_pork.png",
+		},
 
 		beef_wellington: {
 			index: 75,
@@ -1331,8 +1342,8 @@
 			special: [],
 			season: [],
 			ingredients: ["beef", "onion", "pastry", "chicken_egg", "salt", "mushroom"],
-			icon: "beef_wellington.png"
-			},
+			icon: "beef_wellington.png",
+		},
 
 		salmon_wellington: {
 			index: 76,
@@ -1349,12 +1360,13 @@
 			special: [],
 			season: [],
 			ingredients: ["salmon", "broccoli", "pastry", "chicken_egg", "salt"],
-			icon: "salmon_wellington.png"
-			},
+			icon: "salmon_wellington.png",
+		},
 
 		hamburger: {
 			index: 77,
 			name: "hamburger",
+			recipe_name: "hamburgers",
 			singular: "hamburger",
 			plural: "hamburgers",
 			plant_cost: 600,
@@ -1367,12 +1379,13 @@
 			special: [],
 			season: [],
 			ingredients: ["beef", "bread", "onion", "tomato"],
-			icon: "burger.png"
-			},
+			icon: "burger.png",
+		},
 
 		cheeseburger: {
 			index: 78,
 			name: "cheeseburger",
+			recipe_name: "cheeseburgers",
 			singular: "cheeseburger",
 			plural: "cheeseburgers",
 			plant_cost: 800,
@@ -1385,8 +1398,8 @@
 			special: [],
 			season: [],
 			ingredients: ["beef", "bread", "onion", "tomato", "cheese"],
-			icon: "cheeseburger.png"
-			},
+			icon: "cheeseburger.png",
+		},
 
 		chips: {
 			index: 79,
@@ -1403,8 +1416,8 @@
 			special: ["vegan"],
 			season: [],
 			ingredients: ["potato", "vegetable_oil", "salt"],
-			icon: "chips.png"
-			},
+			icon: "chips.png",
+		},
 
 		cheese_topped_trout: {
 			index: 80,
@@ -1421,8 +1434,8 @@
 			special: ["seafood"],
 			season: [],
 			ingredients: ["trout", "bread", "cheese", "vegetable_oil", "butter", "lemon"],
-			icon: "cheese_topped_trout.png"
-			},
+			icon: "cheese_topped_trout.png",
+		},
 
 		salmon: {
 			index: 81,
@@ -1437,10 +1450,10 @@
 			days: 1,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn"],
+			season: ["spring", "summer", "autumn"],
 			ingredients: [],
-			icon: "salmon.png"
-			},
+			icon: "salmon.png",
+		},
 
 		trout: {
 			index: 82,
@@ -1455,10 +1468,10 @@
 			days: 1,
 			multiplier: 1,
 			special: [],
-			season: ["autumn","winter"],
+			season: ["autumn", "winter"],
 			ingredients: [],
-			icon: "trout.png"
-			},
+			icon: "trout.png",
+		},
 
 		spaghetti_bolognese: {
 			index: 83,
@@ -1475,8 +1488,8 @@
 			special: [],
 			season: [],
 			ingredients: ["pasta", "beef", "vegetable_oil", "garlic_bulb", "tomato"],
-			icon: "spaghetti_bolognese.png"
-			},
+			icon: "spaghetti_bolognese.png",
+		},
 
 		lasagne: {
 			index: 84,
@@ -1493,8 +1506,8 @@
 			special: [],
 			season: [],
 			ingredients: ["pasta", "beef", "cheese", "flour", "garlic_bulb", "tomato"],
-			icon: "lasagne.png"
-			},
+			icon: "lasagne.png",
+		},
 
 		carbonara: {
 			index: 85,
@@ -1511,8 +1524,8 @@
 			special: [],
 			season: [],
 			ingredients: ["pasta", "cheese", "flour", "bottle_of_milk", "pork"],
-			icon: "carbonara.png"
-			},
+			icon: "carbonara.png",
+		},
 
 		chicken_tikka_masala: {
 			index: 86,
@@ -1529,13 +1542,13 @@
 			special: ["spicy"],
 			season: [],
 			ingredients: ["chicken", "vegetable_oil", "onion", "garlic_bulb", "tomato", "butter", "lemon", "naan_bread", "rice"],
-			icon: "chicken_tikka_masala.png"
-			},
+			icon: "chicken_tikka_masala.png",
+		},
 
 		chilli_con_carne: {
 			index: 87,
 			name: "chilli_con_carne",
-			singular: "serving ",
+			singular: "serving of chilli con carne",
 			plural: "servings of chilli con carne",
 			plant_cost: 1300,
 			difficulty: 3,
@@ -1547,12 +1560,13 @@
 			special: ["spicy"],
 			season: [],
 			ingredients: ["beef", "vegetable_oil", "onion", "garlic_bulb", "tomato", "chilli_pepper"],
-			icon: "chilli_con_carne.png"
-			},
+			icon: "chilli_con_carne.png",
+		},
 
 		rich_biscuit: {
 			index: 88,
 			name: "rich_biscuit",
+			recipe_name: "rich biscuits",
 			singular: "rich biscuit",
 			plural: "rich biscuits",
 			plant_cost: 50,
@@ -1566,8 +1580,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["chicken_egg", "flour", "sugar", "lemon"],
-			icon: "rich_biscuit.png"
-			},
+			icon: "rich_biscuit.png",
+		},
 
 		shortbread: {
 			index: 89,
@@ -1584,13 +1598,14 @@
 			multiplier: 5,
 			special: ["vegetarian", "sweet"],
 			season: [],
-			ingredients: ["butter", "flour", "sugar",],
-			icon: "shortbread.png"
-			},
+			ingredients: ["butter", "flour", "sugar"],
+			icon: "shortbread.png",
+		},
 
 		melting_moment: {
 			index: 90,
 			name: "melting_moment",
+			recipe_name: "melting moments",
 			singular: "melting moment",
 			plural: "melting moments",
 			plant_cost: 80,
@@ -1604,12 +1619,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["butter", "flour", "sugar", "chicken_egg", "jam"],
-			icon: "melting_moment.png"
-			},
+			icon: "melting_moment.png",
+		},
 
 		choc_chip_cookie: {
 			index: 91,
 			name: "choc_chip_cookie",
+			recipe_name: "chocolate chip cookies",
 			singular: "chocolate chip cookie",
 			plural: "chocolate chip cookies",
 			plant_cost: 100,
@@ -1623,8 +1639,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["butter", "flour", "sugar", "chicken_egg", "chocolate"],
-			icon: "choc_chip_cookie.png"
-			},
+			icon: "choc_chip_cookie.png",
+		},
 
 		cocoa_powder: {
 			index: 92,
@@ -1641,8 +1657,8 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "cocoa_powder.png"
-			},
+			icon: "cocoa_powder.png",
+		},
 
 		chocolate: {
 			index: 93,
@@ -1659,12 +1675,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["butter", "bottle_of_milk", "cocoa_powder"],
-			icon: "chocolate.png"
-			},
+			icon: "chocolate.png",
+		},
 
 		jammie_dodger: {
 			index: 94,
 			name: "jammie_dodger",
+			recipe_name: "jammie dodgers",
 			singular: "jammie dodger",
 			plural: "jammie dodgers",
 			plant_cost: 80,
@@ -1678,8 +1695,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["flour", "sugar", "butter", "chicken_egg", "jam"],
-			icon: "jammie_dodger.png"
-			},
+			icon: "jammie_dodger.png",
+		},
 
 		jam: {
 			index: 95,
@@ -1696,12 +1713,13 @@
 			special: [],
 			season: [],
 			ingredients: ["strawberry", "sugar"],
-			icon: "jam.png"
-			},
+			icon: "jam.png",
+		},
 
 		apple_strudel: {
 			index: 94,
 			name: "apple_strudel",
+			recipe_name: "apple strudels",
 			singular: "apple strudel",
 			plural: "apple strudels",
 			plant_cost: 1200,
@@ -1714,12 +1732,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["pastry", "apple", "sugar", "honey", "butter"],
-			icon: "apple_strudel.png"
-			},
+			icon: "apple_strudel.png",
+		},
 
 		soufflé: {
 			index: 95,
 			name: "soufflé",
+			recipe_name: "soufflés",
 			singular: "soufflé",
 			plural: "soufflés",
 			plant_cost: 3000,
@@ -1732,12 +1751,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["chicken_egg", "bird_egg", "cream", "sugar", "butter", "flour", "lemon"],
-			icon: "soufflé.png"
-			},
+			icon: "soufflé.png",
+		},
 
 		tart: {
 			index: 96,
 			name: "tart",
+			recipe_name: "tarts",
 			singular: "tart",
 			plural: "tarts",
 			plant_cost: 1000,
@@ -1750,8 +1770,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["pastry", "chocolate"],
-			icon: "tart.png"
-			},
+			icon: "tart.png",
+		},
 
 		lemon_meringue_pie: {
 			index: 97,
@@ -1768,8 +1788,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["pastry", "lemon", "sugar", "butter", "chicken_egg"],
-			icon: "lemon_meringue_pie.png"
-			},
+			icon: "lemon_meringue_pie.png",
+		},
 
 		sponge_cake: {
 			index: 98,
@@ -1787,12 +1807,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["flour", "butter", "sugar", "cream", "chicken_egg", "jam"],
-			icon: "sponge_cake.png"
-			},
+			icon: "sponge_cake.png",
+		},
 
 		swiss_roll: {
 			index: 99,
 			name: "swiss_roll",
+			recipe_name: "swiss rolls",
 			singular: "swiss roll",
 			plural: "swiss rolls",
 			plant_cost: 1500,
@@ -1805,12 +1826,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["flour", "butter", "cream", "chicken_egg", "jam", "orange", "sugar"],
-			icon: "swiss_roll.png"
-			},
+			icon: "swiss_roll.png",
+		},
 
 		scone: {
 			index: 100,
 			name: "scone",
+			recipe_name: "scones",
 			singular: "scone",
 			plural: "scones",
 			plant_cost: 150,
@@ -1823,12 +1845,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["flour", "butter", "sugar", "salt", "bottle_of_milk"],
-			icon: "scone.png"
-			},
+			icon: "scone.png",
+		},
 
 		brownie: {
 			index: 101,
 			name: "brownie",
+			recipe_name: "brownies",
 			singular: "brownie",
 			plural: "brownies",
 			plant_cost: 300,
@@ -1841,8 +1864,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["butter", "flour", "chocolate", "chicken_egg", "salt"],
-			icon: "brownie.png"
-			},
+			icon: "brownie.png",
+		},
 
 		carrot_cake: {
 			index: 102,
@@ -1860,8 +1883,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["wild_carrot", "sugar", "chicken_egg", "vegetable_oil", "flour", "lemon", "cream", "butter"],
-			icon: "carrot_cake.png"
-			},
+			icon: "carrot_cake.png",
+		},
 
 		crème_brulee: {
 			index: 103,
@@ -1878,8 +1901,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["bottle_of_milk", "cream", "sugar", "chicken_egg"],
-			icon: "crème_brulee.png"
-			},
+			icon: "crème_brulee.png",
+		},
 
 		date: {
 			index: 104,
@@ -1894,10 +1917,10 @@
 			days: 10,
 			multiplier: 6,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "date.png"
-			},
+			icon: "date.png",
+		},
 
 		sticky_toffee_pudding: {
 			index: 105,
@@ -1914,8 +1937,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["date", "flour", "chicken_egg", "butter", "sugar", "bottle_of_milk", "cream"],
-			icon: "sticky_toffee_pudding.png"
-			},
+			icon: "sticky_toffee_pudding.png",
+		},
 
 		chicken_vindaloo: {
 			index: 106,
@@ -1932,12 +1955,13 @@
 			special: ["spicy"],
 			season: [],
 			ingredients: ["chicken", "vegetable_oil", "chilli_pepper", "onion", "tomato", "lemon", "garlic_bulb", "naan_bread", "rice"],
-			icon: "chicken_vindaloo.png"
-			},
+			icon: "chicken_vindaloo.png",
+		},
 
 		flapjack: {
 			index: 107,
 			name: "flapjack",
+			recipe_name: "flapjack squares",
 			singular: "flapjack square",
 			plural: "flapjack squares",
 			plant_cost: 100,
@@ -1951,8 +1975,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["butter", "sugar", "oats", "lemon"],
-			icon: "flapjack.png"
-			},
+			icon: "flapjack.png",
+		},
 
 		cherry: {
 			index: 108,
@@ -1969,12 +1993,13 @@
 			special: [],
 			season: ["spring", "autumn", "winter"],
 			ingredients: [],
-			icon: "cherry.png"
-			},
+			icon: "cherry.png",
+		},
 
 		belgian_bun: {
 			index: 109,
 			name: "belgian_bun",
+			recipe_name: "belgian buns",
 			singular: "belgian bun",
 			plural: "belgian buns",
 			plant_cost: 1000,
@@ -1987,8 +2012,8 @@
 			special: ["sweet"],
 			season: [],
 			ingredients: ["flour", "sugar", "bottle_of_milk", "chicken_egg", "lemon", "cherry"],
-			icon: "belgian_bun.png"
-			},
+			icon: "belgian_bun.png",
+		},
 
 		lime: {
 			index: 110,
@@ -2003,10 +2028,10 @@
 			days: 12,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "lime.png"
-			},
+			icon: "lime.png",
+		},
 
 		linguine: {
 			index: 111,
@@ -2023,8 +2048,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["vegetable_oil", "lemon", "pasta", "cream"],
-			icon: "linguine.png"
-			},
+			icon: "linguine.png",
+		},
 
 		steak: {
 			index: 112,
@@ -2041,14 +2066,15 @@
 			special: ["carnivore"],
 			season: [],
 			ingredients: ["vegetable_oil", "beef"],
-			icon: "steak.png"
-			},
+			icon: "steak.png",
+		},
 
 		full_english_breakfast: {
 			index: 113,
 			name: "full_english_breakfast",
-			singular: "full english breakfast",
-			plural: "full english breakfasts",
+			recipe_name: "full English breakfast",
+			singular: "full English breakfast",
+			plural: "full English breakfasts",
 			plant_cost: 900,
 			difficulty: 2,
 			handheld: "full english",
@@ -2059,8 +2085,8 @@
 			special: [],
 			season: [],
 			ingredients: ["vegetable_oil", "bacon", "sausage", "mushroom", "tomato", "chicken_egg"],
-			icon: "full_english_breakfast.png"
-			},
+			icon: "full_english_breakfast.png",
+		},
 
 		apple_crumble: {
 			index: 114,
@@ -2077,12 +2103,13 @@
 			special: ["sweet"],
 			season: [],
 			ingredients: ["apple", "sugar", "flour", "butter", "oats", "cream"],
-			icon: "apple_crumble.png"
-			},
+			icon: "apple_crumble.png",
+		},
 
 		bakewell_tart: {
 			index: 115,
 			name: "bakewell_tart",
+			recipe_name: "bakewell tarts",
 			singular: "bakewell tart",
 			plural: "bakewell tarts",
 			plant_cost: 1200,
@@ -2095,8 +2122,8 @@
 			special: ["sweet"],
 			season: [],
 			ingredients: ["shortbread", "cream", "cherry"],
-			icon: "bakewell_tart.png"
-			},
+			icon: "bakewell_tart.png",
+		},
 
 		cod: {
 			index: 116,
@@ -2113,8 +2140,8 @@
 			special: [],
 			season: ["winter"],
 			ingredients: [],
-			icon: "cod.png"
-			},
+			icon: "cod.png",
+		},
 
 		fish_and_chips: {
 			index: 117,
@@ -2131,8 +2158,8 @@
 			special: ["seafood"],
 			season: [],
 			ingredients: ["cod", "chips", "vegetable_oil", "flour"],
-			icon: "fish_and_chips.png"
-			},
+			icon: "fish_and_chips.png",
+		},
 
 		clam: {
 			index: 118,
@@ -2149,8 +2176,8 @@
 			special: [],
 			season: ["spring", "autumn", "winter"],
 			ingredients: [],
-			icon: "clam.png"
-			},
+			icon: "clam.png",
+		},
 
 		clam_chowder: {
 			index: 119,
@@ -2167,8 +2194,8 @@
 			special: ["seafood"],
 			season: [],
 			ingredients: ["clam", "butter", "bacon", "onion", "flour", "bottle_of_milk", "cream", "potato"],
-			icon: "clam_chowder.png"
-			},
+			icon: "clam_chowder.png",
+		},
 
 		cheese_and_crackers: {
 			index: 120,
@@ -2185,8 +2212,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["flour", "salt", "sugar", "vegetable_oil", "cheese"],
-			icon: "cheese_and_crackers.png"
-			},
+			icon: "cheese_and_crackers.png",
+		},
 
 		bangers_and_mash: {
 			index: 121,
@@ -2203,8 +2230,8 @@
 			special: [],
 			season: [],
 			ingredients: ["vegetable_oil", "sausage", "butter", "bottle_of_milk", "potato"],
-			icon: "bangers_and_mash.png"
-			},
+			icon: "bangers_and_mash.png",
+		},
 
 		yorkshire_pudding: {
 			index: 122,
@@ -2221,8 +2248,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["flour", "chicken_egg", "bottle_of_milk", "vegetable_oil"],
-			icon: "yorkshire_pudding.png"
-			},
+			icon: "yorkshire_pudding.png",
+		},
 
 		stuffing: {
 			index: 123,
@@ -2239,8 +2266,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["butter", "vegetable_oil", "onion", "garlic_bulb", "bread", "chicken_egg"],
-			icon: "stuffing.png"
-			},
+			icon: "stuffing.png",
+		},
 
 		roast_dinner: {
 			index: 124,
@@ -2256,13 +2283,27 @@
 			multiplier: 1,
 			special: [],
 			season: [],
-			ingredients: ["yorkshire_pudding", "stuffing", "chicken", "beef", "pork", "potato", "wild_carrot", "cabbage", "onion", "turnip", "vegetable_oil", "salt"],
-			icon: "roast_dinner.png"
-			},
+			ingredients: [
+				"yorkshire_pudding",
+				"stuffing",
+				"chicken",
+				"beef",
+				"pork",
+				"potato",
+				"wild_carrot",
+				"cabbage",
+				"onion",
+				"turnip",
+				"vegetable_oil",
+				"salt",
+			],
+			icon: "roast_dinner.png",
+		},
 
 		crumpet: {
 			index: 125,
 			name: "crumpet",
+			recipe_name: "crumpets",
 			singular: "crumpet",
 			plural: "crumpets",
 			plant_cost: 100,
@@ -2275,8 +2316,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["flour", "butter", "salt", "sugar"],
-			icon: "crumpet.png"
-			},
+			icon: "crumpet.png",
+		},
 
 		orange_juice: {
 			index: 126,
@@ -2293,8 +2334,8 @@
 			special: ["vegan", "drink"],
 			season: [],
 			ingredients: ["orange", "sugar"],
-			icon: "orange_juice.png"
-			},
+			icon: "orange_juice.png",
+		},
 
 		lemonade: {
 			index: 127,
@@ -2311,8 +2352,8 @@
 			special: ["vegan", "drink"],
 			season: [],
 			ingredients: ["lemon", "sugar"],
-			icon: "lemonade.png"
-			},
+			icon: "lemonade.png",
+		},
 
 		banana_bread: {
 			index: 128,
@@ -2329,8 +2370,8 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["butter", "sugar", "chicken_egg", "flour", "banana"],
-			icon: "banana_bread.png"
-			},
+			icon: "banana_bread.png",
+		},
 
 		red_wine: {
 			index: 129,
@@ -2347,8 +2388,8 @@
 			special: ["vegetarian", "drink", "alcohol"],
 			season: [],
 			ingredients: [],
-			icon: "red_wine.png"
-			},
+			icon: "red_wine.png",
+		},
 
 		white_wine: {
 			index: 130,
@@ -2365,12 +2406,13 @@
 			special: ["vegetarian", "drink", "alcohol"],
 			season: [],
 			ingredients: [],
-			icon: "white_wine.png"
-			},
+			icon: "white_wine.png",
+		},
 
 		poached_pear: {
 			index: 131,
 			name: "poached_pear",
+			recipe_name: "poached pears",
 			singular: "poached pear",
 			plural: "poached pears",
 			plant_cost: 1000,
@@ -2383,8 +2425,8 @@
 			special: ["vegan", "alcohol", "sweet"],
 			season: [],
 			ingredients: ["pear", "sugar", "red_wine"],
-			icon: "poached_pear.png"
-			},
+			icon: "poached_pear.png",
+		},
 
 		peach_panzanella: {
 			index: 132,
@@ -2401,8 +2443,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["peach", "bread", "cheese", "vegetable_oil", "lemon"],
-			icon: "peach_panzanella.png"
-			},
+			icon: "peach_panzanella.png",
+		},
 
 		plum_pudding: {
 			index: 133,
@@ -2420,12 +2462,13 @@
 			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["plum", "flour", "bread", "sugar", "orange", "lemon", "cherry", "wild_carrot"],
-			icon: "plum_pudding.png"
-			},
+			icon: "plum_pudding.png",
+		},
 
 		spinach: {
 			index: 134,
 			name: "spinach",
+			seed_name: "spinach",
 			singular: "spinach leaf",
 			plural: "spinach leaves",
 			plant_cost: 10,
@@ -2436,10 +2479,10 @@
 			days: 10,
 			multiplier: 10,
 			special: [],
-			season: ["spring","autumn"],
+			season: ["spring", "autumn"],
 			ingredients: [],
-			icon: "spinach.png"
-			},
+			icon: "spinach.png",
+		},
 
 		salad: {
 			index: 135,
@@ -2456,8 +2499,8 @@
 			special: ["vegan"],
 			season: [],
 			ingredients: ["spinach", "tomato", "onion", "garlic_bulb", "chilli_pepper", "pepper", "lime"],
-			icon: "salad.png"
-			},
+			icon: "salad.png",
+		},
 
 		arancini: {
 			index: 136,
@@ -2474,8 +2517,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["vegetable_oil", "butter", "onion", "rice", "garlic_bulb", "white_wine", "cheese", "lemon", "flour", "chicken_egg", "truffle"],
-			icon: "arancini.png"
-			},
+			icon: "arancini.png",
+		},
 
 		wolfbrew: {
 			index: 137,
@@ -2492,8 +2535,8 @@
 			special: ["vegetarian", "drink", "alcohol", "tainted"],
 			season: [],
 			ingredients: ["wolfshroom", "red_wine", "strange_flower"],
-			icon: "wolfbrew.png"
-			},
+			icon: "wolfbrew.png",
+		},
 
 		ghostbrew: {
 			index: 138,
@@ -2510,8 +2553,8 @@
 			special: ["vegetarian", "drink", "alcohol", "tainted"],
 			season: [],
 			ingredients: ["ghostshroom", "white_wine", "strange_flower"],
-			icon: "ghostbrew.png"
-			},
+			icon: "ghostbrew.png",
+		},
 
 		beef: {
 			index: 139,
@@ -2528,8 +2571,8 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "beef.png"
-			},
+			icon: "beef.png",
+		},
 
 		pork: {
 			index: 140,
@@ -2546,15 +2589,15 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "pork.png"
-			},
+			icon: "pork.png",
+		},
 
 		cauliflower: {
 			index: 141,
 			name: "cauliflower",
 			singular: "cauliflower",
 			plural: "cauliflowers",
-			plant_cost: 120,
+			plant_cost: 480,
 			difficulty: 1,
 			handheld: "cauliflower",
 			bed: "earth",
@@ -2562,10 +2605,10 @@
 			days: 30,
 			multiplier: 1,
 			special: [],
-			season: ["spring","summer","autumn","winter"],
+			season: ["spring", "summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "cauliflower.png"
-			},
+			icon: "cauliflower.png",
+		},
 
 		oats: {
 			index: 142,
@@ -2582,8 +2625,8 @@
 			special: [],
 			season: [],
 			ingredients: [],
-			icon: "oats.png"
-			},
+			icon: "oats.png",
+		},
 
 		prawn: {
 			index: 143,
@@ -2600,12 +2643,13 @@
 			special: [],
 			season: ["summer", "autumn", "winter"],
 			ingredients: [],
-			icon: "prawn.png"
-			},
+			icon: "prawn.png",
+		},
 
 		omelette: {
 			index: 144,
 			name: "omelette",
+			recipe_name: "omelettes",
 			singular: "omelette",
 			plural: "omelettes",
 			plant_cost: 300,
@@ -2618,8 +2662,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["chicken_egg", "vegetable_oil", "butter"],
-			icon: "omelette.png"
-			},
+			icon: "omelette.png",
+		},
 
 		porridge: {
 			index: 145,
@@ -2636,8 +2680,8 @@
 			special: ["vegetarian"],
 			season: [],
 			ingredients: ["oats", "bottle_of_milk"],
-			icon: "porridge.png"
-			},
+			icon: "porridge.png",
+		},
 
 		turnip_soup: {
 			index: 146,
@@ -2654,42 +2698,43 @@
 			special: ["vegan"],
 			season: [],
 			ingredients: ["turnip", "potato", "onion", "vegetable_oil", "salt"],
-			icon: "turnip_soup.png"
-			}
-	}>>
+			icon: "turnip_soup.png",
+		},
+	};
 
-	<!-- Jimmy: Sorts all plants alphabetically after their initialisation into _plants.
-				This is so Object.values/keys will read them based on their alphabetical key order.
-				Yet allows extras to be added easily based on .index being available and ordered above.
-	-->
-	<<run
-		let sorted = Object.keys(_plants).sort();
-		setup.plants = {};
-		sorted.forEach(s => {
-			setup.plants[s] = _plants[s];
-		});
-		delete _plants;
-	>>
+	/*
+		Sorts all plants alphabetically after their initialisation into _plants.
+		This is so Object.values/keys will read them based on their alphabetical key order.
+		Yet allows extras to be added easily based on .index being available and ordered above.
+	*/
+	const sorted = Object.keys(plants).sort();
+	setup.plants = {};
+	sorted.forEach(s => {
+		setup.plants[s] = plants[s];
+	});
 
-	<<set setup.tending to {}>>
+	setup.tending = {};
 
-	<<set setup.tending.plot_base to {
+	setup.tending.plot_base = {
 		plant: "none",
 		stage: 0,
 		days: 0,
 		water: 0,
 		till: 0,
-	}>>
+	};
 
-	<<set setup.tending.plot_sizes to [
-		"small",
-		"medium",
-		"large",
-	]>>
+	setup.tending.plot_sizes = ["small", "medium", "large"];
 
-	<<set setup.tending.wateringTimes to {
-		"small": 5,
-		"medium": 15,
-		"large": 60,
-	}>>
-<</widget>>
+	setup.tending.wateringTimes = {
+		small: 5,
+		medium: 15,
+		large: 60,
+	};
+}
+window.initPlants = initPlants;
+
+Macro.add("init_plant_objects", {
+	handler() {
+		initPlants();
+	},
+});

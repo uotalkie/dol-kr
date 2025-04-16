@@ -1,5 +1,5 @@
 // @ts-check
-/* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColours, ShaftTarget, isTransformationPartEnabled, isChimeraEnabled, TotalClothingStates, TransformationKeys, TransformationParts, CombatClothingTypes, AnimationSpeed, LegPositions, MachineState, CondomOptions */
+/* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColours, NpcCombatMapper, ShaftTarget, isTransformationPartEnabled, isChimeraEnabled, TotalClothingStates, TransformationKeys, TransformationParts, CombatClothingTypes, AnimationSpeed, LegPositions, MachineState, CondomOptions */
 
 /**
  * @typedef CombatPlayerOptions
@@ -1356,7 +1356,10 @@ class PlayerCombatMapper {
 			if (PlayerCombatMapper.getTentacleByShaft("rightleg") !== null && V.rightleg === "grappled") {
 				return "up";
 			}
-			if ((typeof V.vaginastate === "string" && ["othermouth", "othermouthentrance", "othermouthimminent"].includes(V.vaginastate)) || V.vaginause === "othermouth") {
+			if (
+				(typeof V.vaginastate === "string" && ["othermouth", "othermouthentrance", "othermouthimminent"].includes(V.vaginastate)) ||
+				V.vaginause === "othermouth"
+			) {
 				return "up";
 			}
 		}
@@ -1393,7 +1396,7 @@ class PlayerCombatMapper {
 			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 				return "up";
 			}
-			if (V.NPCList.some(a => a.type === "horse" && NpcCombatMapper.isUnderPositioned(a))) {
+			if (V.NPCList.some((npc, index) => npc.type === "horse" && NpcCombatMapper.isUnderPositioned(index, npc))) {
 				return "down";
 			}
 			if (V.NPCList.some(a => ["horse", "centaur", "dog", "pig", "boar"].includes(a.type))) {
@@ -1402,7 +1405,10 @@ class PlayerCombatMapper {
 			if (PlayerCombatMapper.getTentacleByShaft("leftleg") !== null && V.leftleg === "grappled") {
 				return "up";
 			}
-			if ((typeof V.vaginastate === "string" && ["othermouth", "othermouthentrance", "othermouthimminent"].includes(V.vaginastate)) || V.vaginause === "othermouth") {
+			if (
+				(typeof V.vaginastate === "string" && ["othermouth", "othermouthentrance", "othermouthimminent"].includes(V.vaginastate)) ||
+				V.vaginause === "othermouth"
+			) {
 				return "up";
 			}
 		}
@@ -1497,7 +1503,8 @@ class PlayerCombatMapper {
 		const hasPenetrator = pc.penisExist || playerHasStrapon();
 		const isExposed = PlayerCombatMapper.isPenisExposed(options);
 		const hasChastityBelt = ["chastitybeltfetish", "goldchastitybelt", "chastitybelt", "flatchastitycage"].includes(V.worn.genitals.variable);
-		const isEjaculating = V.orgasmdown > 0 &&
+		const isEjaculating =
+			V.orgasmdown > 0 &&
 			V.penisstate !== "penetrated" &&
 			V.orgasmcount < 25 &&
 			V.femaleclimax !== 1 &&
@@ -1553,6 +1560,10 @@ class PlayerCombatMapper {
 			return PlayerCombatMapper.defaultClothing;
 		}
 		const defaults = setup.clothes[slot][V.worn[slot].index];
+		if (defaults == null) {
+			// Player likely used a modded item ported back to vanilla.
+			return PlayerCombatMapper.defaultClothing;
+		}
 		const clothing = CombatRenderer.getClothingBySlot(slot);
 		const source = CombatRenderer.getSourceClothing(slot, defaults);
 
@@ -1784,14 +1795,14 @@ class PlayerCombatMapper {
 		if (clothing.combat?.mainColour && !["primary", "secondary"].includes(clothing.combat?.mainColour)) {
 			options.filters[mainFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.mainColour);
 		} else if (clothing.combat?.mainColour && clothing.combat?.mainColour === "secondary") {
-			const accColour = clothing.combat?.accColour || clothing.accessory_colour;
+			const accColour = clothing.accessory_colour === "original" ? 0 : clothing.combat?.accColour || clothing.accessory_colour;
 			const accDebugName = slot + " accessory";
 			const accCustomFilter = clothing.accessory_colourCustom;
 			options.filters[mainFilterKey] = accColour
 				? CombatRenderer.lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 				: Renderer.emptyLayerFilter();
 		} else {
-			const colour = clothing.colour;
+			const colour = clothing.colour === "original" ? 0 : clothing.colour;
 			const debugName = slot + " clothing";
 			const customFilter = clothing.colourCustom;
 			options.filters[mainFilterKey] = colour
@@ -1802,14 +1813,14 @@ class PlayerCombatMapper {
 		if (clothing.combat?.accColour && !["primary", "secondary"].includes(clothing.combat?.accColour)) {
 			options.filters[accFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.accColour);
 		} else if (clothing.combat?.accColour && clothing.combat?.accColour === "primary") {
-			const colour = clothing.colour;
+			const colour = clothing.colour === "original" ? 0 : clothing.colour;
 			const debugName = slot + " clothing";
 			const customFilter = clothing.colourCustom;
 			options.filters[accFilterKey] = colour
 				? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 				: Renderer.emptyLayerFilter();
 		} else {
-			const accColour = clothing.combat?.accColour || clothing.accessory_colour;
+			const accColour = clothing.accessory_colour === "original" ? 0 : clothing.combat?.accColour || clothing.accessory_colour;
 			const accDebugName = slot + " accessory";
 			const accCustomFilter = clothing.accessory_colourCustom;
 			options.filters[accFilterKey] = accColour
@@ -1822,7 +1833,7 @@ class PlayerCombatMapper {
 		} else if (clothing.combat?.mainColour && !clothing.combat?.sleeveColour) {
 			options.filters[sleeveFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.mainColour);
 		} else {
-			const colour = clothing.colour;
+			const colour = clothing.colour === "original" ? 0 : clothing.colour;
 			const debugName = slot + " clothing";
 			const customFilter = clothing.colourCustom;
 			options.filters[sleeveFilterKey] = colour
@@ -1835,7 +1846,7 @@ class PlayerCombatMapper {
 		} else if (clothing.combat?.accColour && !clothing.combat?.sleeveAccColour) {
 			options.filters[sleeveAccFilterKey] = PlayerCombatMapper.genFilterWithHex(clothing.combat.accColour);
 		} else {
-			const accColour = clothing.combat?.accColour || clothing.accessory_colour;
+			const accColour = clothing.accessory_colour === "original" ? 0 : clothing.combat?.accColour || clothing.accessory_colour;
 			const accDebugName = slot + " accessory";
 			const accCustomFilter = clothing.accessory_colourCustom;
 			options.filters[sleeveAccFilterKey] = accColour
@@ -1935,12 +1946,13 @@ class PlayerCombatMapper {
 		}
 		switch (type) {
 			case "bird":
+			case "demon":
 				if (PlayerCombatMapper.isChimeraPartEnabled("demon", "bird", "demonharpy", "wings")) {
 					return {
-						show: true,
+						show: type === "bird",
 						type,
-						style: "demon",
-						inFront: true,
+						style: type === "bird" ? "demon" : "disabled",
+						inFront: type === "bird",
 					};
 				}
 				break;
@@ -2288,6 +2300,28 @@ class PlayerCombatMapper {
 		 * @param {Bodywriting} bodywriting
 		 * @returns {BodywritingOption?}
 		 */
+		function complexText(id, bodywriting) {
+			if (bodywriting.type !== "text" && bodywriting.special !== "islander") {
+				return null;
+			}
+			if (["up", "down"].includes(options.legBackPosition)) {
+				id += "-" + options.legBackPosition;
+			}
+			if (bodywriting.arrow === 1) {
+				id += "-arrow";
+			}
+			return {
+				show: true,
+				area: "text",
+				type: sanitise(id),
+			};
+		}
+
+		/**
+		 * @param {string} id
+		 * @param {Bodywriting} bodywriting
+		 * @returns {BodywritingOption?}
+		 */
 		function hidden(id, bodywriting) {
 			return {
 				show: false,
@@ -2366,36 +2400,10 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.frontThigh = getState("right_thigh", (id, bodywriting) => {
-					if (bodywriting.type === "text" || bodywriting.special === "islander") {
-						let type = id;
-						if (["up", "down"].includes(options.legBackPosition)) {
-							type += "-" + options.legBackPosition;
-						}
-						if (bodywriting.arrow === 1) {
-							type += "-arrow";
-						}
-						return {
-							show: true,
-							area: "text",
-							type: sanitise(type),
-						};
-					}
-					if (bodywriting.writing === "cross") {
-						return null;
-					}
-					if (bodywriting.type === "object") {
-						return {
-							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
-						};
-					}
-					return null;
-				});
+				options.bodywriting.frontThigh = getState("right_thigh", complexText);
 				options.bodywriting.backThigh = getState("left_thigh", (id, bodywriting) => {
+					let type = id;
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
-						let type = id;
 						if (["up", "down"].includes(options.legBackPosition)) {
 							type += "-" + options.legBackPosition;
 						}
@@ -2409,10 +2417,13 @@ class PlayerCombatMapper {
 						};
 					}
 					if (bodywriting.type === "object") {
+						if (["up", "footjob"].includes(options.legBackPosition)) {
+							type += "-raised";
+						}
 						return {
 							show: true,
 							area: bodywriting.writing,
-							type: sanitise(id),
+							type: sanitise(type),
 						};
 					}
 					return null;
@@ -2510,7 +2521,7 @@ class PlayerCombatMapper {
 	static generateHairFilters(options) {
 		options.filters.hair = CombatRenderer.getHairFilter();
 		options.filters.fringe = CombatRenderer.getFringeFilter();
-		options.hairLength = V.hairlengthstage;
+		options.hairLength = CombatRenderer.getHairLength();
 		options.hairType = CombatRenderer.getFringeType();
 	}
 }

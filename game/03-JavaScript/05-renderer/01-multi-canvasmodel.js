@@ -90,6 +90,15 @@ class MultiCanvasModel {
 	}
 
 	/**
+	 * @param {Renderer.RendererListener=} listener
+	 */
+	play(listener) {
+		this.animated = false;
+		if (listener != null) this.listener = listener;
+		this.redraw();
+	}
+
+	/**
 	 * Recompiles the canvas models' layers, and schedules them on the renderer system.
 	 */
 	redraw() {
@@ -130,6 +139,8 @@ class MultiCanvasModel {
 		this.animatingCanvas.redraw();
 	}
 }
+/** @type {string} */
+MultiCanvasModel.debugLastInit = "Unspecified";
 // @ts-ignore
 window.MultiCanvasModel = MultiCanvasModel;
 
@@ -140,11 +151,13 @@ Macro.add("setup-multi-canvas", {
 		const slot = this.args[2];
 		MultiCanvasModel.ensureStorage();
 		if (key in T.multiCombatModels) {
-			Errors.report("Given key for a MultiCanvasModel is already in use.", {
+			Errors.report("MultiCanvasModel already exists: Likely due to two animateCombat uses in the same passage", {
 				key,
+				stack: Utils.GetStack(),
+				last: MultiCanvasModel.debugLastInit,
 			});
-			return;
 		}
+		MultiCanvasModel.debugLastInit = Utils.GetStack();
 		const model = MultiCanvasModel.create(key, id, slot);
 		this.output.append(model.canvas.canvas);
 	},
@@ -177,6 +190,10 @@ Macro.add("start-multi-canvas-rendering", {
 			Errors.report("No MultiCanvasModel found with given key.", {
 				key,
 			});
+			return;
+		}
+		if (!V.options.combatAnimations) {
+			model.play();
 			return;
 		}
 		model.animate();

@@ -59,6 +59,7 @@ const trMoneySources = {
 	"pharmacy":  { ko: "약국", post: 0},
 	"cream":  { ko: "크림", post: 0},
 	"pills":  { ko: "약", post: 0},
+	"pill":  { ko: "약", post: 0},
 	"pregnancy":  { ko: "임신", post: 0},
 	"museum":  { ko: "박물관", post: 0},
 	"antique":  { ko: "골동품", post: 0},
@@ -143,6 +144,7 @@ const trMoneySources = {
 	"photostudio":  { ko: "사진.스튜디오", post: 1},
 	"adultshop":  { ko: "성인용품점", post: 0},
 	"pregnancytest":  { ko: "임신.테스트기", post: 1},
+	"breastpump":  { ko: "착유기", post: 1},
 	"peopleofinterest": { ko: "관심이.있는.사람들", post: 2 },
 	"startingmoney": { ko: "초기.소지금", post: 0 },
 	"nottracked": { ko: "추적되지.않음", post: 0 },
@@ -150,7 +152,7 @@ const trMoneySources = {
 };
 
 const ambiguousWords = [
-	"danceStudio", "photoStudio", "adultShop", "PregnancyTest",
+	"danceStudio", "photoStudio", "adultShop", "PregnancyTest", "BreastPump",
 	"peopleOfInterest", "startingMoney", "notTracked"
 ];
 

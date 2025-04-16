@@ -143,11 +143,13 @@ Renderer.defaultListener = {
 };
 
 function refreshCanvas(model) {
-	const canvasModel = Renderer.locateModel("lighting", "sidebar");
-	if (canvasModel.canvas) {
-		Renderer.invalidateLayerCaches(canvasModel.layerList);
-		canvasModel.redraw();
-	}
+	requestAnimationFrame(() => {
+		const canvasModel = Renderer.locateModel(model, "sidebar");
+		if (canvasModel.canvas) {
+			Renderer.invalidateLayerCaches(canvasModel.layerList);
+			canvasModel.redraw();
+		}
+	});
 }
 
 function refreshModels(e, overlay) {

@@ -29,15 +29,15 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.right_eye = V.makeup.eyelenses.right != 0 ? V.makeup.eyelenses.right : V.rightEyeColour;
 	}
 
-	T.modeloptions.hair_colour = V.haircolour;
-	T.modeloptions.hair_fringe_colour = V.hairfringecolour;
+	T.modeloptions.hair_colour = V.haircolour.replace(" ", "");
+	T.modeloptions.hair_fringe_colour = V.hairfringecolour.replace(" ", "");
 	T.modeloptions.hair_colour_gradient = V.hairColourGradient;
 	T.modeloptions.hair_fringe_colour_gradient = V.hairFringeColourGradient;
 	T.modeloptions.hair_colour_style = V.hairColourStyle;
 	T.modeloptions.hair_fringe_colour_style = V.hairFringeColourStyle;
 
-	T.modeloptions.brows_colour = V.makeup.browscolour != 0 ? V.makeup.browscolour : V.naturalhaircolour;
-	T.modeloptions.pbhair_colour = V.makeup.pbcolour != 0 ? V.makeup.pbcolour : V.naturalhaircolour;
+	T.modeloptions.brows_colour = (V.makeup.browscolour != 0 ? V.makeup.browscolour : V.naturalhaircolour).replace(" ", "");
+	T.modeloptions.pbhair_colour = (V.makeup.pbcolour != 0 ? V.makeup.pbcolour : V.naturalhaircolour).replace(" ", "");
 
 	/*
 			██████   █████  ███████ ███████
@@ -139,7 +139,7 @@ DefineMacro("modelprepare-player-body", function () {
 			if (
 				(V.player.gender_appearance === "m" && V.player.perceived_breastsize <= 2) ||
 				V.worn.under_upper.type.includes("covered") ||
-				(["pool", "lake", "beach"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3)
+				(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_upper.exposed < 1 && V.underupperwetstage < 3)
 			) {
 				T.coverBreasts = false;
 				T.modeloptions.arm_left = leftArm;
@@ -165,7 +165,7 @@ DefineMacro("modelprepare-player-body", function () {
 				(V.uncomfortable.nude && (V.worn.under_lower.exposed >= 1 || V.underlowerwetstage >= 3)))
 		) {
 			if (
-				(["pool", "lake", "beach"].includes(V.location) && V.worn.under_lower.exposed < 1 && V.underlowerwetstage < 3) ||
+				(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_lower.exposed < 1 && V.underlowerwetstage < 3) ||
 				V.worn.under_lower.type.includes("covered")
 			) {
 				T.coverCrotch = false;
@@ -307,7 +307,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.brows_position = V.browsposition;
 
 	// Mouth
-	if (V.worn.handheld.type.includes("food")) {
+	if (V.worn.handheld.type.includes("food") && !T.gift) {
 		T.modeloptions.mouth = "chew";
 	} else if (V.trauma >= V.traumamax) {
 		T.modeloptions.mouth = "neutral";

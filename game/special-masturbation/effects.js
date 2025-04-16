@@ -353,20 +353,20 @@ function masturbationEffectsArms(
 				V.worn.over_upper.state = "chest";
 				sWikifier(`당신은 <<worn_over_upper_name_ ul>> 끌어올려, <span class="lewd">당신의 <<breastsaside_ rul>> 노출시킨다.</span>`);
 			}
+			wikifier("overupperstrip");
 			fragment.append(" ");
 			break;
 		case "mupper":
 			clearAction("mrest");
 			V.worn.upper.exposed = 2;
 			if (V.worn.upper.open) {
-				wikifier("upperstrip");
 				V.worn.upper.state_top = "midriff";
 				sWikifier(`당신은 <<worn_upper_name_ ul>> 끌어내려, <span class="lewd">당신의 <<breastsaside_ rul>> 노출시킨다.</span>`);
 			} else {
 				V.worn.upper.state = "chest";
-				wikifier("upperstrip");
 				sWikifier(`당신은 <<worn_upper_name_ ul>> 끌어올려, <span class="lewd">당신의 <<breastsaside_ rul>> 노출시킨다.</span>`);
 			}
+			wikifier("upperstrip");
 			fragment.append(" ");
 			break;
 		case "munder_upper":
@@ -375,7 +375,6 @@ function masturbationEffectsArms(
 			if (V.worn.under_upper.open) {
 				V.worn.under_upper.state_top = "midriff";
 				if (V.player.breastsize >= 3) {
-					wikifier("underupperstrip");
 					sWikifier(`당신이 <<worn_under_upper_name_ ul>> 끌어내리자 <span class="lewd">당신의 <<breasts_ ga>> 털썩 튀어나온다.</span>`);
 				} else {
 					sWikifier(`당신은 <<worn_under_upper_name_ ul>> 끌어내려, <span class="lewd">당신의 <<breasts_ rul>> 노출시킨다.</span>`);
@@ -383,12 +382,12 @@ function masturbationEffectsArms(
 			} else {
 				V.worn.under_upper.state = "chest";
 				if (V.player.breastsize >= 3) {
-					wikifier("underupperstrip");
 					sWikifier(`당신이 <<worn_under_upper_name_ ul>> 끌어올리자 <span class="lewd">당신의 <<breasts_ ga>> 털썩 튀어나온다.</span>`);
 				} else {
 					sWikifier(`당신은 <<worn_under_upper_name_ ul>> 끌어올려, <span class="lewd">당신의 <<breasts_ rul>> 노출시킨다.</span>`);
 				}
 			}
+			wikifier("underupperstrip");
 			fragment.append(" ");
 			break;
 		case "moverlower":
@@ -398,13 +397,12 @@ function masturbationEffectsArms(
 			V.worn.over_lower.exposed = 2;
 			if (setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt) {
 				V.worn.over_lower.skirt_down = 0;
-				wikifier("overlowerstrip");
 				sWikifier(`당신은 <<worn_over_lower_name_ ul>> 잡아올려, <span class="lewd">당신의 <<exposedlower_ rul>> 노출시킨다.</span>`);
 			} else {
 				V.worn.over_lower.state = "thighs";
-				wikifier("overlowerstrip");
 				sWikifier(`당신은 <<worn_over_lower_name_ ul>> 끌어내려, <span class="lewd">당신의 <<exposedlower_ rul>> 노출시킨다.</span>`);
 			}
+			wikifier("overlowerstrip");
 			fragment.append(" ");
 			break;
 		case "mlower":
@@ -414,13 +412,12 @@ function masturbationEffectsArms(
 			V.worn.lower.exposed = 2;
 			if (setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt) {
 				V.worn.lower.skirt_down = 0;
-				wikifier("lowerstrip");
 				sWikifier(`당신은 <<worn_lower_name_ ul>> 잡아올려, <span class="lewd">당신의 <<undies_ rul>> 노출시킨다.</span>`);
 			} else {
 				V.worn.lower.state = "thighs";
-				wikifier("lowerstrip");
 				sWikifier(`당신은 <<worn_lower_name_ ul>> 끌어내려, <span class="lewd">당신의 <<undies_ rul>> 노출시킨다.</span>`);
 			}
+			wikifier("lowerstrip");
 			fragment.append(" ");
 			break;
 		case "munder":
@@ -429,8 +426,8 @@ function masturbationEffectsArms(
 			V.worn.under_lower.vagina_exposed = 1;
 			V.worn.under_lower.state = "thighs";
 			V.worn.under_lower.exposed = 2;
-			wikifier("underlowerstrip");
 			sWikifier(`당신은 <<worn_under_lower_name_ ul>> 끌어내려, <span class="lewd">당신의 <<genitals_ rul>> 노출시킨다.</span>`);
+			wikifier("underlowerstrip");
 			fragment.append(" ");
 			break;
 	}
@@ -1228,7 +1225,7 @@ function masturbationEffectsArms(
 					V.earSlime.vibration += handsOn * 2;
 					fragment.append(
 						span(
-							`당신은 반복적으로 기생충 자지와 당신의 ${
+							`You repeatedly squeeze the parasite and your ${
 								V.player.virginity.penile === true ? "동정 자지" : "자지"
 							}를 쥐어짜며, 당신이 줄 수 있는 제한적인 관심을 즐긴다.`
 						)
@@ -2107,7 +2104,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 200, "masturbationOral");
 				fragment.append(
 					span(
-						`당신은 머리를 앞뒤로 재빠르게 움직이면서 솜씨좋게 ${altText.toyDisplay} 핥고 희롱하며, 그것이 주는 음란한 느낌을 한껏 즐긴다.`
+						`You skilfully lick and tease the ${altText.toyDisplay} as you quickly bob your head back and forth along it, revelling in the lewd sensations it provides.`
 					)
 				);
 			}
@@ -3417,7 +3414,7 @@ function masturbationEffectsMouth({
 					wikifier("arousal", 200, "masturbationOral");
 					fragment.append(
 						span(
-							`당신은 솜씨좋게 입 속의 ${altText.toyDisplay} 따라 혀를 좌우로 움직이며, 가능한 많은 곳에 혀를 갖다대려고 가끔씩 머리의 각도를 조정한다.`
+							`You skilfully wriggle your tongue along the ${altText.toyDisplay} in your mouth, occasionally adjusting your angle to reach as much of it as possible.`
 						)
 					);
 				}
@@ -3469,7 +3466,7 @@ function masturbationEffectsMouth({
 				} else {
 					altText.virginity = "그것이 진짜 물건이라고 상상한다.";
 				}
-				fragment.append(span(`당신은 솜씨좋게 ${altText.toyDisplay} 빨고 희롱하면서, ${altText.virginity}`));
+				fragment.append(span(`You skilfully suck on and tease the ${altText.toyDisplay}, ${altText.virginity}`));
 			}
 			break;
 		default:

@@ -767,12 +767,13 @@ Renderer.CanvasModels.main = {
 
 			if (V.worn.under_upper.outfitPrimary == undefined) {
 				options.belly_hides_under_lower = true;
+				options.underLowerMask.push(`${bellyDir}/mask_clip_${options.belly}.png`);
 				options.underLowerShadowMask.push(`${bellyDir}/mask_clip_${options.belly}.png`);
 			}
 		}
 
 		const notMasc = ["curvy", "slender"].includes(options.body_type);
-		const soft = options.body_type === "soft";
+		const soft = options.body_type === "soft" && !(between(options.belly, 8, 24));
 		if (notMasc && options.breasts === "cleavage") {
 			const suffix = between(options.breast_size, 3, 4) ? "-mid.png" : ".png";
 			options.breasts_mask_src = `img/body/breasts/breasts-${options.body_type}${suffix}`
@@ -796,8 +797,8 @@ Renderer.CanvasModels.main = {
 			options.shirt_fitted_right_move_src = check ? "img/clothes/masks/formfitting_right_move.png" : null;
 			options.shirt_fitted_left_move_src = check ? "img/clothes/masks/formfitting_left_move.png" : null;
 		} else if (soft) {
-			const upperCheck = !options.worn.upper.setup.outfitPrimary && !options.worn.lower.setup.type.includes("covered") && !options.high_waist_suspenders && !options.belly_mask_clip_src;
-			const underUpperCheck = !options.worn.under_upper.setup.outfitPrimary && !options.worn.under_lower.setup.type.includes("covered") && !options.belly_mask_clip_src;
+			const upperCheck = !(options.worn.lower.setup.outfitSecondary && options.worn.lower.setup.outfitSecondary[1] === options.worn.upper.setup.name) && !options.worn.lower.setup.type.includes("covered") && !options.high_waist_suspenders && !options.belly_mask_clip_src;
+			const underUpperCheck = !(options.worn.under_lower.setup.outfitSecondary && options.worn.under_lower.setup.outfitSecondary[1] === options.worn.under_upper.setup.name)  && !options.belly_mask_clip_src;
 			options.shirt_mask_clip_src = "img/clothes/masks/soft_clip.png";
 			options.shirt_fitted_right_move_src = "img/clothes/masks/soft_right_move.png";
 			options.shirt_fitted_left_move_src = "img/clothes/masks/soft_left_move.png";
@@ -838,7 +839,7 @@ Renderer.CanvasModels.main = {
 
 		options.genitals_chastity = options.worn.genitals.setup.type.includes("chastity");
 
-		if (options.worn.head.setup.name === "cat hoodie hood" && options.worn.upper.setup.name === "cat hoodie") {
+		if (options.worn.head.setup.name === "cat hoodie hood") {
 			options.hood_damage = true;
 		} else {
 			options.hood_damage = false;
@@ -918,7 +919,7 @@ Renderer.CanvasModels.main = {
 						// Generate final tanning layers
 						// Separate the base with the arms, since they can overlap
 						// Base layer has disabled animations
-						const alpha = layerGroup.value * (["gyaru", "ygyaru"].includes(options.skin_type) ? 0.3 : 0);
+						const alpha = layerGroup.value * (["gyaru", "ygyaru"].includes(options.skin_type) ? 0.3 : 1);
 						if (layers.body.length) {
 							options.generatedLayers[`tan_base${i}`] = (genlayer_tanning("base", i, layers.body, alpha, null));
 							options.generatedLayers[`tan_breasts${i}`] = (genlayer_tanning("breasts", i, layers.body, alpha));
@@ -1255,6 +1256,7 @@ Renderer.CanvasModels.main = {
 			},
 		},
 		"lashes": {
+			filters: ["tan"],
 			z: ZIndices.lashes,
 
 			srcfn(options) {

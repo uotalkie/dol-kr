@@ -534,6 +534,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Great Hawk the Terror": {
+		title: "두려운 존재 거대 매",
+		desc: "당신은 훌륭한 배우자가 될 것이다.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Return the Favour": {
 		title: "은혜갚기",
 		desc: "거대 매에게 좋아하는 요리를 선물했다.",
@@ -576,7 +583,7 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Communion": {
+	Communion: {
 		title: "성찬식",
 		desc: "시드니에게 좋아하는 요리를 선물했다.",
 		difficulty: 2,
@@ -1960,14 +1967,14 @@ function featsMerge() {
 		idb.getAllSaves()
 			.then(saves =>
 				saves.forEach((slot, index) => {
-					if (slot.data && Array.isArray(slot.data.history)) {
-						slot.data.history.forEach(saveData => {
-							if (saveData.variables && saveData.variables.feats) {
-								loadFeats(saveData.variables.feats.allSaves);
-								loadFeats(saveData.variables.feats.currentSave);
-							}
-						});
-					}
+					// auto-detect between uncompressed and compressed saves
+					const history = slot.data.history || State.deltaDecode(slot.data.delta);
+					history.forEach(saveData => {
+						if (saveData.variables.feats) {
+							loadFeats(saveData.variables.feats.allSaves);
+							loadFeats(saveData.variables.feats.currentSave);
+						}
+					});
 					loadingBar.css("width", `${((localSavesChecked + index + 1) / savesToLoad) * 100}%`);
 					loadingText.html(`${index + 1} out of ${savesToLoad} saves checked.`);
 				})

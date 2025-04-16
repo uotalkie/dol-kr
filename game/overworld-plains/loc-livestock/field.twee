@@ -146,7 +146,7 @@
 		<</if>>
 		<br><br>
 		<<generate1>><<generate2>><<generate3>><<generate4>><<person1>>
-		당신이 들판에 누워 있으니, 곧 발자국 소리가 다가온다. "왜 그래?" <<personsimple_ yi>> 목소리가 당신의 옆에서 들린다. "몸이 안좋나?"
+		You lie in the field, and soon hear footsteps approach. "What have we here?" says a <<personsimple>>'s voice beside you. "Is it unwell?"
 		<br><br>
 		"볼 필요가 있겠는데," <<he_ ga>> 당신 옆에 쭈그려 앉아 <<person2>><<person_ i>> 말하고, 당신의 어깨를 땅에 고정한다. 당신은 더 많은 일꾼들이 다가오는 소리를 듣는다.
 		<br><br>
@@ -219,7 +219,7 @@
 			<br>
 		<</if>>
 		<<if Time.hour gte 12>>
-			<<animalicon "horse_pick">><<link [[레미의 말들에게 다가간다|Livestock Field Horse]]>><</link>>
+			<<animalicon "horse_pick">><<link [[Approach Remy's horses (0:01)|Livestock Field Horse]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
 
@@ -526,7 +526,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 :: Livestock Field Mirror
 
 <<effects>>
-<<link [[물러난다|Livestock Field River]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
+<<link [[물러난다|Livestock Field River]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
 <br>
 <<mirror "reflection">>
 <br><br>
@@ -558,7 +558,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 		당신은 당신이 없다는 사실이 얼마나 오래 알려지지 않을 지 알 수가 없었기에, 한순간도 한숨 돌리려고 멈춰서지 않는다.
 		<br><br>
 
-		<<link [[다음|Livestock Escape Town]]>><<badEndTrackingEnd "Underground Farm" { reason: "uFarmEscaptedNightRiver" }>><</link>>
+		<<link [[다음|Livestock Escape Town]]>><<livestockescape>><<badEndTrackingEnd "Underground Farm" { reason: "uFarmEscaptedNightRiver" }>><</link>>
 
 	<<else>>
 		<<set $livestock_escape to "river">>
@@ -912,7 +912,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	당신은 당신이 없다는 사실이 얼마나 오래 알려지지 않을 지 알 수가 없었기에, 계속 움직인다.
 	<br><br>
 
-	<<link [[다음|Livestock Escape Town]]>><<badEndTrackingEnd "Underground Farm" { reason: "uFarmEscaptedNightHole" }>><</link>>
+	<<link [[다음|Livestock Escape Town]]>><<livestockescape>><<badEndTrackingEnd "Underground Farm" { reason: "uFarmEscaptedNightHole" }>><</link>>
 	<br>
 <<else>>
 	<<set $livestock_escape to "hole">>
@@ -984,23 +984,19 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	<<else>>
 		<span class="green">당신이 다가갈수록 그들도 다가온다.</span>
 	<</if>>
-
 <<elseif $livestock_horse gte 1>>
 	<<if ($monsterchance gte 1 and $hallucinations gte 1) or ($monsterchance gte 1 and $monsterhallucinations is "f")>>
 		그들은 당신이 다가오는 것을 지켜보고 있다. 몇몇은 즐거워보인다.
 	<<else>>
 		그들은 당신이 다가오는 것을 지켜보고 있다. 그들은 평온해 보인다.
 	<</if>>
-
 <<else>>
 	<<beastNEWinit 1 horse>>
 	<<if $monster is 1>>
 		그들 중 특히 크고, 검은 머리를 가진 개체가 당신이 다가오자 당신을 마주본다. "물러나라, 소." <<bhe_ ga>> 고개를 높이 쳐들고 말한다. "여긴 우리 영역이야." 다른 이들도 당신을 쳐다본다.
-
 	<<else>>
 		그들 중 특히 크고, 검은 머리를 가진 개체가 당신이 다가오자 깊은 울음소리를 낸다. 그 소리가 경고처럼 들린다. 다른 말들이 고개를 들고 당신을 쳐다본다.
 	<</if>>
-
 <</if>>
 <br><br>
 
@@ -1017,22 +1013,27 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	<<getouticon>><<link [[떠난다|Livestock Field]]>><<endevent>><</link>>
 	<br>
 <<else>>
-	<<ind>><<link [[그들의 털을 빗겨준다 (1:00)|Livestock Field Horse Brush]]>><<pass 60>><<tending 6>><<stress -6>><<endevent>><</link>><<gtending>><<lstress>>
-	<br>
+	<<rng>> /* I'm not sure this is nessesary, but I think there's a way to loop through these scenes without alterting RNG, so lets stop that */
+	<<if $daily.livestock and $daily.livestock.horses_satisfied is undefined>><<set $daily.livestock.horses_satisfied to 0>><</if>>
+	<<clearnpc>><<beastNEWinit 1 horse>>
 
 	<!-- Modified for Monster People -->
-	<<if $awareness gte 200 and $horsedisable is "f" and ($bestialitydisable is "f" or $monster is 1)>>
-		<br>
-		<<beastNEWinit 1 horse>>
-		뒤의 한 <<beasttype_ i>> 불만스러워하는 것 같다. <<bHe_ nun>> 다른 이들을 짓밟고,
+	<<if random(1,2) is 1 and $awareness gte 200 and $daily.livestock.horses_satisfied lt 6 and $horsedisable is "f" and ($bestialitydisable is "f" or $monster is 1)>>
+		One <<beasttype>> in the back seems agitated. <<bHe>> stomps at the others, and is
 		<<if $monster is 1>>
-			무례하게 행동하며 무언가 요구하는 것 같다.
+			being rude and demanding.
 		<<else>>
 			불만스럽게 히힝대고 있다.
 		<</if>>
-
+		<<set _agitated to 1>>
 		<br><br>
-		<<ind>><<link [[<<bhim_ yi>> 몸통 아래를 본다|Livestock Field Deviancy]]>><<set $phase to 1>><</link>><<deviant1>>
+	<</if>>
+
+	<<ind>><<link [[Brush their hair (1:00)|Livestock Field Horse Brush]]>><<pass 60>><<tending 6>><<stress -6>><</link>><<gtending>><<lstress>>
+	<br>
+
+	<<if _agitated is 1>>
+		<<animalicon "horse">><<link [[Look beneath the agitated <<beasttype>>|Livestock Field Deviancy]]>><<set $phase to 1>><<set $daily.livestock.horses_satisfied += 1>><</link>><<deviant1>>
 		<br>
 	<</if>>
 
@@ -1108,7 +1109,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	<</if>>
 <<else>>
 	<<if $livestock_horse gte 2>>
-		당신이 말들의 털을 손가락으로 빗는다. 그들은 순서를 다투고 있다. 그들은 빗어준 후에 때때로 당신에게 부드럽게 코를 비비기도 한다.
+		You brush the horses' hair with your fingers. They jostle for their turn. They occasionally give you soft nuzzles after.
 	<<else>>
 		당신이 말들의 털을 손가락으로 빗는다. 그들은 경계하지만, 거절하지는 않는다. 당신은 그들이 반응하는 것보다는 즐기고 있다는 느낌이 든다.
 	<</if>>
@@ -1116,8 +1117,10 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 <br><br>
 
 <<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-<<if $danger gte (9900 - $allure)>>
+<<if $danger gte (9900 - ($allure / 2))>> /* Reduced allure effect since PC is always nude */
+	<<rng>>
 	<<if $rng gte 51>>
+		<<clearnpc>>
 		<<rng>>
 		<<if $rng gte 51>>
 			<<if $livestock_horse_rescued is undefined>>
@@ -1143,7 +1146,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 						<<bHe_ nun>> 당신에게 조소를 날린다.
 					<<else>>
 						<<bHe_ nun>> 당신을 무시하는 듯이 히힝거린다.
-					<</if>>					
+					<</if>>
 				<</if>>
 				<br><br>
 
@@ -1175,7 +1178,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 		<<else>>
 			<<beastNEWinit 1 horse>><<generate2>><<person2>>
 			"귀여워라," 울타리 뒤에서 목소리가 들린다. <<person2>><<person_ ida>>. <<His_ yi>> 옷차림은 농장 일꾼 같다. "소와 말이 베프가 되었네. 이것을 찍어야겠어. 입소문이 날지도 몰라."
-			
+
 			<<person1>><<beastsplural_ un>> <<person2>><<his_ yi>> 조롱하는 어조에 발끈<<if $monster is 1>>하지만, 아무 말도 하지 않는다<<else>>한다<</if>>.
 
 			<<He_ nun>> 사과를 한 입 베어문다. <<person1>><<beastsplural_ un>> 과일을 애타는 눈으로 본다. "왜 그래?" <<person2>><<person_ i>> 묻는다. "풀이 질려? 안됐군. 너를 위한 달콤하고 탐스러운 사과는 없어." 이 말을 증명하듯, <<he_ nun>> 먹지 않은 사과를 울타리에서 멀리 떨어진 곳에 버린다. 딱 손이 닿지 않는 곳에.
@@ -1188,22 +1191,32 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 			<br>
 		<</if>>
 	<<else>>
-		<<beastNEWinit 1 horse>>
-		
-		한 <<beasttype_ i>> 불만스러워하는 것 같다. <<bHe_ nun>> 다른 이들을 짓밟고, <<if $monster is 1>>무례하게 행동하며 무언가 요구하는 것 같다<<else>>당신을 물 뻔 한다<</if>>.
-		
-		<br><br>
-
 		<!-- Modified for Monster People -->
-		<<if $bestialitydisable is "f" or $monster is 1>>
-			<<link [[<<bhim_ yi>> 몸통 아래를 본다|Livestock Field Deviancy]]>><<set $phase to 1>><</link>><<deviant1>>
+		<<if $daily.livestock.horses_satisfied lt 6 and $horsedisable is "f" and ($bestialitydisable is "f" or $monster is 1)>>
+			<<if $awareness gte 200>>
+				The <<beasttype>> from earlier still seems frustrated.
+			<<else>>
+				One <<beasttype>> seems frustrated. 
+			<</if>>
+			<<bHe>> stomps at the others, and is
+			<<if $monster is 1>>
+				being rude and demanding.
+			<<else>>
+				불만스럽게 히힝대고 있다.
+			<</if>>
+			<br><br>
+
+			<<animalicon "horse">><<link [[Look beneath the agitated <<beasttype>>|Livestock Field Deviancy]]>><<set $phase to 1>><<set $daily.livestock.horses_satisfied += 1>><</link>><<deviant1>>
+			<br>
+			<<getouticon>><<link [[무시한다|Livestock Field Horse]]>><<endevent>><</link>>
+			<br>
+		<<else>>
+			<<link [[다음|Livestock Field Horse]]>><<endevent>><</link>>
 			<br>
 		<</if>>
-		<<link [[무시한다|Livestock Field Horse]]>><<endevent>><</link>>
-		<br>
 	<</if>>
 <<else>>
-	<<link [[다음|Livestock Field Horse]]>><</link>>
+	<<link [[다음|Livestock Field Horse]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -1342,7 +1355,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	<br><br>
 
 	<<if $monster is 1>>
-		"그 아래에서 뭐하는 거야?" <<bhe_ ga>> 물어보며, 쳐다보려고 몸을 돌리자 <<bhis_ yi>>
+		"What're you doing down there?" <<bhe>> asks, <<bhis>>
 		<<if $NPCList[0].breastsize gte 4>>
 			<<npcChest_ ga>> 이리저리 흔들거린다.
 		<<elseif $NPCList[0].breastsize lt 4 and $NPCList[0].breastsize gte 1>>
@@ -1373,7 +1386,6 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	<<else>>
 		<<bHis_ yi>> <<horsegenitalsdesc>> 있는 <<npcVaginaPost>>에서 시선을 돌리기 어렵다.
 	<</if>>
-	<br>
 	<<deviancy1>>
 	<<if hasSexStat("deviancy", 2)>>
 		<<link [[그것을 만진다|Livestock Field Deviancy]]>><<set $phase += 1>><</link>><<deviant2>>
@@ -1400,7 +1412,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 		<</if>>
 		<<npcGenitals_ rul 0 "simple">> 만지지 마!"
 
-		<<bHe_ nun>> 다시 한번 당신을 바라보며 소리지른다. <<bHes_ yi>> 얼굴이 빨개진다.
+		<<bhe>> exclaims, turning to look at you once more. <<bHes>> blushing.
 	<<else>>
 		<<bHe_ nun>> 쾌락으로 몸을 떤다. 당신은 <<bhis_ yi>> <<npcGenitalsPost>>에 닿을 때 까지, <<bhis_ yi>> 몸을 문질러 내려간다. 당신은 몸을 기울여 그것을 만진다.
 		<br>
@@ -1416,7 +1428,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	<</if>>
 
 	<<if hasSexStat("deviancy", 3)>>
-		<<link [[양손을 사용한다|Livestock Field Deviancy Hand]]>><<handstat>><<set $phase to 1>><</link>><<deviant3>>
+		<<link [[Use your hands (0:05)|Livestock Field Deviancy Hand]]>><<handstat>><<pass 5>><<set $phase to 1>><</link>><<deviant3>>
 		<br>
 	<</if>>
 	<<if hasSexStat("deviancy", 5)>>
@@ -1431,9 +1443,10 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	<<if $deviancy lt 15>>
 		그런 생각이 당신의 얼굴을 붉어지게 한다.
 	<</if>>
+	The <<beasttype>> looks disappointed.
 	<br><br>
 
-	<<link [[다음|Livestock Field Horse]]>><<endevent>><</link>>
+	<<link [[다음 (0:01)|Livestock Field Horse]]>><<pass 1>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -1467,10 +1480,10 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	다른 <<beastsplural_ i>> 강한 흥미를 느끼며, 쳐다본다.
 	<br><br>
 
-	<<link [[계속한다|Livestock Field Deviancy Hand]]>><<set $phase += 1>><</link>><<deviant3>>
+	<<link [[Keep going (0:10)|Livestock Field Deviancy Hand]]>><<pass 10>><<set $phase += 1>><</link>><<deviant3>>
 	<br>
 	<<if hasSexStat("deviancy", 4)>>
-		<<link [[핥는다|Livestock Field Deviancy Mouth]]>><</link>><<deviant4>>
+		<<link [[Lick (0:05)|Livestock Field Deviancy Mouth]]>><<pass 5>><</link>><<deviant4>>
 		<br>
 	<</if>>
 
@@ -1554,7 +1567,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 		소몰이 막대기를 휘두르며 뛰어들어온다. 그들이 동요하는 <<beasttype_ ul>> 에워싼다.
 
 		<<if $monster is 1>>
-			"안돼!" <<bhe_ ga>> 소리지르며, 가장 가까운 무언가를 걷어찬다. "나는 그게 필요-" <<bhe_ yi>> 말은 둘러싼 일꾼 중 하나가 <<bhis_ yi>> 엉덩이에 바늘을 꽂자 멈춘다.
+			"No!" <<bhe>> shouts, rearing and kicking at the closest. "I need it-" <<bHe>> cuts off as one of the surrounding farmhands sticks a needle in <<bhis>> rear.
 		<<else>>
 			<<bHe_ nun>> 뒷다리로 일어서, 가장 가까운 무언가를 걷어찬다. 다른 일꾼이 <<bhe_ yi>> 뒤로 살금살금 다가가, 엉덩이에 바늘을 꽂는다.
 		<</if>>
@@ -1662,7 +1675,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 	소몰이 막대기를 휘두르며 뛰어들어온다. 그들이 동요하는 <<beasttype_ ul>> 에워싼다.
 
 	<<if $monster is 1>>
-		"안돼!" <<bhe_ ga>> 소리지르며, 가장 가까운 무언가를 걷어찬다. "나는 그게 필요-" <<bhe_ yi>> 말은 둘러싼 일꾼 중 하나가 <<bhis_ yi>> 엉덩이에 바늘을 꽂자 멈춘다.
+		"No!" <<bhe>> shouts, rearing and kicking at the closest. "I need it-" <<bHe>> cuts off as one of the surrounding farmhands sticks a needle in <<bhis>> rear.
 	<<else>>
 		<<bHe_ nun>> 뒷다리로 일어서, 가장 가까운 무언가를 걷어찬다. 다른 일꾼이 <<bhe_ yi>> 뒤로 살금살금 다가가, 엉덩이에 바늘을 꽂는다.
 	<</if>>
@@ -1804,7 +1817,7 @@ You follow the slime's urging and go down on all fours. As you pull up your firs
 
 		당신은 <<beasttype_ i>> 멈출 수 있을지 확신하지 못했지만,
 		<<if $monster is 1>>
-			나이 든 켄타우로스가 달려와 <<bhim_ ul>> 엄한 표정으로 바라본다.
+			older centaur trots up and gives <<bhim>> a stern look.
 		<<else>>
 			나이 든
 			<<print either("수말이","종마가")>>
@@ -2153,7 +2166,7 @@ You crawl over to <<him>> and nuzzle <<his>> leg.
 
 	The farmhands walk off, bantering.
 <<else>>
-	They stumble back, eyeing your warily. "Fuck, no wonder Remy didn't want to deal with her," the <<person1>><<person>> says.
+	They stumble back, eyeing your warily. "Fuck, no wonder Remy didn't want to deal with <<pher>>," the <<person1>><<person>> says.
 	<br><br>
 
 	The <<person2>><<person>> nurses a bruise. "And <<nnpc_he "Remy">> thought we'd be any better?"

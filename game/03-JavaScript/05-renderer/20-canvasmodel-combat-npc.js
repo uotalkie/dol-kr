@@ -76,7 +76,7 @@ const combatMainNpc = {
 				return options.animKey;
 			},
 			zfn(options) {
-				return 49;
+				return 54;
 			},
 		},
 		npcHoleEjaculate: {
@@ -91,7 +91,7 @@ const combatMainNpc = {
 				return options.animKey;
 			},
 			zfn(options) {
-				return 49;
+				return 54;
 			},
 		},
 		npcTongue: NpcCanvasHelper.genNpcTongue(),

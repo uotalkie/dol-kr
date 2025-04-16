@@ -675,17 +675,15 @@ function dayPassed() {
 	if (V.flashbackunderground === 1) V.flashbackundergroundready = 1;
 	if (V.flashbackschool === 1) V.flashbackschoolready = 1;
 
-	if (V.smuggle_timer) {
-		V.smuggle_timer--;
-		if (V.smuggle_timer < 0) {
-			V.smuggle_timer = random(4, 7);
-			const rng = random(1, 100);
-			if (rng >= 76) V.smuggle_location = "forest";
-			else if (rng >= 51) V.smuggle_location = "sewer";
-			else if (rng >= 26) V.smuggle_location = "beach";
-			else V.smuggle_location = "bus";
-			delete V.smuggler_known;
-		}
+	V.smuggler_timer--;
+	if (V.smuggler_timer < 0) {
+		V.smuggler_timer = random(4, 7);
+		const rng = random(1, 100);
+		if (rng >= 76) V.smuggle_location = "forest";
+		else if (rng >= 51) V.smuggle_location = "sewer";
+		else if (rng >= 26) V.smuggle_location = "beach";
+		else V.smuggle_location = "bus";
+		delete V.smuggler_known;
 	}
 
 	if (V.tailorMonthlyService > 0) V.tailorMonthlyService--;
@@ -757,17 +755,6 @@ function dayPassed() {
 	else if (V.adultshopprogress >= 22 && !V.adultshopunlocked) V.adultshopgrandopening = true;
 	else if (V.adultshopdegree < 15) V.adultshopdegree += 0.1;
 	delete V.adultshophelped;
-
-	V.smuggler_timer--;
-	if (V.smuggler_timer < 0) {
-		const rng = random(1, 100);
-		V.smuggler_timer = random(4, 7);
-		if (rng >= 76) V.smuggler_location = "forest";
-		else if (rng >= 51) V.smuggler_location = "sewer";
-		else if (rng >= 26) V.smuggler_location = "beach";
-		else V.smuggler_location = "bus";
-		delete V.smuggler_known;
-	}
 
 	if (V.location !== "tentworld") {
 		delete V.tentacle_forest_lurker;
@@ -1189,7 +1176,8 @@ function dailyNPCEffects() {
 			if (V.sydneyLibraryEvent === 2) {
 				V.sydneyLeightonConfront = 1;
 				V.sydneyLeightonWhitneyGuilty = 1;
-			} else if (V.libraryMoneyStolen >= 100 || V.sydneyStolenKnown) {
+			}
+			if (V.libraryMoneyStolen >= 100 || V.sydneyStolenKnown) {
 				V.sydneyLeightonConfront = 1;
 				V.sydneyLeightonPlayerGuilty = 1;
 			}
@@ -2105,7 +2093,8 @@ function supermarketWeekly() {
 			setup.plants[currentFood].name === "oats" ||
 			setup.plants[currentFood].name === "date" ||
 			setup.plants[currentFood].name === "cherry" ||
-			setup.plants[currentFood].name === "lime"
+			setup.plants[currentFood].name === "lime" ||
+			setup.plants[currentFood].name === "rice"
 		) {
 			V.plants[currentFood].supermarket = Math.trunc(3000 / setup.plants[currentFood].plant_cost);
 		}

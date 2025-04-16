@@ -161,6 +161,12 @@ setup.colours = {
 			alpha: 0.6,
 			desaturate: true,
 		},
+		// Same as above but without transparency. Used for sidebar.
+		wraith: {
+			gradient: ["#ffffff", "#ffffff"],
+			blendMode: "multiply",
+			desaturate: true,
+		},
 	},
 	/*
 	 * Get canvas filter for skin of given type and tan progression (0..1).
@@ -171,7 +177,7 @@ setup.colours = {
 			blend: setup.colours.getSkinRgb(options, tan / 100),
 			blendMode: options.blendMode,
 			desaturate: options.desaturate,
-			alpha: options.alpha ? options.alpha : 1,
+			...(options.alpha && { alpha: options.alpha }),
 		};
 	},
 	getSkinRgb(type, tan) {
@@ -634,11 +640,47 @@ setup.colours.hairgradients_prototypes = {
 					[0.85, "rgba(0, 0, 0, 1)"],
 				],
 			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [250, 440, 250, 0],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.76, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 245, 0, 250],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.64, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
 		},
 		"low-ombre": {
 			all: {
 				gradient: "linear",
 				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [340, 180, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 350, 0, 350],
 				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
 				colors: [
 					[0.6, "rgba(0, 0, 0, 1)"],
@@ -712,6 +754,24 @@ setup.colours.hairgradients_prototypes = {
 					[0.175, "rgba(0, 0, 0, 1)"],
 				],
 			},
+			combatDoggy: {
+				gradient: "radial",
+				values: [15, 183, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "radial",
+				values: [125, 103, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
+				],
+			},
 		},
 	},
 	sides: {
@@ -725,11 +785,47 @@ setup.colours.hairgradients_prototypes = {
 					[0.85, "rgba(0, 0, 0, 1)"],
 				],
 			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [250, 440, 250, 0],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.76, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 245, 0, 250],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.64, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
 		},
 		"low-ombre": {
 			all: {
 				gradient: "linear",
 				values: [300, 200, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatDoggy: {
+				gradient: "linear",
+				values: [340, 180, 300, 0],
+				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
+				colors: [
+					[0.6, "rgba(0, 0, 0, 1)"],
+					[0.85, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "linear",
+				values: [180, 350, 0, 350],
 				lengthFunctions: [(length, value) => value - length / 1000 / 2, (length, value) => value - length / 1000 / 2],
 				colors: [
 					[0.6, "rgba(0, 0, 0, 1)"],
@@ -756,6 +852,24 @@ setup.colours.hairgradients_prototypes = {
 				colors: [
 					[0.0, "rgba(0, 0, 0, 1)"],
 					[0.0, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatDoggy: {
+				gradient: "radial",
+				values: [15, 183, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
+				],
+			},
+			combatMissionary: {
+				gradient: "radial",
+				values: [125, 103, 50, 150, 103, 350],
+				lengthFunctions: [(length, value) => value, (length, value) => value],
+				colors: [
+					[0.15, "rgba(0, 0, 0, 1)"],
+					[0.175, "rgba(0, 0, 0, 1)"],
 				],
 			},
 		},

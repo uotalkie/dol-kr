@@ -150,7 +150,7 @@ declare global {
 
 		strapon?: {
 			state: "worn";
-			color: "black" | "red" | "pink" | "purple" | "fleshy" | "blue" | "green";
+			color: "black" | "red" | "pink" | "purple" | "fleshy" | "blue" | "green" | "dark red";
 			description: string;
 			size: number;
 		};

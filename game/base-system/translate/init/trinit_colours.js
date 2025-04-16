@@ -6,6 +6,7 @@ function trinit_colorList()
 			/* 특수 색상 */
 			"twotoned" : "투톤 색조",
 			"ghost" : "유령같은 반투명색",
+			"wraith" : "유령같은 색",
 			"no" : "빡빡",
 			"original" : "원래 색",
 

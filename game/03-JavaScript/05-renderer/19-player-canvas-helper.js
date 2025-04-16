@@ -327,7 +327,7 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				const clothes = options.clothes[slot];
 				if (clothes?.name == null) return "";
-				if (layer === "front" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+				if (layer === "front" && options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}clothing/${slot}/${clothes.name}/sleeves/front-stroke.png`;
 				}
 				const position = layer === "front" ? options.armFrontPosition : options.armBackPosition;
@@ -462,7 +462,7 @@ class PlayerCanvasHelper {
 		const defaults = {
 			srcfn(options) {
 				const value = options.transformations[transformation].tail;
-				const path = `${options.src}body/transformations/${value.type}/tail/${layer}-${value.state}-${value.style}.png`;
+				const path = `${options.src}body/transformations/${value.type.toLowerCase()}/tail/${layer}-${value.state}-${value.style}.png`;
 				return path;
 			},
 			showfn(options) {
@@ -501,7 +501,7 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				/** @type {TransformationPartOptions} */
 				const value = options.transformations[transformation][part];
-				const path = `${options.src}body/transformations/${value.type}/${part}/${layer}-${value.style}.png`;
+				const path = `${options.src}body/transformations/${value.type.toLowerCase()}/${part}/${layer}-${value.style}.png`;
 				return path;
 			},
 			showfn(options) {
@@ -514,6 +514,10 @@ class PlayerCanvasHelper {
 			},
 			filters: [transformation + part.toUpperFirst()],
 			zfn(options) {
+				if (part === "wings" && options.props.pillory.show) {
+					// Behind the pilloryFront
+					return 79;
+				}
 				/** @type {TransformationPartOptions} */
 				const value = options.transformations[transformation][part];
 				let z = CombatRenderer.indices[layer + part.toUpperFirst()];

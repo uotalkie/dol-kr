@@ -42,7 +42,7 @@
 	<<if Weather.precipitation is "rain">>
 		바다가 아래에서 으르렁거린다.
 	<<elseif Weather.isFreezing>>
-		바다가 아래에서 설렁거린다.
+		The sea murmurs below.
 	<<else>>
 		거리는 어둡고 조용하다. 오직 바닷소리만이 들려온다.
 	<</if>>
@@ -87,7 +87,7 @@
 		<<else>> /* Sentence ongoing to tomorrow. */
 			<<npc_pillory>>
 		<</if>>
-	<<elseif $rng lte 100>> /* Pillory empty gives 10% chance of new person */
+	<<elseif $rng lte 10 and !$daily.freedPillory>> /* Pillory empty gives 10% chance of new person */
 		<<new_npc_pillory>>
 	<</if>>
 <</if>>
@@ -113,7 +113,7 @@
 		<<generate1>><<person1>>"거기 너." 옆에서 목소리가 들려온다. "네가 셰프지." 고개를 돌리자 <<personPost "이">> 골목길 벽에 기대어 서있는 게 보인다. "크림 참 좋더라. 정말 맛있어. 근데 왠지 거기 들어가는 재료를 내가 맞출 수 있을 거 같은데." <<HePost "은">> 씩 웃는다. "너도 참 짓궂은 녀석이야. 분명 저기 높으신 분들이 알면 참 곤란해지는 재료라고 할 수 있겠지."
 		<br><br>
 
-		<<link [[뭘 원하는지 묻는다|Chef Blackmail Ask]]>><</link>>
+		<<link [[Ask what <<he>> wants|Chef Blackmail Ask]]>><</link>>
 		<br>
 		<<link [[협박당하지 않을 거라 말한다|Chef Blackmail Refuse]]>><<def 1>><<set $chef_sus += 10>><</link>><<ggsuspicion>>
 		<br>
@@ -236,14 +236,12 @@
 :: Cliff Challenge
 <<effects>>
 
-<<if $chef_rework isnot undefined>>
-
+<<if $chef_rework>>
 	카페는 현재 재단장을 하는 중이고, 카페가 있던 자리는 건설 노동자들로 가득하다.
-
-<<else>>
-
+<<elseif ($chef_state is 9 or $chef_rework is undefined) and $openinghours is 1>>
 	카페의 자리가 다 차서, 가게 문에서부터 줄이 늘어서 있다.
-
+<<elseif $chef_state is 8 and Time.dayState is "dusk">>
+	Guests for the opening event are chatting outside the cafe.
 <</if>>
 
 People are going about their business, to and from the beach.
@@ -253,13 +251,13 @@ The note said to start at the cafe, but you need to find somewhere to put your c
 <br><br>
 
 <<if hasSexStat("exhibitionism", 3)>>
-		<<link [[벌거벗는다|Cliff Challenge Strip]]>><</link>><<exhibitionist3>>
-		<br>
-	<<else>>
-		<<insufficientStat "exhibitionism" "이런 짓을 하기에는">>
-		<br>
-	<</if>>
-	<<link [[떠난다|Cliff Street]]>><</link>>
+	<<link [[벌거벗는다|Cliff Challenge Strip]]>><</link>><<exhibitionist3>>
+	<br>
+<<else>>
+	<<insufficientStat "exhibitionism" "이런 짓을 하기에는">>
+	<br>
+<</if>>
+<<link [[떠난다|Cliff Street]]>><</link>>
 
 :: Cliff Challenge Strip
 <<set $challengetimer to 10>>
@@ -276,9 +274,9 @@ The commotion starts immediately. You hear gasps and shouts and cheers from the 
 :: Cliff Challenge 2
 <<effects>>
 
-<<if $chef_rework isnot undefined>>
+<<if $chef_rework>>
 	Behind you, jeers are coming from the construction workers. You turn around and see that work has stopped, and all the workers are leering at your naked body.
-<<else>>
+<<elseif ($chef_state is 9 or $chef_rework is undefined) and $openinghours is 1>>
 	You turn and see that the entire cafe is staring at you, including a shocked-looking Sam. Several customers have gotten closer to the window to get a better look at your naked body.
 <</if>>
 
@@ -319,7 +317,7 @@ You pass by customers and drivers and store fronts and restaurants. Everyone on 
 :: Cliff Challenge 5
 <<effects>>
 
-You pass by the storefront and the office building, the most crowded part of High street.
+You pass by the storefront and the office building, the most crowded part of High Street.
 <br><br>
 
 The noise is deafening as people shout and cars honk at you. It becomes difficult to weave through people as you make your way down the sidewalk. You're only halfway through your run.<<if hasSexStat("exhibitionism", 3)>><<garousal>><<arousal 600>><<else>><<ggstress>><<stress 12>><</if>>
@@ -708,7 +706,7 @@ They tackle you to the ground tearing at your clothes.
 :: Cliff Street Prisoner Escape
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">>
 <<get_pillory_npc>><<person1>> /* if anyone can think of a better escape scenario, feel free to add it */
-The locks swiftly come open under your skillful touch, and the crowd nearby are none the wiser.<br>
+The locks swiftly come open under your skilful touch, and the crowd nearby are none the wiser.<br>
 "Play along," you whisper. "When we're clear of the crowd, head for the alleys."
 <br><br>
 "Okay, up you get, criminal," you bark, as you throw open the pillory mechanism and drag <<the_pillory_person>> to <<his>> feet.
@@ -735,6 +733,7 @@ Once out of sight of the crowd, you disappear together into an alley.
 <<else>>
 	"Thank you," <<the_pillory_person>> says, earnestly. "That was so horrible. You really helped me out."
 <</if>>
+<<set $daily.freedPillory to true>>
 <<clear_pillory>>
 <<endevent>><<famegood 15>>
 <br><br>
@@ -800,7 +799,7 @@ You turn around slowly. Three uniformed police stand behind you.
 	<<elseif $rng gte 40>>
 		After running half the town, the last officer <span class="green">finally seems to be tiring.</span> However, as you duck round a corner into an alley you find yourself facing <span class="red">a dead end.</span>
 		<br><br>
-		The <<person4>><<person>> quicky catches up, blocking your escape. "Got you," <<he>> pants.
+		The <<person4>><<person>> quickly catches up, blocking your escape. "Got you," <<he>> pants.
 		<br><br>
 		You're about to give up when you notice an open hatch at the base of the wall. You have no idea what's inside, but it's that or face the police.
 		<br><br>
@@ -842,7 +841,7 @@ You turn around slowly. Three uniformed police stand behind you.
 	<<set _blag to false>>
 <</if>>
 <<if _blag is true>>
-	"Actually," you say, assertively. "I am supposed to be here. Chief sent me. I was testing the quality of these bindings. The shoddy workmanship on these is appaling. How many have escaped?"
+	"Actually," you say, assertively. "I am supposed to be here. Chief sent me. I was testing the quality of these bindings. The shoddy workmanship on these is appalling. How many have escaped?"
 	<br><br>
 	"Uh- I don't. Think-" The <<person2>><<person>> looks confused.
 	<br><br>
@@ -918,7 +917,7 @@ You turn around slowly. Three uniformed police stand behind you.
 	<br>
 	Your attempts to talk to <<person4>><<him>> are met with stony silence.
 	<br><br>
-	A few minutes later, you are back at the pillory in Cliff Street facing three irrate police officers.
+	A few minutes later, you are back at the pillory in Cliff Street facing three irate police officers.
 	<br>
 	"'Wasting police resources'?" the <<person3>><<person>> asks. "Y'know, the-"
 	<br><br>

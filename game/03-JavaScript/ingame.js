@@ -979,9 +979,11 @@ function clothesDataTrimmer(item) {
 		"oldVariable", // use `Setup example`, should never be added back on to clothing items due to being in `trimmerVersion`
 		"altDamage", // use `Setup example`
 		"hideUnderLower", // use `Setup example`, should never be added back on to clothing items due to being in `trimmerVersion`
+		"combat", // use `Setup example`, safe to remove from here as long as also removed from `trimmerVersion`
+		"shopGroup", // use `Setup example`, safe to remove from here as long as also removed from `trimmerVersion`
 	];
 	// To prevent it from running on variables multiple times, when updating toDelete, the last of the new additions should be added here
-	const trimmerVersion = ["shop", "short", "oldVariable", "hideUnderLower"];
+	const trimmerVersion = ["shop", "short", "oldVariable", "hideUnderLower", "combat", "shopGroup"];
 	let version = 0;
 	let indexToUpdateVersion = toDelete.indexOf(trimmerVersion[version]);
 	toDelete.forEach((v, index) => {
@@ -1613,9 +1615,21 @@ window.checkTFparts = checkTFparts;
 	Part of the transformationParts is unsued right now, but its to account for this potential.
 */
 function validateTransformations() {
+	if (V.cat >= 1 || V.wolfgirl >= 1 || V.cow >= 1 || V.harpy >= 1) {
+		V.physicalTransform = 1;
+	} else {
+		V.physicalTransform = 0;
+	}
+	if (V.demon >= 1 || V.angel >= 1 || V.fallenangel >= 2) {
+		V.specialTransform = 1;
+	} else {
+		V.specialTransform = 0;
+	}
+
 	const transformationParts = [
 		{
-			level: "wolf",
+			nameOveride: "wolf",
+			level: "wolfgirl",
 			build: "wolfbuild",
 			type: "physicalTransform",
 			parts: [
@@ -1717,6 +1731,7 @@ function validateTransformations() {
 			traits: [],
 		},
 	];
+	const confirmedTraits = [];
 	transformationParts.forEach(tf => {
 		const tdLevel = V[tf.level];
 		const name = tf.nameOveride || tf.level;
@@ -1728,9 +1743,10 @@ function validateTransformations() {
 			}
 		});
 		tf.traits.forEach(trait => {
+			if (tdLevel >= trait.tfRequired) confirmedTraits.pushUnique(trait.name);
 			if (tdLevel >= trait.tfRequired && V.transformationParts.traits[trait.name] === "disabled") {
 				V.transformationParts.traits[trait.name] = trait.default || "default";
-			} else if (tdLevel < trait.tfRequired && V.transformationParts.traits[trait.name] !== "disabled") {
+			} else if (tdLevel < trait.tfRequired && V.transformationParts.traits[trait.name] !== "disabled" && !confirmedTraits.includes(trait.name)) {
 				V.transformationParts.traits[trait.name] = "disabled";
 			}
 		});
@@ -1819,26 +1835,6 @@ function outfitHoodPosition(outfit) {
 }
 window.outfitHoodPosition = outfitHoodPosition;
 
-function combatCharacterShadow() {
-	if (!V.options.characterLightEnabled || !V.options.images || !V.options.combatImages) return;
-	const targetClass = "char-shadow-combat";
-	const mainDiv = ".char_combat";
-
-	$(() => {
-		$(mainDiv)
-			.find("img")
-			.filter((i, n) =>
-				n.className.match(new RegExp("layer-(" + setup.shadowImage[V.position === "doggy" ? "doggy" : "missionary"].join("|") + ")( |$)", "i"))
-			)
-			.clone(true)
-			.removeClass((i, n) => (n.match(/(^|\s)(colour|layer)-\S+/g) || []).join(" "))
-			.addClass(targetClass)
-			.removeAttr("style")
-			.appendTo($(mainDiv).last());
-	});
-}
-window.combatCharacterShadow = combatCharacterShadow;
-
 /**
  * For usage with tears calculation, converts pain stat [0..200] to 0..4 range (maxes out at pain = 80).
  *
@@ -1847,15 +1843,6 @@ window.combatCharacterShadow = combatCharacterShadow;
  */
 const painToTearsLvl = pain => Math.floor(Math.clamp(pain || V.pain, 0, 99) / 20);
 window.painToTearsLvl = painToTearsLvl;
-
-/**
- * Get the CSS Name for a mascara colour name.
- *
- * @param {string} name Name of the mascara colour.
- * @returns {string} CSS Name "csstext" of the given colour.
- */
-const mascaraNameToCSS = name => nullable(setup.colours.mascara.find(x => x.variable === name)).csstext;
-window.mascaraNameToCSS = mascaraNameToCSS;
 
 function isPubfameTaskAccepted(task, status) {
 	return V.pubfame && V.pubfame.task === task && (V.pubfame.status === "accepted" || V.pubfame.status === status);
@@ -2335,6 +2322,10 @@ function earSlimeCorruptionClothes() {
 		V.daily.corruptionSlimeClothes = Math.clamp(random(baseCorruption, baseCorruption * 5) - currentSkillValue("willpower"), 0, 1000);
 	}
 	const cap = ["prison", "asylum"].includes(V.location) ? 1000 : 500;
+
+	T.allowSchoolClothes =
+		!!Time.schoolDay || (V.location === "brothel" && Time.weekDay === 6 && V.brothelshowdata?.type === "gangbang" && !V.brothelshowdata?.done);
+
 	return Math.clamp(V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0), 0, cap);
 }
 window.earSlimeCorruptionClothes = earSlimeCorruptionClothes;

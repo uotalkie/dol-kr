@@ -61,7 +61,8 @@ const combatMainPc = {
 				return `${options.root}${frames}f.png`;
 			},
 			showfn(options) {
-				return options.isDebugging;
+				const frames = PlayerCombatMapper.getPcAnimationFrameCount(options);
+				return options.isDebugging && (frames === 2 || frames === 4);
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -618,7 +619,7 @@ const combatMainPc = {
 		},
 		tentacleVaginaCum: {
 			srcfn(options) {
-				return `${options.src}body/vaginal/vaginalcum.png`;
+				return `${options.src}tentacles/vagina-sperm.png`;
 			},
 			showfn(options) {
 				return options.tentacles.vagina.show && V.vaginastate === "tentacledeep";
@@ -723,7 +724,7 @@ const combatMainPc = {
 		frontarm: {
 			srcfn(options) {
 				// Find target of hand if any, if bestial (pig) swap out sprite.
-				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}body/arms/front-${options.armFrontPosition}-bestial.png`;
 				}
 				// Generic position.
@@ -1316,10 +1317,10 @@ const combatMainPc = {
 			z: CombatRenderer.indices.frontFootwear,
 		}),
 		genitals: PlayerCanvasHelper.genClothingLayer("genitals", {
-			z: CombatRenderer.indices.base + 6,
+			z: CombatRenderer.indices.base + 4,
 		}),
 		genitalsAcc: PlayerCanvasHelper.genClothingAccLayer("genitals", {
-			z: CombatRenderer.indices.base + 6,
+			z: CombatRenderer.indices.base + 4,
 		}),
 		handsBack: PlayerCanvasHelper.genClothingLayer("hands", {
 			srcfn(options) {
@@ -1388,7 +1389,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
-				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial.png`;
 				}
 				return `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
@@ -1416,7 +1417,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
-				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial-acc.png`;
 				}
 				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}-acc.png`;

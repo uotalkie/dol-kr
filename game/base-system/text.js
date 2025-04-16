@@ -352,7 +352,7 @@ statDisplay.create("gghunger", () => statDisplay.statChange("배고픔", 2, "red
 statDisplay.create("ggghunger", () => statDisplay.statChange("배고픔", 3, "red"));
 
 statDisplay.create("gacceptance", () => statDisplay.statChange("수용", 1, "green"));
-statDisplay.create("ginsecurity", type => {
+statDisplay.create("ginsecurity", (type, amount) => {
 	// Male players can always gain insecurity when breast size is above 0
 	if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
 
@@ -364,7 +364,7 @@ statDisplay.create("ginsecurity", type => {
 		pregnancy: playerBellySize() >= 8,
 	}[type];
 	if (!insecurityPossible) return "";
-	if (V["acceptance_" + type] <= 999) return statDisplay.statChange("불안감", 1, "red");
+	if (V["acceptance_" + type] <= 999) return statDisplay.statChange("불안감", amount ?? 1, "red");
 	return "";
 });
 

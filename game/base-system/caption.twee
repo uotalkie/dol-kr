@@ -95,10 +95,16 @@
 			<<elseif $lessonmissedtext gte 2>>
 				<span class="pink">어제 $lessonmissedtext개의 수업을 빼먹었다.</span>
 			<</if>>
-			<<if $lessonmissed gte 25>>
+			/* give players a grace period of 2 weeks worth of skipped lessons before penalizing them for not attending the school in case they're stuck in a bad end, and wait a weak before doing that again */
+			<<if $lessonmissed gte 50 && !$truancytimer>>
 				<span class="red">지금까지 수업을 많이 빼먹었다. 당신의 평판이 나빠졌다.</span>
-				<<detention 50>><<gggdelinquency>><<status -5>><<lcool>>
+				<<delinquency 50>><<gggdelinquency>><<status -5>><<lcool>>
+				<<set $truancytimer to 7>>
+			<<elseif $truancytimer>>
+				<<set $truancytimer-->>
 			<</if>>
+			/* don't let $lessonmissed get out of control */
+			<<set $lessonmissed to Math.clamp($lessonmissed, 0, 75)>>
 			<<set $lessonmissedtext to 0>>
 			<br>
 		<</if>>

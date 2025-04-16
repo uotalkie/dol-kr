@@ -11,7 +11,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.3.2",
+	version: "0.5.3.7",
 	versionName: `"Houses Kept, Virginity Sold" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
@@ -35,8 +35,6 @@ if (idb.updateSettings) idb.updateSettings("useDelta", true);
 idb.footerHTML = `<a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Degrees of Lewdity를 지지</a>해 주시는 모든 분들께 특별히 감사드립니다`;
 
 function onLoad(save) {
-	$.event.trigger(":onloadsave", { save });
-
 	// some flags for version update. ideally, all updating should be done here in onLoad, but we don't live in an ideal world
 	pageLoading = true;
 	window.onLoadUpdateCheck = true;
@@ -67,6 +65,7 @@ function onLoad(save) {
 			details.loadCount++;
 		}
 	});
+	$.event.trigger(":onloadsave", { save });
 }
 window.onLoad = onLoad;
 Save.onLoad.add(onLoad);

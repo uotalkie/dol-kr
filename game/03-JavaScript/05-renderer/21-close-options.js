@@ -84,7 +84,7 @@ class CloseCombatMapper {
 		// @ts-ignore
 		CombatRenderer.generateBodyFilters(options);
 
-		options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
+		options.pbhairColour = (V.makeup.pbcolour || V.naturalhaircolour).replace(" ", "");
 		options.filters.pbhair = CombatRenderer.lookupColour(setup.colours.hair_map, options.pbhairColour, "pbhair", "pbhair_custom", "pbhair");
 		options.filters.hirsute = CombatRenderer.getTransformationFilter("wolf", "pubes");
 
@@ -124,7 +124,7 @@ class CloseCombatMapper {
 	 */
 	static mapClosePenetrators(slot, options) {
 		const activeEnemy = V.NPCList[V.active_enemy].type;
-		const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !playerHasStrapon();
+		const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina";
 		const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
 		const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine", "tentacles"].includes(V.enemytype) ? V.enemytype : "npc";
 		options[slot] = {};

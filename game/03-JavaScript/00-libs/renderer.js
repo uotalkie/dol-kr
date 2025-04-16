@@ -655,11 +655,14 @@ var Renderer;
             let finalMask = compositeLayer.mask;
             if (Array.isArray(compositeLayer.mask)) {
                 const combinedCtx = Renderer.createCanvas(image.width, image.height);
-                combinedCtx.fillStyle = '#ffffff';
-                combinedCtx.fillRect(0, 0, image.width, image.height);
+                if (compositeLayer.worn) {
+                    combinedCtx.fillStyle = '#ffffff';
+                    combinedCtx.fillRect(0, 0, image.width, image.height);
+                }
                 compositeLayer.mask.forEach((maskItem, index) => {
                     const offset = compositeLayer.maskOffsets[index] || { x: 0, y: 0 };
-                    combinedCtx.globalCompositeOperation = 'destination-in';
+                    if (compositeLayer.worn)
+                        combinedCtx.globalCompositeOperation = 'destination-in';
                     combinedCtx.drawImage(maskItem, offset.x, offset.y);
                 });
                 finalMask = combinedCtx.canvas;

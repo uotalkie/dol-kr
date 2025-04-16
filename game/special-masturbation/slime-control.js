@@ -74,7 +74,7 @@ function masturbationSlimeControl() {
 
 	if (
 		alternateForcedActions.includes("selfImpreg") ||
-		(V.leftaction === "mdildostop" && V.mouth !== 0 && V.anususe !== 0 && V.vaginause !== 0 && playerToys[V.currentToyRight].type.includes("dildo"))
+		(V.leftaction === "mdildostop" && V.mouth !== 0 && V.anususe !== 0 && V.vaginause !== 0 && playerToys[V.currentToyLeft].type.includes("dildo"))
 	) {
 		// Do nothing
 	} else if (

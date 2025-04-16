@@ -844,26 +844,28 @@ namespace Renderer {
 
 			let finalMask = compositeLayer.mask;
 
-		  if (Array.isArray(compositeLayer.mask)) {
-			const combinedCtx = Renderer.createCanvas(image.width, image.height);
-			combinedCtx.fillStyle = '#ffffff';
-			combinedCtx.fillRect(0, 0, image.width, image.height);
-			compositeLayer.mask.forEach((maskItem, index) => {
-			  const offset = compositeLayer.maskOffsets[index] || { x: 0, y: 0 };
-			  combinedCtx.globalCompositeOperation = 'destination-in';
-		  combinedCtx.drawImage(maskItem, offset.x, offset.y);
+		  	if (Array.isArray(compositeLayer.mask)) {
+				const combinedCtx = Renderer.createCanvas(image.width, image.height);
+				if (compositeLayer.worn) {
+					combinedCtx.fillStyle = '#ffffff';
+					combinedCtx.fillRect(0, 0, image.width, image.height);
+				}
+				compositeLayer.mask.forEach((maskItem, index) => {
+			  		const offset = compositeLayer.maskOffsets[index] || { x: 0, y: 0 };
+			  		if (compositeLayer.worn) combinedCtx.globalCompositeOperation = 'destination-in';
+		  		combinedCtx.drawImage(maskItem, offset.x, offset.y);
 			});
 			finalMask = combinedCtx.canvas;
-		  } else if (compositeLayer.maskOffsets[0]?.x || compositeLayer.maskOffsets[0]?.y) {
-			const offsetCtx = Renderer.createCanvas(image.width, image.height);
-			const offset = compositeLayer.maskOffsets[0] || { x: 0, y: 0 };
-			offsetCtx.drawImage(compositeLayer.mask as CanvasImageSource, offset.x, offset.y);
-			finalMask = offsetCtx.canvas;
-		  }
-		  maskCanvas.globalAlpha = compositeLayer.maskAlpha;
-		  return Renderer.cutoutFrom(maskCanvas, finalMask as CanvasImageSource, compositeLayer.maskBlendMode as GlobalCompositeOperation).canvas;
+		  	} else if (compositeLayer.maskOffsets[0]?.x || compositeLayer.maskOffsets[0]?.y) {
+				const offsetCtx = Renderer.createCanvas(image.width, image.height);
+				const offset = compositeLayer.maskOffsets[0] || { x: 0, y: 0 };
+				offsetCtx.drawImage(compositeLayer.mask as CanvasImageSource, offset.x, offset.y);
+				finalMask = offsetCtx.canvas;
+		  	}
+		  	maskCanvas.globalAlpha = compositeLayer.maskAlpha;
+		  	return Renderer.cutoutFrom(maskCanvas, finalMask as CanvasImageSource, compositeLayer.maskBlendMode as GlobalCompositeOperation).canvas;
 		}
-	  }
+	}
 
 	const RenderingStepCutout: RenderingStep = {
 		name: "cutout",

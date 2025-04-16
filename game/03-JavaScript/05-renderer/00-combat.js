@@ -546,24 +546,61 @@ class CombatSystem {
 			return false;
 		}
 		const npc = V.NPCList[index];
+		if (npc == null) {
+			return false;
+		}
 		return npc.active != null;
 	}
 
 	/**
-	 * @param {Npc} npc
+	 * @param {number} index
 	 * @returns {boolean}
 	 */
-	isNpcWearingCondom(npc) {
-		return wearingCondom(npc.index || 0) !== false;
+	isNpcWearingCondom(index) {
+		return wearingCondom(index || 0) !== false;
 	}
 
 	/**
-	 * @param {Npc} npc
+	 * @param {number} index
 	 * @returns {boolean}
 	 */
-	isNpcCondomDefective(npc) {
-		const state = wearingCondom(npc.index);
+	isNpcCondomDefective(index) {
+		const state = wearingCondom(index);
 		return state && ["defective", "sabotaged"].includes(state);
+	}
+
+	isPcGenitalsVisible() {
+		if (!this.isPcGenitalsExposed()) {
+			return false;
+		}
+
+		if (V.lowerwetstage < 1) {
+			return false;
+		}
+
+		if (V.underlowerwetstage < 1) {
+			return false;
+		}
+
+		return true;
+	}
+
+	isPcGenitalsExposed() {
+		const lowerExposed = V.worn.lower.exposed || 0;
+		if (lowerExposed < 2) {
+			return false;
+		}
+
+		const underLowerExposed = V.worn.under_lower.exposed || 0;
+		if (underLowerExposed < 1) {
+			return false;
+		}
+
+		if (V.worn.legs.state === "waist") {
+			return false;
+		}
+
+		return true;
 	}
 }
 const combat = new CombatSystem();

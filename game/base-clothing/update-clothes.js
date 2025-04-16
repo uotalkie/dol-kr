@@ -101,6 +101,7 @@ function updateClothingColours(item, itemRef) {
 		default:
 			// Catch-all case if people forget to adjust this widget for whatever clothing item is updated. Can make weird looking clothes if "custom" is selected.
 			if (item.colour === 0) item.colour = itemRef.colour_options.random();
+
 			if (item.accessory_colour === 0) item.accessory_colour = itemRef.accessory_colour_options.random();
 	}
 }
@@ -195,7 +196,7 @@ function updateClothesItem(slot, item, debug) {
 	item.accessory_colour = remapColours[item.accessory_colour] || item.accessory_colour;
 	if (
 		((item.colour === 0 || item.colour === "original") && itemRef.colour_options.length > 0) ||
-		(item.accessory_colour === 0 && itemRef.accessory_colour_options.length > 0)
+		(item.accessory_colour === 0 && itemRef.accessory_colour_options?.length > 0)
 	)
 		updateClothingColours(item, itemRef);
 
@@ -301,8 +302,8 @@ function updateClothesItem(slot, item, debug) {
 			item.name_cap = "Foreign football shirt";
 			break;
 		case "football shorts":
-			item.name = "foreign football shorts";
-			item.name_cap = "Foreign football shorts";
+			item.name = item.index === 53 ? "foreign football shorts" : "football shorts";
+			item.name_cap = item.index === 53 ? "Foreign football shorts" : "Football shorts";
 			break;
 		case "football helmet":
 			item.name = "foreign football helmet";
@@ -452,14 +453,14 @@ function wardrobesUpdate() {
 		/* school pool boys */
 		V.wardrobes.schoolBoys.name = "Schools boy's locker";
 		V.wardrobes.schoolBoys.unlocked = true;
-		V.wardrobes.schoolBoys.under_lower.push(setup.clothes.under_lower[7]);
+		V.wardrobes.schoolBoys.under_lower.push(clone(setup.clothes.under_lower[7]));
 		V.wardrobes.schoolBoys.under_lower.last().colour = "blue";
 		/* school pool girls */
 		V.wardrobes.schoolGirls.name = "Schools girl's locker";
 		V.wardrobes.schoolGirls.unlocked = true;
-		V.wardrobes.schoolGirls.under_lower.push(setup.clothes.under_lower[6]);
+		V.wardrobes.schoolGirls.under_lower.push(clone(setup.clothes.under_lower[6]));
 		V.wardrobes.schoolGirls.under_lower.last().colour = "blue";
-		V.wardrobes.schoolGirls.under_upper.push(setup.clothes.under_upper[2]);
+		V.wardrobes.schoolGirls.under_upper.push(clone(setup.clothes.under_upper[2]));
 		V.wardrobes.schoolGirls.under_upper.last().colour = "blue";
 		/* prison */
 		V.wardrobes.prison.name = "Prison locker";

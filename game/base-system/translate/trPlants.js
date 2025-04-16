@@ -5,6 +5,7 @@ function trPlants(plantname, type, post, sep)
 
 	if (!type) type = "";
 	
+	plantname = plantname.toLowerCase();
     let trTemp = setup.trPlants.nameIndex[plantname];
 
     if (!trTemp)

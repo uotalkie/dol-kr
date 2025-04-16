@@ -1812,6 +1812,21 @@
        + <<charlesPost>>와 용도 및 방식 같음. 생략
     ```
 
+   ```
+    <<recipe_namePost>>
+        <<recipe_namePost recipe_name difficulty post "sep">>
+
+       <<recipe_name>>의 대체 위젯. 조사를 붙일 수 있다.
+        
+        선택사항
+            - difficulty: 원본의 인수. 난이도에 따라 색을 입힐 수 있다.
+            - post: 번역결과의 뒤에 조사를 붙인다.
+            - sep: 조사를 분리하여 저장한다.
+
+        e.g.
+        <<changingRoomGenderPost "을">>               // 남학생들을
+    ```
+
 
 * outfitNamePost
     ```
@@ -3295,7 +3310,7 @@
 		<<handtool_ (조사)>>, <<lefttool_ (조사)>>, <<righttool_ (조사)>>, <<pcpetname_ (조사)>>, <<pcPetname_ (조사)>>, 
 		<<struggle_appendage_ (조사)>>, <<plant_details_ (조사)>>, <<Plant_details_ (조사)>>, <<tower_creature_text_ (조사)>>, <<pound_text_ (조사)>>,
 		<<kylar_pet_name_ (조사)>>, <<virgin_ (조사)>>, <<Ladies_gentlemen_ (조사)>>, <<getfluidsfromgroup_ (조사)>>, <<condomDesc_ (조사)>>, <<office_manager_ (조사)>>, <<temple_title_ (조사)>>, <<temple_Title_ (조사)>>, <<changingRoomGender_ (조사)>>,
-		<<your_bird_text_ (조사)>>, 
+		<<your_bird_text_ (조사)>>, <<recipe_name_ (조사)>>,
 		```
 	
 	- outfitNamePost 계열

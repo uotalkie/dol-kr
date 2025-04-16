@@ -209,7 +209,28 @@ class NpcCombatMapper {
 			show: false,
 			amount: V.enemyarousal >= (V.enemyarousalmax / 5) * 3 ? 2 : 1,
 		};
-		options.tongue.show = typeof npc.mouth === "string" && ["mouth", "kiss", "kissentrance", "kissimminent", "anus", "anusentrance", "anusimminent", "vagina", "vaginaentrance", "vaginaimminent", "penis", "penisentrance", "penisimminent"].includes(npc.mouth);
+		options.tongue.show =
+			typeof npc.mouth === "string" &&
+			[
+				"mouth",
+				"kiss",
+				"kissentrance",
+				"kissimminent",
+				"anus",
+				"anusentrance",
+				"anusimminent",
+				"vagina",
+				"vaginaentrance",
+				"vaginaimminent",
+				"penis",
+				"penisentrance",
+				"penisimminent",
+			].includes(npc.mouth);
+
+		if (typeof npc.mouth === "string" && ["penis", "penisentrance", "penisimminent"].includes(npc.mouth) && !combat.isPcGenitalsExposed()) {
+			options.tongue.show = false;
+		}
+
 		options.tongue.position = typeof npc.mouth === "string" ? npc.mouth : null;
 		options.penetrators = options.penetrators = [];
 
@@ -242,9 +263,15 @@ class NpcCombatMapper {
 
 			// Figure out whether to show the shadow man or not:
 			options.show = penetrator.position != null && ["vagina", "anus", "mouth"].includes(penetrator.position);
+
+			// Add exclusion for mouth-entrance.
+			if (penetrator.position === "mouth" && penetrator.state === "entrance") {
+				options.show = false;
+				penetrator.show = false;
+			}
 		}
 
-		NpcCombatMapper.mapNpcTypeToOptions(options, npc, penetrator);
+		NpcCombatMapper.mapNpcTypeToOptions(options, index, npc, penetrator);
 
 		// If beast, return for now.
 		if (options.category === "beast") {
@@ -253,15 +280,15 @@ class NpcCombatMapper {
 
 		// Figure out whether the NPC is riding the PC, prepare for combat retardation
 		if (V.penisuse === "otheranus" && V.penistarget === index) {
-			options.show = false;
+			options.show = true;
 			options.state = "penis";
 		}
 		if (V.penisuse === "otherpenis" && V.penistarget === index) {
 			options.show = false;
-			options.state = "penis";
+			options.state = "frotting"; // ? (Not in use)
 		}
 		if (V.penisuse === "othervagina" && V.penistarget === index) {
-			options.show = false;
+			options.show = true;
 			options.state = "penis";
 		}
 
@@ -278,7 +305,7 @@ class NpcCombatMapper {
 			options.show = true;
 		}
 
-		if (options.category !== "shadow" && ["penis", "penisimminent", "penisentrace"].includes(npc.vagina)) {
+		if (options.category !== "shadow" && ["penis", "penisimminent", "penisentrance"].includes(npc.vagina)) {
 			options.state = "penis";
 			options.show = true;
 		}
@@ -510,14 +537,15 @@ class NpcCombatMapper {
 	}
 
 	/**
+	 * @param {number} index
 	 * @param {Npc} npc
 	 * @returns {boolean}
 	 */
-	static isUnderPositioned(npc) {
-		if (V.penisuse === "othervagina" && V.penistarget === npc.index) {
+	static isUnderPositioned(index, npc) {
+		if (V.penisuse === "othervagina" && V.penistarget === index) {
 			return true;
 		}
-		if (V.penisuse === "otheranus" && V.penistarget === npc.index) {
+		if (V.penisuse === "otheranus" && V.penistarget === index) {
 			return true;
 		}
 		return false;
@@ -540,11 +568,12 @@ class NpcCombatMapper {
 
 	/**
 	 * @param {NpcOptions} options
+	 * @param {number} index
 	 * @param {Npc} npc
 	 * @param {Penetrator?} penetrator
 	 * @returns {NpcOptions}
 	 */
-	static mapNpcTypeToOptions(options, npc, penetrator) {
+	static mapNpcTypeToOptions(options, index, npc, penetrator) {
 		const configurations = NpcCombatMapper.getNpcBeastTypeConfigurations();
 		const configuration = configurations[npc.type];
 
@@ -564,7 +593,7 @@ class NpcCombatMapper {
 			return options;
 		}
 
-		if (NpcCombatMapper.hasUnderSprite(options.position, configuration) && NpcCombatMapper.isUnderPositioned(npc)) {
+		if (NpcCombatMapper.hasUnderSprite(options.position, configuration) && NpcCombatMapper.isUnderPositioned(index, npc)) {
 			options.show = true;
 			options.state = "under";
 			return options;
@@ -638,6 +667,12 @@ class NpcCombatMapper {
 				case "red":
 					return {
 						blend: "#f53d43",
+						blendMode: "multiply",
+						desaturate: true,
+					};
+				case "dark red":
+					return {
+						blend: "#b50202",
 						blendMode: "multiply",
 						desaturate: true,
 					};

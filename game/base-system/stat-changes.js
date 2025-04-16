@@ -1224,7 +1224,7 @@ const statChange = (() => {
 
 		// Attempted to start tracking, but the previous tracking wasn't stopped
 		if (lastBadEnd && !lastBadEnd.trackedEnd) {
-			badEndTracking(lastBadEnd.source, {
+			badEndTrackingEnd(lastBadEnd.source, {
 				reason: "unknown",
 				notes: `아마 에러로 인하여, ${V.passage} 경로에서 추적되지 않음`,
 			});

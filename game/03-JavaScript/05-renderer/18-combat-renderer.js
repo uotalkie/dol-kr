@@ -59,9 +59,9 @@
  * @property {83} frontHorns
  * @property {82} frontEars
  * @property {40} frontTail
- * @property {80} frontEyes
- * @property {80} frontCheeks
- * @property {80} frontMalar
+ * @property {73} frontEyes
+ * @property {73} frontCheeks
+ * @property {73} frontMalar
  * @property {50} frontPubes
  * @property {50} frontPits
  * @property {50} frontPlumage
@@ -207,9 +207,9 @@ class CombatRenderer {
 			frontEars: 82,
 			frontTail: 40,
 
-			frontEyes: 80,
-			frontCheeks: 80,
-			frontMalar: 80,
+			frontEyes: 73,
+			frontCheeks: 73,
+			frontMalar: 73,
 			frontPlumage: 50,
 			frontPubes: 50,
 			frontPits: 50,
@@ -384,7 +384,7 @@ class CombatRenderer {
 	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
-		const combatHair = CombatRenderer.getHairGradientType(hairType);
+		const combatHair = CombatRenderer.getHairGradientType(hairType, gradient);
 		const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
 		const filterPrototype = filterPrototypeLibrary[combatHair] || filterPrototypeLibrary.all;
 		/** @type {Partial<CompositeLayerSpec>} */
@@ -425,7 +425,7 @@ class CombatRenderer {
 	 * @param {CombatPlayerOptions} options
 	 */
 	static generateBodyFilters(options) {
-		options.skinType = V.player.skin.color;
+		options.skinType = Skin.color.natural;
 		options.skinTone = options.skinType !== "custom" ? Skin.color.tan : 0;
 
 		const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
@@ -506,6 +506,10 @@ class CombatRenderer {
 		}
 		const setupCategory = setup.clothes[slot];
 		const defaults = setupCategory == null ? CombatRenderer.emptyClothing : setupCategory[active.index];
+		if (defaults == null) {
+			// Player likely used a modded item ported back to vanilla.
+			return CombatRenderer.emptyClothing;
+		}
 		const combat = Object.assign({}, defaults.combat, active.combat);
 		const result = Object.assign({}, defaults, active);
 		result.combat = combat;
@@ -652,13 +656,63 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
 		}
 		if (["wide flaps", "hime", "curtain", "mohawk"].includes(V.fringetype)) {
+			return this.getFringeFilter();
+		}
+		if (V.hairColourGradient.style === "split") {
+			const index = V.position === "missionary" ? 0 : 1;
+			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[index], "hair", "hair_custom", "hair");
+		}
+		return CombatRenderer.createHairColourGradient(
+			"sides",
+			V.hairColourGradient,
+			CombatRenderer.getHairSideType(),
+			hairLengthStringToNumber(V.hairlengthstage),
+			"hair"
+		);
+	}
+
+	/** @returns {string} */
+	static getHairLength() {
+		if (["wide flaps", "hime", "curtain", "mohawk"].includes(V.fringetype)) {
+			return V.fringelengthstage;
+		}
+		return V.hairlengthstage;
+	}
+
+	/**
+	 * @param {TransformationParts} part
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static getPartFilter(part) {
+		if (V.hairColourStyle === "simple") {
+			return CombatRenderer.lookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
+		}
+		if (V.hairColourGradient.style === "split") {
+			if (["tail", "pubes"].includes(part) || (["wings", "ears"].includes(part) && CombatRenderer.getPosition(V.position) === "missionary")) {
+				return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[0], "hair", "hair_custom", "hair");
+			}
+			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[1], "hair", "hair_custom", "hair");
+		}
+		if (V.hairColourGradient.style === "high-ombre") {
+			if (["tail", "pubes", "wings"].includes(part)) {
+				return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[0], "hair", "hair_custom", "hair");
+			}
+			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[1], "hair", "hair_custom", "hair");
+		}
+		if (V.hairColourGradient.style === "low-ombre") {
+			if (["tail"].includes(part)) {
+				return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[0], "hair", "hair_custom", "hair");
+			}
 			return CombatRenderer.createHairColourGradient(
-				"fringe",
-				V.hairFringeColourGradient,
-				CombatRenderer.getHairFringeType(),
-				hairLengthStringToNumber(V.fringelengthstage),
+				"sides",
+				V.hairColourGradient,
+				CombatRenderer.getHairSideType(),
+				hairLengthStringToNumber(V.hairlengthstage),
 				"hair"
 			);
+		}
+		if (V.hairColourGradient.style === "face-frame") {
+			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairColourGradient.colours[1], "hair", "hair_custom", "hair");
 		}
 		return CombatRenderer.createHairColourGradient(
 			"sides",
@@ -676,19 +730,26 @@ class CombatRenderer {
 		if (V.hairFringeColourStyle === "simple") {
 			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairfringecolour || V.haircolour, "hair_fringe", "hair_fringe_custom", "hair_fringe");
 		}
+		if (V.hairFringeColourGradient.style === "split" && this.getFringeType() !== "mohawk") {
+			const index = V.position === "missionary" ? 0 : 1;
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				V.hairFringeColourGradient.colours[index],
+				"hair_fringe",
+				"hair_fringe_custom",
+				"hair_fringe"
+			);
+		}
 		return CombatRenderer.createHairColourGradient(
 			"fringe",
 			V.hairFringeColourGradient || V.hairColourGradient,
 			CombatRenderer.getHairFringeType(),
 			hairLengthStringToNumber(V.fringelengthstage),
-			"fringe"
+			"hair"
 		);
 	}
 
 	static getFringeType() {
-		if (V.hairtype === "short") {
-			return "short";
-		}
 		if (V.fringetype === "wide flaps") {
 			return "wide-flaps";
 		}
@@ -707,17 +768,21 @@ class CombatRenderer {
 		if (V.hairtype === "layered bob") {
 			return "layered-bob";
 		}
+		if (["shaved", "short"].includes(V.hairtype) || (V.hairtype === "default" && V.hairlengthstage === "short")) {
+			return "short";
+		}
 		return "default";
 	}
 
 	/**
 	 * @param {string} hairType
+	 * @param {Gradient} gradient
 	 */
-	static getHairGradientType(hairType) {
+	static getHairGradientType(hairType, gradient) {
 		if (V.fringetype === "mohawk") {
 			return V.position === "missionary" ? "combatMohawk" : "combatMohawkDoggy";
 		}
-		return hairType;
+		return V.position === "missionary" ? "combatMissionary" : "combatDoggy";
 	}
 
 	/**
@@ -731,13 +796,13 @@ class CombatRenderer {
 			colour: { h: 0, s: 100, l: 30 },
 		};
 		if (transformation === "bird" && ["tail", "wings", "malar", "plumage", "pubes"].includes(part)) {
-			return CombatRenderer.getHairFilter();
+			return CombatRenderer.getPartFilter(part);
 		}
 		if (["cat", "wolf"].includes(transformation) && ["ears", "tail", "pubes", "pits"].includes(part)) {
-			return CombatRenderer.getHairFilter();
+			return CombatRenderer.getPartFilter(part);
 		}
 		if (transformation === "fox" && ["ears", "tail", "cheeks", "pubes"].includes(part)) {
-			return CombatRenderer.getHairFilter();
+			return CombatRenderer.getPartFilter(part);
 		}
 		// No filter possible as part(s) cannot be recoloured
 		if (
@@ -760,21 +825,31 @@ class CombatRenderer {
 	 * @returns {boolean}
 	 */
 	static isPenileReceptorActive() {
+		// PC penetrating NPC vagina
+		if (V.penisuse === "othervagina" && V.penisstate === "penetrated") {
+			return true;
+		}
+		// PC penetrating NPC anus
+		if (V.penisuse === "otheranus" && V.penisstate === "penetrated") {
+			return true;
+		}
 		if (V.penisstate === "othermouth") {
 			return true;
 		}
-		if (V.enemytype === "beast") {
-			return false;
-		}
-		const result = V.penisstate && ["penetrated", "otheranus"].includes(V.penisstate);
-		return !!result;
+		return false;
 	}
 
 	static isPenileReceptorEjaculationActive() {
-		if (!this.isPenileReceptorActive()) {
+		if (!CombatRenderer.isPenileReceptorActive()) {
 			return false;
 		}
-		return V.orgasmdown >= 1 && V.orgasmcount <= 24 && V.femaleclimax !== 1 && wearingCondom("player") !== "worn" && !playerHasStrapon();
+		if (playerHasStrapon()) {
+			return false;
+		}
+		if (wearingCondom("player") === "worn") {
+			return false;
+		}
+		return V.orgasmdown >= 1 && V.orgasmcount < 25 && V.femaleclimax !== 1;
 	}
 
 	/**

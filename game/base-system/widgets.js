@@ -395,6 +395,7 @@ DefineMacro("exposedcheck", exposedcheck);
 
 /* Checks if bodywriting or tattoos are visible to NPCs. */
 function bodywritingExposureCheck(overwrite, skipRng) {
+	window.outfitChecks();
 	if (!T.skin_array || overwrite) {
 		T.visible_areas = ["forehead"];
 		T.bodywriting_exposed = 0;
@@ -424,7 +425,12 @@ function bodywritingExposureCheck(overwrite, skipRng) {
 		) {
 			T.visible_areas.push("left_bottom", "right_bottom");
 		}
-		if (V.worn.over_lower.exposed >= 1 && V.worn.lower.exposed >= 1 && (V.worn.under_lower.exposed >= 1 || !V.worn.under_lower.type.includes("covered"))) {
+		if (
+			V.worn.over_lower.exposed >= 1 &&
+			V.worn.lower.exposed >= 1 &&
+			!T.underOutfit &&
+			(V.worn.under_lower.exposed >= 1 || !V.worn.under_lower.type.includes("covered"))
+		) {
 			T.visible_areas.push("pubic");
 		}
 		if (V.worn.over_lower.vagina_exposed >= 1 && V.worn.lower.vagina_exposed >= 1 && !V.worn.under_lower.type.includes("covered")) {
