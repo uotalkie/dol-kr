@@ -309,7 +309,7 @@
     <<beasttypePost>>
         <<beasttypePost [num] post "sep">>
 
-            <<beasttype>>의 대체 위젯. 조사를 붙일 수 있다.
+            <<beasttype>>의 대체 위젯. 조사를 붙일 수 있다. <<beasttypesPost>>로도 사용가능.
         
 
             선택사항
