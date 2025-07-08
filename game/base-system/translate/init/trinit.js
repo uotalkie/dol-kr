@@ -351,7 +351,7 @@ function trinit_namedNPC()
             {
                 name:"lew",
                 title:"---",
-                koname:"류",
+                koname:"루",
                 kotitle:"---",
                 post:1,
                 titlepost:1
